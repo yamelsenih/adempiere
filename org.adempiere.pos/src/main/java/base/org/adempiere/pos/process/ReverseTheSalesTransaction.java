@@ -221,7 +221,7 @@ public class ReverseTheSalesTransaction extends ReverseTheSalesTransactionAbstra
     }
 
     public int getRMATypeId() {
-        return new Query(getCtx(), X_M_RMAType.Table_Name , null , get_TrxName()).setClient_ID().firstIdOnly();
+        return new Query(getCtx(), X_M_RMAType.Table_Name , null , get_TrxName()).setClient_ID().firstId();
     }
 
     public List<MInvoice> getCreditNotes(int Id)
