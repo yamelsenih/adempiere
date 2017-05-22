@@ -87,7 +87,7 @@ public final class Fact
 	private boolean		    m_converted = false;
 
 	/** Lines               */
-	private ArrayList<FactLine>	m_lines = new ArrayList<FactLine>();
+	private ArrayList<FactLine>	m_lines = new ArrayList<>();
 
 
 	/**
@@ -728,7 +728,8 @@ public final class Fact
 					MDistributionLine distributionLine = distributionLines.stream().findFirst().get();
 					if (distributionLine.isOverwritePostingType()
 							&& distributionLine.getPostingType() != null
-							&& !distribution.getPostingType().equals(distributionLine.getPostingType())
+							&& (distribution.getPostingType() != null && distributionLine.getPostingType() != null
+							&& !distribution.getPostingType().equals(distributionLine.getPostingType()))
 							&& distributionLine.getPercent().doubleValue() == 0)
 						;
 					else {
@@ -744,12 +745,43 @@ public final class Fact
 			distribution.distribute(factLineSource.getAccount(), factLineSource.getSourceBalance(), factLineSource.getQty(), factLineSource.getC_Currency_ID(),m_doc.getAmount().signum());
 			for (MDistributionLine distributionLine : distributionLines)
 			{
-				//if (!distributionLine.isActive() /*|| distributionLine.getAmt().signum() == 0*/)
-				//	continue;
 				FactLine factLine = new FactLine (m_doc.getCtx(), m_doc.get_Table_ID(), m_doc.get_ID(), 0, m_trxName);
 				//  Set Info & Account
 				factLine.setDocumentInfo(m_doc, factLineSource.getDocLine());
 				factLine.setAccount(m_acctSchema, distributionLine.getAccount());
+				if (factLine.getLine_ID() <= 0 && factLineSource.getLine_ID() > 0)
+					factLine.setLine_ID(factLineSource.getLine_ID());
+				if (factLine.getAD_OrgTrx_ID() <= 0 && factLineSource.getAD_OrgTrx_ID() > 0)
+					factLine.setAD_OrgTrx_ID(factLineSource.getAD_OrgTrx_ID());
+				if (factLine.getC_Campaign_ID() <= 0 && factLineSource.getC_Campaign_ID() > 0)
+					factLine.setC_Campaign_ID(factLineSource.getC_Campaign_ID());
+				if (factLine.getC_Project_ID() <= 0 && factLineSource.getC_Project_ID() > 0)
+					factLine.setC_Project_ID(factLineSource.getC_Project_ID());
+				if (factLine.getC_ProjectPhase_ID() <= 0 && factLineSource.getC_ProjectPhase_ID() > 0)
+					factLine.setC_ProjectPhase_ID(factLineSource.getC_ProjectPhase_ID());
+				if (factLine.getC_ProjectTask_ID() <= 0 && factLineSource.getC_ProjectTask_ID() > 0)
+					factLine.setC_ProjectTask_ID(factLineSource.getC_ProjectTask_ID());
+				if (factLine.getC_Activity_ID() <= 0 && factLineSource.getC_Activity_ID() > 0)
+					factLine.setC_Activity_ID(factLineSource.getC_Activity_ID());
+				if (factLine.getC_SalesRegion_ID() <= 0 && factLineSource.getC_SalesRegion_ID() > 0)
+					factLine.setC_SalesRegion_ID(factLineSource.getC_SalesRegion_ID());
+				if (factLine.getUser1_ID() <= 0 && factLineSource.getUser1_ID() > 0 )
+					factLine.setUser1_ID(factLineSource.getUser1_ID());
+				if (factLine.getUser2_ID() <= 0 && factLineSource.getUser2_ID() > 0 )
+					factLine.setUser2_ID(factLineSource.getUser2_ID());
+				if (factLine.getUser3_ID() <= 0 && factLineSource.getUser3_ID() > 0)
+					factLine.setUser3_ID(factLineSource.getUser3_ID());
+				if (factLine.getUser4_ID() <= 0 && factLineSource.getUser4_ID() > 0)
+					factLine.setUser4_ID(factLineSource.getUser4_ID());
+				if (factLine.getUserElement1_ID() <= 0 && factLineSource.getUserElement1_ID() > 0)
+					factLine.setUserElement1_ID(factLineSource.getUserElement1_ID());
+				if (factLine.getUserElement2_ID() <= 0 && factLineSource.getUserElement2_ID() > 0)
+					factLine.setUserElement2_ID(factLineSource.getUserElement2_ID());
+				if (factLine.getC_LocFrom_ID() <= 0 && factLineSource.getC_LocFrom_ID() > 0)
+					factLine.setC_LocFrom_ID(factLineSource.getC_LocFrom_ID());
+				if (factLine.getC_LocTo_ID() <= 0 && factLineSource.getC_LocTo_ID() > 0)
+					factLine.setC_LocTo_ID(factLineSource.getC_LocTo_ID());
+
 				factLine.setPostingType(m_postingType);
 				if (distributionLine.isOverwritePostingType()
 						&& distributionLine.getPostingType() != null
