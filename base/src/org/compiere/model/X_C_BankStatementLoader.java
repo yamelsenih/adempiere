@@ -31,7 +31,7 @@ public class X_C_BankStatementLoader extends PO implements I_C_BankStatementLoad
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20170407L;
+	private static final long serialVersionUID = 20170731L;
 
     /** Standard Constructor */
     public X_C_BankStatementLoader (Properties ctx, int C_BankStatementLoader_ID, String trxName)
@@ -425,6 +425,23 @@ public class X_C_BankStatementLoader extends PO implements I_C_BankStatementLoad
 	public String getStmtLoaderClass () 
 	{
 		return (String)get_Value(COLUMNNAME_StmtLoaderClass);
+	}
+
+	/** Set Immutable Universally Unique Identifier.
+		@param UUID 
+		Immutable Universally Unique Identifier
+	  */
+	public void setUUID (String UUID)
+	{
+		set_Value (COLUMNNAME_UUID, UUID);
+	}
+
+	/** Get Immutable Universally Unique Identifier.
+		@return Immutable Universally Unique Identifier
+	  */
+	public String getUUID () 
+	{
+		return (String)get_Value(COLUMNNAME_UUID);
 	}
 
 	/** Set User ID.

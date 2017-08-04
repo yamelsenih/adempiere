@@ -30,7 +30,7 @@ public class X_PA_ReportSource extends PO implements I_PA_ReportSource, I_Persis
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20170509L;
+	private static final long serialVersionUID = 20170731L;
 
     /** Standard Constructor */
     public X_PA_ReportSource (Properties ctx, int PA_ReportSource_ID, String trxName)
@@ -373,16 +373,16 @@ public class X_PA_ReportSource extends PO implements I_PA_ReportSource, I_Persis
 	public static final String ELEMENTTYPE_UserList1 = "U1";
 	/** User List 2 = U2 */
 	public static final String ELEMENTTYPE_UserList2 = "U2";
-	/** User List 1 = U1 */
-	public static final String ELEMENTTYPE_UserList3 = "U3";
-	/** User List 2 = U2 */
-	public static final String ELEMENTTYPE_UserList4 = "U4";
 	/** User Element 1 = X1 */
 	public static final String ELEMENTTYPE_UserElement1 = "X1";
 	/** User Element 2 = X2 */
 	public static final String ELEMENTTYPE_UserElement2 = "X2";
 	/** Combination = CO */
 	public static final String ELEMENTTYPE_Combination = "CO";
+	/** User List 3 = U3 */
+	public static final String ELEMENTTYPE_UserList3 = "U3";
+	/** User List 4 = U4 */
+	public static final String ELEMENTTYPE_UserList4 = "U4";
 	/** Set Type.
 		@param ElementType 
 		Element Type (account or user defined)
@@ -841,6 +841,54 @@ public class X_PA_ReportSource extends PO implements I_PA_ReportSource, I_Persis
 		return false;
 	}
 
+	/** Set Include Nulls in User List 3.
+		@param IsIncludeNullsUserList3 
+		Include nulls in the selection of the User List 3
+	  */
+	public void setIsIncludeNullsUserList3 (boolean IsIncludeNullsUserList3)
+	{
+		set_Value (COLUMNNAME_IsIncludeNullsUserList3, Boolean.valueOf(IsIncludeNullsUserList3));
+	}
+
+	/** Get Include Nulls in User List 3.
+		@return Include nulls in the selection of the User List 3
+	  */
+	public boolean isIncludeNullsUserList3 () 
+	{
+		Object oo = get_Value(COLUMNNAME_IsIncludeNullsUserList3);
+		if (oo != null) 
+		{
+			 if (oo instanceof Boolean) 
+				 return ((Boolean)oo).booleanValue(); 
+			return "Y".equals(oo);
+		}
+		return false;
+	}
+
+	/** Set Include Nulls in User List 4.
+		@param IsIncludeNullsUserList4 
+		Include nulls in the selection of the User List 4
+	  */
+	public void setIsIncludeNullsUserList4 (boolean IsIncludeNullsUserList4)
+	{
+		set_Value (COLUMNNAME_IsIncludeNullsUserList4, Boolean.valueOf(IsIncludeNullsUserList4));
+	}
+
+	/** Get Include Nulls in User List 4.
+		@return Include nulls in the selection of the User List 4
+	  */
+	public boolean isIncludeNullsUserList4 () 
+	{
+		Object oo = get_Value(COLUMNNAME_IsIncludeNullsUserList4);
+		if (oo != null) 
+		{
+			 if (oo instanceof Boolean) 
+				 return ((Boolean)oo).booleanValue(); 
+			return "Y".equals(oo);
+		}
+		return false;
+	}
+
 	/** Set List Sources.
 		@param ListSources 
 		List Report Line Sources
@@ -1014,6 +1062,23 @@ public class X_PA_ReportSource extends PO implements I_PA_ReportSource, I_Persis
 		if (ii == null)
 			 return 0;
 		return ii.intValue();
+	}
+
+	/** Set Immutable Universally Unique Identifier.
+		@param UUID 
+		Immutable Universally Unique Identifier
+	  */
+	public void setUUID (String UUID)
+	{
+		set_Value (COLUMNNAME_UUID, UUID);
+	}
+
+	/** Get Immutable Universally Unique Identifier.
+		@return Immutable Universally Unique Identifier
+	  */
+	public String getUUID () 
+	{
+		return (String)get_Value(COLUMNNAME_UUID);
 	}
 
 	public org.compiere.model.I_C_ElementValue getUser1() throws RuntimeException

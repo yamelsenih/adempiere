@@ -30,7 +30,7 @@ public class X_M_SerNoCtl extends PO implements I_M_SerNoCtl, I_Persistent
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20170407L;
+	private static final long serialVersionUID = 20170731L;
 
     /** Standard Constructor */
     public X_M_SerNoCtl (Properties ctx, int M_SerNoCtl_ID, String trxName)
@@ -234,5 +234,22 @@ public class X_M_SerNoCtl extends PO implements I_M_SerNoCtl, I_Persistent
 	public String getSuffix () 
 	{
 		return (String)get_Value(COLUMNNAME_Suffix);
+	}
+
+	/** Set Immutable Universally Unique Identifier.
+		@param UUID 
+		Immutable Universally Unique Identifier
+	  */
+	public void setUUID (String UUID)
+	{
+		set_Value (COLUMNNAME_UUID, UUID);
+	}
+
+	/** Get Immutable Universally Unique Identifier.
+		@return Immutable Universally Unique Identifier
+	  */
+	public String getUUID () 
+	{
+		return (String)get_Value(COLUMNNAME_UUID);
 	}
 }

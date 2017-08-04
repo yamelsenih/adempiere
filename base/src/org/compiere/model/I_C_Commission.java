@@ -92,6 +92,17 @@ public interface I_C_Commission
 
 	public org.compiere.model.I_C_Charge getC_Charge() throws RuntimeException;
 
+    /** Column name C_CommissionGroup_ID */
+    public static final String COLUMNNAME_C_CommissionGroup_ID = "C_CommissionGroup_ID";
+
+	/** Set Commission Group	  */
+	public void setC_CommissionGroup_ID (int C_CommissionGroup_ID);
+
+	/** Get Commission Group	  */
+	public int getC_CommissionGroup_ID();
+
+	public org.compiere.model.I_C_CommissionGroup getC_CommissionGroup() throws RuntimeException;
+
     /** Column name C_Commission_ID */
     public static final String COLUMNNAME_C_Commission_ID = "C_Commission_ID";
 
@@ -214,6 +225,32 @@ public interface I_C_Commission
 	  */
 	public boolean isActive();
 
+    /** Column name IsAllowRMA */
+    public static final String COLUMNNAME_IsAllowRMA = "IsAllowRMA";
+
+	/** Set Allow RMA.
+	  * Allow to consider RMA
+	  */
+	public void setIsAllowRMA (boolean IsAllowRMA);
+
+	/** Get Allow RMA.
+	  * Allow to consider RMA
+	  */
+	public boolean isAllowRMA();
+
+    /** Column name IsTotallyPaid */
+    public static final String COLUMNNAME_IsTotallyPaid = "IsTotallyPaid";
+
+	/** Set Paid totally.
+	  * The document is totally paid
+	  */
+	public void setIsTotallyPaid (boolean IsTotallyPaid);
+
+	/** Get Paid totally.
+	  * The document is totally paid
+	  */
+	public boolean isTotallyPaid();
+
     /** Column name ListDetails */
     public static final String COLUMNNAME_ListDetails = "ListDetails";
 
@@ -248,6 +285,19 @@ public interface I_C_Commission
 
 	/** Get Process Now	  */
 	public boolean isProcessing();
+
+    /** Column name UUID */
+    public static final String COLUMNNAME_UUID = "UUID";
+
+	/** Set Immutable Universally Unique Identifier.
+	  * Immutable Universally Unique Identifier
+	  */
+	public void setUUID (String UUID);
+
+	/** Get Immutable Universally Unique Identifier.
+	  * Immutable Universally Unique Identifier
+	  */
+	public String getUUID();
 
     /** Column name Updated */
     public static final String COLUMNNAME_Updated = "Updated";

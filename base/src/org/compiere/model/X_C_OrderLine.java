@@ -33,7 +33,7 @@ public class X_C_OrderLine extends PO implements I_C_OrderLine, I_Persistent
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20170407L;
+	private static final long serialVersionUID = 20170731L;
 
     /** Standard Constructor */
     public X_C_OrderLine (Properties ctx, int C_OrderLine_ID, String trxName)
@@ -510,6 +510,23 @@ public class X_C_OrderLine extends PO implements I_C_OrderLine, I_Persistent
 	public String getCreateFrom () 
 	{
 		return (String)get_Value(COLUMNNAME_CreateFrom);
+	}
+
+	/** Set Create Shipment.
+		@param CreateShipment 
+		Create Shipment From Order Line
+	  */
+	public void setCreateShipment (String CreateShipment)
+	{
+		set_Value (COLUMNNAME_CreateShipment, CreateShipment);
+	}
+
+	/** Get Create Shipment.
+		@return Create Shipment From Order Line
+	  */
+	public String getCreateShipment () 
+	{
+		return (String)get_Value(COLUMNNAME_CreateShipment);
 	}
 
 	/** Set Date Delivered.
@@ -1292,6 +1309,23 @@ public class X_C_OrderLine extends PO implements I_C_OrderLine, I_Persistent
 		return ii.intValue();
 	}
 
+	/** Set Immutable Universally Unique Identifier.
+		@param UUID 
+		Immutable Universally Unique Identifier
+	  */
+	public void setUUID (String UUID)
+	{
+		set_Value (COLUMNNAME_UUID, UUID);
+	}
+
+	/** Get Immutable Universally Unique Identifier.
+		@return Immutable Universally Unique Identifier
+	  */
+	public String getUUID () 
+	{
+		return (String)get_Value(COLUMNNAME_UUID);
+	}
+
 	public org.compiere.model.I_C_ElementValue getUser1() throws RuntimeException
     {
 		return (org.compiere.model.I_C_ElementValue)MTable.get(getCtx(), org.compiere.model.I_C_ElementValue.Table_Name)
@@ -1402,19 +1436,5 @@ public class X_C_OrderLine extends PO implements I_C_OrderLine, I_Persistent
 		if (ii == null)
 			 return 0;
 		return ii.intValue();
-	}
-
-	/** Set createshipment.
-		@param createshipment createshipment	  */
-	public void setcreateshipment (String createshipment)
-	{
-		set_Value (COLUMNNAME_createshipment, createshipment);
-	}
-
-	/** Get createshipment.
-		@return createshipment	  */
-	public String getcreateshipment () 
-	{
-		return (String)get_Value(COLUMNNAME_createshipment);
 	}
 }

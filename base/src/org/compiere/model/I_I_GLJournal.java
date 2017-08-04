@@ -129,6 +129,19 @@ public interface I_I_GLJournal
 	  */
 	public String getAcctSchemaName();
 
+    /** Column name Alias */
+    public static final String COLUMNNAME_Alias = "Alias";
+
+	/** Set Alias.
+	  * Defines an alternate method of indicating an account combination.
+	  */
+	public void setAlias (String Alias);
+
+	/** Get Alias.
+	  * Defines an alternate method of indicating an account combination.
+	  */
+	public String getAlias();
+
     /** Column name AmtAcctCr */
     public static final String COLUMNNAME_AmtAcctCr = "AmtAcctCr";
 
@@ -773,12 +786,12 @@ public interface I_I_GLJournal
     /** Column name PostingType */
     public static final String COLUMNNAME_PostingType = "PostingType";
 
-	/** Set PostingType.
+	/** Set Posting Type.
 	  * The type of posted amount for the transaction
 	  */
 	public void setPostingType (String PostingType);
 
-	/** Get PostingType.
+	/** Get Posting Type.
 	  * The type of posted amount for the transaction
 	  */
 	public String getPostingType();
@@ -869,6 +882,19 @@ public interface I_I_GLJournal
 	  * Bar Code (Universal Product Code or its superset European Article Number)
 	  */
 	public String getUPC();
+
+    /** Column name UUID */
+    public static final String COLUMNNAME_UUID = "UUID";
+
+	/** Set Immutable Universally Unique Identifier.
+	  * Immutable Universally Unique Identifier
+	  */
+	public void setUUID (String UUID);
+
+	/** Get Immutable Universally Unique Identifier.
+	  * Immutable Universally Unique Identifier
+	  */
+	public String getUUID();
 
     /** Column name Updated */
     public static final String COLUMNNAME_Updated = "Updated";

@@ -33,7 +33,7 @@ public class X_GL_Distribution extends PO implements I_GL_Distribution, I_Persis
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20170428L;
+	private static final long serialVersionUID = 20170731L;
 
     /** Standard Constructor */
     public X_GL_Distribution (Properties ctx, int GL_Distribution_ID, String trxName)
@@ -75,8 +75,6 @@ public class X_GL_Distribution extends PO implements I_GL_Distribution, I_Persis
 // N
 			setName (null);
 			setPercentTotal (Env.ZERO);
-			setValidFrom (new Timestamp( System.currentTimeMillis() ));
-// @#Date@
         } */
     }
 
@@ -1001,7 +999,7 @@ public class X_GL_Distribution extends PO implements I_GL_Distribution, I_Persis
 	public static final String POSTINGTYPE_Statistical = "S";
 	/** Reservation = R */
 	public static final String POSTINGTYPE_Reservation = "R";
-	/** Set PostingType.
+	/** Set Posting Type.
 		@param PostingType 
 		The type of posted amount for the transaction
 	  */
@@ -1011,7 +1009,7 @@ public class X_GL_Distribution extends PO implements I_GL_Distribution, I_Persis
 		set_Value (COLUMNNAME_PostingType, PostingType);
 	}
 
-	/** Get PostingType.
+	/** Get Posting Type.
 		@return The type of posted amount for the transaction
 	  */
 	public String getPostingType () 
@@ -1038,6 +1036,23 @@ public class X_GL_Distribution extends PO implements I_GL_Distribution, I_Persis
 			return "Y".equals(oo);
 		}
 		return false;
+	}
+
+	/** Set Immutable Universally Unique Identifier.
+		@param UUID 
+		Immutable Universally Unique Identifier
+	  */
+	public void setUUID (String UUID)
+	{
+		set_Value (COLUMNNAME_UUID, UUID);
+	}
+
+	/** Get Immutable Universally Unique Identifier.
+		@return Immutable Universally Unique Identifier
+	  */
+	public String getUUID () 
+	{
+		return (String)get_Value(COLUMNNAME_UUID);
 	}
 
 	public org.compiere.model.I_C_ElementValue getUser1() throws RuntimeException

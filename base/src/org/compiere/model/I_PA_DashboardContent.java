@@ -202,12 +202,12 @@ public interface I_PA_DashboardContent
 	/** Set Line No.
 	  * Unique line for this document
 	  */
-	public void setLine (BigDecimal Line);
+	public void setLine (int Line);
 
 	/** Get Line No.
 	  * Unique line for this document
 	  */
-	public BigDecimal getLine();
+	public int getLine();
 
     /** Column name Name */
     public static final String COLUMNNAME_Name = "Name";
@@ -254,6 +254,19 @@ public interface I_PA_DashboardContent
 
 	/** Get PageSize	  */
 	public BigDecimal getPageSize();
+
+    /** Column name UUID */
+    public static final String COLUMNNAME_UUID = "UUID";
+
+	/** Set Immutable Universally Unique Identifier.
+	  * Immutable Universally Unique Identifier
+	  */
+	public void setUUID (String UUID);
+
+	/** Get Immutable Universally Unique Identifier.
+	  * Immutable Universally Unique Identifier
+	  */
+	public String getUUID();
 
     /** Column name Updated */
     public static final String COLUMNNAME_Updated = "Updated";

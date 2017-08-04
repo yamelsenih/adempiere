@@ -33,7 +33,7 @@ public class X_I_GLJournal extends PO implements I_I_GLJournal, I_Persistent
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20170407L;
+	private static final long serialVersionUID = 20170731L;
 
     /** Standard Constructor */
     public X_I_GLJournal (Properties ctx, int I_GLJournal_ID, String trxName)
@@ -180,6 +180,23 @@ public class X_I_GLJournal extends PO implements I_I_GLJournal, I_Persistent
 	public String getAcctSchemaName () 
 	{
 		return (String)get_Value(COLUMNNAME_AcctSchemaName);
+	}
+
+	/** Set Alias.
+		@param Alias 
+		Defines an alternate method of indicating an account combination.
+	  */
+	public void setAlias (String Alias)
+	{
+		set_Value (COLUMNNAME_Alias, Alias);
+	}
+
+	/** Get Alias.
+		@return Defines an alternate method of indicating an account combination.
+	  */
+	public String getAlias () 
+	{
+		return (String)get_Value(COLUMNNAME_Alias);
 	}
 
 	/** Set Accounted Credit.
@@ -1215,7 +1232,7 @@ public class X_I_GLJournal extends PO implements I_I_GLJournal, I_Persistent
 	public static final String POSTINGTYPE_Statistical = "S";
 	/** Reservation = R */
 	public static final String POSTINGTYPE_Reservation = "R";
-	/** Set PostingType.
+	/** Set Posting Type.
 		@param PostingType 
 		The type of posted amount for the transaction
 	  */
@@ -1225,7 +1242,7 @@ public class X_I_GLJournal extends PO implements I_I_GLJournal, I_Persistent
 		set_Value (COLUMNNAME_PostingType, PostingType);
 	}
 
-	/** Get PostingType.
+	/** Get Posting Type.
 		@return The type of posted amount for the transaction
 	  */
 	public String getPostingType () 
@@ -1364,6 +1381,23 @@ public class X_I_GLJournal extends PO implements I_I_GLJournal, I_Persistent
 	public String getUPC () 
 	{
 		return (String)get_Value(COLUMNNAME_UPC);
+	}
+
+	/** Set Immutable Universally Unique Identifier.
+		@param UUID 
+		Immutable Universally Unique Identifier
+	  */
+	public void setUUID (String UUID)
+	{
+		set_Value (COLUMNNAME_UUID, UUID);
+	}
+
+	/** Get Immutable Universally Unique Identifier.
+		@return Immutable Universally Unique Identifier
+	  */
+	public String getUUID () 
+	{
+		return (String)get_Value(COLUMNNAME_UUID);
 	}
 
 	public org.compiere.model.I_C_ElementValue getUser1() throws RuntimeException

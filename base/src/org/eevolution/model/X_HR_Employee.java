@@ -34,7 +34,7 @@ public class X_HR_Employee extends PO implements I_HR_Employee, I_Persistent
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20170407L;
+	private static final long serialVersionUID = 20170731L;
 
     /** Standard Constructor */
     public X_HR_Employee (Properties ctx, int HR_Employee_ID, String trxName)
@@ -958,18 +958,18 @@ public class X_HR_Employee extends PO implements I_HR_Employee, I_Persistent
 
 	/** MaritalStatus AD_Reference_ID=53614 */
 	public static final int MARITALSTATUS_AD_Reference_ID=53614;
-	/** Divorced = Divorced */
-	public static final String MARITALSTATUS_Divorced = "Divorced";
-	/** Live-in = Live-in */
-	public static final String MARITALSTATUS_Live_In = "Live-in";
-	/** Married = Married */
-	public static final String MARITALSTATUS_Married = "Married";
-	/** Single = Single */
-	public static final String MARITALSTATUS_Single = "Single";
-	/** Widow = Widow */
-	public static final String MARITALSTATUS_Widow = "Widow";
-	/** Windower = Windower */
-	public static final String MARITALSTATUS_Windower = "Windower";
+	/** Divorced = D */
+	public static final String MARITALSTATUS_Divorced = "D";
+	/** Live-in = L */
+	public static final String MARITALSTATUS_Live_In = "L";
+	/** Married = M */
+	public static final String MARITALSTATUS_Married = "M";
+	/** Single = S */
+	public static final String MARITALSTATUS_Single = "S";
+	/** Widow = W */
+	public static final String MARITALSTATUS_Widow = "W";
+	/** Windower = X */
+	public static final String MARITALSTATUS_Windower = "X";
 	/** Set Marital Status.
 		@param MaritalStatus Marital Status	  */
 	public void setMaritalStatus (String MaritalStatus)
@@ -1221,5 +1221,22 @@ public class X_HR_Employee extends PO implements I_HR_Employee, I_Persistent
 		if (ii == null)
 			 return 0;
 		return ii.intValue();
+	}
+
+	/** Set Immutable Universally Unique Identifier.
+		@param UUID 
+		Immutable Universally Unique Identifier
+	  */
+	public void setUUID (String UUID)
+	{
+		set_Value (COLUMNNAME_UUID, UUID);
+	}
+
+	/** Get Immutable Universally Unique Identifier.
+		@return Immutable Universally Unique Identifier
+	  */
+	public String getUUID () 
+	{
+		return (String)get_Value(COLUMNNAME_UUID);
 	}
 }

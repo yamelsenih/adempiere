@@ -29,7 +29,7 @@ public class X_T_Reconciliation extends PO implements I_T_Reconciliation, I_Pers
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20170407L;
+	private static final long serialVersionUID = 20170731L;
 
     /** Standard Constructor */
     public X_T_Reconciliation (Properties ctx, int T_Reconciliation_ID, String trxName)
@@ -133,5 +133,22 @@ public class X_T_Reconciliation extends PO implements I_T_Reconciliation, I_Pers
 	public String getMatchCode () 
 	{
 		return (String)get_Value(COLUMNNAME_MatchCode);
+	}
+
+	/** Set Immutable Universally Unique Identifier.
+		@param UUID 
+		Immutable Universally Unique Identifier
+	  */
+	public void setUUID (String UUID)
+	{
+		set_Value (COLUMNNAME_UUID, UUID);
+	}
+
+	/** Get Immutable Universally Unique Identifier.
+		@return Immutable Universally Unique Identifier
+	  */
+	public String getUUID () 
+	{
+		return (String)get_Value(COLUMNNAME_UUID);
 	}
 }

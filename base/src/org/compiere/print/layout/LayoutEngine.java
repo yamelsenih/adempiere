@@ -1718,7 +1718,7 @@ public class LayoutEngine implements Pageable, Printable, Doc
 						log.finer("PageBreak row=" + row);
 				}
 			}
-			//	Summary/Line Levels for Finanial Reports
+			//	Summary/Line Levels for Financial Reports
 			else
 			{
 				levelNo = printData.getLineLevelNo();
@@ -1854,6 +1854,10 @@ public class LayoutEngine implements Pageable, Printable, Doc
 							}
 							else
 								dataElement = pde.getValueDisplay(format.getLanguage());
+							}
+							else if (obj instanceof String) 
+							{
+								// do nothing
 							}
 						else
 							log.log(Level.SEVERE, "Element not PrintDataElement " + obj.getClass());

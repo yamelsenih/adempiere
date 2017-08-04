@@ -645,6 +645,15 @@ public interface I_C_BPartner
 
 	public org.compiere.model.I_M_PriceList getM_PriceList() throws RuntimeException;
 
+    /** Column name MaritalStatus */
+    public static final String COLUMNNAME_MaritalStatus = "MaritalStatus";
+
+	/** Set Marital Status	  */
+	public void setMaritalStatus (String MaritalStatus);
+
+	/** Get Marital Status	  */
+	public String getMaritalStatus();
+
     /** Column name NAICS */
     public static final String COLUMNNAME_NAICS = "NAICS";
 
@@ -790,18 +799,20 @@ public interface I_C_BPartner
 	  */
 	public String getPaymentRulePO();
 
-    /** Column name PlaceOfBirth */
-    public static final String COLUMNNAME_PlaceOfBirth = "PlaceOfBirth";
+    /** Column name PlaceOfBirth_ID */
+    public static final String COLUMNNAME_PlaceOfBirth_ID = "PlaceOfBirth_ID";
 
-	/** Set Place of Birth.
-	  * Place of Birth
+	/** Set Place of Birth (Location).
+	  * Place of Birth (Location)
 	  */
-	public void setPlaceOfBirth (String PlaceOfBirth);
+	public void setPlaceOfBirth_ID (int PlaceOfBirth_ID);
 
-	/** Get Place of Birth.
-	  * Place of Birth
+	/** Get Place of Birth (Location).
+	  * Place of Birth (Location)
 	  */
-	public String getPlaceOfBirth();
+	public int getPlaceOfBirth_ID();
+
+	public I_C_Location getPlaceOfBirth() throws RuntimeException;
 
     /** Column name PotentialLifeTimeValue */
     public static final String COLUMNNAME_PotentialLifeTimeValue = "PotentialLifeTimeValue";
@@ -999,6 +1010,19 @@ public interface I_C_BPartner
 	  * Full URL address - e.g. http://www.adempiere.org
 	  */
 	public String getURL();
+
+    /** Column name UUID */
+    public static final String COLUMNNAME_UUID = "UUID";
+
+	/** Set Immutable Universally Unique Identifier.
+	  * Immutable Universally Unique Identifier
+	  */
+	public void setUUID (String UUID);
+
+	/** Get Immutable Universally Unique Identifier.
+	  * Immutable Universally Unique Identifier
+	  */
+	public String getUUID();
 
     /** Column name UnappliedPayments */
     public static final String COLUMNNAME_UnappliedPayments = "UnappliedPayments";

@@ -2,44 +2,170 @@
 <%@ page contentType="text/css;charset=UTF-8" %>
 
 <%-- Words --%>
-<c:set var="Color01" value="#403E39"/> 
+<c:set var="Color01" value="#403E39"/>
 <%-- Menu Background --%>
-<c:set var="Color02" value="#EEEDEB"/> 
+<c:set var="Color02" value="#EEEDEB"/>
 <%-- Group Background --%>
-<c:set var="Color03" value="#F3F3F1"/> 
+<c:set var="Color03" value="#F3F3F1"/>
 <%-- Tab Border --%>
-<c:set var="Color04" value="#ABA799"/> 
+<c:set var="Color04" value="#ABA799"/>
 <%-- Input Border --%>
-<c:set var="Color05" value="#FFFFFF"/> 
+<c:set var="Color05" value="#FFFFFF"/>
 <%-- Selection --%>
-<c:set var="Color06" value="#D1CFCA"/> 
+<c:set var="Color06" value="#D1CFCA"/>
 <%-- Zebra Color --%>
-<c:set var="Color07" value="#F9F9F8"/> 
+<c:set var="Color07" value="#F9F9F8"/>
 <%-- Group Bottom Line --%>
-<c:set var="Color08" value="#CDCDCD"/> 
+<c:set var="Color08" value="#CDCDCD"/>
 <%-- Hover+Select--%>
-<c:set var="Color09" value="#B2AEA6"/> 
+<c:set var="Color09" value="#B2AEA6"/>
 <%-- Hover --%>
-<c:set var="Color10" value="#D6D6D6"/> 
+<c:set var="Color10" value="#D6D6D6"/>
 
 <c:set var="ColorWhite" value="#FFFFFF"/>
-<c:set var="ColorBGTree" value="#DDE3EB"/>
-<c:set var="ColorSeld" value="#008BD8"/>
-<c:set var="ColorGray" value="#FAFAFA"/>
-<c:set var="ColorLightGray" value="#FFFFFF"/>
-<c:set var="ColorBorder" value="#0099FF"/>
-<c:set var="aColor" value="#0996DE"/>
+<c:set var="ColorBGTree" value="#F7F7F7"/>
+<c:set var="ColorSeld" value="#0068c5"/>
+<c:set var="ColorGray" value="#FFFFFF"/>
+<c:set var="ColorLightGray" value="#F0F0F0"/>
+<c:set var="ColorBorder" value="#999999"/>
+<c:set var="aColor" value="#debe09"/>
+
+<%-- OpenUp Ltda. Inicio --%>
+<%-- Window Font --%>
+<c:set var="WindowFont" value="'Open Sans', sans-serif, Verdana, Arial, Helvetica;"/>
+<%-- OpenUp Ltda. Fin --%>
 
 
-
+@import url('https://fonts.googleapis.com/css?family=Open+Sans');
 
 .desktop-header-font {
-	font-family: Verdana, Arial, Helvetica, sans-serif;
+    font-family: 'Open Sans', sans-serif, Verdana, Arial, Helvetica;
 	font-size: 10px;
 	color: #FFFFFF;
 }
 
 
+<%-- Start e-Evolution --%>
+.z-toolbar-button {
+ color: #282828 !important;
+}
+
+.z-listbox {
+  color: #282828 !important;
+}
+<%-- End e-Evolution --%>
+
+<%-- OpenUp Ltda. Inicio --%>
+*, .z-label, .z-checkbox {
+  font-family: ${WindowFont};
+}
+.mandatory-decorator-text {
+  color: #ff0000 !important;
+}
+.z-combobox-inp, .z-combobox-inp, .z-textbox, .z-decimalbox, .z-checkbox-cnt {
+  font-family: ${WindowFont};
+}
+.z-combobox-disd * {
+  font-family: ${WindowFont};
+  color: #686868 !important;
+}
+.desktop-header-font {
+  color: #FFFFFF !important;
+}
+.z-tab-seld *, .z-button *, .form-button *, .adwindow-navbtn-sel * {
+  color: #ffffff !important;
+}
+.z-textbox
+, .z-combobox-inp
+, .z-decimalbox
+, .z-datebox-inp {
+  background-color: #ffffff !important;
+  border: 1px solid #bbbbbb !important;
+}
+.z-textbox-readonly
+, .z-combobox-inp-readonly
+, .z-decimalbox-readonly
+, .z-datebox-inp-readonly
+, .z-combobox-text-disd {
+  background-image: url("../images/zul/misc/text-bg8-dis.gif") !important;
+  background-repeat: repeat !important;
+  color: #282828 !important;
+}
+
+.z-panel-header {
+  color: #ffffff !important;
+}
+.adtab-grid-panel .z-row:nth-child(even) * {
+  background-color: #f0f0f0 !important;
+}
+.adtab-grid-panel .z-row:nth-child(odd) * {
+  background-color: #ffffff !important;
+}
+
+<%-- Skyblue underline tabs - Start --%>
+.z-tabs, z-tabs-scroll {
+  padding-bottom: 0px !important;
+}
+.z-tabpanels {
+  border-top: solid 1px #1f9bde !important;
+}
+<%-- Skyblue underline tabs - End --%>
+
+.z-tree-row-over *, .z-tree-row-over-seld *, .z-tree-row-seld * {
+  color: #ffffff !important;
+  background-color: #1F9BDE !important;
+}
+
+<%-- Logo position --%>
+.desktop-header-left {
+  margin-top: 0px;
+  padding-left: 15px;
+}
+
+.z-combo-item-text {
+  font-size: 12px !important;
+}
+.z-combo-item-inner {
+  font-size: 10px !important;
+  font-style: italic;
+}
+
+.z-column:not(.z-column-over) {
+  background-color: #EBEBEB !important;
+}
+
+.adwindow-nav-content {
+  background-color: #E7E7E7;
+}
+
+.z-list-item-seld *, .z-list-item-over * {
+}
+
+.adwindow-navbtn-uns
+, .adwindow-navbtn-sel
+, .adwindow-navbtn-dis {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-right: 20px;
+}
+
+.z-north-splt, .z-south-splt {
+  background: #003764;
+  height: 1px;
+}
+.z-border-layout {
+  background: #003764;
+}
+
+
+<%-- OpenUp Ltda. Fin --%>
+
+
+<%-- Begin ERPCyA --%>
+.z-toolbar-body span {
+	font-size: 11px !important;
+}
+<%-- ERPCyA end --%>
 
 tr.z-vbox{
 	background-color:${ColorGray};
@@ -63,7 +189,7 @@ div.z-progressmeter {
 	border:none;
 	color:${Color01};
 }
-.z-datebox-pp .z-datebox-calyear { 
+.z-datebox-pp .z-datebox-calyear {
 	background-color:${Color07};
 }
 .z-calendar-calmon td.z-calendar-seld, .z-calendar-calday td.z-calendar-seld,
@@ -89,14 +215,14 @@ div.z-progressmeter {
 .z-intbox-focus, .z-intbox-focus input,
 .z-longbox-focus, .z-longbox-focus input,
 .z-doublebox-focus, .z-doublebox-focus input {
-	
+
 }
 .z-combobox-focus .z-combobox-inp,
 .z-spinner-focus .z-spinner-inp,
 .z-datebox-focus .z-datebox-inp,
 .z-timebox-focus .z-timebox-inp ,
 .z-bandbox-focus .z-bandbox-inp  {
-	
+
 }
 .z-combobox-focus .z-combobox-img,
 .z-spinner-focus .z-spinner-img,
@@ -113,7 +239,7 @@ div.z-progressmeter {
 	background-color: ${ColorSeld};
 }
 
-.z-combobox-pp .z-combo-item-seld .z-combo-item-text{
+.z-combobox-pp .z-combo-item-seld .z-combo-item-text .z-combo-item-inner {
 	color:${ColorWhite};
 }
 .z-combobox-pp .z-combo-item-over-seld .z-combo-item-text{
@@ -344,7 +470,7 @@ td.z-group-inner {
 
 .z-menu-popup-cnt .z-menu-over a.z-menu-item-cnt,
 .z-menu-popup-cnt .z-menu-item-over a.z-menu-item-cnt {
-	border:none;	
+	border:none;
 	color:${ColorWhite};
 }
 
@@ -352,8 +478,8 @@ td.z-group-inner {
 .z-menu-popup {
 	border:none;
 }
-.z-menu-body-over .z-menu-inner-m .z-menu-btn, 
-.z-menu-body-seld .z-menu-inner-m .z-menu-btn, 
+.z-menu-body-over .z-menu-inner-m .z-menu-btn,
+.z-menu-body-seld .z-menu-inner-m .z-menu-btn,
 .z-menu-item-body-over .z-menu-item-inner-m .z-menu-btn{
 	color : ${ColorSeld};
 }
@@ -480,15 +606,15 @@ td.z-group-inner {
 .z-panel-noborder .z-panel-header-noborder,
 .z-panel-noborder .z-panel-tbar-noborder .z-toolbar,
 .z-panel-noborder .z-panel-header.z-panel-header-noborder,
-.z-panel-noborder .z-panel-top-noborder .z-toolbar, 
+.z-panel-noborder .z-panel-top-noborder .z-toolbar,
 .z-panel-noborder .z-panel-top.z-panel-top-noborder .z-toolbar,
 .z-panel-noborder .z-panel-btm.z-panel-btm-noborder .z-toolbar,
 .z-panel-noborder .z-panel-btm.z-panel-fbar-noborder .z-toolbar,
 .z-panel-noborder .z-panel-btm.z-panel-btm-noborder .z-toolbar {
 	border:none;
 }
-.z-panel-tbar .z-toolbar , 
-.z-panel-bbar .z-toolbar, 
+.z-panel-tbar .z-toolbar ,
+.z-panel-bbar .z-toolbar,
 .z-panel-tbar .z-toolbar,
 .z-panel-body .z-panel-top .z-toolbar,
 .z-panel-body .z-panel-btm .z-toolbar,
@@ -513,7 +639,7 @@ div.z-listbox-pgi-b, div.z-tree-pgi-b, div.z-grid-pgi-b  {
 
 <%-- calendar.css.dsp --%>
 .z-calendar-calyear, .z-datebox-calyear {
-	background-color: ${Color02}; 
+	background-color: ${Color02};
 	border:none;
 }
 .z-calendar-calday, .z-datebox-calday {
@@ -525,11 +651,12 @@ div.z-listbox-pgi-b, div.z-tree-pgi-b, div.z-grid-pgi-b  {
 }
 .z-calendar-calmon td.z-calendar-seld, .z-calendar-calday td.z-calendar-seld,
 .z-datebox-calmon td.z-datebox-seld, .z-datebox-calday td.z-datebox-seld {
-	background-color: ${ColorSeld}; 
+	background-color: ${ColorSeld};
 	border:none;
+	color:#FFF !important;
 }
 .z-calendar-over, .z-datebox-over {
-	background-color: ${ColorSeld}; 
+	background-color: ${ColorSeld};
 }
 .z-datebox-calmon td.z-datebox-over-seld,
 .z-datebox-calday td.z-datebox-over-seld{
@@ -538,4 +665,12 @@ div.z-listbox-pgi-b, div.z-tree-pgi-b, div.z-grid-pgi-b  {
 .z-calendar-caldow td, .z-datebox-caldow td {
 	color: ${Color01};
 	background-color: ${Color02};
+}
+.z-datebox-readonly {
+    background-image: url(../images/zul/misc/text-bg8-dis.gif) !important;
+    border-color: #bbbbbb;
+    background-color: #ECEAE4 !important;
+}
+.z-datebox-readonly + span {
+opacity: 0.5;
 }

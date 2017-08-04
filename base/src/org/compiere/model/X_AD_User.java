@@ -1,8 +1,9 @@
 /******************************************************************************
  * Product: ADempiere ERP & CRM Smart Business Solution                       *
- * Copyright (C) 2006-2016 ADempiere Foundation, All Rights Reserved.         *
+ * Copyright (C) 2006-2017 ADempiere Foundation, All Rights Reserved.         *
  * This program is free software, you can redistribute it and/or modify it    *
  * under the terms version 2 of the GNU General Public License as published   *
+ * or (at your option) any later version.										*
  * by the Free Software Foundation. This program is distributed in the hope   *
  * that it will be useful, but WITHOUT ANY WARRANTY, without even the implied *
  * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.           *
@@ -30,7 +31,7 @@ public class X_AD_User extends PO implements I_AD_User, I_Persistent
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20170420L;
+	private static final long serialVersionUID = 20170731L;
 
     /** Standard Constructor */
     public X_AD_User (Properties ctx, int AD_User_ID, String trxName)
@@ -150,21 +151,18 @@ public class X_AD_User extends PO implements I_AD_User, I_Persistent
 		return ii.intValue();
 	}
 
-	/** Set Birthday.
-		@param Birthday 
-		Birthday or Anniversary day
-	  */
-	public void setBirthday (Timestamp Birthday)
+	/** Set BP Name.
+		@param BPName BP Name	  */
+	public void setBPName (String BPName)
 	{
-		set_Value (COLUMNNAME_Birthday, Birthday);
+		set_Value (COLUMNNAME_BPName, BPName);
 	}
 
-	/** Get Birthday.
-		@return Birthday or Anniversary day
-	  */
-	public Timestamp getBirthday () 
+	/** Get BP Name.
+		@return BP Name	  */
+	public String getBPName () 
 	{
-		return (Timestamp)get_Value(COLUMNNAME_Birthday);
+		return (String)get_Value(COLUMNNAME_BPName);
 	}
 
 	public I_C_Location getBP_Location() throws RuntimeException
@@ -195,18 +193,21 @@ public class X_AD_User extends PO implements I_AD_User, I_Persistent
 		return ii.intValue();
 	}
 
-	/** Set BP Name.
-		@param BPName BP Name	  */
-	public void setBPName (String BPName)
+	/** Set Birthday.
+		@param Birthday 
+		Birthday or Anniversary day
+	  */
+	public void setBirthday (Timestamp Birthday)
 	{
-		set_Value (COLUMNNAME_BPName, BPName);
+		set_Value (COLUMNNAME_Birthday, Birthday);
 	}
 
-	/** Get BP Name.
-		@return BP Name	  */
-	public String getBPName () 
+	/** Get Birthday.
+		@return Birthday or Anniversary day
+	  */
+	public Timestamp getBirthday () 
 	{
-		return (String)get_Value(COLUMNNAME_BPName);
+		return (Timestamp)get_Value(COLUMNNAME_Birthday);
 	}
 
 	public org.compiere.model.I_C_BPartner getC_BPartner() throws RuntimeException
@@ -698,6 +699,23 @@ public class X_AD_User extends PO implements I_AD_User, I_Persistent
 		return false;
 	}
 
+	/** Set LDAP User Name.
+		@param LDAPUser 
+		User Name used for authorization via LDAP (directory) services
+	  */
+	public void setLDAPUser (String LDAPUser)
+	{
+		set_Value (COLUMNNAME_LDAPUser, LDAPUser);
+	}
+
+	/** Get LDAP User Name.
+		@return User Name used for authorization via LDAP (directory) services
+	  */
+	public String getLDAPUser () 
+	{
+		return (String)get_Value(COLUMNNAME_LDAPUser);
+	}
+
 	/** Set Last Contact.
 		@param LastContact 
 		Date this individual was last contacted
@@ -730,23 +748,6 @@ public class X_AD_User extends PO implements I_AD_User, I_Persistent
 	public String getLastResult () 
 	{
 		return (String)get_Value(COLUMNNAME_LastResult);
-	}
-
-	/** Set LDAP User Name.
-		@param LDAPUser 
-		User Name used for authorization via LDAP (directory) services
-	  */
-	public void setLDAPUser (String LDAPUser)
-	{
-		set_Value (COLUMNNAME_LDAPUser, LDAPUser);
-	}
-
-	/** Get LDAP User Name.
-		@return User Name used for authorization via LDAP (directory) services
-	  */
-	public String getLDAPUser () 
-	{
-		return (String)get_Value(COLUMNNAME_LDAPUser);
 	}
 
 	/** LeadSource AD_Reference_ID=53415 */
@@ -976,6 +977,40 @@ public class X_AD_User extends PO implements I_AD_User, I_Persistent
 		return false;
 	}
 
+	/** Set RecentItems Max Saved.
+		@param RecentItemsMaxSaved RecentItems Max Saved	  */
+	public void setRecentItemsMaxSaved (int RecentItemsMaxSaved)
+	{
+		set_Value (COLUMNNAME_RecentItemsMaxSaved, Integer.valueOf(RecentItemsMaxSaved));
+	}
+
+	/** Get RecentItems Max Saved.
+		@return RecentItems Max Saved	  */
+	public int getRecentItemsMaxSaved () 
+	{
+		Integer ii = (Integer)get_Value(COLUMNNAME_RecentItemsMaxSaved);
+		if (ii == null)
+			 return 0;
+		return ii.intValue();
+	}
+
+	/** Set RecentItems Max Shown.
+		@param RecentItemsMaxShown RecentItems Max Shown	  */
+	public void setRecentItemsMaxShown (int RecentItemsMaxShown)
+	{
+		set_Value (COLUMNNAME_RecentItemsMaxShown, Integer.valueOf(RecentItemsMaxShown));
+	}
+
+	/** Get RecentItems Max Shown.
+		@return RecentItems Max Shown	  */
+	public int getRecentItemsMaxShown () 
+	{
+		Integer ii = (Integer)get_Value(COLUMNNAME_RecentItemsMaxShown);
+		if (ii == null)
+			 return 0;
+		return ii.intValue();
+	}
+
 	public org.compiere.model.I_AD_User getSalesRep() throws RuntimeException
     {
 		return (org.compiere.model.I_AD_User)MTable.get(getCtx(), org.compiere.model.I_AD_User.Table_Name)
@@ -1064,6 +1099,23 @@ public class X_AD_User extends PO implements I_AD_User, I_Persistent
 	public String getTitle () 
 	{
 		return (String)get_Value(COLUMNNAME_Title);
+	}
+
+	/** Set Immutable Universally Unique Identifier.
+		@param UUID 
+		Immutable Universally Unique Identifier
+	  */
+	public void setUUID (String UUID)
+	{
+		set_Value (COLUMNNAME_UUID, UUID);
+	}
+
+	/** Get Immutable Universally Unique Identifier.
+		@return Immutable Universally Unique Identifier
+	  */
+	public String getUUID () 
+	{
+		return (String)get_Value(COLUMNNAME_UUID);
 	}
 
 	/** Set User PIN.

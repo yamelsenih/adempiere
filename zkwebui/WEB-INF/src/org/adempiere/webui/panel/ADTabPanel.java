@@ -60,7 +60,7 @@ import org.zkoss.zul.*;
 import org.zkoss.zul.Panel;
 import org.zkoss.zul.Row;
 
-/** 
+/**
  *
  * This class is based on org.compiere.grid.GridController written by Jorg Janke.
  * Changes have been brought for UI compatibility.
@@ -79,6 +79,9 @@ import org.zkoss.zul.Row;
  * @author Yamel Senih, ysenih@erpcya.com, ERPCyA http://www.erpcya.com
  *		<a href="https://github.com/adempiere/adempiere/issues/610">
  * 		@see FR [ 610 ] Incorrect Label Align on Window for ZK GUI</a>
+ * @author Raul Muñoz, rmunoz@erpcya.com, ERPCyA http://www.erpcya.com
+ *		<a href="https://github.com/adempiere/adempiere/issues/1063">
+ * 		@see BR [ 1063 ] Null pointer exception in field type Account zk</a>
  */
 public class ADTabPanel extends Div implements Evaluatee, EventListener, DataStatusListener, IADTabPanel, VetoableChangeListener
 {
@@ -135,23 +138,25 @@ public class ADTabPanel extends Div implements Evaluatee, EventListener, DataSta
 	private Group currentGroup;
 
 	private boolean m_vetoActive = false;
-	
+
 	private CWindowToolbar globalToolbar;
 
     private boolean isEmbedded = false;
-	
+
+    private boolean isSwitchRow = true;	
+    
 	private int INC = 30;
-		
+
 	public CWindowToolbar getGlobalToolbar()
 	{
 		return globalToolbar;
 	}
-	
+
 	public void setGlobalToolbar(CWindowToolbar globalToolbar) {
 		this.globalToolbar = globalToolbar;
 	}
-	
-	
+
+
 
 	public ADTabPanel()
 	{
@@ -204,9 +209,10 @@ public class ADTabPanel extends Div implements Evaluatee, EventListener, DataSta
         int treeId = Env.getContextAsInt(Env.getCtx(), windowNo , gridTab.getTabNo() , "AD_Tree_ID" );
 		if (gridTab.isTreeTab() && treeId == 0) {
 			treeId = MTree.getDefaultAD_Tree_ID(Env.getAD_Client_ID(Env.getCtx()), gridTab.getKeyColumnName());
-			Env.setContext (Env.getCtx(), windowNo, "AD_Tree_ID",  treeId);
+			if (treeId > 0)
+				Env.setContext (Env.getCtx(), windowNo, "AD_Tree_ID",  treeId);
 		}
-		if (gridTab.isTreeTab() && treeId != 0)
+		if (gridTab.isTreeTab() && treeId > 0)
 		{
 			Borderlayout layout = new Borderlayout();
 			layout.setParent(this);
@@ -276,7 +282,7 @@ public class ADTabPanel extends Div implements Evaluatee, EventListener, DataSta
         GridField fields[] = gridTab.getFields();
         org.zkoss.zul.Row row = new Row();
         rows.appendChild(row);
-        
+
         String currentFieldGroup = null;
         for (int i = 0; i < fields.length; i++)
         {
@@ -318,7 +324,7 @@ public class ADTabPanel extends Div implements Evaluatee, EventListener, DataSta
                     row.setSpans("2,3");
                     rows.appendChild(row);
                     includedTab.put(field.getIncluded_Tab_ID(), (Group)row);
-    			
+
     				org.zkoss.zul.Div div = new Div();
                     div.setWidth("100%");
                     row = new org.adempiere.webui.component.Row();
@@ -455,13 +461,13 @@ public class ADTabPanel extends Div implements Evaluatee, EventListener, DataSta
                 }
 
                 WEditor editor = WebEditorFactory.getEditor(gridTab, field, false);
-                
-                
+
+
                 if (editor != null) // Not heading
                 {
                     editor.setGridTab(this.getGridTab());
                     editor.setADTabPanel(this);
-                    
+
                 	field.addPropertyChangeListener(editor);
                     editors.add(editor);
                     editorIds.add(editor.getComponent().getUuid());
@@ -477,8 +483,8 @@ public class ADTabPanel extends Div implements Evaluatee, EventListener, DataSta
                         div.setAlign("right");
                         Label label = editor.getLabel();
                         div.appendChild(label);
-	                    
-	                    
+
+
 	                    if (label.getDecorator() != null)
 	                    	div.appendChild(label.getDecorator());
 	                    row.appendChild(div);
@@ -554,7 +560,7 @@ public class ADTabPanel extends Div implements Evaluatee, EventListener, DataSta
 
         if (!gridTab.isSingleRow() && !isGridView())
         	switchRowPresentation();
-        
+
     }
 
 	private Component createSpacer() {
@@ -576,7 +582,7 @@ public class ADTabPanel extends Div implements Evaluatee, EventListener, DataSta
         {
         	comp.setMandatoryLabels();
         }
-        
+
         //  Selective
         if (col > 0)
         {
@@ -615,8 +621,8 @@ public class ADTabPanel extends Div implements Evaluatee, EventListener, DataSta
                         comp.setMandatory(mField.isMandatory(true));    //  check context
                         comp.dynamicDisplay();
                     }
-                    //	
-                    comp.repaintComponent();	   
+                    //
+                    comp.repaintComponent();
                 }
                 else if (comp.isVisible())
                 {
@@ -671,16 +677,16 @@ public class ADTabPanel extends Div implements Evaluatee, EventListener, DataSta
         			row.setVisible(visible);
         	}
         }
-        
+
         for (EmbeddedPanel ep : includedPanel) {
-        	
+
         	if(ep.gridWindow.getTab(ep.tabIndex).isDisplayed())
     		{
     			ep.windowPanel.getParent().setVisible(true);
     			ep.group.setVisible(true);
     		}
         	else {
-        		
+
         		ep.windowPanel.getParent().setVisible(false);
     			ep.group.setVisible(false);
         	}
@@ -700,7 +706,7 @@ public class ADTabPanel extends Div implements Evaluatee, EventListener, DataSta
                 ep.divComponent.setVisible(false);
             }
         }
-        
+
         logger.config(gridTab.toString() + " - fini - " + (col<=0 ? "complete" : "seletive"));
     }   //  dynamicDisplay
 
@@ -801,11 +807,11 @@ public class ADTabPanel extends Div implements Evaluatee, EventListener, DataSta
      */
     public void activate(boolean activate)
     {
-    	
+
     	if (getGrid() != null && activate)
 		{
 			Grid gridCurrent = getGrid();
-			((HtmlBasedComponent)gridCurrent).setStyle("border-left: 6px solid #fa962f; "); //border-top: 1px solid #fa962f; border-bottom: 1px solid #fa962f; border-right: 1px solid #fa962f;");
+			((HtmlBasedComponent)gridCurrent).setStyle("border-left: 3px solid #009bde; "); //border-top: 1px solid #fa962f; border-bottom: 1px solid #fa962f; border-right: 1px solid #fa962f;");
 	    	gridCurrent.setWidth("99.1%");
 
 		}
@@ -814,24 +820,24 @@ public class ADTabPanel extends Div implements Evaluatee, EventListener, DataSta
     		Grid gridtPrevious = getGrid();
 			((HtmlBasedComponent)gridtPrevious).setStyle("border:none;");
 			gridtPrevious.setWidth("100%");
-			gridtPrevious.setHeight("100%");	
+			gridtPrevious.setHeight("100%");
     	}
 		if (getListPanel() != null && activate)
-		{	
+		{
 			GridPanel gridPanel = getListPanel();
 			//gridPanel.setHeight("95%");
-			((HtmlBasedComponent)gridPanel).setStyle("border-left: 6px solid #fa962f; "); //border-top: 1px solid #fa962f; border-bottom: 1px solid #fa962f; border-right: 1px solid #fa962f;");
+			((HtmlBasedComponent)gridPanel).setStyle("border-left: 3px solid #009bde; "); //border-top: 1px solid #fa962f; border-bottom: 1px solid #fa962f; border-right: 1px solid #fa962f;");
 			gridPanel.setWidth("99.1%");
 			//gridPanel.setHeight("95%");
-		}	
+		}
 		else if (getListPanel() != null && !activate)
 		{
 			GridPanel gridPanel = getListPanel();
-		    ((HtmlBasedComponent)gridPanel).setStyle("border:none;");	
+		    ((HtmlBasedComponent)gridPanel).setStyle("border:none;");
 		    gridPanel.setWidth("100%");
 		    gridPanel.setHeight("100%");
 		}
-		
+
         //activate embedded panel
         for(EmbeddedPanel ep : includedPanel)
         {
@@ -842,7 +848,7 @@ public class ADTabPanel extends Div implements Evaluatee, EventListener, DataSta
         {
             activateChild(activate, ep);
         }
-		
+
     	active = activate;
         if (listPanel.isVisible()) {
         	if (activate)
@@ -858,7 +864,7 @@ public class ADTabPanel extends Div implements Evaluatee, EventListener, DataSta
     }
 
 	private void activateChild(boolean activate, EmbeddedPanel panel) {
-		
+
 		if (activate)
 		{
 			panel.windowPanel.getADTab().evaluate(null);
@@ -905,16 +911,16 @@ public class ADTabPanel extends Div implements Evaluatee, EventListener, DataSta
     		for (HorizontalEmbeddedPanel embedded : horizontalIncludedPanel )
     		{
     			if (embedded.gridWindow.getTab(embedded.tabIndex).getName().equals(tab.getLabel()))
-    			{	
+    			{
     				if (!getGlobalToolbar().getCurrentPanel().equals(embedded.tabPanel))
     				{
     					getGlobalToolbar().getCurrentPanel().activate(false);
     					getGlobalToolbar().getCurrentPanel().setUnselected(getGlobalToolbar().getCurrentPanel());
     					getGlobalToolbar().getCurrentPanel().setSelected(embedded.tabPanel);
     					embedded.tabPanel.activate(true);
-    					
+
     					if(gridTab.getAD_Tab_ID() != getGlobalToolbar().getCurrentPanel().getGridTab().getAD_Tab_ID())
-        				{        					
+        				{
         					DataStatusEvent m_DataStatusEvent = new DataStatusEvent(this, gridTab.getRowCount(),
         							false,
         							false, false);
@@ -922,25 +928,26 @@ public class ADTabPanel extends Div implements Evaluatee, EventListener, DataSta
         				}
     				}
     				return;
-    			}	
+    			}
     		}
     	}
-    	
+
 		if(event.getTarget() instanceof IADTabPanel)
-		{			
+		{
 			IADTabPanel panel = (IADTabPanel)event.getTarget();
-			if (panel == panel.getGlobalToolbar().getCurrentPanel())
+			if (panel.getGlobalToolbar() != null
+					&& panel == panel.getGlobalToolbar().getCurrentPanel())
 				return;
-			
+
 			IADTabPanel last = panel.getGlobalToolbar().getCurrentPanel();
 			last.setUnselected(last);
 			last.activate(false);
-			
+
 			panel.setSelected(panel);
 			panel.activate(true);
 			autoResize();
 			if(gridTab.getAD_Tab_ID() != panel.getGridTab().getAD_Tab_ID())
-			{					
+			{
 				DataStatusEvent m_DataStatusEvent = new DataStatusEvent(this, gridTab.getRowCount(),
 						false,
 						false, false);
@@ -949,15 +956,17 @@ public class ADTabPanel extends Div implements Evaluatee, EventListener, DataSta
 		}
 		else if (event.getTarget() == listPanel.getListbox())
     	{
-    		this.switchRowPresentation();
+			//	BR [ 1063 ]
+    		if(isSwitchRowPresentation())
+    			this.switchRowPresentation();
     	}
-		
+
     	else if (event.getTarget() == treePanel.getTree()) {
     		Treeitem item =  treePanel.getTree().getSelectedItem();
     		navigateTo((SimpleTreeNode)item.getValue());
     	}
     }
-    
+
     public void autoResize()
     {
     	if(windowPanel!=null)
@@ -965,7 +974,7 @@ public class ADTabPanel extends Div implements Evaluatee, EventListener, DataSta
 	    	if(windowPanel.isEmbedded())
 			{
 				Borderlayout window = ((ADWindowPanel)windowPanel).getComponent();
-	
+
 	    		if(isGridView())
 	    		{
 	    			int size = MSysConfig.getIntValue("TAB_INCLUDING_HEIGHT", 400);
@@ -979,25 +988,25 @@ public class ADTabPanel extends Div implements Evaluatee, EventListener, DataSta
 		    			int addSize = 0;
 		    			int size = 0;
 		    			if (grid.getRows() != null)
-		    			{	
+		    			{
 			    			for(Object o : grid.getRows().getChildren())
 			    			{
 			    				if(o instanceof Row )
-			    				{	    	
+			    				{
 			    					if( ((Row) o).isVisible())
 			    					{
-			    						size += getComponentSize((Row) o); 
+			    						size += getComponentSize((Row) o);
 			    					}
 			    				}
 			    				else if(o instanceof org.zkoss.zul.Group)
 			    				{
-			    					size +=20; 
+			    					size +=20;
 			    				}
 			    			}
-		    			}	
+		    			}
 
                         size += 25; // 25 = statusbar
-		    			size += addSize; 
+		    			size += addSize;
 		    			size += doAutoSize();
 						window.setHeight(size + "px");
 		    			window.resize();
@@ -1009,33 +1018,33 @@ public class ADTabPanel extends Div implements Evaluatee, EventListener, DataSta
 	    				window.setHeight( "61px");
                         window.resize();
 	    			}
-	    			
+
 	    		}
-	    		
-				
+
+
 			}
     	}
     }
-    
-    
-    
+
+
+
     public void setUnselected(IADTabPanel panel)
     {
     	if (panel != null)
-    	{	
-    		getGlobalToolbar().setPreviousPanel(panel);    	
+    	{
+    		getGlobalToolbar().setPreviousPanel(panel);
     	}
 
     }
-    
+
     public void setSelected(IADTabPanel panel)
     {
     	if (panel != null)
-    	{	
+    	{
     		getGlobalToolbar().setCurrentPanel(panel);
-    	}	
+    	}
     }
-    
+
     public void repaintComponents(boolean isRow)
     {
     	for(WEditor editor:editors)
@@ -1120,9 +1129,9 @@ public class ADTabPanel extends Div implements Evaluatee, EventListener, DataSta
         dynamicDisplay(col);
 
 		int treeId = Env.getContextAsInt(Env.getCtx(), windowNo , gridTab.getTabNo(), "AD_Tree_ID");
-		if ((gridTab.isTreeTab() && treeId == 0) || gridTab.getTabLevel() == 0)
+		if ((gridTab.isTreeTab() && treeId == 0) || (gridTab.isTreeTab() && gridTab.getTabLevel() == 0))
 			treeId = MTree.getDefaultAD_Tree_ID (Env.getAD_Client_ID(Env.getCtx()), gridTab.getKeyColumnName());
-		if (gridTab.isTreeTab() && treeId != 0 && treeId != treePanel.getTreeId()) {
+		if (gridTab.isTreeTab() && treeId > 0 && treePanel != null && treeId != treePanel.getTreeId()) {
 			treePanel.initTree(treeId, windowNo);
 			if (!gridTab.isSingleRow() && !isGridView())
 				switchRowPresentation();
@@ -1216,7 +1225,19 @@ public class ADTabPanel extends Div implements Evaluatee, EventListener, DataSta
 			addNewNode();
 		}
 	}
-
+	
+	/**
+	 * Set Switch Row Presentation
+	 * @param isSwitchRow
+	 */
+	public void setSwitchRowPresentation(boolean isSwitchRow) {
+		this.isSwitchRow = isSwitchRow;
+	}
+	
+	public boolean isSwitchRowPresentation() {
+		return this.isSwitchRow;
+	}
+	
 	/**
 	 * Toggle between form and grid view
 	 */
@@ -1261,7 +1282,7 @@ public class ADTabPanel extends Div implements Evaluatee, EventListener, DataSta
 			listPanel.deactivate();
 		}
 		autoResize();
-		
+
 	}
 
 	public GridPanel getListPanel()
@@ -1345,17 +1366,17 @@ public class ADTabPanel extends Div implements Evaluatee, EventListener, DataSta
 	}
 
 	private void createEmbeddedPanelUI(EmbeddedPanel ep) {
-		
-		
+
+
 		org.zkoss.zul.Row row = new Row();
 		row.setSpans("5");
-		
+
 		if(!ep.gridWindow.getTab(ep.tabIndex).isDisplayed())
 		{
 			row.setVisible(false);
 			ep.group.setVisible(false);
 		}
-		
+
 		grid.getRows().insertBefore(row, includedTabFooter.get(ep.adTabId));
 		ep.windowPanel.createPart(row);
 		ep.windowPanel.getComponent().setWidth("100%");
@@ -1392,6 +1413,16 @@ public class ADTabPanel extends Div implements Evaluatee, EventListener, DataSta
 		} else {
 			listPanel.setFocusToField(columnName);
 		}
+	}
+
+	public void updateMandatoryLabels() {
+		if (formComponent.isVisible()) {
+			
+			for (WEditor editor : editors) {
+				if(editor.isMandatoryStyle())
+					editor.setMandatoryStyle();
+			}
+		} 
 	}
 
 	/**
@@ -1461,13 +1492,13 @@ public class ADTabPanel extends Div implements Evaluatee, EventListener, DataSta
 	}
 
 	/**
-	 * 
+	 *
 	 * @return GridPanel
 	 */
 	public GridPanel getGridView() {
 		return listPanel;
 	}
-	
+
 	public int doAutoSize()
 	{
 			int size = 0;
@@ -1482,7 +1513,7 @@ public class ADTabPanel extends Div implements Evaluatee, EventListener, DataSta
             }
             return size;
 	}
-	
+
 	public int includedAutoResize(EmbeddedPanel embeddedpanel)
 	{
 		if(embeddedpanel.windowPanel  !=null)
@@ -1491,7 +1522,7 @@ public class ADTabPanel extends Div implements Evaluatee, EventListener, DataSta
 			{
 				Borderlayout window = embeddedpanel.windowPanel.getComponent();
 	    			try{
-	    				
+
 	    				int size = 0;
 	    				int addSize = 0;
 	    				if (!embeddedpanel.tabPanel.getGridTab().isSingleRow())
@@ -1499,21 +1530,21 @@ public class ADTabPanel extends Div implements Evaluatee, EventListener, DataSta
 	    					size = MSysConfig.getIntValue("TAB_INCLUDING_HEIGHT", 400);
 	    				}
 	    				else {
-	    					
+
 	    					for(Object o : embeddedpanel.tabPanel.getGrid().getRows().getChildren())
 			    			{
 			    				if(o instanceof Row)
 			    				{
 			    					if( ((Row) o).isVisible())
 			    					{
-			    						size += getComponentSize((Row) o) ; 
+			    						size += getComponentSize((Row) o) ;
 			    					}
 			    				}
 			    				else if (o instanceof org.zkoss.zul.Group)
 			    				{
 			    					size +=20; // Group
 			    				}
-			    				
+
 			    			}
 			    		    size += 25; // 25 = statusbar
 	    	    			size += addSize;
@@ -1526,7 +1557,7 @@ public class ADTabPanel extends Div implements Evaluatee, EventListener, DataSta
 			    				}
 			    			}
 	    				}
-	    			
+
 					    window.setHeight(size + "px");
 	    			    window.resize();
 	    			    return size;
@@ -1535,12 +1566,12 @@ public class ADTabPanel extends Div implements Evaluatee, EventListener, DataSta
 	    			{
 	    				e.printStackTrace();
 	    			}
-	    			
+
 	    			return 0;
 			}
 
     	}
-		return 0; 
+		return 0;
 	}
 
     public int includedAutoResize(HorizontalEmbeddedPanel embeddedPanel)
@@ -1601,59 +1632,59 @@ public class ADTabPanel extends Div implements Evaluatee, EventListener, DataSta
         }
         return 0;
     }
-	
-	private int getComponentSize(Row row) { 
-		
+
+	private int getComponentSize(Row row) {
+
 		int addSize = 0;
-		
+
 		for (Object o : ((Row) row).getChildren()) {
-			
+
 			if(o instanceof org.zkoss.zkex.zul.Borderlayout)
 			{
 				return 0;
 			}
-			
+
 			if (o instanceof org.zkoss.zk.ui.HtmlBasedComponent  ){
-				
+
 				String height = ((org.zkoss.zk.ui.HtmlBasedComponent) o).getHeight();
-				
+
 				if (height==null)
 				{
 					height="30";
 				}
-				
+
 				if(!height.contains("%"))
 				{
-									
-					int size = Integer.parseInt(height.replace("px", "")) + 6; 
-					
-					if (size > addSize) 
+
+					int size = Integer.parseInt(height.replace("px", "")) + 6;
+
+					if (size > addSize)
 						addSize = size;
 				}
-				
+
 			}
 		}
-		
+
 		return addSize;
 	}
 
 	@Deprecated
-	private int sizeImage(Row row) { 
-		
+	private int sizeImage(Row row) {
+
 		int addSize = 0;
-		
+
 		for (Object o : ((Row) row).getChildren()) {
-			
+
 			if (o instanceof org.zkoss.zul.Image){
-				
+
 				int size = Integer.parseInt(((org.zkoss.zul.Image) o)
-						.getHeight().replace("px", "")) - INC; 
-				
+						.getHeight().replace("px", "")) - INC;
+
 				if (size > addSize)
 					addSize = size;
 			}
 		}
-		
+
 		return addSize;
 	}
 
@@ -1727,7 +1758,7 @@ public class ADTabPanel extends Div implements Evaluatee, EventListener, DataSta
         }
         ADWindowPanel panel = new ADWindowPanel(ctx, windowNo, gridWindow, tabIndex, tabPanel);
         ep.windowPanel = panel;
-  
+
 
         if (parentRow != null) {
             createHorizontalEmbeddedPanelUI(ep);
@@ -1735,7 +1766,7 @@ public class ADTabPanel extends Div implements Evaluatee, EventListener, DataSta
                 activateChild(true, ep);
         }
     }
-	
+
     private void activateChild(boolean activate, HorizontalEmbeddedPanel panel) {
         if (activate)
         {
@@ -1743,7 +1774,7 @@ public class ADTabPanel extends Div implements Evaluatee, EventListener, DataSta
             panel.windowPanel.getADTab().setSelectedIndex(0);
             panel.tabPanel.query(false, 0, 0);
         }
-        
+
        /* panel.tabPanel.activate(activate);
         if (activate)
         {
@@ -1769,7 +1800,7 @@ public class ADTabPanel extends Div implements Evaluatee, EventListener, DataSta
 //        panel.panelChildren.setVisible(true);
 //        panel.panelChildren.setStyle(" margin:0; padding:0; border: none; position: relative;  ");
 //        //panel.panelChildren.setStyle(" margin:0; padding:0; border: none; height: 600px; ");
-//        
+//
 //
 //        panel.embeddedGrid.setVisible(true);
 //       // panel.embeddedGrid.setStyle("border: none; height: 600px;  ");
@@ -1807,7 +1838,7 @@ public class ADTabPanel extends Div implements Evaluatee, EventListener, DataSta
         panel.setWidth("100%");
         panel.setHeight("100%");
         panel.setMaximizable(true);
-      
+
 
         //creating Object to PanelChildren class
         ep.panelChildren = new Panelchildren();
@@ -1887,6 +1918,6 @@ public class ADTabPanel extends Div implements Evaluatee, EventListener, DataSta
         // Returning the tabbox
         return tabBox;
 
-    }	
+    }
 }
 

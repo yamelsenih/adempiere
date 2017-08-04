@@ -31,7 +31,7 @@ public class X_WM_Area extends PO implements I_WM_Area, I_Persistent
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20170407L;
+	private static final long serialVersionUID = 20170731L;
 
     /** Standard Constructor */
     public X_WM_Area (Properties ctx, int WM_Area_ID, String trxName)
@@ -143,6 +143,23 @@ public class X_WM_Area extends PO implements I_WM_Area, I_Persistent
     {
         return new KeyNamePair(get_ID(), getName());
     }
+
+	/** Set Immutable Universally Unique Identifier.
+		@param UUID 
+		Immutable Universally Unique Identifier
+	  */
+	public void setUUID (String UUID)
+	{
+		set_Value (COLUMNNAME_UUID, UUID);
+	}
+
+	/** Get Immutable Universally Unique Identifier.
+		@return Immutable Universally Unique Identifier
+	  */
+	public String getUUID () 
+	{
+		return (String)get_Value(COLUMNNAME_UUID);
+	}
 
 	/** Set Warehouse Area.
 		@param WM_Area_ID 

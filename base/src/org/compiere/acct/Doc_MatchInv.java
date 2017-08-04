@@ -178,8 +178,20 @@ public class Doc_MatchInv extends Doc
 		if (!dr.updateReverseLine (MInOut.Table_ID, 		//	Amt updated
 			m_receiptLine.getM_InOut_ID(), m_receiptLine.getM_InOutLine_ID(), quantityReceipt , multiplier))
 		{
-			p_Error = "Mat.Receipt not posted yet";
-			return null;
+			if (m_receiptLine.getM_InOut().isPosted())
+			{
+				dr.setAmtAcctCr(Env.ZERO);
+				dr.setAmtAcctDr(Env.ZERO);
+				dr.setAmtSourceCr(Env.ZERO);
+				dr.setAmtSourceDr(Env.ZERO);
+				dr.setQty(quantityReceipt);
+			}
+			else
+			{
+				p_Error = "Mat.Receipt not posted yet";
+				return null;
+				
+			}
 		}
 		log.fine("CR - Amt(" + temp + "->" + dr.getAcctBalance() 
 			+ ") - " + dr.toString());

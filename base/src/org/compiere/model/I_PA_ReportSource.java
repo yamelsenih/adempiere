@@ -469,6 +469,32 @@ public interface I_PA_ReportSource
 	  */
 	public boolean isIncludeNullsUserList2();
 
+    /** Column name IsIncludeNullsUserList3 */
+    public static final String COLUMNNAME_IsIncludeNullsUserList3 = "IsIncludeNullsUserList3";
+
+	/** Set Include Nulls in User List 3.
+	  * Include nulls in the selection of the User List 3
+	  */
+	public void setIsIncludeNullsUserList3 (boolean IsIncludeNullsUserList3);
+
+	/** Get Include Nulls in User List 3.
+	  * Include nulls in the selection of the User List 3
+	  */
+	public boolean isIncludeNullsUserList3();
+
+    /** Column name IsIncludeNullsUserList4 */
+    public static final String COLUMNNAME_IsIncludeNullsUserList4 = "IsIncludeNullsUserList4";
+
+	/** Set Include Nulls in User List 4.
+	  * Include nulls in the selection of the User List 4
+	  */
+	public void setIsIncludeNullsUserList4 (boolean IsIncludeNullsUserList4);
+
+	/** Get Include Nulls in User List 4.
+	  * Include nulls in the selection of the User List 4
+	  */
+	public boolean isIncludeNullsUserList4();
+
     /** Column name ListSources */
     public static final String COLUMNNAME_ListSources = "ListSources";
 
@@ -561,6 +587,19 @@ public interface I_PA_ReportSource
 	  * Restriction of what will be shown in Report Line
 	  */
 	public int getPA_ReportSource_ID();
+
+    /** Column name UUID */
+    public static final String COLUMNNAME_UUID = "UUID";
+
+	/** Set Immutable Universally Unique Identifier.
+	  * Immutable Universally Unique Identifier
+	  */
+	public void setUUID (String UUID);
+
+	/** Get Immutable Universally Unique Identifier.
+	  * Immutable Universally Unique Identifier
+	  */
+	public String getUUID();
 
     /** Column name Updated */
     public static final String COLUMNNAME_Updated = "Updated";

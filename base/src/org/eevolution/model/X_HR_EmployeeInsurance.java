@@ -33,7 +33,7 @@ public class X_HR_EmployeeInsurance extends PO implements I_HR_EmployeeInsurance
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20170407L;
+	private static final long serialVersionUID = 20170731L;
 
     /** Standard Constructor */
     public X_HR_EmployeeInsurance (Properties ctx, int HR_EmployeeInsurance_ID, String trxName)
@@ -434,5 +434,22 @@ public class X_HR_EmployeeInsurance extends PO implements I_HR_EmployeeInsurance
 	public String getSponsorName () 
 	{
 		return (String)get_Value(COLUMNNAME_SponsorName);
+	}
+
+	/** Set Immutable Universally Unique Identifier.
+		@param UUID 
+		Immutable Universally Unique Identifier
+	  */
+	public void setUUID (String UUID)
+	{
+		set_Value (COLUMNNAME_UUID, UUID);
+	}
+
+	/** Get Immutable Universally Unique Identifier.
+		@return Immutable Universally Unique Identifier
+	  */
+	public String getUUID () 
+	{
+		return (String)get_Value(COLUMNNAME_UUID);
 	}
 }

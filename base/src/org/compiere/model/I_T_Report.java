@@ -294,6 +294,8 @@ public interface I_T_Report
 	/** Get Accounting Fact	  */
 	public int getFact_Acct_ID();
 
+	public org.compiere.model.I_Fact_Acct getFact_Acct() throws RuntimeException;
+
     /** Column name LevelNo */
     public static final String COLUMNNAME_LevelNo = "LevelNo";
 
@@ -367,6 +369,19 @@ public interface I_T_Report
 	  * Hierarchical Tab Level (0 = top)
 	  */
 	public int getTabLevel();
+
+    /** Column name UUID */
+    public static final String COLUMNNAME_UUID = "UUID";
+
+	/** Set Immutable Universally Unique Identifier.
+	  * Immutable Universally Unique Identifier
+	  */
+	public void setUUID (String UUID);
+
+	/** Get Immutable Universally Unique Identifier.
+	  * Immutable Universally Unique Identifier
+	  */
+	public String getUUID();
 
     /** Column name ax_case */
     public static final String COLUMNNAME_ax_case = "ax_case";

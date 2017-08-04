@@ -30,7 +30,7 @@ public class X_HR_Education extends PO implements I_HR_Education, I_Persistent
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20170407L;
+	private static final long serialVersionUID = 20170731L;
 
     /** Standard Constructor */
     public X_HR_Education (Properties ctx, int HR_Education_ID, String trxName)
@@ -242,6 +242,23 @@ public class X_HR_Education extends PO implements I_HR_Education, I_Persistent
 	public String getSchoolCollegeAddress () 
 	{
 		return (String)get_Value(COLUMNNAME_SchoolCollegeAddress);
+	}
+
+	/** Set Immutable Universally Unique Identifier.
+		@param UUID 
+		Immutable Universally Unique Identifier
+	  */
+	public void setUUID (String UUID)
+	{
+		set_Value (COLUMNNAME_UUID, UUID);
+	}
+
+	/** Get Immutable Universally Unique Identifier.
+		@return Immutable Universally Unique Identifier
+	  */
+	public String getUUID () 
+	{
+		return (String)get_Value(COLUMNNAME_UUID);
 	}
 
 	/** YearOfPassing AD_Reference_ID=53618 */

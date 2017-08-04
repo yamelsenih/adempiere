@@ -42,7 +42,11 @@ import org.adempiere.webui.event.ContextMenuListener;
 import org.adempiere.webui.window.FDialog;
 import org.compiere.apps.ProcessController;
 import org.compiere.apps.ProcessCtl;
-import org.compiere.model.*;
+import org.compiere.model.GridField;
+import org.compiere.model.Lookup;
+import org.compiere.model.MPInstance;
+import org.compiere.model.MRole;
+import org.compiere.model.MSysConfig;
 import org.compiere.print.MPrintFormat;
 import org.compiere.process.ProcessInfo;
 import org.compiere.swing.CEditor;
@@ -82,6 +86,8 @@ import org.zkoss.zul.Html;
  *		@see https://github.com/adempiere/adempiere/issues/298
  *  @author Raul Muñoz, rMunoz@erpcya.com, ERPCyA http://www.erpcya.com
  *		<li>FR [ 299 ] Instance saved, is not supported for swing UI
+ *		<li>FR [ 1051 ] Process Dialog have not scroll bar in zk
+ *		<li>FR [ 1061 ] Process Modal Dialog in zk height is not autosize
  *	@author Michael Mckay michael.mckay@mckayerp.com
  *		<li>BF [ <a href="https://github.com/adempiere/adempiere/issues/495">495</a> ] Parameter Panel & SmartBrowser criteria do not set gridField value
  * 	@version 	2006-12-01
@@ -118,7 +124,7 @@ public class ProcessPanel extends ProcessController implements SmallViewEditable
 		this.width = width;
 	}
 
-	private static final String MESSAGE_DIV_STYLE = "max-height: 150pt; overflow: auto";
+	private static final String MESSAGE_DIV_STYLE = "max-height: 120px; overflow: auto";
 	/**	Width	*/
 	private String width;
 	//Layout Mode
@@ -128,6 +134,7 @@ public class ProcessPanel extends ProcessController implements SmallViewEditable
 	/**	Rows for Parameters	*/
 	private Rows 	rows;
 	private Row		currentRow;
+	private int		qtyRow = 0;
 	//
 	private Center 	centerPanel;
 	private Panel	mainPanel;
@@ -146,15 +153,14 @@ public class ProcessPanel extends ProcessController implements SmallViewEditable
 	//saved paramaters
 
 	private Combobox fSavedName=new Combobox();
-	private Button bSave = new Button("Save");
-	private Button bDelete = new Button("Delete");
+	private Button bDelete = new Button(Msg.getMsg(Env.getCtx(),"delete"));
 	private Label lSaved = new Label(Msg.getMsg(Env.getCtx(), "SavedParameter"));
 
 	// Print Format
 	private WTableDirEditor		fPrintFormat		= null;
 	private Combobox 			fReportType = new Combobox();
-	private Label				lPrintFormat		= new Label("Print Format:");
-	private Label 				lReportType = new Label("Report Type:");
+	private Label				lPrintFormat		= new Label(Msg.getMsg(Env.getCtx(),"PrintFormat"));
+	private Label 				lReportType = new Label(Msg.getMsg(Env.getCtx(),"ReportType"));
 
 
 	/**	Logger			*/
@@ -177,7 +183,7 @@ public class ProcessPanel extends ProcessController implements SmallViewEditable
     	parameterPanel.appendChild(columns);
     	int colN = getColumns() * 2;
     	if(colN != 0) {
-    		int percent = 100 / colN;
+    		int percent = 99 / colN;
     		for(int i = 0; i < colN; i++) {
     			Column col = new Column();
 	        	col.setWidth((i == 0
@@ -190,7 +196,7 @@ public class ProcessPanel extends ProcessController implements SmallViewEditable
     	parameterPanel.appendChild(rows);
     	//	
     	mainLayout = new Borderlayout();
-		mainLayout.setStyle("border: none; overflow: auto");
+		mainLayout.setStyle("border: none;");
 		//	Message Panel
 		if(isShowDescription()) {
 			messageDiv = new Div();
@@ -208,7 +214,8 @@ public class ProcessPanel extends ProcessController implements SmallViewEditable
 		mainLayout.appendChild(centerPanel);
 		centerPanel.appendChild(parameterPanel);
 		centerPanel.setFlex(false);
-		centerPanel.setStyle("border: none");
+		//	FR [ 1051 ]
+		centerPanel.setStyle("border: none; overflow-y:auto;width:98%");
 		
 		//	Buttons Panel
 		if(isShowButtons()) {
@@ -241,14 +248,9 @@ public class ProcessPanel extends ProcessController implements SmallViewEditable
 			} catch(Exception e) {
 				log.severe("Error loading Buttons " + e.getLocalizedMessage());
 			}
-			bSave.setEnabled(false);
-			bSave.setImage("/images/Save24.png");
-			bSave.setSclass("action-button");
-			bSave.addActionListener(this);
-			hBox.appendChild(bSave);
-
+			
 			bDelete.setEnabled(false);
-			bDelete.setImage("/images/Delete24.png");
+			bDelete.setImage("/images/Delete16.png");
 			bDelete.setSclass("action-button");
 			bDelete.addActionListener(this);
 			hBox.appendChild(bDelete);
@@ -308,8 +310,13 @@ public class ProcessPanel extends ProcessController implements SmallViewEditable
 		}
 		//	
 		mainPanel.appendChild(mainLayout);
-		mainPanel.setHeight("100%");
+		
+		//mainPanel.setHeight("100%");
 		mainPanel.setWidth("100%");
+		parameterPanel.setWidth("97%");
+		mainPanel.invalidate();
+		mainPanel.setStyle("height:100%");
+		mainPanel.invalidate();
 		//
 		loadQuerySaved();
 		fSavedName.addEventListener(Events.ON_CHANGE, this);
@@ -349,6 +356,8 @@ public class ProcessPanel extends ProcessController implements SmallViewEditable
 		if(editor == null) {
 			return;
 		}
+		//	FR [ 1061 ]
+		qtyRow++;
 		//streach component to fill grid cell
 		editor.fillHorizontal();
         //setup editor context menu
@@ -515,9 +524,7 @@ public class ProcessPanel extends ProcessController implements SmallViewEditable
 		hideBusyDialog();
 		//	Hide
 		if(isReport() && !pi.isError()) {
-			//dispose();
-			getProcessInfo().setAD_PInstance_ID(0);
-			setIsProcessed(false);
+			dispose();
 		}
 	}
 
@@ -554,15 +561,12 @@ public class ProcessPanel extends ProcessController implements SmallViewEditable
 
 				// Print format on report para
 				if (fReportType != null && fReportType.getSelectedItem() != null
-						&& fReportType.getSelectedItem().getValue() != null)
-				{
+						&& fReportType.getSelectedItem().getValue() != null) {
 					getProcessInfo().setReportType(fReportType.getSelectedItem().getValue().toString());
 				}
-				if (fPrintFormat != null && fPrintFormat.getValue() != null)
-				{
-					MPrintFormat format = new MPrintFormat(Env.getCtx(), (Integer) fPrintFormat.getValue(), null);
-					if (format != null)
-					{
+				if (fPrintFormat != null && fPrintFormat.getValue() != null) {
+					MPrintFormat format = MPrintFormat.get(Env.getCtx(), (Integer) fPrintFormat.getValue(), false);
+					if (format != null) {
 						if (Ini.isClient())
 							getProcessInfo().setTransientObject(format);
 						else
@@ -664,7 +668,7 @@ public class ProcessPanel extends ProcessController implements SmallViewEditable
 	 */
 	protected void runProcess() {
 		getProcessInfo().setPrintPreview(true);
-		ProcessCtl worker = new ProcessCtl(this, getWindowNo(), getProcessInfo(), null);
+		ProcessCtl worker = new ProcessCtl(this, getWindowNo(), getProcessInfo(),null);
 		worker.run();
 		//	Run
 	}
@@ -709,4 +713,11 @@ public class ProcessPanel extends ProcessController implements SmallViewEditable
 		return validError;
 	}	//	printInvoices
 	
+	/**
+	 * Get Quantity Row
+	 * @return
+	 */
+	public int getQtyRow() {
+		return qtyRow;
+	}
 }	//	ProcessParameterPanel

@@ -32,7 +32,7 @@ public class X_HR_JobApplication extends PO implements I_HR_JobApplication, I_Pe
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20170407L;
+	private static final long serialVersionUID = 20170731L;
 
     /** Standard Constructor */
     public X_HR_JobApplication (Properties ctx, int HR_JobApplication_ID, String trxName)
@@ -773,6 +773,23 @@ public class X_HR_JobApplication extends PO implements I_HR_JobApplication, I_Pe
 	public String getTotalRelevantExperience () 
 	{
 		return (String)get_Value(COLUMNNAME_TotalRelevantExperience);
+	}
+
+	/** Set Immutable Universally Unique Identifier.
+		@param UUID 
+		Immutable Universally Unique Identifier
+	  */
+	public void setUUID (String UUID)
+	{
+		set_Value (COLUMNNAME_UUID, UUID);
+	}
+
+	/** Get Immutable Universally Unique Identifier.
+		@return Immutable Universally Unique Identifier
+	  */
+	public String getUUID () 
+	{
+		return (String)get_Value(COLUMNNAME_UUID);
 	}
 
 	/** YearOfPassing AD_Reference_ID=53618 */

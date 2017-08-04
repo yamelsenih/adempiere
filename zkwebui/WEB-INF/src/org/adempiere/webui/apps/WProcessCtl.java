@@ -17,8 +17,8 @@
 package org.adempiere.webui.apps;
 
 import org.adempiere.webui.component.Window;
-import org.compiere.apps.ProcessCtl;
 import org.compiere.apps.ProcessController;
+import org.compiere.apps.ProcessCtl;
 import org.compiere.model.MPInstance;
 import org.compiere.process.ProcessInfo;
 import org.compiere.util.ASyncProcess;
@@ -51,17 +51,17 @@ public class WProcessCtl {
 	 *  lockUI and unlockUI if parent is a ASyncProcess
 	 *  <br>
 	 *
-	 *  @param aProcess ASyncProcess & Container
-	 *  @param WindowNo window no
+	 *  @param asyncProcess ASyncProcess & Container
+	 *  @param windowNo window no
 	 *  @param pi ProcessInfo process info
 	 *  @param trx Transaction
 	 *  @author Yamel Senih, ysenih@erpcya.com, ERPCyA http://www.erpcya.com
 	 *		<li>FR [ 265 ] ProcessParameterPanel is not MVC
 	 *		@see https://github.com/adempiere/adempiere/issues/265
 	 */
-	public static void process (ASyncProcess aProcess, int WindowNo, ProcessInfo pi, Trx trx)
+	public static void process (ASyncProcess asyncProcess, int windowNo, ProcessInfo pi, Trx trx)
 	{
-		log.fine("WindowNo=" + WindowNo + " - " + pi);
+		log.fine("WindowNo=" + windowNo + " - " + pi);
 
 		MPInstance instance = null; 
 		try 
@@ -92,15 +92,22 @@ public class WProcessCtl {
 		pi.setAD_PInstance_ID (instance.getAD_PInstance_ID());
 
 		//	Get Parameters (Dialog)
-		ProcessModalDialog para = new ProcessModalDialog(aProcess, WindowNo, pi);
-		if (para.isValid())
+		ProcessModalDialog processModalDialog = new ProcessModalDialog(asyncProcess, windowNo, pi);
+		if (processModalDialog.isValidDialog())
 		{
-			para.setWidth("500px");
-			para.setVisible(true);
-			para.setPosition("center");
-			para.setAttribute(Window.MODE_KEY, Window.MODE_MODAL);
-			AEnv.showWindow(para);
+			processModalDialog.setWidth("500px");
+			processModalDialog.setVisible(true);
+			processModalDialog.setPosition("center");
+			processModalDialog.setAttribute(Window.MODE_KEY, Window.MODE_MODAL);
+			AEnv.showWindow(processModalDialog);
+			if (!processModalDialog.isOK()) {
+				return;
+			}
 		}
+		else
+			processModalDialog.runProcess();
+		return;
+
 	}	//	execute
 	
 	/**

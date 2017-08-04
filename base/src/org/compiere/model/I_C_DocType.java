@@ -77,21 +77,6 @@ public interface I_C_DocType
 
 	public org.compiere.model.I_AD_PrintFormat getAD_PrintFormat() throws RuntimeException;
 
-    /** Column name C_BankAccount_ID */
-    public static final String COLUMNNAME_C_BankAccount_ID = "C_BankAccount_ID";
-
-	/** Set Bank Account.
-	  * Account at the Bank
-	  */
-	public void setC_BankAccount_ID (int C_BankAccount_ID);
-
-	/** Get Bank Account.
-	  * Account at the Bank
-	  */
-	public int getC_BankAccount_ID();
-
-	public org.compiere.model.I_C_BankAccount getC_BankAccount() throws RuntimeException;
-
     /** Column name C_DocTypeDifference_ID */
     public static final String COLUMNNAME_C_DocTypeDifference_ID = "C_DocTypeDifference_ID";
 
@@ -326,6 +311,19 @@ public interface I_C_DocType
 	  */
 	public boolean isActive();
 
+    /** Column name IsCopyDocNoOnReversal */
+    public static final String COLUMNNAME_IsCopyDocNoOnReversal = "IsCopyDocNoOnReversal";
+
+	/** Set Copy Document No On Reversal.
+	  * It Copy the Document No on Reversal Document instead of generate a new Sequence
+	  */
+	public void setIsCopyDocNoOnReversal (boolean IsCopyDocNoOnReversal);
+
+	/** Get Copy Document No On Reversal.
+	  * It Copy the Document No on Reversal Document instead of generate a new Sequence
+	  */
+	public boolean isCopyDocNoOnReversal();
+
     /** Column name IsCreateCounter */
     public static final String COLUMNNAME_IsCreateCounter = "IsCreateCounter";
 
@@ -500,6 +498,19 @@ public interface I_C_DocType
 	  */
 	public String getName();
 
+    /** Column name PrintDocument */
+    public static final String COLUMNNAME_PrintDocument = "PrintDocument";
+
+	/** Set Print Document.
+	  * Document to print
+	  */
+	public void setPrintDocument (String PrintDocument);
+
+	/** Get Print Document.
+	  * Document to print
+	  */
+	public String getPrintDocument();
+
     /** Column name PrintName */
     public static final String COLUMNNAME_PrintName = "PrintName";
 
@@ -512,6 +523,19 @@ public interface I_C_DocType
 	  * The label text to be printed on a document or correspondence.
 	  */
 	public String getPrintName();
+
+    /** Column name UUID */
+    public static final String COLUMNNAME_UUID = "UUID";
+
+	/** Set Immutable Universally Unique Identifier.
+	  * Immutable Universally Unique Identifier
+	  */
+	public void setUUID (String UUID);
+
+	/** Get Immutable Universally Unique Identifier.
+	  * Immutable Universally Unique Identifier
+	  */
+	public String getUUID();
 
     /** Column name Updated */
     public static final String COLUMNNAME_Updated = "Updated";

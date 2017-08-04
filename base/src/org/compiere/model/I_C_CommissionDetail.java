@@ -161,6 +161,19 @@ public interface I_C_CommissionDetail
 
 	public org.compiere.model.I_C_OrderLine getC_OrderLine() throws RuntimeException;
 
+    /** Column name CommissionAmt */
+    public static final String COLUMNNAME_CommissionAmt = "CommissionAmt";
+
+	/** Set Commission Amount.
+	  * Commission Amount
+	  */
+	public void setCommissionAmt (BigDecimal CommissionAmt);
+
+	/** Get Commission Amount.
+	  * Commission Amount
+	  */
+	public BigDecimal getCommissionAmt();
+
     /** Column name ConvertedAmt */
     public static final String COLUMNNAME_ConvertedAmt = "ConvertedAmt";
 
@@ -228,6 +241,19 @@ public interface I_C_CommissionDetail
 	  * Reference for this record
 	  */
 	public String getReference();
+
+    /** Column name UUID */
+    public static final String COLUMNNAME_UUID = "UUID";
+
+	/** Set Immutable Universally Unique Identifier.
+	  * Immutable Universally Unique Identifier
+	  */
+	public void setUUID (String UUID);
+
+	/** Get Immutable Universally Unique Identifier.
+	  * Immutable Universally Unique Identifier
+	  */
+	public String getUUID();
 
     /** Column name Updated */
     public static final String COLUMNNAME_Updated = "Updated";

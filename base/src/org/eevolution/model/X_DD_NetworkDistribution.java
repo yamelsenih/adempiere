@@ -32,7 +32,7 @@ public class X_DD_NetworkDistribution extends PO implements I_DD_NetworkDistribu
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20170407L;
+	private static final long serialVersionUID = 20170731L;
 
     /** Standard Constructor */
     public X_DD_NetworkDistribution (Properties ctx, int DD_NetworkDistribution_ID, String trxName)
@@ -243,6 +243,23 @@ public class X_DD_NetworkDistribution extends PO implements I_DD_NetworkDistribu
 	public String getRevision () 
 	{
 		return (String)get_Value(COLUMNNAME_Revision);
+	}
+
+	/** Set Immutable Universally Unique Identifier.
+		@param UUID 
+		Immutable Universally Unique Identifier
+	  */
+	public void setUUID (String UUID)
+	{
+		set_Value (COLUMNNAME_UUID, UUID);
+	}
+
+	/** Get Immutable Universally Unique Identifier.
+		@return Immutable Universally Unique Identifier
+	  */
+	public String getUUID () 
+	{
+		return (String)get_Value(COLUMNNAME_UUID);
 	}
 
 	/** Set Valid from.

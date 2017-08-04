@@ -54,6 +54,8 @@ import org.compiere.util.Util;
  *  @athor Yamel Senih, ysenih@erpcya.com, ERPCyA http://www.erpcya.com
  *		<li> FR [ 379 ] Change URL in About
  *		@see https://github.com/adempiere/adempiere/issues/379
+ *		<a href="https://github.com/adempiere/adempiere/issues/1208">
+ * 		@see FR [ 1208 ] Look and Feel Correction - Print footer</a>
  *  
  */
 public final class Adempiere
@@ -65,9 +67,9 @@ public final class Adempiere
 	// the releases will have a suffix (a) for alpha - (b) for beta - (t) for trunk - (s) for stable - and (LTS) for long term support
 	static public String	MAIN_VERSION	= "Release 3.9.0";
 	/** Detail Version as date      Used for Client/Server		*/
-	static public String	DATE_VERSION	= "2017-05-01";
+	static public String	DATE_VERSION	= "2017-08-01";
 	/** Database Version as date    Compared with AD_System		*/
-	static public String	DB_VERSION		= "2017-05-01";
+	static public String	DB_VERSION		= "2017-08-01";
 
 	/** Product Name            */
 	static public final String	NAME 			= "ADempiere\u00AE";
@@ -88,7 +90,7 @@ public final class Adempiere
 
 	/** Subtitle                */
 	static public final String	SUB_TITLE		= "Smart Suite ERP,CRM and SCM";
-	static public final String	ADEMPIERE_R		= "ADempiere\u00AE";
+	static public final String	ADEMPIERE_R		= "Powered by ADempiere ERP\u00AE";
 	static public final String	COPYRIGHT		= "\u00A9 1999-2017 ADempiere\u00AE";
 
 	static private String		s_ImplementationVersion = null;

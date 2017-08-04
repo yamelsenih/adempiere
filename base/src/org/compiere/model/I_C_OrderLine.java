@@ -281,6 +281,19 @@ public interface I_C_OrderLine
 	  */
 	public String getCreateFrom();
 
+    /** Column name CreateShipment */
+    public static final String COLUMNNAME_CreateShipment = "CreateShipment";
+
+	/** Set Create Shipment.
+	  * Create Shipment From Order Line
+	  */
+	public void setCreateShipment (String CreateShipment);
+
+	/** Get Create Shipment.
+	  * Create Shipment From Order Line
+	  */
+	public String getCreateShipment();
+
     /** Column name Created */
     public static final String COLUMNNAME_Created = "Created";
 
@@ -784,6 +797,19 @@ public interface I_C_OrderLine
 	  */
 	public int getS_ResourceAssignment_ID();
 
+    /** Column name UUID */
+    public static final String COLUMNNAME_UUID = "UUID";
+
+	/** Set Immutable Universally Unique Identifier.
+	  * Immutable Universally Unique Identifier
+	  */
+	public void setUUID (String UUID);
+
+	/** Get Immutable Universally Unique Identifier.
+	  * Immutable Universally Unique Identifier
+	  */
+	public String getUUID();
+
     /** Column name Updated */
     public static final String COLUMNNAME_Updated = "Updated";
 
@@ -859,13 +885,4 @@ public interface I_C_OrderLine
 	public int getUser4_ID();
 
 	public org.compiere.model.I_C_ElementValue getUser4() throws RuntimeException;
-
-    /** Column name createshipment */
-    public static final String COLUMNNAME_createshipment = "createshipment";
-
-	/** Set createshipment	  */
-	public void setcreateshipment (String createshipment);
-
-	/** Get createshipment	  */
-	public String getcreateshipment();
 }

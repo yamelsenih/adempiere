@@ -31,7 +31,7 @@ public class X_RV_WarehousePrice extends PO implements I_RV_WarehousePrice, I_Pe
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20170407L;
+	private static final long serialVersionUID = 20170731L;
 
     /** Standard Constructor */
     public X_RV_WarehousePrice (Properties ctx, int RV_WarehousePrice_ID, String trxName)

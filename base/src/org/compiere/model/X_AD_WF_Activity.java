@@ -31,7 +31,7 @@ public class X_AD_WF_Activity extends PO implements I_AD_WF_Activity, I_Persiste
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20170407L;
+	private static final long serialVersionUID = 20170731L;
 
     /** Standard Constructor */
     public X_AD_WF_Activity (Properties ctx, int AD_WF_Activity_ID, String trxName)
@@ -462,6 +462,23 @@ public class X_AD_WF_Activity extends PO implements I_AD_WF_Activity, I_Persiste
 	public String getTextMsg () 
 	{
 		return (String)get_Value(COLUMNNAME_TextMsg);
+	}
+
+	/** Set Immutable Universally Unique Identifier.
+		@param UUID 
+		Immutable Universally Unique Identifier
+	  */
+	public void setUUID (String UUID)
+	{
+		set_Value (COLUMNNAME_UUID, UUID);
+	}
+
+	/** Get Immutable Universally Unique Identifier.
+		@return Immutable Universally Unique Identifier
+	  */
+	public String getUUID () 
+	{
+		return (String)get_Value(COLUMNNAME_UUID);
 	}
 
 	/** WFState AD_Reference_ID=305 */

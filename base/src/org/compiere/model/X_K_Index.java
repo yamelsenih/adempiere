@@ -31,7 +31,7 @@ public class X_K_Index extends PO implements I_K_Index, I_Persistent
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20170407L;
+	private static final long serialVersionUID = 20170731L;
 
     /** Standard Constructor */
     public X_K_Index (Properties ctx, int K_Index_ID, String trxName)
@@ -290,5 +290,22 @@ public class X_K_Index extends PO implements I_K_Index, I_Persistent
 	public Timestamp getSourceUpdated () 
 	{
 		return (Timestamp)get_Value(COLUMNNAME_SourceUpdated);
+	}
+
+	/** Set Immutable Universally Unique Identifier.
+		@param UUID 
+		Immutable Universally Unique Identifier
+	  */
+	public void setUUID (String UUID)
+	{
+		set_Value (COLUMNNAME_UUID, UUID);
+	}
+
+	/** Get Immutable Universally Unique Identifier.
+		@return Immutable Universally Unique Identifier
+	  */
+	public String getUUID () 
+	{
+		return (String)get_Value(COLUMNNAME_UUID);
 	}
 }

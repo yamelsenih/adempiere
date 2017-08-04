@@ -284,7 +284,7 @@ public class VBrowserTable extends CTable implements IBrowserTable {
 
             browserRows.addBrowserField(field, col);
             if (field.isDisplayed()) {
-                addColumn(field.get_ValueAsString(I_AD_Browse_Field.COLUMNNAME_Name));
+                addColumn(field.get_Translation(I_AD_Browse_Field.COLUMNNAME_Name));
             }
             //	BR [ 257 ]
             col++;
@@ -659,13 +659,11 @@ public class VBrowserTable extends CTable implements IBrowserTable {
      *
      * @param modelColumnIndex model column sort index
      */
-    /* 
-     *#599
     @Override
     protected void sort(final int modelColumnIndex) {
-        sorting = false;
+      super.sort(modelColumnIndex);
     }   //  sort
-*/
+
     /**
      * Get Fields
      * @return

@@ -30,7 +30,7 @@ public class X_K_Synonym extends PO implements I_K_Synonym, I_Persistent
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20170407L;
+	private static final long serialVersionUID = 20170731L;
 
     /** Standard Constructor */
     public X_K_Synonym (Properties ctx, int K_Synonym_ID, String trxName)
@@ -156,5 +156,22 @@ public class X_K_Synonym extends PO implements I_K_Synonym, I_Persistent
 	public String getSynonymName () 
 	{
 		return (String)get_Value(COLUMNNAME_SynonymName);
+	}
+
+	/** Set Immutable Universally Unique Identifier.
+		@param UUID 
+		Immutable Universally Unique Identifier
+	  */
+	public void setUUID (String UUID)
+	{
+		set_Value (COLUMNNAME_UUID, UUID);
+	}
+
+	/** Get Immutable Universally Unique Identifier.
+		@return Immutable Universally Unique Identifier
+	  */
+	public String getUUID () 
+	{
+		return (String)get_Value(COLUMNNAME_UUID);
 	}
 }

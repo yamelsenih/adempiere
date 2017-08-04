@@ -44,7 +44,6 @@ import org.adempiere.webui.event.ZoomEvent;
 import org.adempiere.webui.panel.StatusBarPanel;
 import org.adempiere.webui.report.HTMLExtension;
 import org.adempiere.webui.session.SessionManager;
-import org.compiere.apps.ProcessCtl;
 import org.compiere.model.GridField;
 import org.compiere.model.MArchive;
 import org.compiere.model.MClient;
@@ -211,7 +210,7 @@ public class ZkReportViewer extends Window implements EventListener {
 		this.appendChild(layout);
 		this.setStyle("width: 100%; height: 100%; position: absolute");
 
-		toolBar.setHeight("26px");
+		toolBar.setHeight("100%");
 		
 		previewType.setMold("select");
 		previewType.appendItem("PDF", "PDF");
@@ -282,8 +281,7 @@ public class ZkReportViewer extends Window implements EventListener {
 				previewType.setSelectedIndex(3);
 			}
 		}
-			
-		
+
 		labelDrill.setValue(Msg.getMsg(Env.getCtx(), "Drill") + ": ");
 		toolBar.appendChild(labelDrill);
 		
@@ -297,39 +295,39 @@ public class ZkReportViewer extends Window implements EventListener {
 		comboReport.setTooltiptext(Msg.translate(Env.getCtx(), "AD_PrintFormat_ID"));
 		toolBar.appendChild(comboReport);
 		//	FR [ 237 ]
-//		toolBar.appendChild(new Separator("vertical"));
+		toolBar.appendChild(new Separator("vertical"));
 		comboReportView.setMold("select");
 		comboReportView.setTooltiptext(Msg.translate(Env.getCtx(), "AD_ReportView_ID"));
 		toolBar.appendChild(comboReportView);
-		
-		summary.setText(Msg.getMsg(Env.getCtx(), "Summary"));
-		toolBar.appendChild(summary);
-		
-		bCustomize.setImage("/images/Preference24.png");
+
+		toolBar.appendChild(new Separator("vertical"));
+		bCustomize.setImage("/images/dark/Preference16.png");
 		bCustomize.setTooltiptext(Msg.getMsg(Env.getCtx(), "PrintCustomize"));
 		toolBar.appendChild(bCustomize);
 		bCustomize.addEventListener(Events.ON_CLICK, this);
-		
-		bFind.setImage("/images/Find24.png");
+
+		toolBar.appendChild(new Separator("vertical"));
+		bFind.setImage("/images/dark/Find16.png");
 		bFind.setTooltiptext(Msg.getMsg(Env.getCtx(), "Find"));
 		toolBar.appendChild(bFind);
 		bFind.addEventListener(Events.ON_CLICK, this);
 		
 		toolBar.appendChild(new Separator("vertical"));
-		
-		bSendMail.setImage("/images/SendMail24.png");
+		bSendMail.setImage("/images/dark/SendMail16.png");
 		bSendMail.setTooltiptext(Msg.getMsg(Env.getCtx(), "SendMail"));
 		toolBar.appendChild(bSendMail);
 		bSendMail.addEventListener(Events.ON_CLICK, this);
-		
-		bArchive.setImage("/images/Archive24.png");
+
+		toolBar.appendChild(new Separator("vertical"));
+		bArchive.setImage("/images/dark/Archive16.png");
 		bArchive.setTooltiptext(Msg.getMsg(Env.getCtx(), "Archive"));
 		toolBar.appendChild(bArchive);
 		bArchive.addEventListener(Events.ON_CLICK, this);
-		
+
 		if (m_isCanExport)
 		{
-			bExport.setImage("/images/ExportX24.png");
+			toolBar.appendChild(new Separator("vertical"));
+			bExport.setImage("/images/dark/ExportX16.png");
 			bExport.setTooltiptext(Msg.getMsg(Env.getCtx(), "Export"));
 			toolBar.appendChild(bExport);
 			bExport.addEventListener(Events.ON_CLICK, this);
@@ -337,22 +335,32 @@ public class ZkReportViewer extends Window implements EventListener {
 		
 		//	BR [1019]
 		if (m_IsCanLoad) {
-			bLoad.setImage("/images/Import24.png");
+			toolBar.appendChild(new Separator("vertical"));
+			bLoad.setImage("/images/dark/Import16.png");
 			bLoad.setTooltiptext(Msg.getMsg(Env.getCtx(), "Load New Report Definition"));
 			toolBar.appendChild(bLoad);
 			bLoad.addEventListener(Events.ON_CLICK, this);
 		}
 		
 		toolBar.appendChild(new Separator("vertical"));
-		
-		bRefresh.setImage("/images/Refresh24.png");
+		bRefresh.setImage("/images/dark/Refresh16.png");
 		bRefresh.setTooltiptext(Msg.getMsg(Env.getCtx(), "Refresh"));
 		toolBar.appendChild(bRefresh);
 		bRefresh.addEventListener(Events.ON_CLICK, this);
 
+		toolBar.appendChild(new Separator("vertical"));
+		summary.setText(Msg.getMsg(Env.getCtx(), "Summary"));
+		toolBar.appendChild(summary);
+
 		North north = new North();
-		layout.appendChild(north);
-		north.appendChild(toolBar);
+		north.setParent(layout);
+		north.setCollapsible(false);
+		north.setFlex(true);
+
+		Vbox box = new Vbox();
+		box.setWidth("100%");
+		toolBar.setParent(box);
+		box.setParent(north);
 
 		Center center = new Center();
 		center.setFlex(true);
@@ -1284,17 +1292,18 @@ public class ZkReportViewer extends Window implements EventListener {
 				m_reportEngine.getProcessInfo().getTable_ID(), 
 				m_reportEngine.getProcessInfo().getRecord_ID());
 		//	Launch dialog
-		ProcessModalDialog dialog = new ProcessModalDialog(null, m_WindowNo, pi);
-		if (dialog.isValid()) {
+		ProcessModalDialog processModalDialog = new ProcessModalDialog(null, m_WindowNo, pi);
+		if (processModalDialog.isValidDialog()) {
 			try {
-				dialog.setPage(this.getPage());
-				dialog.doModal();
+				processModalDialog.setPage(this.getPage());
+				processModalDialog.doModal();
 				//	Valid
-				if(dialog.isOK()) {
+				if(processModalDialog.isOK()) {
 					//	execute
-					ProcessCtl worker = new ProcessCtl(null, m_WindowNo, pi, true, null);
+					//ProcessCtl worker = new ProcessCtl(null, m_WindowNo, pi, true, null);
 					//synchrous
-					worker.run();
+					//worker.run();
+					processModalDialog.runProcess();
 					//	
 					ReportEngine re = ReportEngine.get(Env.getCtx(), pi);
 					//	
@@ -1308,6 +1317,8 @@ public class ZkReportViewer extends Window implements EventListener {
 				log.severe(e.getLocalizedMessage());
 			}
 		}
+		else
+			processModalDialog.runProcess();
 		//	Default
 		return false;
 	}

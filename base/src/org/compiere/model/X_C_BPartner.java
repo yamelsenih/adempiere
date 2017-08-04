@@ -33,7 +33,7 @@ public class X_C_BPartner extends PO implements I_C_BPartner, I_Persistent
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20170407L;
+	private static final long serialVersionUID = 20170731L;
 
     /** Standard Constructor */
     public X_C_BPartner (Properties ctx, int C_BPartner_ID, String trxName)
@@ -1090,6 +1090,35 @@ public class X_C_BPartner extends PO implements I_C_BPartner, I_Persistent
 		return ii.intValue();
 	}
 
+	/** MaritalStatus AD_Reference_ID=53614 */
+	public static final int MARITALSTATUS_AD_Reference_ID=53614;
+	/** Divorced = D */
+	public static final String MARITALSTATUS_Divorced = "D";
+	/** Live-in = L */
+	public static final String MARITALSTATUS_Live_In = "L";
+	/** Married = M */
+	public static final String MARITALSTATUS_Married = "M";
+	/** Single = S */
+	public static final String MARITALSTATUS_Single = "S";
+	/** Widow = W */
+	public static final String MARITALSTATUS_Widow = "W";
+	/** Windower = X */
+	public static final String MARITALSTATUS_Windower = "X";
+	/** Set Marital Status.
+		@param MaritalStatus Marital Status	  */
+	public void setMaritalStatus (String MaritalStatus)
+	{
+
+		set_Value (COLUMNNAME_MaritalStatus, MaritalStatus);
+	}
+
+	/** Get Marital Status.
+		@return Marital Status	  */
+	public String getMaritalStatus () 
+	{
+		return (String)get_Value(COLUMNNAME_MaritalStatus);
+	}
+
 	/** Set NAICS/SIC.
 		@param NAICS 
 		Standard Industry Code or its successor NAIC - http://www.osha.gov/oshstats/sicser.html
@@ -1352,21 +1381,32 @@ public class X_C_BPartner extends PO implements I_C_BPartner, I_Persistent
 		return (String)get_Value(COLUMNNAME_PaymentRulePO);
 	}
 
-	/** Set Place of Birth.
-		@param PlaceOfBirth 
-		Place of Birth
+	public I_C_Location getPlaceOfBirth() throws RuntimeException
+    {
+		return (I_C_Location)MTable.get(getCtx(), I_C_Location.Table_Name)
+			.getPO(getPlaceOfBirth_ID(), get_TrxName());	}
+
+	/** Set Place of Birth (Location).
+		@param PlaceOfBirth_ID 
+		Place of Birth (Location)
 	  */
-	public void setPlaceOfBirth (String PlaceOfBirth)
+	public void setPlaceOfBirth_ID (int PlaceOfBirth_ID)
 	{
-		set_Value (COLUMNNAME_PlaceOfBirth, PlaceOfBirth);
+		if (PlaceOfBirth_ID < 1) 
+			set_Value (COLUMNNAME_PlaceOfBirth_ID, null);
+		else 
+			set_Value (COLUMNNAME_PlaceOfBirth_ID, Integer.valueOf(PlaceOfBirth_ID));
 	}
 
-	/** Get Place of Birth.
-		@return Place of Birth
+	/** Get Place of Birth (Location).
+		@return Place of Birth (Location)
 	  */
-	public String getPlaceOfBirth () 
+	public int getPlaceOfBirth_ID () 
 	{
-		return (String)get_Value(COLUMNNAME_PlaceOfBirth);
+		Integer ii = (Integer)get_Value(COLUMNNAME_PlaceOfBirth_ID);
+		if (ii == null)
+			 return 0;
+		return ii.intValue();
 	}
 
 	/** Set Potential Life Time Value.
@@ -1674,6 +1714,23 @@ public class X_C_BPartner extends PO implements I_C_BPartner, I_Persistent
 	public String getURL () 
 	{
 		return (String)get_Value(COLUMNNAME_URL);
+	}
+
+	/** Set Immutable Universally Unique Identifier.
+		@param UUID 
+		Immutable Universally Unique Identifier
+	  */
+	public void setUUID (String UUID)
+	{
+		set_Value (COLUMNNAME_UUID, UUID);
+	}
+
+	/** Get Immutable Universally Unique Identifier.
+		@return Immutable Universally Unique Identifier
+	  */
+	public String getUUID () 
+	{
+		return (String)get_Value(COLUMNNAME_UUID);
 	}
 
 	/** Set Unapplied Payments.

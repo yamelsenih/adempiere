@@ -30,6 +30,7 @@ import org.compiere.model.Query;
 import org.compiere.util.Env;
 import org.compiere.util.Msg;
 import org.compiere.util.Trx;
+import org.compiere.util.Util;
 import org.eevolution.model.I_I_HR_Employee;
 import org.eevolution.model.MHRCareerLevel;
 import org.eevolution.model.MHRDegree;
@@ -76,7 +77,7 @@ public class ImportEmployee extends ImportEmployeeAbstract {
      * @throws Exception
      */
     protected String doIt() throws Exception {
-        if (isDeleteoldimportedrecords())
+        if (isDeleteOldImported())
             Arrays.stream(getImportEmployeeIds(true, true)).forEach(importEmployeeId -> {
                 X_I_HR_Employee importEmployee = new X_I_HR_Employee(getCtx() , importEmployeeId , null);
                 importEmployee.deleteEx(true);
@@ -120,8 +121,8 @@ public class ImportEmployee extends ImportEmployeeAbstract {
         Integer partnerId = getId(MBPartner.Table_Name, MBPartner.COLUMNNAME_Value + "=?", trxName, importEmployee.getBPartnerValue());
         if (partnerId > 0)
             importEmployee.setC_BPartner_ID(partnerId);
-        else if (isCreatedBusinessPartner()){
-            if (getBusinessPartnerGroupId() > 0) {
+        else if (isCreated()){
+            if (getBPGroupId() > 0) {
                 MBPartner partner = createPartnerFromEmployeeData(importEmployee);
                 partnerId = partner.get_ID();
                 importEmployee.setC_BPartner_ID(partnerId);
@@ -406,7 +407,7 @@ public class ImportEmployee extends ImportEmployeeAbstract {
         if (importEmployee.getI_ErrorMsg() != null)
             return false;
 
-        if (!isOnlyValidateData()) {
+        if (!isValidateOnly()) {
             MHREmployee employee = MHREmployee.getByPartnerIdAndStartDate(importEmployee.getCtx(), importEmployee.getC_BPartner_ID(), importEmployee.getStartDate(), trxName);
             if (employee != null && employee.getHR_Employee_ID() <= 0) {
                 importEmployeeImages(importEmployee);
@@ -435,11 +436,10 @@ public class ImportEmployee extends ImportEmployeeAbstract {
         partner.setIsEmployee(true);
         partner.setIsCustomer(true);
         partner.setIsSalesRep(false);
-        partner.setC_BP_Group_ID(getBusinessPartnerGroupId());
+        partner.setC_BP_Group_ID(getBPGroupId());
         partner.setBirthday(importEmployee.getBirthday());
         partner.setBloodGroup(importEmployee.getBloodGroup());
         partner.setGender(importEmployee.getGender());
-        partner.setPlaceOfBirth(importEmployee.getPlaceOfBirth());
         partner.setFathersName(importEmployee.getFathersName());
         partner.saveEx();
 
@@ -455,13 +455,24 @@ public class ImportEmployee extends ImportEmployeeAbstract {
      */
     private MBPartner updatePartnerFromEmployeeData(X_I_HR_Employee importEmployee) {
         MBPartner partner = (MBPartner) importEmployee.getC_BPartner();
-        partner.setName(importEmployee.getName());
-        partner.setName2(importEmployee.getName2());
-        partner.setBirthday(importEmployee.getBirthday());
-        partner.setBloodGroup(importEmployee.getBloodGroup());
-        partner.setGender(importEmployee.getGender());
-        partner.setPlaceOfBirth(importEmployee.getPlaceOfBirth());
-        partner.setFathersName(importEmployee.getFathersName());
+        if(!Util.isEmpty(importEmployee.getName())) {
+        	partner.setName(importEmployee.getName());
+        }
+        if(!Util.isEmpty(importEmployee.getName2())) {
+        	partner.setName2(importEmployee.getName2());
+        }
+        if(importEmployee.getBirthday() != null) {
+        	partner.setBirthday(importEmployee.getBirthday());
+        }
+        if(!Util.isEmpty(importEmployee.getBloodGroup())) {
+        	partner.setBloodGroup(importEmployee.getBloodGroup());
+        }
+        if(!Util.isEmpty(importEmployee.getGender())) {
+        	partner.setGender(importEmployee.getGender());
+        }
+        if(!Util.isEmpty(importEmployee.getFathersName())) {
+        	partner.setFathersName(importEmployee.getFathersName());
+        }
         partner.saveEx();
         return partner;
 

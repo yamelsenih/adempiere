@@ -30,7 +30,7 @@ public class X_C_DocType extends PO implements I_C_DocType, I_Persistent
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20170407L;
+	private static final long serialVersionUID = 20170731L;
 
     /** Standard Constructor */
     public X_C_DocType (Properties ctx, int C_DocType_ID, String trxName)
@@ -115,34 +115,6 @@ public class X_C_DocType extends PO implements I_C_DocType, I_Persistent
 	public int getAD_PrintFormat_ID () 
 	{
 		Integer ii = (Integer)get_Value(COLUMNNAME_AD_PrintFormat_ID);
-		if (ii == null)
-			 return 0;
-		return ii.intValue();
-	}
-
-	public org.compiere.model.I_C_BankAccount getC_BankAccount() throws RuntimeException
-    {
-		return (org.compiere.model.I_C_BankAccount)MTable.get(getCtx(), org.compiere.model.I_C_BankAccount.Table_Name)
-			.getPO(getC_BankAccount_ID(), get_TrxName());	}
-
-	/** Set Bank Account.
-		@param C_BankAccount_ID 
-		Account at the Bank
-	  */
-	public void setC_BankAccount_ID (int C_BankAccount_ID)
-	{
-		if (C_BankAccount_ID < 1) 
-			set_Value (COLUMNNAME_C_BankAccount_ID, null);
-		else 
-			set_Value (COLUMNNAME_C_BankAccount_ID, Integer.valueOf(C_BankAccount_ID));
-	}
-
-	/** Get Bank Account.
-		@return Account at the Bank
-	  */
-	public int getC_BankAccount_ID () 
-	{
-		Integer ii = (Integer)get_Value(COLUMNNAME_C_BankAccount_ID);
 		if (ii == null)
 			 return 0;
 		return ii.intValue();
@@ -391,6 +363,8 @@ public class X_C_DocType extends PO implements I_C_DocType, I_Persistent
 	public static final String DOCBASETYPE_ManufacturingPlannedOrder = "MPO";
 	/** AP Payment Selection = APS */
 	public static final String DOCBASETYPE_APPaymentSelection = "APS";
+	/** Sales Commission = SOC */
+	public static final String DOCBASETYPE_SalesCommission = "SOC";
 	/** Fixed Assets Addition = FAA */
 	public static final String DOCBASETYPE_FixedAssetsAddition = "FAA";
 	/** Fixed Assets Disposal = FAD */
@@ -583,6 +557,30 @@ public class X_C_DocType extends PO implements I_C_DocType, I_Persistent
 	public boolean isHasProforma () 
 	{
 		Object oo = get_Value(COLUMNNAME_HasProforma);
+		if (oo != null) 
+		{
+			 if (oo instanceof Boolean) 
+				 return ((Boolean)oo).booleanValue(); 
+			return "Y".equals(oo);
+		}
+		return false;
+	}
+
+	/** Set Copy Document No On Reversal.
+		@param IsCopyDocNoOnReversal 
+		It Copy the Document No on Reversal Document instead of generate a new Sequence
+	  */
+	public void setIsCopyDocNoOnReversal (boolean IsCopyDocNoOnReversal)
+	{
+		set_Value (COLUMNNAME_IsCopyDocNoOnReversal, Boolean.valueOf(IsCopyDocNoOnReversal));
+	}
+
+	/** Get Copy Document No On Reversal.
+		@return It Copy the Document No on Reversal Document instead of generate a new Sequence
+	  */
+	public boolean isCopyDocNoOnReversal () 
+	{
+		Object oo = get_Value(COLUMNNAME_IsCopyDocNoOnReversal);
 		if (oo != null) 
 		{
 			 if (oo instanceof Boolean) 
@@ -923,6 +921,32 @@ public class X_C_DocType extends PO implements I_C_DocType, I_Persistent
         return new KeyNamePair(get_ID(), getName());
     }
 
+	/** PrintDocument AD_Reference_ID=53425 */
+	public static final int PRINTDOCUMENT_AD_Reference_ID=53425;
+	/** Order = 0 */
+	public static final String PRINTDOCUMENT_Order = "0";
+	/** Shipment = 1 */
+	public static final String PRINTDOCUMENT_Shipment = "1";
+	/** Invoice = 2 */
+	public static final String PRINTDOCUMENT_Invoice = "2";
+	/** Set Print Document.
+		@param PrintDocument 
+		Document to print
+	  */
+	public void setPrintDocument (String PrintDocument)
+	{
+
+		set_Value (COLUMNNAME_PrintDocument, PrintDocument);
+	}
+
+	/** Get Print Document.
+		@return Document to print
+	  */
+	public String getPrintDocument () 
+	{
+		return (String)get_Value(COLUMNNAME_PrintDocument);
+	}
+
 	/** Set Print Text.
 		@param PrintName 
 		The label text to be printed on a document or correspondence.
@@ -938,5 +962,22 @@ public class X_C_DocType extends PO implements I_C_DocType, I_Persistent
 	public String getPrintName () 
 	{
 		return (String)get_Value(COLUMNNAME_PrintName);
+	}
+
+	/** Set Immutable Universally Unique Identifier.
+		@param UUID 
+		Immutable Universally Unique Identifier
+	  */
+	public void setUUID (String UUID)
+	{
+		set_Value (COLUMNNAME_UUID, UUID);
+	}
+
+	/** Get Immutable Universally Unique Identifier.
+		@return Immutable Universally Unique Identifier
+	  */
+	public String getUUID () 
+	{
+		return (String)get_Value(COLUMNNAME_UUID);
 	}
 }

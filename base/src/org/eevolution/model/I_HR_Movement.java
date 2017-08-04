@@ -100,6 +100,19 @@ public interface I_HR_Movement
 	  */
 	public BigDecimal getAmount();
 
+    /** Column name BarcodeScanner */
+    public static final String COLUMNNAME_BarcodeScanner = "BarcodeScanner";
+
+	/** Set Barcode Scanner.
+	  * This form allows processing the transactions of materials by means of a Barcode Scanner.
+	  */
+	public void setBarcodeScanner (String BarcodeScanner);
+
+	/** Get Barcode Scanner.
+	  * This form allows processing the transactions of materials by means of a Barcode Scanner.
+	  */
+	public String getBarcodeScanner();
+
     /** Column name C_Activity_ID */
     public static final String COLUMNNAME_C_Activity_ID = "C_Activity_ID";
 
@@ -629,6 +642,19 @@ public interface I_HR_Movement
 	  * Text Message
 	  */
 	public String getTextMsg();
+
+    /** Column name UUID */
+    public static final String COLUMNNAME_UUID = "UUID";
+
+	/** Set Immutable Universally Unique Identifier.
+	  * Immutable Universally Unique Identifier
+	  */
+	public void setUUID (String UUID);
+
+	/** Get Immutable Universally Unique Identifier.
+	  * Immutable Universally Unique Identifier
+	  */
+	public String getUUID();
 
     /** Column name Updated */
     public static final String COLUMNNAME_Updated = "Updated";

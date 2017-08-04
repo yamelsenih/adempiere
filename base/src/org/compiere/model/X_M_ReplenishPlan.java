@@ -31,7 +31,7 @@ public class X_M_ReplenishPlan extends PO implements I_M_ReplenishPlan, I_Persis
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20170407L;
+	private static final long serialVersionUID = 20170731L;
 
     /** Standard Constructor */
     public X_M_ReplenishPlan (Properties ctx, int M_ReplenishPlan_ID, String trxName)
@@ -387,5 +387,22 @@ public class X_M_ReplenishPlan extends PO implements I_M_ReplenishPlan, I_Persis
 	public String getSuggestedRequisitionReport () 
 	{
 		return (String)get_Value(COLUMNNAME_SuggestedRequisitionReport);
+	}
+
+	/** Set Immutable Universally Unique Identifier.
+		@param UUID 
+		Immutable Universally Unique Identifier
+	  */
+	public void setUUID (String UUID)
+	{
+		set_Value (COLUMNNAME_UUID, UUID);
+	}
+
+	/** Get Immutable Universally Unique Identifier.
+		@return Immutable Universally Unique Identifier
+	  */
+	public String getUUID () 
+	{
+		return (String)get_Value(COLUMNNAME_UUID);
 	}
 }

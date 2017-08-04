@@ -32,7 +32,7 @@ public class X_T_Report extends PO implements I_T_Report, I_Persistent
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20170407L;
+	private static final long serialVersionUID = 20170731L;
 
     /** Standard Constructor */
     public X_T_Report (Properties ctx, int T_Report_ID, String trxName)
@@ -40,10 +40,6 @@ public class X_T_Report extends PO implements I_T_Report, I_Persistent
       super (ctx, T_Report_ID, trxName);
       /** if (T_Report_ID == 0)
         {
-			setAD_PInstance_ID (0);
-			setFact_Acct_ID (0);
-			setPA_ReportLine_ID (0);
-			setRecord_ID (0);
         } */
     }
 
@@ -529,6 +525,11 @@ public class X_T_Report extends PO implements I_T_Report, I_Persistent
 		return (String)get_Value(COLUMNNAME_Description);
 	}
 
+	public org.compiere.model.I_Fact_Acct getFact_Acct() throws RuntimeException
+    {
+		return (org.compiere.model.I_Fact_Acct)MTable.get(getCtx(), org.compiere.model.I_Fact_Acct.Table_Name)
+			.getPO(getFact_Acct_ID(), get_TrxName());	}
+
 	/** Set Accounting Fact.
 		@param Fact_Acct_ID Accounting Fact	  */
 	public void setFact_Acct_ID (int Fact_Acct_ID)
@@ -677,6 +678,23 @@ public class X_T_Report extends PO implements I_T_Report, I_Persistent
 		if (ii == null)
 			 return 0;
 		return ii.intValue();
+	}
+
+	/** Set Immutable Universally Unique Identifier.
+		@param UUID 
+		Immutable Universally Unique Identifier
+	  */
+	public void setUUID (String UUID)
+	{
+		set_Value (COLUMNNAME_UUID, UUID);
+	}
+
+	/** Get Immutable Universally Unique Identifier.
+		@return Immutable Universally Unique Identifier
+	  */
+	public String getUUID () 
+	{
+		return (String)get_Value(COLUMNNAME_UUID);
 	}
 
 	/** Set ax_case.

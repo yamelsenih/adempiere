@@ -30,7 +30,7 @@ public class X_R_IssueProject extends PO implements I_R_IssueProject, I_Persiste
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20170407L;
+	private static final long serialVersionUID = 20170731L;
 
     /** Standard Constructor */
     public X_R_IssueProject (Properties ctx, int R_IssueProject_ID, String trxName)
@@ -251,5 +251,22 @@ public class X_R_IssueProject extends PO implements I_R_IssueProject, I_Persiste
 	public String getSystemStatus () 
 	{
 		return (String)get_Value(COLUMNNAME_SystemStatus);
+	}
+
+	/** Set Immutable Universally Unique Identifier.
+		@param UUID 
+		Immutable Universally Unique Identifier
+	  */
+	public void setUUID (String UUID)
+	{
+		set_Value (COLUMNNAME_UUID, UUID);
+	}
+
+	/** Get Immutable Universally Unique Identifier.
+		@return Immutable Universally Unique Identifier
+	  */
+	public String getUUID () 
+	{
+		return (String)get_Value(COLUMNNAME_UUID);
 	}
 }

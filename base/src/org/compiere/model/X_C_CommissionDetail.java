@@ -32,7 +32,7 @@ public class X_C_CommissionDetail extends PO implements I_C_CommissionDetail, I_
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20170407L;
+	private static final long serialVersionUID = 20170731L;
 
     /** Standard Constructor */
     public X_C_CommissionDetail (Properties ctx, int C_CommissionDetail_ID, String trxName)
@@ -252,6 +252,26 @@ public class X_C_CommissionDetail extends PO implements I_C_CommissionDetail, I_
 		return ii.intValue();
 	}
 
+	/** Set Commission Amount.
+		@param CommissionAmt 
+		Commission Amount
+	  */
+	public void setCommissionAmt (BigDecimal CommissionAmt)
+	{
+		set_Value (COLUMNNAME_CommissionAmt, CommissionAmt);
+	}
+
+	/** Get Commission Amount.
+		@return Commission Amount
+	  */
+	public BigDecimal getCommissionAmt () 
+	{
+		BigDecimal bd = (BigDecimal)get_Value(COLUMNNAME_CommissionAmt);
+		if (bd == null)
+			 return Env.ZERO;
+		return bd;
+	}
+
 	/** Set Converted Amount.
 		@param ConvertedAmt 
 		Converted Amount
@@ -313,4 +333,21 @@ public class X_C_CommissionDetail extends PO implements I_C_CommissionDetail, I_
     {
         return new KeyNamePair(get_ID(), getReference());
     }
+
+	/** Set Immutable Universally Unique Identifier.
+		@param UUID 
+		Immutable Universally Unique Identifier
+	  */
+	public void setUUID (String UUID)
+	{
+		set_Value (COLUMNNAME_UUID, UUID);
+	}
+
+	/** Get Immutable Universally Unique Identifier.
+		@return Immutable Universally Unique Identifier
+	  */
+	public String getUUID () 
+	{
+		return (String)get_Value(COLUMNNAME_UUID);
+	}
 }

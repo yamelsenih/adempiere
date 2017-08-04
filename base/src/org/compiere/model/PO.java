@@ -26,6 +26,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Savepoint;
 import java.sql.Timestamp;
+import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -33,6 +35,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
@@ -103,6 +106,8 @@ import org.w3c.dom.Element;
  *			@see https://github.com/adempiere/adempiere/issues/392
  *			<a href="https://github.com/adempiere/adempiere/issues/673">
  * 			@see FR [ 673 ] Model Migration don't load current value for Multi-Key records</a>
+ * 			<a href="https://github.com/adempiere/adempiere/issues/922">
+ * 			@see FR [ 922 ] Is Allow Copy in model</a>
  */
 public abstract class PO
 	implements Serializable, Comparator, Evaluatee, Cloneable
@@ -1221,8 +1226,7 @@ public abstract class PO
 	 *	@param currentValue current value
 	 *	@return String value with "./." as null
 	 */
-	protected String get_DisplayValue(String columnName, boolean currentValue)
-	{
+	protected String get_DisplayValue(String columnName, boolean currentValue) {
 		Object value = currentValue ? get_Value(columnName) : get_ValueOld(columnName);
 		if (value == null)
 			return "./.";
@@ -1230,9 +1234,20 @@ public abstract class PO
 		int index = get_ColumnIndex(columnName);
 		if (index < 0)
 			return retValue;
-		int dt = get_ColumnDisplayType(index);
-		if (DisplayType.isText(dt) || DisplayType.YesNo == dt)
+		int displayType = get_ColumnDisplayType(index);
+		if (DisplayType.isText(displayType) || DisplayType.YesNo == displayType) {
 			return retValue;
+		}
+		//	For Date
+		if(DisplayType.isDate(displayType)) {
+			SimpleDateFormat format = DisplayType.getDateFormat(displayType);
+			return format.format(value);
+		}
+		//	For Number
+		if(DisplayType.isNumeric(displayType)) {
+			DecimalFormat format = DisplayType.getNumberFormat(displayType);
+			format.format(value);
+		}
 		//	Lookup
 		Lookup lookup = get_ColumnLookup(index);
 		if (lookup != null)
@@ -1252,18 +1267,30 @@ public abstract class PO
 	 */
 	protected static void copyValues (PO from, PO to, int AD_Client_ID, int AD_Org_ID)
 	{
-		copyValues (from, to);
+		copyValues (from, to, true);
 		to.setAD_Client_ID(AD_Client_ID);
 		to.setAD_Org_ID(AD_Org_ID);
 	}	//	copyValues
 
+	
 	/**
 	 * 	Copy old values of From to new values of To.
 	 *  Does not copy Keys and AD_Client_ID/AD_Org_ID
 	 * 	@param from old, existing & unchanged PO
 	 *  @param to new, not saved PO
 	 */
-	public static void copyValues (PO from, PO to)
+	public static void copyValues (PO from, PO to) {
+		copyValues(from, to, true);
+	}
+	
+	/**
+	 * 	Copy old values of From to new values of To.
+	 *  Does not copy Keys and AD_Client_ID/AD_Org_ID
+	 * 	@param from old, existing & unchanged PO
+	 *  @param to new, not saved PO
+	 *  @param force Ignore IsAllowCopy feature
+	 */
+	public static void copyValues (PO from, PO to, boolean force)
 	{
 		s_log.fine("From ID=" + from.get_ID() + " - To ID=" + to.get_ID());
 		//	Different Classes
@@ -1272,7 +1299,8 @@ public abstract class PO
 			for (int i1 = 0; i1 < from.m_oldValues.length; i1++)
 			{
 				if (from.p_info.isVirtualColumn(i1)
-					|| from.p_info.isKey(i1))		//	KeyColumn
+					|| from.p_info.isKey(i1)	//	KeyColumn
+					|| (!from.p_info.isAllowCopy(i1) && !force))		//	Allow Copy
 					continue;
 				String colName = from.p_info.getColumnName(i1);
 				//  Ignore Standard Values
@@ -1282,6 +1310,7 @@ public abstract class PO
 					|| colName.equals("AD_Client_ID")
 					|| colName.equals("AD_Org_ID")
 					|| colName.equals("Processing")
+					|| colName.equals("UUID")
 					)
 					;	//	ignore
 				else
@@ -1302,7 +1331,8 @@ public abstract class PO
 			for (int i = 0; i < from.m_oldValues.length; i++)
 			{
 				if (from.p_info.isVirtualColumn(i)
-					|| from.p_info.isKey(i))		//	KeyColumn
+					|| from.p_info.isKey(i)	//	KeyColumn
+					|| (!from.p_info.isAllowCopy(i) && !force))		//	Allow Copy
 					continue;
 				String colName = from.p_info.getColumnName(i);
 				//  Ignore Standard Values
@@ -1312,10 +1342,12 @@ public abstract class PO
 					|| colName.equals("AD_Client_ID")
 					|| colName.equals("AD_Org_ID")
 					|| colName.equals("Processing")
-					)
+					|| colName.equals("UUID")
+					) {
 					;	//	ignore
-				else
+				} else {
 					to.m_newValues[i] = from.m_oldValues[i];
+				}
 			}
 		}	//	same class
 	}	//	copy
@@ -1959,9 +1991,9 @@ public abstract class PO
 	{
 		//
 		// Check if columnName, AD_Language is valid or table support translation (has 1 PK) => error
-		if (columnName == null || AD_Language == null
-			|| m_IDs.length > 1 || m_IDs[0].equals(I_ZERO)
-			|| !(m_IDs[0] instanceof Integer))
+		if (columnName == null
+		|| AD_Language == null
+		|| m_IDs.length > 1)
 		{
 			throw new IllegalArgumentException("ColumnName=" + columnName
 												+ ", AD_Language=" + AD_Language
@@ -2277,6 +2309,13 @@ public abstract class PO
 			try
 			{
 				success = afterSave (newRecord, success);
+				//Generate UUID
+				//TODO : Is necessary Generate UUIDs for all records
+				/*if (get_ColumnIndex("UUID") > 0 && get_ValueAsString("UUID") == null)
+				{
+					UUID uuid = UUID.randomUUID();
+					set_CustomColumn("UUID", uuid.toString());
+				}*/
 			}
 			catch (Exception e)
 			{
