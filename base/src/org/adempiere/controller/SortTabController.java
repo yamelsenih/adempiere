@@ -32,6 +32,7 @@ import org.compiere.util.DB;
 import org.compiere.util.DisplayType;
 import org.compiere.util.Env;
 import org.compiere.util.Language;
+import org.spin.model.MADTranslation;
 
 /**
  * The SortTabController provides a MVC used for 
@@ -39,6 +40,8 @@ import org.compiere.util.Language;
  * @author Yamel Senih, ysenih@erpcya.com, ERPCyA http://www.erpcya.com
  *		<a href="https://github.com/adempiere/adempiere/issues/990">
  * 		@see FR [ 990 ] Sort Tab is not MVC</a>
+ *		<a href="https://github.com/adempiere/adempiere/issues/1000">
+ * 		@see FR [ 1000 ] Add new feature for unique translation table</a>
  */
 public abstract class SortTabController {
 	
@@ -67,10 +70,10 @@ public abstract class SortTabController {
 	private String		columnSortName= null;
 	private String		columnYesNoName = null;
 	private String		keyColumnName = null;
-	private String		m_IdentifierSql = null;
-	private boolean		m_IdentifierTranslated = false;
+	private String		identifierSQL = null;
+	private boolean		identifierTranslated = false;
 	private int			m_WindowNo;
-	private String		m_ParentColumnName = null;
+	private String		parentColumnName = null;
 	private boolean 	isReadWrite = true;
 	
 	
@@ -83,7 +86,7 @@ public abstract class SortTabController {
 	 */
 	private void dynInit () {
 		int identifiersCount = 0;
-		StringBuffer identifierSql = new StringBuffer();
+		StringBuffer localIdentifierSQL = new StringBuffer();
 		String sql = "SELECT t.TableName, c.AD_Column_ID, c.ColumnName, e.Name,"	//	1..4
 			+ "c.IsParent, c.IsKey, c.IsIdentifier, c.IsTranslated "				//	4..8
 			+ "FROM AD_Table t, AD_Column c, AD_Element e "
@@ -103,7 +106,7 @@ public abstract class SortTabController {
 				+ "	OR c.IsParent='Y' OR c.IsKey='Y' OR c.IsIdentifier='Y')"
 				+ " AND c.AD_Element_ID=et.AD_Element_ID"
 				+ " AND et.AD_Language=?";						//	#4
-		sql += " ORDER BY c.SeqNo";
+		sql += " ORDER BY c.IsKey DESC, c.SeqNo";
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
 		try {
@@ -129,7 +132,7 @@ public abstract class SortTabController {
 				//	Parent2
 				else if (rs.getString(5).equals("Y")) {
 					log.fine("Parent=" + rs.getString(1) + "." + rs.getString(3));
-					m_ParentColumnName = rs.getString(3);
+					parentColumnName = rs.getString(3);
 				}
 				//	KeyColumn
 				else if (rs.getString(6).equals("Y")) {
@@ -140,12 +143,15 @@ public abstract class SortTabController {
 				else if (rs.getString(7).equals("Y")) {
 					log.fine("Identifier=" + rs.getString(1) + "." + rs.getString(3));
 					boolean isTranslated = trl && "Y".equals(rs.getString(8));
-					if (identifierSql.length() > 0)
-						identifierSql.append(",");
-					identifierSql.append(getIdentifier(rs.getString(1), rs.getString(3), rs.getInt(2),isTranslated));
+					String identifier = getIdentifier(rs.getString(1), rs.getString(3), rs.getInt(2), isTranslated);
+					if (localIdentifierSQL.length() > 0) {
+						localIdentifierSQL.append(" || ").append("COALESCE('_' || ").append(identifier).append(", '')");
+					} else {
+						localIdentifierSQL.append(identifier);
+					}
 					identifiersCount++;
 					if (isTranslated)
-						m_IdentifierTranslated = true;
+						identifierTranslated = true;
 				} else {
 					log.fine("??NotUsed??=" + rs.getString(1) + "." + rs.getString(3));
 				}
@@ -158,11 +164,8 @@ public abstract class SortTabController {
 		}
 		//
 		if (identifiersCount == 0)
-			m_IdentifierSql = "NULL";
-		else if (identifiersCount == 1)
-			m_IdentifierSql = identifierSql.toString();
-		else 
-			m_IdentifierSql = identifierSql.insert(0, "COALESCE(").append(")").toString();
+			identifierSQL = "NULL";
+		else identifierSQL = localIdentifierSQL.toString();
 		
 		log.fine(columnSortName);
 	}	//	dynInit
@@ -171,32 +174,32 @@ public abstract class SortTabController {
 	 * Load Data from result set
 	 */
 	public void loadData() {
+		boolean isTranslationSupported = MADTranslation.isSupported();
 		StringBuffer sql = new StringBuffer();
 		//	Columns
 		sql.append("SELECT t.").append(keyColumnName)				//	1
-		.append(",").append(m_IdentifierSql)						//	2
-		.append(",t.").append(columnSortName)				//	3
-		.append(", t.AD_Client_ID, t.AD_Org_ID");		// 4, 5
+			.append(",").append(identifierSQL)						//	2
+			.append(",t.").append(columnSortName)				//	3
+			.append(", t.AD_Client_ID, t.AD_Org_ID");		// 4, 5
 		if (columnYesNoName != null)
 			sql.append(",t.").append(columnYesNoName);			//	6
 		//	Tables
 		sql.append(" FROM ").append(tableName).append( " t");
-		if (m_IdentifierTranslated)
+		if(!isTranslationSupported && identifierTranslated) {
 			sql.append(", ").append(tableName).append("_Trl tt");
+		}
 		//	Where
 		//FR [ 2826406 ]
-		if(m_ParentColumnName != null)
-		{
-			sql.append(" WHERE t.").append(m_ParentColumnName).append("=?");
-		}
-		else
-		{
+		if(parentColumnName != null) {
+			sql.append(" WHERE t.").append(parentColumnName).append("=?");
+		} else {
 			sql.append(" WHERE 1=?");
 		}
-			
-		if (m_IdentifierTranslated)
+		//	
+		if (!isTranslationSupported && identifierTranslated) {
 			sql.append(" AND t.").append(keyColumnName).append("=tt.").append(keyColumnName)
-			.append(" AND tt.AD_Language=?");
+				.append(" AND tt.AD_Language=?");
+		}
 		//	Order
 		sql.append(" ORDER BY ");
 		if (columnYesNoName != null)
@@ -204,9 +207,8 @@ public abstract class SortTabController {
 		sql.append("3,2");				//	t.SeqNo, tt.Name 
 		//FR [ 2826406 ]
 		int ID = 0;		
-		if(m_ParentColumnName != null)
-		{	
-			ID = Env.getContextAsInt(Env.getCtx(), m_WindowNo, m_ParentColumnName);
+		if(parentColumnName != null) {	
+			ID = Env.getContextAsInt(Env.getCtx(), m_WindowNo, parentColumnName);
 			log.fine(sql.toString() + " - ID=" + ID);
 		} else {
 			ID = 1;
@@ -217,9 +219,10 @@ public abstract class SortTabController {
 			pstmt = DB.prepareStatement(sql.toString(), null);
 			pstmt.setInt(1, ID);
 			
-			if (m_IdentifierTranslated)
+			if (!isTranslationSupported && identifierTranslated) {
 				pstmt.setString(2, Env.getAD_Language(Env.getCtx()));
-			
+			}
+			//	
 			rs = pstmt.executeQuery();
 			while (rs.next()) {
 				int key = rs.getInt(1);
@@ -321,15 +324,31 @@ public abstract class SortTabController {
 				.getAD_Language(Env.getCtx()));
 		StringBuilder sql = new StringBuilder("");
 		MColumn column = MColumn.get(Env.getCtx(), AD_Column_ID);
-		if(DisplayType.TableDir == column.getAD_Reference_ID() || DisplayType.Search == column.getAD_Reference_ID())
+		if(DisplayType.TableDir == column.getAD_Reference_ID() || DisplayType.Search == column.getAD_Reference_ID()) {
 			sql.append("(").append(MLookupFactory.getLookup_TableDirEmbed(language, columnName, "t")).append(")");
-		else if (DisplayType.Table == column.getAD_Reference_ID())
+		} else if (DisplayType.Table == column.getAD_Reference_ID()) {
 			sql.append("(").append(MLookupFactory.getLookup_TableEmbed(language, column.getColumnName(), "t", column.getAD_Reference_Value_ID())).append(")");
-		else if(DisplayType.List == column.getAD_Reference_ID())
+		} else if(DisplayType.List == column.getAD_Reference_ID()) {
 			sql.append("(").append(MLookupFactory.getLookup_ListEmbed(language, column.getAD_Reference_Value_ID(), columnName)).append(")");
-		else 
-			sql.append(isTranslated ? "tt." : "t.").append(columnName);
-		
+		} else {
+			if(MADTranslation.isSupported()) {
+				if(isTranslated) {
+					String keyColumnReference = "t." + keyColumnName;
+					String displayColumnReference = "t." + columnName;
+					sql.append("getTranslation('")
+							.append(tableName).append("', '")
+							.append(columnName).append("', ")
+							.append(keyColumnReference).append(", '")
+							.append(language.getAD_Language()).append("', ")
+							.append(displayColumnReference).append(")");
+				} else {
+					sql.append("t.").append(columnName);
+				}
+			} else {
+				sql.append(isTranslated ? "tt." : "t.").append(columnName);
+			}
+		}
+		//	
 		return sql.toString();
 	}
 	

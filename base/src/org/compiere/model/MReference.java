@@ -14,17 +14,12 @@
  * All Rights Reserved.                                                       *
  * Contributor(s): Yamel Senih www.erpcya.com                                 *
  *****************************************************************************/
-package org.spin.model;
+package org.compiere.model;
 
 import java.sql.ResultSet;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.Properties;
 
-import org.compiere.Adempiere;
-import org.compiere.util.CLogger;
-
+import org.compiere.util.CCache;
 
 /**
  * Added for handle global translation
@@ -32,45 +27,54 @@ import org.compiere.util.CLogger;
  *		<a href="https://github.com/adempiere/adempiere/issues/1000">
  * 		@see FR [ 1000 ] Add new feature for unique translation table</a>
  */
-public class MADTranslation extends X_AD_Translation {
+public class MReference extends X_AD_Reference {
 
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 8813618563395994813L;
-	
-	/**	Logger	*/
-	private static CLogger	log	= CLogger.getCLogger (MADTranslation.class);
+	private static final long serialVersionUID = -4717667011975753005L;
 
-	public MADTranslation(Properties ctx, int AD_Translation_ID, String trxName) {
-		super(ctx, AD_Translation_ID, trxName);
+	/**
+	 * @param ctx
+	 * @param AD_Reference_ID
+	 * @param trxName
+	 */
+	public MReference(Properties ctx, int AD_Reference_ID, String trxName) {
+		super(ctx, AD_Reference_ID, trxName);
 	}
 
-	public MADTranslation(Properties ctx, ResultSet rs, String trxName) {
+	/**
+	 * @param ctx
+	 * @param rs
+	 * @param trxName
+	 */
+	public MReference(Properties ctx, ResultSet rs, String trxName) {
 		super(ctx, rs, trxName);
 	}
+
+	/** Value Cache						*/
+	private static CCache<Integer, MReference> cache = new CCache<Integer,MReference>(Table_Name, 20);
 	
 	/**
-	 * Validate if translation is supported
+	 * Get From Cache
+	 * @param ctx
+	 * @param referenceId
 	 * @return
 	 */
-	public static boolean isSupported() {
-		//	
-		try {
-			Date dbVersion = new SimpleDateFormat("yyyy-MM-dd").parse(Adempiere.DB_VERSION);
-			Date validVersion = new SimpleDateFormat("yyyy-MM-dd").parse(DB_SUPPORTED_VERSION);
-			//	Compare
-			if(dbVersion != null
-					&& validVersion != null) {
-				return dbVersion.compareTo(validVersion) >= 0;
-			}
-		} catch (ParseException e) {
-			log.severe("Not valid version " + e.getLocalizedMessage());
-		}  
-		//	
-		return false;
+	public static MReference getById(Properties ctx, int referenceId) {
+		if (referenceId <= 0)
+			return null;
+
+		MReference reference = cache.get(referenceId);
+		if (reference != null)
+			return reference;
+
+		reference = new MReference(ctx, referenceId, null);
+		if (reference.get_ID() == referenceId) {
+			cache.put(referenceId, reference);
+		} else {
+			reference = null;
+		}
+		return reference;
 	}
-	
-	/** Database Version as date    Compared with AD_System		*/
-	private static String	DB_SUPPORTED_VERSION		= "2017-08-30";
 }
