@@ -100,7 +100,20 @@ public class GridTable extends AbstractTableModel
 	private static final long serialVersionUID = 7799823493936826600L;
 	
 	public static final String DATA_REFRESH_MESSAGE = "Refreshed";
+	
+	public String				m_trxName				= null;
 
+	public String getTrxName()
+	{
+		return m_trxName;
+	}
+
+	public void setTrxName(String trxName)
+	{
+		this.m_trxName = trxName;
+	}
+
+	
 	/**
 	 *	JDBC Based Buffered Table
 	 *
@@ -227,6 +240,10 @@ public class GridTable extends AbstractTableModel
 
 	private final static Integer NEW_ROW_ID = Integer.valueOf(-1);
 	private static final int DEFAULT_FETCH_SIZE = 200;
+
+	public ArrayList<Integer> rowChanged=new ArrayList<Integer>();
+	private HashMap<Integer, Object[]> rowChangedData=new HashMap<Integer, Object[]>();
+
 
 	/**
 	 *	Set Table Name
@@ -1186,7 +1203,9 @@ public class GridTable extends AbstractTableModel
 			log.finest("r=" + row + " c=" + col + " - R/O=" + m_readOnly + ", Rows=" + m_rowCount + " - Ignored");
 			return;
 		}
-
+		if(!rowChanged.contains(row))
+			rowChanged.add(row);
+		if(!m_fields.get(0).getGridTab().isIncluded()) // && !m_fields.get(0).getGridTab().isQuickEntry())
 		dataSave(row, false);
 
 		//	Has anything changed?
@@ -1227,10 +1246,23 @@ public class GridTable extends AbstractTableModel
 				m_rowData[i] = rowData[i];
 		}
 
+		if(rowChangedData.containsKey(row))
+		{
+			rowChangedData.get(row)[col]=oldValue;
+		}
+		else
+		{
+			Object[] o = new Object[rowData.length];
+			System.arraycopy( rowData, 0, o, 0,rowData.length);
+			rowChangedData.put(row, o);
+		}
+
 		//	save & update
 		rowData[col] = value;
 		setDataAtRow(row, rowData);
-		//  update Table
+		//  update Table // QuickEntry: check for DropDown list populate but focus is lose while LEFT/RIGHT key-event fire.
+		if (!m_fields.get(0).getGridTab().isIncluded()
+				&& (DisplayType.List != m_fields.get(col).getDisplayType()))
 		fireTableCellUpdated(row, col);
 		//  update MField
 		GridField field = getField(col);
@@ -1484,6 +1516,7 @@ public class GridTable extends AbstractTableModel
 				return SAVE_ERROR;
 			}
 		}
+		
 		
 		/**	Manual Update of Row (i.e. not via PO class)	**/
 		log.info("NonPO");
@@ -2528,6 +2561,12 @@ public class GridTable extends AbstractTableModel
 				field.setValue(rowData[i], m_inserting);
 			}
 		}
+
+		Object[] o =new Object[rowData.length];
+		System.arraycopy(rowData, 0, o, 0, rowData.length);
+		rowChangedData.put(m_newRow, o);
+		if(!rowChanged.contains(m_newRow))
+			rowChanged.add(m_newRow);
 		
 		m_rowChanged = -1;  //  only changed in setValueAt
 
@@ -2674,6 +2713,20 @@ public class GridTable extends AbstractTableModel
 			}
 		}
 
+		if(rowChanged.contains(row))
+		{
+			rowChangedData.remove(row);
+			//rowChanged.remove(row); jobriant - it passes the element index instead of the key
+			int i = 0;
+			for (int changed : rowChanged) {
+				if (changed == row) {
+					rowChanged.remove(i);
+					break;
+				}
+				i++;
+			}
+		}
+
 		//	inform
 		m_changed = false;
 		m_rowChanged = -1;
@@ -2716,8 +2769,21 @@ public class GridTable extends AbstractTableModel
 			//
 			m_changed = false;
 			m_rowData = null;
+
+			if(!m_inserting && rowChanged.size()> 0)
+			{
+				for(int i=0 ; i<rowChanged.size() ; i++)
+				{
+					setDataAtRow(rowChanged.get(i), rowChangedData.get(rowChanged.get(i)));
+				}
+			}
+			rowChangedData.clear();
+			rowChanged.clear();
+			
 			m_rowChanged = -1;
 			m_inserting = false;
+			
+			
 			//	inform
 			fireTableRowsDeleted(m_newRow, m_newRow);
 		}
@@ -3719,5 +3785,10 @@ public class GridTable extends AbstractTableModel
 			String where = getWhereClause(rowData);
 
 			return where;
+		}
+		
+		public ArrayList<Integer> getRowChanged()
+		{
+			return rowChanged;
 		}
 }

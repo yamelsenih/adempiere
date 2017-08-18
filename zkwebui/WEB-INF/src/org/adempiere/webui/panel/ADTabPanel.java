@@ -785,6 +785,11 @@ public class ADTabPanel extends Div implements Evaluatee, EventListener, DataSta
         	gridTab.getTableModel().fireTableDataChanged();
     }
 
+    public void setGridTab(GridTab gridTab) 
+    {
+		this.gridTab = gridTab;
+	}
+    
     /**
      * @return GridTab
      */
@@ -1919,5 +1924,6 @@ public class ADTabPanel extends Div implements Evaluatee, EventListener, DataSta
         return tabBox;
 
     }
+
 }
 
