@@ -40,6 +40,8 @@ import org.zkoss.zhtml.Label;
 import org.zkoss.zhtml.Text;
 import org.zkoss.zk.au.out.AuFocus;
 import org.zkoss.zk.ui.Component;
+import org.zkoss.zk.ui.Desktop;
+import org.zkoss.zk.ui.Executions;
 import org.zkoss.zk.ui.HtmlBasedComponent;
 import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.event.EventListener;
@@ -376,6 +378,7 @@ public class GridTabRowRenderer implements RowRenderer, RowRendererExt, Renderer
 	 * @see RowRenderer#render(Row, Object)
 	 */
 	public void render(Row row, Object data) throws Exception {
+		
 		//don't render if not visible
 		if (gridPanel != null && !gridPanel.isVisible()) {
 			return;
@@ -413,10 +416,7 @@ public class GridTabRowRenderer implements RowRenderer, RowRendererExt, Renderer
 				compCount++;
 				component = getDisplayComponent(currentValues[i], gridField[i]);
 				div.appendChild(component);
-//				if (compCount == 1) {
 					//add hidden input component to help focusing to row
-					
-//				}
 
 				if (DisplayType.YesNo == gridField[i].getDisplayType() || DisplayType.Image == gridField[i].getDisplayType()) {
 					div.setTextAlign("center"); 
@@ -444,6 +444,7 @@ public class GridTabRowRenderer implements RowRenderer, RowRendererExt, Renderer
 			setCurrentRow(row);
 		}
 		row.addEventListener(Events.ON_OK, rowListener);
+		
 	}
 
 	/**
@@ -666,7 +667,6 @@ public class GridTabRowRenderer implements RowRenderer, RowRendererExt, Renderer
 			for (WEditor editor : getEditors()) {
 				if (editor.isHasFocus() && editor.isVisible() && editor.getComponent().getParent() != null) {
 					toFocus = editor;
-					System.out.println("Tiene el foco"+editor);
 					break;
 				}
 
@@ -683,16 +683,19 @@ public class GridTabRowRenderer implements RowRenderer, RowRendererExt, Renderer
 				if (c instanceof Textbox) {
 					((Textbox)c).focus();
 				}
-				if (c instanceof EditorBox) {
+				else if (c instanceof EditorBox) {
 					c = ((EditorBox)c).getTextbox();
-					((EditorBox) c).focus();
+					((Textbox) c).focus();
 				}
 				Clients.response(new AuFocus(c));
 			} else if (firstEditor != null) {
 				Component c = firstEditor.getComponent();
-				if (c instanceof EditorBox) {
+				if (c instanceof Textbox) {
+					((Textbox)c).focus();
+				}
+				else if (c instanceof EditorBox) {
 					c = ((EditorBox)c).getTextbox();
-					((EditorBox) c).focus();
+					((Textbox) c).focus();
 				}
 				Clients.response(new AuFocus(c));
 			}
@@ -717,13 +720,6 @@ public class GridTabRowRenderer implements RowRenderer, RowRendererExt, Renderer
 
 		public void onEvent(Event event) throws Exception {
 			if (Events.ON_CLICK.equals(event.getName())) {
-				Col col = (Col)event.getTarget();
-				
-				if(currentDiv != null) {
-					currentDiv.addEventListener(Events.ON_CLICK, this);
-				} else {
-					col.removeEventListener(Events.ON_CLICK, this);
-				}
 				
 				Event evt = new Event(Events.ON_CLICK, _grid, event.getTarget());
 				Events.sendEvent(_grid, evt);
@@ -760,15 +756,20 @@ public class GridTabRowRenderer implements RowRenderer, RowRendererExt, Renderer
 	}
 
 	public boolean setCurrentColumn(int col) {
-		currentRow = ((Row) grid.getRows().getChildren().get(gridTab.getCurrentRow()));
+		int pgIndex = currentRowIndex >= 0 ? currentRowIndex % paging.getPageSize() : 0;
+		org.zkoss.zul.Row row = (org.zkoss.zul.Row) grid.getRows().getChildren().get(pgIndex);
+		
+		currentRow = row;
+				//((Row) grid.getRows().getChildren().get(gridTab.getCurrentRow()));
 		if(col < 0 || col >= currentRow.getChildren().size())
 			return false;
 
 		currentColumn = col;
-		if(currentDiv != null )
+		if(currentDiv != null ) {
 			currentDiv.setFocus(false);
-		
-		setCurrentDiv((Col)grid.getCell(gridTab.getCurrentRow(), currentColumn));
+			currentDiv.addEventListener(Events.ON_CLICK, rowListener);
+		}
+		setCurrentDiv((Col)grid.getCell(pgIndex, currentColumn));
 		editCurrentCol(false);
 		
 		return true;
@@ -781,6 +782,7 @@ public class GridTabRowRenderer implements RowRenderer, RowRendererExt, Renderer
 		if(col.getAnchorInput() == null)
 			col.createAnchorInput();
 		col.getAnchorInput().addEventListener(Events.ON_CHANGING, this);
+		col.removeEventListener(Events.ON_CLICK, rowListener);
 		col.invalidate();
 		currentDiv = col;
 	}
