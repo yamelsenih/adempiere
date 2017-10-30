@@ -35,8 +35,10 @@ import org.adempiere.webui.apps.ProcessModalDialog;
 import org.adempiere.webui.apps.WReport;
 import org.adempiere.webui.apps.form.WCreateFromFactory;
 import org.adempiere.webui.apps.form.WPayment;
+import org.adempiere.webui.apps.form.WQuickEntrySheet;
 import org.adempiere.webui.component.AbstractADTab;
 import org.adempiere.webui.component.CWindowToolbar;
+import org.adempiere.webui.component.GridPanel;
 import org.adempiere.webui.component.IADTab;
 import org.adempiere.webui.component.IADTabList;
 import org.adempiere.webui.component.Window;
@@ -186,6 +188,8 @@ public abstract class AbstractADWindowPanel extends AbstractUIPart implements To
 	public North north = new North();
 	
 	private WProcessAction processAction;
+	
+	private GridPanel quickGridPanel = null;
 
 
 	/**
@@ -2414,5 +2418,45 @@ public abstract class AbstractADWindowPanel extends AbstractUIPart implements To
 	 */
 	public Component getParent() {
 		return this.parent;
+	}
+	
+	public void onQuickEntry() {
+		logger.log(Level.FINE, "Invoke Quick Entry Form");
+		ADTabPanel tabPanel = (ADTabPanel) getADTab().getSelectedTabpanel();
+//		if (!SessionManager.registerQuickGrid(tabPanel.getGridTab().getAD_Tab_ID())) {
+//			logger.fine("TabID=" + tabPanel.getGridTab().getAD_Tab_ID() + "  is already opened.");
+//			return;
+//		}
+		MQuery query = tabPanel.getGridTab().getQuery();
+		GridTab quickGridTab = new GridTab(tabPanel.getGridTab().getM_vo(), gridWindow);
+		quickGridTab.setLinkColumnName(tabPanel.getGridTab().getLinkColumnName());
+		quickGridTab.query(false);
+		quickGridTab.setQuery(query);
+		quickGridTab.setQuickEntry(true);
+		quickGridPanel = new GridPanel(curWindowNo);
+	
+		onIgnore();
+		//quickGrid.init(quickGridTab);
+		WQuickEntrySheet form = new WQuickEntrySheet(quickGridPanel, quickGridTab, tabPanel, this, m_onlyCurrentDays, m_onlyCurrentRows);
+		
+		form.setVisible(true);
+		form.setPosition("center");
+		form.setSizable(true);
+		
+		AEnv.showWindow(form);
+		
+		/*
+		//form.doPopup();
+		try {
+			form.doModal();
+		} catch (SuspendNotAllowedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		*/
+		
 	}
 }

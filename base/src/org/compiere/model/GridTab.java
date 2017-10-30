@@ -202,7 +202,9 @@ public class GridTab implements DataStatusListener, Evaluatee, Serializable
 	/** Is Tab Included in other Tab  */
 	private boolean    			m_included = false;
 	private boolean    			m_includedAlreadyCalc = false;
-
+	
+	private boolean				IsQuickEntry = false;
+	
 	/**	Logger			*/
 	protected CLogger	log = CLogger.getCLogger(getClass());
 	
@@ -3233,9 +3235,19 @@ public class GridTab implements DataStatusListener, Evaluatee, Serializable
 	{
 		selection.clear();
 	}
-	
+
 	public boolean isNew()
 	{
 		return isOpen() && getCurrentRow() >= 0 && getCurrentRow() == m_mTable.getNewRow();
 	}
+	
+	public void setQuickEntry(boolean isQuickEntry) {
+		IsQuickEntry = isQuickEntry;
+	}
+	public boolean isQuickEntry()
+	{
+		return IsQuickEntry;
+	}
+	
+	
 }	//	GridTab

@@ -405,6 +405,11 @@ public class GridTabRowRenderer implements RowRenderer, RowRendererExt, Renderer
 		int colIndex = -1;
 		int compCount = 0;
 		for (int i = 0; i < columnCount; i++) {
+			if (gridTab.isQuickEntry() 
+					&& !gridField[i].isQuickEntry())
+				{
+				continue;
+				}
 			if (!(gridField[i].isDisplayed() ) ) {
 				continue;
 			}
@@ -444,6 +449,7 @@ public class GridTabRowRenderer implements RowRenderer, RowRendererExt, Renderer
 			setCurrentRow(row);
 		}
 		row.addEventListener(Events.ON_OK, rowListener);
+		row.invalidate();
 		
 	}
 
@@ -783,6 +789,7 @@ public class GridTabRowRenderer implements RowRenderer, RowRendererExt, Renderer
 			col.createAnchorInput();
 		col.getAnchorInput().addEventListener(Events.ON_CHANGING, this);
 		col.removeEventListener(Events.ON_CLICK, rowListener);
+		col.setFocus(true);
 		col.invalidate();
 		currentDiv = col;
 	}

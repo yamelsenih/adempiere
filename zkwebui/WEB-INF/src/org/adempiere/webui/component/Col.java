@@ -97,12 +97,7 @@ public class Col extends Div {
 	 */
 	public void createAnchorInput() {
 		anchorInput = new Textbox();
-
-		
-//		input.addEventListener(Events.ON_CHANGE,this);
-//		input.setDynamicProperty("type", "text");
 		anchorInput.setValue("");
-		//input.setDynamicProperty("readonly", "readonly");
 		appendChild(anchorInput);
 		anchorInput.setStyle("top: -10px; opacity:0; height: 0px; width: 0px;");
 		
