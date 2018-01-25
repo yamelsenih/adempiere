@@ -403,6 +403,8 @@ public abstract class AbstractADWindowPanel extends AbstractUIPart implements To
 	        toolbar.enableFind(true);
 	        toolbar.enableHistoryRecords(false);
         }
+       
+        	
 
         updateToolbar();
 
@@ -1216,6 +1218,7 @@ public abstract class AbstractADWindowPanel extends AbstractUIPart implements To
     		toolbar.enableNavigation(false);
     		toolbar.enableProcess(false);
     	}
+
 	}
 
 	/**
@@ -2427,6 +2430,7 @@ public abstract class AbstractADWindowPanel extends AbstractUIPart implements To
 //			logger.fine("TabID=" + tabPanel.getGridTab().getAD_Tab_ID() + "  is already opened.");
 //			return;
 //		}
+		
 		MQuery query = tabPanel.getGridTab().getQuery();
 		GridTab quickGridTab = new GridTab(tabPanel.getGridTab().getM_vo(), gridWindow);
 		quickGridTab.setLinkColumnName(tabPanel.getGridTab().getLinkColumnName());
@@ -2437,14 +2441,15 @@ public abstract class AbstractADWindowPanel extends AbstractUIPart implements To
 	
 		onIgnore();
 		//quickGrid.init(quickGridTab);
-		WQuickEntrySheet form = new WQuickEntrySheet(quickGridPanel, quickGridTab, tabPanel, this, m_onlyCurrentDays, m_onlyCurrentRows);
+		WQuickEntrySheet form = new WQuickEntrySheet(quickGridPanel, currentTab, tabPanel, this, m_onlyCurrentDays, m_onlyCurrentRows);
 		
-		form.setVisible(true);
 		form.setPosition("center");
 		form.setSizable(true);
 		
-		AEnv.showWindow(form);
-		
+//		AEnv.showWindow(form);
+
+		AEnv.showCenterScreen(form);
+		}
 		/*
 		//form.doPopup();
 		try {
@@ -2458,5 +2463,5 @@ public abstract class AbstractADWindowPanel extends AbstractUIPart implements To
 		}
 		*/
 		
-	}
+	
 }

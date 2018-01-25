@@ -122,7 +122,9 @@ public class GridPanel extends Borderlayout implements EventListener
 	
 	private IADTabPanel tabPanel;
 
-	private Keylistener				keyListener;
+	private Keylistener	keyListener;
+	
+	private int currentCol = -1;
 	
 	
 	public void setADTabPanel(IADTabPanel panel)
@@ -463,6 +465,8 @@ public class GridPanel extends Borderlayout implements EventListener
 					}
 					renderer.setCurrentColumn(currentCol);
 			}
+
+			keyListener.setCtrlKeys(CNTRL_KEYS+KEYS_MOVE);
         }
 		else if (event.getName().equals(Events.ON_CTRL_KEY) && event.getTarget() == keyListener) {
 			
@@ -473,7 +477,7 @@ public class GridPanel extends Borderlayout implements EventListener
 			boolean isShift = keyEvent.isShiftKey();
 
 			int row = renderer.getCurrentRowIndex();
-			int col = renderer.getCurrentColumn();
+			currentCol = renderer.getCurrentColumn();
 			int totalRow = gridTab.getRowCount();
 			
 			if (code == KEYBOARD_KEY_RETURN)
@@ -484,11 +488,11 @@ public class GridPanel extends Borderlayout implements EventListener
 							keyListener.setCtrlKeys(CNTRL_KEYS);
 						}
 					} else {
-							col++;
+							currentCol++;
 							if (renderer.isEditing())
 								renderer.stopColEditing(true);
 												
-							renderer.setCurrentColumn(col);
+							renderer.setCurrentColumn(currentCol);
 							renderer.getCurrentDiv().setFocus(true);
 							renderer.getCurrentDiv().invalidate();
 							keyListener.setCtrlKeys(CNTRL_KEYS+KEYS_MOVE);
@@ -542,31 +546,37 @@ public class GridPanel extends Borderlayout implements EventListener
 						}
 						return;
 					}else {
-						gridTab.navigateRelative(+1);
-						gridTab.isNew();
-						renderer.setCurrentCell(row);
-						renderer.setCurrentColumn(col); }
+						if(!gridTab.isNew()) {
+							gridTab.navigateRelative(+1);
+							renderer.setCurrentCell(row);
+							renderer.setCurrentColumn(currentCol); 
+						}
+					}
 				}
 				else if (code == KeyEvent.LEFT && !isCtrl && !isAlt && !isShift)
 				{
-					renderer.setCurrentColumn(col-1);
+					renderer.setCurrentColumn(currentCol-1);
 				}
 				else if (code == KeyEvent.RIGHT && !isCtrl && !isAlt && !isShift)
 				{
-					renderer.setCurrentColumn(col+1);
+					if(row < 0 ) {
+						renderer.setGrid(listbox);
+						renderer.setCurrentCell(0);
+					}
+					renderer.setCurrentColumn(currentCol+1);
 				}
 				else if (code == KeyEvent.UP && !isCtrl && !isAlt && !isShift)
 				{
 					row -= 1;
 					gridTab.navigateRelative(-1);
 					renderer.setCurrentCell(row);
-					renderer.setCurrentColumn(col);
+					renderer.setCurrentColumn(currentCol);
 				}
 				else if (code == KeyEvent.HOME)
 				{
 					row = 0;
 					renderer.setCurrentCell(row);
-					renderer.setCurrentColumn(col);
+					renderer.setCurrentColumn(currentCol);
 				}				
 			}
 			
@@ -596,7 +606,7 @@ public class GridPanel extends Borderlayout implements EventListener
 	public void onPostSelectedRowChanged() {
 		if (listbox.getRows().getChildren().isEmpty())
 			return;
-
+		
 		int rowIndex  = gridTab.isOpen() ? gridTab.getCurrentRow() : -1;
 		if (rowIndex >= 0 && pageSize > 0) {
 			int pgIndex = rowIndex >= 0 ? rowIndex % pageSize : 0;
@@ -610,7 +620,7 @@ public class GridPanel extends Borderlayout implements EventListener
 				if (old != null && old != row && oldIndex >= 0 && oldIndex != gridTab.getCurrentRow())
 				{
 					listModel.updateComponent(oldIndex % pageSize);
-					renderer.setCurrentColumn(0);
+//					renderer.setCurrentColumn(0);
 				}
 			}
 			if (modeless && !renderer.isEditing()) {
@@ -623,6 +633,8 @@ public class GridPanel extends Borderlayout implements EventListener
 				}
 			} else {
 				focusToRow(row);
+				if(gridTab.getRowCount()<=0)
+					renderer.setCurrentCell(pgIndex);
 			}
 		} else if (rowIndex >= 0) {
 			org.zkoss.zul.Row row = (org.zkoss.zul.Row) listbox.getRows().getChildren().get(rowIndex);
@@ -649,6 +661,12 @@ public class GridPanel extends Borderlayout implements EventListener
 			} else {
 				focusToRow(row);
 			}
+		}
+		if(currentCol >= 0) 
+			renderer.setCurrentColumn(currentCol);
+		else {
+			if(!gridTab.isSingleRow())
+				renderer.setCurrentColumn(0);
 		}
 	}
 
