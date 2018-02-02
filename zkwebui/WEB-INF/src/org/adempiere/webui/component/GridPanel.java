@@ -359,7 +359,7 @@ public class GridPanel extends Borderlayout implements EventListener
 		listbox.setVflex(true);
 		listbox.setFixedLayout(true);
 		listbox.addEventListener(Events.ON_CLICK, this);
-		
+		listbox.addEventListener(Events.ON_CANCEL, this);
 		keyListener = new Keylistener();
 		if (windowPanel != null)
 			windowPanel.getStatusBar().appendChild(keyListener);
@@ -414,7 +414,18 @@ public class GridPanel extends Borderlayout implements EventListener
 	{
 		if (event == null)
 			return;
-		
+		else if (Events.ON_CANCEL.equals(event.getName())) {
+			if (renderer.isEditing()) {
+				gridTab.dataIgnore();
+				gridTab.dataRefresh();
+				keyListener.setCtrlKeys(CNTRL_KEYS+KEYS_MOVE);
+
+				renderer.stopColEditing(false);
+				renderer.setCurrentColumn(currentCol);
+				renderer.getCurrentDiv().setFocus(true);
+//				renderer.getCurrentDiv().invalidate();
+			}
+		}
 		else if (Events.ON_CLICK.equals(event.getName()))
 		{
 			if(tabPanel != null)
@@ -458,14 +469,15 @@ public class GridPanel extends Borderlayout implements EventListener
 			}
 			if(data instanceof Col) {
 				Col col = (Col)data;
-				int currentCol = (Integer)(col).getAttribute("columnNo");
+				currentCol = (Integer)(col).getAttribute("columnNo");
 					if(renderer.getCurrentDiv() != null) {
 						renderer.getCurrentDiv().setFocus(false);
 						renderer.stopColEditing(true);
 					}
 					renderer.setCurrentColumn(currentCol);
 			}
-
+			updateListIndex();
+			gridTab.navigateCurrent();
 			keyListener.setCtrlKeys(CNTRL_KEYS+KEYS_MOVE);
         }
 		else if (event.getName().equals(Events.ON_CTRL_KEY) && event.getTarget() == keyListener) {
@@ -484,7 +496,8 @@ public class GridPanel extends Borderlayout implements EventListener
 			{
 				if(renderer.getCurrentDiv() != null) {
 					if(renderer.getCurrentDiv().hasFocus()) {
-						if(renderer.editCurrentCol(true) && !renderer.getCurrentDiv().isReadOnly()) {
+						if(renderer.editCurrentCol(true) && !renderer.getCurrentDiv().isReadOnly() && 
+								renderer.getCurrentDiv().getEditor().getGridField().getDisplayType() != DisplayType.Button) {
 							keyListener.setCtrlKeys(CNTRL_KEYS);
 						}
 					} else {
@@ -555,22 +568,33 @@ public class GridPanel extends Borderlayout implements EventListener
 				}
 				else if (code == KeyEvent.LEFT && !isCtrl && !isAlt && !isShift)
 				{
-					renderer.setCurrentColumn(currentCol-1);
+					if(row < 0 || gridTab.getCurrentRow()< 0) {
+						renderer.setGrid(listbox);
+						renderer.setCurrentCell(0);
+					} else
+						renderer.setCurrentColumn(currentCol-1);
 				}
 				else if (code == KeyEvent.RIGHT && !isCtrl && !isAlt && !isShift)
 				{
-					if(row < 0 ) {
+					if(row < 0 || gridTab.getCurrentRow()< 0) {
 						renderer.setGrid(listbox);
 						renderer.setCurrentCell(0);
-					}
-					renderer.setCurrentColumn(currentCol+1);
+					} else
+						renderer.setCurrentColumn(currentCol+1);
 				}
 				else if (code == KeyEvent.UP && !isCtrl && !isAlt && !isShift)
 				{
 					row -= 1;
-					gridTab.navigateRelative(-1);
-					renderer.setCurrentCell(row);
-					renderer.setCurrentColumn(currentCol);
+					
+					if(!gridTab.isNew() && row>=0) {
+						gridTab.navigateRelative(-1);
+						renderer.setCurrentCell(row);
+						renderer.setCurrentColumn(currentCol);
+						
+					} else {
+						gridTab.dataIgnore();
+						gridTab.dataRefresh();
+					}
 				}
 				else if (code == KeyEvent.HOME)
 				{

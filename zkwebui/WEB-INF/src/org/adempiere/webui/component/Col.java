@@ -47,17 +47,17 @@ public class Col extends Div {
 	public void setFocus(boolean focus) {
 		hasFocus = focus;
 		if(hasFocus) {
-		    setStyle(textAlign+"border:2px solid #1f9bde;padding: 5px;");
+		    setStyle(textAlign+";border:2px solid #1f9bde;padding: 5px;");
 		}
 		else {
-			setStyle(textAlign+"border:0px solid;padding: 0px;");
+			setStyle(textAlign+";border:0px solid;padding: 0px;");
 		}
 		anchorInput.setFocus(focus);
 		//super.setFocus(focus);
 	}
 	
 	public void setTextAlign(String align) {
-		textAlign +=align+";";
+		textAlign +=align;
 		setStyle(textAlign);
 	}
 	
