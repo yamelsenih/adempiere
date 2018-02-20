@@ -1096,10 +1096,13 @@ public abstract class AbstractADWindowPanel extends AbstractUIPart implements To
 	
 		currentTab = newTabPanel.getGridTab();	
 			
-		if (oldTabPanel != null)
-			oldTabPanel.activate(false);
+		if (oldTabPanel != null) {
+			oldTabPanel.activate(false); 
+			oldTabPanel.getListPanel().removeKeyListener();
+		}
 		newTabPanel.activate(true);
-
+		newTabPanel.getListPanel().addKeyListener();
+		
 		back = (newTabIndex < oldTabIndex);
 		if (back && newTabPanel.getTabLevel() > 0)
 		{
@@ -2437,11 +2440,13 @@ public abstract class AbstractADWindowPanel extends AbstractUIPart implements To
 		quickGridTab.query(false);
 		quickGridTab.setQuery(query);
 		quickGridTab.setQuickEntry(true);
+		tabPanel.getListPanel().removeKeyListener();
+
 		quickGridPanel = new GridPanel(curWindowNo);
 	
 		onIgnore();
 		//quickGrid.init(quickGridTab);
-		WQuickEntrySheet form = new WQuickEntrySheet(quickGridPanel, currentTab, tabPanel, this, m_onlyCurrentDays, m_onlyCurrentRows);
+		WQuickEntrySheet form = new WQuickEntrySheet(quickGridPanel, quickGridTab, tabPanel, this, m_onlyCurrentDays, m_onlyCurrentRows);
 		
 		form.setPosition("center");
 		form.setSizable(true);

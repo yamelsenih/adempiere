@@ -86,6 +86,7 @@ public class GridTabRowRenderer implements RowRenderer, RowRendererExt, Renderer
 	private int currentRowIndex = -1;
 	private AbstractADWindowPanel m_windowPanel;
 	private GridField[] gridField;
+	private int totalColumns = -1;
 	/**
 	 *
 	 * @param gridTab
@@ -102,8 +103,9 @@ public class GridTabRowRenderer implements RowRenderer, RowRendererExt, Renderer
 		WEditor editor;
 		if(isNewEditor)
 			editor= editors.get(gridField);
-		else 
+		else {
 			editor = WebEditorFactory.getEditor(gridField, true);
+		}
 
 		if (!gridField.isUpdateable() && gridTab.getRecord_ID() <= 0) {	
 			editor.setReadWrite(true);
@@ -135,10 +137,11 @@ public class GridTabRowRenderer implements RowRenderer, RowRendererExt, Renderer
 
             //streach component to fill grid cell
             if (editor.getComponent() instanceof Textbox)
-            	((HtmlBasedComponent)editor.getComponent()).setWidth("85%");
+            	((HtmlBasedComponent)editor.getComponent()).setWidth("80%");
             else
             	editor.fillHorizontal();
-		
+            
+            
 		return editor;
 	}
 
@@ -232,8 +235,7 @@ public class GridTabRowRenderer implements RowRenderer, RowRendererExt, Renderer
 		Component component;
 		if (gridField.getDisplayType() == DisplayType.YesNo) {
 			component = createReadonlyCheckbox(value);
-		}
-		else {
+		} else {
 			String text = getDisplayText(value, gridField);
 
 			Label label = new Label();
@@ -310,9 +312,6 @@ public class GridTabRowRenderer implements RowRenderer, RowRendererExt, Renderer
 			entry.setVisible(false);
 			
 			currentDiv.setFocus(true);
-			//entry.getGridField().removePropertyChangeListener(entry);
-			//entry.removeValuechangeListener(dataBinder);
-			
 		}
 		
 
@@ -327,7 +326,7 @@ public class GridTabRowRenderer implements RowRenderer, RowRendererExt, Renderer
 	 * @see RowRenderer#render(Row, Object)
 	 */
 	public void render(Row row, Object data) throws Exception {
-		
+
 		//don't render if not visible
 		if (gridPanel != null && !gridPanel.isVisible()) {
 			return;
@@ -345,16 +344,13 @@ public class GridTabRowRenderer implements RowRenderer, RowRendererExt, Renderer
 		currentValues = (Object[])data;
 		
 		int columnCount = gridTab.getTableModel().getColumnCount();
-		
+		totalColumns=columnCount;
 		int rowIndex = row.getParent().getChildren().indexOf(row);
 		if (paging != null && paging.getPageSize() > 0) {
 			rowIndex = (paging.getActivePage() * paging.getPageSize()) + rowIndex;
 		}
 
 		int colIndex = -1;
-		int compCount = 0;
-//		if(!ColCache.containsValue(row)) {
-
 		for (int i = 0; i < columnCount; i++) {
 			if (gridTab.isQuickEntry() 
 					&& !gridField[i].isQuickEntry())
@@ -370,7 +366,6 @@ public class GridTabRowRenderer implements RowRenderer, RowRendererExt, Renderer
 			Col div = new Col();
 			org.zkoss.zul.Column column = (org.zkoss.zul.Column) grid.getColumns().getChildren().get(colIndex);
 			if (column.isVisible()) {
-				compCount++;
 				component = getDisplayComponent(currentValues[i], gridField[i]);
 				div.appendChild(component);
 
@@ -384,6 +379,7 @@ public class GridTabRowRenderer implements RowRenderer, RowRendererExt, Renderer
 					div.setTextAlign("left"); 
 				}
 			}
+			
 			div.setReadOnly(!gridField[i].isEditable(true));
 			div.setAttribute("columnName", gridField[i].getColumnName());
 			div.setAttribute("columnNo", colIndex);
@@ -397,25 +393,19 @@ public class GridTabRowRenderer implements RowRenderer, RowRendererExt, Renderer
 			GridTableListModel model = (GridTableListModel) grid.getModel();
 			model.setEditing(true);
 		}
-		
+		totalColumns=colIndex;
 		if (rowIndex == gridTab.getCurrentRow()) {
 			setCurrentRow(row);
 		}
 		row.addEventListener(Events.ON_OK, rowListener);
 		row.invalidate();
-
 	}
 
 	/**
 	 * @param row
 	 */
 	public void setCurrentRow(Row row) {
-		if (currentRow != null && currentRow.getParent() != null && currentRow != row) {
-			currentRow.setStyle(null);
-		}
 		currentRow = row;
-		
-//		currentRow.setStyle(CURRENT_ROW_STYLE);
 		if (currentRowIndex != gridTab.getCurrentRow()) {
 			currentRowIndex = gridTab.getCurrentRow();
 		}
@@ -440,8 +430,7 @@ public class GridTabRowRenderer implements RowRenderer, RowRendererExt, Renderer
 	 * Enter edit mode
 	 */
 	public boolean editCurrentCol(boolean showEditor) {
-		if (currentRow != null && currentRow.getParent() != null && currentRow.isVisible()
-			&& grid != null && grid.isVisible() && grid.getParent() != null && grid.getParent().isVisible()) {
+		if (grid != null && grid.isVisible() && grid.getParent() != null && grid.getParent().isVisible()) {
 
 			int colIndex = (Integer)currentDiv.getAttribute("columnNo");
 			String colName = (String)currentDiv.getAttribute("columnName");
@@ -476,10 +465,11 @@ public class GridTabRowRenderer implements RowRenderer, RowRendererExt, Renderer
 				Clients.evalJavaScript("$('#"+currentDiv.getAnchorInput().getUuid()+"')."
 						+ "keyup(function(event) {"
 						+ "$('#"+componentUuId+" :input').each(function(){"
+						+" if (event.keyCode >= 48 && event.keyCode <= 90 || event.keyCode >= 96 && event.keyCode <= 105) {" 
 						+ "$(this).val(event.key);"
-						+"$(this).focus();"
 						+ "}"
-						+ "});");
+						+"$(this).focus();"
+						+ "}});");
 				
 				if (currentDiv.getComponent() instanceof NumberBox) {
 					componentUuId = ((Component)((Component)((Component)((Component)currentDiv.getComponent().getChildren().get(0)).getChildren().get(0)).getChildren().get(0)).getChildren().get(0)).getUuid();
@@ -490,10 +480,11 @@ public class GridTabRowRenderer implements RowRenderer, RowRendererExt, Renderer
 						+"if (event.keyCode == 13) {"
 						+ "$('#"+componentUuId+"').show();"
 						+ "}"
-						+ "$('#"+componentUuId+"').val(event.key);"
 						+ "$('#"+componentUuId+"').focus();"
-						+"$( '#"+componentUuId+"' ).find('input').val(event.key);"
-						+"$( '#"+componentUuId+"' ).find('input').focus();});");
+						+ "$('#"+componentUuId+"').find('input').focus();"
+						+" if (event.keyCode >= 48 && event.keyCode <= 90 || event.keyCode >= 96 && event.keyCode <= 105) {" 
+						+ "$('#"+componentUuId+"').val(event.key);"
+						+ "$('#"+componentUuId+"').find('input').val(event.key);						}});");
 				
 				editing = gridField.isEditable(true);
 			}  
@@ -567,7 +558,7 @@ public class GridTabRowRenderer implements RowRenderer, RowRendererExt, Renderer
 	 * set focus to first active editor
 	 */
 	public void setFocusToEditor() {
-		if (currentRow != null && currentRow.getParent() != null ) {
+//		if (currentRow != null && currentRow.getParent() != null ) {
 			
 			String componentUuId = currentDiv.getComponent().getUuid();
 
@@ -601,7 +592,7 @@ public class GridTabRowRenderer implements RowRenderer, RowRendererExt, Renderer
 				}
 				Clients.response(new AuFocus(c));
 			} 
-		}
+//		}
 	}
 
 	/**
@@ -672,18 +663,24 @@ public class GridTabRowRenderer implements RowRenderer, RowRendererExt, Renderer
 		currentRow = row;
 				//((Row) grid.getRows().getChildren().get(gridTab.getCurrentRow()));
 		if(col < 0 || col >= currentRow.getChildren().size())
-			return false;
-
+		return false;
+		if(col <= totalColumns) {
 		currentColumn = col;
-		if(currentDiv != null ) {
+		if(currentDiv != null) {
 			currentDiv.addEventListener(Events.ON_CLICK, rowListener);
-			if(currentDiv.getComponent() != null)
+			if(currentDiv.getComponent() != null 
+					&& currentDiv.getEditor().getGridField().getDisplayType() != DisplayType.YesNo) {
 				currentDiv.getComponent().setVisible(false);
+			}
 			currentDiv.setFocus(false);
 		}
-		setCurrentDiv((Col)grid.getCell(pgIndex, currentColumn));
-		editCurrentCol(false);
 		
+		gridTab.setCurrentCol(col);
+		if(grid.getRows().getChildren().size() > 0) {
+			setCurrentDiv((Col)grid.getCell(pgIndex, currentColumn));
+			editCurrentCol(false);
+		}
+		}
 		return true;
 	}
 	
@@ -691,10 +688,10 @@ public class GridTabRowRenderer implements RowRenderer, RowRendererExt, Renderer
 		return currentColumn;
 	}
 	public void setCurrentDiv(Col col) {
+		
 		if(col.getAnchorInput() == null)
 			col.createAnchorInput();
 		col.getAnchorInput().addEventListener(Events.ON_CHANGING, this);
-		//col.removeEventListener(Events.ON_CLICK, rowListener);
 		col.setFocus(true);
 		col.invalidate();
 
@@ -709,8 +706,6 @@ public class GridTabRowRenderer implements RowRenderer, RowRendererExt, Renderer
 		int pgIndex = row >= 0 ? row % paging.getPageSize() : 0;
 		if (row != currentRowIndex || pgIndex != currentRowIndex)
 		{
-			if (currentRow != null)
-				currentRow.setStyle(null);
 			if (grid.getRows().getChildren().size() <= 0)
 			{
 				currentColumn = -1;
@@ -718,11 +713,9 @@ public class GridTabRowRenderer implements RowRenderer, RowRendererExt, Renderer
 			}
 			
 			gridTab.setCurrentRow(row);
-			currentRow = ((Row) grid.getRows().getChildren().get(pgIndex));
+			
 			currentRowIndex = gridTab.getCurrentRow();
-//			currentRow.setStyle(CURRENT_ROW_STYLE);
 		}
-
 
 	}
 	
@@ -732,12 +725,14 @@ public class GridTabRowRenderer implements RowRenderer, RowRendererExt, Renderer
 			 currentDiv.getEditor().setVisible(true);
 			 currentDiv.setFocus(false); 
 			 setFocusToEditor();
+			 ((GridTableListModel)grid.getModel()).setEditing(true);
 			 editing=true;
 		 } 
 	}
 	
 	@Override
 	public void onEvent(Event e) throws Exception {
+
 		if(Events.ON_CHANGE.equals(e.getName()) || e.getName().equals(Events.ON_CHANGING)) {
 			if(((InputEvent)e).getValue().length() > 0) {
 				showEditor();

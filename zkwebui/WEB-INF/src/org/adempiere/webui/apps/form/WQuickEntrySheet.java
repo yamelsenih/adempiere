@@ -316,10 +316,14 @@ public class WQuickEntrySheet extends Window implements EventListener
 
 		gridTab.setQuickEntry(false);
 		tabPanel.getGridTab().setQuickEntry(false);
-
+		gridPanel.removeKeyListener();
+		tabPanel.getListPanel().addKeyListener();
+		gridPanel.detach();
 //		gridPanel.dispose();
 		tabPanel.setGridTab(formGridTab);
-
+//		formGridTab.dataRefreshAll();
+//		gridPanel.refresh(formGridTab);
+//		gridPanel.updateListIndex();
 //		SessionManager.closeTab(gridTab.getAD_Tab_ID());
 
 		trx.rollback();
