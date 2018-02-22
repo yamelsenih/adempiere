@@ -204,6 +204,8 @@ public class GridTab implements DataStatusListener, Evaluatee, Serializable
 	private boolean    			m_includedAlreadyCalc = false;
 	
 	private boolean				IsQuickEntry = false;
+	/** Current Col         */
+	private int					m_currentCol = 0;
 	
 	/**	Logger			*/
 	protected CLogger	log = CLogger.getCLogger(getClass());
@@ -3249,5 +3251,14 @@ public class GridTab implements DataStatusListener, Evaluatee, Serializable
 		return IsQuickEntry;
 	}
 	
-	
+	/**
+	 *  Set current col - used for deleteSelection
+	 *  @return current col
+	 */
+	public void setCurrentCol(int col){
+			m_currentCol = col;
+	}
+	public int getCurrentCol(){
+		return m_currentCol;
+}
 }	//	GridTab
