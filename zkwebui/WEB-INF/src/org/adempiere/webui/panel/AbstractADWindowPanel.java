@@ -190,7 +190,7 @@ public abstract class AbstractADWindowPanel extends AbstractUIPart implements To
 	private WProcessAction processAction;
 	
 	private GridPanel quickGridPanel = null;
-
+	
 
 	/**
 	 * Constructor for non-embedded mode
@@ -1234,7 +1234,8 @@ public abstract class AbstractADWindowPanel extends AbstractUIPart implements To
     	//ignore non-ui thread event for now.
     	if (Executions.getCurrent() == null)
     		return;
-
+    	
+    	
         logger.info(e.getMessage());
         String dbInfo = e.getMessage();
         if (currentTab != null && currentTab.isQueryActive())
@@ -1269,7 +1270,7 @@ public abstract class AbstractADWindowPanel extends AbstractUIPart implements To
                 	statusBar.setStatusLine (sb.toString (), e.isError(), showPopup);
             }
         }
-
+        
         //  Confirm Error
         if (e.isError() && !e.isConfirmed())
         {
@@ -1288,11 +1289,16 @@ public abstract class AbstractADWindowPanel extends AbstractUIPart implements To
         	}
             e.setConfirmed(true);   //  show just once - if MTable.setCurrentRow is involved the status event is re-issued
         }
+        
         //  Confirm Warning
         else if (e.isWarning() && !e.isConfirmed())
         {
-            FDialog.warn(curWindowNo, null, e.getAD_Message(), e.getInfo());
-            e.setConfirmed(true);   //  show just once - if MTable.setCurrentRow is involved the status event is re-issued
+//        	curTabPanel.getListPanel().removeKeyListener();
+        	FDialog.warn(curWindowNo, null, e.getAD_Message(), e.getInfo());
+        	
+        	e.setConfirmed(true);   //  show just once - if MTable.setCurrentRow is involved the status event is re-issued
+            (curTabPanel.getListPanel()).focusCurrentCol();
+//            curTabPanel.getListPanel().addKeyListener();
         }
 
         //  update Navigation
@@ -1406,7 +1412,6 @@ public abstract class AbstractADWindowPanel extends AbstractUIPart implements To
         //
 
         adTab.evaluate(e);
-
         toolbar.enablePrint(currentTab.isPrinted());
         toolbar.enableReport(true);
     }
@@ -2443,7 +2448,8 @@ public abstract class AbstractADWindowPanel extends AbstractUIPart implements To
 		tabPanel.getListPanel().removeKeyListener();
 
 		quickGridPanel = new GridPanel(curWindowNo);
-	
+
+		
 		onIgnore();
 		//quickGrid.init(quickGridTab);
 		WQuickEntrySheet form = new WQuickEntrySheet(quickGridPanel, quickGridTab, tabPanel, this, m_onlyCurrentDays, m_onlyCurrentRows);
@@ -2454,6 +2460,10 @@ public abstract class AbstractADWindowPanel extends AbstractUIPart implements To
 //		AEnv.showWindow(form);
 
 		AEnv.showCenterScreen(form);
+		quickGridPanel.removeKeyListener();
+		quickGridPanel.detach();
+		currentTab.setQuickEntry(false);
+		form.detach();
 		}
 		/*
 		//form.doPopup();

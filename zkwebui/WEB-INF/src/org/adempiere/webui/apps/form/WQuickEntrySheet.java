@@ -3,31 +3,28 @@ package org.adempiere.webui.apps.form;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 import org.adempiere.exceptions.AdempiereException;
 import org.adempiere.webui.component.Button;
 import org.adempiere.webui.component.ConfirmPanel;
 import org.adempiere.webui.component.Grid;
 import org.adempiere.webui.component.GridFactory;
-import org.adempiere.webui.component.Panel;
 import org.adempiere.webui.component.GridPanel;
+import org.adempiere.webui.component.Panel;
 import org.adempiere.webui.component.Window;
 import org.adempiere.webui.panel.ADTabPanel;
 import org.adempiere.webui.panel.AbstractADWindowPanel;
 import org.adempiere.webui.panel.StatusBarPanel;
-import org.adempiere.webui.session.SessionManager;
 import org.adempiere.webui.window.FDialog;
-import org.compiere.model.GridField;
+import org.compiere.model.DataStatusEvent;
+import org.compiere.model.DataStatusListener;
 import org.compiere.model.GridTab;
+import org.compiere.model.GridTable;
 import org.compiere.model.MRole;
 import org.compiere.util.CLogger;
 import org.compiere.util.Env;
 import org.compiere.util.Msg;
 import org.compiere.util.Trx;
-import org.zkoss.zk.ui.Component;
 import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.event.EventListener;
 import org.zkoss.zk.ui.event.Events;
@@ -35,8 +32,6 @@ import org.zkoss.zkex.zul.Borderlayout;
 import org.zkoss.zkex.zul.Center;
 import org.zkoss.zkex.zul.North;
 import org.zkoss.zkex.zul.South;
-import org.zkoss.zul.Column;
-import org.zkoss.zul.Columns;
 import org.zkoss.zul.Separator;
 
 /**
@@ -46,7 +41,7 @@ import org.zkoss.zul.Separator;
  * @author <a href="mailto:sachin.bhimani89@gmail.com">Sachin Bhimani</a>
  * @since 2016-06-30
  */
-public class WQuickEntrySheet extends Window implements EventListener
+public class WQuickEntrySheet extends Window implements EventListener, DataStatusListener
 {
 
 	/**
@@ -82,7 +77,7 @@ public class WQuickEntrySheet extends Window implements EventListener
 		tabPanel = tPanel;
 		abstractADWindowPanel = abstractPanel;
 
-		gridTab.addDataStatusListener(abstractADWindowPanel);
+		gridTab.addDataStatusListener(this);
 		gridTab.addDataStatusListener(tabPanel);
 		gridTab.enableEvents();
 
@@ -91,16 +86,14 @@ public class WQuickEntrySheet extends Window implements EventListener
 
 		formGridTab = tabPanel.getGridTab();
 		tabPanel.setGridTab(gridTab);
-		tabPanel.getGridTab().setQuickEntry(true);
 		tabPanel.query(onlyCurrentRows, onlyCurrentDays, MRole.getDefault().getMaxQueryRecords());
-
+//		statusBar = ;
 		trx = Trx.get(Trx.createTrxName("QuickEntry"), true);
 		gridTab.getMTable().setTrxName(trx.getTrxName());
 
 		gridPanel.init(gridTab);
 
-		southPanel.appendChild(new Separator());
-		southPanel.appendChild(statusBar);
+		
 		initForm();
 		setWidth("70%");
 		setHeight("80%");
@@ -143,7 +136,7 @@ public class WQuickEntrySheet extends Window implements EventListener
 	private void initZk()
 	{
 		selPanel.setWidth("99%");
-		selPanel.setHeight("95%");
+		selPanel.setHeight("99%");
 
 		North north = new North();
 		north.setFlex(true);
@@ -175,7 +168,11 @@ public class WQuickEntrySheet extends Window implements EventListener
 		selSouthPanel.addComponentsLeft(bSave);
 		selSouthPanel.addComponentsLeft(bDelete);
 		selSouthPanel.addComponentsLeft(bIgnore);
-
+		
+		southPanel.appendChild(new Separator());
+		statusBar = new StatusBarPanel();
+		southPanel.appendChild(statusBar);
+		
 		setTitle(gridTab.getName());
 		setMaximizable(true);
 		setMaximized(false);
@@ -228,20 +225,34 @@ public class WQuickEntrySheet extends Window implements EventListener
 		{
 			//if (gridPanel.isNecessaryDataFill(rows.get(0), isShowError))
 			//{
-				gridPanel.dataSave(0);
+			
+				if (!gridTab.dataSave(true))
+				{
+					String msg = CLogger.retrieveErrorString(null);
+					if (msg != null)
+					{
+						statusBar.setStatusLine(Msg.getMsg(Env.getCtx(), msg), true, true);
+					}
+//					String msg = CLogger.retrieveErrorString(null);
+//					if (msg != null)
+//					{
+//						statusBar.setStatusLine(Msg.getMsg(Env.getCtx(), msg), true, true);
+//					}
+		        }  else {
+
+		    		
+//		    		gridPanel.setStatusLine("Saved", false, true);
+		    		gridTab.dataRefreshAll();		        	
+		        }
 			//}
 		}
-
 		trx.commit();
-//		gridPanel.setStatusLine("Saved", false, true);
-		gridTab.dataRefreshAll();
+
 	}
 
 	private void onRefresh()
 	{
 		gridTab.dataRefreshAll();
-		//gridPanel.isNewLineSaved = true;
-		//gridPanel.getRenderer().setCurrentCell(0, 1, KeyEvent.RIGHT);
 		gridPanel.updateListIndex();
 	}
 
@@ -262,43 +273,17 @@ public class WQuickEntrySheet extends Window implements EventListener
 		if (gridTab == null)
 			return;
 
-//		if (!gridPanel.isNewLineSaved)
-//		{
-//			gridPanel.setStatusLine("First, Save new record!", true, true);
-//			return;
-//		}
-
-		final int[] indices = gridTab.getSelection();
-		if (indices.length > 0)
+		if (gridTab.getCurrentRow() >0)
 		{
-			StringBuilder sb = new StringBuilder();
-			sb.append(Env.getContext(Env.getCtx(), gridTab.getWindowNo(), "_WinInfo_WindowName", false)).append(" - ")
-					.append(indices.length).append(" ").append(Msg.getMsg(Env.getCtx(), "Selected"));
-			boolean istrue = FDialog.ask(gridTab.getWindowNo(), bDelete, "DeleteSelection", sb.toString());
+		
+			boolean istrue = FDialog.ask(gridTab.getWindowNo(), null, "DeleteRecord?");
 			if (istrue)
 			{
-				gridTab.clearSelection();
-				Arrays.sort(indices);
-				int offset = 0;
-				int count = 0;
-				for (int i = 0; i < indices.length; i++)
-				{
-					gridTab.navigate(indices[i] - offset);
-					if (gridTab.dataDelete())
-					{
-						offset++;
-						count++;
-					}
-				}
+				gridTab.dataDelete();
 				gridTab.dataRefresh(true);
-				log.info("DELETED : " + count);
 //				gridPanel.setStatusLine(count + " Record(s) deleted.", false, true);
 			}
-			else if (gridTab.getCurrentRow() != 0)
-			{
-				gridTab.dataDelete();
-			}
-
+		
 			// if all records is deleted then it will show default with new
 			// record.
 			if (gridTab.getRowCount() <= 0)
@@ -315,15 +300,16 @@ public class WQuickEntrySheet extends Window implements EventListener
 		super.dispose();
 
 		gridTab.setQuickEntry(false);
+		formGridTab.setQuickEntry(false);
 		tabPanel.getGridTab().setQuickEntry(false);
 		gridPanel.removeKeyListener();
 		tabPanel.getListPanel().addKeyListener();
-		gridPanel.detach();
-//		gridPanel.dispose();
+		
+		
 		tabPanel.setGridTab(formGridTab);
-//		formGridTab.dataRefreshAll();
-//		gridPanel.refresh(formGridTab);
-//		gridPanel.updateListIndex();
+		abstractADWindowPanel.getADTab().getSelectedTabpanel().refresh();
+		formGridTab.dataRefreshAll();
+		gridPanel.refresh(formGridTab);
 //		SessionManager.closeTab(gridTab.getAD_Tab_ID());
 
 		trx.rollback();
@@ -339,5 +325,60 @@ public class WQuickEntrySheet extends Window implements EventListener
 //			abstractADWindowPanel.onParentRecord();
 //		}
 //		abstractADWindowPanel.onRefreshFromQuickForm();
+	}
+
+	@Override
+	public void dataStatusChanged(DataStatusEvent e) {
+		// 
+		log.info(e.getMessage());
+        String dbInfo = e.getMessage();
+        if (gridTab != null && gridTab.isQueryActive())
+            dbInfo = "[ " + dbInfo + " ]";
+        statusBar.setStatusDB(dbInfo, e);
+
+        //  Set Message / Info
+        if (e.getAD_Message() != null || e.getInfo() != null)
+        {
+            StringBuffer sb = new StringBuffer();
+            String msg = e.getMessage();
+            if (msg != null && msg.length() > 0)
+            {
+                sb.append(Msg.getMsg(Env.getCtx(), e.getAD_Message()));
+            }
+            String info = e.getInfo();
+            if (info != null && info.length() > 0)
+            {
+                if (sb.length() > 0 && !sb.toString().trim().endsWith(":"))
+                    sb.append(": ");
+                sb.append(info);
+            }
+            if (sb.length() > 0)
+            {
+                int pos = sb.indexOf("\n");
+                if (pos != -1 && pos+1 < sb.length())  // replace CR/NL
+                {
+                    sb.replace(pos, pos+1, " - ");
+            	}
+                boolean showPopup = e.isError() 
+                	|| (!GridTab.DEFAULT_STATUS_MESSAGE.equals(e.getAD_Message()) && !GridTable.DATA_REFRESH_MESSAGE.equals(e.getAD_Message()));
+                	statusBar.setStatusLine (sb.toString (), e.isError(), showPopup);
+            }
+        }
+        //  Confirm Error
+        if (e.isError() && !e.isConfirmed())
+        {
+            e.setConfirmed(true);   //  show just once - if MTable.setCurrentRow is involved the status event is re-issued
+        }
+        
+        //  Confirm Warning
+        else if (e.isWarning() && !e.isConfirmed())
+        {
+//        	curTabPanel.getListPanel().removeKeyListener();
+        	FDialog.warn(0, null, e.getAD_Message(), e.getInfo());
+        	
+        	e.setConfirmed(true);   //  show just once - if MTable.setCurrentRow is involved the status event is re-issued
+            (gridPanel).focusCurrentCol();
+//            curTabPanel.getListPanel().addKeyListener();
+        }
 	}
 }

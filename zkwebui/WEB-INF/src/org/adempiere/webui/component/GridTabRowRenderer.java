@@ -77,13 +77,13 @@ public class GridTabRowRenderer implements RowRenderer, RowRendererExt, Renderer
 
 	private Grid grid = null;
 	private GridPanel gridPanel = null;
-	private Row currentRow;
+	private Row currentRow = new Row();
 	private Map<String, Col> ColCache = new HashMap<String, Col>();
 	private int currentColumn = 0;
 	private Col currentDiv;
 	private Object[] currentValues;
 	private boolean editing = false;
-	private int currentRowIndex = -1;
+	private int currentRowIndex = 0;
 	private AbstractADWindowPanel m_windowPanel;
 	private GridField[] gridField;
 	private int totalColumns = -1;
@@ -326,7 +326,7 @@ public class GridTabRowRenderer implements RowRenderer, RowRendererExt, Renderer
 	 * @see RowRenderer#render(Row, Object)
 	 */
 	public void render(Row row, Object data) throws Exception {
-
+		
 		//don't render if not visible
 		if (gridPanel != null && !gridPanel.isVisible()) {
 			return;
@@ -658,21 +658,22 @@ public class GridTabRowRenderer implements RowRenderer, RowRendererExt, Renderer
 
 	public boolean setCurrentColumn(int col) {
 		int pgIndex = currentRowIndex >= 0 ? currentRowIndex % paging.getPageSize() : 0;
-		org.zkoss.zul.Row row = (org.zkoss.zul.Row) grid.getRows().getChildren().get(pgIndex);
-		
-		currentRow = row;
-				//((Row) grid.getRows().getChildren().get(gridTab.getCurrentRow()));
+		if(grid != null) {
+			org.zkoss.zul.Row row = (org.zkoss.zul.Row) grid.getRows().getChildren().get(pgIndex);
+			currentRow = row;
+		}
+
 		if(col < 0 || col >= currentRow.getChildren().size())
-		return false;
+			return false;
 		if(col <= totalColumns) {
-		currentColumn = col;
-		if(currentDiv != null) {
-			currentDiv.addEventListener(Events.ON_CLICK, rowListener);
-			if(currentDiv.getComponent() != null 
+			currentColumn = col;
+			if(currentDiv != null) {
+				currentDiv.addEventListener(Events.ON_CLICK, rowListener);
+				if(currentDiv.getComponent() != null 
 					&& currentDiv.getEditor().getGridField().getDisplayType() != DisplayType.YesNo) {
-				currentDiv.getComponent().setVisible(false);
-			}
-			currentDiv.setFocus(false);
+						currentDiv.getComponent().setVisible(false);
+				}
+				currentDiv.setFocus(false);
 		}
 		
 		gridTab.setCurrentCol(col);
