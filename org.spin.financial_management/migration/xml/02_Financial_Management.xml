@@ -259,9 +259,9 @@
     </Step>
     <Step SeqNo="120" StepType="AD">
       <PO AD_Table_ID="136" Action="U" Record_ID="55117" Table="AD_Ref_List_Trl">
+        <Data AD_Column_ID="337" Column="AD_Language" oldValue="es_MX">es_MX</Data>
         <Data AD_Column_ID="338" Column="Name" oldValue="Simulation">Simulación</Data>
         <Data AD_Column_ID="336" Column="AD_Ref_List_ID" oldValue="55117">55117</Data>
-        <Data AD_Column_ID="337" Column="AD_Language" oldValue="es_MX">es_MX</Data>
       </PO>
     </Step>
     <Step SeqNo="130" StepType="AD">
@@ -3561,8 +3561,8 @@ There are two reasons for de-activating and not deleting records:
     </Step>
     <Step SeqNo="1620" StepType="AD">
       <PO AD_Table_ID="276" Action="U" Record_ID="59874" Table="AD_Element">
-        <Data AD_Column_ID="2603" Column="Name" oldValue="Financial Rate Version ID">Financial Rate Version</Data>
         <Data AD_Column_ID="4299" Column="PrintName" oldValue="Financial Rate Version ID">Financial Rate Version</Data>
+        <Data AD_Column_ID="2603" Column="Name" oldValue="Financial Rate Version ID">Financial Rate Version</Data>
         <Data AD_Column_ID="58589" Column="FieldLength" isOldNull="true">10</Data>
         <Data AD_Column_ID="58588" Column="AD_Reference_ID" isOldNull="true">19</Data>
       </PO>
@@ -5993,6 +5993,7 @@ There are two reasons for de-activating and not deleting records:
     </Step>
     <Step SeqNo="2420" StepType="AD">
       <PO AD_Table_ID="101" Action="I" Record_ID="87324" Table="AD_Column">
+        <Data AD_Column_ID="120" Column="IsParent">false</Data>
         <Data AD_Column_ID="112" Column="Description">Identifies a Business Partner</Data>
         <Data AD_Column_ID="549" Column="Created">2018-02-21 16:14:55.244</Data>
         <Data AD_Column_ID="3388" Column="ValueMin" isNewNull="true"/>
@@ -6004,7 +6005,6 @@ There are two reasons for de-activating and not deleting records:
         <Data AD_Column_ID="125" Column="IsTranslated">false</Data>
         <Data AD_Column_ID="117" Column="DefaultValue" isNewNull="true"/>
         <Data AD_Column_ID="1179" Column="VFormat" isNewNull="true"/>
-        <Data AD_Column_ID="120" Column="IsParent">false</Data>
         <Data AD_Column_ID="126" Column="IsIdentifier">false</Data>
         <Data AD_Column_ID="6244" Column="IsSelectionColumn">false</Data>
         <Data AD_Column_ID="6483" Column="IsSyncDatabase">N</Data>
@@ -6435,9 +6435,9 @@ There are two reasons for de-activating and not deleting records:
     </Step>
     <Step SeqNo="2600" StepType="AD">
       <PO AD_Table_ID="101" Action="U" Record_ID="87308" Table="AD_Column">
+        <Data AD_Column_ID="127" Column="SeqNo" oldValue="0">1</Data>
         <Data AD_Column_ID="126" Column="IsIdentifier" oldValue="false">true</Data>
         <Data AD_Column_ID="6244" Column="IsSelectionColumn" oldValue="false">true</Data>
-        <Data AD_Column_ID="127" Column="SeqNo" oldValue="0">1</Data>
       </PO>
     </Step>
     <Step SeqNo="2610" StepType="AD">
@@ -8159,9 +8159,9 @@ There are two reasons for de-activating and not deleting records:
     <Step SeqNo="3530" StepType="AD">
       <PO AD_Table_ID="452" Action="U" Record_ID="54272" Table="AD_TreeNodeMM">
         <Data AD_Column_ID="6161" Column="Node_ID" oldValue="54272">54272</Data>
+        <Data AD_Column_ID="6160" Column="AD_Tree_ID" oldValue="10">10</Data>
         <Data AD_Column_ID="6155" Column="Parent_ID" oldValue="0">54270</Data>
         <Data AD_Column_ID="6157" Column="SeqNo" oldValue="999">3</Data>
-        <Data AD_Column_ID="6160" Column="AD_Tree_ID" oldValue="10">10</Data>
       </PO>
     </Step>
     <Step SeqNo="3540" StepType="AD">
@@ -8496,6 +8496,7 @@ There are two reasons for de-activating and not deleting records:
     </Step>
     <Step SeqNo="3660" StepType="AD">
       <PO AD_Table_ID="107" Action="I" Record_ID="85959" Table="AD_Field">
+        <Data AD_Column_ID="7714" Column="EntityType">FMS</Data>
         <Data AD_Column_ID="578" Column="IsActive">true</Data>
         <Data AD_Column_ID="579" Column="Created">2018-02-21 16:54:31.305</Data>
         <Data AD_Column_ID="581" Column="Updated">2018-02-21 16:54:31.305</Data>
@@ -8524,7 +8525,6 @@ There are two reasons for de-activating and not deleting records:
         <Data AD_Column_ID="384" Column="AD_Org_ID">0</Data>
         <Data AD_Column_ID="383" Column="AD_Client_ID">0</Data>
         <Data AD_Column_ID="167" Column="AD_Field_ID">85959</Data>
-        <Data AD_Column_ID="7714" Column="EntityType">FMS</Data>
         <Data AD_Column_ID="582" Column="UpdatedBy">100</Data>
         <Data AD_Column_ID="580" Column="CreatedBy">100</Data>
         <Data AD_Column_ID="181" Column="SeqNo">0</Data>
@@ -9472,6 +9472,7 @@ There are two reasons for de-activating and not deleting records:
     </Step>
     <Step SeqNo="4130" StepType="AD">
       <PO AD_Table_ID="107" Action="I" Record_ID="85972" Table="AD_Field">
+        <Data AD_Column_ID="182" Column="SortNo" isNewNull="true"/>
         <Data AD_Column_ID="578" Column="IsActive">true</Data>
         <Data AD_Column_ID="579" Column="Created">2018-02-21 17:00:57.512</Data>
         <Data AD_Column_ID="581" Column="Updated">2018-02-21 17:00:57.512</Data>
@@ -9480,7 +9481,6 @@ There are two reasons for de-activating and not deleting records:
         <Data AD_Column_ID="169" Column="Description" isNewNull="true"/>
         <Data AD_Column_ID="176" Column="IsDisplayed">true</Data>
         <Data AD_Column_ID="185" Column="IsFieldOnly">false</Data>
-        <Data AD_Column_ID="182" Column="SortNo" isNewNull="true"/>
         <Data AD_Column_ID="2745" Column="IsCentrallyMaintained">true</Data>
         <Data AD_Column_ID="168" Column="Name">Financial Account</Data>
         <Data AD_Column_ID="2007" Column="IsReadOnly">false</Data>
@@ -10808,6 +10808,152 @@ There are two reasons for de-activating and not deleting records:
     <Step SeqNo="4800" StepType="AD">
       <PO AD_Table_ID="107" Action="U" Record_ID="85989" Table="AD_Field">
         <Data AD_Column_ID="183" Column="IsSameLine" oldValue="false">true</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="4810" StepType="AD">
+      <PO AD_Table_ID="101" Action="U" Record_ID="87324" Table="AD_Column">
+        <Data AD_Column_ID="127" Column="SeqNo" oldValue="1">2</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="4820" StepType="AD">
+      <PO AD_Table_ID="106" Action="U" Record_ID="54491" Table="AD_Tab">
+        <Data AD_Column_ID="6654" Column="TabLevel" oldValue="0">1</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="4830" StepType="AD">
+      <PO AD_Table_ID="101" Action="I" Record_ID="87437" Table="AD_Column">
+        <Data AD_Column_ID="112" Column="Description" isNewNull="true"/>
+        <Data AD_Column_ID="549" Column="Created">2018-03-01 18:39:32.332</Data>
+        <Data AD_Column_ID="3388" Column="ValueMin" isNewNull="true"/>
+        <Data AD_Column_ID="548" Column="IsActive">true</Data>
+        <Data AD_Column_ID="551" Column="Updated">2018-03-01 18:39:32.332</Data>
+        <Data AD_Column_ID="3389" Column="ValueMax" isNewNull="true"/>
+        <Data AD_Column_ID="111" Column="Name">Process Now</Data>
+        <Data AD_Column_ID="124" Column="IsMandatory">false</Data>
+        <Data AD_Column_ID="125" Column="IsTranslated">false</Data>
+        <Data AD_Column_ID="117" Column="DefaultValue">N</Data>
+        <Data AD_Column_ID="1179" Column="VFormat" isNewNull="true"/>
+        <Data AD_Column_ID="120" Column="IsParent">false</Data>
+        <Data AD_Column_ID="126" Column="IsIdentifier">false</Data>
+        <Data AD_Column_ID="6244" Column="IsSelectionColumn">false</Data>
+        <Data AD_Column_ID="6483" Column="IsSyncDatabase">N</Data>
+        <Data AD_Column_ID="119" Column="IsKey">false</Data>
+        <Data AD_Column_ID="6245" Column="ReadOnlyLogic" isNewNull="true"/>
+        <Data AD_Column_ID="56352" Column="FormatPattern" isNewNull="true"/>
+        <Data AD_Column_ID="50218" Column="MandatoryLogic" isNewNull="true"/>
+        <Data AD_Column_ID="110" Column="Version">0</Data>
+        <Data AD_Column_ID="13448" Column="ColumnSQL" isNewNull="true"/>
+        <Data AD_Column_ID="116" Column="ColumnName">Processing</Data>
+        <Data AD_Column_ID="113" Column="Help" isNewNull="true"/>
+        <Data AD_Column_ID="3360" Column="IsUpdateable">true</Data>
+        <Data AD_Column_ID="1692" Column="Callout" isNewNull="true"/>
+        <Data AD_Column_ID="11617" Column="IsAlwaysUpdateable">false</Data>
+        <Data AD_Column_ID="128" Column="IsEncrypted">N</Data>
+        <Data AD_Column_ID="54358" Column="InfoFactoryClass" isNewNull="true"/>
+        <Data AD_Column_ID="56187" Column="IsAllowLogging">true</Data>
+        <Data AD_Column_ID="56149" Column="IsAutocomplete">false</Data>
+        <Data AD_Column_ID="68024" Column="IsRange">false</Data>
+        <Data AD_Column_ID="62199" Column="IsAllowCopy">true</Data>
+        <Data AD_Column_ID="127" Column="SeqNo">0</Data>
+        <Data AD_Column_ID="109" Column="AD_Column_ID">87437</Data>
+        <Data AD_Column_ID="6482" Column="EntityType">FMS</Data>
+        <Data AD_Column_ID="359" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="360" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="59702" Column="AD_Chart_ID" isNewNull="true"/>
+        <Data AD_Column_ID="114" Column="AD_Table_ID">54363</Data>
+        <Data AD_Column_ID="550" Column="CreatedBy">100</Data>
+        <Data AD_Column_ID="2608" Column="AD_Element_ID">524</Data>
+        <Data AD_Column_ID="3369" Column="AD_Process_ID" isNewNull="true"/>
+        <Data AD_Column_ID="227" Column="AD_Reference_Value_ID" isNewNull="true"/>
+        <Data AD_Column_ID="115" Column="AD_Val_Rule_ID" isNewNull="true"/>
+        <Data AD_Column_ID="118" Column="FieldLength">1</Data>
+        <Data AD_Column_ID="226" Column="AD_Reference_ID">20</Data>
+        <Data AD_Column_ID="552" Column="UpdatedBy">100</Data>
+        <Data AD_Column_ID="84306" Column="UUID" isNewNull="true"/>
+      </PO>
+    </Step>
+    <Step SeqNo="4840" StepType="AD">
+      <PO AD_Table_ID="752" Action="I" Record_ID="0" Table="AD_Column_Trl">
+        <Data AD_Column_ID="12960" Column="Created">2018-03-01 18:39:35.879</Data>
+        <Data AD_Column_ID="12959" Column="IsActive">true</Data>
+        <Data AD_Column_ID="12952" Column="Updated">2018-03-01 18:39:35.879</Data>
+        <Data AD_Column_ID="12954" Column="IsTranslated">false</Data>
+        <Data AD_Column_ID="12957" Column="Name">Process Now</Data>
+        <Data AD_Column_ID="12961" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="12951" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="12958" Column="UpdatedBy">100</Data>
+        <Data AD_Column_ID="12956" Column="CreatedBy">100</Data>
+        <Data AD_Column_ID="12953" Column="AD_Language">es_MX</Data>
+        <Data AD_Column_ID="12955" Column="AD_Column_ID">87437</Data>
+        <Data AD_Column_ID="84310" Column="UUID" isNewNull="true"/>
+      </PO>
+    </Step>
+    <Step SeqNo="4850" StepType="AD">
+      <PO AD_Table_ID="101" Action="I" Record_ID="87438" Table="AD_Column">
+        <Data AD_Column_ID="112" Column="Description" isNewNull="true"/>
+        <Data AD_Column_ID="549" Column="Created">2018-03-01 18:40:02.567</Data>
+        <Data AD_Column_ID="3388" Column="ValueMin" isNewNull="true"/>
+        <Data AD_Column_ID="548" Column="IsActive">true</Data>
+        <Data AD_Column_ID="551" Column="Updated">2018-03-01 18:40:02.567</Data>
+        <Data AD_Column_ID="3389" Column="ValueMax" isNewNull="true"/>
+        <Data AD_Column_ID="111" Column="Name">Process Now</Data>
+        <Data AD_Column_ID="124" Column="IsMandatory">false</Data>
+        <Data AD_Column_ID="125" Column="IsTranslated">false</Data>
+        <Data AD_Column_ID="117" Column="DefaultValue">N</Data>
+        <Data AD_Column_ID="1179" Column="VFormat" isNewNull="true"/>
+        <Data AD_Column_ID="120" Column="IsParent">false</Data>
+        <Data AD_Column_ID="126" Column="IsIdentifier">false</Data>
+        <Data AD_Column_ID="6244" Column="IsSelectionColumn">false</Data>
+        <Data AD_Column_ID="6483" Column="IsSyncDatabase">N</Data>
+        <Data AD_Column_ID="119" Column="IsKey">false</Data>
+        <Data AD_Column_ID="6245" Column="ReadOnlyLogic" isNewNull="true"/>
+        <Data AD_Column_ID="56352" Column="FormatPattern" isNewNull="true"/>
+        <Data AD_Column_ID="50218" Column="MandatoryLogic" isNewNull="true"/>
+        <Data AD_Column_ID="110" Column="Version">0</Data>
+        <Data AD_Column_ID="13448" Column="ColumnSQL" isNewNull="true"/>
+        <Data AD_Column_ID="116" Column="ColumnName">Processing</Data>
+        <Data AD_Column_ID="113" Column="Help" isNewNull="true"/>
+        <Data AD_Column_ID="3360" Column="IsUpdateable">true</Data>
+        <Data AD_Column_ID="1692" Column="Callout" isNewNull="true"/>
+        <Data AD_Column_ID="11617" Column="IsAlwaysUpdateable">false</Data>
+        <Data AD_Column_ID="128" Column="IsEncrypted">N</Data>
+        <Data AD_Column_ID="54358" Column="InfoFactoryClass" isNewNull="true"/>
+        <Data AD_Column_ID="56187" Column="IsAllowLogging">true</Data>
+        <Data AD_Column_ID="56149" Column="IsAutocomplete">false</Data>
+        <Data AD_Column_ID="68024" Column="IsRange">false</Data>
+        <Data AD_Column_ID="62199" Column="IsAllowCopy">true</Data>
+        <Data AD_Column_ID="127" Column="SeqNo">0</Data>
+        <Data AD_Column_ID="109" Column="AD_Column_ID">87438</Data>
+        <Data AD_Column_ID="6482" Column="EntityType">FMS</Data>
+        <Data AD_Column_ID="359" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="360" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="59702" Column="AD_Chart_ID" isNewNull="true"/>
+        <Data AD_Column_ID="114" Column="AD_Table_ID">54370</Data>
+        <Data AD_Column_ID="550" Column="CreatedBy">100</Data>
+        <Data AD_Column_ID="2608" Column="AD_Element_ID">524</Data>
+        <Data AD_Column_ID="3369" Column="AD_Process_ID" isNewNull="true"/>
+        <Data AD_Column_ID="227" Column="AD_Reference_Value_ID" isNewNull="true"/>
+        <Data AD_Column_ID="115" Column="AD_Val_Rule_ID" isNewNull="true"/>
+        <Data AD_Column_ID="118" Column="FieldLength">1</Data>
+        <Data AD_Column_ID="226" Column="AD_Reference_ID">20</Data>
+        <Data AD_Column_ID="552" Column="UpdatedBy">100</Data>
+        <Data AD_Column_ID="84306" Column="UUID" isNewNull="true"/>
+      </PO>
+    </Step>
+    <Step SeqNo="4860" StepType="AD">
+      <PO AD_Table_ID="752" Action="I" Record_ID="0" Table="AD_Column_Trl">
+        <Data AD_Column_ID="12960" Column="Created">2018-03-01 18:40:04.09</Data>
+        <Data AD_Column_ID="12959" Column="IsActive">true</Data>
+        <Data AD_Column_ID="12952" Column="Updated">2018-03-01 18:40:04.09</Data>
+        <Data AD_Column_ID="12954" Column="IsTranslated">false</Data>
+        <Data AD_Column_ID="12957" Column="Name">Process Now</Data>
+        <Data AD_Column_ID="12961" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="12951" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="12958" Column="UpdatedBy">100</Data>
+        <Data AD_Column_ID="12956" Column="CreatedBy">100</Data>
+        <Data AD_Column_ID="12953" Column="AD_Language">es_MX</Data>
+        <Data AD_Column_ID="12955" Column="AD_Column_ID">87438</Data>
+        <Data AD_Column_ID="84310" Column="UUID" isNewNull="true"/>
       </PO>
     </Step>
   </Migration>
