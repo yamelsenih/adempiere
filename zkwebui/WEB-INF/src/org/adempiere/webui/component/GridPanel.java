@@ -295,7 +295,8 @@ public class GridPanel extends Borderlayout implements EventListener
 	{
 		
 		if (init) return;
-			
+
+//		System.out.println("Panel Desactivado"+((GridPanel)tabPanel.getListPanel()).get+ gridTab.isQuickEntry());
 		if(listbox.getColumns() != null)
 			listbox.getChildren().clear();
 		
@@ -434,6 +435,7 @@ public class GridPanel extends Borderlayout implements EventListener
 					tabPanel.setUnselected(tabPanel.getGlobalToolbar().getCurrentPanel());
 					tabPanel.setSelected(tabPanel);
 					tabPanel.activate(true);
+					
 				}
 			}	
 			
@@ -502,8 +504,6 @@ public class GridPanel extends Borderlayout implements EventListener
 							&& renderer.getCurrentDiv().getEditor().getGridField().getDisplayType() != DisplayType.Button
 							&& renderer.getCurrentDiv().getEditor().getGridField().getDisplayType() != DisplayType.YesNo) {
 							keyListener.setCtrlKeys(CNTRL_KEYS);
-
-//							renderer.setCurrentColumn(currentCol);
 						}
 					} else {
 							currentCol++;
@@ -560,7 +560,7 @@ public class GridPanel extends Borderlayout implements EventListener
 					row += 1;
 					if (row == totalRow)	{
 						if(!gridTab.isNew()) {
-							windowPanel.onNew();
+							onNew();
 							updateListIndex();
 							refresh(gridTab);
 						}
@@ -947,4 +947,27 @@ public class GridPanel extends Borderlayout implements EventListener
 		listbox.setVflex(true);
 	} // createListbox
 	
+	private void onNew() {
+		
+
+        
+        boolean newRecord = gridTab.dataNew(false);
+        if (newRecord)
+        {
+            //curTabPanel.dynamicDisplay(0);
+        	windowPanel.getToolbar().getCurrentPanel().dynamicDisplay(0);
+        	windowPanel.getToolbar().enableChanges(false);
+        	windowPanel.getToolbar().enableDelete(false);
+        	windowPanel.getToolbar().enableDeleteSelection(false);
+        	windowPanel.getToolbar().enableNavigation(false);
+        	windowPanel.getToolbar().enableTabNavigation(false);
+        	windowPanel.getToolbar().enableIgnore(true);
+        	windowPanel.getToolbar().enablePrint(gridTab.isPrinted());
+        	windowPanel.getToolbar().enableReport(true);
+        }
+        else
+        {
+//            log.severe("Could not create new record");
+        }
+	}
 }
