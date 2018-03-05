@@ -176,6 +176,7 @@ public class WQuickEntrySheet extends Window implements EventListener, DataStatu
 		setTitle(gridTab.getName());
 		setMaximizable(true);
 		setMaximized(false);
+		setClosable(true);
 		this.appendChild(selPanel);
 	}
 
