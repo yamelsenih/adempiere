@@ -62,11 +62,14 @@ public class LoanManagementModelValidator implements ModelValidator {
     			}
     			//	get all account
     			List<MFMAccount> accounts = MFMAccount.getAccountFromAgreement(agreement);
-    			for(MFMAccount account : accounts) {
-    				account.deleteEx(true);
-    			}
-    			MFMAccount account = new MFMAccount(agreement);
-    			account.saveEx();
+    			MFMAccount account = null;
+    			if (accounts.isEmpty()){
+	    			account = new MFMAccount(agreement);
+	    			account.saveEx();
+    			}else
+    				account = accounts.get(0);
+    			
+    			
     			//	Create Product
     			if(agreement.getFM_Product_ID() != 0) {
     				MFMAccountProduct accountProduct = new MFMAccountProduct(account);
