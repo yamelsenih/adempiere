@@ -31,7 +31,7 @@ public class X_FM_Dunning extends PO implements I_FM_Dunning, I_Persistent
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20180301L;
+	private static final long serialVersionUID = 20180305L;
 
     /** Standard Constructor */
     public X_FM_Dunning (Properties ctx, int FM_Dunning_ID, String trxName)

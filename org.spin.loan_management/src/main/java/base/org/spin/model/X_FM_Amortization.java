@@ -34,7 +34,7 @@ public class X_FM_Amortization extends PO implements I_FM_Amortization, I_Persis
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20180301L;
+	private static final long serialVersionUID = 20180305L;
 
     /** Standard Constructor */
     public X_FM_Amortization (Properties ctx, int FM_Amortization_ID, String trxName)

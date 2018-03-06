@@ -27,7 +27,7 @@ import org.compiere.process.DocAction;
 import org.compiere.process.DocumentEngine;
 import org.compiere.util.DB;
 import org.compiere.util.Util;
-import org.spin.util.FinancialSettingListener;
+import org.spin.util.FinancialSetting;
 
 /** Generated Model for FM_Agreement
  *  @author Adempiere (generated) 
@@ -146,7 +146,7 @@ public class MFMAgreement extends X_FM_Agreement implements DocAction {
 			return DocAction.STATUS_Invalid;
 		//	Financial Setting
 		for(MFMAccountProduct products : getAccountProducts()) {
-			m_processMsg = FinancialSettingListener.get().fireDocValidate(this, ModelValidator.TIMING_BEFORE_PREPARE, products.getFM_Product_ID());
+			m_processMsg = FinancialSetting.get().fireDocValidate(this, ModelValidator.TIMING_BEFORE_PREPARE, products.getFM_Product_ID());
 			if (m_processMsg != null)
 				return DocAction.STATUS_Invalid;
 		}
@@ -164,7 +164,7 @@ public class MFMAgreement extends X_FM_Agreement implements DocAction {
 			return DocAction.STATUS_Invalid;
 		//	Financial Setting
 		for(MFMAccountProduct products : getAccountProducts()) {
-			m_processMsg = FinancialSettingListener.get().fireDocValidate(this, ModelValidator.TIMING_AFTER_PREPARE, products.getFM_Product_ID());
+			m_processMsg = FinancialSetting.get().fireDocValidate(this, ModelValidator.TIMING_AFTER_PREPARE, products.getFM_Product_ID());
 			if (m_processMsg != null)
 				return DocAction.STATUS_Invalid;
 		}
@@ -215,7 +215,7 @@ public class MFMAgreement extends X_FM_Agreement implements DocAction {
 			return DocAction.STATUS_Invalid;
 		//	Financial Setting
 		for(MFMAccountProduct products : getAccountProducts()) {
-			m_processMsg = FinancialSettingListener.get().fireDocValidate(this, ModelValidator.TIMING_BEFORE_COMPLETE, products.getFM_Product_ID());
+			m_processMsg = FinancialSetting.get().fireDocValidate(this, ModelValidator.TIMING_BEFORE_COMPLETE, products.getFM_Product_ID());
 			if (m_processMsg != null)
 				return DocAction.STATUS_Invalid;
 		}
@@ -234,7 +234,7 @@ public class MFMAgreement extends X_FM_Agreement implements DocAction {
 		}
 		//	Financial Setting
 		for(MFMAccountProduct products : getAccountProducts()) {
-			m_processMsg = FinancialSettingListener.get().fireDocValidate(this, ModelValidator.TIMING_AFTER_COMPLETE, products.getFM_Product_ID());
+			m_processMsg = FinancialSetting.get().fireDocValidate(this, ModelValidator.TIMING_AFTER_COMPLETE, products.getFM_Product_ID());
 			if (m_processMsg != null)
 				return DocAction.STATUS_Invalid;
 		}
