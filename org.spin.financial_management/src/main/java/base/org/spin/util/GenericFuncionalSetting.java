@@ -33,7 +33,7 @@ public class GenericFuncionalSetting extends AbstractFunctionalSetting {
 
 	@Override
 	public String run() {
-		System.err.println("PO: " + getParameter(FinancialSettingListener.PARAMETER_PO));
+		System.err.println("PO: " + getParameter(FinancialSetting.PARAMETER_PO));
 		return null;
 	}
 }

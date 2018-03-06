@@ -12,6 +12,7 @@
   <property name="dist"  location="dist"/>
   <property name="base" location="../base/src"/>
   <property name="financialManagement" location="../org.spin.financial_management/src"/>
+   <property name="controller" location="${basedir}/src/main/java/ui/swing"/>
   <property name="zksrc" value="${basedir}/src/main/java/ui/zk"/>
   <property name="zkclasses" value="${basedir}/build/zkwebui/WEB-INF/classes"/>
 
@@ -27,6 +28,9 @@
     <pathelement location="${basedir}/build"/>
     <pathelement location="../zkwebui/WEB-INF/classes"/>
     <fileset dir="../lib">
+        <include name="*.jar"/>
+    </fileset>
+    <fileset dir="../packages">
         <include name="*.jar"/>
     </fileset>
     <fileset dir="../zkwebui/WEB-INF/lib">
@@ -47,7 +51,7 @@
   <target name="compile" depends="init"
         description="compile the source " >
     <!-- Compile the java code from ${src} into ${build} -->
-    <javac encoding="UTF-8"  srcdir="${src}" sourcepath="${base}:${financialManagement}" destdir="${build}">
+    <javac encoding="UTF-8"  srcdir="${src}" sourcepath="${base}:${financialManagement}:${controller}" destdir="${build}">
       <classpath refid="lib.class.path"/>
     </javac>
 
@@ -73,9 +77,9 @@
     <target name="zkcompile" depends="dist"
             description="compile the source " >
         <!-- Compile the zk java code from ${src} into ${zkclasses} -->
-        <!-- javac encoding="UTF-8" debug="true" srcdir="${zksrc}" destdir="${zkclasses}">
+        <javac encoding="UTF-8" debug="true" srcdir="${zksrc}" sourcepath="${base}:${financialManagement}:${controller}" destdir="${zkclasses}" >
             <classpath refid="compile.classpath"/>
-        </javac-->
+        </javac>
     </target>
 
     <target name="zkdist" depends="zkcompile"

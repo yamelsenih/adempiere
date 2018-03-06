@@ -16,8 +16,12 @@
  *****************************************************************************/
 package org.spin.util;
 
+import java.math.BigDecimal;
 import java.util.HashMap;
+import java.util.Map.Entry;
+import java.util.Properties;
 
+import org.compiere.util.Env;
 import org.spin.model.MFMFunctionalApplicability;
 import org.spin.model.MFMFunctionalSetting;
 
@@ -33,6 +37,7 @@ public abstract class AbstractFunctionalSetting {
 	
 	public AbstractFunctionalSetting(MFMFunctionalSetting setting) {
 		this.setting = setting;
+		this.ctx = setting.getCtx();
 	}
 	
 	/**	Setting	*/
@@ -43,6 +48,16 @@ public abstract class AbstractFunctionalSetting {
 	private HashMap<String, Object> parameters = new HashMap<String, Object>();
 	/**	Return Value */
 	private HashMap<String, Object> returnValues = new HashMap<String, Object>();
+	/**	Context	*/
+	private Properties ctx;
+	
+	/**
+	 * Get Context
+	 * @return
+	 */
+	public Properties getCtx() {
+		return ctx;
+	}
 	
 	/**
 	 * Set Functional Setting Applicability
@@ -78,6 +93,16 @@ public abstract class AbstractFunctionalSetting {
 	}
 	
 	/**
+	 * Set from Parameters hash
+	 * @param parameters
+	 */
+	public void setParameters(HashMap<String, Object> parameters) {
+		for(Entry<String, Object> entry : parameters.entrySet()) {
+			this.parameters.put(entry.getKey(), entry.getValue());
+		}
+	}
+	
+	/**
 	 * Get a Parameter value from key
 	 * @param key
 	 * @return
@@ -86,6 +111,36 @@ public abstract class AbstractFunctionalSetting {
 		return parameters.get(key);
 	}
 
+	/**
+	 * Get Parameter as Integer
+	 * @param key
+	 * @return
+	 */
+	public int getParameterAsInt(String key) {
+		Object parameter = getParameter(key);
+		if(parameter != null 
+				&& parameter instanceof Integer) {
+			return ((Integer) parameter).intValue();
+		}
+		//	Default
+		return 0;
+	}
+	
+	/**
+	 * Get Parameter as BigDecimal
+	 * @param key
+	 * @return
+	 */
+	public BigDecimal getParameterAsBigDecimal(String key) {
+		Object parameter = getParameter(key);
+		if(parameter != null 
+				&& parameter instanceof BigDecimal) {
+			return ((BigDecimal) parameter);
+		}
+		//	Default
+		return Env.ZERO;
+	}
+	
 	/**
 	 * Set Parameter Value
 	 * @param key

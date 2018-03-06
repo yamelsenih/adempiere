@@ -20,8 +20,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Properties;
-
-import org.adempiere.exceptions.AdempiereException;
 import org.compiere.model.ModelValidator;
 import org.compiere.model.PO;
 import org.compiere.util.Env;
@@ -35,14 +33,14 @@ import org.spin.model.MFMProduct;
  *      <li> FR [ 1583 ] New Definition for loan
  *		@see https://github.com/adempiere/adempiere/issues/1583
  */
-public class FinancialSettingListener {
+public class FinancialSetting {
 
-	private FinancialSettingListener() {
+	private FinancialSetting() {
 		
 	}
 	
 	/** Engine Singleton				*/
-	private static FinancialSettingListener settingEngine = null;
+	private static FinancialSetting settingEngine = null;
 	private HashMap<String, Object> returnValues;
 	
 	public static final String PARAMETER_PO = "PO";
@@ -53,11 +51,19 @@ public class FinancialSettingListener {
 	 * 	Get Singleton
 	 *	@return modelValidatorEngine
 	 */
-	public synchronized static FinancialSettingListener get() {
+	public synchronized static FinancialSetting get() {
 		if (settingEngine == null)
-			settingEngine = new FinancialSettingListener();
+			settingEngine = new FinancialSetting();
 		return settingEngine;
 	}	//	get
+	
+	/**
+	 * Get return Values
+	 * @return
+	 */
+	public HashMap<String, Object> getReturnValues() {
+		return returnValues;
+	}
 	
 	/**
 	 * 	Fire Document Validation.
@@ -78,7 +84,7 @@ public class FinancialSettingListener {
 		//	flush return values
 		returnValues = new HashMap<String, Object>();
 		//	default
-		return runApplicability(po.getCtx(), po.get_TrxName(), po, applicabilityList);
+		return runApplicability(po.getCtx(), po.get_TrxName(), po, applicabilityList, null);
 	}
 	
 	/**
@@ -95,12 +101,15 @@ public class FinancialSettingListener {
 		}
 		//	Get Product
 		MFMProduct financialProduct = MFMProduct.getById(po.getCtx(), financialProductId);
+		if(financialProduct == null) {
+			return null;
+		}
 		//	Apply Listener
 		List<MFMFunctionalApplicability> applicabilityList = financialProduct.getApplicability(po.get_TableName(), ModelValidator.tableEventValidators[changeType]);
 		//	flush return values
 		returnValues = new HashMap<String, Object>();
 		//	default
-		return runApplicability(po.getCtx(), po.get_TrxName(), po, applicabilityList);
+		return runApplicability(po.getCtx(), po.get_TrxName(), po, applicabilityList, null);
 	}
 	
 	
@@ -111,42 +120,21 @@ public class FinancialSettingListener {
 	 * @param trxName
 	 * @return
 	 */
-	public String fireProcess(Properties ctx, int financialProductId, String trxName) {
+	public String fire(Properties ctx, int financialProductId, String eventType, HashMap<String, Object> parameters, String trxName) {
 		if (financialProductId <= 0) {
 			return null;
 		}
 		//	
 		MFMProduct financialProduct = MFMProduct.getById(ctx, financialProductId);
+		if(financialProduct == null) {
+			return null;
+		}
 		//	Apply Listener
-		List<MFMFunctionalApplicability> applicabilityList = financialProduct.getApplicability(MFMFunctionalApplicability.EVENTTYPE_Process);
+		List<MFMFunctionalApplicability> applicabilityList = financialProduct.getApplicability(eventType);
 		//	flush return values
 		returnValues = new HashMap<String, Object>();
 		//	default
-		return runApplicability(ctx, trxName, null, applicabilityList);
-	}
-	
-	/**
-	 * 
-	 * @param ctx
-	 * @param financialProductId
-	 * @param trxName
-	 * @return
-	 */
-	public HashMap<String, Object> fireSimulation(Properties ctx, int financialProductId, String trxName) {
-		if (financialProductId <= 0) {
-			return null;
-		}
-		//	
-		MFMProduct financialProduct = MFMProduct.getById(ctx, financialProductId);
-		//	Apply Listener
-		List<MFMFunctionalApplicability> applicabilityList = financialProduct.getApplicability(MFMFunctionalApplicability.EVENTTYPE_Simulation);
-		//	default
-		String message = runApplicability(ctx, trxName, null, applicabilityList);
-		if(message != null) {
-			throw new AdempiereException(message);
-		}
-		//	Return
-		return returnValues;
+		return runApplicability(ctx, trxName, null, applicabilityList, parameters);
 	}
 	
 	/**
@@ -155,7 +143,7 @@ public class FinancialSettingListener {
 	 * @param applicabilityList
 	 * @return
 	 */
-	private String runApplicability(Properties ctx, String trxName, PO po, List<MFMFunctionalApplicability> applicabilityList) {
+	private String runApplicability(Properties ctx, String trxName, PO po, List<MFMFunctionalApplicability> applicabilityList, HashMap<String, Object> parameters) {
 		//	
 		StringBuffer message = new StringBuffer();
 		try {
@@ -171,6 +159,9 @@ public class FinancialSettingListener {
 				settingForRun.setParameter(PARAMETER_PO, po);
 				settingForRun.setParameter(PARAMETER_CTX, ctx);
 				settingForRun.setParameter(PARAMETER_TRX_NAME, trxName);
+				if(parameters != null) {
+					settingForRun.setParameters(parameters);
+				}
 				//	Run It
 				String runMsg = settingForRun.run();
 				if(runMsg != null) {

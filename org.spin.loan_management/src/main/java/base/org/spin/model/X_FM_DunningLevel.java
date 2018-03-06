@@ -33,7 +33,7 @@ public class X_FM_DunningLevel extends PO implements I_FM_DunningLevel, I_Persis
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20180301L;
+	private static final long serialVersionUID = 20180305L;
 
     /** Standard Constructor */
     public X_FM_DunningLevel (Properties ctx, int FM_DunningLevel_ID, String trxName)
