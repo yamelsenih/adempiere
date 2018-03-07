@@ -32,15 +32,16 @@ import org.spin.model.MFMProduct;
 import org.spin.model.MFMRate;
 
 /**
- * Financial Management
+ * Loan French Method
+ * FixedFeeAmt = Loan [(Interest (1 + Interest)n) / ((1 + Interest)n – 1)]
  *
  * @author Yamel Senih, ysenih@erpya.com , http://www.erpya.com
  *      <li> FR [ 1583 ] New Definition for loan
  *		@see https://github.com/adempiere/adempiere/issues/1583
  */
-public class LoanSimulator extends AbstractFunctionalSetting {
+public class FrenchLoanMethodSimulator extends AbstractFunctionalSetting {
 
-	public LoanSimulator(MFMFunctionalSetting setting) {
+	public FrenchLoanMethodSimulator(MFMFunctionalSetting setting) {
 		super(setting);
 	}
 	/**	It is hardcode and must be changed	*/
@@ -50,10 +51,15 @@ public class LoanSimulator extends AbstractFunctionalSetting {
 	public String run() {
 		int financialProductId = getParameterAsInt("FINANCIAL_PRODUCT_ID");
 		BigDecimal capitalAmt = getParameterAsBigDecimal("CAPITAL_AMT");
-		int feesAmt = getParameterAsInt("FEES_AMT");
+		int feesQty = getParameterAsInt("FEES_QTY");
 		Timestamp startDate = (Timestamp) getParameter("START_DATE");
+		Timestamp payDate = (Timestamp) getParameter("PAYMENT_DATE");
 		if(startDate == null) {
 			startDate = new Timestamp(System.currentTimeMillis());
+		}
+		if(payDate == null
+				|| payDate.before(startDate)) {
+			payDate = startDate;
 		}
 		//	Calculate it
 		MFMProduct financialProduct = MFMProduct.getById(getCtx(), financialProductId);
@@ -77,17 +83,29 @@ public class LoanSimulator extends AbstractFunctionalSetting {
 		//	Cumulative
 		//	Current Date
 		Timestamp currentDate = startDate;
+		Timestamp currentDueDate = payDate;
 		int cumulativeDays = 0;
 		BigDecimal currentInterest = Env.ZERO;
 		BigDecimal remainingCapital = capitalAmt;
 		//	First Iteration for it
-		for(int i = 0; i < feesAmt; i++) {
+		for(int i = 0; i < feesQty; i++) {
 			AmortizationValue row = new AmortizationValue();
+			//	Period No
 			row.setPeriodNo(i + 1);
+			//	Start Date
 			row.setStartDate(currentDate);
+			//	End Date
 			currentDate = TimeUtil.addMonths(currentDate, 1);
 			row.setEndDate(currentDate);
+			//	Due Date
+			if(currentDueDate.before(row.getEndDate())) {
+				currentDueDate = row.getEndDate();
+			}
+			row.setDueDate(currentDueDate);
+			currentDueDate = TimeUtil.addMonths(currentDueDate, 1);
+			//	Add Day Of Month
 			row.setDayOfMonth(TimeUtil.getDaysBetween(row.getStartDate(), row.getEndDate()));
+			//	Set Cumulative Days
 			cumulativeDays += row.getDayOfMonth();
 			row.setCumulativeDays(cumulativeDays);
 			//	Calculate Monthly Interest
@@ -114,31 +132,37 @@ public class LoanSimulator extends AbstractFunctionalSetting {
 		//	Second Iteration for it (Calculate Remaining Capital, )
 		//	Get Fee
 		BigDecimal fixedFeeAmt = capitalAmt.divide(currentInterest, MathContext.DECIMAL128);
-		BigDecimal interestAmt = Env.ZERO;
+		BigDecimal summaryInterestAmt = Env.ZERO;
+		BigDecimal summaryTaxAmt = Env.ZERO;
 		for(int i = 0; i < amortizationList.size(); i++) {
 			AmortizationValue row = amortizationList.get(i);
 			//	Set Interest Amount Fee
-			row.setInterestAmtFee(row.getDailyInterest().multiply(remainingCapital));
+			BigDecimal interestFeeAmt = row.getDailyInterest().multiply(remainingCapital);
+			interestFeeAmt = interestFeeAmt.divide(Env.ONE.add(taxRate), MathContext.DECIMAL128);
+			row.setInterestAmtFee(interestFeeAmt);
+			//	Set Tax Fee Amount
+			BigDecimal taxAmtFee = interestFeeAmt.multiply(taxRate);
+			row.setTaxAmtFee(taxAmtFee);
 			//	Set Capital Amount Fee
-			row.setCapitalAmtFee(fixedFeeAmt.subtract(row.getInterestAmtFee()));
+			row.setCapitalAmtFee(fixedFeeAmt.subtract(interestFeeAmt.add(taxAmtFee)));
 			//	Set Remaining Capital
 			remainingCapital = remainingCapital.subtract(row.getCapitalAmtFee());
 			row.setRemainingCapital(remainingCapital);
 			//	Set Daily Interest Amount
 			row.setDailyInterestAmt(row.getInterestAmtFee().divide(new BigDecimal(row.getCumulativeDays()), MathContext.DECIMAL128));
+			//	Set Fixed Fee
+			row.setFixedFeeAmt(fixedFeeAmt);
 			//	Set Object
 			amortizationList.set(i, row);
 			//	Summarize
-			interestAmt = interestAmt.add(row.getInterestAmtFee());
+			summaryInterestAmt = summaryInterestAmt.add(row.getInterestAmtFee());
+			summaryTaxAmt = summaryTaxAmt.add(taxAmtFee);
 		}
 		//	Put Return Values
-		BigDecimal totalInterestAmt = interestAmt;
-		interestAmt = interestAmt.divide(Env.ONE.add(taxRate), MathContext.DECIMAL128);
-		BigDecimal taxAmt = interestAmt.multiply(taxRate);
 		setReturnValue("FIXED_FEE_AMT", fixedFeeAmt);
-		setReturnValue("INTEREST_FEE_AMT", interestAmt);
-		setReturnValue("TAX_FEE_AMT", taxAmt);
-		setReturnValue("GRAND_TOTAL", totalInterestAmt.add(capitalAmt));
+		setReturnValue("INTEREST_FEE_AMT", summaryInterestAmt);
+		setReturnValue("TAX_FEE_AMT", summaryTaxAmt);
+		setReturnValue("GRAND_TOTAL", summaryInterestAmt.add(summaryTaxAmt).add(capitalAmt));
 		setReturnValue("AMORTIZATION_LIST", amortizationList);
 		return null;
 	}
@@ -161,6 +185,8 @@ public class LoanSimulator extends AbstractFunctionalSetting {
 		private Timestamp startDate;
 		/**	End Date	*/
 		private Timestamp endDate;
+		/**	Due Date	*/
+		private Timestamp dueDate;
 		/**	Days of Month	*/
 		private int dayOfMonth = 0;
 		/**	Cumulative Days	*/
@@ -177,8 +203,12 @@ public class LoanSimulator extends AbstractFunctionalSetting {
 		private BigDecimal interestAmtFee;
 		/**	Capital Amount	*/
 		private BigDecimal capitalAmtFee;
+		/**	Tax Amount	*/
+		private BigDecimal taxAmtFee;
 		/**	Daily Interest	*/
 		private BigDecimal dailyInterestAmt;
+		/**	Fee Amount	*/
+		private BigDecimal fixedFeeAmt;
 		
 		public int getPeriodNo() {
 			return periodNo;
@@ -252,13 +282,32 @@ public class LoanSimulator extends AbstractFunctionalSetting {
 		public void setDailyInterestAmt(BigDecimal dailyInterestAmt) {
 			this.dailyInterestAmt = dailyInterestAmt;
 		}
+		public BigDecimal getTaxAmtFee() {
+			return taxAmtFee;
+		}
+		public void setTaxAmtFee(BigDecimal taxAmtFee) {
+			this.taxAmtFee = taxAmtFee;
+		}
+		public BigDecimal getFixedFeeAmt() {
+			return fixedFeeAmt;
+		}
+		public void setFixedFeeAmt(BigDecimal fixedFeeAmt) {
+			this.fixedFeeAmt = fixedFeeAmt;
+		}
+		public Timestamp getDueDate() {
+			return dueDate;
+		}
+		public void setDueDate(Timestamp dueDate) {
+			this.dueDate = dueDate;
+		}
 		@Override
 		public String toString() {
 			return "AmortizationValue [periodNo=" + periodNo + ", startDate=" + startDate + ", endDate=" + endDate
 					+ ", dayOfMonth=" + dayOfMonth + ", cumulativeDays=" + cumulativeDays + ", remainingCapital="
 					+ remainingCapital + ", monthInterest=" + monthInterest + ", cumulativeInterest="
 					+ cumulativeInterest + ", dailyInterest=" + dailyInterest + ", interestAmtFee=" + interestAmtFee
-					+ ", capitalAmtFee=" + capitalAmtFee + ", dailyInterestAmt=" + dailyInterestAmt + "]";
+					+ ", capitalAmtFee=" + capitalAmtFee + ", taxAmtFee=" + taxAmtFee + ", dailyInterestAmt="
+					+ dailyInterestAmt + ", fixedFeeAmt=" + fixedFeeAmt + "]";
 		}
 	}
 }
