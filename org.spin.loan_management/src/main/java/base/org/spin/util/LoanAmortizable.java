@@ -22,6 +22,8 @@ import java.sql.Timestamp;
 import java.util.List;
 import java.util.Properties;
 
+import org.adempiere.exceptions.AdempiereException;
+import org.compiere.model.MCurrency;
 import org.compiere.model.MProduct;
 import org.compiere.model.MTax;
 import org.compiere.model.Query;
@@ -54,27 +56,30 @@ public class LoanAmortizable extends AbstractFunctionalSetting {
 	public String run() {
 		// TODO Auto-generated method stub
 		MFMAgreement loan = (MFMAgreement) getParameter(FinancialSetting.PARAMETER_PO);
-		generateAmortization(loan);
-		return null;
+		return generateAmortization(loan);
 	}
 	
 	//Generate Loan Amortization 
-	private void generateAmortization(MFMAgreement loan){
+	private String generateAmortization(MFMAgreement loan){
 		
 		boolean inserted = false;
 		Properties ctx = loan.getCtx();
 		String trxName = loan.get_TrxName();
+		MCurrency currency = MCurrency.get(getCtx(), Env.getContextAsInt(ctx, "$C_Currency_ID"));
 		int seq = 0;
 		MFMProduct financialProduct = (MFMProduct) loan.getFM_Product();
 		
 		
 		//Global 
 		BigDecimal loanRate = getValidRate(financialProduct, loan.getValidFrom());
+		if (loanRate.compareTo(Env.ZERO)==0)
+			return "@Invalid@ @FM_Rate_ID@ @0@";
+			
 		BigDecimal taxRate = getTax((MProduct)financialProduct.getM_Product());
 		BigDecimal AnualInterest = loanRate.add(
 										taxRate.multiply(loanRate.divide(Env.ONEHUNDRED))
 												);
-		BigDecimal StaticQuote =  Env.ZERO;
+		BigDecimal StaticFees =  Env.ZERO;
 		BigDecimal CapitalAmt = Env.ZERO;
 		
 		
@@ -84,16 +89,24 @@ public class LoanAmortizable extends AbstractFunctionalSetting {
 									.list();
 		
 		for (MFMAccount account : accounts) {
+			if (MFMAmortization.checkAccount(account))
+				continue;
+			
 			if (account.get_Value("CapitalAmt")== null)
 				continue;
+			
+			if (account.get_Value("FeesQty")== null)
+				continue;
+			
 				
 			CapitalAmt = (BigDecimal)account.get_Value("CapitalAmt");
 			//Delete Amortization 
 			MFMAmortization.deleteForAccount(account);
 			
 			while (!inserted){
+				int FeesQty = ((BigDecimal)account.get_Value("FeesQty")).intValue();
 				Timestamp StartDate = loan.getValidFrom();
-				Timestamp EndDate = loan.getValidTo();
+				Timestamp EndDate = TimeUtil.addMonths(loan.getValidFrom(), FeesQty);
 				Timestamp currentDate = StartDate;
 				Timestamp BeginPeriod =  currentDate;
 				Timestamp EndPeriod =  currentDate;
@@ -105,18 +118,20 @@ public class LoanAmortizable extends AbstractFunctionalSetting {
 				BigDecimal MonthDayInterest = Env.ZERO;
 				BigDecimal CumulatedInterest = Env.ZERO;
 				BigDecimal CapitalRemain = CapitalAmt;
-				BigDecimal CapitalQuote = Env.ZERO;
-				BigDecimal InterestQuote = Env.ZERO;
+				BigDecimal CapitalFees = Env.ZERO;
+				BigDecimal InterestFees = Env.ZERO;
 				BigDecimal taxAmt = Env.ZERO;
 				
 				while (currentDate.before(EndDate)) {
-					if (StaticQuote.compareTo(Env.ZERO)!=0)
+					if (StaticFees.compareTo(Env.ZERO)!=0)
 						inserted = true;
+					
 					BeginPeriod = TimeUtil.getMonthFirstDay(currentDate);
 					EndPeriod = TimeUtil.getMonthLastDay(currentDate);
 					monthDays = TimeUtil.getDaysBetween(BeginPeriod, EndPeriod) + 1;
 					DueDate = TimeUtil.addDays(EndPeriod, 1);
 					cumulatedDays += monthDays ;
+					
 					//Interest for Month
 					MonthInterest = BigDecimal.ONE.divide(
 											new BigDecimal(Math.pow(
@@ -139,39 +154,39 @@ public class LoanAmortizable extends AbstractFunctionalSetting {
 																)
 														).subtract(Env.ONE);
 						//Capital Remain
-						CapitalRemain = CapitalAmt.subtract(CapitalQuote);
+						CapitalRemain = CapitalRemain.subtract(CapitalFees);
 						
-						//Interest Quote
-						InterestQuote = CapitalRemain.multiply(MonthDayInterest);
+						//Interest Fees
+						InterestFees = CapitalRemain.multiply(MonthDayInterest);
 						
 						//TaxAmt 
-						taxAmt = InterestQuote.subtract(InterestQuote.divide(taxRate.divide(Env.ONEHUNDRED, MathContext.DECIMAL128).add(Env.ONE)
+						taxAmt = InterestFees.subtract(InterestFees.divide(taxRate.divide(Env.ONEHUNDRED, MathContext.DECIMAL128).add(Env.ONE)
 													, MathContext.DECIMAL128));
-						//Capital Quote
-						CapitalQuote = StaticQuote.subtract(InterestQuote);
+						//Capital Fees
+						CapitalFees = StaticFees.subtract(InterestFees);
 						
 						//Create Amortization
 						MFMAmortization.createAmortization(ctx, 
-															CapitalQuote, 
+															CapitalFees.setScale(currency.getStdPrecision(), BigDecimal.ROUND_HALF_UP), 
 															"", 
 															DueDate, 
 															EndPeriod, 
 															account.getFM_Account_ID(), 
-															InterestQuote.subtract(taxAmt), 
+															InterestFees.subtract(taxAmt).setScale(currency.getStdPrecision(), BigDecimal.ROUND_HALF_UP), 
 															seq, 
 															BeginPeriod, 
-															taxAmt, 
+															taxAmt.setScale(currency.getStdPrecision(), BigDecimal.ROUND_HALF_UP), 
 															trxName);
 					}
 					
 					currentDate = TimeUtil.addMonths(currentDate, 1);
 					currentDate = TimeUtil.getMonthFirstDay(currentDate);
-					
 				}
-				StaticQuote = CapitalAmt.divide(CumulatedInterest, MathContext.DECIMAL128);
+				StaticFees = CapitalAmt.divide(CumulatedInterest, MathContext.DECIMAL128);
+				
 			}
 		}
-		
+		return null;
 	}
 	
 	/**
