@@ -18,9 +18,12 @@ package org.spin.form;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
+import java.util.List;
 import java.util.Properties;
+import java.util.Vector;
 import java.util.logging.Level;
 
+import org.adempiere.exceptions.AdempiereException;
 import org.adempiere.exceptions.ValueChangeEvent;
 import org.adempiere.exceptions.ValueChangeListener;
 import org.adempiere.webui.LayoutUtils;
@@ -29,9 +32,12 @@ import org.adempiere.webui.component.ConfirmPanel;
 import org.adempiere.webui.component.Grid;
 import org.adempiere.webui.component.GridFactory;
 import org.adempiere.webui.component.Label;
+import org.adempiere.webui.component.ListModelTable;
+import org.adempiere.webui.component.ListboxFactory;
 import org.adempiere.webui.component.Panel;
 import org.adempiere.webui.component.Row;
 import org.adempiere.webui.component.Rows;
+import org.adempiere.webui.component.WListbox;
 import org.adempiere.webui.editor.WDateEditor;
 import org.adempiere.webui.editor.WNumberEditor;
 import org.adempiere.webui.editor.WSearchEditor;
@@ -47,10 +53,10 @@ import org.compiere.model.MLookupFactory;
 import org.compiere.util.DisplayType;
 import org.compiere.util.Env;
 import org.compiere.util.Msg;
-import org.compiere.util.TimeUtil;
 import org.compiere.util.Trx;
 import org.compiere.util.TrxRunnable;
 import org.spin.model.MFMProduct;
+import org.spin.util.FrenchLoanMethodSimulator.AmortizationValue;
 import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.event.EventListener;
 import org.zkoss.zk.ui.event.Events;
@@ -84,8 +90,10 @@ public class WLoanSimulator extends LoanSimulator
 	private WDateEditor startDateField;
 	private Label currencyLabel = new Label();
 	private WTableDirEditor currencyField;
-	private Label feesAmtLabel = new Label();
-	private WNumberEditor feesAmtField;
+	private Label feesQtyLabel = new Label();
+	private WNumberEditor feesQtyField;
+	private Label payDateLabel = new Label();
+	private WDateEditor payDateField;
 	private Label interestAmtLabel = new Label();
 	private WNumberEditor interestAmtField;
 	private Label taxAmtLabel = new Label();
@@ -101,6 +109,7 @@ public class WLoanSimulator extends LoanSimulator
 	private Button calculateButton = null;
 	private ConfirmPanel confirmPanel = new ConfirmPanel(true, false, false, false, false, false, false);
 	private StatusBarPanel statusBar = new StatusBarPanel();
+	private WListbox miniTable = ListboxFactory.newDataTable();
 
 
 	/**
@@ -134,8 +143,9 @@ public class WLoanSimulator extends LoanSimulator
 		financialProductLabel.setText(Msg.translate(Env.getCtx(), "FM_Product_ID"));
 		capitalAmtLabel.setText(Msg.translate(Env.getCtx(), "CapitalAmt"));
 		startDateLabel.setText(Msg.translate(Env.getCtx(), "StartDate"));
-		feesAmtLabel.setText(Msg.translate(Env.getCtx(), "FeesAmt"));
+		feesQtyLabel.setText(Msg.translate(Env.getCtx(), "FeesQty"));
 		feeAmtLabel.setText(Msg.translate(Env.getCtx(), "FeeAmt"));
+		payDateLabel.setText(Msg.translate(Env.getCtx(), "PayDate"));
 		interestAmtLabel.setText(Msg.translate(Env.getCtx(), "InterestAmt"));
 		taxAmtLabel.setText(Msg.translate(Env.getCtx(), "TaxAmt"));
 		currencyLabel.setText(Msg.translate(Env.getCtx(), "C_Currency_ID"));
@@ -154,11 +164,13 @@ public class WLoanSimulator extends LoanSimulator
 		row = rows.newRow();
 		row.appendChild(capitalAmtLabel.rightAlign());
 		row.appendChild(capitalAmtField.getComponent());
-		row.appendChild(feesAmtLabel.rightAlign());
-		row.appendChild(feesAmtField.getComponent());
+		row.appendChild(feesQtyLabel.rightAlign());
+		row.appendChild(feesQtyField.getComponent());
 		row = rows.newRow();
 		row.appendChild(startDateLabel.rightAlign());
 		row.appendChild(startDateField.getComponent());
+		row.appendChild(payDateLabel.rightAlign());
+		row.appendChild(payDateField.getComponent());
 		row = rows.newRow();
 		row.appendChild(currencyLabel.rightAlign());
 		row.appendChild(currencyField.getComponent());
@@ -183,7 +195,7 @@ public class WLoanSimulator extends LoanSimulator
 		south.setStyle("border: none");
 		mainLayout.appendChild(south);
 		south.appendChild(southPanel);
-		
+		//	
 		LayoutUtils.addSclass("status-border", statusBar);
 	}   //  jbInit
 
@@ -205,10 +217,17 @@ public class WLoanSimulator extends LoanSimulator
 		capitalAmtField = new WNumberEditor();
 		capitalAmtField.setMandatory(true);
 		//	Fees Amount
-		feesAmtField = new WNumberEditor("FeesAmt", true, false, true, DisplayType.Integer, "");
-		feesAmtField.setMandatory(true);
+		feesQtyField = new WNumberEditor("FeesAmt", true, false, true, DisplayType.Integer, "");
+		feesQtyField.setMandatory(true);
 		//	Start Date
 		startDateField = new WDateEditor("StartDate", true, false, true, "");
+		startDateField.setMandatory(true);
+		startDateField.setValue(new Timestamp(System.currentTimeMillis()));
+		startDateField.addValueChangeListener(this);
+		//	Grace Days
+		payDateField = new WDateEditor("PayDate", true, false, true, "");
+		payDateField.setValue(new Timestamp(System.currentTimeMillis()));
+		payDateField.setMandatory(true);
 		//	Fee Amount
 		feeAmtField = new WNumberEditor();
 		feeAmtField.setReadWrite(false);
@@ -241,8 +260,22 @@ public class WLoanSimulator extends LoanSimulator
 		Center center = new Center();
 		mainLayout.appendChild(center);
 		center.setFlex(true);
+		center.appendChild(miniTable);
+		miniTable.setVflex(true);
+		miniTable.setFixedLayout(true);
+		miniTable.setWidth("99%");
+		miniTable.setHeight("99%");
+		configureMiniTable();
 	}   //  dynInit
-
+	
+	/**
+	 * Configure Table
+	 */
+	private void configureMiniTable() {
+		ListModelTable model = new ListModelTable();
+		miniTable.setModel(model);
+		setColumnClass(miniTable);
+	}
 
 	/**
 	 * 	Dispose
@@ -278,17 +311,14 @@ public class WLoanSimulator extends LoanSimulator
 			MFMProduct financialProduct = MFMProduct.getById(Env.getCtx(), ((Integer)e.getNewValue()).intValue());
 			financialProductId = ((Integer)e.getNewValue()).intValue();
 			if(financialProduct != null) {
-				int graceDays = financialProduct.get_ValueAsInt("GraceDays");
-				Timestamp startDate = (Timestamp) (startDateField.getValue() != null
-						? startDateField.getValue()
-								: new Timestamp(System.currentTimeMillis()));
 				//	
-				startDateField.setValue(TimeUtil.addDays(startDate, graceDays));
 				if(financialProduct.get_ValueAsInt("C_Currency_ID") != 0) {
 					currencyId = financialProduct.get_ValueAsInt("C_Currency_ID");
 					currencyField.setValue(currencyId);
 				}
 			}
+		} else if(e.getPropertyName().equals("StartDate")) {
+			payDateField.setValue((Timestamp) e.getNewValue());
 		}
 	}   //  vetoableChange
 
@@ -300,11 +330,12 @@ public class WLoanSimulator extends LoanSimulator
 		financialProductId = (int) (financialProductField.getValue() != null? financialProductField.getValue(): 0);
 		currencyId = (int) (currencyField.getValue() != null? currencyField.getValue(): 0);
 		capitalAmt = (BigDecimal) capitalAmtField.getValue();
-		feesAmt = ((BigDecimal) (feesAmtField.getValue() != null? feesAmtField.getValue(): Env.ZERO)).intValue();
+		feesQty = ((BigDecimal) (feesQtyField.getValue() != null? feesQtyField.getValue(): Env.ZERO)).intValue();
 		feeAmt = (BigDecimal) feeAmtField.getValue();
 		interestAmt = (BigDecimal) interestAmtField.getValue();
 		taxAmt = (BigDecimal) taxAmtField.getValue();
 		startDate = (Timestamp) (startDateField.getValue() != null? startDateField.getValue(): new Timestamp(System.currentTimeMillis()));
+		payDate = (Timestamp) (payDateField.getValue() != null? payDateField.getValue(): new Timestamp(System.currentTimeMillis()));
 	}
 	
 	/**************************************************************************
@@ -315,7 +346,14 @@ public class WLoanSimulator extends LoanSimulator
 		try {
 			Trx.run(new TrxRunnable() {
 				public void run(String trxName) {
-					statusBar.setStatusLine(simulateData(trxName));
+					String msg = validateData();
+					if(msg == null) {
+						msg = simulateData(trxName);
+						statusBar.setStatusLine(msg);
+					} else {
+						statusBar.setStatusLine(msg);
+						throw new AdempiereException(msg);
+					}
 				}
 			});
 		} catch (Exception e) {
@@ -347,6 +385,31 @@ public class WLoanSimulator extends LoanSimulator
 	@Override
 	public void setGrandToral(BigDecimal grandTotal) {
 		grandTotalField.setValue(grandTotal);
+	}
+
+	@Override
+	public void reloadAmortization(List<AmortizationValue> amortizationList) {
+		miniTable.setRowCount(0);
+		ListModelTable model = miniTable.getModel();
+		if(amortizationList != null) {
+			for(AmortizationValue amortizationLine : amortizationList) {
+				Vector<Object> line = new Vector<Object>();
+				line.add(amortizationLine.getPeriodNo());	//	PeriodNo
+				line.add(amortizationLine.getStartDate());	//	StartDate
+				line.add(amortizationLine.getEndDate());	//	EndDate
+				line.add(amortizationLine.getDueDate());	//	DueDate
+				line.add(amortizationLine.getCapitalAmtFee().setScale(getStdPrecision(), BigDecimal.ROUND_HALF_UP));	//	CapitalAmtFee
+				line.add(amortizationLine.getInterestAmtFee().setScale(getStdPrecision(), BigDecimal.ROUND_HALF_UP));	//	InterestAmtFee
+				line.add(amortizationLine.getTaxAmtFee().setScale(getStdPrecision(), BigDecimal.ROUND_HALF_UP));	//	TaxAmtFee
+				line.add(amortizationLine.getFixedFeeAmt().setScale(getStdPrecision(), BigDecimal.ROUND_HALF_UP));	//	FixedFeeAmt
+				line.add(amortizationLine.getRemainingCapital().setScale(getStdPrecision(), BigDecimal.ROUND_HALF_UP));	//	RemainingCapital
+				//	Add to model
+				model.add(line);
+			}
+		}
+		miniTable.setData(model ,getColumnNames());
+		miniTable.autoSize();
+		setColumnClass(miniTable);
 	}
 
 }   //  VTrxMaterial

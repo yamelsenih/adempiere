@@ -19,13 +19,19 @@ package org.spin.form;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Vector;
 
 import org.compiere.apps.IStatusBar;
+import org.compiere.minigrid.IMiniTable;
 import org.compiere.model.MCurrency;
 import org.compiere.util.CLogger;
 import org.compiere.util.Env;
+import org.compiere.util.Msg;
 import org.spin.model.MFMFunctionalApplicability;
+import org.spin.model.MFMProduct;
 import org.spin.util.FinancialSetting;
+import org.spin.util.FrenchLoanMethodSimulator.AmortizationValue;
 
 /**
  * Financial Management
@@ -47,7 +53,7 @@ public abstract class LoanSimulator {
 	/**	Capital Amount		*/
 	public BigDecimal	capitalAmt;
 	/**	Fees Amount		*/
-	public int	feesAmt;
+	public int			feesQty;
 	/**	Fee Amount		*/
 	public BigDecimal	feeAmt;
 	/**	Interest Amount		*/
@@ -58,8 +64,20 @@ public abstract class LoanSimulator {
 	public BigDecimal	grandTotalAmt;
 	/**	Start Date		*/
 	public Timestamp	startDate;
+	/**	Payment Date		*/
+	public Timestamp	payDate;
+	//	Round
+	private int currencyPrecision = MCurrency.getStdPrecision(Env.getCtx(), Env.getContextAsInt(Env.getCtx(), "#C_Currency_ID"));
 	/**	Logger			*/
 	public static CLogger log = CLogger.getCLogger(LoanSimulator.class);
+	
+	/**
+	 * Get Precision
+	 * @return
+	 */
+	public int getStdPrecision() {
+		return currencyPrecision;
+	}
 	
 	/**
 	 *  Dynamic Layout (Grid).
@@ -87,21 +105,22 @@ public abstract class LoanSimulator {
 		parameters.put("FINANCIAL_PRODUCT_ID", financialProductId);
 		parameters.put("BUSINESS_PARTNER_ID", businessPartnerId);
 		parameters.put("CAPITAL_AMT", capitalAmt);
-		parameters.put("FEES_AMT", feesAmt);
+		parameters.put("FEES_QTY", feesQty);
 		parameters.put("START_DATE", startDate);
+		parameters.put("PAYMENT_DATE", payDate);
 		//	
 		FinancialSetting setting = FinancialSetting.get();
 		//	Set Values
 		String errorMsg = setting.fire(Env.getCtx(), financialProductId, MFMFunctionalApplicability.EVENTTYPE_Simulation, parameters, trxName);
 		//	
 		HashMap<String, Object> returnValues = setting.getReturnValues();
-		//	Round
-		int currencyPrecision = MCurrency.getStdPrecision(Env.getCtx(), Env.getContextAsInt(Env.getCtx(), "#C_Currency_ID"));
 		//	
 		BigDecimal fixedFeeAmt = (BigDecimal) returnValues.get("FIXED_FEE_AMT");
 		BigDecimal interestFeeAmt = (BigDecimal) returnValues.get("INTEREST_FEE_AMT");
 		BigDecimal taxAmt = (BigDecimal) returnValues.get("TAX_FEE_AMT");
 		BigDecimal grandTotal = (BigDecimal) returnValues.get("GRAND_TOTAL");
+		//	
+		List<AmortizationValue> amortizationList = (List<AmortizationValue>) returnValues.get("AMORTIZATION_LIST");
 		if(fixedFeeAmt != null) {
 			setFeeAmt(fixedFeeAmt.setScale(currencyPrecision, BigDecimal.ROUND_HALF_UP));
 		}
@@ -114,8 +133,153 @@ public abstract class LoanSimulator {
 		if(grandTotal != null) {
 			setGrandToral(grandTotal.setScale(currencyPrecision, BigDecimal.ROUND_HALF_UP));
 		}
+		//	Reload table
+		reloadAmortization(amortizationList);
 		//	Set Error
 		return errorMsg;
+	}
+	
+	/**
+	 * Validate all data for run
+	 * @return
+	 */
+	public String validateData() {
+		StringBuffer message = new StringBuffer();
+		//	Business Partner
+		if(businessPartnerId == 0) {
+			message.append("@C_BPartner_ID@ @NotFound@");
+		}
+		//	Financial Product
+		if(financialProductId == 0) {
+			if(message.length() > 0) {
+				message.append(Env.NL);
+			}
+			message.append("@FM_Product_ID@ @NotFound@");
+		}
+		//	Capital Amount
+		if(capitalAmt == null
+				|| capitalAmt.compareTo(Env.ZERO) <= 0) {
+			if(message.length() > 0) {
+				message.append(Env.NL);
+			}
+			message.append("@CapitalAmt@ <= @0@");
+		}
+		//	Fees Amount
+		if(feesQty <= 0) {
+			if(message.length() > 0) {
+				message.append(Env.NL);
+			}
+			message.append("@FeesQty@ <= @0@");
+		}
+		//	Start Date
+		if(startDate == null) {
+			if(message.length() > 0) {
+				message.append(Env.NL);
+			}
+			message.append("@StartDate@ @NotFound@");
+		}
+		//	Validate Max and Min capital
+		if(financialProductId != 0) {
+			MFMProduct financialProduct = MFMProduct.getById(Env.getCtx(), financialProductId);
+			//	Capital Amount
+			BigDecimal minCapitalAmt = (BigDecimal) financialProduct.get_Value("MinCapitalAmt");
+			if(minCapitalAmt == null) {
+				minCapitalAmt = Env.ZERO;
+			}
+			BigDecimal maxCapitalAmt = (BigDecimal) financialProduct.get_Value("MaxCapitalAmt");
+			if(maxCapitalAmt == null) {
+				maxCapitalAmt = Env.ZERO;
+			}
+			//	Fees Amount
+			int minFeesAmt = financialProduct.get_ValueAsInt("MinFeesAmt");
+			int maxFeesAmt = financialProduct.get_ValueAsInt("MaxFeesAmt");
+			//	Validate Capital
+			if(capitalAmt != null
+					&& capitalAmt.compareTo(Env.ZERO) > 0) {
+				//	Minimum
+				if(capitalAmt.compareTo(minCapitalAmt) < 0) {
+					if(message.length() > 0) {
+						message.append(Env.NL);
+					}
+					message.append("@CapitalAmt@ < @MinCapitalAmt@");
+				}
+				//	Maximum
+				if(maxCapitalAmt.compareTo(Env.ZERO) > 0
+						&& capitalAmt.compareTo(maxCapitalAmt) > 0) {
+					if(message.length() > 0) {
+						message.append(Env.NL);
+					}
+					message.append("@CapitalAmt@ > @MaxCapitalAmt@");
+				}
+			}
+			//	Validate Fees Amount
+			if(feesQty > 0) {
+				//	Minimum
+				if(feesQty < minFeesAmt) {
+					if(message.length() > 0) {
+						message.append(Env.NL);
+					}
+					message.append("@FeesQty@ < @MinFeesQty@");
+				}
+				//	Maximum
+				if(maxFeesAmt > 0
+						&& feesQty > maxFeesAmt) {
+					if(message.length() > 0) {
+						message.append(Env.NL);
+					}
+					message.append("@FeesQty@ > @MinFeesQty@");
+				}
+			}
+		}
+		//	Grace Days
+		if(payDate == null) {
+			payDate = startDate;
+		}
+		//	
+		if(message.length() == 0) {
+			return null;
+		}
+		//	
+		return message.toString();
+	}
+	
+	/**
+	 * Get Column Names
+	 * @return
+	 */
+	public Vector<String> getColumnNames() {	
+		//  Header Info
+		Vector<String> columnNames = new Vector<String>();
+		columnNames.add(Msg.translate(Env.getCtx(), "PeriodNo"));
+		columnNames.add(Msg.translate(Env.getCtx(), "StartDate"));
+		columnNames.add(Msg.translate(Env.getCtx(), "EndDate"));
+		columnNames.add(Msg.translate(Env.getCtx(), "DueDate"));
+		columnNames.add(Msg.translate(Env.getCtx(), "CapitalAmt"));
+		columnNames.add(Msg.translate(Env.getCtx(), "InterestAmt"));
+		columnNames.add(Msg.translate(Env.getCtx(), "TaxAmt"));
+		columnNames.add(Msg.translate(Env.getCtx(), "FeeAmt"));
+		columnNames.add(Msg.translate(Env.getCtx(), "Balance"));
+		//	
+		return columnNames;
+	}
+	
+	/**
+	 * Set Column Class
+	 * @param table
+	 */
+	protected void setColumnClass(IMiniTable table) {
+		int i = 0;
+		table.setColumnClass(i++, Integer.class, true);			//  0-Selection
+		table.setColumnClass(i++, Timestamp.class, true);		//  1-StarDate
+		table.setColumnClass(i++, Timestamp.class, true);		//  2-EndDate
+		table.setColumnClass(i++, Timestamp.class, true);		//  2-DueDate
+		table.setColumnClass(i++, BigDecimal.class, true);		//  4-CapitalAmt
+		table.setColumnClass(i++, BigDecimal.class, true);		//  5-InterestAmt
+		table.setColumnClass(i++, BigDecimal.class, true);		//  6-TaxAmt
+		table.setColumnClass(i++, BigDecimal.class, true);		//  7-FeeAmt
+		table.setColumnClass(i++, BigDecimal.class, true);		//  8-Balance
+		//  Table UI
+		table.autoSize();
 	}
 	
 	/**
@@ -137,9 +301,15 @@ public abstract class LoanSimulator {
 	public abstract void setTaxFeeAmt(BigDecimal taxFeeAmt);
 	
 	/**
-	 * Set Grand Tota
+	 * Set Grand Total
 	 * @param grandTotal
 	 */
 	public abstract void setGrandToral(BigDecimal grandTotal);
+	
+	/**
+	 * Load Amortization
+	 * @param amortizationList
+	 */
+	public abstract void reloadAmortization(List<AmortizationValue> amortizationList);
 
 }
