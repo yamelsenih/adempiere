@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Properties;
 import org.compiere.model.*;
 import org.compiere.process.DocAction;
+import org.compiere.process.DocOptions;
 import org.compiere.process.DocumentEngine;
 import org.compiere.util.DB;
 import org.compiere.util.Util;
@@ -32,7 +33,7 @@ import org.spin.util.FinancialSetting;
 /** Generated Model for FM_Agreement
  *  @author Adempiere (generated) 
  *  @version Release 3.9.0 - $Id$ */
-public class MFMAgreement extends X_FM_Agreement implements DocAction {
+public class MFMAgreement extends X_FM_Agreement implements DocAction, DocOptions {
 
 	/**
 	 *
@@ -320,9 +321,10 @@ public class MFMAgreement extends X_FM_Agreement implements DocAction {
 	{
 		log.info("reActivateIt - " + toString());
 		setProcessed(false);
-		if (reverseCorrectIt())
-			return true;
-		return false;
+		setDocAction(DOCACTION_Complete);
+		//if (reverseCorrectIt())
+			//return true;
+		return true;
 	}	//	reActivateIt
 	
 	
@@ -430,4 +432,25 @@ public class MFMAgreement extends X_FM_Agreement implements DocAction {
     	// return 
     	return products;
     }
+    
+    @Override
+    public int customizeValidActions(String docStatus, Object processing,
+			String orderType, String isSOTrx, int AD_Table_ID,
+			String[] docAction, String[] options, int index) {
+		//	Valid Document Action
+		if (AD_Table_ID == Table_ID){
+			if (docStatus.equals(DocumentEngine.STATUS_Drafted)
+					|| docStatus.equals(DocumentEngine.STATUS_InProgress)
+					|| docStatus.equals(DocumentEngine.STATUS_Invalid)) {
+					options[index++] = DocumentEngine.ACTION_Prepare;
+				}
+				//	Complete                    ..  CO
+				else if (docStatus.equals(DocumentEngine.STATUS_Completed)) {
+					options[index++] = DocumentEngine.ACTION_ReActivate;
+					options[index++] = DocumentEngine.ACTION_Void;
+				}
+		}
+		//	Default
+		return index;
+	}
 }

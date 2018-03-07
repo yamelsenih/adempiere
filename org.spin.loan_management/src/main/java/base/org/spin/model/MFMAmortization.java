@@ -21,6 +21,7 @@ import java.sql.ResultSet;
 import java.sql.Timestamp;
 import java.util.Properties;
 
+import org.compiere.model.Query;
 import org.compiere.util.DB;
 
 /**
@@ -81,7 +82,7 @@ public class MFMAmortization extends X_FM_Amortization {
 														BigDecimal InterestAmt, int PeriodNo,
 															Timestamp StartDate, BigDecimal TaxAmt,
 																String trxName){
-		
+
 		MFMAmortization amortization = new MFMAmortization(ctx, 0, trxName);
 		amortization.setCapitalAmt(CapitalAmt);
 		amortization.setDescription(Description);
@@ -95,5 +96,18 @@ public class MFMAmortization extends X_FM_Amortization {
 		return amortization.save(trxName);
 	}
 	
+	/**
+	 * Return true when an amortization line for account is paid
+	 * @param account
+	 * @return
+	 */
+	public static boolean checkAccount(MFMAccount account){
+		return new Query(account.getCtx(), 
+							MFMAmortization.Table_Name, 
+							"FM_Account_ID = ? AND IsPaid = 'Y'", 
+							account.get_TrxName())
+				.setParameters(account.getFM_Account_ID())
+				.match();
+	}
 
 }
