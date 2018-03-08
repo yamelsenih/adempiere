@@ -197,7 +197,7 @@ public class LoanAmortizable extends AbstractFunctionalSetting {
 	 * @return
 	 */
 	private BigDecimal getValidRate(MFMProduct financialProduct, Timestamp validDate){
-		MFMRate rate = new MFMRate(financialProduct.getCtx(), financialProduct.get_ValueAsInt("FM_Product_ID"), financialProduct.get_TrxName());
+		MFMRate rate = new MFMRate(financialProduct.getCtx(), financialProduct.get_ValueAsInt("FM_Rate_ID"), financialProduct.get_TrxName());
 		MFMRateVersion rateVersion = rate.getValidRateInstance(validDate);	
 		if (rateVersion!= null)
 			return rateVersion.getRate();
