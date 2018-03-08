@@ -35,15 +35,22 @@ import org.compiere.util.Env;
  */
 public class LoanManagementModelValidator implements ModelValidator {
     private static CLogger log = CLogger.getCLogger(LoanManagementModelValidator.class);
+    
+    /** Client			*/
+	private int		clientId = -1;
+	
     @Override
     public void initialize(ModelValidationEngine engine, MClient client) {
-		//
+		//	
+    	if (client != null) {	
+			clientId = client.getAD_Client_ID();
+		}
 		engine.addModelChange(MFMAgreement.Table_Name, this);
     }
 
     @Override
     public int getAD_Client_ID() {
-        return Env.getAD_Client_ID(Env.getCtx());
+    	return clientId;
     }
 
     @Override

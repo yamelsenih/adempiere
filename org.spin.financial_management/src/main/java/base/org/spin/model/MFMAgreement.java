@@ -27,6 +27,7 @@ import org.compiere.process.DocAction;
 import org.compiere.process.DocOptions;
 import org.compiere.process.DocumentEngine;
 import org.compiere.util.DB;
+import org.compiere.util.Env;
 import org.compiere.util.Util;
 import org.spin.util.FinancialSetting;
 
@@ -453,4 +454,28 @@ public class MFMAgreement extends X_FM_Agreement implements DocAction, DocOption
 		//	Default
 		return index;
 	}
+    
+    /**
+     * Add any Agreement Type
+     */
+    public void setFM_AgreementType_ID() {
+    	MFMAgreementType agreementType = MFMAgreementType.getDefault(Env.getCtx());
+    	if(agreementType != null) {
+    		setFM_AgreementType_ID(agreementType.getFM_AgreementType_ID());
+    	}
+    }
+    
+	/**
+	 * 	get Document Type from Document Base Type
+	 * 	@param docBaseType
+	 */
+	public void setC_DocType_ID (String docBaseType) {
+		int documentTypeId = MDocType.getDocType(docBaseType);
+		if (documentTypeId <= 0) {
+			log.severe ("Not found for AD_Client_ID=" + getAD_Client_ID () + ", DocBaseTypeType=" + docBaseType);
+		} else {
+			log.fine("(SO) - " + docBaseType);
+			setC_DocType_ID(documentTypeId);
+		}
+	}	//	setC_DocTypeTarget_ID
 }

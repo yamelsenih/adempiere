@@ -70,4 +70,16 @@ public class MFMAgreementType extends X_FM_AgreementType {
 		}
 		return agreementType;
 	}
+	
+	/**
+	 * Get Default Agreement Type
+	 * @param ctx
+	 * @return
+	 */
+	public static MFMAgreementType getDefault(Properties ctx) {
+		return new Query(ctx , Table_Name , null, null)
+				.setClient_ID()
+				.setOnlyActiveRecords(true)
+				.first();
+	}
 }
