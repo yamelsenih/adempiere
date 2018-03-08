@@ -110,7 +110,7 @@ public abstract class LoanSimulator {
 		agreement.setFM_Product_ID(financialProductId);
 		agreement.setC_DocType_ID("FMA");
 		agreement.setFM_AgreementType_ID();
-		agreement.setDescription(Msg.parseTranslation(Env.getCtx(), "@Generated@ @from@ @Simulation@"));
+		agreement.setDescription(Msg.parseTranslation(Env.getCtx(), "@Generate@ @from@ @Simulation@"));
 		agreement.setValidFrom(startDate);
 		agreement.saveEx();
 		//	Get Account
@@ -130,7 +130,7 @@ public abstract class LoanSimulator {
 		agreement.setDocAction(X_FM_Agreement.DOCACTION_Complete);
 		agreement.processIt(X_FM_Agreement.DOCACTION_Complete);
 		agreement.saveEx();
-		msg = "@FM_Agreement_ID@ @Generated@ [" + agreement.getDocumentInfo() + "]";
+		msg = "@FM_Agreement_ID@ @Generate@ [" + agreement.getDocumentInfo() + "]";
 		return Msg.parseTranslation(Env.getCtx(), msg);
 	}
 	
