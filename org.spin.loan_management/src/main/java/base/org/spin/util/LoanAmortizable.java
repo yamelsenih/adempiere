@@ -21,8 +21,6 @@ import java.math.MathContext;
 import java.sql.Timestamp;
 import java.util.List;
 import java.util.Properties;
-
-import org.adempiere.exceptions.AdempiereException;
 import org.compiere.model.MCurrency;
 import org.compiere.model.MProduct;
 import org.compiere.model.MTax;
@@ -105,7 +103,10 @@ public class LoanAmortizable extends AbstractFunctionalSetting {
 			
 			while (!inserted){
 				int FeesQty = ((BigDecimal)account.get_Value("FeesQty")).intValue();
-				Timestamp StartDate = loan.getValidFrom();
+				if (account.get_Value("PayDate")==null)
+					return "@Invalid@ @PayDate@";
+				
+				Timestamp StartDate = (Timestamp)account.get_Value("PayDate");
 				Timestamp EndDate = TimeUtil.addMonths(loan.getValidFrom(), FeesQty);
 				Timestamp currentDate = StartDate;
 				Timestamp BeginPeriod =  currentDate;
