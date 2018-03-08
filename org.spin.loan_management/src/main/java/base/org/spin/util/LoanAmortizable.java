@@ -106,12 +106,15 @@ public class LoanAmortizable extends AbstractFunctionalSetting {
 				if (account.get_Value("PayDate")==null)
 					return "@Invalid@ @PayDate@";
 				
-				Timestamp StartDate = (Timestamp)account.get_Value("PayDate");
+				//(Timestamp)account.get_Value("PayDate")
+				Timestamp StartDate = loan.getValidFrom();
 				Timestamp EndDate = TimeUtil.addMonths(loan.getValidFrom(), FeesQty);
+				Timestamp StartPayDate= (Timestamp)account.get_Value("PayDate");
+				Timestamp EndPayDate = TimeUtil.addMonths(StartPayDate, 1);
 				Timestamp currentDate = StartDate;
 				Timestamp BeginPeriod =  currentDate;
 				Timestamp EndPeriod =  currentDate;
-				Timestamp DueDate = currentDate;
+				Timestamp DueDate = StartPayDate;
 				//Detail
 				int monthDays = 0;
 				int cumulatedDays = 0;
@@ -123,14 +126,13 @@ public class LoanAmortizable extends AbstractFunctionalSetting {
 				BigDecimal InterestFees = Env.ZERO;
 				BigDecimal taxAmt = Env.ZERO;
 				
-				while (currentDate.before(EndDate)) {
+				for(int i= 0; i< FeesQty ; i++) {
 					if (StaticFees.compareTo(Env.ZERO)!=0)
 						inserted = true;
 					
 					BeginPeriod = TimeUtil.getMonthFirstDay(currentDate);
 					EndPeriod = TimeUtil.getMonthLastDay(currentDate);
 					monthDays = TimeUtil.getDaysBetween(BeginPeriod, EndPeriod) + 1;
-					DueDate = TimeUtil.addDays(EndPeriod, 1);
 					cumulatedDays += monthDays ;
 					
 					//Interest for Month
@@ -182,6 +184,7 @@ public class LoanAmortizable extends AbstractFunctionalSetting {
 					
 					currentDate = TimeUtil.addMonths(currentDate, 1);
 					currentDate = TimeUtil.getMonthFirstDay(currentDate);
+					DueDate = TimeUtil.addMonths(DueDate, 1);
 				}
 				StaticFees = CapitalAmt.divide(CumulatedInterest, MathContext.DECIMAL128);
 				
