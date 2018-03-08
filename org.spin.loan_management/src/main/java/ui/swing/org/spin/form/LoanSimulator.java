@@ -58,8 +58,8 @@ public abstract class LoanSimulator {
 	public BigDecimal	capitalAmt;
 	/**	Fees Amount		*/
 	public int			feesQty;
-	/**	Fee Amount		*/
-	public BigDecimal	feeAmt;
+	/**	Financial Rate	*/
+	public BigDecimal	financialRate;
 	/**	Interest Amount		*/
 	public BigDecimal	interestAmt;
 	/**	Tax Amount		*/
@@ -155,20 +155,16 @@ public abstract class LoanSimulator {
 		//	
 		HashMap<String, Object> returnValues = setting.getReturnValues();
 		//	
-		BigDecimal fixedFeeAmt = (BigDecimal) returnValues.get("FIXED_FEE_AMT");
 		BigDecimal interestFeeAmt = (BigDecimal) returnValues.get("INTEREST_FEE_AMT");
 		BigDecimal taxAmt = (BigDecimal) returnValues.get("TAX_FEE_AMT");
 		BigDecimal grandTotal = (BigDecimal) returnValues.get("GRAND_TOTAL");
 		//	
 		List<AmortizationValue> amortizationList = (List<AmortizationValue>) returnValues.get("AMORTIZATION_LIST");
-		if(fixedFeeAmt != null) {
-			setFeeAmt(fixedFeeAmt.setScale(currencyPrecision, BigDecimal.ROUND_HALF_UP));
-		}
 		if(interestFeeAmt != null) {
 			setInterestFeeAmt(interestFeeAmt.setScale(currencyPrecision, BigDecimal.ROUND_HALF_UP));
 		}
 		if(taxAmt != null) {
-			setTaxFeeAmt(taxAmt.setScale(currencyPrecision, BigDecimal.ROUND_HALF_UP));
+			setTaxAmt(taxAmt.setScale(currencyPrecision, BigDecimal.ROUND_HALF_UP));
 		}
 		if(grandTotal != null) {
 			setGrandToral(grandTotal.setScale(currencyPrecision, BigDecimal.ROUND_HALF_UP));
@@ -188,7 +184,7 @@ public abstract class LoanSimulator {
 		currencyId = 0;
 		capitalAmt = Env.ZERO;
 		feesQty = 0;
-		feeAmt = Env.ZERO;
+		financialRate = Env.ZERO;
 		interestAmt = Env.ZERO;
 		taxAmt = Env.ZERO;
 		startDate = null;
@@ -337,13 +333,7 @@ public abstract class LoanSimulator {
 		//  Table UI
 		table.autoSize();
 	}
-	
-	/**
-	 * Set Fee Amount
-	 * @param feeAmt
-	 */
-	public abstract void setFeeAmt(BigDecimal feeAmt);
-	
+		
 	/**
 	 * Set Interest Fee
 	 * @param interestFeeAmt
@@ -354,7 +344,7 @@ public abstract class LoanSimulator {
 	 * Set Tax Fee Amount
 	 * @param taxFeeAmt
 	 */
-	public abstract void setTaxFeeAmt(BigDecimal taxFeeAmt);
+	public abstract void setTaxAmt(BigDecimal taxFeeAmt);
 	
 	/**
 	 * Set Grand Total

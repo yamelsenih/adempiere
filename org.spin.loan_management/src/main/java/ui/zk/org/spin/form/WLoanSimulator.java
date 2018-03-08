@@ -56,6 +56,7 @@ import org.compiere.util.Msg;
 import org.compiere.util.Trx;
 import org.compiere.util.TrxRunnable;
 import org.spin.model.MFMProduct;
+import org.spin.model.MFMRate;
 import org.spin.util.FrenchLoanMethodSimulator.AmortizationValue;
 import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.event.EventListener;
@@ -102,8 +103,8 @@ public class WLoanSimulator extends LoanSimulator
 	private WNumberEditor grandTotalField;
 	private Label capitalAmtLabel = new Label();
 	private WNumberEditor capitalAmtField;
-	private Label feeAmtLabel = new Label();
-	private WNumberEditor feeAmtField;
+	private Label financialRateLabel = new Label();
+	private WNumberEditor financialRateField;
 	private Grid parameterLayout = GridFactory.newGridLayout();
 	private Panel southPanel = new Panel();
 	private Button calculateButton = null;
@@ -144,7 +145,7 @@ public class WLoanSimulator extends LoanSimulator
 		capitalAmtLabel.setText(Msg.translate(Env.getCtx(), "CapitalAmt"));
 		startDateLabel.setText(Msg.translate(Env.getCtx(), "StartDate"));
 		feesQtyLabel.setText(Msg.translate(Env.getCtx(), "FeesQty"));
-		feeAmtLabel.setText(Msg.translate(Env.getCtx(), "FeeAmt"));
+		financialRateLabel.setText(Msg.translate(Env.getCtx(), "FM_Rate_ID"));
 		payDateLabel.setText(Msg.translate(Env.getCtx(), "PayDate"));
 		interestAmtLabel.setText(Msg.translate(Env.getCtx(), "InterestAmt"));
 		taxAmtLabel.setText(Msg.translate(Env.getCtx(), "TaxAmt"));
@@ -174,8 +175,8 @@ public class WLoanSimulator extends LoanSimulator
 		row = rows.newRow();
 		row.appendChild(currencyLabel.rightAlign());
 		row.appendChild(currencyField.getComponent());
-		row.appendChild(feeAmtLabel.rightAlign());
-		row.appendChild(feeAmtField.getComponent());
+		row.appendChild(financialRateLabel.rightAlign());
+		row.appendChild(financialRateField.getComponent());
 		row = rows.newRow();
 		row.appendChild(interestAmtLabel.rightAlign());
 		row.appendChild(interestAmtField.getComponent());
@@ -229,8 +230,8 @@ public class WLoanSimulator extends LoanSimulator
 		payDateField.setValue(new Timestamp(System.currentTimeMillis()));
 		payDateField.setMandatory(true);
 		//	Fee Amount
-		feeAmtField = new WNumberEditor();
-		feeAmtField.setReadWrite(false);
+		financialRateField = new WNumberEditor();
+		financialRateField.setReadWrite(false);
 		//	Currency
 		MLookup currencyLookup = MLookupFactory.get (ctx, windowNo, 0, 87162, DisplayType.TableDir);
 		currencyField = new WTableDirEditor("C_Currency_ID", true, true, true, currencyLookup);
@@ -315,19 +316,39 @@ public class WLoanSimulator extends LoanSimulator
 			clearFieldValues(false);
 			financialProductField.actionRefresh();
 		} else if(e.getPropertyName().equals("FM_Product_ID")) {
-			MFMProduct financialProduct = MFMProduct.getById(Env.getCtx(), ((Integer)e.getNewValue()).intValue());
 			financialProductId = ((Integer)e.getNewValue()).intValue();
-			if(financialProduct != null) {
-				//	
-				if(financialProduct.get_ValueAsInt("C_Currency_ID") != 0) {
-					currencyId = financialProduct.get_ValueAsInt("C_Currency_ID");
-					currencyField.setValue(currencyId);
-				}
-			}
+			reloadFinancialProductInfo();
 		} else if(e.getPropertyName().equals("StartDate")) {
 			payDateField.setValue((Timestamp) e.getNewValue());
+			reloadFinancialProductInfo();
 		}
 	}   //  vetoableChange
+	
+	/**
+	 * Reload Financial Product Information
+	 */
+	private void reloadFinancialProductInfo() {
+		startDate = (Timestamp) (startDateField.getValue() != null? startDateField.getValue(): new Timestamp(System.currentTimeMillis()));
+		MFMProduct financialProduct = MFMProduct.getById(Env.getCtx(), financialProductId);
+		if(financialProduct != null) {
+			//	Currency
+			if(financialProduct.get_ValueAsInt("C_Currency_ID") != 0) {
+				currencyId = financialProduct.get_ValueAsInt("C_Currency_ID");
+				currencyField.setValue(currencyId);
+			}
+			//	Financial Rate
+			if(financialProduct.get_ValueAsInt("FM_Rate_ID") != 0) {
+				MFMRate rate = MFMRate.getById(Env.getCtx(), financialProduct.get_ValueAsInt("FM_Rate_ID"));
+				//	Get Version
+				financialRate = rate.getValidRate(startDate);
+				if(financialRate == null) {
+					financialRate = Env.ZERO;
+				}
+				//	Set
+				financialRateField.setValue(financialRate);
+			}
+		}
+	}
 
 	/**
 	 * Get Values from fields
@@ -338,7 +359,7 @@ public class WLoanSimulator extends LoanSimulator
 		currencyId = (int) (currencyField.getValue() != null? currencyField.getValue(): 0);
 		capitalAmt = (BigDecimal) capitalAmtField.getValue();
 		feesQty = ((BigDecimal) (feesQtyField.getValue() != null? feesQtyField.getValue(): Env.ZERO)).intValue();
-		feeAmt = (BigDecimal) feeAmtField.getValue();
+		financialRate = (BigDecimal) financialRateField.getValue();
 		interestAmt = (BigDecimal) interestAmtField.getValue();
 		taxAmt = (BigDecimal) taxAmtField.getValue();
 		startDate = (Timestamp) (startDateField.getValue() != null? startDateField.getValue(): new Timestamp(System.currentTimeMillis()));
@@ -357,7 +378,7 @@ public class WLoanSimulator extends LoanSimulator
 		currencyField.setValue(null);
 		capitalAmtField.setValue(null);
 		feesQtyField.setValue(null);
-		feeAmtField.setValue(null);
+		financialRateField.setValue(null);
 		interestAmtField.setValue(null);
 		taxAmtField.setValue(null);
 		grandTotalField.setValue(null);
@@ -422,20 +443,15 @@ public class WLoanSimulator extends LoanSimulator
 	}
 
 	@Override
-	public void setFeeAmt(BigDecimal feeAmt) {
-		feeAmtField.setValue(feeAmt);
-	}
-
-	@Override
 	public void setInterestFeeAmt(BigDecimal interestFeeAmt) {
 		interestAmtField.setValue(interestFeeAmt);
 	}
 
 	@Override
-	public void setTaxFeeAmt(BigDecimal taxFeeAmt) {
-		taxAmtField.setValue(taxFeeAmt);
+	public void setTaxAmt(BigDecimal taxAmt) {
+		taxAmtField.setValue(taxAmt);
 	}
-
+	
 	@Override
 	public void setGrandToral(BigDecimal grandTotal) {
 		grandTotalField.setValue(grandTotal);
@@ -465,5 +481,4 @@ public class WLoanSimulator extends LoanSimulator
 		miniTable.autoSize();
 		setColumnClass(miniTable);
 	}
-
 }   //  VTrxMaterial
