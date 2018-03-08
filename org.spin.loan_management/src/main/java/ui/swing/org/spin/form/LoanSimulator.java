@@ -22,14 +22,18 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Vector;
 
+import org.adempiere.exceptions.AdempiereException;
 import org.compiere.apps.IStatusBar;
 import org.compiere.minigrid.IMiniTable;
 import org.compiere.model.MCurrency;
 import org.compiere.util.CLogger;
 import org.compiere.util.Env;
 import org.compiere.util.Msg;
+import org.spin.model.MFMAccount;
+import org.spin.model.MFMAgreement;
 import org.spin.model.MFMFunctionalApplicability;
 import org.spin.model.MFMProduct;
+import org.spin.model.X_FM_Agreement;
 import org.spin.util.FinancialSetting;
 import org.spin.util.FrenchLoanMethodSimulator.AmortizationValue;
 
@@ -95,6 +99,42 @@ public abstract class LoanSimulator {
 	}   //  refresh
 	
 	/**
+	 * Save Data and generate Loan
+	 * @param trxName
+	 * @return
+	 */
+	public String saveData(String trxName) {
+		String msg = null;
+		MFMAgreement agreement = new MFMAgreement(Env.getCtx(), 0, trxName);
+		agreement.setC_BPartner_ID(businessPartnerId);
+		agreement.setFM_Product_ID(financialProductId);
+		agreement.setC_DocType_ID("FMA");
+		agreement.setFM_AgreementType_ID();
+		agreement.setDescription(Msg.parseTranslation(Env.getCtx(), "@Generated@ @from@ @Simulation@"));
+		agreement.setValidFrom(startDate);
+		agreement.saveEx();
+		//	Get Account
+		List<MFMAccount> accounts = agreement.getAccounts();
+		if(accounts == null
+				|| accounts.size() == 0) {
+			throw new AdempiereException("@FM_Account_ID@ @NotFound@");
+		}
+		//	Set Acount
+		MFMAccount account = accounts.get(0);
+		account.set_ValueOfColumn("CapitalAmt", capitalAmt);
+		account.set_ValueOfColumn("C_Currency_ID", currencyId);
+		account.set_ValueOfColumn("FeesQty", new BigDecimal(feesQty));
+		account.set_ValueOfColumn("PayDate", payDate);
+		account.saveEx();
+		//	Complete
+		agreement.setDocAction(X_FM_Agreement.DOCACTION_Complete);
+		agreement.processIt(X_FM_Agreement.DOCACTION_Complete);
+		agreement.saveEx();
+		msg = "@FM_Agreement_ID@ @Generated@ [" + agreement.getDocumentInfo() + "]";
+		return Msg.parseTranslation(Env.getCtx(), msg);
+	}
+	
+	/**
 	 * Simulate Data
 	 * @param trxName
 	 * @return
@@ -136,7 +176,23 @@ public abstract class LoanSimulator {
 		//	Reload table
 		reloadAmortization(amortizationList);
 		//	Set Error
-		return errorMsg;
+		return Msg.parseTranslation(Env.getCtx(), errorMsg);
+	}
+	
+	/**
+	 * Clear controller values
+	 */
+	public void clearValues() {
+		businessPartnerId = 0;
+		financialProductId = 0;
+		currencyId = 0;
+		capitalAmt = Env.ZERO;
+		feesQty = 0;
+		feeAmt = Env.ZERO;
+		interestAmt = Env.ZERO;
+		taxAmt = Env.ZERO;
+		startDate = null;
+		payDate = null;
 	}
 	
 	/**
@@ -240,7 +296,7 @@ public abstract class LoanSimulator {
 			return null;
 		}
 		//	
-		return message.toString();
+		return Msg.parseTranslation(Env.getCtx(), message.toString());
 	}
 	
 	/**

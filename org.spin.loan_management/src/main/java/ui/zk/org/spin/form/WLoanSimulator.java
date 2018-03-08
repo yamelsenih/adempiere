@@ -294,6 +294,12 @@ public class WLoanSimulator extends LoanSimulator
 			dispose();
 		} else if(e.getTarget().getId().equals(ConfirmPanel.A_PROCESS)) {
 			simulate();
+		} else if(e.getTarget().getId().equals(ConfirmPanel.A_OK)) {
+			if (FDialog.ask(windowNo, parameterPanel, "Generate", 
+					Msg.parseTranslation(Env.getCtx(), 
+							"@GenerateLoanAsk@"))) {
+				saveData();
+			}
 		}
 	}   //  actionPerformed
 
@@ -306,6 +312,7 @@ public class WLoanSimulator extends LoanSimulator
 		if (e.getPropertyName().equals("C_BPartner_ID")) {
 			Env.setContext(Env.getCtx(), windowNo, "C_BPartner_ID", ((Integer)e.getNewValue()).intValue());
 			businessPartnerId = ((Integer)e.getNewValue()).intValue();
+			clearFieldValues(false);
 			financialProductField.actionRefresh();
 		} else if(e.getPropertyName().equals("FM_Product_ID")) {
 			MFMProduct financialProduct = MFMProduct.getById(Env.getCtx(), ((Integer)e.getNewValue()).intValue());
@@ -338,8 +345,29 @@ public class WLoanSimulator extends LoanSimulator
 		payDate = (Timestamp) (payDateField.getValue() != null? payDateField.getValue(): new Timestamp(System.currentTimeMillis()));
 	}
 	
+	/**
+	 * Clear Values for Form
+	 */
+	private void clearFieldValues(boolean all) {
+		clearValues();
+		if(all) {
+			businessPartnerField.setValue(null);
+		}
+		financialProductField.setValue(null);
+		currencyField.setValue(null);
+		capitalAmtField.setValue(null);
+		feesQtyField.setValue(null);
+		feeAmtField.setValue(null);
+		interestAmtField.setValue(null);
+		taxAmtField.setValue(null);
+		grandTotalField.setValue(null);
+		startDateField.setValue(new Timestamp(System.currentTimeMillis()));
+		payDateField.setValue(new Timestamp(System.currentTimeMillis()));
+		miniTable.setRowCount(0);
+	}
+	
 	/**************************************************************************
-	 *  Save Data
+	 *  Simulate Data
 	 */
 	public void simulate() {
 		getValues();
@@ -357,7 +385,33 @@ public class WLoanSimulator extends LoanSimulator
 				}
 			});
 		} catch (Exception e) {
-			FDialog.error(windowNo, form , "Error", e.getLocalizedMessage());
+			FDialog.error(windowNo, form , "Error", Msg.parseTranslation(Env.getCtx(), e.getLocalizedMessage()));
+		} finally {
+			confirmPanel.getOKButton().setEnabled(true);
+		}
+	}   //  simulate
+	
+	/**************************************************************************
+	 *  Save Data
+	 */
+	public void saveData() {
+		getValues();
+		try {
+			Trx.run(new TrxRunnable() {
+				public void run(String trxName) {
+					String msg = validateData();
+					if(msg == null) {
+						msg = saveData(trxName);
+						statusBar.setStatusLine(msg);
+						clearFieldValues(true);
+					} else {
+						statusBar.setStatusLine(msg);
+						throw new AdempiereException(msg);
+					}
+				}
+			});
+		} catch (Exception e) {
+			FDialog.error(windowNo, form , "Error", Msg.parseTranslation(Env.getCtx(), e.getLocalizedMessage()));
 		} finally {
 			confirmPanel.getOKButton().setEnabled(true);
 		}
