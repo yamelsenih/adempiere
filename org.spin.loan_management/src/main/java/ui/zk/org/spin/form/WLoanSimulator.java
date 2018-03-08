@@ -296,7 +296,7 @@ public class WLoanSimulator extends LoanSimulator
 		} else if(e.getTarget().getId().equals(ConfirmPanel.A_PROCESS)) {
 			simulate();
 		} else if(e.getTarget().getId().equals(ConfirmPanel.A_OK)) {
-			if (FDialog.ask(windowNo, parameterPanel, "Generate", 
+			if (FDialog.ask(windowNo, parameterPanel, "FM_Agreement_ID", 
 					Msg.parseTranslation(Env.getCtx(), 
 							"@GenerateLoanAsk@"))) {
 				saveData();
