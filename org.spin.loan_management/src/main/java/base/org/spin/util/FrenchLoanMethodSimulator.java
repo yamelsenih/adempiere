@@ -53,7 +53,10 @@ public class FrenchLoanMethodSimulator extends AbstractFunctionalSetting {
 		BigDecimal capitalAmt = getParameterAsBigDecimal("CAPITAL_AMT");
 		int feesQty = getParameterAsInt("FEES_QTY");
 		Timestamp startDate = (Timestamp) getParameter("START_DATE");
+		Timestamp endDate = (Timestamp) getParameter("END_DATE");
 		Timestamp payDate = (Timestamp) getParameter("PAYMENT_DATE");
+		String paymentFrequency = (String) getParameter("PAYMENT_FREQUENCY");
+		boolean isDueFixed = (boolean) getParameter("DUE_FIXED");
 		if(startDate == null) {
 			startDate = new Timestamp(System.currentTimeMillis());
 		}
@@ -95,14 +98,20 @@ public class FrenchLoanMethodSimulator extends AbstractFunctionalSetting {
 			//	Start Date
 			row.setStartDate(currentDate);
 			//	End Date
-			currentDate = TimeUtil.addMonths(currentDate, 1);
+			if(!paymentFrequency.equals("F")) {
+				currentDate = LoanUtil.getEndDateFromFrequency(currentDate, paymentFrequency, 1);
+			} else {
+				currentDate = endDate;
+			}
 			row.setEndDate(currentDate);
 			//	Due Date
 			if(currentDueDate.before(row.getEndDate())) {
 				currentDueDate = row.getEndDate();
 			}
 			row.setDueDate(currentDueDate);
-			currentDueDate = TimeUtil.addMonths(currentDueDate, 1);
+			if(!paymentFrequency.equals("F")) {
+				currentDueDate = LoanUtil.getEndDateFromFrequency(currentDate, paymentFrequency, 1);
+			}
 			//	Add Day Of Month
 			row.setDayOfMonth(TimeUtil.getDaysBetween(row.getStartDate(), row.getEndDate()));
 			//	Set Cumulative Days
