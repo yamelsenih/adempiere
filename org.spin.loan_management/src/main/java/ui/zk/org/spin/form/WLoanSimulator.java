@@ -89,8 +89,12 @@ public class WLoanSimulator extends LoanSimulator
 	private WTableDirEditor financialProductField;
 	private Label startDateLabel = new Label();
 	private WDateEditor startDateField;
+	private Label endDateLabel = new Label();
+	private WDateEditor endDateField;
 	private Label currencyLabel = new Label();
 	private WTableDirEditor currencyField;
+	private Label paymentFrequencyLabel = new Label();
+	private WTableDirEditor paymentFrequencyField;
 	private Label feesQtyLabel = new Label();
 	private WNumberEditor feesQtyField;
 	private Label payDateLabel = new Label();
@@ -151,6 +155,8 @@ public class WLoanSimulator extends LoanSimulator
 		taxAmtLabel.setText(Msg.translate(Env.getCtx(), "TaxAmt"));
 		currencyLabel.setText(Msg.translate(Env.getCtx(), "C_Currency_ID"));
 		grandTotalLabel.setText(Msg.translate(Env.getCtx(), "GrandTotal"));
+		paymentFrequencyLabel.setText(Msg.translate(Env.getCtx(), "PaymentFrequency"));
+		endDateLabel.setText(Msg.translate(Env.getCtx(), "EndDate"));
 		//
 		North north = new North();
 		mainLayout.appendChild(north);
@@ -165,11 +171,16 @@ public class WLoanSimulator extends LoanSimulator
 		row = rows.newRow();
 		row.appendChild(capitalAmtLabel.rightAlign());
 		row.appendChild(capitalAmtField.getComponent());
-		row.appendChild(feesQtyLabel.rightAlign());
-		row.appendChild(feesQtyField.getComponent());
+		row.appendChild(paymentFrequencyLabel.rightAlign());
+		row.appendChild(paymentFrequencyField.getComponent());
 		row = rows.newRow();
 		row.appendChild(startDateLabel.rightAlign());
 		row.appendChild(startDateField.getComponent());
+		row.appendChild(endDateLabel.rightAlign());
+		row.appendChild(endDateField.getComponent());
+		row = rows.newRow();
+		row.appendChild(feesQtyLabel.rightAlign());
+		row.appendChild(feesQtyField.getComponent());
 		row.appendChild(payDateLabel.rightAlign());
 		row.appendChild(payDateField.getComponent());
 		row = rows.newRow();
@@ -217,15 +228,25 @@ public class WLoanSimulator extends LoanSimulator
 		//	Capital Amount
 		capitalAmtField = new WNumberEditor();
 		capitalAmtField.setMandatory(true);
+		//	Loan Frequency
+		MLookup paymentFrequencyLookup = MLookupFactory.get (Env.getCtx(), windowNo, 0, 87478, DisplayType.List);
+		paymentFrequencyField = new WTableDirEditor("PaymentFrequency", true, false, true, paymentFrequencyLookup);
+		paymentFrequencyField.addValueChangeListener(this);
 		//	Fees Amount
-		feesQtyField = new WNumberEditor("FeesAmt", true, false, true, DisplayType.Integer, "");
+		feesQtyField = new WNumberEditor("FeesQty", true, false, true, DisplayType.Integer, "");
 		feesQtyField.setMandatory(true);
+		feesQtyField.addValueChangeListener(this);
 		//	Start Date
 		startDateField = new WDateEditor("StartDate", true, false, true, "");
 		startDateField.setMandatory(true);
 		startDateField.setValue(new Timestamp(System.currentTimeMillis()));
 		startDateField.addValueChangeListener(this);
-		//	Grace Days
+		//	End Date
+		endDateField = new WDateEditor("EndDate", true, false, true, "");
+		endDateField.setMandatory(true);
+		endDateField.setValue(new Timestamp(System.currentTimeMillis()));
+		endDateField.addValueChangeListener(this);
+		//	Payment Date
 		payDateField = new WDateEditor("PayDate", true, false, true, "");
 		payDateField.setValue(new Timestamp(System.currentTimeMillis()));
 		payDateField.setMandatory(true);
@@ -321,6 +342,28 @@ public class WLoanSimulator extends LoanSimulator
 		} else if(e.getPropertyName().equals("StartDate")) {
 			payDateField.setValue((Timestamp) e.getNewValue());
 			reloadFinancialProductInfo();
+		} else if(e.getPropertyName().equals("FeesQty")) {
+			feesQty = ((BigDecimal) (e.getNewValue() != null? new BigDecimal((Integer) e.getNewValue()): Env.ZERO)).intValue();
+			startDate = (Timestamp) (startDateField.getValue() != null? startDateField.getValue(): new Timestamp(System.currentTimeMillis()));
+			endDate = (Timestamp) (endDateField.getValue() != null? endDateField.getValue(): new Timestamp(System.currentTimeMillis()));
+			if(feesQty != 0) {
+				endDateField.setValue(getEndDateFromFrequency());
+			}
+		} else if(e.getPropertyName().equals("EndDate")) {
+			endDate = (Timestamp) (e.getNewValue() != null? e.getNewValue(): new Timestamp(System.currentTimeMillis()));
+			startDate = (Timestamp) (startDateField.getValue() != null? startDateField.getValue(): new Timestamp(System.currentTimeMillis()));
+			feesQtyField.setValue(getFeesQtyFromFrequency());
+			if(paymentFrequency.equals("F")) {
+				payDateField.setValue(endDate);
+			}
+		} else if(e.getPropertyName().equals("PaymentFrequency")) {
+			paymentFrequency = (String) e.getNewValue();
+			paymentFrequencyField.setValue(paymentFrequency);
+			startDate = (Timestamp) (startDateField.getValue() != null? startDateField.getValue(): new Timestamp(System.currentTimeMillis()));
+			endDate = (Timestamp) (endDateField.getValue() != null? endDateField.getValue(): new Timestamp(System.currentTimeMillis()));
+			feesQtyField.setValue(getFeesQtyFromFrequency());
+			//	Set Read Only from payment frequency
+			feesQtyField.setReadWrite(!paymentFrequency.equals("F"));
 		}
 	}   //  vetoableChange
 	
@@ -331,6 +374,7 @@ public class WLoanSimulator extends LoanSimulator
 		startDate = (Timestamp) (startDateField.getValue() != null? startDateField.getValue(): new Timestamp(System.currentTimeMillis()));
 		MFMProduct financialProduct = MFMProduct.getById(Env.getCtx(), financialProductId);
 		if(financialProduct != null) {
+			isDueFixed = financialProduct.get_ValueAsBoolean("IsDueFixed");
 			//	Currency
 			if(financialProduct.get_ValueAsInt("C_Currency_ID") != 0) {
 				currencyId = financialProduct.get_ValueAsInt("C_Currency_ID");
@@ -346,6 +390,17 @@ public class WLoanSimulator extends LoanSimulator
 				}
 				//	Set
 				financialRateField.setValue(financialRate);
+			}
+			//	For Payment Frequency
+			if(financialProduct.get_ValueAsString("PaymentFrequency") != null) {
+				paymentFrequencyField.setValue(financialProduct.get_ValueAsString("PaymentFrequency"));
+				paymentFrequency = financialProduct.get_ValueAsString("PaymentFrequency");
+				//	Fee Quantity
+				if(financialProduct.get_ValueAsInt("MinFeesQty") != 0) {
+					feesQty = financialProduct.get_ValueAsInt("MinFeesQty");
+					feesQtyField.setValue(feesQty);
+					endDateField.setValue(getEndDateFromFrequency());
+				}
 			}
 		}
 	}
@@ -363,6 +418,7 @@ public class WLoanSimulator extends LoanSimulator
 		interestAmt = (BigDecimal) interestAmtField.getValue();
 		taxAmt = (BigDecimal) taxAmtField.getValue();
 		startDate = (Timestamp) (startDateField.getValue() != null? startDateField.getValue(): new Timestamp(System.currentTimeMillis()));
+		endDate = (Timestamp) (endDateField.getValue() != null? endDateField.getValue(): new Timestamp(System.currentTimeMillis()));
 		payDate = (Timestamp) (payDateField.getValue() != null? payDateField.getValue(): new Timestamp(System.currentTimeMillis()));
 	}
 	
@@ -382,7 +438,9 @@ public class WLoanSimulator extends LoanSimulator
 		interestAmtField.setValue(null);
 		taxAmtField.setValue(null);
 		grandTotalField.setValue(null);
+		paymentFrequencyField.setValue(null);
 		startDateField.setValue(new Timestamp(System.currentTimeMillis()));
+		endDateField.setValue(null);
 		payDateField.setValue(new Timestamp(System.currentTimeMillis()));
 		miniTable.setRowCount(0);
 	}

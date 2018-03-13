@@ -36,6 +36,7 @@ import org.spin.model.MFMProduct;
 import org.spin.model.X_FM_Agreement;
 import org.spin.util.FinancialSetting;
 import org.spin.util.FrenchLoanMethodSimulator.AmortizationValue;
+import org.spin.util.LoanUtil;
 
 /**
  * Financial Management
@@ -68,8 +69,14 @@ public abstract class LoanSimulator {
 	public BigDecimal	grandTotalAmt;
 	/**	Start Date		*/
 	public Timestamp	startDate;
-	/**	Payment Date		*/
+	/**	End Date		*/
+	public Timestamp	endDate;
+	/**	Payment Date	*/
 	public Timestamp	payDate;
+	/**	Payment Frequency*/
+	public String		paymentFrequency;
+	/**	Due Fixed		*/
+	public boolean 		isDueFixed = false;
 	//	Round
 	private int currencyPrecision = MCurrency.getStdPrecision(Env.getCtx(), Env.getContextAsInt(Env.getCtx(), "#C_Currency_ID"));
 	/**	Logger			*/
@@ -124,7 +131,10 @@ public abstract class LoanSimulator {
 		account.set_ValueOfColumn("CapitalAmt", capitalAmt);
 		account.set_ValueOfColumn("C_Currency_ID", currencyId);
 		account.set_ValueOfColumn("FeesQty", new BigDecimal(feesQty));
+		account.set_ValueOfColumn("StartDate", startDate);
+		account.set_ValueOfColumn("EndDate", endDate);
 		account.set_ValueOfColumn("PayDate", payDate);
+		account.set_ValueOfColumn("PaymentFrequency", paymentFrequency);
 		account.saveEx();
 		//	Complete
 		agreement.setDocAction(X_FM_Agreement.DOCACTION_Complete);
@@ -132,6 +142,22 @@ public abstract class LoanSimulator {
 		agreement.saveEx();
 		msg = "@FM_Agreement_ID@ @Generate@ [" + agreement.getDocumentInfo() + "]";
 		return Msg.parseTranslation(Env.getCtx(), msg);
+	}
+	
+	/**
+	 * Get End Date from Frequency and Start Date
+	 * @return
+	 */
+	public Timestamp getEndDateFromFrequency() {
+		return LoanUtil.getEndDateFromFrequency(startDate, paymentFrequency, feesQty);
+	}
+	
+	/**
+	 * Get Fees Quantity from Start and End Date
+	 * @return
+	 */
+	public int getFeesQtyFromFrequency() {
+		return LoanUtil.getFeesQtyFromFrequency(startDate, endDate, paymentFrequency);
 	}
 	
 	/**
@@ -147,7 +173,10 @@ public abstract class LoanSimulator {
 		parameters.put("CAPITAL_AMT", capitalAmt);
 		parameters.put("FEES_QTY", feesQty);
 		parameters.put("START_DATE", startDate);
+		parameters.put("END_DATE", endDate);
+		parameters.put("PAYMENT_FREQUENCY", paymentFrequency);
 		parameters.put("PAYMENT_DATE", payDate);
+		parameters.put("DUE_FIXED", isDueFixed);
 		//	
 		FinancialSetting setting = FinancialSetting.get();
 		//	Set Values
@@ -188,7 +217,9 @@ public abstract class LoanSimulator {
 		interestAmt = Env.ZERO;
 		taxAmt = Env.ZERO;
 		startDate = null;
+		endDate = null;
 		payDate = null;
+		paymentFrequency = null;
 	}
 	
 	/**
