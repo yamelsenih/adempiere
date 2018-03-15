@@ -506,11 +506,13 @@ public class GridPanel extends Borderlayout implements EventListener
 						}
 					} else {
 							currentCol++;
-							if (renderer.isEditing()) {
+							if (renderer.isEditing()) 
 								renderer.stopColEditing(true);
-								listbox.setModel(listModel);
-							}
+							
 							renderer.setCurrentColumn(currentCol);
+
+							listbox.setModel(listModel);
+							
 							keyListener.setCtrlKeys(CNTRL_KEYS+KEYS_MOVE);
 					}
 				}
