@@ -118,7 +118,7 @@ public class LoanUtil {
 	public static HashMap<String, Object> calculateFrenchAmortization(int financialProductId, BigDecimal capitalAmt, 
 																			int feesQty,Timestamp startDate,
 																				Timestamp endDate, Timestamp payDate,
-																					String paymentFrequency, boolean isDueFixed, Properties ctx){
+																					String paymentFrequency, Properties ctx){
 		/**	Return Value */
 		HashMap<String, Object> returnValues = new HashMap<String, Object>();
 		

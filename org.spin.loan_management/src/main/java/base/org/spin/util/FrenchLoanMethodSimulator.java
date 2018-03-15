@@ -50,7 +50,7 @@ public class FrenchLoanMethodSimulator extends AbstractFunctionalSetting {
 		returnValues = LoanUtil.calculateFrenchAmortization(financialProductId, capitalAmt, 
 																	feesQty, startDate, 
 																		endDate, payDate, 
-																			paymentFrequency, isDueFixed, getCtx());
+																			paymentFrequency, getCtx());
 		//	Put Return Values
 		setReturnValue("FIXED_FEE_AMT", returnValues.get("FIXED_FEE_AMT"));
 		setReturnValue("INTEREST_FEE_AMT", returnValues.get("INTEREST_FEE_AMT"));
