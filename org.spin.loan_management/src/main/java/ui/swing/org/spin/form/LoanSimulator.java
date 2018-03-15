@@ -35,7 +35,7 @@ import org.spin.model.MFMFunctionalApplicability;
 import org.spin.model.MFMProduct;
 import org.spin.model.X_FM_Agreement;
 import org.spin.util.FinancialSetting;
-import org.spin.util.FrenchLoanMethodSimulator.AmortizationValue;
+import org.spin.util.LoanUtil.AmortizationValue;
 import org.spin.util.LoanUtil;
 
 /**
