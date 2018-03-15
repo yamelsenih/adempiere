@@ -506,9 +506,10 @@ public class GridPanel extends Borderlayout implements EventListener
 						}
 					} else {
 							currentCol++;
-							if (renderer.isEditing())
+							if (renderer.isEditing()) {
 								renderer.stopColEditing(true);
-												
+								listbox.setModel(listModel);
+							}
 							renderer.setCurrentColumn(currentCol);
 							keyListener.setCtrlKeys(CNTRL_KEYS+KEYS_MOVE);
 					}
@@ -564,7 +565,6 @@ public class GridPanel extends Borderlayout implements EventListener
 						return;
 					}else {
 						if(!gridTab.isNew()) {
-							
 							gridTab.navigateRelative(+1);
 							renderer.setCurrentCell(row);
 							renderer.setCurrentColumn(currentCol); 
@@ -579,6 +579,8 @@ public class GridPanel extends Borderlayout implements EventListener
 							renderer.setCurrentCell(0);
 						} else
 							renderer.setCurrentColumn(currentCol-1);
+						
+						listbox.setModel(listModel);
 					}
 				}
 				else if (code == KeyEvent.RIGHT && !isCtrl && !isAlt && !isShift)
@@ -588,6 +590,8 @@ public class GridPanel extends Borderlayout implements EventListener
 						renderer.setCurrentCell(0);
 					} else
 						renderer.setCurrentColumn(currentCol+1);
+					
+					listbox.setModel(listModel);
 				}
 				else if (code == KeyEvent.UP && !isCtrl && !isAlt && !isShift)
 				{
@@ -618,6 +622,7 @@ public class GridPanel extends Borderlayout implements EventListener
 				onSelectedRowChange(0);
 			}
 		} 
+		
 		keyListener.invalidate();
 	}
 	

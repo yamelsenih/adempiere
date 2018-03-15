@@ -349,51 +349,50 @@ public class GridTabRowRenderer implements RowRenderer, RowRendererExt, Renderer
 		if (paging != null && paging.getPageSize() > 0) {
 			rowIndex = (paging.getActivePage() * paging.getPageSize()) + rowIndex;
 		}
-		if(!ColCache.containsKey(row)) {
-			int colIndex = -1;
-			for (int i = 0; i < columnCount; i++) {
-				if (gridTab.isQuickEntry() 
-						&& !gridField[i].isQuickEntry())
-					{
-					continue;
-					}
-				if (!(gridField[i].isDisplayed() ) ) {
-					continue;
+		int colIndex = -1;
+		for (int i = 0; i < columnCount; i++) {
+			if (gridTab.isQuickEntry() 
+					&& !gridField[i].isQuickEntry())
+				{
+				continue;
 				}
-				
-				colIndex ++;
-				Component component=null;
-				Col div = new Col();
-				org.zkoss.zul.Column column = (org.zkoss.zul.Column) grid.getColumns().getChildren().get(colIndex);
-				if (column.isVisible()) {
-					component = getDisplayComponent(currentValues[i], gridField[i]);
-					div.appendChild(component);
-	
-					if (DisplayType.YesNo == gridField[i].getDisplayType() || DisplayType.Image == gridField[i].getDisplayType()) {
-						div.setTextAlign("center"); 
-					}
-					else if (DisplayType.isNumeric(gridField[i].getDisplayType())) {
-						div.setTextAlign("right");
-					}
-					else {
-						div.setTextAlign("left"); 
-					}
-				}
-				
-				div.setReadOnly(!gridField[i].isEditable(true));
-				div.setAttribute("columnName", gridField[i].getColumnName());
-				div.setAttribute("columnNo", colIndex);
-				div.setText(getDisplayText(currentValues[i], gridField[i]));
-				div.addEventListener(Events.ON_CLICK, rowListener);
-				div.addEventListener(Events.ON_DOUBLE_CLICK, rowListener);
-	
-				Map<Integer, Col> cache = new HashMap<Integer, Col>();
-				cache.put(colIndex,div);
-				ColCache.put(row, cache);
-				row.appendChild(div);
-				GridTableListModel model = (GridTableListModel) grid.getModel();
-				model.setEditing(true);
+			if (!(gridField[i].isDisplayed() ) ) {
+				continue;
 			}
+			
+			colIndex ++;
+			Component component=null;
+			Col div = new Col();
+			org.zkoss.zul.Column column = (org.zkoss.zul.Column) grid.getColumns().getChildren().get(colIndex);
+			if (column.isVisible()) {
+				component = getDisplayComponent(currentValues[i], gridField[i]);
+				div.appendChild(component);
+
+				if (DisplayType.YesNo == gridField[i].getDisplayType() || DisplayType.Image == gridField[i].getDisplayType()) {
+					div.setTextAlign("center"); 
+				}
+				else if (DisplayType.isNumeric(gridField[i].getDisplayType())) {
+					div.setTextAlign("right");
+				}
+				else {
+					div.setTextAlign("left"); 
+				}
+			}
+			
+			div.setReadOnly(!gridField[i].isEditable(true));
+			div.setAttribute("columnName", gridField[i].getColumnName());
+			div.setAttribute("columnNo", colIndex);
+			div.setText(getDisplayText(currentValues[i], gridField[i]));
+			div.addEventListener(Events.ON_CLICK, rowListener);
+			div.addEventListener(Events.ON_DOUBLE_CLICK, rowListener);
+
+			Map<Integer, Col> cache = new HashMap<Integer, Col>();
+			cache.put(colIndex,div);
+			ColCache.put(row, cache);
+			row.appendChild(div);
+			GridTableListModel model = (GridTableListModel) grid.getModel();
+			model.setEditing(false);
+			
 			totalColumns=colIndex;
 			if (rowIndex == gridTab.getCurrentRow()) {
 				setCurrentRow(row);
@@ -465,7 +464,7 @@ public class GridTabRowRenderer implements RowRenderer, RowRendererExt, Renderer
 				
 				String componentUuId = currentDiv.getComponent().getUuid();
 				Clients.evalJavaScript("$('#"+currentDiv.getAnchorInput().getUuid()+"')."
-						+ "keyup(function(event) {"
+						+ "keypress(function(event) {"
 						+ "$('#"+componentUuId+" :input').each(function(){"
 						+" if (event.keyCode >= 48 && event.keyCode <= 90 || event.keyCode >= 96 && event.keyCode <= 105) {" 
 						+ "$(this).val(event.key);"
@@ -478,7 +477,7 @@ public class GridTabRowRenderer implements RowRenderer, RowRendererExt, Renderer
 				}
 				
 				Clients.evalJavaScript("$('#"+currentDiv.getAnchorInput().getUuid()+"')."
-						+ "keyup(function(event) {"
+						+ "keypress(function(event) {"
 						+ "$('#"+componentUuId+"').focus();"
 						+ "$('#"+componentUuId+"').find('input').focus();"
 						+" if (event.keyCode >= 48 && event.keyCode <= 90 || event.keyCode >= 96 && event.keyCode <= 105) {" 
