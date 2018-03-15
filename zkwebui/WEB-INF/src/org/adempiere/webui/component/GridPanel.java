@@ -229,6 +229,7 @@ public class GridPanel extends Borderlayout implements EventListener
 		if (gridTab == null || !gridTab.isOpen()) return;
 
 		int rowIndex  = gridTab.getCurrentRow();
+		
 		if (pageSize > 0) {
 			if (paging.getTotalSize() != gridTab.getRowCount())
 				paging.setTotalSize(gridTab.getRowCount());
@@ -296,7 +297,6 @@ public class GridPanel extends Borderlayout implements EventListener
 		
 		if (init) return;
 
-//		System.out.println("Panel Desactivado"+((GridPanel)tabPanel.getListPanel()).get+ gridTab.isQuickEntry());
 		if(listbox.getColumns() != null)
 			listbox.getChildren().clear();
 		
@@ -457,8 +457,10 @@ public class GridPanel extends Borderlayout implements EventListener
 			if (row != null) {
 				//click on selected row to enter edit mode
 				if (row != renderer.getCurrentRow()) {
-					if(renderer.getCurrentDiv() != null)
+					if(renderer.getCurrentDiv() != null) {
 						renderer.getCurrentDiv().setFocus(false);
+						renderer.stopColEditing(true);
+					}
 					int index = listbox.getRows().getChildren().indexOf(row);
 					renderer.setCurrentRow(row);
 					renderer.setCurrentCell(index);
@@ -470,13 +472,10 @@ public class GridPanel extends Borderlayout implements EventListener
 			if(data instanceof Col) {
 				Col col = (Col)data;
 
-				gridTab.navigateCurrent();
 				currentCol = (Integer)(col).getAttribute("columnNo");
-					if(renderer.getCurrentDiv() != null) {
-						renderer.getCurrentDiv().setFocus(false);
-						renderer.stopColEditing(true);
-					}
-					renderer.setCurrentColumn(currentCol);
+
+				gridTab.navigateCurrent();
+				renderer.setCurrentColumn(currentCol);
 			}
 			keyListener.setCtrlKeys(CNTRL_KEYS+KEYS_MOVE);
         }
@@ -511,8 +510,6 @@ public class GridPanel extends Borderlayout implements EventListener
 								renderer.stopColEditing(true);
 												
 							renderer.setCurrentColumn(currentCol);
-							renderer.getCurrentDiv().setFocus(true);
-							renderer.getCurrentDiv().invalidate();
 							keyListener.setCtrlKeys(CNTRL_KEYS+KEYS_MOVE);
 					}
 				}
@@ -559,7 +556,7 @@ public class GridPanel extends Borderlayout implements EventListener
 				if (code == KeyEvent.DOWN && !isCtrl && !isAlt && !isShift)	{
 					row += 1;
 					if (row == totalRow)	{
-						if(!gridTab.isNew()) {
+						if(!gridTab.isNew() || dataSave(0)) {
 							onNew();
 							updateListIndex();
 							refresh(gridTab);
@@ -594,16 +591,13 @@ public class GridPanel extends Borderlayout implements EventListener
 				}
 				else if (code == KeyEvent.UP && !isCtrl && !isAlt && !isShift)
 				{
-					row -= 1;
-					if(row >= 0) {
-						gridTab.navigateRelative(-1);
-						renderer.setCurrentCell(row);
-						renderer.setCurrentColumn(currentCol);
-						
-					} 
-					if(gridTab.isNew()){
-						gridTab.dataIgnore();
-						gridTab.dataRefresh();
+					if(dataSave(0) || !gridTab.isNew()) {
+						row -= 1;
+						if(row >= 0) {
+							gridTab.navigateRelative(-1);
+							renderer.setCurrentCell(row);
+							renderer.setCurrentColumn(currentCol);
+						} 
 					}
 				}
 				else if (code == KeyEvent.HOME)
@@ -666,10 +660,9 @@ public class GridPanel extends Borderlayout implements EventListener
 			} else {
 				focusToRow(row);
 
-//				renderer.setCurrentColumn(currentCol);
-				if(gridTab.getRowCount()<=0)
-					renderer.setCurrentCell(pgIndex);
 			}
+			
+			renderer.setCurrentColumn(currentCol);
 	} else if (rowIndex >= 0) {
 			org.zkoss.zul.Row row = (org.zkoss.zul.Row) listbox.getRows().getChildren().get(rowIndex);
 			if (!isRowRendered(row, rowIndex)) {
@@ -697,7 +690,6 @@ public class GridPanel extends Borderlayout implements EventListener
 			}
 		}
 		if(gridTab.isNew()) {
-			renderer.setCurrentColumn(currentCol);
 			renderer.editCurrentCol(true);
 		}
 
@@ -825,7 +817,6 @@ public class GridPanel extends Borderlayout implements EventListener
                     comp.dynamicDisplay();
                 }
 
-                //comp.setVisible(mField.isDisplayed(true));
                 comp.repaintComponent(true);
             }
         }   //  all components
@@ -913,7 +904,6 @@ public class GridPanel extends Borderlayout implements EventListener
 
 	public void createNewLine()
 	{
-//		isNewLineSaved = false;
 		gridTab.dataNew(false);
 	}
 	
@@ -949,12 +939,9 @@ public class GridPanel extends Borderlayout implements EventListener
 	
 	private void onNew() {
 		
-
-        
         boolean newRecord = gridTab.dataNew(false);
         if (newRecord)
         {
-            //curTabPanel.dynamicDisplay(0);
         	windowPanel.getToolbar().getCurrentPanel().dynamicDisplay(0);
         	windowPanel.getToolbar().enableChanges(false);
         	windowPanel.getToolbar().enableDelete(false);

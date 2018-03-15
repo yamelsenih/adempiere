@@ -302,6 +302,8 @@ public class WQuickEntrySheet extends Window implements EventListener, DataStatu
 
 		gridTab.setQuickEntry(false);
 		formGridTab.setQuickEntry(false);
+		gridTab.removeDataStatusListener(this);
+		gridTab.removeDataStatusListener(tabPanel);
 		tabPanel.getGridTab().setQuickEntry(false);
 		gridPanel.removeKeyListener();
 		tabPanel.getListPanel().addKeyListener();
