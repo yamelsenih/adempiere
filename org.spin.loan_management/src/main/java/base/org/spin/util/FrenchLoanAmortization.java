@@ -25,6 +25,7 @@ import org.spin.model.MFMAccount;
 import org.spin.model.MFMAgreement;
 import org.spin.model.MFMAmortization;
 import org.spin.model.MFMFunctionalSetting;
+import org.spin.model.MFMProduct;
 import org.spin.util.LoanUtil.AmortizationValue;
 
 /**
@@ -52,7 +53,8 @@ public class FrenchLoanAmortization extends AbstractFunctionalSetting {
 		
 		//HashMap<String, Object> retValues = new HashMap<String, Object>();
 		List<AmortizationValue> amortizationList = new ArrayList<AmortizationValue>();
-		int financialProductId = loan.getFM_Product_ID();
+		MFMProduct financialProduct= (MFMProduct)loan.getFM_Product();
+		//int financialProductId = loan.getFM_Product_ID();
 		
 		List<MFMAccount> accounts = loan.getAccounts();
 		
@@ -70,10 +72,10 @@ public class FrenchLoanAmortization extends AbstractFunctionalSetting {
 			Timestamp payDate = (Timestamp) account.get_Value("PayDate");
 			String paymentFrequency = account.get_ValueAsString("PaymentFrequency");
 			
-			amortizationList = (List) LoanUtil.calculateFrenchAmortization(financialProductId, capitalAmt, 
+			amortizationList = (List) LoanUtil.calculateFrenchAmortization(financialProduct.getFM_Product_ID(), capitalAmt, 
 															feesQty, startDate,
 																endDate, payDate,
-																	paymentFrequency, false, account.getCtx())
+																	paymentFrequency, account.getCtx())
 						.get("AMORTIZATION_LIST");
 			
 			
