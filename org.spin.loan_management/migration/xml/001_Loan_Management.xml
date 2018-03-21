@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <Migrations>
-  <Migration EntityType="D" Name="FM Loan" ReleaseNo="3.9.1" SeqNo="3">
+  <Migration EntityType="D" Name="FM Loan" ReleaseNo="3.9.1" SeqNo="1">
     <Comments>Loan Management</Comments>
     <Step SeqNo="10" StepType="AD">
       <PO AD_Table_ID="100" Action="I" Record_ID="54375" Table="AD_Table">

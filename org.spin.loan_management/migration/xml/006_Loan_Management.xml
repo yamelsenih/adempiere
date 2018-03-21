@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <Migrations>
-  <Migration EntityType="D" Name="Add support to Payment Period for Loan #1588" ReleaseNo="3.9.1" SeqNo="8">
+  <Migration EntityType="D" Name="Add support to Payment Period for Loan #1588" ReleaseNo="3.9.1" SeqNo="6">
     <Comments>See: https://github.com/adempiere/adempiere/issues/1588</Comments>
     <Step SeqNo="10" StepType="AD">
       <PO AD_Table_ID="102" Action="I" Record_ID="54019" Table="AD_Reference">
