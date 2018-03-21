@@ -31,7 +31,7 @@ public class X_FM_ProductCategory extends PO implements I_FM_ProductCategory, I_
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20180301L;
+	private static final long serialVersionUID = 20180320L;
 
     /** Standard Constructor */
     public X_FM_ProductCategory (Properties ctx, int FM_ProductCategory_ID, String trxName)

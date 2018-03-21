@@ -31,7 +31,7 @@ public class X_FM_Product extends PO implements I_FM_Product, I_Persistent
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20180301L;
+	private static final long serialVersionUID = 20180320L;
 
     /** Standard Constructor */
     public X_FM_Product (Properties ctx, int FM_Product_ID, String trxName)

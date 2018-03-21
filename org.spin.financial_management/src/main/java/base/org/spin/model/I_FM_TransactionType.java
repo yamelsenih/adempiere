@@ -21,17 +21,17 @@ import java.sql.Timestamp;
 import org.compiere.model.*;
 import org.compiere.util.KeyNamePair;
 
-/** Generated Interface for FM_Transaction
+/** Generated Interface for FM_TransactionType
  *  @author Adempiere (generated) 
  *  @version Release 3.9.0
  */
-public interface I_FM_Transaction 
+public interface I_FM_TransactionType 
 {
 
-    /** TableName=FM_Transaction */
-    public static final String Table_Name = "FM_Transaction";
+    /** TableName=FM_TransactionType */
+    public static final String Table_Name = "FM_TransactionType";
 
-    /** AD_Table_ID=54369 */
+    /** AD_Table_ID=54381 */
     public static final int Table_ID = MTable.getTable_ID(Table_Name);
 
     KeyNamePair Model = new KeyNamePair(Table_ID, Table_Name);
@@ -63,19 +63,6 @@ public interface I_FM_Transaction
 	  */
 	public int getAD_Org_ID();
 
-    /** Column name Amount */
-    public static final String COLUMNNAME_Amount = "Amount";
-
-	/** Set Amount.
-	  * Amount in a defined currency
-	  */
-	public void setAmount (BigDecimal Amount);
-
-	/** Get Amount.
-	  * Amount in a defined currency
-	  */
-	public BigDecimal getAmount();
-
     /** Column name Created */
     public static final String COLUMNNAME_Created = "Created";
 
@@ -92,49 +79,18 @@ public interface I_FM_Transaction
 	  */
 	public int getCreatedBy();
 
-    /** Column name DateTrx */
-    public static final String COLUMNNAME_DateTrx = "DateTrx";
+    /** Column name Description */
+    public static final String COLUMNNAME_Description = "Description";
 
-	/** Set Transaction Date.
-	  * Transaction Date
+	/** Set Description.
+	  * Optional short description of the record
 	  */
-	public void setDateTrx (Timestamp DateTrx);
+	public void setDescription (String Description);
 
-	/** Get Transaction Date.
-	  * Transaction Date
+	/** Get Description.
+	  * Optional short description of the record
 	  */
-	public Timestamp getDateTrx();
-
-    /** Column name FM_Account_ID */
-    public static final String COLUMNNAME_FM_Account_ID = "FM_Account_ID";
-
-	/** Set Financial Account	  */
-	public void setFM_Account_ID (int FM_Account_ID);
-
-	/** Get Financial Account	  */
-	public int getFM_Account_ID();
-
-	public org.spin.model.I_FM_Account getFM_Account() throws RuntimeException;
-
-    /** Column name FM_Batch_ID */
-    public static final String COLUMNNAME_FM_Batch_ID = "FM_Batch_ID";
-
-	/** Set Financial Transaction Batch	  */
-	public void setFM_Batch_ID (int FM_Batch_ID);
-
-	/** Get Financial Transaction Batch	  */
-	public int getFM_Batch_ID();
-
-	public org.spin.model.I_FM_Batch getFM_Batch() throws RuntimeException;
-
-    /** Column name FM_Transaction_ID */
-    public static final String COLUMNNAME_FM_Transaction_ID = "FM_Transaction_ID";
-
-	/** Set Financial Transaction	  */
-	public void setFM_Transaction_ID (int FM_Transaction_ID);
-
-	/** Get Financial Transaction	  */
-	public int getFM_Transaction_ID();
+	public String getDescription();
 
     /** Column name FM_TransactionType_ID */
     public static final String COLUMNNAME_FM_TransactionType_ID = "FM_TransactionType_ID";
@@ -144,8 +100,6 @@ public interface I_FM_Transaction
 
 	/** Get Financial Transaction Type	  */
 	public int getFM_TransactionType_ID();
-
-	public org.spin.model.I_FM_TransactionType getFM_TransactionType() throws RuntimeException;
 
     /** Column name IsActive */
     public static final String COLUMNNAME_IsActive = "IsActive";
@@ -160,18 +114,31 @@ public interface I_FM_Transaction
 	  */
 	public boolean isActive();
 
-    /** Column name Processed */
-    public static final String COLUMNNAME_Processed = "Processed";
+    /** Column name Name */
+    public static final String COLUMNNAME_Name = "Name";
 
-	/** Set Processed.
-	  * The document has been processed
+	/** Set Name.
+	  * Alphanumeric identifier of the entity
 	  */
-	public void setProcessed (boolean Processed);
+	public void setName (String Name);
 
-	/** Get Processed.
-	  * The document has been processed
+	/** Get Name.
+	  * Alphanumeric identifier of the entity
 	  */
-	public boolean isProcessed();
+	public String getName();
+
+    /** Column name Type */
+    public static final String COLUMNNAME_Type = "Type";
+
+	/** Set Type.
+	  * Type of Validation (SQL, Java Script, Java Language)
+	  */
+	public void setType (String Type);
+
+	/** Get Type.
+	  * Type of Validation (SQL, Java Script, Java Language)
+	  */
+	public String getType();
 
     /** Column name Updated */
     public static final String COLUMNNAME_Updated = "Updated";
@@ -201,4 +168,17 @@ public interface I_FM_Transaction
 	  * Immutable Universally Unique Identifier
 	  */
 	public String getUUID();
+
+    /** Column name Value */
+    public static final String COLUMNNAME_Value = "Value";
+
+	/** Set Search Key.
+	  * Search key for the record in the format required - must be unique
+	  */
+	public void setValue (String Value);
+
+	/** Get Search Key.
+	  * Search key for the record in the format required - must be unique
+	  */
+	public String getValue();
 }

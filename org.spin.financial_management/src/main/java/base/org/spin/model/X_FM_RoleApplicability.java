@@ -32,7 +32,7 @@ public class X_FM_RoleApplicability extends PO implements I_FM_RoleApplicability
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20180301L;
+	private static final long serialVersionUID = 20180320L;
 
     /** Standard Constructor */
     public X_FM_RoleApplicability (Properties ctx, int FM_RoleApplicability_ID, String trxName)

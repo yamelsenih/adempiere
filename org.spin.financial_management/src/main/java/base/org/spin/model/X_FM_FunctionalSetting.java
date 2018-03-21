@@ -31,7 +31,7 @@ public class X_FM_FunctionalSetting extends PO implements I_FM_FunctionalSetting
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20180301L;
+	private static final long serialVersionUID = 20180320L;
 
     /** Standard Constructor */
     public X_FM_FunctionalSetting (Properties ctx, int FM_FunctionalSetting_ID, String trxName)

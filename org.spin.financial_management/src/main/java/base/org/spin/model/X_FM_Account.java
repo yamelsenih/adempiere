@@ -33,7 +33,7 @@ public class X_FM_Account extends PO implements I_FM_Account, I_Persistent
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20180301L;
+	private static final long serialVersionUID = 20180320L;
 
     /** Standard Constructor */
     public X_FM_Account (Properties ctx, int FM_Account_ID, String trxName)
