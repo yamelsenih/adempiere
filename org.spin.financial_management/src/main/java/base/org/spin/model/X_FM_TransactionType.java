@@ -22,10 +22,10 @@ import java.util.Properties;
 import org.compiere.model.*;
 import org.compiere.util.KeyNamePair;
 
-/** Generated Model for FM_AgreementType
+/** Generated Model for FM_TransactionType
  *  @author Adempiere (generated) 
  *  @version Release 3.9.0 - $Id$ */
-public class X_FM_AgreementType extends PO implements I_FM_AgreementType, I_Persistent 
+public class X_FM_TransactionType extends PO implements I_FM_TransactionType, I_Persistent 
 {
 
 	/**
@@ -34,19 +34,20 @@ public class X_FM_AgreementType extends PO implements I_FM_AgreementType, I_Pers
 	private static final long serialVersionUID = 20180320L;
 
     /** Standard Constructor */
-    public X_FM_AgreementType (Properties ctx, int FM_AgreementType_ID, String trxName)
+    public X_FM_TransactionType (Properties ctx, int FM_TransactionType_ID, String trxName)
     {
-      super (ctx, FM_AgreementType_ID, trxName);
-      /** if (FM_AgreementType_ID == 0)
+      super (ctx, FM_TransactionType_ID, trxName);
+      /** if (FM_TransactionType_ID == 0)
         {
-			setFM_AgreementType_ID (0);
+			setFM_TransactionType_ID (0);
 			setName (null);
+			setType (null);
 			setValue (null);
         } */
     }
 
     /** Load Constructor */
-    public X_FM_AgreementType (Properties ctx, ResultSet rs, String trxName)
+    public X_FM_TransactionType (Properties ctx, ResultSet rs, String trxName)
     {
       super (ctx, rs, trxName);
     }
@@ -68,7 +69,7 @@ public class X_FM_AgreementType extends PO implements I_FM_AgreementType, I_Pers
 
     public String toString()
     {
-      StringBuffer sb = new StringBuffer ("X_FM_AgreementType[")
+      StringBuffer sb = new StringBuffer ("X_FM_TransactionType[")
         .append(get_ID()).append("]");
       return sb.toString();
     }
@@ -90,21 +91,21 @@ public class X_FM_AgreementType extends PO implements I_FM_AgreementType, I_Pers
 		return (String)get_Value(COLUMNNAME_Description);
 	}
 
-	/** Set Agreement Type.
-		@param FM_AgreementType_ID Agreement Type	  */
-	public void setFM_AgreementType_ID (int FM_AgreementType_ID)
+	/** Set Financial Transaction Type.
+		@param FM_TransactionType_ID Financial Transaction Type	  */
+	public void setFM_TransactionType_ID (int FM_TransactionType_ID)
 	{
-		if (FM_AgreementType_ID < 1) 
-			set_ValueNoCheck (COLUMNNAME_FM_AgreementType_ID, null);
+		if (FM_TransactionType_ID < 1) 
+			set_ValueNoCheck (COLUMNNAME_FM_TransactionType_ID, null);
 		else 
-			set_ValueNoCheck (COLUMNNAME_FM_AgreementType_ID, Integer.valueOf(FM_AgreementType_ID));
+			set_ValueNoCheck (COLUMNNAME_FM_TransactionType_ID, Integer.valueOf(FM_TransactionType_ID));
 	}
 
-	/** Get Agreement Type.
-		@return Agreement Type	  */
-	public int getFM_AgreementType_ID () 
+	/** Get Financial Transaction Type.
+		@return Financial Transaction Type	  */
+	public int getFM_TransactionType_ID () 
 	{
-		Integer ii = (Integer)get_Value(COLUMNNAME_FM_AgreementType_ID);
+		Integer ii = (Integer)get_Value(COLUMNNAME_FM_TransactionType_ID);
 		if (ii == null)
 			 return 0;
 		return ii.intValue();
@@ -127,18 +128,26 @@ public class X_FM_AgreementType extends PO implements I_FM_AgreementType, I_Pers
 		return (String)get_Value(COLUMNNAME_Name);
 	}
 
-	/** Set Description.
-		@param Text Description	  */
-	public void setText (String Text)
+	/** Type AD_Reference_ID=54020 */
+	public static final int TYPE_AD_Reference_ID=54020;
+	/** Transaction Reverse = TRE */
+	public static final String TYPE_TransactionReverse = "TRE";
+	/** Set Type.
+		@param Type 
+		Type of Validation (SQL, Java Script, Java Language)
+	  */
+	public void setType (String Type)
 	{
-		set_Value (COLUMNNAME_Text, Text);
+
+		set_Value (COLUMNNAME_Type, Type);
 	}
 
-	/** Get Description.
-		@return Description	  */
-	public String getText () 
+	/** Get Type.
+		@return Type of Validation (SQL, Java Script, Java Language)
+	  */
+	public String getType () 
 	{
-		return (String)get_Value(COLUMNNAME_Text);
+		return (String)get_Value(COLUMNNAME_Type);
 	}
 
 	/** Set Immutable Universally Unique Identifier.

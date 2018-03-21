@@ -257,6 +257,15 @@ public interface I_FM_Agreement
 	  */
 	public boolean isProcessed();
 
+    /** Column name Processing */
+    public static final String COLUMNNAME_Processing = "Processing";
+
+	/** Set Process Now	  */
+	public void setProcessing (boolean Processing);
+
+	/** Get Process Now	  */
+	public boolean isProcessing();
+
     /** Column name Text */
     public static final String COLUMNNAME_Text = "Text";
 

@@ -32,7 +32,7 @@ public class X_FM_Agreement extends PO implements I_FM_Agreement, I_Persistent
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20180301L;
+	private static final long serialVersionUID = 20180320L;
 
     /** Standard Constructor */
     public X_FM_Agreement (Properties ctx, int FM_Agreement_ID, String trxName)
@@ -426,6 +426,27 @@ public class X_FM_Agreement extends PO implements I_FM_Agreement, I_Persistent
 	public boolean isProcessed () 
 	{
 		Object oo = get_Value(COLUMNNAME_Processed);
+		if (oo != null) 
+		{
+			 if (oo instanceof Boolean) 
+				 return ((Boolean)oo).booleanValue(); 
+			return "Y".equals(oo);
+		}
+		return false;
+	}
+
+	/** Set Process Now.
+		@param Processing Process Now	  */
+	public void setProcessing (boolean Processing)
+	{
+		set_Value (COLUMNNAME_Processing, Boolean.valueOf(Processing));
+	}
+
+	/** Get Process Now.
+		@return Process Now	  */
+	public boolean isProcessing () 
+	{
+		Object oo = get_Value(COLUMNNAME_Processing);
 		if (oo != null) 
 		{
 			 if (oo instanceof Boolean) 

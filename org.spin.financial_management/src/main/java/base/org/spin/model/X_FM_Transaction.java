@@ -34,7 +34,7 @@ public class X_FM_Transaction extends PO implements I_FM_Transaction, I_Persiste
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20180301L;
+	private static final long serialVersionUID = 20180320L;
 
     /** Standard Constructor */
     public X_FM_Transaction (Properties ctx, int FM_Transaction_ID, String trxName)
@@ -47,6 +47,7 @@ public class X_FM_Transaction extends PO implements I_FM_Transaction, I_Persiste
 			setFM_Account_ID (0);
 			setFM_Batch_ID (0);
 			setFM_Transaction_ID (0);
+			setFM_TransactionType_ID (0);
 			setProcessed (false);
 // N
         } */
@@ -190,6 +191,31 @@ public class X_FM_Transaction extends PO implements I_FM_Transaction, I_Persiste
 	public int getFM_Transaction_ID () 
 	{
 		Integer ii = (Integer)get_Value(COLUMNNAME_FM_Transaction_ID);
+		if (ii == null)
+			 return 0;
+		return ii.intValue();
+	}
+
+	public org.spin.model.I_FM_TransactionType getFM_TransactionType() throws RuntimeException
+    {
+		return (org.spin.model.I_FM_TransactionType)MTable.get(getCtx(), org.spin.model.I_FM_TransactionType.Table_Name)
+			.getPO(getFM_TransactionType_ID(), get_TrxName());	}
+
+	/** Set Financial Transaction Type.
+		@param FM_TransactionType_ID Financial Transaction Type	  */
+	public void setFM_TransactionType_ID (int FM_TransactionType_ID)
+	{
+		if (FM_TransactionType_ID < 1) 
+			set_Value (COLUMNNAME_FM_TransactionType_ID, null);
+		else 
+			set_Value (COLUMNNAME_FM_TransactionType_ID, Integer.valueOf(FM_TransactionType_ID));
+	}
+
+	/** Get Financial Transaction Type.
+		@return Financial Transaction Type	  */
+	public int getFM_TransactionType_ID () 
+	{
+		Integer ii = (Integer)get_Value(COLUMNNAME_FM_TransactionType_ID);
 		if (ii == null)
 			 return 0;
 		return ii.intValue();

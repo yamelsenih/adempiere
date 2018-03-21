@@ -21,17 +21,17 @@ import java.sql.Timestamp;
 import org.compiere.model.*;
 import org.compiere.util.KeyNamePair;
 
-/** Generated Interface for FM_Transaction
+/** Generated Interface for FM_TransactionType_Acct
  *  @author Adempiere (generated) 
  *  @version Release 3.9.0
  */
-public interface I_FM_Transaction 
+public interface I_FM_TransactionType_Acct 
 {
 
-    /** TableName=FM_Transaction */
-    public static final String Table_Name = "FM_Transaction";
+    /** TableName=FM_TransactionType_Acct */
+    public static final String Table_Name = "FM_TransactionType_Acct";
 
-    /** AD_Table_ID=54369 */
+    /** AD_Table_ID=54383 */
     public static final int Table_ID = MTable.getTable_ID(Table_Name);
 
     KeyNamePair Model = new KeyNamePair(Table_ID, Table_Name);
@@ -63,18 +63,20 @@ public interface I_FM_Transaction
 	  */
 	public int getAD_Org_ID();
 
-    /** Column name Amount */
-    public static final String COLUMNNAME_Amount = "Amount";
+    /** Column name C_AcctSchema_ID */
+    public static final String COLUMNNAME_C_AcctSchema_ID = "C_AcctSchema_ID";
 
-	/** Set Amount.
-	  * Amount in a defined currency
+	/** Set Accounting Schema.
+	  * Rules for accounting
 	  */
-	public void setAmount (BigDecimal Amount);
+	public void setC_AcctSchema_ID (int C_AcctSchema_ID);
 
-	/** Get Amount.
-	  * Amount in a defined currency
+	/** Get Accounting Schema.
+	  * Rules for accounting
 	  */
-	public BigDecimal getAmount();
+	public int getC_AcctSchema_ID();
+
+	public org.compiere.model.I_C_AcctSchema getC_AcctSchema() throws RuntimeException;
 
     /** Column name Created */
     public static final String COLUMNNAME_Created = "Created";
@@ -92,49 +94,36 @@ public interface I_FM_Transaction
 	  */
 	public int getCreatedBy();
 
-    /** Column name DateTrx */
-    public static final String COLUMNNAME_DateTrx = "DateTrx";
+    /** Column name FM_Expense_Acct */
+    public static final String COLUMNNAME_FM_Expense_Acct = "FM_Expense_Acct";
 
-	/** Set Transaction Date.
-	  * Transaction Date
-	  */
-	public void setDateTrx (Timestamp DateTrx);
+	/** Set Financial Expense Account	  */
+	public void setFM_Expense_Acct (int FM_Expense_Acct);
 
-	/** Get Transaction Date.
-	  * Transaction Date
-	  */
-	public Timestamp getDateTrx();
+	/** Get Financial Expense Account	  */
+	public int getFM_Expense_Acct();
 
-    /** Column name FM_Account_ID */
-    public static final String COLUMNNAME_FM_Account_ID = "FM_Account_ID";
+	public I_C_ValidCombination getFM_Expense_A() throws RuntimeException;
 
-	/** Set Financial Account	  */
-	public void setFM_Account_ID (int FM_Account_ID);
+    /** Column name FM_Revenue_Acct */
+    public static final String COLUMNNAME_FM_Revenue_Acct = "FM_Revenue_Acct";
 
-	/** Get Financial Account	  */
-	public int getFM_Account_ID();
+	/** Set Financial Revenue Account	  */
+	public void setFM_Revenue_Acct (int FM_Revenue_Acct);
 
-	public org.spin.model.I_FM_Account getFM_Account() throws RuntimeException;
+	/** Get Financial Revenue Account	  */
+	public int getFM_Revenue_Acct();
 
-    /** Column name FM_Batch_ID */
-    public static final String COLUMNNAME_FM_Batch_ID = "FM_Batch_ID";
+	public I_C_ValidCombination getFM_Revenue_A() throws RuntimeException;
 
-	/** Set Financial Transaction Batch	  */
-	public void setFM_Batch_ID (int FM_Batch_ID);
+    /** Column name FM_TransactionType_Acct_ID */
+    public static final String COLUMNNAME_FM_TransactionType_Acct_ID = "FM_TransactionType_Acct_ID";
 
-	/** Get Financial Transaction Batch	  */
-	public int getFM_Batch_ID();
+	/** Set Financial Transaction Type Account ID	  */
+	public void setFM_TransactionType_Acct_ID (int FM_TransactionType_Acct_ID);
 
-	public org.spin.model.I_FM_Batch getFM_Batch() throws RuntimeException;
-
-    /** Column name FM_Transaction_ID */
-    public static final String COLUMNNAME_FM_Transaction_ID = "FM_Transaction_ID";
-
-	/** Set Financial Transaction	  */
-	public void setFM_Transaction_ID (int FM_Transaction_ID);
-
-	/** Get Financial Transaction	  */
-	public int getFM_Transaction_ID();
+	/** Get Financial Transaction Type Account ID	  */
+	public int getFM_TransactionType_Acct_ID();
 
     /** Column name FM_TransactionType_ID */
     public static final String COLUMNNAME_FM_TransactionType_ID = "FM_TransactionType_ID";
@@ -160,19 +149,6 @@ public interface I_FM_Transaction
 	  */
 	public boolean isActive();
 
-    /** Column name Processed */
-    public static final String COLUMNNAME_Processed = "Processed";
-
-	/** Set Processed.
-	  * The document has been processed
-	  */
-	public void setProcessed (boolean Processed);
-
-	/** Get Processed.
-	  * The document has been processed
-	  */
-	public boolean isProcessed();
-
     /** Column name Updated */
     public static final String COLUMNNAME_Updated = "Updated";
 
@@ -188,6 +164,66 @@ public interface I_FM_Transaction
 	  * User who updated this records
 	  */
 	public int getUpdatedBy();
+
+    /** Column name User1_ID */
+    public static final String COLUMNNAME_User1_ID = "User1_ID";
+
+	/** Set User List 1.
+	  * User defined list element #1
+	  */
+	public void setUser1_ID (int User1_ID);
+
+	/** Get User List 1.
+	  * User defined list element #1
+	  */
+	public int getUser1_ID();
+
+	public org.compiere.model.I_C_ElementValue getUser1() throws RuntimeException;
+
+    /** Column name User2_ID */
+    public static final String COLUMNNAME_User2_ID = "User2_ID";
+
+	/** Set User List 2.
+	  * User defined list element #2
+	  */
+	public void setUser2_ID (int User2_ID);
+
+	/** Get User List 2.
+	  * User defined list element #2
+	  */
+	public int getUser2_ID();
+
+	public org.compiere.model.I_C_ElementValue getUser2() throws RuntimeException;
+
+    /** Column name User3_ID */
+    public static final String COLUMNNAME_User3_ID = "User3_ID";
+
+	/** Set User List 3.
+	  * User defined list element #3
+	  */
+	public void setUser3_ID (int User3_ID);
+
+	/** Get User List 3.
+	  * User defined list element #3
+	  */
+	public int getUser3_ID();
+
+	public org.compiere.model.I_C_ElementValue getUser3() throws RuntimeException;
+
+    /** Column name User4_ID */
+    public static final String COLUMNNAME_User4_ID = "User4_ID";
+
+	/** Set User List 4.
+	  * User defined list element #4
+	  */
+	public void setUser4_ID (int User4_ID);
+
+	/** Get User List 4.
+	  * User defined list element #4
+	  */
+	public int getUser4_ID();
+
+	public org.compiere.model.I_C_ElementValue getUser4() throws RuntimeException;
 
     /** Column name UUID */
     public static final String COLUMNNAME_UUID = "UUID";

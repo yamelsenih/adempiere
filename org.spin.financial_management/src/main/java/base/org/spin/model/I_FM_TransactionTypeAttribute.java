@@ -21,17 +21,17 @@ import java.sql.Timestamp;
 import org.compiere.model.*;
 import org.compiere.util.KeyNamePair;
 
-/** Generated Interface for FM_Transaction
+/** Generated Interface for FM_TransactionTypeAttribute
  *  @author Adempiere (generated) 
  *  @version Release 3.9.0
  */
-public interface I_FM_Transaction 
+public interface I_FM_TransactionTypeAttribute 
 {
 
-    /** TableName=FM_Transaction */
-    public static final String Table_Name = "FM_Transaction";
+    /** TableName=FM_TransactionTypeAttribute */
+    public static final String Table_Name = "FM_TransactionTypeAttribute";
 
-    /** AD_Table_ID=54369 */
+    /** AD_Table_ID=54382 */
     public static final int Table_ID = MTable.getTable_ID(Table_Name);
 
     KeyNamePair Model = new KeyNamePair(Table_ID, Table_Name);
@@ -63,18 +63,20 @@ public interface I_FM_Transaction
 	  */
 	public int getAD_Org_ID();
 
-    /** Column name Amount */
-    public static final String COLUMNNAME_Amount = "Amount";
+    /** Column name C_BPartner_ID */
+    public static final String COLUMNNAME_C_BPartner_ID = "C_BPartner_ID";
 
-	/** Set Amount.
-	  * Amount in a defined currency
+	/** Set Business Partner .
+	  * Identifies a Business Partner
 	  */
-	public void setAmount (BigDecimal Amount);
+	public void setC_BPartner_ID (int C_BPartner_ID);
 
-	/** Get Amount.
-	  * Amount in a defined currency
+	/** Get Business Partner .
+	  * Identifies a Business Partner
 	  */
-	public BigDecimal getAmount();
+	public int getC_BPartner_ID();
+
+	public org.compiere.model.I_C_BPartner getC_BPartner() throws RuntimeException;
 
     /** Column name Created */
     public static final String COLUMNNAME_Created = "Created";
@@ -92,49 +94,36 @@ public interface I_FM_Transaction
 	  */
 	public int getCreatedBy();
 
-    /** Column name DateTrx */
-    public static final String COLUMNNAME_DateTrx = "DateTrx";
+    /** Column name FM_FunctionalSetting_ID */
+    public static final String COLUMNNAME_FM_FunctionalSetting_ID = "FM_FunctionalSetting_ID";
 
-	/** Set Transaction Date.
-	  * Transaction Date
-	  */
-	public void setDateTrx (Timestamp DateTrx);
+	/** Set Financial Functional Setting	  */
+	public void setFM_FunctionalSetting_ID (int FM_FunctionalSetting_ID);
 
-	/** Get Transaction Date.
-	  * Transaction Date
-	  */
-	public Timestamp getDateTrx();
+	/** Get Financial Functional Setting	  */
+	public int getFM_FunctionalSetting_ID();
 
-    /** Column name FM_Account_ID */
-    public static final String COLUMNNAME_FM_Account_ID = "FM_Account_ID";
+	public org.spin.model.I_FM_FunctionalSetting getFM_FunctionalSetting() throws RuntimeException;
 
-	/** Set Financial Account	  */
-	public void setFM_Account_ID (int FM_Account_ID);
+    /** Column name FM_Product_ID */
+    public static final String COLUMNNAME_FM_Product_ID = "FM_Product_ID";
 
-	/** Get Financial Account	  */
-	public int getFM_Account_ID();
+	/** Set Financial Product	  */
+	public void setFM_Product_ID (int FM_Product_ID);
 
-	public org.spin.model.I_FM_Account getFM_Account() throws RuntimeException;
+	/** Get Financial Product	  */
+	public int getFM_Product_ID();
 
-    /** Column name FM_Batch_ID */
-    public static final String COLUMNNAME_FM_Batch_ID = "FM_Batch_ID";
+	public org.spin.model.I_FM_Product getFM_Product() throws RuntimeException;
 
-	/** Set Financial Transaction Batch	  */
-	public void setFM_Batch_ID (int FM_Batch_ID);
+    /** Column name FM_TransactionTypeAttribute_ID */
+    public static final String COLUMNNAME_FM_TransactionTypeAttribute_ID = "FM_TransactionTypeAttribute_ID";
 
-	/** Get Financial Transaction Batch	  */
-	public int getFM_Batch_ID();
+	/** Set Financial Transaction Type Attribute	  */
+	public void setFM_TransactionTypeAttribute_ID (int FM_TransactionTypeAttribute_ID);
 
-	public org.spin.model.I_FM_Batch getFM_Batch() throws RuntimeException;
-
-    /** Column name FM_Transaction_ID */
-    public static final String COLUMNNAME_FM_Transaction_ID = "FM_Transaction_ID";
-
-	/** Set Financial Transaction	  */
-	public void setFM_Transaction_ID (int FM_Transaction_ID);
-
-	/** Get Financial Transaction	  */
-	public int getFM_Transaction_ID();
+	/** Get Financial Transaction Type Attribute	  */
+	public int getFM_TransactionTypeAttribute_ID();
 
     /** Column name FM_TransactionType_ID */
     public static final String COLUMNNAME_FM_TransactionType_ID = "FM_TransactionType_ID";
@@ -159,19 +148,6 @@ public interface I_FM_Transaction
 	  * The record is active in the system
 	  */
 	public boolean isActive();
-
-    /** Column name Processed */
-    public static final String COLUMNNAME_Processed = "Processed";
-
-	/** Set Processed.
-	  * The document has been processed
-	  */
-	public void setProcessed (boolean Processed);
-
-	/** Get Processed.
-	  * The document has been processed
-	  */
-	public boolean isProcessed();
 
     /** Column name Updated */
     public static final String COLUMNNAME_Updated = "Updated";

@@ -355,6 +355,13 @@ public class MFMBatch extends X_FM_Batch implements DocAction {
 		return 0;
 	}	//	getC_Currency_ID
 
+	/**
+	 * Process Batch
+	 */
+	private void process() {
+		
+	}
+	
     @Override
     public String toString()
     {

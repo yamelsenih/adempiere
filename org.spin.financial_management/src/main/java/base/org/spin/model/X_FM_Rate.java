@@ -31,7 +31,7 @@ public class X_FM_Rate extends PO implements I_FM_Rate, I_Persistent
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20180301L;
+	private static final long serialVersionUID = 20180320L;
 
     /** Standard Constructor */
     public X_FM_Rate (Properties ctx, int FM_Rate_ID, String trxName)

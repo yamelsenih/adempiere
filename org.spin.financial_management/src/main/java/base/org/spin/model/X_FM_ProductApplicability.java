@@ -32,7 +32,7 @@ public class X_FM_ProductApplicability extends PO implements I_FM_ProductApplica
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20180301L;
+	private static final long serialVersionUID = 20180320L;
 
     /** Standard Constructor */
     public X_FM_ProductApplicability (Properties ctx, int FM_ProductApplicability_ID, String trxName)
