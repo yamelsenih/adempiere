@@ -3791,4 +3791,21 @@ public class GridTable extends AbstractTableModel
 		{
 			return rowChanged;
 		}
+		
+	public boolean checkField(int m_row) {
+		//	get updated row data
+		if(m_row != -1) {
+			Object[] rowData = getDataAtRow(m_row);
+			//	Check Mandatory
+			String missingColumns = getMandatory(rowData);
+			if (missingColumns.length() != 0)
+			{
+			//	Trace.printStack(false, false);
+				fireDataStatusEEvent("FillMandatory", missingColumns + "\n", true);
+				return false;
+			}
+		}
+		return true;
+	}
+
 }
