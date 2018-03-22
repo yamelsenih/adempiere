@@ -186,7 +186,7 @@ public class WQuickEntrySheet extends Window implements EventListener, DataStatu
 		{
 			if (event.getTarget() == selSouthPanel.getButton(ConfirmPanel.A_OK))
 			{
-				onSave(true);
+				if(onSave(true))
 				dispose();
 			}
 			else if (event.getTarget() == selSouthPanel.getButton(ConfirmPanel.A_CANCEL))
@@ -219,36 +219,38 @@ public class WQuickEntrySheet extends Window implements EventListener, DataStatu
 
 	
 
-	private void onSave(boolean isShowError)
+	private boolean onSave(boolean isShowError)
 	{
+		boolean save = false;
 		ArrayList<Integer> rows = gridTab.getMTable().getRowChanged();
 		if (rows.size() > 0)
 		{
 			//if (gridPanel.isNecessaryDataFill(rows.get(0), isShowError))
 			//{
-			
-				if (!gridTab.dataSave(true))
+			save = gridTab.dataSave(true);
+			if (!save)
+			{
+				String msg = CLogger.retrieveErrorString(null);
+				if (msg != null)
 				{
-					String msg = CLogger.retrieveErrorString(null);
-					if (msg != null)
-					{
-						statusBar.setStatusLine(Msg.getMsg(Env.getCtx(), msg), true, true);
-					}
+					statusBar.setStatusLine(Msg.getMsg(Env.getCtx(), msg), true, true);
+				}
 //					String msg = CLogger.retrieveErrorString(null);
 //					if (msg != null)
 //					{
 //						statusBar.setStatusLine(Msg.getMsg(Env.getCtx(), msg), true, true);
 //					}
-		        }  else {
+	        }  else {
 
-		    		
+	    		
 //		    		gridPanel.setStatusLine("Saved", false, true);
-		    		gridTab.dataRefreshAll();		        	
-		        }
-			//}
+	    		gridTab.dataRefreshAll();		        	
+	        }
+		//}
 		}
 		trx.commit();
-
+		
+		return save;
 	}
 
 	private void onRefresh()

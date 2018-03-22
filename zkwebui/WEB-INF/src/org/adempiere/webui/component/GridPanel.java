@@ -557,19 +557,21 @@ public class GridPanel extends Borderlayout implements EventListener
 				// if fire event on last row then it will create new record
 				// line.
 				if (code == KeyEvent.DOWN && !isCtrl && !isAlt && !isShift)	{
-					row += 1;
-					if (row == totalRow)	{
-						if(!gridTab.isNew() || dataSave(0)) {
-							onNew();
-							updateListIndex();
-							refresh(gridTab);
-						}
-						return;
-					}else {
-						if(!gridTab.isNew()) {
-							gridTab.navigateRelative(+1);
-							renderer.setCurrentCell(row);
-							renderer.setCurrentColumn(currentCol); 
+					if(((GridTable)tableModel).checkField(row)) {
+						row += 1;
+						if (row == totalRow)	{
+							if(gridTab.isQuickEntry() || !gridTab.isNew() || dataSave(0)) {
+								onNew();
+								updateListIndex();
+								refresh(gridTab);
+							}
+							return;
+						}else {
+							if(!gridTab.isNew()) {
+								gridTab.navigateRelative(+1);
+								renderer.setCurrentCell(row);
+								renderer.setCurrentColumn(currentCol); 
+							}
 						}
 					}
 				}
@@ -597,7 +599,7 @@ public class GridPanel extends Borderlayout implements EventListener
 				}
 				else if (code == KeyEvent.UP && !isCtrl && !isAlt && !isShift)
 				{
-					if(dataSave(0) || !gridTab.isNew()) {
+					if(gridTab.isQuickEntry() || dataSave(0) || !gridTab.isNew()) {
 						row -= 1;
 						if(row >= 0) {
 							gridTab.navigateRelative(-1);
