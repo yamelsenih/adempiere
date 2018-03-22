@@ -1297,7 +1297,7 @@ public abstract class AbstractADWindowPanel extends AbstractUIPart implements To
         	FDialog.warn(curWindowNo, null, e.getAD_Message(), e.getInfo());
         	
         	e.setConfirmed(true);   //  show just once - if MTable.setCurrentRow is involved the status event is re-issued
-            (curTabPanel.getListPanel()).focusCurrentCol();
+//            (curTabPanel.getListPanel()).focusCurrentCol();
 //            curTabPanel.getListPanel().addKeyListener();
         }
 
@@ -2464,6 +2464,7 @@ public abstract class AbstractADWindowPanel extends AbstractUIPart implements To
 		quickGridPanel.detach();
 		currentTab.setQuickEntry(false);
 		form.detach();
+		form=null;
 		}
 		/*
 		//form.doPopup();
