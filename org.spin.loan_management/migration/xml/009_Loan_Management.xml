@@ -1,0 +1,509 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<Migrations>
+  <Migration EntityType="D" Name="Generate Payment Selection from Loan #1589" ReleaseNo="3.9.1" SeqNo="9">
+    <Comments>See: https://github.com/adempiere/adempiere/issues/1589</Comments>
+    <Step SeqNo="10" StepType="AD">
+      <PO AD_Table_ID="53224" Action="U" Record_ID="50118" Table="AD_Browse">
+        <Data AD_Column_ID="58000" Column="WhereClause" oldValue="ag.DocStatus IN('CO') AND ag.IsSOTrx = 'Y'&#10;AND NOT EXISTS(SELECT 1 FROM C_PaySelection ps &#10;&#9;&#9;INNER JOIN C_PaySelectionLine psl ON(psl.C_PaySelection_ID = ps.C_PaySelection_ID) &#10;&#9;&#9;WHERE ps.DocStatus IN('CO', 'CL') &#10;&#9;&#9;AND ac.FM_Account_ID = psl.FM_Account_ID)">ag.DocStatus IN('CO') AND ag.IsSOTrx = 'Y'
+AND NOT EXISTS(SELECT 1 FROM C_PaySelection ps 
+		INNER JOIN C_PaySelectionLine psl ON(psl.C_PaySelection_ID = ps.C_PaySelection_ID) 
+		WHERE ps.DocStatus IN('CO') 
+		AND ac.FM_Account_ID = psl.FM_Account_ID)</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="20" StepType="AD">
+      <PO AD_Table_ID="104" Action="I" Record_ID="55145" Table="AD_Ref_List">
+        <Data AD_Column_ID="564" Column="Created">2018-03-23 15:14:53.092</Data>
+        <Data AD_Column_ID="566" Column="Updated">2018-03-23 15:14:53.092</Data>
+        <Data AD_Column_ID="563" Column="IsActive">true</Data>
+        <Data AD_Column_ID="200" Column="Value">PaymentsFromLoan</Data>
+        <Data AD_Column_ID="150" Column="Description" isNewNull="true"/>
+        <Data AD_Column_ID="152" Column="ValidFrom" isNewNull="true"/>
+        <Data AD_Column_ID="149" Column="Name">Payments from Loan</Data>
+        <Data AD_Column_ID="153" Column="ValidTo" isNewNull="true"/>
+        <Data AD_Column_ID="7712" Column="EntityType">FMS</Data>
+        <Data AD_Column_ID="148" Column="AD_Ref_List_ID">55145</Data>
+        <Data AD_Column_ID="372" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="371" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="151" Column="AD_Reference_ID">53331</Data>
+        <Data AD_Column_ID="565" Column="CreatedBy">100</Data>
+        <Data AD_Column_ID="567" Column="UpdatedBy">100</Data>
+        <Data AD_Column_ID="84390" Column="UUID" isNewNull="true"/>
+      </PO>
+    </Step>
+    <Step SeqNo="30" StepType="AD">
+      <PO AD_Table_ID="136" Action="I" Record_ID="55145" Table="AD_Ref_List_Trl">
+        <Data AD_Column_ID="706" Column="IsActive">true</Data>
+        <Data AD_Column_ID="707" Column="Created">2018-03-23 15:14:54.478</Data>
+        <Data AD_Column_ID="709" Column="Updated">2018-03-23 15:14:54.478</Data>
+        <Data AD_Column_ID="338" Column="Name">Payments from Loan</Data>
+        <Data AD_Column_ID="340" Column="IsTranslated">false</Data>
+        <Data AD_Column_ID="339" Column="Description" isNewNull="true"/>
+        <Data AD_Column_ID="1216" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="1215" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="710" Column="UpdatedBy">100</Data>
+        <Data AD_Column_ID="708" Column="CreatedBy">100</Data>
+        <Data AD_Column_ID="336" Column="AD_Ref_List_ID">55145</Data>
+        <Data AD_Column_ID="337" Column="AD_Language">es_MX</Data>
+        <Data AD_Column_ID="84391" Column="UUID" isNewNull="true"/>
+      </PO>
+    </Step>
+    <Step SeqNo="40" StepType="AD">
+      <PO AD_Table_ID="136" Action="U" Record_ID="55145" Table="AD_Ref_List_Trl">
+        <Data AD_Column_ID="338" Column="Name" oldValue="Payments from Loan">Pagos de Préstamo</Data>
+        <Data AD_Column_ID="336" Column="AD_Ref_List_ID" oldValue="55145">55145</Data>
+        <Data AD_Column_ID="337" Column="AD_Language" oldValue="es_MX">es_MX</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="50" StepType="AD">
+      <PO AD_Table_ID="104" Action="I" Record_ID="55146" Table="AD_Ref_List">
+        <Data AD_Column_ID="564" Column="Created">2018-03-23 15:15:27.967</Data>
+        <Data AD_Column_ID="566" Column="Updated">2018-03-23 15:15:27.967</Data>
+        <Data AD_Column_ID="563" Column="IsActive">true</Data>
+        <Data AD_Column_ID="200" Column="Value">LoanOfPayment</Data>
+        <Data AD_Column_ID="150" Column="Description" isNewNull="true"/>
+        <Data AD_Column_ID="152" Column="ValidFrom" isNewNull="true"/>
+        <Data AD_Column_ID="149" Column="Name">Loan of Payment</Data>
+        <Data AD_Column_ID="153" Column="ValidTo" isNewNull="true"/>
+        <Data AD_Column_ID="7712" Column="EntityType">FMS</Data>
+        <Data AD_Column_ID="148" Column="AD_Ref_List_ID">55146</Data>
+        <Data AD_Column_ID="372" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="371" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="151" Column="AD_Reference_ID">53331</Data>
+        <Data AD_Column_ID="565" Column="CreatedBy">100</Data>
+        <Data AD_Column_ID="567" Column="UpdatedBy">100</Data>
+        <Data AD_Column_ID="84390" Column="UUID" isNewNull="true"/>
+      </PO>
+    </Step>
+    <Step SeqNo="60" StepType="AD">
+      <PO AD_Table_ID="136" Action="I" Record_ID="55146" Table="AD_Ref_List_Trl">
+        <Data AD_Column_ID="706" Column="IsActive">true</Data>
+        <Data AD_Column_ID="707" Column="Created">2018-03-23 15:15:29.064</Data>
+        <Data AD_Column_ID="709" Column="Updated">2018-03-23 15:15:29.064</Data>
+        <Data AD_Column_ID="338" Column="Name">Loan of Payment</Data>
+        <Data AD_Column_ID="340" Column="IsTranslated">false</Data>
+        <Data AD_Column_ID="339" Column="Description" isNewNull="true"/>
+        <Data AD_Column_ID="1216" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="1215" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="710" Column="UpdatedBy">100</Data>
+        <Data AD_Column_ID="708" Column="CreatedBy">100</Data>
+        <Data AD_Column_ID="336" Column="AD_Ref_List_ID">55146</Data>
+        <Data AD_Column_ID="337" Column="AD_Language">es_MX</Data>
+        <Data AD_Column_ID="84391" Column="UUID" isNewNull="true"/>
+      </PO>
+    </Step>
+    <Step SeqNo="70" StepType="AD">
+      <PO AD_Table_ID="136" Action="U" Record_ID="55146" Table="AD_Ref_List_Trl">
+        <Data AD_Column_ID="338" Column="Name" oldValue="Loan of Payment">Préstamo de Pago</Data>
+        <Data AD_Column_ID="336" Column="AD_Ref_List_ID" oldValue="55146">55146</Data>
+        <Data AD_Column_ID="337" Column="AD_Language" oldValue="es_MX">es_MX</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="80" StepType="AD">
+      <PO AD_Table_ID="102" Action="I" Record_ID="54022" Table="AD_Reference">
+        <Data AD_Column_ID="556" Column="Updated">2018-03-23 15:17:14.846</Data>
+        <Data AD_Column_ID="553" Column="IsActive">true</Data>
+        <Data AD_Column_ID="554" Column="Created">2018-03-23 15:17:14.846</Data>
+        <Data AD_Column_ID="139" Column="ValidationType">T</Data>
+        <Data AD_Column_ID="132" Column="Help" isNewNull="true"/>
+        <Data AD_Column_ID="54355" Column="IsOrderByValue">false</Data>
+        <Data AD_Column_ID="1180" Column="VFormat" isNewNull="true"/>
+        <Data AD_Column_ID="130" Column="Name">RelType FM_Agreement =&gt; C_Payment_ID Payments</Data>
+        <Data AD_Column_ID="131" Column="Description">Finds Payment for it Loan</Data>
+        <Data AD_Column_ID="129" Column="AD_Reference_ID">54022</Data>
+        <Data AD_Column_ID="363" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="364" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="6486" Column="EntityType">FMS</Data>
+        <Data AD_Column_ID="557" Column="UpdatedBy">100</Data>
+        <Data AD_Column_ID="555" Column="CreatedBy">100</Data>
+        <Data AD_Column_ID="84393" Column="UUID" isNewNull="true"/>
+      </PO>
+    </Step>
+    <Step SeqNo="90" StepType="AD">
+      <PO AD_Table_ID="126" Action="I" Record_ID="0" Table="AD_Reference_Trl">
+        <Data AD_Column_ID="280" Column="Name">RelType FM_Agreement =&gt; C_Payment_ID Payments</Data>
+        <Data AD_Column_ID="666" Column="IsActive">true</Data>
+        <Data AD_Column_ID="667" Column="Created">2018-03-23 15:17:16.009</Data>
+        <Data AD_Column_ID="669" Column="Updated">2018-03-23 15:17:16.009</Data>
+        <Data AD_Column_ID="283" Column="IsTranslated">false</Data>
+        <Data AD_Column_ID="281" Column="Description">Finds Payment for it Loan</Data>
+        <Data AD_Column_ID="282" Column="Help" isNewNull="true"/>
+        <Data AD_Column_ID="1203" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="1202" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="670" Column="UpdatedBy">100</Data>
+        <Data AD_Column_ID="279" Column="AD_Language">es_MX</Data>
+        <Data AD_Column_ID="278" Column="AD_Reference_ID">54022</Data>
+        <Data AD_Column_ID="668" Column="CreatedBy">100</Data>
+        <Data AD_Column_ID="84394" Column="UUID" isNewNull="true"/>
+      </PO>
+    </Step>
+    <Step SeqNo="100" StepType="AD">
+      <PO AD_Table_ID="103" Action="I" Record_ID="54022" Table="AD_Ref_Table">
+        <Data AD_Column_ID="559" Column="Created">2018-03-23 15:31:51.353</Data>
+        <Data AD_Column_ID="561" Column="Updated">2018-03-23 15:31:51.353</Data>
+        <Data AD_Column_ID="558" Column="IsActive">true</Data>
+        <Data AD_Column_ID="2377" Column="IsValueDisplayed">false</Data>
+        <Data AD_Column_ID="147" Column="OrderByClause" isNewNull="true"/>
+        <Data AD_Column_ID="146" Column="WhereClause">EXISTS(SELECT 1 FROM C_PaySelectionCheck psc
+       INNER JOIN C_PaySelectionLine psl ON(psl.C_PaySelectionCheck_ID = psc.C_PaySelectionCheck_ID)
+       INNER JOIN FM_Account ac ON(ac.FM_Account_ID = psl.FM_Account_ID)
+       WHERE psc.C_Payment_ID = C_Payment.C_Payment_ID
+	   AND ac.FM_Agreement_ID = @FM_Agreement_ID@)</Data>
+        <Data AD_Column_ID="62120" Column="IsAlert">false</Data>
+        <Data AD_Column_ID="62121" Column="DisplaySQL" isNewNull="true"/>
+        <Data AD_Column_ID="62122" Column="IsDisplayIdentifier">false</Data>
+        <Data AD_Column_ID="145" Column="AD_Display">5401</Data>
+        <Data AD_Column_ID="7711" Column="EntityType">FMS</Data>
+        <Data AD_Column_ID="367" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="368" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="143" Column="AD_Table_ID">335</Data>
+        <Data AD_Column_ID="57270" Column="AD_Window_ID">195</Data>
+        <Data AD_Column_ID="144" Column="AD_Key">5043</Data>
+        <Data AD_Column_ID="142" Column="AD_Reference_ID">54022</Data>
+        <Data AD_Column_ID="562" Column="UpdatedBy">100</Data>
+        <Data AD_Column_ID="560" Column="CreatedBy">100</Data>
+        <Data AD_Column_ID="84392" Column="UUID" isNewNull="true"/>
+      </PO>
+    </Step>
+    <Step SeqNo="110" StepType="AD">
+      <PO AD_Table_ID="102" Action="I" Record_ID="54023" Table="AD_Reference">
+        <Data AD_Column_ID="556" Column="Updated">2018-03-23 15:33:03.561</Data>
+        <Data AD_Column_ID="553" Column="IsActive">true</Data>
+        <Data AD_Column_ID="554" Column="Created">2018-03-23 15:33:03.561</Data>
+        <Data AD_Column_ID="139" Column="ValidationType">T</Data>
+        <Data AD_Column_ID="132" Column="Help" isNewNull="true"/>
+        <Data AD_Column_ID="54355" Column="IsOrderByValue">false</Data>
+        <Data AD_Column_ID="1180" Column="VFormat" isNewNull="true"/>
+        <Data AD_Column_ID="130" Column="Name">RelType FM_Agreement &lt;= C_Payment_ID</Data>
+        <Data AD_Column_ID="131" Column="Description">Finds FM_Agreement_IDs for a given C_Payment_ID</Data>
+        <Data AD_Column_ID="129" Column="AD_Reference_ID">54023</Data>
+        <Data AD_Column_ID="363" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="364" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="6486" Column="EntityType">FMS</Data>
+        <Data AD_Column_ID="557" Column="UpdatedBy">100</Data>
+        <Data AD_Column_ID="555" Column="CreatedBy">100</Data>
+        <Data AD_Column_ID="84393" Column="UUID" isNewNull="true"/>
+      </PO>
+    </Step>
+    <Step SeqNo="120" StepType="AD">
+      <PO AD_Table_ID="126" Action="I" Record_ID="0" Table="AD_Reference_Trl">
+        <Data AD_Column_ID="280" Column="Name">RelType FM_Agreement &lt;= C_Payment_ID</Data>
+        <Data AD_Column_ID="666" Column="IsActive">true</Data>
+        <Data AD_Column_ID="667" Column="Created">2018-03-23 15:33:05.312</Data>
+        <Data AD_Column_ID="669" Column="Updated">2018-03-23 15:33:05.312</Data>
+        <Data AD_Column_ID="283" Column="IsTranslated">false</Data>
+        <Data AD_Column_ID="281" Column="Description">Finds FM_Agreement_IDs for a given C_Payment_ID</Data>
+        <Data AD_Column_ID="282" Column="Help" isNewNull="true"/>
+        <Data AD_Column_ID="1203" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="1202" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="670" Column="UpdatedBy">100</Data>
+        <Data AD_Column_ID="279" Column="AD_Language">es_MX</Data>
+        <Data AD_Column_ID="278" Column="AD_Reference_ID">54023</Data>
+        <Data AD_Column_ID="668" Column="CreatedBy">100</Data>
+        <Data AD_Column_ID="84394" Column="UUID" isNewNull="true"/>
+      </PO>
+    </Step>
+    <Step SeqNo="130" StepType="AD">
+      <PO AD_Table_ID="103" Action="I" Record_ID="54023" Table="AD_Ref_Table">
+        <Data AD_Column_ID="559" Column="Created">2018-03-23 15:36:20.546</Data>
+        <Data AD_Column_ID="561" Column="Updated">2018-03-23 15:36:20.546</Data>
+        <Data AD_Column_ID="558" Column="IsActive">true</Data>
+        <Data AD_Column_ID="2377" Column="IsValueDisplayed">false</Data>
+        <Data AD_Column_ID="147" Column="OrderByClause" isNewNull="true"/>
+        <Data AD_Column_ID="146" Column="WhereClause">EXISTS(SELECT 1 FROM C_PaySelectionCheck psc
+       INNER JOIN C_PaySelectionLine psl ON(psl.C_PaySelectionCheck_ID = psc.C_PaySelectionCheck_ID)
+       INNER JOIN FM_Account ac ON(ac.FM_Account_ID = psl.FM_Account_ID)
+       WHERE psc.C_Payment_ID = @C_Payment_ID
+       AND ac.FM_Agreement_ID = FM_Agreement.FM_Agreement_ID)</Data>
+        <Data AD_Column_ID="62120" Column="IsAlert">false</Data>
+        <Data AD_Column_ID="62121" Column="DisplaySQL" isNewNull="true"/>
+        <Data AD_Column_ID="62122" Column="IsDisplayIdentifier">false</Data>
+        <Data AD_Column_ID="145" Column="AD_Display">87143</Data>
+        <Data AD_Column_ID="7711" Column="EntityType">FMS</Data>
+        <Data AD_Column_ID="367" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="368" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="143" Column="AD_Table_ID">54363</Data>
+        <Data AD_Column_ID="57270" Column="AD_Window_ID">53580</Data>
+        <Data AD_Column_ID="144" Column="AD_Key">87140</Data>
+        <Data AD_Column_ID="142" Column="AD_Reference_ID">54023</Data>
+        <Data AD_Column_ID="562" Column="UpdatedBy">100</Data>
+        <Data AD_Column_ID="560" Column="CreatedBy">100</Data>
+        <Data AD_Column_ID="84392" Column="UUID" isNewNull="true"/>
+      </PO>
+    </Step>
+    <Step SeqNo="140" StepType="AD">
+      <PO AD_Table_ID="53246" Action="I" Record_ID="50053" Table="AD_RelationType">
+        <Data AD_Column_ID="58575" Column="Created">2018-03-23 15:36:36.792</Data>
+        <Data AD_Column_ID="58578" Column="IsActive">true</Data>
+        <Data AD_Column_ID="58580" Column="Updated">2018-03-23 15:36:36.792</Data>
+        <Data AD_Column_ID="58577" Column="Description" isNewNull="true"/>
+        <Data AD_Column_ID="58579" Column="Name">Loan &lt;-&gt; Payments</Data>
+        <Data AD_Column_ID="58582" Column="AD_Reference_Source_ID">54022</Data>
+        <Data AD_Column_ID="58583" Column="AD_Reference_Target_ID">54023</Data>
+        <Data AD_Column_ID="58584" Column="IsDirected">false</Data>
+        <Data AD_Column_ID="58585" Column="Role_Source">PaymentsFromLoan</Data>
+        <Data AD_Column_ID="58586" Column="Role_Target">LoanOfPayment</Data>
+        <Data AD_Column_ID="58587" Column="Type">I</Data>
+        <Data AD_Column_ID="58571" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="58572" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="58574" Column="AD_RelationType_ID">50053</Data>
+        <Data AD_Column_ID="58581" Column="UpdatedBy">100</Data>
+        <Data AD_Column_ID="58576" Column="CreatedBy">100</Data>
+        <Data AD_Column_ID="84396" Column="UUID" isNewNull="true"/>
+      </PO>
+    </Step>
+    <Step SeqNo="150" StepType="AD">
+      <PO AD_Table_ID="103" Action="U" Record_ID="54023" Table="AD_Ref_Table">
+        <Data AD_Column_ID="146" Column="WhereClause" oldValue="EXISTS(SELECT 1 FROM C_PaySelectionCheck psc&#10;       INNER JOIN C_PaySelectionLine psl ON(psl.C_PaySelectionCheck_ID = psc.C_PaySelectionCheck_ID)&#10;       INNER JOIN FM_Account ac ON(ac.FM_Account_ID = psl.FM_Account_ID)&#10;       WHERE psc.C_Payment_ID = @C_Payment_ID&#10;       AND ac.FM_Agreement_ID = FM_Agreement.FM_Agreement_ID)">EXISTS(SELECT 1 FROM C_PaySelectionCheck psc
+       INNER JOIN C_PaySelectionLine psl ON(psl.C_PaySelectionCheck_ID = psc.C_PaySelectionCheck_ID)
+       INNER JOIN FM_Account ac ON(ac.FM_Account_ID = psl.FM_Account_ID)
+       WHERE psc.C_Payment_ID = @C_Payment_ID@
+       AND ac.FM_Agreement_ID = FM_Agreement.FM_Agreement_ID)</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="160" StepType="AD">
+      <PO AD_Table_ID="104" Action="I" Record_ID="55147" Table="AD_Ref_List">
+        <Data AD_Column_ID="564" Column="Created">2018-03-23 15:41:29.996</Data>
+        <Data AD_Column_ID="566" Column="Updated">2018-03-23 15:41:29.996</Data>
+        <Data AD_Column_ID="563" Column="IsActive">true</Data>
+        <Data AD_Column_ID="200" Column="Value">PaySelectionFromLoan</Data>
+        <Data AD_Column_ID="150" Column="Description" isNewNull="true"/>
+        <Data AD_Column_ID="152" Column="ValidFrom" isNewNull="true"/>
+        <Data AD_Column_ID="149" Column="Name">Payment Selection from Loan</Data>
+        <Data AD_Column_ID="153" Column="ValidTo" isNewNull="true"/>
+        <Data AD_Column_ID="7712" Column="EntityType">FMS</Data>
+        <Data AD_Column_ID="148" Column="AD_Ref_List_ID">55147</Data>
+        <Data AD_Column_ID="372" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="371" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="151" Column="AD_Reference_ID">53331</Data>
+        <Data AD_Column_ID="565" Column="CreatedBy">100</Data>
+        <Data AD_Column_ID="567" Column="UpdatedBy">100</Data>
+        <Data AD_Column_ID="84390" Column="UUID" isNewNull="true"/>
+      </PO>
+    </Step>
+    <Step SeqNo="170" StepType="AD">
+      <PO AD_Table_ID="136" Action="I" Record_ID="55147" Table="AD_Ref_List_Trl">
+        <Data AD_Column_ID="706" Column="IsActive">true</Data>
+        <Data AD_Column_ID="707" Column="Created">2018-03-23 15:41:31.131</Data>
+        <Data AD_Column_ID="709" Column="Updated">2018-03-23 15:41:31.131</Data>
+        <Data AD_Column_ID="338" Column="Name">Payment Selection from Loan</Data>
+        <Data AD_Column_ID="340" Column="IsTranslated">false</Data>
+        <Data AD_Column_ID="339" Column="Description" isNewNull="true"/>
+        <Data AD_Column_ID="1216" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="1215" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="710" Column="UpdatedBy">100</Data>
+        <Data AD_Column_ID="708" Column="CreatedBy">100</Data>
+        <Data AD_Column_ID="336" Column="AD_Ref_List_ID">55147</Data>
+        <Data AD_Column_ID="337" Column="AD_Language">es_MX</Data>
+        <Data AD_Column_ID="84391" Column="UUID" isNewNull="true"/>
+      </PO>
+    </Step>
+    <Step SeqNo="180" StepType="AD">
+      <PO AD_Table_ID="136" Action="U" Record_ID="55147" Table="AD_Ref_List_Trl">
+        <Data AD_Column_ID="338" Column="Name" oldValue="Payment Selection from Loan">Selección de Pago de Préstamo</Data>
+        <Data AD_Column_ID="336" Column="AD_Ref_List_ID" oldValue="55147">55147</Data>
+        <Data AD_Column_ID="337" Column="AD_Language" oldValue="es_MX">es_MX</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="190" StepType="AD">
+      <PO AD_Table_ID="104" Action="I" Record_ID="55148" Table="AD_Ref_List">
+        <Data AD_Column_ID="564" Column="Created">2018-03-23 15:42:13.08</Data>
+        <Data AD_Column_ID="566" Column="Updated">2018-03-23 15:42:13.08</Data>
+        <Data AD_Column_ID="563" Column="IsActive">true</Data>
+        <Data AD_Column_ID="200" Column="Value">LoanOfPaySelection</Data>
+        <Data AD_Column_ID="150" Column="Description" isNewNull="true"/>
+        <Data AD_Column_ID="152" Column="ValidFrom" isNewNull="true"/>
+        <Data AD_Column_ID="149" Column="Name">Loan of Payment Selection</Data>
+        <Data AD_Column_ID="153" Column="ValidTo" isNewNull="true"/>
+        <Data AD_Column_ID="7712" Column="EntityType">FMS</Data>
+        <Data AD_Column_ID="148" Column="AD_Ref_List_ID">55148</Data>
+        <Data AD_Column_ID="372" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="371" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="151" Column="AD_Reference_ID">53331</Data>
+        <Data AD_Column_ID="565" Column="CreatedBy">100</Data>
+        <Data AD_Column_ID="567" Column="UpdatedBy">100</Data>
+        <Data AD_Column_ID="84390" Column="UUID" isNewNull="true"/>
+      </PO>
+    </Step>
+    <Step SeqNo="200" StepType="AD">
+      <PO AD_Table_ID="136" Action="I" Record_ID="55148" Table="AD_Ref_List_Trl">
+        <Data AD_Column_ID="706" Column="IsActive">true</Data>
+        <Data AD_Column_ID="707" Column="Created">2018-03-23 15:42:14.064</Data>
+        <Data AD_Column_ID="709" Column="Updated">2018-03-23 15:42:14.064</Data>
+        <Data AD_Column_ID="338" Column="Name">Loan of Payment Selection</Data>
+        <Data AD_Column_ID="340" Column="IsTranslated">false</Data>
+        <Data AD_Column_ID="339" Column="Description" isNewNull="true"/>
+        <Data AD_Column_ID="1216" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="1215" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="710" Column="UpdatedBy">100</Data>
+        <Data AD_Column_ID="708" Column="CreatedBy">100</Data>
+        <Data AD_Column_ID="336" Column="AD_Ref_List_ID">55148</Data>
+        <Data AD_Column_ID="337" Column="AD_Language">es_MX</Data>
+        <Data AD_Column_ID="84391" Column="UUID" isNewNull="true"/>
+      </PO>
+    </Step>
+    <Step SeqNo="210" StepType="AD">
+      <PO AD_Table_ID="136" Action="U" Record_ID="55148" Table="AD_Ref_List_Trl">
+        <Data AD_Column_ID="338" Column="Name" oldValue="Loan of Payment Selection">Préstamo de Selección de Pagos</Data>
+        <Data AD_Column_ID="336" Column="AD_Ref_List_ID" oldValue="55148">55148</Data>
+        <Data AD_Column_ID="337" Column="AD_Language" oldValue="es_MX">es_MX</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="220" StepType="AD">
+      <PO AD_Table_ID="102" Action="I" Record_ID="54024" Table="AD_Reference">
+        <Data AD_Column_ID="556" Column="Updated">2018-03-23 15:51:06.809</Data>
+        <Data AD_Column_ID="553" Column="IsActive">true</Data>
+        <Data AD_Column_ID="554" Column="Created">2018-03-23 15:51:06.809</Data>
+        <Data AD_Column_ID="139" Column="ValidationType">T</Data>
+        <Data AD_Column_ID="132" Column="Help" isNewNull="true"/>
+        <Data AD_Column_ID="54355" Column="IsOrderByValue">false</Data>
+        <Data AD_Column_ID="1180" Column="VFormat" isNewNull="true"/>
+        <Data AD_Column_ID="130" Column="Name">RelType FM_Agreement =&gt; C_PaySelection_ID Payments</Data>
+        <Data AD_Column_ID="131" Column="Description">Finds Payment Selection for it Loan</Data>
+        <Data AD_Column_ID="129" Column="AD_Reference_ID">54024</Data>
+        <Data AD_Column_ID="363" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="364" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="6486" Column="EntityType">FMS</Data>
+        <Data AD_Column_ID="557" Column="UpdatedBy">100</Data>
+        <Data AD_Column_ID="555" Column="CreatedBy">100</Data>
+        <Data AD_Column_ID="84393" Column="UUID" isNewNull="true"/>
+      </PO>
+    </Step>
+    <Step SeqNo="230" StepType="AD">
+      <PO AD_Table_ID="126" Action="I" Record_ID="0" Table="AD_Reference_Trl">
+        <Data AD_Column_ID="280" Column="Name">RelType FM_Agreement =&gt; C_PaySelection_ID Payments</Data>
+        <Data AD_Column_ID="666" Column="IsActive">true</Data>
+        <Data AD_Column_ID="667" Column="Created">2018-03-23 15:52:12.092</Data>
+        <Data AD_Column_ID="669" Column="Updated">2018-03-23 15:52:12.092</Data>
+        <Data AD_Column_ID="283" Column="IsTranslated">false</Data>
+        <Data AD_Column_ID="281" Column="Description">Finds Payment Selection for it Loan</Data>
+        <Data AD_Column_ID="282" Column="Help" isNewNull="true"/>
+        <Data AD_Column_ID="1203" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="1202" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="670" Column="UpdatedBy">100</Data>
+        <Data AD_Column_ID="279" Column="AD_Language">es_MX</Data>
+        <Data AD_Column_ID="278" Column="AD_Reference_ID">54024</Data>
+        <Data AD_Column_ID="668" Column="CreatedBy">100</Data>
+        <Data AD_Column_ID="84394" Column="UUID" isNewNull="true"/>
+      </PO>
+    </Step>
+    <Step SeqNo="240" StepType="AD">
+      <PO AD_Table_ID="103" Action="I" Record_ID="54024" Table="AD_Ref_Table">
+        <Data AD_Column_ID="559" Column="Created">2018-03-23 15:56:26.789</Data>
+        <Data AD_Column_ID="561" Column="Updated">2018-03-23 15:56:26.789</Data>
+        <Data AD_Column_ID="558" Column="IsActive">true</Data>
+        <Data AD_Column_ID="2377" Column="IsValueDisplayed">false</Data>
+        <Data AD_Column_ID="147" Column="OrderByClause" isNewNull="true"/>
+        <Data AD_Column_ID="146" Column="WhereClause" isNewNull="true"/>
+        <Data AD_Column_ID="62120" Column="IsAlert">false</Data>
+        <Data AD_Column_ID="62121" Column="DisplaySQL" isNewNull="true"/>
+        <Data AD_Column_ID="62122" Column="IsDisplayIdentifier">false</Data>
+        <Data AD_Column_ID="145" Column="AD_Display">78631</Data>
+        <Data AD_Column_ID="7711" Column="EntityType">FMS</Data>
+        <Data AD_Column_ID="367" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="368" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="143" Column="AD_Table_ID">426</Data>
+        <Data AD_Column_ID="57270" Column="AD_Window_ID" isNewNull="true"/>
+        <Data AD_Column_ID="144" Column="AD_Key">5609</Data>
+        <Data AD_Column_ID="142" Column="AD_Reference_ID">54024</Data>
+        <Data AD_Column_ID="562" Column="UpdatedBy">100</Data>
+        <Data AD_Column_ID="560" Column="CreatedBy">100</Data>
+        <Data AD_Column_ID="84392" Column="UUID" isNewNull="true"/>
+      </PO>
+    </Step>
+    <Step SeqNo="250" StepType="AD">
+      <PO AD_Table_ID="103" Action="U" Record_ID="54024" Table="AD_Ref_Table">
+        <Data AD_Column_ID="146" Column="WhereClause" isOldNull="true">EXISTS(SELECT 1 FROM C_PaySelectionLine psl
+       INNER JOIN FM_Account ac ON(ac.FM_Account_ID = psl.FM_Account_ID)
+       WHERE psl.C_PaySelection_ID = C_PaySelection.C_PaySelection_ID
+       AND ac.FM_Agreement_ID = @FM_Agreement_ID@)</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="260" StepType="AD">
+      <PO AD_Table_ID="102" Action="I" Record_ID="54025" Table="AD_Reference">
+        <Data AD_Column_ID="556" Column="Updated">2018-03-23 15:57:30.2</Data>
+        <Data AD_Column_ID="553" Column="IsActive">true</Data>
+        <Data AD_Column_ID="554" Column="Created">2018-03-23 15:57:30.2</Data>
+        <Data AD_Column_ID="139" Column="ValidationType">T</Data>
+        <Data AD_Column_ID="132" Column="Help" isNewNull="true"/>
+        <Data AD_Column_ID="54355" Column="IsOrderByValue">false</Data>
+        <Data AD_Column_ID="1180" Column="VFormat" isNewNull="true"/>
+        <Data AD_Column_ID="130" Column="Name">RelType FM_Agreement &lt;= C_PaySelection_ID</Data>
+        <Data AD_Column_ID="131" Column="Description">Finds FM_Agreement_IDs for a given C_PaySelection_ID</Data>
+        <Data AD_Column_ID="129" Column="AD_Reference_ID">54025</Data>
+        <Data AD_Column_ID="363" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="364" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="6486" Column="EntityType">FMS</Data>
+        <Data AD_Column_ID="557" Column="UpdatedBy">100</Data>
+        <Data AD_Column_ID="555" Column="CreatedBy">100</Data>
+        <Data AD_Column_ID="84393" Column="UUID" isNewNull="true"/>
+      </PO>
+    </Step>
+    <Step SeqNo="270" StepType="AD">
+      <PO AD_Table_ID="126" Action="I" Record_ID="0" Table="AD_Reference_Trl">
+        <Data AD_Column_ID="280" Column="Name">RelType FM_Agreement &lt;= C_PaySelection_ID</Data>
+        <Data AD_Column_ID="666" Column="IsActive">true</Data>
+        <Data AD_Column_ID="667" Column="Created">2018-03-23 15:57:31.178</Data>
+        <Data AD_Column_ID="669" Column="Updated">2018-03-23 15:57:31.178</Data>
+        <Data AD_Column_ID="283" Column="IsTranslated">false</Data>
+        <Data AD_Column_ID="281" Column="Description">Finds FM_Agreement_IDs for a given C_PaySelection_ID</Data>
+        <Data AD_Column_ID="282" Column="Help" isNewNull="true"/>
+        <Data AD_Column_ID="1203" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="1202" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="670" Column="UpdatedBy">100</Data>
+        <Data AD_Column_ID="279" Column="AD_Language">es_MX</Data>
+        <Data AD_Column_ID="278" Column="AD_Reference_ID">54025</Data>
+        <Data AD_Column_ID="668" Column="CreatedBy">100</Data>
+        <Data AD_Column_ID="84394" Column="UUID" isNewNull="true"/>
+      </PO>
+    </Step>
+    <Step SeqNo="280" StepType="AD">
+      <PO AD_Table_ID="103" Action="I" Record_ID="54025" Table="AD_Ref_Table">
+        <Data AD_Column_ID="559" Column="Created">2018-03-23 15:59:41.001</Data>
+        <Data AD_Column_ID="561" Column="Updated">2018-03-23 15:59:41.001</Data>
+        <Data AD_Column_ID="558" Column="IsActive">true</Data>
+        <Data AD_Column_ID="2377" Column="IsValueDisplayed">false</Data>
+        <Data AD_Column_ID="147" Column="OrderByClause" isNewNull="true"/>
+        <Data AD_Column_ID="146" Column="WhereClause">EXISTS(SELECT 1 FROM C_PaySelectionLine psl 
+       INNER JOIN FM_Account ac ON(ac.FM_Account_ID = psl.FM_Account_ID)
+       WHERE psl.C_PaySelection_ID = @C_PaySelection_ID@
+       AND ac.FM_Agreement_ID = FM_Agreement.FM_Agreement_ID)</Data>
+        <Data AD_Column_ID="62120" Column="IsAlert">false</Data>
+        <Data AD_Column_ID="62121" Column="DisplaySQL" isNewNull="true"/>
+        <Data AD_Column_ID="62122" Column="IsDisplayIdentifier">false</Data>
+        <Data AD_Column_ID="145" Column="AD_Display">87143</Data>
+        <Data AD_Column_ID="7711" Column="EntityType">FMS</Data>
+        <Data AD_Column_ID="367" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="368" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="143" Column="AD_Table_ID">54363</Data>
+        <Data AD_Column_ID="57270" Column="AD_Window_ID">53580</Data>
+        <Data AD_Column_ID="144" Column="AD_Key">87140</Data>
+        <Data AD_Column_ID="142" Column="AD_Reference_ID">54025</Data>
+        <Data AD_Column_ID="562" Column="UpdatedBy">100</Data>
+        <Data AD_Column_ID="560" Column="CreatedBy">100</Data>
+        <Data AD_Column_ID="84392" Column="UUID" isNewNull="true"/>
+      </PO>
+    </Step>
+    <Step SeqNo="290" StepType="AD">
+      <PO AD_Table_ID="53246" Action="I" Record_ID="50054" Table="AD_RelationType">
+        <Data AD_Column_ID="58575" Column="Created">2018-03-23 15:59:59.035</Data>
+        <Data AD_Column_ID="58578" Column="IsActive">true</Data>
+        <Data AD_Column_ID="58580" Column="Updated">2018-03-23 15:59:59.035</Data>
+        <Data AD_Column_ID="58577" Column="Description" isNewNull="true"/>
+        <Data AD_Column_ID="58579" Column="Name">Loan &lt;-&gt; Payment Selection</Data>
+        <Data AD_Column_ID="58582" Column="AD_Reference_Source_ID">54024</Data>
+        <Data AD_Column_ID="58583" Column="AD_Reference_Target_ID">54025</Data>
+        <Data AD_Column_ID="58584" Column="IsDirected">false</Data>
+        <Data AD_Column_ID="58585" Column="Role_Source">PaySelectionFromLoan</Data>
+        <Data AD_Column_ID="58586" Column="Role_Target">LoanOfPaySelection</Data>
+        <Data AD_Column_ID="58587" Column="Type">I</Data>
+        <Data AD_Column_ID="58571" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="58572" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="58574" Column="AD_RelationType_ID">50054</Data>
+        <Data AD_Column_ID="58581" Column="UpdatedBy">100</Data>
+        <Data AD_Column_ID="58576" Column="CreatedBy">100</Data>
+        <Data AD_Column_ID="84396" Column="UUID" isNewNull="true"/>
+      </PO>
+    </Step>
+  </Migration>
+</Migrations>

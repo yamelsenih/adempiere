@@ -107,11 +107,16 @@ public class GeneratePaySelectionFromLoan extends GeneratePaySelectionFromLoanAb
 				line.setAmtSource(capitalAmt);
 				int conversionRateId = getConversionRateId(account.getC_Currency_ID(), bankAccount.getC_Currency_ID(), 
 						getPayDate(), 0, getAD_Client_ID(), paymentSelection.getAD_Org_ID());
-				if(conversionRateId == -1) {
+				if(conversionRateId <= 0
+						&& account.getC_Currency_ID() != bankAccount.getC_Currency_ID()) {
 					throw new AdempiereException(MConversionRate.getErrorMessage(getCtx(), "NoCurrencyConversion", 
 							account.getC_Currency_ID(), bankAccount.getC_Currency_ID(), 0, getPayDate(), get_TrxName()));
 				}
 				BigDecimal convertedAmt = convert(conversionRateId, capitalAmt);
+				if(convertedAmt == null
+						&& account.getC_Currency_ID() == bankAccount.getC_Currency_ID()) {
+					convertedAmt = capitalAmt;
+				}
 				line.setOpenAmt(convertedAmt);
 				line.setPayAmt (convertedAmt);
 				line.setDiscountAmt(Env.ZERO);
@@ -119,6 +124,10 @@ public class GeneratePaySelectionFromLoan extends GeneratePaySelectionFromLoanAb
 				//	Set Conversion Rate
 				if(conversionRateId > 0) {
 					line.setC_Conversion_Rate_ID(conversionRateId);
+					MConversionRate conversionRate = MConversionRate.get(getCtx(), conversionRateId);
+					if(conversionRate.getC_ConversionType_ID() != 0) {
+						line.setC_ConversionType_ID(conversionRate.getC_ConversionType_ID());
+					}
 				}
 				//	Reference
 				line.set_ValueOfColumn("FM_Account_ID", account.getFM_Account_ID());
@@ -152,7 +161,7 @@ public class GeneratePaySelectionFromLoan extends GeneratePaySelectionFromLoanAb
 				//	Set description
 				paymentSelection.setDescription(Msg.parseTranslation(getCtx(), 
 						"@GeneratedFromLoan@ - " 
-						+ partner.getValue() + " - " + partner.getName() 
+						+ partner.getValue() + " - " + partner.getName() + " " 
 						+ DisplayType.getDateFormat(DisplayType.Date).format(getPayDate())));
 				//	Save
 				paymentSelection.saveEx();
@@ -169,11 +178,16 @@ public class GeneratePaySelectionFromLoan extends GeneratePaySelectionFromLoanAb
 				line.setAmtSource(capitalAmt);
 				int conversionRateId = getConversionRateId(account.getC_Currency_ID(), bankAccount.getC_Currency_ID(), 
 						getPayDate(), 0, getAD_Client_ID(), paymentSelection.getAD_Org_ID());
-				if(conversionRateId == -1) {
+				if(conversionRateId <= 0
+						&& account.getC_Currency_ID() != bankAccount.getC_Currency_ID()) {
 					throw new AdempiereException(MConversionRate.getErrorMessage(getCtx(), "NoCurrencyConversion", 
 							account.getC_Currency_ID(), bankAccount.getC_Currency_ID(), 0, getPayDate(), get_TrxName()));
 				}
 				BigDecimal convertedAmt = convert(conversionRateId, capitalAmt);
+				if(convertedAmt == null
+						&& account.getC_Currency_ID() == bankAccount.getC_Currency_ID()) {
+					convertedAmt = capitalAmt;
+				}
 				line.setOpenAmt(convertedAmt);
 				line.setPayAmt (convertedAmt);
 				line.setDiscountAmt(Env.ZERO);
@@ -181,6 +195,10 @@ public class GeneratePaySelectionFromLoan extends GeneratePaySelectionFromLoanAb
 				//	Set Conversion Rate
 				if(conversionRateId > 0) {
 					line.setC_Conversion_Rate_ID(conversionRateId);
+					MConversionRate conversionRate = MConversionRate.get(getCtx(), conversionRateId);
+					if(conversionRate.getC_ConversionType_ID() != 0) {
+						line.setC_ConversionType_ID(conversionRate.getC_ConversionType_ID());
+					}
 				}
 				//	Reference
 				line.set_ValueOfColumn("FM_Account_ID", account.getFM_Account_ID());
@@ -254,7 +272,7 @@ public class GeneratePaySelectionFromLoan extends GeneratePaySelectionFromLoanAb
 	 * @return
 	 */
 	private BigDecimal convert(int conversionRateId, BigDecimal sourceAmt) {
-		if(conversionRateId == -1
+		if(conversionRateId <= 0
 				|| sourceAmt == null) {
 			return null;
 		}

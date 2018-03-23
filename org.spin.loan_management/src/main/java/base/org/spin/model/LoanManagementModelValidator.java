@@ -19,12 +19,16 @@ package org.spin.model;
 
 import java.util.List;
 
+import org.adempiere.exceptions.AdempiereException;
 import org.compiere.model.MClient;
+import org.compiere.model.MPaySelection;
 import org.compiere.model.ModelValidationEngine;
 import org.compiere.model.ModelValidator;
 import org.compiere.model.PO;
 import org.compiere.util.CLogger;
+import org.compiere.util.DB;
 import org.compiere.util.Env;
+import org.compiere.util.KeyNamePair;
 
 /**
  * Loan Management Model Validator
@@ -46,6 +50,7 @@ public class LoanManagementModelValidator implements ModelValidator {
 			clientId = client.getAD_Client_ID();
 		}
 		engine.addModelChange(MFMAgreement.Table_Name, this);
+		engine.addDocValidate(MPaySelection.Table_Name, this);
     }
 
     @Override
@@ -107,6 +112,41 @@ public class LoanManagementModelValidator implements ModelValidator {
      * @return
      */
     public String docValidate(PO entity, int timing) {
+    	if (entity instanceof MPaySelection) {
+			if (timing == TIMING_BEFORE_COMPLETE) {
+				MPaySelection paymentSelection = (MPaySelection) entity;
+				String sql = new String("SELECT ag.FM_Agreement_ID, ag.DocumentNo "
+						+ "FROM FM_Agreement ag "
+						+ "INNER JOIN FM_Account ac ON(ac.FM_Agreement_ID = ag.FM_Agreement_ID) "
+						+ "INNER JOIN (SELECT pl.FM_Account_ID, SUM(pl.AmtSource) AmtSource "
+						+ "FROM C_PaySelectionLine pl "
+						+ "WHERE EXISTS(SELECT 1 FROM C_PaySelection ps "
+						+ "				WHERE ps.C_PaySelection_ID = pl.C_PaySelection_ID "
+						+ "				AND ps.DocStatus IN('CO')) "
+						+ "				GROUP BY pl.FM_Account_ID) ps ON(ps.FM_Account_ID = ac.FM_Account_ID) "
+						+ "WHERE ac.CapitalAmt = COALESCE(ps.AmtSource, 0) "
+						+ "AND EXISTS(SELECT 1 FROM C_PaySelectionLine pl "
+						+ "WHERE pl.FM_Account_ID = ac.FM_Account_ID "
+						+ "AND pl.C_PaySelection_ID = ?)");
+				//	Get From DB
+				KeyNamePair[] loanArray = DB.getKeyNamePairs(paymentSelection.get_TrxName(), sql, false, paymentSelection.getC_PaySelection_ID());
+				if(loanArray != null
+						&& loanArray.length > 0) {
+					StringBuffer msg = new StringBuffer();
+					for(KeyNamePair loan : loanArray) {
+						if(msg.length() > 0) {
+							msg.append(",").append(Env.NL);
+						}
+						//	Add Message
+						msg.append(loan.getName());
+					}
+					//	Get Message
+					if(msg.length() > 0) {
+						throw new AdempiereException("@Loan@ @Processed@ [" + msg.toString() + "]");
+					}
+				}
+			}
+		}
         return null;
     }
 }
