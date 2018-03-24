@@ -18,18 +18,15 @@
 package org.spin.process;
 
 import java.math.BigDecimal;
-import java.sql.Timestamp;
 
 import org.adempiere.exceptions.AdempiereException;
 import org.compiere.model.MBPartner;
 import org.compiere.model.MBankAccount;
 import org.compiere.model.MConversionRate;
-import org.compiere.model.MConversionType;
 import org.compiere.model.MCurrency;
 import org.compiere.model.MPaySelection;
 import org.compiere.model.MPaySelectionLine;
 import org.compiere.model.MUser;
-import org.compiere.util.DB;
 import org.compiere.util.DisplayType;
 import org.compiere.util.Env;
 import org.compiere.util.Msg;
@@ -105,7 +102,7 @@ public class GeneratePaySelectionFromLoan extends GeneratePaySelectionFromLoanAb
 				}
 				line.setIsSOTrx(false);
 				line.setAmtSource(capitalAmt);
-				int conversionRateId = getConversionRateId(account.getC_Currency_ID(), bankAccount.getC_Currency_ID(), 
+				int conversionRateId = MConversionRate.getConversionRateId(account.getC_Currency_ID(), bankAccount.getC_Currency_ID(), 
 						getPayDate(), 0, getAD_Client_ID(), paymentSelection.getAD_Org_ID());
 				if(conversionRateId <= 0
 						&& account.getC_Currency_ID() != bankAccount.getC_Currency_ID()) {
@@ -176,7 +173,7 @@ public class GeneratePaySelectionFromLoan extends GeneratePaySelectionFromLoanAb
 				}
 				line.setIsSOTrx(false);
 				line.setAmtSource(capitalAmt);
-				int conversionRateId = getConversionRateId(account.getC_Currency_ID(), bankAccount.getC_Currency_ID(), 
+				int conversionRateId = MConversionRate.getConversionRateId(account.getC_Currency_ID(), bankAccount.getC_Currency_ID(), 
 						getPayDate(), 0, getAD_Client_ID(), paymentSelection.getAD_Org_ID());
 				if(conversionRateId <= 0
 						&& account.getC_Currency_ID() != bankAccount.getC_Currency_ID()) {
@@ -216,54 +213,6 @@ public class GeneratePaySelectionFromLoan extends GeneratePaySelectionFromLoanAb
 		//	Return
 		return msg.toString();
 	}
-	
-	/**
-	 * 
-	 * @param currencyFromId
-	 * @param CurencyToId
-	 * @param conversionDate
-	 * @param conversionTypeId
-	 * @param clientId
-	 * @param orgId
-	 * @return
-	 */
-	private int getConversionRateId(int currencyFromId, int CurencyToId, Timestamp conversionDate, int conversionTypeId, int clientId, int orgId) {
-		if (currencyFromId == CurencyToId) {
-			return 0;
-		}
-		//	Conversion Type
-		int internalConversionTypeId = conversionTypeId;
-		if (internalConversionTypeId == 0) {
-			internalConversionTypeId = MConversionType.getDefault(clientId);
-		}
-		//	Conversion Date
-		if (conversionDate == null) {
-			conversionDate = new Timestamp (System.currentTimeMillis());
-		}
-		//	Get Rate
-		String sql = "SELECT C_Conversion_Rate_ID "
-				+ "FROM C_Conversion_Rate "
-				+ "WHERE C_Currency_ID=?"					//	#1
-				+ " AND C_Currency_ID_To=?"					//	#2
-				+ " AND	C_ConversionType_ID=?"				//	#3
-				+ " AND	? BETWEEN ValidFrom AND ValidTo"	//	#4	TRUNC (?) ORA-00932: inconsistent datatypes: expected NUMBER got TIMESTAMP
-				+ " AND AD_Client_ID IN (0,?)"				//	#5
-				+ " AND AD_Org_ID IN (0,?) "				//	#6
-				+ "ORDER BY AD_Client_ID DESC, AD_Org_ID DESC, ValidFrom DESC";
-		//	Get
-		int conversionRateId = DB.getSQLValue(get_TrxName(), sql, currencyFromId, CurencyToId, internalConversionTypeId, conversionDate, clientId, orgId);
-		//	Show Log
-		if (conversionRateId == -1) {
-			log.info ("getRate - not found - CurFrom=" + currencyFromId 
-						  + ", CurTo=" + CurencyToId
-						  + ", " + conversionDate 
-						  + ", Type=" + conversionTypeId + (conversionTypeId==internalConversionTypeId ? "" : "->" + internalConversionTypeId) 
-						  + ", Client=" + clientId 
-						  + ", Org=" + orgId);
-		}
-		//	Return
-		return conversionRateId;
-	}	//	getConversionRateId
 	
 	/**
 	 * Convert from Conversion Rate
