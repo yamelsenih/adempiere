@@ -2,61 +2,6 @@
 <Migrations>
   <Migration EntityType="D" Name="Generate Invoice from Amortization Quote #1599" ReleaseNo="3.9.1" SeqNo="8">
     <Comments>See: https://github.com/adempiere/adempiere/issues/1599</Comments>
-    <Step DBType="Postgres" Parse="N" SeqNo="0" StepType="SQL">
-      <Comments>Add View For Amortization</Comments>
-      <SQLStatement>-- View: RV_FM_LoanAmortization
--- DROP VIEW RV_FM_LoanAmortization;
-/******************************************************************************
- * Product: Adempiere ERP &amp; CRM Smart Business Solution                       *
- * This program is free software; you can redistribute it and/or modify it    *
- * under the terms version 2 of the GNU General Public License as published   *
- * by the Free Software Foundation. This program is distributed in the hope   *
- * that it will be useful, but WITHOUT ANY WARRANTY; without even the implied *
- * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.           *
- * See the GNU General Public License for more details.                       *
- * You should have received a copy of the GNU General Public License along    *
- * with this program; if not, write to the Free Software Foundation, Inc.,    *
- * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.                     *
- * For the text or an alternative of this public license, you may reach us    *
- * Copyright (C) 2003-2015 E.R.P. Consultores y Asociados, C.A.               *
- * All Rights Reserved.                                                       *
- * Contributor(s): Yamel Senih www.erpya.com                                  *
- *****************************************************************************
- ***
- * Title:	Loan Amortization from Agreement
- * Description:
- *	Show Loan Amortization and amount for payment for a quote
- *
- * Test:
- * 	SELECT * FROM RV_FM_LoanAmortization WHERE FM_Agreement_ID = 1000000;
- ************************************************************************/
-CREATE OR REPLACE VIEW RV_FM_LoanAmortization AS
-SELECT ag.AD_Client_ID, ag.AD_Org_ID, ag.IsActive, ag.Created, ag.CreatedBy, ag.Updated, ag.UpdatedBy, 
-ag.FM_Agreement_ID, ag.FM_AgreementType_ID, ag.C_DocType_ID, ag.DocumentNo, ag.DateDoc, 
-ag.DocStatus, ag.FM_Product_ID, ag.C_BPartner_ID, ag.IsSOTrx, ag.Status, 
-ac.FM_Account_ID, ac.C_Currency_ID, ac.AccountNo, 
-ac.FeesQty, ac.PaymentFrequency, ac.PayDate, am.FM_Amortization_ID, am.PeriodNo,
-am.CapitalAmt, am.InterestAmt, am.TaxAmt, (COALESCE(am.CapitalAmt, 0) + COALESCE(am.InterestAmt, 0) + COALESCE(am.TaxAmt, 0)) AS FeeAmt,
-am.StartDate, am.EndDate, am.DueDate, am.IsPaid,
-ca.CapitalAmt AS CurrentCapitalAmt, ca.InterestAmt AS CurrentInterestAmt, ca.TaxAmt AS CurrentTaxAmt, ca.DunningAmt AS CurrentDunningAmt,
-(COALESCE(ca.CapitalAmt, 0) + COALESCE(ca.InterestAmt, 0) + COALESCE(ca.TaxAmt, 0) + COALESCE(ca.DunningAmt, 0)) AS CurrentFeeAmt,
-(CASE WHEN am.DueDate &gt;= now() THEN 'Y' ELSE 'N' END) AS IsDue
-FROM FM_Agreement ag
-INNER JOIN FM_Account ac ON(ac.FM_Agreement_ID = ag.FM_Agreement_ID)
-INNER JOIN FM_Amortization am ON(am.FM_Account_ID = ac.FM_Account_ID)
-LEFT JOIN (SELECT t.FM_Amortization_ID, SUM(CASE WHEN tt.Type = 'LCC' THEN t.Amount ELSE 0 END) AS CapitalAmt,
-          SUM(CASE WHEN tt.Type = 'LIN' THEN t.Amount ELSE 0 END) AS InterestAmt, 
-          SUM(CASE WHEN tt.Type = 'LIT' THEN t.Amount ELSE 0 END) AS TaxAmt,
-          SUM(CASE WHEN tt.Type = 'LDD' THEN t.Amount ELSE 0 END) AS DunningAmt
-          FROM FM_Transaction t 
-          INNER JOIN FM_TransactionType tt ON(tt.FM_TransactionType_ID = t.FM_TransactionType_ID)
-		  WHERE tt.Type IN('LCC', 'LIN', 'LIT', 'LDD')
-          AND EXISTS(SELECT 1 FROM FM_Batch b 
-                     WHERE b.FM_Batch_ID = t.FM_Batch_ID
-                     AND b.DocStatus IN('CO', 'CL'))
-          GROUP BY t.FM_Amortization_ID) AS ca ON(ca.FM_Amortization_ID = am.FM_Amortization_ID)</SQLStatement>
-      <RollbackStatement>RV_FM_LoanAmortization</RollbackStatement>
-    </Step>
     <Step DBType="Oracle" Parse="N" SeqNo="0" StepType="SQL">
       <Comments>Add View For Amortization</Comments>
       <SQLStatement>-- View: RV_FM_LoanAmortization
@@ -93,8 +38,8 @@ ac.FM_Account_ID, ac.C_Currency_ID, ac.AccountNo,
 ac.FeesQty, ac.PaymentFrequency, ac.PayDate, am.FM_Amortization_ID, am.PeriodNo,
 am.CapitalAmt, am.InterestAmt, am.TaxAmt, (COALESCE(am.CapitalAmt, 0) + COALESCE(am.InterestAmt, 0) + COALESCE(am.TaxAmt, 0)) AS FeeAmt,
 am.StartDate, am.EndDate, am.DueDate, am.IsPaid,
-ca.CapitalAmt AS CurrentCapitalAmt, ca.InterestAmt AS CurrentInterestAmt, ca.TaxAmt AS CurrentTaxAmt, ca.DunningAmt AS CurrentDunningAmt,
-(COALESCE(ca.CapitalAmt, 0) + COALESCE(ca.InterestAmt, 0) + COALESCE(ca.TaxAmt, 0) + COALESCE(ca.DunningAmt, 0)) AS CurrentFeeAmt,
+ca.CapitalAmt AS CurrentCapitalAmt, ca.InterestAmt AS CurrentInterestAmt, ca.TaxAmt AS CurrentTaxAmt, ca.DunningAmt AS CurrentDunningAmt, ca.DunningTaxAmt AS CurrentDunningTaxAmt, 
+(COALESCE(ca.CapitalAmt, 0) + COALESCE(ca.InterestAmt, 0) + COALESCE(ca.TaxAmt, 0) + COALESCE(ca.DunningTaxAmt, 0) + COALESCE(ca.DunningAmt, 0)) AS CurrentFeeAmt,
 (CASE WHEN am.DueDate &gt;= now() THEN 'Y' ELSE 'N' END) AS IsDue
 FROM FM_Agreement ag
 INNER JOIN FM_Account ac ON(ac.FM_Agreement_ID = ag.FM_Agreement_ID)
@@ -102,10 +47,67 @@ INNER JOIN FM_Amortization am ON(am.FM_Account_ID = ac.FM_Account_ID)
 LEFT JOIN (SELECT t.FM_Amortization_ID, SUM(CASE WHEN tt.Type = 'LCC' THEN t.Amount ELSE 0 END) AS CapitalAmt,
           SUM(CASE WHEN tt.Type = 'LIN' THEN t.Amount ELSE 0 END) AS InterestAmt, 
           SUM(CASE WHEN tt.Type = 'LIT' THEN t.Amount ELSE 0 END) AS TaxAmt,
-          SUM(CASE WHEN tt.Type = 'LDD' THEN t.Amount ELSE 0 END) AS DunningAmt
+          SUM(CASE WHEN tt.Type = 'LDD' THEN t.Amount ELSE 0 END) AS DunningAmt,
+          SUM(CASE WHEN tt.Type = 'LDT' THEN t.Amount ELSE 0 END) AS DunningTaxAmt
           FROM FM_Transaction t 
           INNER JOIN FM_TransactionType tt ON(tt.FM_TransactionType_ID = t.FM_TransactionType_ID)
-		  WHERE tt.Type IN('LCC', 'LIN', 'LIT', 'LDD')
+		  WHERE tt.Type IN('LCC', 'LIN', 'LIT', 'LDD', 'LDT')
+          AND EXISTS(SELECT 1 FROM FM_Batch b 
+                     WHERE b.FM_Batch_ID = t.FM_Batch_ID
+                     AND b.DocStatus IN('CO', 'CL'))
+          GROUP BY t.FM_Amortization_ID) AS ca ON(ca.FM_Amortization_ID = am.FM_Amortization_ID)</SQLStatement>
+      <RollbackStatement>RV_FM_LoanAmortization</RollbackStatement>
+    </Step>
+    <Step DBType="Postgres" Parse="N" SeqNo="0" StepType="SQL">
+      <Comments>Add View For Amortization</Comments>
+      <SQLStatement>-- View: RV_FM_LoanAmortization
+-- DROP VIEW RV_FM_LoanAmortization;
+/******************************************************************************
+ * Product: Adempiere ERP &amp; CRM Smart Business Solution                       *
+ * This program is free software; you can redistribute it and/or modify it    *
+ * under the terms version 2 of the GNU General Public License as published   *
+ * by the Free Software Foundation. This program is distributed in the hope   *
+ * that it will be useful, but WITHOUT ANY WARRANTY; without even the implied *
+ * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.           *
+ * See the GNU General Public License for more details.                       *
+ * You should have received a copy of the GNU General Public License along    *
+ * with this program; if not, write to the Free Software Foundation, Inc.,    *
+ * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.                     *
+ * For the text or an alternative of this public license, you may reach us    *
+ * Copyright (C) 2003-2015 E.R.P. Consultores y Asociados, C.A.               *
+ * All Rights Reserved.                                                       *
+ * Contributor(s): Yamel Senih www.erpya.com                                  *
+ *****************************************************************************
+ ***
+ * Title:	Loan Amortization from Agreement
+ * Description:
+ *	Show Loan Amortization and amount for payment for a quote
+ *
+ * Test:
+ * 	SELECT * FROM RV_FM_LoanAmortization WHERE FM_Agreement_ID = 1000000;
+ ************************************************************************/
+CREATE OR REPLACE VIEW RV_FM_LoanAmortization AS
+SELECT ag.AD_Client_ID, ag.AD_Org_ID, ag.IsActive, ag.Created, ag.CreatedBy, ag.Updated, ag.UpdatedBy, 
+ag.FM_Agreement_ID, ag.FM_AgreementType_ID, ag.C_DocType_ID, ag.DocumentNo, ag.DateDoc, 
+ag.DocStatus, ag.FM_Product_ID, ag.C_BPartner_ID, ag.IsSOTrx, ag.Status, 
+ac.FM_Account_ID, ac.C_Currency_ID, ac.AccountNo, 
+ac.FeesQty, ac.PaymentFrequency, ac.PayDate, am.FM_Amortization_ID, am.PeriodNo,
+am.CapitalAmt, am.InterestAmt, am.TaxAmt, (COALESCE(am.CapitalAmt, 0) + COALESCE(am.InterestAmt, 0) + COALESCE(am.TaxAmt, 0)) AS FeeAmt,
+am.StartDate, am.EndDate, am.DueDate, am.IsPaid,
+ca.CapitalAmt AS CurrentCapitalAmt, ca.InterestAmt AS CurrentInterestAmt, ca.TaxAmt AS CurrentTaxAmt, ca.DunningAmt AS CurrentDunningAmt, ca.DunningTaxAmt AS CurrentDunningTaxAmt, 
+(COALESCE(ca.CapitalAmt, 0) + COALESCE(ca.InterestAmt, 0) + COALESCE(ca.TaxAmt, 0) + COALESCE(ca.DunningTaxAmt, 0) + COALESCE(ca.DunningAmt, 0)) AS CurrentFeeAmt,
+(CASE WHEN am.DueDate &gt;= now() THEN 'Y' ELSE 'N' END) AS IsDue
+FROM FM_Agreement ag
+INNER JOIN FM_Account ac ON(ac.FM_Agreement_ID = ag.FM_Agreement_ID)
+INNER JOIN FM_Amortization am ON(am.FM_Account_ID = ac.FM_Account_ID)
+LEFT JOIN (SELECT t.FM_Amortization_ID, SUM(CASE WHEN tt.Type = 'LCC' THEN t.Amount ELSE 0 END) AS CapitalAmt,
+          SUM(CASE WHEN tt.Type = 'LIN' THEN t.Amount ELSE 0 END) AS InterestAmt, 
+          SUM(CASE WHEN tt.Type = 'LIT' THEN t.Amount ELSE 0 END) AS TaxAmt,
+          SUM(CASE WHEN tt.Type = 'LDD' THEN t.Amount ELSE 0 END) AS DunningAmt,
+          SUM(CASE WHEN tt.Type = 'LDT' THEN t.Amount ELSE 0 END) AS DunningTaxAmt
+          FROM FM_Transaction t 
+          INNER JOIN FM_TransactionType tt ON(tt.FM_TransactionType_ID = t.FM_TransactionType_ID)
+		  WHERE tt.Type IN('LCC', 'LIN', 'LIT', 'LDD', 'LDT')
           AND EXISTS(SELECT 1 FROM FM_Batch b 
                      WHERE b.FM_Batch_ID = t.FM_Batch_ID
                      AND b.DocStatus IN('CO', 'CL'))
@@ -8957,6 +8959,559 @@ If the document type of your document has no automatic document sequence defined
         <Data AD_Column_ID="57994" Column="Description" oldValue="Create AR Invoice lines from Loan selected">Create Invoice lines from Loan selected</Data>
         <Data AD_Column_ID="57997" Column="Name" oldValue="Generate AR Invoice (From Loan)">Generate Invoice (From Loan)</Data>
         <Data AD_Column_ID="58002" Column="AD_Process_ID" isOldNull="true">54059</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="5430" StepType="AD">
+      <PO AD_Table_ID="53223" Action="U" Record_ID="60709" Table="AD_Browse_Field">
+        <Data AD_Column_ID="57977" Column="IsIdentifier" oldValue="false">true</Data>
+        <Data AD_Column_ID="57978" Column="IsKey" oldValue="false">true</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="5440" StepType="AD">
+      <PO AD_Table_ID="53223" Action="U" Record_ID="60709" Table="AD_Browse_Field">
+        <Data AD_Column_ID="57977" Column="IsIdentifier" oldValue="true">false</Data>
+        <Data AD_Column_ID="57978" Column="IsKey" oldValue="true">false</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="5450" StepType="AD">
+      <PO AD_Table_ID="53223" Action="U" Record_ID="60732" Table="AD_Browse_Field">
+        <Data AD_Column_ID="57976" Column="IsDisplayed" oldValue="true">false</Data>
+        <Data AD_Column_ID="57982" Column="SeqNo" oldValue="40">0</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="5460" StepType="AD">
+      <PO AD_Table_ID="53223" Action="U" Record_ID="60731" Table="AD_Browse_Field">
+        <Data AD_Column_ID="57976" Column="IsDisplayed" oldValue="true">false</Data>
+        <Data AD_Column_ID="57982" Column="SeqNo" oldValue="30">0</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="5470" StepType="AD">
+      <PO AD_Table_ID="53223" Action="U" Record_ID="60733" Table="AD_Browse_Field">
+        <Data AD_Column_ID="57982" Column="SeqNo" oldValue="50">30</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="5480" StepType="AD">
+      <PO AD_Table_ID="53223" Action="U" Record_ID="60736" Table="AD_Browse_Field">
+        <Data AD_Column_ID="57982" Column="SeqNo" oldValue="60">40</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="5490" StepType="AD">
+      <PO AD_Table_ID="53223" Action="U" Record_ID="60739" Table="AD_Browse_Field">
+        <Data AD_Column_ID="57982" Column="SeqNo" oldValue="70">50</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="5500" StepType="AD">
+      <PO AD_Table_ID="53223" Action="U" Record_ID="60737" Table="AD_Browse_Field">
+        <Data AD_Column_ID="57982" Column="SeqNo" oldValue="90">60</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="5510" StepType="AD">
+      <PO AD_Table_ID="53223" Action="U" Record_ID="60740" Table="AD_Browse_Field">
+        <Data AD_Column_ID="57982" Column="SeqNo" oldValue="80">70</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="5520" StepType="AD">
+      <PO AD_Table_ID="53223" Action="U" Record_ID="60738" Table="AD_Browse_Field">
+        <Data AD_Column_ID="57982" Column="SeqNo" oldValue="100">80</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="5530" StepType="AD">
+      <PO AD_Table_ID="53223" Action="U" Record_ID="60732" Table="AD_Browse_Field">
+        <Data AD_Column_ID="57970" Column="AD_Reference_ID" oldValue="16">15</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="5540" StepType="AD">
+      <PO AD_Table_ID="53223" Action="U" Record_ID="60731" Table="AD_Browse_Field">
+        <Data AD_Column_ID="57970" Column="AD_Reference_ID" oldValue="16">15</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="5550" StepType="AD">
+      <PO AD_Table_ID="53223" Action="U" Record_ID="60733" Table="AD_Browse_Field">
+        <Data AD_Column_ID="57970" Column="AD_Reference_ID" oldValue="16">15</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="5560" StepType="AD">
+      <PO AD_Table_ID="53223" Action="U" Record_ID="60736" Table="AD_Browse_Field">
+        <Data AD_Column_ID="57976" Column="IsDisplayed" oldValue="true">false</Data>
+        <Data AD_Column_ID="57982" Column="SeqNo" oldValue="40">0</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="5570" StepType="AD">
+      <PO AD_Table_ID="53223" Action="U" Record_ID="60738" Table="AD_Browse_Field">
+        <Data AD_Column_ID="57976" Column="IsDisplayed" oldValue="true">false</Data>
+        <Data AD_Column_ID="57982" Column="SeqNo" oldValue="80">0</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="5580" StepType="AD">
+      <PO AD_Table_ID="53223" Action="U" Record_ID="60739" Table="AD_Browse_Field">
+        <Data AD_Column_ID="57976" Column="IsDisplayed" oldValue="true">false</Data>
+        <Data AD_Column_ID="57982" Column="SeqNo" oldValue="50">0</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="5590" StepType="AD">
+      <PO AD_Table_ID="53223" Action="U" Record_ID="60727" Table="AD_Browse_Field">
+        <Data AD_Column_ID="57976" Column="IsDisplayed" oldValue="false">true</Data>
+        <Data AD_Column_ID="57982" Column="SeqNo" oldValue="0">40</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="5600" StepType="AD">
+      <PO AD_Table_ID="53223" Action="U" Record_ID="60728" Table="AD_Browse_Field">
+        <Data AD_Column_ID="57976" Column="IsDisplayed" oldValue="false">true</Data>
+        <Data AD_Column_ID="57982" Column="SeqNo" oldValue="0">50</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="5610" StepType="AD">
+      <PO AD_Table_ID="53232" Action="I" Record_ID="62958" Table="AD_View_Column">
+        <Data AD_Column_ID="58095" Column="IsActive">true</Data>
+        <Data AD_Column_ID="58096" Column="Created">2018-03-23 20:08:41.854</Data>
+        <Data AD_Column_ID="58097" Column="Updated">2018-03-23 20:08:41.854</Data>
+        <Data AD_Column_ID="58104" Column="Help" isNewNull="true"/>
+        <Data AD_Column_ID="58106" Column="ColumnSQL">(la.CapitalAmt + la.InterestAmt + la.TaxAmt + la.CurrentDunningAmt + la.CurrentDunningTaxAmt)</Data>
+        <Data AD_Column_ID="58105" Column="Name">Grand Total</Data>
+        <Data AD_Column_ID="58107" Column="ColumnName">LA_GrandTotal</Data>
+        <Data AD_Column_ID="58102" Column="Description" isNewNull="true"/>
+        <Data AD_Column_ID="58093" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="58094" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="58100" Column="AD_View_Column_ID">62958</Data>
+        <Data AD_Column_ID="58103" Column="EntityType">FMS</Data>
+        <Data AD_Column_ID="58099" Column="UpdatedBy">100</Data>
+        <Data AD_Column_ID="58101" Column="AD_View_Definition_ID">50311</Data>
+        <Data AD_Column_ID="58108" Column="AD_View_ID">50110</Data>
+        <Data AD_Column_ID="58109" Column="AD_Column_ID" isNewNull="true"/>
+        <Data AD_Column_ID="58098" Column="CreatedBy">100</Data>
+        <Data AD_Column_ID="84462" Column="UUID" isNewNull="true"/>
+      </PO>
+    </Step>
+    <Step SeqNo="5620" StepType="AD">
+      <PO AD_Table_ID="53228" Action="I" Record_ID="62958" Table="AD_View_Column_Trl">
+        <Data AD_Column_ID="58042" Column="IsActive">true</Data>
+        <Data AD_Column_ID="58043" Column="Created">2018-03-23 20:08:43.118</Data>
+        <Data AD_Column_ID="58044" Column="Updated">2018-03-23 20:08:43.118</Data>
+        <Data AD_Column_ID="58049" Column="Description" isNewNull="true"/>
+        <Data AD_Column_ID="58050" Column="Help" isNewNull="true"/>
+        <Data AD_Column_ID="58051" Column="IsTranslated">false</Data>
+        <Data AD_Column_ID="58052" Column="Name">Grand Total</Data>
+        <Data AD_Column_ID="58047" Column="AD_View_Column_ID">62958</Data>
+        <Data AD_Column_ID="58040" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="58041" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="58045" Column="CreatedBy">100</Data>
+        <Data AD_Column_ID="58048" Column="AD_Language">es_MX</Data>
+        <Data AD_Column_ID="58046" Column="UpdatedBy">100</Data>
+        <Data AD_Column_ID="84463" Column="UUID" isNewNull="true"/>
+      </PO>
+    </Step>
+    <Step SeqNo="5630" StepType="AD">
+      <PO AD_Table_ID="53223" Action="I" Record_ID="60862" Table="AD_Browse_Field">
+        <Data AD_Column_ID="57964" Column="Created">2018-03-23 20:09:39.508</Data>
+        <Data AD_Column_ID="57963" Column="IsActive">true</Data>
+        <Data AD_Column_ID="57965" Column="Updated">2018-03-23 20:09:39.508</Data>
+        <Data AD_Column_ID="57980" Column="IsRange">false</Data>
+        <Data AD_Column_ID="57979" Column="IsQueryCriteria">false</Data>
+        <Data AD_Column_ID="57985" Column="IsMandatory">false</Data>
+        <Data AD_Column_ID="64354" Column="DefaultValue" isNewNull="true"/>
+        <Data AD_Column_ID="64853" Column="InfoFactoryClass" isNewNull="true"/>
+        <Data AD_Column_ID="57972" Column="Description" isNewNull="true"/>
+        <Data AD_Column_ID="57974" Column="Help" isNewNull="true"/>
+        <Data AD_Column_ID="57976" Column="IsDisplayed">true</Data>
+        <Data AD_Column_ID="57977" Column="IsIdentifier">false</Data>
+        <Data AD_Column_ID="57978" Column="IsKey">false</Data>
+        <Data AD_Column_ID="57981" Column="Name">Grand Total</Data>
+        <Data AD_Column_ID="63579" Column="IsReadOnly">true</Data>
+        <Data AD_Column_ID="57975" Column="IsCentrallyMaintained">true</Data>
+        <Data AD_Column_ID="64222" Column="IsOrderBy">false</Data>
+        <Data AD_Column_ID="64355" Column="DefaultValue2" isNewNull="true"/>
+        <Data AD_Column_ID="64356" Column="DisplayLogic" isNewNull="true"/>
+        <Data AD_Column_ID="64358" Column="ReadOnlyLogic" isNewNull="true"/>
+        <Data AD_Column_ID="64359" Column="VFormat" isNewNull="true"/>
+        <Data AD_Column_ID="64360" Column="ValueMax" isNewNull="true"/>
+        <Data AD_Column_ID="64361" Column="ValueMin" isNewNull="true"/>
+        <Data AD_Column_ID="67114" Column="Callout" isNewNull="true"/>
+        <Data AD_Column_ID="81229" Column="IsInfoOnly">false</Data>
+        <Data AD_Column_ID="57961" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="57962" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="57973" Column="EntityType">FMS</Data>
+        <Data AD_Column_ID="57968" Column="AD_Browse_Field_ID">60862</Data>
+        <Data AD_Column_ID="57982" Column="SeqNo">40</Data>
+        <Data AD_Column_ID="57984" Column="AD_Reference_Value_ID" isNewNull="true"/>
+        <Data AD_Column_ID="57967" Column="UpdatedBy">100</Data>
+        <Data AD_Column_ID="57966" Column="CreatedBy">100</Data>
+        <Data AD_Column_ID="63218" Column="Axis_Column_ID" isNewNull="true"/>
+        <Data AD_Column_ID="57969" Column="AD_Element_ID">316</Data>
+        <Data AD_Column_ID="57971" Column="AD_View_Column_ID">62958</Data>
+        <Data AD_Column_ID="57970" Column="AD_Reference_ID">12</Data>
+        <Data AD_Column_ID="57983" Column="AD_Browse_ID">50119</Data>
+        <Data AD_Column_ID="63219" Column="Axis_Parent_Column_ID" isNewNull="true"/>
+        <Data AD_Column_ID="64221" Column="SortNo" isNewNull="true"/>
+        <Data AD_Column_ID="64353" Column="AD_Val_Rule_ID" isNewNull="true"/>
+        <Data AD_Column_ID="64357" Column="FieldLength" isNewNull="true"/>
+        <Data AD_Column_ID="78559" Column="SeqNoGrid">0</Data>
+        <Data AD_Column_ID="84296" Column="UUID" isNewNull="true"/>
+      </PO>
+    </Step>
+    <Step SeqNo="5640" StepType="AD">
+      <PO AD_Table_ID="53227" Action="I" Record_ID="0" Table="AD_Browse_Field_Trl">
+        <Data AD_Column_ID="58029" Column="IsActive">true</Data>
+        <Data AD_Column_ID="58030" Column="Created">2018-03-23 20:09:41.994</Data>
+        <Data AD_Column_ID="58031" Column="Updated">2018-03-23 20:09:41.994</Data>
+        <Data AD_Column_ID="58036" Column="Description" isNewNull="true"/>
+        <Data AD_Column_ID="58037" Column="Help" isNewNull="true"/>
+        <Data AD_Column_ID="58038" Column="IsTranslated">false</Data>
+        <Data AD_Column_ID="58039" Column="Name">Grand Total</Data>
+        <Data AD_Column_ID="58027" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="58028" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="58035" Column="AD_Language">es_MX</Data>
+        <Data AD_Column_ID="58033" Column="UpdatedBy">100</Data>
+        <Data AD_Column_ID="58034" Column="AD_Browse_Field_ID">60862</Data>
+        <Data AD_Column_ID="58032" Column="CreatedBy">100</Data>
+        <Data AD_Column_ID="84297" Column="UUID" isNewNull="true"/>
+      </PO>
+    </Step>
+    <Step SeqNo="5650" StepType="AD">
+      <PO AD_Table_ID="53223" Action="U" Record_ID="60740" Table="AD_Browse_Field">
+        <Data AD_Column_ID="57976" Column="IsDisplayed" oldValue="true">false</Data>
+        <Data AD_Column_ID="57982" Column="SeqNo" oldValue="70">0</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="5660" StepType="AD">
+      <PO AD_Table_ID="53223" Action="U" Record_ID="60862" Table="AD_Browse_Field">
+        <Data AD_Column_ID="57982" Column="SeqNo" oldValue="40">70</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="5670" StepType="AD">
+      <PO AD_Table_ID="104" Action="I" Record_ID="55149" Table="AD_Ref_List">
+        <Data AD_Column_ID="564" Column="Created">2018-03-23 20:19:13.342</Data>
+        <Data AD_Column_ID="566" Column="Updated">2018-03-23 20:19:13.342</Data>
+        <Data AD_Column_ID="563" Column="IsActive">true</Data>
+        <Data AD_Column_ID="200" Column="Value">LDT</Data>
+        <Data AD_Column_ID="150" Column="Description" isNewNull="true"/>
+        <Data AD_Column_ID="152" Column="ValidFrom" isNewNull="true"/>
+        <Data AD_Column_ID="149" Column="Name">Loan Dunning Tax Amount (Calculated)</Data>
+        <Data AD_Column_ID="153" Column="ValidTo" isNewNull="true"/>
+        <Data AD_Column_ID="7712" Column="EntityType">FMS</Data>
+        <Data AD_Column_ID="148" Column="AD_Ref_List_ID">55149</Data>
+        <Data AD_Column_ID="372" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="371" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="151" Column="AD_Reference_ID">54020</Data>
+        <Data AD_Column_ID="565" Column="CreatedBy">100</Data>
+        <Data AD_Column_ID="567" Column="UpdatedBy">100</Data>
+        <Data AD_Column_ID="84390" Column="UUID" isNewNull="true"/>
+      </PO>
+    </Step>
+    <Step SeqNo="5680" StepType="AD">
+      <PO AD_Table_ID="136" Action="I" Record_ID="55149" Table="AD_Ref_List_Trl">
+        <Data AD_Column_ID="706" Column="IsActive">true</Data>
+        <Data AD_Column_ID="707" Column="Created">2018-03-23 20:19:14.315</Data>
+        <Data AD_Column_ID="709" Column="Updated">2018-03-23 20:19:14.315</Data>
+        <Data AD_Column_ID="338" Column="Name">Loan Dunning Tax Amount (Calculated)</Data>
+        <Data AD_Column_ID="340" Column="IsTranslated">false</Data>
+        <Data AD_Column_ID="339" Column="Description" isNewNull="true"/>
+        <Data AD_Column_ID="1216" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="1215" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="710" Column="UpdatedBy">100</Data>
+        <Data AD_Column_ID="708" Column="CreatedBy">100</Data>
+        <Data AD_Column_ID="336" Column="AD_Ref_List_ID">55149</Data>
+        <Data AD_Column_ID="337" Column="AD_Language">es_MX</Data>
+        <Data AD_Column_ID="84391" Column="UUID" isNewNull="true"/>
+      </PO>
+    </Step>
+    <Step SeqNo="5690" StepType="AD">
+      <PO AD_Table_ID="136" Action="U" Record_ID="55138" Table="AD_Ref_List_Trl">
+        <Data AD_Column_ID="338" Column="Name" oldValue="Cuota de Impuesto (Calculado)">Impuesto de Cuota (Calculado)</Data>
+        <Data AD_Column_ID="336" Column="AD_Ref_List_ID" oldValue="55138">55138</Data>
+        <Data AD_Column_ID="337" Column="AD_Language" oldValue="es_MX">es_MX</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="5700" StepType="AD">
+      <PO AD_Table_ID="136" Action="U" Record_ID="55149" Table="AD_Ref_List_Trl">
+        <Data AD_Column_ID="338" Column="Name" oldValue="Loan Dunning Tax Amount (Calculated)">Impuesto de Morosidad de Cuota (Calculado)</Data>
+        <Data AD_Column_ID="336" Column="AD_Ref_List_ID" oldValue="55149">55149</Data>
+        <Data AD_Column_ID="337" Column="AD_Language" oldValue="es_MX">es_MX</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="5710" StepType="AD">
+      <PO AD_Table_ID="276" Action="I" Record_ID="59929" Table="AD_Element">
+        <Data AD_Column_ID="2604" Column="Description" isNewNull="true"/>
+        <Data AD_Column_ID="2603" Column="Name">currentdunningtaxamt</Data>
+        <Data AD_Column_ID="2598" Column="Created">2018-03-23 20:25:08.816</Data>
+        <Data AD_Column_ID="2600" Column="Updated">2018-03-23 20:25:08.816</Data>
+        <Data AD_Column_ID="2597" Column="IsActive">true</Data>
+        <Data AD_Column_ID="6284" Column="PO_Help" isNewNull="true"/>
+        <Data AD_Column_ID="6285" Column="PO_Name" isNewNull="true"/>
+        <Data AD_Column_ID="2605" Column="Help" isNewNull="true"/>
+        <Data AD_Column_ID="2602" Column="ColumnName">currentdunningtaxamt</Data>
+        <Data AD_Column_ID="4299" Column="PrintName">currentdunningtaxamt</Data>
+        <Data AD_Column_ID="6286" Column="PO_PrintName" isNewNull="true"/>
+        <Data AD_Column_ID="6283" Column="PO_Description" isNewNull="true"/>
+        <Data AD_Column_ID="58589" Column="FieldLength" isNewNull="true"/>
+        <Data AD_Column_ID="58588" Column="AD_Reference_ID" isNewNull="true"/>
+        <Data AD_Column_ID="2594" Column="AD_Element_ID">59929</Data>
+        <Data AD_Column_ID="2596" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="2595" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="6484" Column="EntityType">FMS</Data>
+        <Data AD_Column_ID="2599" Column="CreatedBy">100</Data>
+        <Data AD_Column_ID="58590" Column="AD_Reference_Value_ID" isNewNull="true"/>
+        <Data AD_Column_ID="2601" Column="UpdatedBy">100</Data>
+        <Data AD_Column_ID="84316" Column="UUID" isNewNull="true"/>
+      </PO>
+    </Step>
+    <Step SeqNo="5720" StepType="AD">
+      <PO AD_Table_ID="277" Action="I" Record_ID="0" Table="AD_Element_Trl">
+        <Data AD_Column_ID="2641" Column="IsActive">true</Data>
+        <Data AD_Column_ID="2642" Column="Created">2018-03-23 20:25:10.185</Data>
+        <Data AD_Column_ID="2644" Column="Updated">2018-03-23 20:25:10.185</Data>
+        <Data AD_Column_ID="6449" Column="PO_Help" isNewNull="true"/>
+        <Data AD_Column_ID="2646" Column="Name">currentdunningtaxamt</Data>
+        <Data AD_Column_ID="6450" Column="PO_Name" isNewNull="true"/>
+        <Data AD_Column_ID="2648" Column="Help" isNewNull="true"/>
+        <Data AD_Column_ID="2647" Column="Description" isNewNull="true"/>
+        <Data AD_Column_ID="2649" Column="IsTranslated">false</Data>
+        <Data AD_Column_ID="4300" Column="PrintName">currentdunningtaxamt</Data>
+        <Data AD_Column_ID="6451" Column="PO_PrintName" isNewNull="true"/>
+        <Data AD_Column_ID="6448" Column="PO_Description" isNewNull="true"/>
+        <Data AD_Column_ID="2640" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="2639" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="2645" Column="UpdatedBy">100</Data>
+        <Data AD_Column_ID="2643" Column="CreatedBy">100</Data>
+        <Data AD_Column_ID="2638" Column="AD_Language">es_MX</Data>
+        <Data AD_Column_ID="2637" Column="AD_Element_ID">59929</Data>
+        <Data AD_Column_ID="84317" Column="UUID" isNewNull="true"/>
+      </PO>
+    </Step>
+    <Step SeqNo="5730" StepType="AD">
+      <PO AD_Table_ID="101" Action="I" Record_ID="87581" Table="AD_Column">
+        <Data AD_Column_ID="128" Column="IsEncrypted">N</Data>
+        <Data AD_Column_ID="54358" Column="InfoFactoryClass" isNewNull="true"/>
+        <Data AD_Column_ID="112" Column="Description" isNewNull="true"/>
+        <Data AD_Column_ID="549" Column="Created">2018-03-23 20:25:08.812</Data>
+        <Data AD_Column_ID="3388" Column="ValueMin" isNewNull="true"/>
+        <Data AD_Column_ID="548" Column="IsActive">true</Data>
+        <Data AD_Column_ID="551" Column="Updated">2018-03-23 20:25:08.812</Data>
+        <Data AD_Column_ID="3389" Column="ValueMax" isNewNull="true"/>
+        <Data AD_Column_ID="111" Column="Name">currentdunningtaxamt</Data>
+        <Data AD_Column_ID="124" Column="IsMandatory">false</Data>
+        <Data AD_Column_ID="125" Column="IsTranslated">false</Data>
+        <Data AD_Column_ID="117" Column="DefaultValue" isNewNull="true"/>
+        <Data AD_Column_ID="1179" Column="VFormat" isNewNull="true"/>
+        <Data AD_Column_ID="120" Column="IsParent">false</Data>
+        <Data AD_Column_ID="126" Column="IsIdentifier">false</Data>
+        <Data AD_Column_ID="6244" Column="IsSelectionColumn">false</Data>
+        <Data AD_Column_ID="6483" Column="IsSyncDatabase" isNewNull="true"/>
+        <Data AD_Column_ID="119" Column="IsKey">false</Data>
+        <Data AD_Column_ID="6245" Column="ReadOnlyLogic" isNewNull="true"/>
+        <Data AD_Column_ID="56352" Column="FormatPattern" isNewNull="true"/>
+        <Data AD_Column_ID="50218" Column="MandatoryLogic" isNewNull="true"/>
+        <Data AD_Column_ID="110" Column="Version">0</Data>
+        <Data AD_Column_ID="13448" Column="ColumnSQL" isNewNull="true"/>
+        <Data AD_Column_ID="116" Column="ColumnName">currentdunningtaxamt</Data>
+        <Data AD_Column_ID="113" Column="Help" isNewNull="true"/>
+        <Data AD_Column_ID="3360" Column="IsUpdateable">false</Data>
+        <Data AD_Column_ID="1692" Column="Callout" isNewNull="true"/>
+        <Data AD_Column_ID="11617" Column="IsAlwaysUpdateable">false</Data>
+        <Data AD_Column_ID="56187" Column="IsAllowLogging">true</Data>
+        <Data AD_Column_ID="56149" Column="IsAutocomplete">false</Data>
+        <Data AD_Column_ID="68024" Column="IsRange">false</Data>
+        <Data AD_Column_ID="62199" Column="IsAllowCopy">true</Data>
+        <Data AD_Column_ID="127" Column="SeqNo" isNewNull="true"/>
+        <Data AD_Column_ID="109" Column="AD_Column_ID">87581</Data>
+        <Data AD_Column_ID="6482" Column="EntityType">FMS</Data>
+        <Data AD_Column_ID="359" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="360" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="59702" Column="AD_Chart_ID" isNewNull="true"/>
+        <Data AD_Column_ID="114" Column="AD_Table_ID">54384</Data>
+        <Data AD_Column_ID="550" Column="CreatedBy">100</Data>
+        <Data AD_Column_ID="2608" Column="AD_Element_ID">59929</Data>
+        <Data AD_Column_ID="3369" Column="AD_Process_ID" isNewNull="true"/>
+        <Data AD_Column_ID="227" Column="AD_Reference_Value_ID" isNewNull="true"/>
+        <Data AD_Column_ID="115" Column="AD_Val_Rule_ID" isNewNull="true"/>
+        <Data AD_Column_ID="118" Column="FieldLength">0</Data>
+        <Data AD_Column_ID="226" Column="AD_Reference_ID">12</Data>
+        <Data AD_Column_ID="552" Column="UpdatedBy">100</Data>
+        <Data AD_Column_ID="84306" Column="UUID" isNewNull="true"/>
+      </PO>
+    </Step>
+    <Step SeqNo="5740" StepType="AD">
+      <PO AD_Table_ID="752" Action="I" Record_ID="0" Table="AD_Column_Trl">
+        <Data AD_Column_ID="12960" Column="Created">2018-03-23 20:25:11.984</Data>
+        <Data AD_Column_ID="12959" Column="IsActive">true</Data>
+        <Data AD_Column_ID="12952" Column="Updated">2018-03-23 20:25:11.984</Data>
+        <Data AD_Column_ID="12954" Column="IsTranslated">false</Data>
+        <Data AD_Column_ID="12957" Column="Name">currentdunningtaxamt</Data>
+        <Data AD_Column_ID="12961" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="12951" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="12958" Column="UpdatedBy">100</Data>
+        <Data AD_Column_ID="12956" Column="CreatedBy">100</Data>
+        <Data AD_Column_ID="12953" Column="AD_Language">es_MX</Data>
+        <Data AD_Column_ID="12955" Column="AD_Column_ID">87581</Data>
+        <Data AD_Column_ID="84310" Column="UUID" isNewNull="true"/>
+      </PO>
+    </Step>
+    <Step SeqNo="5750" StepType="AD">
+      <PO AD_Table_ID="276" Action="U" Record_ID="59929" Table="AD_Element">
+        <Data AD_Column_ID="2603" Column="Name" oldValue="currentdunningtaxamt">Current Dunning Tax Amount</Data>
+        <Data AD_Column_ID="2602" Column="ColumnName" oldValue="currentdunningtaxamt">CurrentDunningTaxAmt</Data>
+        <Data AD_Column_ID="4299" Column="PrintName" oldValue="currentdunningtaxamt">Current Dunning Tax Amount</Data>
+        <Data AD_Column_ID="58589" Column="FieldLength" isOldNull="true">10</Data>
+        <Data AD_Column_ID="58588" Column="AD_Reference_ID" isOldNull="true">12</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="5760" StepType="AD">
+      <PO AD_Table_ID="101" Action="U" Record_ID="87581" Table="AD_Column">
+        <Data AD_Column_ID="112" Column="Description" isNewNull="true" isOldNull="true"/>
+        <Data AD_Column_ID="111" Column="Name" oldValue="currentdunningtaxamt">Current Dunning Tax Amount</Data>
+        <Data AD_Column_ID="116" Column="ColumnName" oldValue="currentdunningtaxamt">CurrentDunningTaxAmt</Data>
+        <Data AD_Column_ID="113" Column="Help" isNewNull="true" isOldNull="true"/>
+      </PO>
+    </Step>
+    <Step SeqNo="5770" StepType="AD">
+      <PO AD_Table_ID="277" Action="U" Record_ID="0" Table="AD_Element_Trl">
+        <Data AD_Column_ID="2646" Column="Name" oldValue="currentdunningtaxamt">Monto Actual de Interés de Mora</Data>
+        <Data AD_Column_ID="4300" Column="PrintName" oldValue="currentdunningtaxamt">Monto Actual de Interés de Mora</Data>
+        <Data AD_Column_ID="2638" Column="AD_Language" oldValue="es_MX">es_MX</Data>
+        <Data AD_Column_ID="2637" Column="AD_Element_ID" oldValue="59929">59929</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="5780" StepType="AD">
+      <PO AD_Table_ID="53232" Action="I" Record_ID="62959" Table="AD_View_Column">
+        <Data AD_Column_ID="58095" Column="IsActive">true</Data>
+        <Data AD_Column_ID="58096" Column="Created">2018-03-23 20:29:08.429</Data>
+        <Data AD_Column_ID="58097" Column="Updated">2018-03-23 20:29:08.429</Data>
+        <Data AD_Column_ID="58104" Column="Help" isNewNull="true"/>
+        <Data AD_Column_ID="58106" Column="ColumnSQL">(la.TaxAmt + la.CurrentDunningTaxAmt)</Data>
+        <Data AD_Column_ID="58105" Column="Name">Line Total Tax</Data>
+        <Data AD_Column_ID="58107" Column="ColumnName">LA_TaxLineTotal</Data>
+        <Data AD_Column_ID="58102" Column="Description" isNewNull="true"/>
+        <Data AD_Column_ID="58093" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="58094" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="58100" Column="AD_View_Column_ID">62959</Data>
+        <Data AD_Column_ID="58103" Column="EntityType">FMS</Data>
+        <Data AD_Column_ID="58099" Column="UpdatedBy">100</Data>
+        <Data AD_Column_ID="58101" Column="AD_View_Definition_ID">50311</Data>
+        <Data AD_Column_ID="58108" Column="AD_View_ID">50110</Data>
+        <Data AD_Column_ID="58109" Column="AD_Column_ID" isNewNull="true"/>
+        <Data AD_Column_ID="58098" Column="CreatedBy">100</Data>
+        <Data AD_Column_ID="84462" Column="UUID" isNewNull="true"/>
+      </PO>
+    </Step>
+    <Step SeqNo="5790" StepType="AD">
+      <PO AD_Table_ID="53228" Action="I" Record_ID="62959" Table="AD_View_Column_Trl">
+        <Data AD_Column_ID="58042" Column="IsActive">true</Data>
+        <Data AD_Column_ID="58043" Column="Created">2018-03-23 20:29:09.412</Data>
+        <Data AD_Column_ID="58044" Column="Updated">2018-03-23 20:29:09.412</Data>
+        <Data AD_Column_ID="58049" Column="Description" isNewNull="true"/>
+        <Data AD_Column_ID="58050" Column="Help" isNewNull="true"/>
+        <Data AD_Column_ID="58051" Column="IsTranslated">false</Data>
+        <Data AD_Column_ID="58052" Column="Name">Line Total Tax</Data>
+        <Data AD_Column_ID="58047" Column="AD_View_Column_ID">62959</Data>
+        <Data AD_Column_ID="58040" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="58041" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="58045" Column="CreatedBy">100</Data>
+        <Data AD_Column_ID="58048" Column="AD_Language">es_MX</Data>
+        <Data AD_Column_ID="58046" Column="UpdatedBy">100</Data>
+        <Data AD_Column_ID="84463" Column="UUID" isNewNull="true"/>
+      </PO>
+    </Step>
+    <Step SeqNo="5800" StepType="AD">
+      <PO AD_Table_ID="53223" Action="I" Record_ID="60863" Table="AD_Browse_Field">
+        <Data AD_Column_ID="57964" Column="Created">2018-03-23 20:29:59.756</Data>
+        <Data AD_Column_ID="57963" Column="IsActive">true</Data>
+        <Data AD_Column_ID="57965" Column="Updated">2018-03-23 20:29:59.756</Data>
+        <Data AD_Column_ID="57980" Column="IsRange">false</Data>
+        <Data AD_Column_ID="57979" Column="IsQueryCriteria">false</Data>
+        <Data AD_Column_ID="57985" Column="IsMandatory">false</Data>
+        <Data AD_Column_ID="64354" Column="DefaultValue" isNewNull="true"/>
+        <Data AD_Column_ID="64853" Column="InfoFactoryClass" isNewNull="true"/>
+        <Data AD_Column_ID="57972" Column="Description" isNewNull="true"/>
+        <Data AD_Column_ID="57974" Column="Help" isNewNull="true"/>
+        <Data AD_Column_ID="57976" Column="IsDisplayed">true</Data>
+        <Data AD_Column_ID="57977" Column="IsIdentifier">false</Data>
+        <Data AD_Column_ID="57978" Column="IsKey">false</Data>
+        <Data AD_Column_ID="57981" Column="Name">Line Total Tax</Data>
+        <Data AD_Column_ID="63579" Column="IsReadOnly">true</Data>
+        <Data AD_Column_ID="57975" Column="IsCentrallyMaintained">true</Data>
+        <Data AD_Column_ID="64222" Column="IsOrderBy">false</Data>
+        <Data AD_Column_ID="64355" Column="DefaultValue2" isNewNull="true"/>
+        <Data AD_Column_ID="64356" Column="DisplayLogic" isNewNull="true"/>
+        <Data AD_Column_ID="64358" Column="ReadOnlyLogic" isNewNull="true"/>
+        <Data AD_Column_ID="64359" Column="VFormat" isNewNull="true"/>
+        <Data AD_Column_ID="64360" Column="ValueMax" isNewNull="true"/>
+        <Data AD_Column_ID="64361" Column="ValueMin" isNewNull="true"/>
+        <Data AD_Column_ID="67114" Column="Callout" isNewNull="true"/>
+        <Data AD_Column_ID="81229" Column="IsInfoOnly">false</Data>
+        <Data AD_Column_ID="57961" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="57962" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="57973" Column="EntityType">FMS</Data>
+        <Data AD_Column_ID="57968" Column="AD_Browse_Field_ID">60863</Data>
+        <Data AD_Column_ID="57982" Column="SeqNo">70</Data>
+        <Data AD_Column_ID="57984" Column="AD_Reference_Value_ID" isNewNull="true"/>
+        <Data AD_Column_ID="57967" Column="UpdatedBy">100</Data>
+        <Data AD_Column_ID="57966" Column="CreatedBy">100</Data>
+        <Data AD_Column_ID="63218" Column="Axis_Column_ID" isNewNull="true"/>
+        <Data AD_Column_ID="57969" Column="AD_Element_ID">2341</Data>
+        <Data AD_Column_ID="57971" Column="AD_View_Column_ID">62959</Data>
+        <Data AD_Column_ID="57970" Column="AD_Reference_ID">12</Data>
+        <Data AD_Column_ID="57983" Column="AD_Browse_ID">50119</Data>
+        <Data AD_Column_ID="63219" Column="Axis_Parent_Column_ID" isNewNull="true"/>
+        <Data AD_Column_ID="64221" Column="SortNo" isNewNull="true"/>
+        <Data AD_Column_ID="64353" Column="AD_Val_Rule_ID" isNewNull="true"/>
+        <Data AD_Column_ID="64357" Column="FieldLength" isNewNull="true"/>
+        <Data AD_Column_ID="78559" Column="SeqNoGrid">0</Data>
+        <Data AD_Column_ID="84296" Column="UUID" isNewNull="true"/>
+      </PO>
+    </Step>
+    <Step SeqNo="5810" StepType="AD">
+      <PO AD_Table_ID="53227" Action="I" Record_ID="0" Table="AD_Browse_Field_Trl">
+        <Data AD_Column_ID="58029" Column="IsActive">true</Data>
+        <Data AD_Column_ID="58030" Column="Created">2018-03-23 20:30:00.99</Data>
+        <Data AD_Column_ID="58031" Column="Updated">2018-03-23 20:30:00.99</Data>
+        <Data AD_Column_ID="58036" Column="Description" isNewNull="true"/>
+        <Data AD_Column_ID="58037" Column="Help" isNewNull="true"/>
+        <Data AD_Column_ID="58038" Column="IsTranslated">false</Data>
+        <Data AD_Column_ID="58039" Column="Name">Line Total Tax</Data>
+        <Data AD_Column_ID="58027" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="58028" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="58035" Column="AD_Language">es_MX</Data>
+        <Data AD_Column_ID="58033" Column="UpdatedBy">100</Data>
+        <Data AD_Column_ID="58034" Column="AD_Browse_Field_ID">60863</Data>
+        <Data AD_Column_ID="58032" Column="CreatedBy">100</Data>
+        <Data AD_Column_ID="84297" Column="UUID" isNewNull="true"/>
+      </PO>
+    </Step>
+    <Step SeqNo="5820" StepType="AD">
+      <PO AD_Table_ID="53223" Action="U" Record_ID="60862" Table="AD_Browse_Field">
+        <Data AD_Column_ID="57982" Column="SeqNo" oldValue="70">80</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="5830" StepType="AD">
+      <PO AD_Table_ID="108" Action="I" Record_ID="52578" Table="AD_Val_Rule">
+        <Data AD_Column_ID="192" Column="Type">S</Data>
+        <Data AD_Column_ID="586" Column="Updated">2018-03-23 20:32:13.131</Data>
+        <Data AD_Column_ID="583" Column="IsActive">true</Data>
+        <Data AD_Column_ID="584" Column="Created">2018-03-23 20:32:13.131</Data>
+        <Data AD_Column_ID="193" Column="Code">FM_Agreement.C_BPartner_ID = @LA_C_BPartner_ID@</Data>
+        <Data AD_Column_ID="188" Column="Name">FM_Agreement of Business Partner (SB)</Data>
+        <Data AD_Column_ID="189" Column="Description" isNewNull="true"/>
+        <Data AD_Column_ID="387" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="388" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="187" Column="AD_Val_Rule_ID">52578</Data>
+        <Data AD_Column_ID="7715" Column="EntityType">FMS</Data>
+        <Data AD_Column_ID="587" Column="UpdatedBy">100</Data>
+        <Data AD_Column_ID="585" Column="CreatedBy">100</Data>
+        <Data AD_Column_ID="84460" Column="UUID" isNewNull="true"/>
+      </PO>
+    </Step>
+    <Step SeqNo="5840" StepType="AD">
+      <PO AD_Table_ID="53223" Action="U" Record_ID="60709" Table="AD_Browse_Field">
+        <Data AD_Column_ID="64353" Column="AD_Val_Rule_ID" isOldNull="true">52578</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="5850" StepType="AD">
+      <PO AD_Table_ID="53232" Action="U" Record_ID="62959" Table="AD_View_Column">
+        <Data AD_Column_ID="58106" Column="ColumnSQL" oldValue="(la.TaxAmt + la.CurrentDunningTaxAmt)">(COALESCE(la.TaxAmt, 0) + COALESCE(la.CurrentDunningTaxAmt, 0))</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="5860" StepType="AD">
+      <PO AD_Table_ID="53232" Action="U" Record_ID="62958" Table="AD_View_Column">
+        <Data AD_Column_ID="58106" Column="ColumnSQL" oldValue="(la.CapitalAmt + la.InterestAmt + la.TaxAmt + la.CurrentDunningAmt + la.CurrentDunningTaxAmt)">(COALESCE(la.CapitalAmt, 0) + COALESCE(la.InterestAmt, 0) + COALESCE(la.TaxAmt, 0) + COALESCE(la.CurrentDunningAmt, 0) + COALESCE(la.CurrentDunningTaxAmt, 0))</Data>
       </PO>
     </Step>
   </Migration>
