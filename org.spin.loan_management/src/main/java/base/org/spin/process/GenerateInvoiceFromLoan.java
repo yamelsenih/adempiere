@@ -3,7 +3,7 @@
  * Copyright (C) 2006-2017 ADempiere Foundation, All Rights Reserved.         *
  * This program is free software, you can redistribute it and/or modify it    *
  * under the terms version 2 of the GNU General Public License as published   *
- * or (at your option) any later version.										*
+ * or (at your option) any later version.									  *
  * by the Free Software Foundation. This program is distributed in the hope   *
  * that it will be useful, but WITHOUT ANY WARRANTY, without even the implied *
  * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.           *
@@ -17,21 +17,180 @@
 
 package org.spin.process;
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.adempiere.exceptions.AdempiereException;
+import org.compiere.model.MBPartner;
+import org.compiere.model.MInvoice;
+import org.compiere.model.MInvoiceLine;
+import org.compiere.model.MProduct;
+import org.compiere.util.Env;
+import org.compiere.util.Msg;
+import org.spin.model.MFMAccount;
+import org.spin.model.MFMAgreement;
+import org.spin.model.MFMAmortization;
+import org.spin.model.MFMProduct;
+import org.spin.model.MFMRate;
+
 /** Generated Process for (Generate Invoice from Loan)
  *  @author ADempiere (generated) 
  *  @version Release 3.9.0
  */
-public class GenerateInvoiceFromLoan extends GenerateInvoiceFromLoanAbstract
-{
+public class GenerateInvoiceFromLoan extends GenerateInvoiceFromLoanAbstract {
+	
+	/**	Invoice list to be completed	*/
+	private List<MInvoice> invoiceList = new ArrayList<MInvoice>();
+	/**	Current Invoice	*/
+	private MInvoice invoice;
+	
 	@Override
-	protected void prepare()
-	{
-		super.prepare();
+	protected String doIt() throws Exception {
+		//	Get keys from Smart Browse
+		int chargeForInterestId = 0;
+		int chargeForDunningId = 0;
+		MFMAgreement agreement = null;
+		MProduct product = null;
+		for(int amortizationId : getSelectionKeys()) {
+			MFMAmortization amortization = new MFMAmortization(getCtx(), amortizationId, get_TrxName());
+			BigDecimal capitalAmt = getSelectionAsBigDecimal(amortizationId, "LA_CapitalAmt");
+			BigDecimal interestAmt = getSelectionAsBigDecimal(amortizationId, "LA_InterestAmt");
+			BigDecimal dunningAmt = getSelectionAsBigDecimal(amortizationId, "LA_CurrentDunningAmt");
+			//	Create Invoice
+			if(isSplitInvoices() 
+					|| invoice == null) {
+				invoice = new MInvoice(getCtx(), 0, get_TrxName());
+				//	Set Document Information
+				MFMAccount account = (MFMAccount) amortization.getFM_Account();
+				agreement = (MFMAgreement) account.getFM_Agreement();
+				//	Get Financial Product for configuration
+				MFMProduct financialProduct = MFMProduct.getById(getCtx(), agreement.getFM_Product_ID());
+				product = MProduct.get(getCtx(), financialProduct.getM_Product_ID());
+				MBPartner businessPartner = MBPartner.get(getCtx(), agreement.getC_BPartner_ID());
+				int rateForInterestId = financialProduct.get_ValueAsInt("FM_Rate_ID");
+				int rateForDunningInterestId = financialProduct.get_ValueAsInt("DunningInterest_ID");
+				if(interestAmt != null
+						&& rateForInterestId == 0) {
+					throw new AdempiereException("@FM_Rate_ID@ @for@ @Interest@ @NotFound@");
+				}
+				//	For dunning
+				if(dunningAmt != null
+						&& rateForDunningInterestId == 0) {
+					throw new AdempiereException("@DunningInterest_ID@ @NotFound@");
+				}
+				MFMRate interestRate = MFMRate.getById(getCtx(), rateForInterestId);
+				MFMRate dunningunningInterest = MFMRate.getById(getCtx(), rateForDunningInterestId);
+				//	Get Charge
+				chargeForInterestId = interestRate.getC_Charge_ID();
+				chargeForDunningId = dunningunningInterest.getC_Charge_ID();
+				//	Set Values for document
+				//	Set Document Type
+				if(getDocTypeTargetId() != 0) {
+					invoice.setC_DocTypeTarget_ID(getDocTypeTargetId());
+				} else {
+					invoice.setIsSOTrx(true);
+					invoice.setC_DocTypeTarget_ID();
+				}
+				//	Set Date for it
+				invoice.setDateInvoiced(getDateInvoiced());
+				invoice.setDateAcct(getDateInvoiced());
+				//	Set Business Partner Information
+				invoice.setBPartner(businessPartner);
+				//	Set Description
+				invoice.setDescription(Msg.parseTranslation(Env.getCtx(), "@Generate@ @from@ @Loan@") 
+						+ " - " + agreement.getDocumentNo());
+				//	Set Reference
+				invoice.set_ValueOfColumn("FM_Account_ID", account.getFM_Account_ID());
+				//	Save
+				invoice.saveEx();
+				//	Add to list
+				invoiceList.add(invoice);
+			}
+			//	For Capital Amount
+			if(capitalAmt != null
+					&& product != null) {
+				//	Create Line
+				createLine(capitalAmt, product, 0, agreement, amortization);
+			}
+			//	For Interest
+			if(interestAmt != null
+					&& chargeForInterestId != 0) {
+				//	Create Line
+				createLine(interestAmt, null, chargeForInterestId, agreement, amortization);
+			}
+			//	For Dunning
+			if(dunningAmt != null
+					&& chargeForDunningId != 0) {
+				//	Create Line
+				createLine(dunningAmt, null, chargeForDunningId, agreement, amortization);
+			}
+		}
+		//	Complete All Invoices
+		completeInvoice();
+		//	Show Message
+		//	
+		StringBuffer msg = new StringBuffer("@Created@ (")
+									.append(invoiceList.size()).append(")");
+		//	
+		StringBuffer detail = new StringBuffer();
+		//	Return
+		for(MInvoice invoice : invoiceList) {
+			if(detail.length() > 0)
+				detail.append(", ");
+			//	
+			detail.append(invoice.getDocumentNo());
+		}
+		//	
+		if(detail.length() > 0) {
+			msg.append("[").append(detail).append("]");
+		}
+		//	
+		return msg.toString();
 	}
-
-	@Override
-	protected String doIt() throws Exception
-	{
-		return "";
+	
+	/**
+	 * Create Invoice line from Amortization
+	 * @param amount
+	 * @param product
+	 * @param chargeId
+	 * @param loan
+	 * @param amortization
+	 */
+	private void createLine(BigDecimal amount, MProduct product, int chargeId, MFMAgreement loan, MFMAmortization amortization) {
+		//	Set values for line
+		MInvoiceLine invoiceLine = new MInvoiceLine(invoice);
+		if(product != null) {
+			invoiceLine.setProduct(product);
+		} else if(chargeId != 0) {
+			invoiceLine.setC_Charge_ID(chargeId);
+		}
+		invoiceLine.setQty(Env.ONE);
+		invoiceLine.setPrice(amount);
+		invoiceLine.setDescription(
+				Msg.parseTranslation(Env.getCtx(), 
+						"@Generate@ @from@ @FM_Amortization_ID@ " + amortization.getPeriodNo() 
+						+ " @of@ @Loan@ " + loan.getDocumentNo()));
+		//	Set Reference
+		invoiceLine.set_ValueOfColumn("FM_Amortization_ID", amortization.getFM_Amortization_ID());
+		//	Save
+		invoiceLine.saveEx();
 	}
+	
+	/**
+	 * 	Complete Invoice
+	 */
+	private void completeInvoice() {
+		for(MInvoice invoice : invoiceList) {
+			invoice.setDocAction(getDocAction());
+			if (!invoice.processIt(getDocAction())) {
+				log.warning("completeInvoice - failed: " + invoice);
+				addLog(Msg.getMsg(getCtx(), "Error") + invoice);
+			} else {
+				addLog("@C_Invoice_ID@ @Created@" + invoice.getDocumentNo());
+			}
+			//	SAve
+			invoice.saveEx();
+		}
+	}	//	completeInvoice
 }
