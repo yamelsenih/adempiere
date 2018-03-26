@@ -24,7 +24,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
 
-import org.compiere.model.MProduct;
+import org.compiere.model.MCharge;
 import org.compiere.model.MTax;
 import org.compiere.model.MTaxCategory;
 import org.compiere.util.Env;
@@ -131,21 +131,29 @@ public class LoanUtil {
 		}
 		//	Calculate it
 		MFMProduct financialProduct = MFMProduct.getById(ctx, financialProductId);
-		MProduct product = MProduct.get(ctx, financialProduct.getM_Product_ID());
 		//	Get Interest Rate
 		int rateId = financialProduct.get_ValueAsInt("FM_Rate_ID");
-		MFMRate rate = MFMRate.getById(ctx, rateId);
-		//	
-		BigDecimal interestRate = rate.getValidRate(startDate);
-		//	Get Tax Rate
-		MTaxCategory taxCategory = (MTaxCategory) product.getC_TaxCategory();
-		MTax tax = taxCategory.getDefaultTax();
-		//	Calculate rate for fee (Year Interest + (Tax Rate * Year Interest))
+		BigDecimal interestRate = Env.ZERO;
 		BigDecimal interestRateAndTaxRate = Env.ZERO;
-		interestRate = interestRate.divide(Env.ONEHUNDRED);
-		BigDecimal taxRate = tax.getRate().divide(Env.ONEHUNDRED);
-		//	Calculate
-		interestRateAndTaxRate = interestRate.add(interestRate.multiply(taxRate));
+		BigDecimal taxRate = Env.ZERO;
+		MCharge charge = null;
+		if(rateId != 0) {
+			MFMRate rate = MFMRate.getById(ctx, rateId);
+			//	
+			interestRate = rate.getValidRate(startDate);
+			charge = MCharge.get(ctx, rate.getC_Charge_ID());
+		}
+		//	Validate Charge
+		if(charge != null) {
+			//	Get Tax Rate
+			MTaxCategory taxCategory = (MTaxCategory) charge.getC_TaxCategory();
+			MTax tax = taxCategory.getDefaultTax();
+			//	Calculate rate for fee (Year Interest + (Tax Rate * Year Interest))
+			interestRate = interestRate.divide(Env.ONEHUNDRED);
+			taxRate = tax.getRate().divide(Env.ONEHUNDRED);
+			//	Calculate
+			interestRateAndTaxRate = interestRate.add(interestRate.multiply(taxRate));
+		}
 		//	Hash Map for Amortization
 		List<AmortizationValue> amortizationList = new ArrayList<AmortizationValue>();
 		//	Cumulative

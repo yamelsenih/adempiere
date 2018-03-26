@@ -331,6 +331,9 @@ public class WLoanSimulator extends LoanSimulator
 	 *  @param e event
 	 */
 	public void valueChange (ValueChangeEvent e) {
+		if(e == null) {
+			return;
+		}
 		if (e.getPropertyName().equals("C_BPartner_ID")) {
 			Env.setContext(Env.getCtx(), windowNo, "C_BPartner_ID", ((Integer)e.getNewValue()).intValue());
 			businessPartnerId = ((Integer)e.getNewValue()).intValue();
