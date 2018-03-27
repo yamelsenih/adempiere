@@ -44,3 +44,4 @@ addons:
 after_success:
 - cd ..
 - chmod +x ./deploy.sh
+- ./deploy.sh
