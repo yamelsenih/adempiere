@@ -1,2 +1,6 @@
 language: java
-ant: echo Cleanup ...
+jdk:
+  - oraclejdk8
+os:
+  - linux
+script: utils_dev/RUN_build.sh
