@@ -6,6 +6,9 @@ os:
 before_install:
 - openssl aes-256-cbc -K $encrypted_1d0a162d6238_key -iv $encrypted_1d0a162d6238_iv
   -in deploy_rsa.enc -out deploy_rsa -d
+- eval "$(ssh-agent -s)"
+- chmod 600 deploy_rsa
+- ssh-add deploy_rsa
 - cd utils_dev
 jobs:
   include:
@@ -36,7 +39,7 @@ notifications:
     on_failure: always
 addons:
   ssh_known_hosts:
-  - "$REMOTE_HOST"
+  - $REMOTE_HOST
 after_success:
 - cd ..
-- "./deploy.sh"
+- ./deploy.sh
