@@ -37,5 +37,5 @@ addons:
   ssh_known_hosts:
   - $REMOTE_HOST
 after_success:
-  -"cd .."
+  - cd ..
   - "./deploy.sh"
