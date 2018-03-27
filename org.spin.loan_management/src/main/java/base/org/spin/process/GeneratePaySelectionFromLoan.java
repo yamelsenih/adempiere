@@ -134,7 +134,7 @@ public class GeneratePaySelectionFromLoan extends GeneratePaySelectionFromLoanAb
 			//	Complete Document
 			completeDocument();
 			//	Notify
-			msg.append(paymentSelection.getDescription());
+			msg.append("@C_PaySelection_ID@: [" + paymentSelection.getDocumentNo() + "]");
 		} else {	//	Is a new Payment Selection
 			//	Loop for keys
 			for(Integer key : getSelectionKeys()) {
