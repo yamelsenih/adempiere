@@ -7,7 +7,7 @@ before_install:
  - cd utils_dev
 jobs:
   include:
-    - stage: Main Build
+    - stage: Main Build Test
       script: ant build
 before_deploy:
   # Set up git user name and tag this commit
