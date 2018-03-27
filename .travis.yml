@@ -24,7 +24,10 @@ deploy:
         - "install/build/Adempiere_390LTS.zip.MD5"
       on:
         tags: true
-        all_branches: true
+        only:
+          - develop
+          - master 
+          - hotfix/#1592-hotfix-Commission
       skip_cleanup: true
 notifications:
   email:
