@@ -9,6 +9,20 @@ jobs:
   include:
     - stage: Main Build
       script: ant build
+before_deploy:
+  # Set up git user name and tag this commit
+  - git config --local user.name "YamelSenih"
+  - git config --local user.email "yamelsenih@gmail.com"
+  - git tag "$(date +'%Y%m%d%H%M%S')-$(git log --format=%h -1)"
+deploy:
+      provider: releases
+      api_key: "9376abf8e4c70380145fecaf5b0b6a684e354726"
+      file: 
+        - "install/build/Adempiere_390LTS.tar.gz"
+        - "install/build/Adempiere_390LTS.tar.gz.MD5"
+        - "install/build/Adempiere_390LTS.zip"
+        - "install/build/Adempiere_390LTS.zip.MD5"
+      skip_cleanup: true
 notifications:
   email:
     recipients:
