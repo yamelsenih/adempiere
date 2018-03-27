@@ -49,7 +49,15 @@ public class MFMAccount extends X_FM_Account {
 		//	Set default values
 		setFM_Agreement_ID(agreement.getFM_Agreement_ID());
 		setAccountNo("#" + agreement.getDocumentNo());
-		setC_Currency_ID(MClient.get(agreement.getCtx()).getC_Currency_ID());
+		int currencyId = MClient.get(agreement.getCtx()).getC_Currency_ID();
+		if(agreement.getFM_Product_ID() != 0) {
+			MFMProduct financialProduct = MFMProduct.getById(getCtx(), agreement.getFM_Product_ID());
+			if(financialProduct.get_ValueAsInt("C_Currency_ID") != 0) {
+				currencyId = financialProduct.get_ValueAsInt("C_Currency_ID");
+			}
+		}
+		//	Set currency
+		setC_Currency_ID(currencyId);
 	}
 	
 	/**

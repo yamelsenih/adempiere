@@ -129,7 +129,7 @@ public abstract class LoanSimulator {
 		//	Set Acount
 		MFMAccount account = accounts.get(0);
 		account.set_ValueOfColumn("CapitalAmt", capitalAmt);
-		account.set_ValueOfColumn("C_Currency_ID", currencyId);
+		account.setC_Currency_ID(currencyId);
 		account.set_ValueOfColumn("FeesQty", new BigDecimal(feesQty));
 		account.set_ValueOfColumn("StartDate", startDate);
 		account.set_ValueOfColumn("EndDate", endDate);
