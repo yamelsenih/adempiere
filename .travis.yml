@@ -5,4 +5,7 @@ os:
   - linux
 before_install:
  - cd utils_dev
-script: ant build
+jobs:
+  include:
+    - stage: Main Build
+      script: ant build
