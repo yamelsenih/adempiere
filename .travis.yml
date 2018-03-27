@@ -9,11 +9,10 @@ jobs:
   include:
     - stage: Main Build
       script: ant build
-    - stage: Notification
-      notifications:
-      email:
-        recipients:
-          - ysenih@erpya.com
-          - info@erpya.com
-      on_success: always # default: change
-      on_failure: always # default: always
+notifications:
+  email:
+    recipients:
+      - ysenih@erpya.com
+      - info@erpya.com
+    on_success: always # default: change
+    on_failure: always # default: always
