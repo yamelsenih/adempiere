@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<Migrations>
+  <Migration EntityType="D" Name="Bugfix for Loan #1599" ReleaseNo="3.9.1" SeqNo="10">
+    <Comments>See: https://github.com/adempiere/adempiere/issues/1599</Comments>
+    <Step SeqNo="10" StepType="AD">
+      <PO AD_Table_ID="116" Action="U" Record_ID="54280" Table="AD_Menu">
+        <Data AD_Column_ID="4426" Column="IsSOTrx" oldValue="false">true</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="20" StepType="AD">
+      <PO AD_Table_ID="53224" Action="U" Record_ID="50119" Table="AD_Browse">
+        <Data AD_Column_ID="58000" Column="WhereClause" oldValue="la.DocStatus IN('CO') &#10;AND la.IsSOTrx = 'Y'&#10;AND NOT EXISTS(SELECT 1 FROM C_Invoice i &#10;&#9;&#9;INNER JOIN C_InvoiceLine il ON(il.C_Invoice_ID = i.C_Invoice_ID)&#10;&#9;&#9;WHERE il.FM_Amortization_ID = la.FM_Amortization_ID&#10;&#9;&#9;AND i.DocStatus IN('CO', 'CL'))">la.DocStatus IN('CO') 
+AND la.IsSOTrx = 'Y'
+AND NOT EXISTS(SELECT 1 FROM C_Invoice i 
+		INNER JOIN C_InvoiceLine il ON(il.C_Invoice_ID = i.C_Invoice_ID)
+		WHERE il.FM_Amortization_ID = la.FM_Amortization_ID
+		AND i.DocStatus IN('CO', 'CL'))
+AND EXISTS(SELECT 1 FROM C_PaySelection ps 
+		INNER JOIN C_PaySelectionLine psl ON(psl.C_PaySelection_ID = ps.C_PaySelection_ID)
+        INNER JOIN C_PaySelectionCheck psc ON(psc.C_PaySelectionCheck_ID = psl.C_PaySelectionCheck_ID)
+        INNER JOIN C_Payment p ON(p.C_Payment_ID = psc.C_Payment_ID)
+		WHERE p.DocStatus IN('CO', 'CL')
+		AND ag.FM_Account_ID = psl.FM_Account_ID)</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="30" StepType="AD">
+      <PO AD_Table_ID="53224" Action="U" Record_ID="50119" Table="AD_Browse">
+        <Data AD_Column_ID="58000" Column="WhereClause" oldValue="la.DocStatus IN('CO') &#10;AND la.IsSOTrx = 'Y'&#10;AND NOT EXISTS(SELECT 1 FROM C_Invoice i &#10;&#9;&#9;INNER JOIN C_InvoiceLine il ON(il.C_Invoice_ID = i.C_Invoice_ID)&#10;&#9;&#9;WHERE il.FM_Amortization_ID = la.FM_Amortization_ID&#10;&#9;&#9;AND i.DocStatus IN('CO', 'CL'))&#10;AND EXISTS(SELECT 1 FROM C_PaySelection ps &#10;&#9;&#9;INNER JOIN C_PaySelectionLine psl ON(psl.C_PaySelection_ID = ps.C_PaySelection_ID)&#10;        INNER JOIN C_PaySelectionCheck psc ON(psc.C_PaySelectionCheck_ID = psl.C_PaySelectionCheck_ID)&#10;        INNER JOIN C_Payment p ON(p.C_Payment_ID = psc.C_Payment_ID)&#10;&#9;&#9;WHERE p.DocStatus IN('CO', 'CL')&#10;&#9;&#9;AND ag.FM_Account_ID = psl.FM_Account_ID)">la.DocStatus IN('CO') 
+AND la.IsSOTrx = 'Y'
+AND NOT EXISTS(SELECT 1 FROM C_Invoice i 
+		INNER JOIN C_InvoiceLine il ON(il.C_Invoice_ID = i.C_Invoice_ID)
+		WHERE il.FM_Amortization_ID = la.FM_Amortization_ID
+		AND i.DocStatus IN('CO', 'CL'))
+AND EXISTS(SELECT 1 FROM C_PaySelection ps 
+		INNER JOIN C_PaySelectionLine psl ON(psl.C_PaySelection_ID = ps.C_PaySelection_ID)
+        INNER JOIN C_PaySelectionCheck psc ON(psc.C_PaySelectionCheck_ID = psl.C_PaySelectionCheck_ID)
+        INNER JOIN C_Payment p ON(p.C_Payment_ID = psc.C_Payment_ID)
+		WHERE p.DocStatus IN('CO', 'CL')
+		AND la.FM_Account_ID = psl.FM_Account_ID)</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="40" StepType="AD">
+      <PO AD_Table_ID="108" Action="U" Record_ID="52578" Table="AD_Val_Rule">
+        <Data AD_Column_ID="193" Column="Code" oldValue="FM_Agreement.C_BPartner_ID = @LA_C_BPartner_ID@&#10;AND EXISTS(SELECT 1 FROM FM_Account ac&#10;INNER JOIN FM_Amortization am ON(am.FM_Account_ID = ac.FM_Account_ID)&#10;WHERE ac.FM_Agreement_ID = FM_Agreement.FM_Agreement_ID&#10;             AND NOT EXISTS(SELECT 1 FROM C_Invoice i&#10;                INNER JOIN C_InvoiceLine il ON(il.C_Invoice_ID = i.C_Invoice_ID)&#10;                WHERE il.FM_Amortization_ID = am.FM_Amortization_ID&#10;                AND i.DocStatus IN('CO', 'CL')))">FM_Agreement.C_BPartner_ID = @LA_C_BPartner_ID@
+AND EXISTS(SELECT 1 FROM FM_Account ac
+INNER JOIN FM_Amortization am ON(am.FM_Account_ID = ac.FM_Account_ID)
+WHERE ac.FM_Agreement_ID = FM_Agreement.FM_Agreement_ID
+             AND NOT EXISTS(SELECT 1 FROM C_Invoice i
+                INNER JOIN C_InvoiceLine il ON(il.C_Invoice_ID = i.C_Invoice_ID)
+                WHERE il.FM_Amortization_ID = am.FM_Amortization_ID
+                AND i.DocStatus IN('CO', 'CL')))
+AND EXISTS(SELECT 1 FROM C_PaySelection ps 
+		INNER JOIN C_PaySelectionLine psl ON(psl.C_PaySelection_ID = ps.C_PaySelection_ID)
+        INNER JOIN FM_Account ac ON(ac.FM_Account_ID = psl.FM_Account_ID)
+        INNER JOIN C_PaySelectionCheck psc ON(psc.C_PaySelectionCheck_ID = psl.C_PaySelectionCheck_ID)
+        INNER JOIN C_Payment p ON(p.C_Payment_ID = psc.C_Payment_ID)
+		WHERE p.DocStatus IN('CO', 'CL')
+		AND FM_Agreement.FM_Agreement_ID = ac.FM_Agreement_ID)</Data>
+      </PO>
+    </Step>
+  </Migration>
+</Migrations>

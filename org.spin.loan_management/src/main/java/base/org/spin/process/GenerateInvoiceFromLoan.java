@@ -23,8 +23,11 @@ import java.util.List;
 
 import org.adempiere.exceptions.AdempiereException;
 import org.compiere.model.MBPartner;
+import org.compiere.model.MConversionType;
+import org.compiere.model.MCurrency;
 import org.compiere.model.MInvoice;
 import org.compiere.model.MInvoiceLine;
+import org.compiere.model.MPriceList;
 import org.compiere.model.MProduct;
 import org.compiere.util.Env;
 import org.compiere.util.Msg;
@@ -102,6 +105,14 @@ public class GenerateInvoiceFromLoan extends GenerateInvoiceFromLoanAbstract {
 						+ " - " + agreement.getDocumentNo());
 				//	Set Reference
 				invoice.set_ValueOfColumn("FM_Account_ID", account.getFM_Account_ID());
+				//	Set Currency and Price List
+				MCurrency currency = MCurrency.get(getCtx(), account.getC_Currency_ID());
+				MPriceList priceList = MPriceList.getDefault(getCtx(), true, currency.getISO_Code());
+				if(priceList == null) {
+					throw new AdempiereException("@M_PriceList_ID@ @NotFound@ @for@ " + currency.getISO_Code());
+				}
+				invoice.setM_PriceList_ID(priceList.getM_PriceList_ID());
+				invoice.setC_ConversionType_ID(MConversionType.getDefault(getAD_Client_ID()));
 				//	Save
 				invoice.saveEx();
 				//	Add to list
