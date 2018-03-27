@@ -16,7 +16,7 @@ before_deploy:
   - git tag "$(date +'%Y%m%d%H%M%S')-$(git log --format=%h -1)"
 deploy:
       provider: releases
-      api_key: "9376abf8e4c70380145fecaf5b0b6a684e354726"
+      api_key: "58353468eae8db32129c77af3bbdea51163d0c14"
       file: 
         - "install/build/Adempiere_390LTS.tar.gz"
         - "install/build/Adempiere_390LTS.tar.gz.MD5"
