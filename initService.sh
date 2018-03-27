@@ -1,5 +1,4 @@
-#!/usr/bin/env sh
-set -x
+#!/bin/sh
 
 
 cd $APP_DIR && \
