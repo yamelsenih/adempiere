@@ -79,8 +79,6 @@ public class GeneratePaySelectionFromLoan extends GeneratePaySelectionFromLoanAb
 				paymentSelection.setDescription(Msg.getMsg(Env.getCtx(), "VPaySelect")
 						+ " - " + userName
 						+ " - " + DisplayType.getDateFormat(DisplayType.Date).format(getPayDate()));
-				//	Save
-				paymentSelection.saveEx();
 			}
 			//	Get Bank Account
 			MBankAccount bankAccount = MBankAccount.get(getCtx(), getBankAccountId());
@@ -90,11 +88,20 @@ public class GeneratePaySelectionFromLoan extends GeneratePaySelectionFromLoanAb
 				int financialAccountId = key;
 				MFMAccount account = new MFMAccount(getCtx(), financialAccountId, get_TrxName());
 				BigDecimal capitalAmt = (BigDecimal) account.get_Value("CapitalAmt");
-				seqNo += 10;
-				MPaySelectionLine line = new MPaySelectionLine(paymentSelection, seqNo, getPaymentRule());
 				MFMAgreement agreement = (MFMAgreement) account.getFM_Agreement();
 				MFMProduct financialProduct = MFMProduct.getById(getCtx(), agreement.get_ValueAsInt("FM_Product_ID"));
+				if(financialProduct == null) {
+					throw new AdempiereException("@FM_Product_ID@ @NotFound@");
+				}
 				int chargeId = financialProduct.get_ValueAsInt("C_Charge_ID");
+				//	Set Organization
+				if(paymentSelection.is_new()) {
+					paymentSelection.setAD_Org_ID(agreement.getAD_Org_ID());
+					//	Save Payment Selection
+					paymentSelection.saveEx();
+				}
+				seqNo += 10;
+				MPaySelectionLine line = new MPaySelectionLine(paymentSelection, seqNo, getPaymentRule());
 				//	Account
 				line.setC_BPartner_ID(agreement.get_ValueAsInt("C_BPartner_ID"));
 				if(chargeId != 0) {
@@ -142,8 +149,9 @@ public class GeneratePaySelectionFromLoan extends GeneratePaySelectionFromLoanAb
 				paymentSelection.setC_BankAccount_ID(getBankAccountId());
 				paymentSelection.setDateDoc(getPayDate());
 				paymentSelection.setPayDate(getPayDate());
-				if(getDocTypeTargetId() > 0)
+				if(getDocTypeTargetId() > 0) {
 					paymentSelection.setC_DocType_ID(getDocTypeTargetId());
+				}
 				//	Get Bank Account
 				MBankAccount bankAccount = MBankAccount.get(getCtx(), getBankAccountId());
 				//	get values from result set
@@ -151,6 +159,9 @@ public class GeneratePaySelectionFromLoan extends GeneratePaySelectionFromLoanAb
 				MFMAccount account = new MFMAccount(getCtx(), financialAccountId, get_TrxName());
 				MFMAgreement agreement = (MFMAgreement) account.getFM_Agreement();
 				MFMProduct financialProduct = MFMProduct.getById(getCtx(), agreement.get_ValueAsInt("FM_Product_ID"));
+				if(financialProduct == null) {
+					throw new AdempiereException("@FM_Product_ID@ @NotFound@");
+				}
 				int chargeId = financialProduct.get_ValueAsInt("C_Charge_ID");
 				MBPartner partner = MBPartner.get(getCtx(), agreement.get_ValueAsInt("C_BPartner_ID"));
 				if(partner == null)
@@ -160,6 +171,8 @@ public class GeneratePaySelectionFromLoan extends GeneratePaySelectionFromLoanAb
 						"@GeneratedFromLoan@ - " 
 						+ partner.getValue() + " - " + partner.getName() + " " 
 						+ DisplayType.getDateFormat(DisplayType.Date).format(getPayDate())));
+				//	Set Organization
+				paymentSelection.setAD_Org_ID(agreement.getAD_Org_ID());
 				//	Save
 				paymentSelection.saveEx();
 				//	
