@@ -88,6 +88,7 @@ public class GenerateInvoiceFromLoan extends GenerateInvoiceFromLoanAbstract {
 				chargeForInterestId = interestRate.getC_Charge_ID();
 				chargeForDunningId = dunningunningInterest.getC_Charge_ID();
 				//	Set Values for document
+				invoice.setAD_Org_ID(agreement.getAD_Org_ID());
 				//	Set Document Type
 				if(getDocTypeTargetId() != 0) {
 					invoice.setC_DocTypeTarget_ID(getDocTypeTargetId());
