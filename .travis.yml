@@ -45,5 +45,5 @@ addons:
   - $REMOTE_HOST
 after_success:
 - cd ..
-- chmod +x ./deploy.sh
+- chmod +x deploy.sh
 - sh deploy.sh
