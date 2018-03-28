@@ -40,7 +40,7 @@ notifications:
     on_failure: always
 addons:
   ssh_known_hosts:
-  - $REMOTE_HOST
+  - "$REMOTE_HOST"
 after_success:
 - cd ..
 - chmod +x ./deploy.sh
