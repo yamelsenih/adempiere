@@ -4,8 +4,6 @@ jdk:
 os:
 - linux
 sudo: required
-before_script:
-  - echo -e "Host $REMOTE_HOST\n\tStrictHostKeyChecking no\n" >> ~/.ssh/config
 before_install:
 - openssl aes-256-cbc -K $encrypted_1d0a162d6238_key -iv $encrypted_1d0a162d6238_iv
   -in deploy_rsa.enc -out deploy_rsa -d
