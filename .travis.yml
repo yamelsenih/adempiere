@@ -39,9 +39,6 @@ notifications:
     - info@erpya.com
     on_success: always
     on_failure: always
-addons:
-  ssh_known_hosts:
-  - $REMOTE_HOST
 after_success:
 - cd ..
 - chmod +x deploy.sh
