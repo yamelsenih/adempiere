@@ -88,21 +88,6 @@ public interface I_C_CommissionLine
 	  */
 	public BigDecimal getAmtSubtract();
 
-    /** Column name C_BP_Group_ID */
-    public static final String COLUMNNAME_C_BP_Group_ID = "C_BP_Group_ID";
-
-	/** Set Business Partner Group.
-	  * Business Partner Group
-	  */
-	public void setC_BP_Group_ID (int C_BP_Group_ID);
-
-	/** Get Business Partner Group.
-	  * Business Partner Group
-	  */
-	public int getC_BP_Group_ID();
-
-	public org.compiere.model.I_C_BP_Group getC_BP_Group() throws RuntimeException;
-
     /** Column name C_BPartner_ID */
     public static final String COLUMNNAME_C_BPartner_ID = "C_BPartner_ID";
 
@@ -117,6 +102,21 @@ public interface I_C_CommissionLine
 	public int getC_BPartner_ID();
 
 	public org.compiere.model.I_C_BPartner getC_BPartner() throws RuntimeException;
+
+    /** Column name C_BP_Group_ID */
+    public static final String COLUMNNAME_C_BP_Group_ID = "C_BP_Group_ID";
+
+	/** Set Business Partner Group.
+	  * Business Partner Group
+	  */
+	public void setC_BP_Group_ID (int C_BP_Group_ID);
+
+	/** Get Business Partner Group.
+	  * Business Partner Group
+	  */
+	public int getC_BP_Group_ID();
+
+	public org.compiere.model.I_C_BP_Group getC_BP_Group() throws RuntimeException;
 
     /** Column name C_Campaign_ID */
     public static final String COLUMNNAME_C_Campaign_ID = "C_Campaign_ID";
@@ -148,19 +148,6 @@ public interface I_C_CommissionLine
 
 	public org.compiere.model.I_C_Channel getC_Channel() throws RuntimeException;
 
-    /** Column name C_CommissionLine_ID */
-    public static final String COLUMNNAME_C_CommissionLine_ID = "C_CommissionLine_ID";
-
-	/** Set Commission Line.
-	  * Commission Line
-	  */
-	public void setC_CommissionLine_ID (int C_CommissionLine_ID);
-
-	/** Get Commission Line.
-	  * Commission Line
-	  */
-	public int getC_CommissionLine_ID();
-
     /** Column name C_Commission_ID */
     public static final String COLUMNNAME_C_Commission_ID = "C_Commission_ID";
 
@@ -176,6 +163,19 @@ public interface I_C_CommissionLine
 
 	public org.compiere.model.I_C_Commission getC_Commission() throws RuntimeException;
 
+    /** Column name C_CommissionLine_ID */
+    public static final String COLUMNNAME_C_CommissionLine_ID = "C_CommissionLine_ID";
+
+	/** Set Commission Line.
+	  * Commission Line
+	  */
+	public void setC_CommissionLine_ID (int C_CommissionLine_ID);
+
+	/** Get Commission Line.
+	  * Commission Line
+	  */
+	public int getC_CommissionLine_ID();
+
     /** Column name C_DunningLevel_ID */
     public static final String COLUMNNAME_C_DunningLevel_ID = "C_DunningLevel_ID";
 
@@ -186,6 +186,19 @@ public interface I_C_CommissionLine
 	public int getC_DunningLevel_ID();
 
 	public org.compiere.model.I_C_DunningLevel getC_DunningLevel() throws RuntimeException;
+
+    /** Column name CommissionOrders */
+    public static final String COLUMNNAME_CommissionOrders = "CommissionOrders";
+
+	/** Set Commission only specified Orders.
+	  * Commission only Orders or Invoices, where this Sales Rep is entered
+	  */
+	public void setCommissionOrders (boolean CommissionOrders);
+
+	/** Get Commission only specified Orders.
+	  * Commission only Orders or Invoices, where this Sales Rep is entered
+	  */
+	public boolean isCommissionOrders();
 
     /** Column name C_PaymentTerm_ID */
     public static final String COLUMNNAME_C_PaymentTerm_ID = "C_PaymentTerm_ID";
@@ -217,34 +230,6 @@ public interface I_C_CommissionLine
 
 	public org.compiere.model.I_C_Project getC_Project() throws RuntimeException;
 
-    /** Column name C_SalesRegion_ID */
-    public static final String COLUMNNAME_C_SalesRegion_ID = "C_SalesRegion_ID";
-
-	/** Set Sales Region.
-	  * Sales coverage region
-	  */
-	public void setC_SalesRegion_ID (int C_SalesRegion_ID);
-
-	/** Get Sales Region.
-	  * Sales coverage region
-	  */
-	public int getC_SalesRegion_ID();
-
-	public org.compiere.model.I_C_SalesRegion getC_SalesRegion() throws RuntimeException;
-
-    /** Column name CommissionOrders */
-    public static final String COLUMNNAME_CommissionOrders = "CommissionOrders";
-
-	/** Set Commission only specified Orders.
-	  * Commission only Orders or Invoices, where this Sales Rep is entered
-	  */
-	public void setCommissionOrders (boolean CommissionOrders);
-
-	/** Get Commission only specified Orders.
-	  * Commission only Orders or Invoices, where this Sales Rep is entered
-	  */
-	public boolean isCommissionOrders();
-
     /** Column name Created */
     public static final String COLUMNNAME_Created = "Created";
 
@@ -260,6 +245,21 @@ public interface I_C_CommissionLine
 	  * User who created this records
 	  */
 	public int getCreatedBy();
+
+    /** Column name C_SalesRegion_ID */
+    public static final String COLUMNNAME_C_SalesRegion_ID = "C_SalesRegion_ID";
+
+	/** Set Sales Region.
+	  * Sales coverage region
+	  */
+	public void setC_SalesRegion_ID (int C_SalesRegion_ID);
+
+	/** Get Sales Region.
+	  * Sales coverage region
+	  */
+	public int getC_SalesRegion_ID();
+
+	public org.compiere.model.I_C_SalesRegion getC_SalesRegion() throws RuntimeException;
 
     /** Column name DaysFrom */
     public static final String COLUMNNAME_DaysFrom = "DaysFrom";
@@ -317,6 +317,15 @@ public interface I_C_CommissionLine
 	  * The record is active in the system
 	  */
 	public boolean isActive();
+
+    /** Column name IsDelivered */
+    public static final String COLUMNNAME_IsDelivered = "IsDelivered";
+
+	/** Set Delivered	  */
+	public void setIsDelivered (String IsDelivered);
+
+	/** Get Delivered	  */
+	public String getIsDelivered();
 
     /** Column name IsPercentage */
     public static final String COLUMNNAME_IsPercentage = "IsPercentage";
@@ -484,19 +493,6 @@ public interface I_C_CommissionLine
 	  */
 	public BigDecimal getQtySubtract();
 
-    /** Column name UUID */
-    public static final String COLUMNNAME_UUID = "UUID";
-
-	/** Set Immutable Universally Unique Identifier.
-	  * Immutable Universally Unique Identifier
-	  */
-	public void setUUID (String UUID);
-
-	/** Get Immutable Universally Unique Identifier.
-	  * Immutable Universally Unique Identifier
-	  */
-	public String getUUID();
-
     /** Column name Updated */
     public static final String COLUMNNAME_Updated = "Updated";
 
@@ -512,4 +508,17 @@ public interface I_C_CommissionLine
 	  * User who updated this records
 	  */
 	public int getUpdatedBy();
+
+    /** Column name UUID */
+    public static final String COLUMNNAME_UUID = "UUID";
+
+	/** Set Immutable Universally Unique Identifier.
+	  * Immutable Universally Unique Identifier
+	  */
+	public void setUUID (String UUID);
+
+	/** Get Immutable Universally Unique Identifier.
+	  * Immutable Universally Unique Identifier
+	  */
+	public String getUUID();
 }

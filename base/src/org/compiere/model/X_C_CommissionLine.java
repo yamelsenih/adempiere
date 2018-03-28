@@ -32,7 +32,7 @@ public class X_C_CommissionLine extends PO implements I_C_CommissionLine, I_Pers
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20170731L;
+	private static final long serialVersionUID = 20180328L;
 
     /** Standard Constructor */
     public X_C_CommissionLine (Properties ctx, int C_CommissionLine_ID, String trxName)
@@ -42,8 +42,8 @@ public class X_C_CommissionLine extends PO implements I_C_CommissionLine, I_Pers
         {
 			setAmtMultiplier (Env.ZERO);
 			setAmtSubtract (Env.ZERO);
-			setC_CommissionLine_ID (0);
 			setC_Commission_ID (0);
+			setC_CommissionLine_ID (0);
 			setCommissionOrders (false);
 			setIsPositiveOnly (false);
 			setLine (0);
@@ -121,34 +121,6 @@ public class X_C_CommissionLine extends PO implements I_C_CommissionLine, I_Pers
 		return bd;
 	}
 
-	public org.compiere.model.I_C_BP_Group getC_BP_Group() throws RuntimeException
-    {
-		return (org.compiere.model.I_C_BP_Group)MTable.get(getCtx(), org.compiere.model.I_C_BP_Group.Table_Name)
-			.getPO(getC_BP_Group_ID(), get_TrxName());	}
-
-	/** Set Business Partner Group.
-		@param C_BP_Group_ID 
-		Business Partner Group
-	  */
-	public void setC_BP_Group_ID (int C_BP_Group_ID)
-	{
-		if (C_BP_Group_ID < 1) 
-			set_Value (COLUMNNAME_C_BP_Group_ID, null);
-		else 
-			set_Value (COLUMNNAME_C_BP_Group_ID, Integer.valueOf(C_BP_Group_ID));
-	}
-
-	/** Get Business Partner Group.
-		@return Business Partner Group
-	  */
-	public int getC_BP_Group_ID () 
-	{
-		Integer ii = (Integer)get_Value(COLUMNNAME_C_BP_Group_ID);
-		if (ii == null)
-			 return 0;
-		return ii.intValue();
-	}
-
 	public org.compiere.model.I_C_BPartner getC_BPartner() throws RuntimeException
     {
 		return (org.compiere.model.I_C_BPartner)MTable.get(getCtx(), org.compiere.model.I_C_BPartner.Table_Name)
@@ -172,6 +144,34 @@ public class X_C_CommissionLine extends PO implements I_C_CommissionLine, I_Pers
 	public int getC_BPartner_ID () 
 	{
 		Integer ii = (Integer)get_Value(COLUMNNAME_C_BPartner_ID);
+		if (ii == null)
+			 return 0;
+		return ii.intValue();
+	}
+
+	public org.compiere.model.I_C_BP_Group getC_BP_Group() throws RuntimeException
+    {
+		return (org.compiere.model.I_C_BP_Group)MTable.get(getCtx(), org.compiere.model.I_C_BP_Group.Table_Name)
+			.getPO(getC_BP_Group_ID(), get_TrxName());	}
+
+	/** Set Business Partner Group.
+		@param C_BP_Group_ID 
+		Business Partner Group
+	  */
+	public void setC_BP_Group_ID (int C_BP_Group_ID)
+	{
+		if (C_BP_Group_ID < 1) 
+			set_Value (COLUMNNAME_C_BP_Group_ID, null);
+		else 
+			set_Value (COLUMNNAME_C_BP_Group_ID, Integer.valueOf(C_BP_Group_ID));
+	}
+
+	/** Get Business Partner Group.
+		@return Business Partner Group
+	  */
+	public int getC_BP_Group_ID () 
+	{
+		Integer ii = (Integer)get_Value(COLUMNNAME_C_BP_Group_ID);
 		if (ii == null)
 			 return 0;
 		return ii.intValue();
@@ -233,29 +233,6 @@ public class X_C_CommissionLine extends PO implements I_C_CommissionLine, I_Pers
 		return ii.intValue();
 	}
 
-	/** Set Commission Line.
-		@param C_CommissionLine_ID 
-		Commission Line
-	  */
-	public void setC_CommissionLine_ID (int C_CommissionLine_ID)
-	{
-		if (C_CommissionLine_ID < 1) 
-			set_ValueNoCheck (COLUMNNAME_C_CommissionLine_ID, null);
-		else 
-			set_ValueNoCheck (COLUMNNAME_C_CommissionLine_ID, Integer.valueOf(C_CommissionLine_ID));
-	}
-
-	/** Get Commission Line.
-		@return Commission Line
-	  */
-	public int getC_CommissionLine_ID () 
-	{
-		Integer ii = (Integer)get_Value(COLUMNNAME_C_CommissionLine_ID);
-		if (ii == null)
-			 return 0;
-		return ii.intValue();
-	}
-
 	public org.compiere.model.I_C_Commission getC_Commission() throws RuntimeException
     {
 		return (org.compiere.model.I_C_Commission)MTable.get(getCtx(), org.compiere.model.I_C_Commission.Table_Name)
@@ -292,6 +269,29 @@ public class X_C_CommissionLine extends PO implements I_C_CommissionLine, I_Pers
         return new KeyNamePair(get_ID(), String.valueOf(getC_Commission_ID()));
     }
 
+	/** Set Commission Line.
+		@param C_CommissionLine_ID 
+		Commission Line
+	  */
+	public void setC_CommissionLine_ID (int C_CommissionLine_ID)
+	{
+		if (C_CommissionLine_ID < 1) 
+			set_ValueNoCheck (COLUMNNAME_C_CommissionLine_ID, null);
+		else 
+			set_ValueNoCheck (COLUMNNAME_C_CommissionLine_ID, Integer.valueOf(C_CommissionLine_ID));
+	}
+
+	/** Get Commission Line.
+		@return Commission Line
+	  */
+	public int getC_CommissionLine_ID () 
+	{
+		Integer ii = (Integer)get_Value(COLUMNNAME_C_CommissionLine_ID);
+		if (ii == null)
+			 return 0;
+		return ii.intValue();
+	}
+
 	public org.compiere.model.I_C_DunningLevel getC_DunningLevel() throws RuntimeException
     {
 		return (org.compiere.model.I_C_DunningLevel)MTable.get(getCtx(), org.compiere.model.I_C_DunningLevel.Table_Name)
@@ -315,6 +315,30 @@ public class X_C_CommissionLine extends PO implements I_C_CommissionLine, I_Pers
 		if (ii == null)
 			 return 0;
 		return ii.intValue();
+	}
+
+	/** Set Commission only specified Orders.
+		@param CommissionOrders 
+		Commission only Orders or Invoices, where this Sales Rep is entered
+	  */
+	public void setCommissionOrders (boolean CommissionOrders)
+	{
+		set_Value (COLUMNNAME_CommissionOrders, Boolean.valueOf(CommissionOrders));
+	}
+
+	/** Get Commission only specified Orders.
+		@return Commission only Orders or Invoices, where this Sales Rep is entered
+	  */
+	public boolean isCommissionOrders () 
+	{
+		Object oo = get_Value(COLUMNNAME_CommissionOrders);
+		if (oo != null) 
+		{
+			 if (oo instanceof Boolean) 
+				 return ((Boolean)oo).booleanValue(); 
+			return "Y".equals(oo);
+		}
+		return false;
 	}
 
 	public org.compiere.model.I_C_PaymentTerm getC_PaymentTerm() throws RuntimeException
@@ -401,30 +425,6 @@ public class X_C_CommissionLine extends PO implements I_C_CommissionLine, I_Pers
 		return ii.intValue();
 	}
 
-	/** Set Commission only specified Orders.
-		@param CommissionOrders 
-		Commission only Orders or Invoices, where this Sales Rep is entered
-	  */
-	public void setCommissionOrders (boolean CommissionOrders)
-	{
-		set_Value (COLUMNNAME_CommissionOrders, Boolean.valueOf(CommissionOrders));
-	}
-
-	/** Get Commission only specified Orders.
-		@return Commission only Orders or Invoices, where this Sales Rep is entered
-	  */
-	public boolean isCommissionOrders () 
-	{
-		Object oo = get_Value(COLUMNNAME_CommissionOrders);
-		if (oo != null) 
-		{
-			 if (oo instanceof Boolean) 
-				 return ((Boolean)oo).booleanValue(); 
-			return "Y".equals(oo);
-		}
-		return false;
-	}
-
 	/** Set Days From.
 		@param DaysFrom Days From	  */
 	public void setDaysFrom (int DaysFrom)
@@ -502,6 +502,27 @@ public class X_C_CommissionLine extends PO implements I_C_CommissionLine, I_Pers
 	public String getInvoiceCollectionType () 
 	{
 		return (String)get_Value(COLUMNNAME_InvoiceCollectionType);
+	}
+
+	/** IsDelivered AD_Reference_ID=319 */
+	public static final int ISDELIVERED_AD_Reference_ID=319;
+	/** Yes = Y */
+	public static final String ISDELIVERED_Yes = "Y";
+	/** No = N */
+	public static final String ISDELIVERED_No = "N";
+	/** Set Delivered.
+		@param IsDelivered Delivered	  */
+	public void setIsDelivered (String IsDelivered)
+	{
+
+		set_Value (COLUMNNAME_IsDelivered, IsDelivered);
+	}
+
+	/** Get Delivered.
+		@return Delivered	  */
+	public String getIsDelivered () 
+	{
+		return (String)get_Value(COLUMNNAME_IsDelivered);
 	}
 
 	/** Set Is Percentage.
