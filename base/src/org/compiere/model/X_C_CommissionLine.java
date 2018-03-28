@@ -32,7 +32,7 @@ public class X_C_CommissionLine extends PO implements I_C_CommissionLine, I_Pers
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20180323L;
+	private static final long serialVersionUID = 20180328L;
 
     /** Standard Constructor */
     public X_C_CommissionLine (Properties ctx, int C_CommissionLine_ID, String trxName)
@@ -502,6 +502,27 @@ public class X_C_CommissionLine extends PO implements I_C_CommissionLine, I_Pers
 	public String getInvoiceCollectionType () 
 	{
 		return (String)get_Value(COLUMNNAME_InvoiceCollectionType);
+	}
+
+	/** IsDelivered AD_Reference_ID=319 */
+	public static final int ISDELIVERED_AD_Reference_ID=319;
+	/** Yes = Y */
+	public static final String ISDELIVERED_Yes = "Y";
+	/** No = N */
+	public static final String ISDELIVERED_No = "N";
+	/** Set Delivered.
+		@param IsDelivered Delivered	  */
+	public void setIsDelivered (String IsDelivered)
+	{
+
+		set_Value (COLUMNNAME_IsDelivered, IsDelivered);
+	}
+
+	/** Get Delivered.
+		@return Delivered	  */
+	public String getIsDelivered () 
+	{
+		return (String)get_Value(COLUMNNAME_IsDelivered);
 	}
 
 	/** Set Is Percentage.

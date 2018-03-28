@@ -1086,6 +1086,25 @@ public class MCommissionRun extends X_C_CommissionRun implements DocAction, DocO
 			if (commissionLine.getC_PaymentTerm_ID() != 0) {
 				sqlWhere.append(" AND h.C_PaymentTerm_ID= ").append(commissionLine.getC_PaymentTerm_ID());
 			}
+			
+			//	For Delivered
+			if (commissionLine.getIsDelivered() != null) {
+				String sqlExist = "EXISTS";
+				if(commissionLine.getIsDelivered().equals("N")) {
+					sqlExist = "NOT " + sqlExist;
+				}
+				//	For Orders
+				sql.append(" AND (l.C_OrderLine_ID IS NULL "
+						+ "				OR " + sqlExist + "("
+								+ "		SELECT 1 FROM M_InOut io "
+								+ "				INNER JOIN M_InOutLine iol ON(iol.M_InOut_ID = io.M_InOut_ID) "
+								+ "				WHERE io.DocStatus IN('CO', 'CL') "
+								+ "				AND iol.C_OrderLine_ID = l.C_OrderLine_ID"
+								+ "		)"
+								+ ")");
+			}
+			
+			//	Exclusion
 			sqlWhere.append(getExclusionWhere(commission.getDocBasisType(), commissionLine, commissionLines));
 			if (!commission.isListDetails()) {
 				sqlWhere.append(" GROUP BY h.C_Currency_ID");
