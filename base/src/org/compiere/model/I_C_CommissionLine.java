@@ -318,6 +318,15 @@ public interface I_C_CommissionLine
 	  */
 	public boolean isActive();
 
+    /** Column name IsDelivered */
+    public static final String COLUMNNAME_IsDelivered = "IsDelivered";
+
+	/** Set Delivered	  */
+	public void setIsDelivered (String IsDelivered);
+
+	/** Get Delivered	  */
+	public String getIsDelivered();
+
     /** Column name IsPercentage */
     public static final String COLUMNNAME_IsPercentage = "IsPercentage";
 
