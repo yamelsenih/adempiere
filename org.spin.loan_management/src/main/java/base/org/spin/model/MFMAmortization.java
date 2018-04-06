@@ -41,13 +41,13 @@ public class MFMAmortization extends X_FM_Amortization {
 
 	public MFMAmortization(Properties ctx, int FM_Amortization_ID, String trxName) {
 		super(ctx, FM_Amortization_ID, trxName);
+		// TODO Auto-generated constructor stub
 	}
 
 	public MFMAmortization(Properties ctx, ResultSet rs, String trxName) {
 		super(ctx, rs, trxName);
+		// TODO Auto-generated constructor stub
 	}
-	
-//	public MFMAmortization(
 	
 	/**
 	 * Delete Amortization for Account
