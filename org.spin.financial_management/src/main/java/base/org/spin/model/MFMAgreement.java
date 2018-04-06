@@ -53,6 +53,37 @@ public class MFMAgreement extends X_FM_Agreement implements DocAction, DocOption
       super (ctx, rs, trxName);
     }
     
+    /**
+     * Instance from import
+     * @param agreementImport
+     */
+    public MFMAgreement(X_I_FM_Agreement agreementImport) {
+    	super(agreementImport.getCtx(), agreementImport.getFM_Agreement_ID(), agreementImport.get_TrxName());
+    	//	Set Default Values
+    	setDocumentNo(agreementImport.getDocumentNo());
+    	setC_BPartner_ID(agreementImport.getC_BPartner_ID());
+    	setFM_Product_ID(agreementImport.getFM_Product_ID());
+    	setDescription(agreementImport.getDescription());
+    	setText(agreementImport.getText());
+    	setC_DocType_ID(agreementImport.getC_DocType_ID());
+    	setFM_AgreementType_ID(agreementImport.getFM_AgreementType_ID());
+    	setDateDoc(agreementImport.getDateDoc());
+    	//	Valid From
+    	if(agreementImport.getValidFrom() == null) {
+    		setValidFrom(agreementImport.getDateDoc());
+    	} else {
+    		setValidFrom(agreementImport.getValidFrom());
+    	}
+    	//	Valid To
+    	if(agreementImport.getValidTo() == null) {
+    		setValidTo(agreementImport.getDateDoc());
+    	} else {
+    		setValidTo(agreementImport.getValidTo());
+    	}
+    	setIsSOTrx(agreementImport.isSOTrx());
+    }
+    
+    
     private List<MFMAccountProduct> products = null;
 
 	/**
