@@ -17,6 +17,7 @@
 
 package org.spin.model;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import org.adempiere.exceptions.AdempiereException;
@@ -50,6 +51,7 @@ public class LoanManagementModelValidator implements ModelValidator {
 			clientId = client.getAD_Client_ID();
 		}
 		engine.addModelChange(MFMAgreement.Table_Name, this);
+		engine.addDocValidate(MFMAgreement.Table_Name, this);
 		engine.addDocValidate(MPaySelection.Table_Name, this);
     }
 
@@ -143,6 +145,42 @@ public class LoanManagementModelValidator implements ModelValidator {
 					//	Get Message
 					if(msg.length() > 0) {
 						throw new AdempiereException("@Loan@ @Processed@ [" + msg.toString() + "]");
+					}
+				}
+			}
+		} else if (entity instanceof MFMAgreement) {
+			if (timing == TIMING_AFTER_COMPLETE) {
+				MFMAgreement agreement = (MFMAgreement) entity;
+				//	Get values from amortization
+				List<MFMAccount> accountList = agreement.getAccounts();
+				if(accountList != null
+						&& !accountList.isEmpty()) {
+					BigDecimal capitalAmt = Env.ZERO;
+					BigDecimal interestAmt = Env.ZERO;
+					BigDecimal taxAmt = Env.ZERO;
+					for(MFMAccount account : accountList) {
+						List<MFMAmortization> amortizationList = MFMAmortization
+								.getFromAccount(account.getFM_Account_ID(), account.get_TrxName());
+						//	Iterate
+						for(MFMAmortization amortization : amortizationList) {
+							//	Capital Amount
+							if(amortization.getCapitalAmt() != null) {
+								capitalAmt = capitalAmt.add(amortization.getCapitalAmt());
+							}
+							//	Interest Amount
+							if(amortization.getInterestAmt() != null) {
+								interestAmt = interestAmt.add(amortization.getInterestAmt());
+							}
+							//	Tax Amount
+							if(amortization.getTaxAmt() != null) {
+								taxAmt = taxAmt.add(amortization.getTaxAmt());
+							}
+						}
+						//	Set values
+						account.set_ValueOfColumn("CapitalAmt", capitalAmt);
+						account.set_ValueOfColumn("InterestAmt", interestAmt);
+						account.set_ValueOfColumn("TaxAmt", taxAmt);
+						account.saveEx();	
 					}
 				}
 			}

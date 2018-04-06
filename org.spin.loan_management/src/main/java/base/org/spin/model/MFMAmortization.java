@@ -19,10 +19,12 @@ package org.spin.model;
 import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.Timestamp;
+import java.util.List;
 import java.util.Properties;
 
 import org.compiere.model.Query;
 import org.compiere.util.DB;
+import org.compiere.util.Env;
 
 /**
  * Loan Amortization
@@ -41,12 +43,50 @@ public class MFMAmortization extends X_FM_Amortization {
 
 	public MFMAmortization(Properties ctx, int FM_Amortization_ID, String trxName) {
 		super(ctx, FM_Amortization_ID, trxName);
-		// TODO Auto-generated constructor stub
 	}
 
 	public MFMAmortization(Properties ctx, ResultSet rs, String trxName) {
 		super(ctx, rs, trxName);
-		// TODO Auto-generated constructor stub
+	}
+	
+	/**
+	 * Constructor from import
+	 * @param agreementImport
+	 */
+	public MFMAmortization(X_I_FM_Agreement agreementImport) {
+		super(agreementImport.getCtx(), agreementImport.get_ValueAsInt("FM_Amortization_ID"), agreementImport.get_TrxName());
+		setPeriodNo(agreementImport.get_ValueAsInt("PeriodNo"));
+		if(agreementImport.get_Value("IsPaid") != null) {
+			setDueDate(null);
+		}
+		//	
+		if(agreementImport.get_Value("StartDate") != null) {
+			setStartDate((Timestamp) agreementImport.get_Value("StartDate"));
+		} else {
+			setStartDate((Timestamp) agreementImport.get_Value("DateDoc"));
+		}
+		//	
+		if(agreementImport.get_Value("EndDate") != null) {
+			setEndDate((Timestamp) agreementImport.get_Value("EndDate"));
+		} else {
+			setEndDate((Timestamp) agreementImport.get_Value("DateDoc"));
+		}
+		//	
+		if(agreementImport.get_Value("CapitalAmt") != null) {
+			setCapitalAmt((BigDecimal) agreementImport.get_Value("CapitalAmt"));
+		}
+		//	
+		if(agreementImport.get_Value("InterestAmt") != null) {
+			setInterestAmt((BigDecimal) agreementImport.get_Value("InterestAmt"));
+		}
+		//	
+		if(agreementImport.get_Value("TaxAmt") != null) {
+			setTaxAmt((BigDecimal) agreementImport.get_Value("TaxAmt"));
+		}
+		setFM_Account_ID(agreementImport.getFM_Account_ID());
+		if(agreementImport.get_Value("IsPaid") != null) {
+			setIsPaid(agreementImport.get_ValueAsBoolean("IsPaid"));
+		}
 	}
 	
 	/**
@@ -108,6 +148,18 @@ public class MFMAmortization extends X_FM_Amortization {
 							account.get_TrxName())
 				.setParameters(account.getFM_Account_ID())
 				.match();
+	}
+	
+	/**
+	 * Get from Account
+	 * @param financialAccountId
+	 * @param trxName
+	 * @return
+	 */
+	public static List<MFMAmortization> getFromAccount(int financialAccountId, String trxName) {
+		return new Query(Env.getCtx(), I_FM_Amortization.Table_Name, "FM_Account_ID = ?", trxName)
+				.setParameters(financialAccountId)
+				.<MFMAmortization>list();
 	}
 
 }
