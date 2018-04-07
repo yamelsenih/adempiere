@@ -80,10 +80,9 @@ public class LoanManagementModelValidator implements ModelValidator {
     			if (accounts.isEmpty()){
 	    			account = new MFMAccount(agreement);
 	    			account.saveEx();
-    			}else
+    			} else {
     				account = accounts.get(0);
-    			
-    			
+    			}
     			//	Create Product
     			if(agreement.getFM_Product_ID() != 0) {
     				MFMAccountProduct accountProduct = new MFMAccountProduct(account);

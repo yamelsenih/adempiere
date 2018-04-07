@@ -56,12 +56,12 @@ public class MFMAmortization extends X_FM_Amortization {
 	public MFMAmortization(X_I_FM_Agreement agreementImport) {
 		super(agreementImport.getCtx(), agreementImport.get_ValueAsInt("FM_Amortization_ID"), agreementImport.get_TrxName());
 		setPeriodNo(agreementImport.get_ValueAsInt("PeriodNo"));
-		if(agreementImport.get_Value("IsPaid") != null) {
-			setDueDate(null);
+		if(agreementImport.get_Value("DueDate") != null) {
+			setDueDate((Timestamp) agreementImport.get_Value("DueDate"));
 		}
 		//	
-		if(agreementImport.get_Value("StartDate") != null) {
-			setStartDate((Timestamp) agreementImport.get_Value("StartDate"));
+		if(agreementImport.get_Value("ValidFrom") != null) {
+			setStartDate((Timestamp) agreementImport.get_Value("ValidFrom"));
 		} else {
 			setStartDate((Timestamp) agreementImport.get_Value("DateDoc"));
 		}

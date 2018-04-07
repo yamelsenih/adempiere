@@ -55,6 +55,18 @@ public class MFMAccount extends X_FM_Account {
 			if(financialProduct.get_ValueAsInt("C_Currency_ID") != 0) {
 				currencyId = financialProduct.get_ValueAsInt("C_Currency_ID");
 			}
+			//	For Frequency
+			if(financialProduct.get_Value("PaymentFrequency") != null) {
+				set_ValueOfColumn("PaymentFrequency", financialProduct.get_Value("PaymentFrequency"));
+			}
+			//	Fees Quantity
+			if(financialProduct.get_ValueAsInt("FeesQty") > 0) {
+				set_ValueOfColumn("FeesQty", financialProduct.get_Value("FeesQty"));
+			}
+			//	Payment Date
+			if(financialProduct.get_Value("PayDate") != null) {
+				set_ValueOfColumn("PayDate", financialProduct.get_Value("PayDate"));
+			}
 		}
 		//	Set currency
 		setC_Currency_ID(currencyId);

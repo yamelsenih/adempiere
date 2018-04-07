@@ -1765,5 +1765,376 @@ The Parameters are default values for null import record values they do not over
         <Data AD_Column_ID="144" Column="AD_Key" oldValue="87381">87376</Data>
       </PO>
     </Step>
+    <Step SeqNo="810" StepType="AD">
+      <PO AD_Table_ID="381" Action="I" Record_ID="50051" Table="AD_ImpFormat">
+        <Data AD_Column_ID="4674" Column="Updated">2018-04-07 15:08:12.433</Data>
+        <Data AD_Column_ID="4672" Column="Created">2018-04-07 15:08:12.433</Data>
+        <Data AD_Column_ID="4703" Column="Processing">false</Data>
+        <Data AD_Column_ID="4671" Column="IsActive">true</Data>
+        <Data AD_Column_ID="4677" Column="Description" isNewNull="true"/>
+        <Data AD_Column_ID="59193" Column="SeparatorChar" isNewNull="true"/>
+        <Data AD_Column_ID="4679" Column="FormatType">T</Data>
+        <Data AD_Column_ID="4676" Column="Name">Loan Amortization Import</Data>
+        <Data AD_Column_ID="4668" Column="AD_ImpFormat_ID">50051</Data>
+        <Data AD_Column_ID="4669" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="4670" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="4675" Column="UpdatedBy">100</Data>
+        <Data AD_Column_ID="4673" Column="CreatedBy">100</Data>
+        <Data AD_Column_ID="4701" Column="AD_Table_ID">54409</Data>
+        <Data AD_Column_ID="84330" Column="UUID" isNewNull="true"/>
+        <Data AD_Column_ID="85177" Column="Classname" isNewNull="true"/>
+      </PO>
+    </Step>
+    <Step SeqNo="820" StepType="AD">
+      <PO AD_Table_ID="382" Action="I" Record_ID="50890" Table="AD_ImpFormat_Row">
+        <Data AD_Column_ID="4687" Column="Updated">2018-04-07 15:09:04.201</Data>
+        <Data AD_Column_ID="4685" Column="Created">2018-04-07 15:09:04.201</Data>
+        <Data AD_Column_ID="4684" Column="IsActive">true</Data>
+        <Data AD_Column_ID="4698" Column="DivideBy100">false</Data>
+        <Data AD_Column_ID="4695" Column="DataType">S</Data>
+        <Data AD_Column_ID="4697" Column="DecimalPoint">.</Data>
+        <Data AD_Column_ID="6650" Column="Script" isNewNull="true"/>
+        <Data AD_Column_ID="4689" Column="Name">Document No</Data>
+        <Data AD_Column_ID="62850" Column="DefaultValue" isNewNull="true"/>
+        <Data AD_Column_ID="4705" Column="ConstantValue" isNewNull="true"/>
+        <Data AD_Column_ID="4704" Column="Callout" isNewNull="true"/>
+        <Data AD_Column_ID="4696" Column="DataFormat" isNewNull="true"/>
+        <Data AD_Column_ID="4681" Column="AD_ImpFormat_Row_ID">50890</Data>
+        <Data AD_Column_ID="4682" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="4683" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="4688" Column="UpdatedBy">100</Data>
+        <Data AD_Column_ID="4694" Column="EndNo">0</Data>
+        <Data AD_Column_ID="4702" Column="AD_Column_ID">88156</Data>
+        <Data AD_Column_ID="4693" Column="StartNo">1</Data>
+        <Data AD_Column_ID="4690" Column="AD_ImpFormat_ID">50051</Data>
+        <Data AD_Column_ID="4686" Column="CreatedBy">100</Data>
+        <Data AD_Column_ID="4691" Column="SeqNo">10</Data>
+        <Data AD_Column_ID="84331" Column="UUID" isNewNull="true"/>
+      </PO>
+    </Step>
+    <Step SeqNo="830" StepType="AD">
+      <PO AD_Table_ID="382" Action="I" Record_ID="50891" Table="AD_ImpFormat_Row">
+        <Data AD_Column_ID="4687" Column="Updated">2018-04-07 15:09:05.206</Data>
+        <Data AD_Column_ID="4685" Column="Created">2018-04-07 15:09:05.206</Data>
+        <Data AD_Column_ID="4684" Column="IsActive">true</Data>
+        <Data AD_Column_ID="4698" Column="DivideBy100">false</Data>
+        <Data AD_Column_ID="4695" Column="DataType">N</Data>
+        <Data AD_Column_ID="4697" Column="DecimalPoint">.</Data>
+        <Data AD_Column_ID="6650" Column="Script" isNewNull="true"/>
+        <Data AD_Column_ID="4689" Column="Name">Period No</Data>
+        <Data AD_Column_ID="62850" Column="DefaultValue" isNewNull="true"/>
+        <Data AD_Column_ID="4705" Column="ConstantValue" isNewNull="true"/>
+        <Data AD_Column_ID="4704" Column="Callout" isNewNull="true"/>
+        <Data AD_Column_ID="4696" Column="DataFormat" isNewNull="true"/>
+        <Data AD_Column_ID="4681" Column="AD_ImpFormat_Row_ID">50891</Data>
+        <Data AD_Column_ID="4682" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="4683" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="4688" Column="UpdatedBy">100</Data>
+        <Data AD_Column_ID="4694" Column="EndNo">0</Data>
+        <Data AD_Column_ID="4702" Column="AD_Column_ID">88185</Data>
+        <Data AD_Column_ID="4693" Column="StartNo">2</Data>
+        <Data AD_Column_ID="4690" Column="AD_ImpFormat_ID">50051</Data>
+        <Data AD_Column_ID="4686" Column="CreatedBy">100</Data>
+        <Data AD_Column_ID="4691" Column="SeqNo">20</Data>
+        <Data AD_Column_ID="84331" Column="UUID" isNewNull="true"/>
+      </PO>
+    </Step>
+    <Step SeqNo="840" StepType="AD">
+      <PO AD_Table_ID="382" Action="I" Record_ID="50892" Table="AD_ImpFormat_Row">
+        <Data AD_Column_ID="4687" Column="Updated">2018-04-07 15:09:06.206</Data>
+        <Data AD_Column_ID="4685" Column="Created">2018-04-07 15:09:06.206</Data>
+        <Data AD_Column_ID="4684" Column="IsActive">true</Data>
+        <Data AD_Column_ID="4698" Column="DivideBy100">false</Data>
+        <Data AD_Column_ID="4695" Column="DataType">S</Data>
+        <Data AD_Column_ID="4697" Column="DecimalPoint">.</Data>
+        <Data AD_Column_ID="6650" Column="Script" isNewNull="true"/>
+        <Data AD_Column_ID="4689" Column="Name">BP Value</Data>
+        <Data AD_Column_ID="62850" Column="DefaultValue" isNewNull="true"/>
+        <Data AD_Column_ID="4705" Column="ConstantValue" isNewNull="true"/>
+        <Data AD_Column_ID="4704" Column="Callout" isNewNull="true"/>
+        <Data AD_Column_ID="4696" Column="DataFormat" isNewNull="true"/>
+        <Data AD_Column_ID="4681" Column="AD_ImpFormat_Row_ID">50892</Data>
+        <Data AD_Column_ID="4682" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="4683" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="4688" Column="UpdatedBy">100</Data>
+        <Data AD_Column_ID="4694" Column="EndNo">0</Data>
+        <Data AD_Column_ID="4702" Column="AD_Column_ID">88150</Data>
+        <Data AD_Column_ID="4693" Column="StartNo">3</Data>
+        <Data AD_Column_ID="4690" Column="AD_ImpFormat_ID">50051</Data>
+        <Data AD_Column_ID="4686" Column="CreatedBy">100</Data>
+        <Data AD_Column_ID="4691" Column="SeqNo">30</Data>
+        <Data AD_Column_ID="84331" Column="UUID" isNewNull="true"/>
+      </PO>
+    </Step>
+    <Step SeqNo="850" StepType="AD">
+      <PO AD_Table_ID="382" Action="I" Record_ID="50893" Table="AD_ImpFormat_Row">
+        <Data AD_Column_ID="4687" Column="Updated">2018-04-07 15:09:07.207</Data>
+        <Data AD_Column_ID="4685" Column="Created">2018-04-07 15:09:07.207</Data>
+        <Data AD_Column_ID="4684" Column="IsActive">true</Data>
+        <Data AD_Column_ID="4698" Column="DivideBy100">false</Data>
+        <Data AD_Column_ID="4695" Column="DataType">D</Data>
+        <Data AD_Column_ID="4697" Column="DecimalPoint">.</Data>
+        <Data AD_Column_ID="6650" Column="Script" isNewNull="true"/>
+        <Data AD_Column_ID="4689" Column="Name">Valid From</Data>
+        <Data AD_Column_ID="62850" Column="DefaultValue" isNewNull="true"/>
+        <Data AD_Column_ID="4705" Column="ConstantValue" isNewNull="true"/>
+        <Data AD_Column_ID="4704" Column="Callout" isNewNull="true"/>
+        <Data AD_Column_ID="4696" Column="DataFormat">yyyy-MM-dd</Data>
+        <Data AD_Column_ID="4681" Column="AD_ImpFormat_Row_ID">50893</Data>
+        <Data AD_Column_ID="4682" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="4683" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="4688" Column="UpdatedBy">100</Data>
+        <Data AD_Column_ID="4694" Column="EndNo">0</Data>
+        <Data AD_Column_ID="4702" Column="AD_Column_ID">88161</Data>
+        <Data AD_Column_ID="4693" Column="StartNo">6</Data>
+        <Data AD_Column_ID="4690" Column="AD_ImpFormat_ID">50051</Data>
+        <Data AD_Column_ID="4686" Column="CreatedBy">100</Data>
+        <Data AD_Column_ID="4691" Column="SeqNo">40</Data>
+        <Data AD_Column_ID="84331" Column="UUID" isNewNull="true"/>
+      </PO>
+    </Step>
+    <Step SeqNo="860" StepType="AD">
+      <PO AD_Table_ID="382" Action="I" Record_ID="50894" Table="AD_ImpFormat_Row">
+        <Data AD_Column_ID="4687" Column="Updated">2018-04-07 15:09:08.366</Data>
+        <Data AD_Column_ID="4685" Column="Created">2018-04-07 15:09:08.366</Data>
+        <Data AD_Column_ID="4684" Column="IsActive">true</Data>
+        <Data AD_Column_ID="4698" Column="DivideBy100">false</Data>
+        <Data AD_Column_ID="4695" Column="DataType">D</Data>
+        <Data AD_Column_ID="4697" Column="DecimalPoint">.</Data>
+        <Data AD_Column_ID="6650" Column="Script" isNewNull="true"/>
+        <Data AD_Column_ID="4689" Column="Name">Valid To</Data>
+        <Data AD_Column_ID="62850" Column="DefaultValue" isNewNull="true"/>
+        <Data AD_Column_ID="4705" Column="ConstantValue" isNewNull="true"/>
+        <Data AD_Column_ID="4704" Column="Callout" isNewNull="true"/>
+        <Data AD_Column_ID="4696" Column="DataFormat">yyyy-MM-dd</Data>
+        <Data AD_Column_ID="4681" Column="AD_ImpFormat_Row_ID">50894</Data>
+        <Data AD_Column_ID="4682" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="4683" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="4688" Column="UpdatedBy">100</Data>
+        <Data AD_Column_ID="4694" Column="EndNo">0</Data>
+        <Data AD_Column_ID="4702" Column="AD_Column_ID">88163</Data>
+        <Data AD_Column_ID="4693" Column="StartNo">7</Data>
+        <Data AD_Column_ID="4690" Column="AD_ImpFormat_ID">50051</Data>
+        <Data AD_Column_ID="4686" Column="CreatedBy">100</Data>
+        <Data AD_Column_ID="4691" Column="SeqNo">50</Data>
+        <Data AD_Column_ID="84331" Column="UUID" isNewNull="true"/>
+      </PO>
+    </Step>
+    <Step SeqNo="870" StepType="AD">
+      <PO AD_Table_ID="382" Action="I" Record_ID="50895" Table="AD_ImpFormat_Row">
+        <Data AD_Column_ID="4687" Column="Updated">2018-04-07 15:09:09.323</Data>
+        <Data AD_Column_ID="4685" Column="Created">2018-04-07 15:09:09.323</Data>
+        <Data AD_Column_ID="4684" Column="IsActive">true</Data>
+        <Data AD_Column_ID="4698" Column="DivideBy100">false</Data>
+        <Data AD_Column_ID="4695" Column="DataType">D</Data>
+        <Data AD_Column_ID="4697" Column="DecimalPoint">.</Data>
+        <Data AD_Column_ID="6650" Column="Script" isNewNull="true"/>
+        <Data AD_Column_ID="4689" Column="Name">Due Date</Data>
+        <Data AD_Column_ID="62850" Column="DefaultValue" isNewNull="true"/>
+        <Data AD_Column_ID="4705" Column="ConstantValue" isNewNull="true"/>
+        <Data AD_Column_ID="4704" Column="Callout" isNewNull="true"/>
+        <Data AD_Column_ID="4696" Column="DataFormat">yyyy-MM-dd</Data>
+        <Data AD_Column_ID="4681" Column="AD_ImpFormat_Row_ID">50895</Data>
+        <Data AD_Column_ID="4682" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="4683" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="4688" Column="UpdatedBy">100</Data>
+        <Data AD_Column_ID="4694" Column="EndNo">0</Data>
+        <Data AD_Column_ID="4702" Column="AD_Column_ID">88182</Data>
+        <Data AD_Column_ID="4693" Column="StartNo">7</Data>
+        <Data AD_Column_ID="4690" Column="AD_ImpFormat_ID">50051</Data>
+        <Data AD_Column_ID="4686" Column="CreatedBy">100</Data>
+        <Data AD_Column_ID="4691" Column="SeqNo">60</Data>
+        <Data AD_Column_ID="84331" Column="UUID" isNewNull="true"/>
+      </PO>
+    </Step>
+    <Step SeqNo="880" StepType="AD">
+      <PO AD_Table_ID="382" Action="I" Record_ID="50896" Table="AD_ImpFormat_Row">
+        <Data AD_Column_ID="4687" Column="Updated">2018-04-07 15:09:10.404</Data>
+        <Data AD_Column_ID="4685" Column="Created">2018-04-07 15:09:10.404</Data>
+        <Data AD_Column_ID="4684" Column="IsActive">true</Data>
+        <Data AD_Column_ID="4698" Column="DivideBy100">false</Data>
+        <Data AD_Column_ID="4695" Column="DataType">D</Data>
+        <Data AD_Column_ID="4697" Column="DecimalPoint">.</Data>
+        <Data AD_Column_ID="6650" Column="Script" isNewNull="true"/>
+        <Data AD_Column_ID="4689" Column="Name">End Date</Data>
+        <Data AD_Column_ID="62850" Column="DefaultValue" isNewNull="true"/>
+        <Data AD_Column_ID="4705" Column="ConstantValue" isNewNull="true"/>
+        <Data AD_Column_ID="4704" Column="Callout" isNewNull="true"/>
+        <Data AD_Column_ID="4696" Column="DataFormat">yyyy-MM-dd</Data>
+        <Data AD_Column_ID="4681" Column="AD_ImpFormat_Row_ID">50896</Data>
+        <Data AD_Column_ID="4682" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="4683" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="4688" Column="UpdatedBy">100</Data>
+        <Data AD_Column_ID="4694" Column="EndNo">0</Data>
+        <Data AD_Column_ID="4702" Column="AD_Column_ID">88183</Data>
+        <Data AD_Column_ID="4693" Column="StartNo">7</Data>
+        <Data AD_Column_ID="4690" Column="AD_ImpFormat_ID">50051</Data>
+        <Data AD_Column_ID="4686" Column="CreatedBy">100</Data>
+        <Data AD_Column_ID="4691" Column="SeqNo">70</Data>
+        <Data AD_Column_ID="84331" Column="UUID" isNewNull="true"/>
+      </PO>
+    </Step>
+    <Step SeqNo="890" StepType="AD">
+      <PO AD_Table_ID="382" Action="I" Record_ID="50897" Table="AD_ImpFormat_Row">
+        <Data AD_Column_ID="4687" Column="Updated">2018-04-07 15:09:11.433</Data>
+        <Data AD_Column_ID="4685" Column="Created">2018-04-07 15:09:11.433</Data>
+        <Data AD_Column_ID="4684" Column="IsActive">true</Data>
+        <Data AD_Column_ID="4698" Column="DivideBy100">false</Data>
+        <Data AD_Column_ID="4695" Column="DataType">N</Data>
+        <Data AD_Column_ID="4697" Column="DecimalPoint">.</Data>
+        <Data AD_Column_ID="6650" Column="Script" isNewNull="true"/>
+        <Data AD_Column_ID="4689" Column="Name">Capital Amount</Data>
+        <Data AD_Column_ID="62850" Column="DefaultValue" isNewNull="true"/>
+        <Data AD_Column_ID="4705" Column="ConstantValue" isNewNull="true"/>
+        <Data AD_Column_ID="4704" Column="Callout" isNewNull="true"/>
+        <Data AD_Column_ID="4696" Column="DataFormat" isNewNull="true"/>
+        <Data AD_Column_ID="4681" Column="AD_ImpFormat_Row_ID">50897</Data>
+        <Data AD_Column_ID="4682" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="4683" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="4688" Column="UpdatedBy">100</Data>
+        <Data AD_Column_ID="4694" Column="EndNo">0</Data>
+        <Data AD_Column_ID="4702" Column="AD_Column_ID">88176</Data>
+        <Data AD_Column_ID="4693" Column="StartNo">10</Data>
+        <Data AD_Column_ID="4690" Column="AD_ImpFormat_ID">50051</Data>
+        <Data AD_Column_ID="4686" Column="CreatedBy">100</Data>
+        <Data AD_Column_ID="4691" Column="SeqNo">80</Data>
+        <Data AD_Column_ID="84331" Column="UUID" isNewNull="true"/>
+      </PO>
+    </Step>
+    <Step SeqNo="900" StepType="AD">
+      <PO AD_Table_ID="382" Action="I" Record_ID="50898" Table="AD_ImpFormat_Row">
+        <Data AD_Column_ID="4687" Column="Updated">2018-04-07 15:09:12.416</Data>
+        <Data AD_Column_ID="4685" Column="Created">2018-04-07 15:09:12.416</Data>
+        <Data AD_Column_ID="4684" Column="IsActive">true</Data>
+        <Data AD_Column_ID="4698" Column="DivideBy100">false</Data>
+        <Data AD_Column_ID="4695" Column="DataType">N</Data>
+        <Data AD_Column_ID="4697" Column="DecimalPoint">.</Data>
+        <Data AD_Column_ID="6650" Column="Script" isNewNull="true"/>
+        <Data AD_Column_ID="4689" Column="Name">Interest Amount</Data>
+        <Data AD_Column_ID="62850" Column="DefaultValue" isNewNull="true"/>
+        <Data AD_Column_ID="4705" Column="ConstantValue" isNewNull="true"/>
+        <Data AD_Column_ID="4704" Column="Callout" isNewNull="true"/>
+        <Data AD_Column_ID="4696" Column="DataFormat" isNewNull="true"/>
+        <Data AD_Column_ID="4681" Column="AD_ImpFormat_Row_ID">50898</Data>
+        <Data AD_Column_ID="4682" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="4683" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="4688" Column="UpdatedBy">100</Data>
+        <Data AD_Column_ID="4694" Column="EndNo">0</Data>
+        <Data AD_Column_ID="4702" Column="AD_Column_ID">88177</Data>
+        <Data AD_Column_ID="4693" Column="StartNo">15</Data>
+        <Data AD_Column_ID="4690" Column="AD_ImpFormat_ID">50051</Data>
+        <Data AD_Column_ID="4686" Column="CreatedBy">100</Data>
+        <Data AD_Column_ID="4691" Column="SeqNo">90</Data>
+        <Data AD_Column_ID="84331" Column="UUID" isNewNull="true"/>
+      </PO>
+    </Step>
+    <Step SeqNo="910" StepType="AD">
+      <PO AD_Table_ID="382" Action="I" Record_ID="50899" Table="AD_ImpFormat_Row">
+        <Data AD_Column_ID="4687" Column="Updated">2018-04-07 15:09:14.632</Data>
+        <Data AD_Column_ID="4685" Column="Created">2018-04-07 15:09:14.632</Data>
+        <Data AD_Column_ID="4684" Column="IsActive">true</Data>
+        <Data AD_Column_ID="4698" Column="DivideBy100">false</Data>
+        <Data AD_Column_ID="4695" Column="DataType">N</Data>
+        <Data AD_Column_ID="4697" Column="DecimalPoint">.</Data>
+        <Data AD_Column_ID="6650" Column="Script" isNewNull="true"/>
+        <Data AD_Column_ID="4689" Column="Name">Tax Amount</Data>
+        <Data AD_Column_ID="62850" Column="DefaultValue" isNewNull="true"/>
+        <Data AD_Column_ID="4705" Column="ConstantValue" isNewNull="true"/>
+        <Data AD_Column_ID="4704" Column="Callout" isNewNull="true"/>
+        <Data AD_Column_ID="4696" Column="DataFormat" isNewNull="true"/>
+        <Data AD_Column_ID="4681" Column="AD_ImpFormat_Row_ID">50899</Data>
+        <Data AD_Column_ID="4682" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="4683" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="4688" Column="UpdatedBy">100</Data>
+        <Data AD_Column_ID="4694" Column="EndNo">0</Data>
+        <Data AD_Column_ID="4702" Column="AD_Column_ID">88178</Data>
+        <Data AD_Column_ID="4693" Column="StartNo">16</Data>
+        <Data AD_Column_ID="4690" Column="AD_ImpFormat_ID">50051</Data>
+        <Data AD_Column_ID="4686" Column="CreatedBy">100</Data>
+        <Data AD_Column_ID="4691" Column="SeqNo">100</Data>
+        <Data AD_Column_ID="84331" Column="UUID" isNewNull="true"/>
+      </PO>
+    </Step>
+    <Step SeqNo="920" StepType="AD">
+      <PO AD_Table_ID="382" Action="I" Record_ID="50900" Table="AD_ImpFormat_Row">
+        <Data AD_Column_ID="4687" Column="Updated">2018-04-07 15:09:15.632</Data>
+        <Data AD_Column_ID="4685" Column="Created">2018-04-07 15:09:15.632</Data>
+        <Data AD_Column_ID="4684" Column="IsActive">true</Data>
+        <Data AD_Column_ID="4698" Column="DivideBy100">false</Data>
+        <Data AD_Column_ID="4695" Column="DataType">S</Data>
+        <Data AD_Column_ID="4697" Column="DecimalPoint">.</Data>
+        <Data AD_Column_ID="6650" Column="Script" isNewNull="true"/>
+        <Data AD_Column_ID="4689" Column="Name">Financial Product</Data>
+        <Data AD_Column_ID="62850" Column="DefaultValue" isNewNull="true"/>
+        <Data AD_Column_ID="4705" Column="ConstantValue" isNewNull="true"/>
+        <Data AD_Column_ID="4704" Column="Callout" isNewNull="true"/>
+        <Data AD_Column_ID="4696" Column="DataFormat" isNewNull="true"/>
+        <Data AD_Column_ID="4681" Column="AD_ImpFormat_Row_ID">50900</Data>
+        <Data AD_Column_ID="4682" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="4683" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="4688" Column="UpdatedBy">100</Data>
+        <Data AD_Column_ID="4694" Column="EndNo">0</Data>
+        <Data AD_Column_ID="4702" Column="AD_Column_ID">88155</Data>
+        <Data AD_Column_ID="4693" Column="StartNo">20</Data>
+        <Data AD_Column_ID="4690" Column="AD_ImpFormat_ID">50051</Data>
+        <Data AD_Column_ID="4686" Column="CreatedBy">100</Data>
+        <Data AD_Column_ID="4691" Column="SeqNo">110</Data>
+        <Data AD_Column_ID="84331" Column="UUID" isNewNull="true"/>
+      </PO>
+    </Step>
+    <Step SeqNo="930" StepType="AD">
+      <PO AD_Table_ID="382" Action="I" Record_ID="50901" Table="AD_ImpFormat_Row">
+        <Data AD_Column_ID="4687" Column="Updated">2018-04-07 15:09:16.641</Data>
+        <Data AD_Column_ID="4685" Column="Created">2018-04-07 15:09:16.641</Data>
+        <Data AD_Column_ID="4684" Column="IsActive">true</Data>
+        <Data AD_Column_ID="4698" Column="DivideBy100">false</Data>
+        <Data AD_Column_ID="4695" Column="DataType">C</Data>
+        <Data AD_Column_ID="4697" Column="DecimalPoint">.</Data>
+        <Data AD_Column_ID="6650" Column="Script" isNewNull="true"/>
+        <Data AD_Column_ID="4689" Column="Name">Document Type Name</Data>
+        <Data AD_Column_ID="62850" Column="DefaultValue" isNewNull="true"/>
+        <Data AD_Column_ID="4705" Column="ConstantValue">Préstamo</Data>
+        <Data AD_Column_ID="4704" Column="Callout" isNewNull="true"/>
+        <Data AD_Column_ID="4696" Column="DataFormat" isNewNull="true"/>
+        <Data AD_Column_ID="4681" Column="AD_ImpFormat_Row_ID">50901</Data>
+        <Data AD_Column_ID="4682" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="4683" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="4688" Column="UpdatedBy">100</Data>
+        <Data AD_Column_ID="4694" Column="EndNo">0</Data>
+        <Data AD_Column_ID="4702" Column="AD_Column_ID">88143</Data>
+        <Data AD_Column_ID="4693" Column="StartNo">0</Data>
+        <Data AD_Column_ID="4690" Column="AD_ImpFormat_ID">50051</Data>
+        <Data AD_Column_ID="4686" Column="CreatedBy">100</Data>
+        <Data AD_Column_ID="4691" Column="SeqNo">120</Data>
+        <Data AD_Column_ID="84331" Column="UUID" isNewNull="true"/>
+      </PO>
+    </Step>
+    <Step SeqNo="940" StepType="AD">
+      <PO AD_Table_ID="382" Action="I" Record_ID="50902" Table="AD_ImpFormat_Row">
+        <Data AD_Column_ID="4687" Column="Updated">2018-04-07 15:09:17.609</Data>
+        <Data AD_Column_ID="4685" Column="Created">2018-04-07 15:09:17.609</Data>
+        <Data AD_Column_ID="4684" Column="IsActive">true</Data>
+        <Data AD_Column_ID="4698" Column="DivideBy100">false</Data>
+        <Data AD_Column_ID="4695" Column="DataType">C</Data>
+        <Data AD_Column_ID="4697" Column="DecimalPoint">.</Data>
+        <Data AD_Column_ID="6650" Column="Script" isNewNull="true"/>
+        <Data AD_Column_ID="4689" Column="Name">Agreement Type Value</Data>
+        <Data AD_Column_ID="62850" Column="DefaultValue" isNewNull="true"/>
+        <Data AD_Column_ID="4705" Column="ConstantValue">PR</Data>
+        <Data AD_Column_ID="4704" Column="Callout" isNewNull="true"/>
+        <Data AD_Column_ID="4696" Column="DataFormat" isNewNull="true"/>
+        <Data AD_Column_ID="4681" Column="AD_ImpFormat_Row_ID">50902</Data>
+        <Data AD_Column_ID="4682" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="4683" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="4688" Column="UpdatedBy">100</Data>
+        <Data AD_Column_ID="4694" Column="EndNo">0</Data>
+        <Data AD_Column_ID="4702" Column="AD_Column_ID">88153</Data>
+        <Data AD_Column_ID="4693" Column="StartNo">0</Data>
+        <Data AD_Column_ID="4690" Column="AD_ImpFormat_ID">50051</Data>
+        <Data AD_Column_ID="4686" Column="CreatedBy">100</Data>
+        <Data AD_Column_ID="4691" Column="SeqNo">130</Data>
+        <Data AD_Column_ID="84331" Column="UUID" isNewNull="true"/>
+      </PO>
+    </Step>
   </Migration>
 </Migrations>
