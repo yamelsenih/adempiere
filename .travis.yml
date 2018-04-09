@@ -3,6 +3,7 @@ jdk:
 - oraclejdk8
 os:
 - linux
+dist: trusty
 sudo: required
 before_install:
 - ssh-keyscan -t $TRAVIS_SSH_KEY_TYPES -H $REMOTE_HOST 2>&1 | tee -a $HOME/.ssh/known_hosts
