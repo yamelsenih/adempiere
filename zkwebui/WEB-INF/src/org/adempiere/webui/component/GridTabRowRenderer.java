@@ -653,7 +653,12 @@ public class GridTabRowRenderer implements RowRenderer, RowRendererExt, Renderer
 	public void setADWindowPanel(AbstractADWindowPanel windowPanel) {
 		this.m_windowPanel = windowPanel;
 	}
-
+	
+	/**
+	 * Set Current Column
+	 * @param col
+	 * @return
+	 */
 	public boolean setCurrentColumn(int col) {
 		int pgIndex = currentRowIndex >= 0 ? currentRowIndex % paging.getPageSize() : 0;
 		if(grid != null) {
@@ -730,6 +735,16 @@ public class GridTabRowRenderer implements RowRenderer, RowRendererExt, Renderer
 		 } 
 	}
 	
+	/**
+	 * Check is Last Column
+	 * @return
+	 */
+	public boolean isLastColumn() {
+		if(currentColumn == totalColumns)
+			return true;
+		else
+			return false;
+	}
 	
 	@Override
 	public void onEvent(Event e) throws Exception {

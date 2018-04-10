@@ -79,7 +79,7 @@ public class GridPanel extends Borderlayout implements EventListener
 	private static final int KEYBOARD_KEY_RETURN = 13;
 
 	public static final String		CNTRL_KEYS				= "^s^c#enter";
-	private static final String		KEYS_MOVE			= "#end#home#up#down#left#right";
+	private static final String		KEYS_MOVE			= "#del#end#home#up#down#left#right";
 	
 
 	private Grid listbox = null;
@@ -494,7 +494,6 @@ public class GridPanel extends Borderlayout implements EventListener
 			int row = renderer.getCurrentRowIndex();
 			
 			int totalRow = gridTab.getRowCount();
-			
 			if (code == KEYBOARD_KEY_RETURN)
 			{
 				if(renderer.getCurrentDiv() != null) {
@@ -514,6 +513,7 @@ public class GridPanel extends Borderlayout implements EventListener
 							listbox.setModel(listModel);
 							
 							keyListener.setCtrlKeys(CNTRL_KEYS+KEYS_MOVE);
+							renderer.editCurrentCol(true);
 					}
 				}
 //				updateListIndex();
@@ -561,9 +561,13 @@ public class GridPanel extends Borderlayout implements EventListener
 						row += 1;
 						if (row == totalRow)	{
 							if(gridTab.isQuickEntry() || !gridTab.isNew() || dataSave(0)) {
+								if(renderer.isLastColumn()) {
+									renderer.setCurrentColumn(0); 
+								}
 								onNew();
 								updateListIndex();
 								refresh(gridTab);
+								
 							}
 							return;
 						}else {
@@ -586,6 +590,10 @@ public class GridPanel extends Borderlayout implements EventListener
 						
 						listbox.setModel(listModel);
 					}
+				}
+				else if (code == KeyEvent.DELETE && !isCtrl && !isAlt && !isShift)
+				{
+					gridTab.dataDelete();
 				}
 				else if (code == KeyEvent.RIGHT && !isCtrl && !isAlt && !isShift)
 				{
@@ -699,6 +707,9 @@ public class GridPanel extends Borderlayout implements EventListener
 			}
 		}
 		if(gridTab.isNew()) {
+			if(renderer.isLastColumn()) {
+				renderer.setCurrentColumn(0); 
+			}
 			renderer.editCurrentCol(true);
 		}
 
