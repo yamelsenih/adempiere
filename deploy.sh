@@ -1,6 +1,5 @@
 #!/bin/bash
 cd /home/travis/build/erpcya/adempiere/install/build
- echo "$REMOTE_HOST \n\tStrictHostKeyChecking no" > ~/.ssh/config
 
   git init
   git remote add deploy $REMOTE_USER@$REMOTE_HOST:$APP_DIR 
