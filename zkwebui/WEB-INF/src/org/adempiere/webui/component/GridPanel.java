@@ -473,9 +473,9 @@ public class GridPanel extends Borderlayout implements EventListener
 				Col col = (Col)data;
 
 				currentCol = (Integer)(col).getAttribute("columnNo");
-
 				gridTab.navigateCurrent();
 				renderer.setCurrentColumn(currentCol);
+				listbox.setModel(listModel);
 			}
 			keyListener.setCtrlKeys(CNTRL_KEYS+KEYS_MOVE);
         }
@@ -497,24 +497,18 @@ public class GridPanel extends Borderlayout implements EventListener
 			if (code == KEYBOARD_KEY_RETURN)
 			{
 				if(renderer.getCurrentDiv() != null) {
-					if(renderer.getCurrentDiv().hasFocus()) {
-						if(renderer.editCurrentCol(true) && !renderer.getCurrentDiv().isReadOnly()  
-							&& renderer.getCurrentDiv().getEditor().getGridField().getDisplayType() != DisplayType.Button
-							&& renderer.getCurrentDiv().getEditor().getGridField().getDisplayType() != DisplayType.YesNo) {
-							keyListener.setCtrlKeys(CNTRL_KEYS);
-						}
-					} else {
-							currentCol++;
-							if (renderer.isEditing()) 
-								renderer.stopColEditing(true);
-							
-							renderer.setCurrentColumn(currentCol);
-
-							listbox.setModel(listModel);
-							
-							keyListener.setCtrlKeys(CNTRL_KEYS+KEYS_MOVE);
-							renderer.editCurrentCol(true);
+					if (renderer.isEditing()) { 
+						renderer.stopColEditing(true);
+						currentCol++;
+						renderer.setCurrentColumn(currentCol);
 					}
+						keyListener.setCtrlKeys(CNTRL_KEYS+KEYS_MOVE);
+						while(!renderer.editCurrentCol(true)) {
+							currentCol++;
+							renderer.setCurrentColumn(currentCol);
+						}
+						
+					keyListener.setCtrlKeys(CNTRL_KEYS);
 				}
 //				updateListIndex();
 			}
@@ -977,4 +971,5 @@ public class GridPanel extends Borderlayout implements EventListener
 //            log.severe("Could not create new record");
         }
 	}
+	
 }
