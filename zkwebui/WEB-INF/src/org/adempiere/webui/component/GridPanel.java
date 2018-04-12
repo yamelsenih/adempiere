@@ -486,10 +486,11 @@ public class GridPanel extends Borderlayout implements EventListener
 			boolean isAlt = keyEvent.isAltKey();
 			boolean isCtrl = keyEvent.isCtrlKey();
 			boolean isShift = keyEvent.isShiftKey();
-			currentCol = gridTab.getCurrentCol();
-			if(renderer == null) 
+			if(renderer == null || gridTab == null) 
 				return;
 			
+			currentCol = gridTab.getCurrentCol();
+			System.out.println( code );
 				
 			int row = renderer.getCurrentRowIndex();
 			
