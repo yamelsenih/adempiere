@@ -10,6 +10,7 @@ before_install:
   -in deploy_rsa.enc -out deploy_rsa -d
 - ssh-keyscan -t $TRAVIS_SSH_KEY_TYPES -H $REMOTE_HOST 2>&1 | tee -a $HOME/.ssh/known_hosts
 - echo -e "Host $REMOTE_HOST\n\tStrictHostKeyChecking no" >> ~/.ssh/config
+- echo "  IdentityFile ~/.ssh/deploy_rsa" >> ~/.ssh/config;
 - eval "$(ssh-agent -s)"
 - chmod 600 deploy_rsa
 - ssh-add deploy_rsa
