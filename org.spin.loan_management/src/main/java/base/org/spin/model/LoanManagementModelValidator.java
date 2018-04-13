@@ -175,10 +175,21 @@ public class LoanManagementModelValidator implements ModelValidator {
 								taxAmt = taxAmt.add(amortization.getTaxAmt());
 							}
 						}
-						//	Set values
-						account.set_ValueOfColumn("CapitalAmt", capitalAmt);
-						account.set_ValueOfColumn("InterestAmt", interestAmt);
-						account.set_ValueOfColumn("TaxAmt", taxAmt);
+						//	Set Capital
+						if(account.get_Value("CapitalAmt") == null
+								|| ((BigDecimal) account.get_Value("CapitalAmt")).equals(Env.ZERO)) {
+							account.set_ValueOfColumn("CapitalAmt", capitalAmt);
+						}
+						//	Set Interest
+						if(account.get_Value("InterestAmt") == null
+								|| ((BigDecimal) account.get_Value("InterestAmt")).equals(Env.ZERO)) {
+							account.set_ValueOfColumn("InterestAmt", interestAmt);
+						}
+						//	Set Tax
+						if(account.get_Value("TaxAmt") == null
+								|| ((BigDecimal) account.get_Value("TaxAmt")).equals(Env.ZERO)) {
+							account.set_ValueOfColumn("TaxAmt", taxAmt);
+						}
 						account.saveEx();	
 					}
 				}
