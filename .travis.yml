@@ -8,15 +8,15 @@ sudo: required
 before_install:
 - openssl aes-256-cbc -K $encrypted_1d0a162d6238_key -iv $encrypted_1d0a162d6238_iv
   -in deploy_rsa.enc -out deploy_rsa -d
-- ssh-keyscan -t $TRAVIS_SSH_KEY_TYPES -H $REMOTE_HOST 2>&1 | tee -a $HOME/.ssh/known_hosts
+- ssh-keyscan -t rsa $REMOTE_HOST > $HOME/.ssh/known_hosts
 - echo -e "Host $REMOTE_HOST\n\tStrictHostKeyChecking no" >> ~/.ssh/config
-- echo "  IdentityFile /home/travis/build/erpcya/adempiere/deploy_rsa" >> ~/.ssh/config;
+- echo " IdentityFile /home/travis/build/erpcya/adempiere/deploy_rsa" >> ~/.ssh/config;
 - eval "$(ssh-agent -s)"
 - chmod 600 deploy_rsa
 - ssh-add deploy_rsa
 
 - cd utils_dev
-jobs:
+jobs:- ls
   include:
   - stage: Main Build Test
     script: ant build
