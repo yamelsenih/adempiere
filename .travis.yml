@@ -26,6 +26,7 @@ before_deploy:
 deploy:
   provider: releases
   api_key: "$access_key_id"
+  
   file:
   - install/build/Adempiere_390LTS.tar.gz
   - install/build/Adempiere_390LTS.tar.gz.MD5
