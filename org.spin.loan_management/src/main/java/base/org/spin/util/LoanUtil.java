@@ -29,6 +29,11 @@ import org.compiere.model.MTax;
 import org.compiere.model.MTaxCategory;
 import org.compiere.util.Env;
 import org.compiere.util.TimeUtil;
+import org.spin.model.MFMAccount;
+import org.spin.model.MFMAgreement;
+import org.spin.model.MFMAmortization;
+import org.spin.model.MFMDunning;
+import org.spin.model.MFMDunningLevel;
 import org.spin.model.MFMProduct;
 import org.spin.model.MFMRate;
 
@@ -114,7 +119,18 @@ public class LoanUtil {
 		return 0;
 	}
 	
-	
+	/**
+	 * Based on French
+	 * @param financialProductId
+	 * @param capitalAmt
+	 * @param feesQty
+	 * @param startDate
+	 * @param endDate
+	 * @param payDate
+	 * @param paymentFrequency
+	 * @param ctx
+	 * @return
+	 */
 	public static HashMap<String, Object> calculateFrenchAmortization(int financialProductId, BigDecimal capitalAmt, 
 																			int feesQty,Timestamp startDate,
 																				Timestamp endDate, Timestamp payDate,
@@ -165,7 +181,7 @@ public class LoanUtil {
 		BigDecimal remainingCapital = capitalAmt;
 		//	First Iteration for it
 		for(int i = 0; i < feesQty; i++) {
-			AmortizationValue row = new LoanUtil(). new AmortizationValue();
+			AmortizationValue row = new LoanUtil().new AmortizationValue();
 			//	Period No
 			row.setPeriodNo(i + 1);
 			//	Start Date
@@ -185,28 +201,15 @@ public class LoanUtil {
 			if(!paymentFrequency.equals("F")) {
 				currentDueDate = LoanUtil.getEndDateFromFrequency(currentDate, paymentFrequency, 1);
 			}
-			//	Add Day Of Month
-			row.setDayOfMonth(TimeUtil.getDaysBetween(row.getStartDate(), row.getEndDate()));
 			//	Set Cumulative Days
 			cumulativeDays += row.getDayOfMonth();
 			row.setCumulativeDays(cumulativeDays);
 			//	Calculate Monthly Interest
-			//				(A Variable)					(B Variable)
-			//	1 / ((1 + InterestRateAndTaxRate ) ^ (CumulativeDays / YEAR_DAY))
-			BigDecimal _A_Variable = (Env.ONE.add(interestRateAndTaxRate));
-			BigDecimal _B_Variable = (new BigDecimal(cumulativeDays).divide(LoanUtil.YEAR_DAY, MathContext.DECIMAL128));
-			BigDecimal _Result_A_pow_B = new BigDecimal(Math.pow(_A_Variable.doubleValue(), _B_Variable.doubleValue()));
-			BigDecimal monthInterest = Env.ONE.divide(_Result_A_pow_B, MathContext.DECIMAL128);
-			row.setMonthInterest(monthInterest);
-			//	Calculate Daily Interest
-			//				(A Variable)					(B Variable)
-			//	((1 + InterestRateAndTaxRate ) ^ (MonthlyDays / YEAR_DAY))
-			_B_Variable = (new BigDecimal(row.getDayOfMonth()).divide(YEAR_DAY, MathContext.DECIMAL128));
-			_Result_A_pow_B = new BigDecimal(Math.pow(_A_Variable.doubleValue(), _B_Variable.doubleValue()));
-			BigDecimal dailyInterest = _Result_A_pow_B.subtract(Env.ONE);
+			BigDecimal monthlyInterest = calculateMonthlyInterest(row.getCumulativeDays(), interestRateAndTaxRate);
+			BigDecimal dailyInterest = calculateDailyInterest(row.getDayOfMonth(), interestRateAndTaxRate);
+			row.setMonthInterest(monthlyInterest);
 			row.setDailyInterest(dailyInterest);
-			//	Cumulative interest
-			currentInterest = currentInterest.add(monthInterest);
+			currentInterest = currentInterest.add(row.getMonthInterest());
 			row.setCumulativeInterest(currentInterest);
 			//	Add to hash
 			amortizationList.add(row);
@@ -251,6 +254,155 @@ public class LoanUtil {
 	}
 	
 	/**
+	 * Calculate Daily interest
+	 * @param days
+	 * @param interestRate
+	 * @return
+	 */
+	public static BigDecimal calculateDailyInterest(int days, BigDecimal interestRate) {
+		BigDecimal _A_Variable = (Env.ONE.add(interestRate));
+		//	Calculate Daily Interest
+		//				(A Variable)					(B Variable)
+		//	((1 + InterestRate) ^ (MonthlyDays / YEAR_DAY)) - 1
+		BigDecimal _B_Variable = (new BigDecimal(days).divide(YEAR_DAY, MathContext.DECIMAL128));
+		BigDecimal _Result_A_pow_B = new BigDecimal(Math.pow(_A_Variable.doubleValue(), _B_Variable.doubleValue()));
+		BigDecimal dailyInterest = _Result_A_pow_B.subtract(Env.ONE);
+		return dailyInterest;
+	}
+	
+	/**
+	 * Calculate Monthly Interest
+	 * @param cumulativeDays
+	 * @param interestRate
+	 * @return
+	 */
+	public static BigDecimal calculateMonthlyInterest(int cumulativeDays, BigDecimal interestRate) {
+		//	Calculate Monthly Interest
+		//				(A Variable)					(B Variable)
+		//	1 / ((1 + InterestRateAndTaxRate ) ^ (CumulativeDays / YEAR_DAY))
+		BigDecimal _A_Variable = (Env.ONE.add(interestRate));
+		BigDecimal _B_Variable = (new BigDecimal(cumulativeDays).divide(LoanUtil.YEAR_DAY, MathContext.DECIMAL128));
+		BigDecimal _Result_A_pow_B = new BigDecimal(Math.pow(_A_Variable.doubleValue(), _B_Variable.doubleValue()));
+		BigDecimal monthInterest = Env.ONE.divide(_Result_A_pow_B, MathContext.DECIMAL128);
+		return monthInterest;
+	}
+	
+	/**
+	 * Only dunning of loan
+	 * @param ctx
+	 * @param agreementId
+	 * @param runningDate
+	 * @param trxName
+	 * @return
+	 */
+	public static HashMap<String, Object> calculateLoanDunning(Properties ctx, int agreementId, Timestamp runningDate, String trxName){
+		//	Validate agreement
+		if(agreementId <= 0) {
+			return null;
+		}
+		/**	Return Value */
+		HashMap<String, Object> returnValues = new HashMap<String, Object>();
+		//	if null then is now
+		if(runningDate == null) {
+			runningDate = new Timestamp(System.currentTimeMillis());
+		}
+		//	Get agreement
+		MFMAgreement agreement = new MFMAgreement(ctx, agreementId, trxName);
+		//	Calculate it
+		MFMProduct financialProduct = MFMProduct.getById(ctx, agreement.getFM_Product_ID());
+		//	Get Interest Rate
+		int dunningRateId = financialProduct.get_ValueAsInt("DunningInterest_ID");
+		int dunningId = financialProduct.get_ValueAsInt("FM_Dunning_ID");
+		//	Validate Dunning for it
+		if(dunningRateId == 0
+				&& dunningId == 0) {
+			return null;
+		}
+		//	
+		BigDecimal interestRate = Env.ZERO;
+		BigDecimal taxRate = Env.ZERO;
+		MCharge charge = null;
+		if(dunningRateId != 0) {
+			MFMRate rate = MFMRate.getById(ctx, dunningRateId);
+			//	
+			interestRate = rate.getValidRate(runningDate);
+			charge = MCharge.get(ctx, rate.getC_Charge_ID());
+		}
+		//	Validate Charge
+		if(charge != null) {
+			//	Get Tax Rate
+			MTaxCategory taxCategory = (MTaxCategory) charge.getC_TaxCategory();
+			MTax tax = taxCategory.getDefaultTax();
+			//	Calculate rate for fee (Year Interest + (Tax Rate * Year Interest))
+			interestRate = interestRate.divide(Env.ONEHUNDRED);
+			taxRate = tax.getRate().divide(Env.ONEHUNDRED);
+		}
+		MFMDunning dunning = null;
+		//	Get dunning configuration if exist
+		if(dunningId > 0) {
+			dunning = MFMDunning.getById(ctx, dunningId);
+		}
+		//	Get
+		List<MFMAccount> accounts = MFMAccount.getAccountFromAgreement(agreement);
+		MFMAccount account = null;
+		if (accounts.isEmpty()){
+			account = new MFMAccount(agreement);
+			account.saveEx();
+		} else {
+			account = accounts.get(0);
+		}
+		//	Hash Map for Amortization
+		List<AmortizationValue> amortizationList = new ArrayList<AmortizationValue>();
+		//	
+		for(MFMAmortization amortization : MFMAmortization.getFromAccount(account.getFM_Account_ID(), trxName)) {
+			AmortizationValue row = new LoanUtil().new AmortizationValue(amortization);
+			if(row.getDaysDue(runningDate) <= 0) {
+				continue;
+			}
+			//	For distinct levels
+			MFMDunningLevel level = null;
+			int dunningLevelRateId = 0;
+			if(dunning != null) {
+				level = dunning.getValidLevelInstance(row.getDaysDue());
+				dunningLevelRateId = level.getFM_Rate_ID();
+				if(dunningLevelRateId > 0) {
+					MFMRate rate = MFMRate.getById(ctx, dunningLevelRateId);
+					//	
+					interestRate = rate.getValidRate(runningDate);
+					charge = MCharge.get(ctx, rate.getC_Charge_ID());
+					//	Validate Charge
+					if(charge != null) {
+						//	Get Tax Rate
+						MTaxCategory taxCategory = (MTaxCategory) charge.getC_TaxCategory();
+						MTax tax = taxCategory.getDefaultTax();
+						//	Calculate rate for fee (Year Interest + (Tax Rate * Year Interest))
+						interestRate = interestRate.divide(Env.ONEHUNDRED);
+						taxRate = tax.getRate().divide(Env.ONEHUNDRED);
+					}
+				}
+			}
+			//	
+			BigDecimal dailyInterest = calculateDailyInterest(row.getDaysDue(), interestRate);
+			if(dailyInterest != null) {
+				row.setDunningDailyInterest(dailyInterest);
+				BigDecimal capitalAmt = row.getCapitalAmtFee();
+				BigDecimal dunningInteretAmount = capitalAmt.multiply(dailyInterest);
+				row.setDunningInterestAmount(dunningInteretAmount);
+				//	For Tax
+				if(taxRate != null) {
+					row.setDunningTaxRate(taxRate);
+					row.setDunningTaxAmt(dunningInteretAmount.multiply(taxRate));
+				}
+			}
+			//	Add to list
+			amortizationList.add(row);
+		}
+		//	Add list
+		returnValues.put("AMORTIZATION_LIST", amortizationList);
+		return returnValues;
+	}
+	
+	/**
 	 * Used for values on amortization
 	 * @author Yamel Senih, ysenih@erpya.com , http://www.erpya.com
 	 *      <li> FR [ 1583 ] New Definition for loan
@@ -260,6 +412,21 @@ public class LoanUtil {
 		
 		public AmortizationValue() {
 			
+		}
+		
+		/**
+		 * From saved amortization
+		 * @param amortization
+		 */
+		public AmortizationValue(MFMAmortization amortization) {
+			setPeriodNo(amortization.getPeriodNo());
+			setStartDate(amortization.getStartDate());
+			setEndDate(amortization.getEndDate());
+			setDueDate(amortization.getDueDate());
+			setCapitalAmtFee(amortization.getCapitalAmt());
+			setTaxAmtFee(amortization.getTaxAmt());
+			setInterestAmtFee(amortization.getInterestAmt());
+			setAmortizationId(amortization.getFM_Amortization_ID());
 		}
 		
 		/**	Period No	*/
@@ -292,6 +459,18 @@ public class LoanUtil {
 		private BigDecimal dailyInterestAmt;
 		/**	Fee Amount	*/
 		private BigDecimal fixedFeeAmt;
+		/**	Amortization ID	*/
+		private int amortizationId;
+		/**	Days Due	*/
+		private int daysDue;
+		/**	Dunning daily interest	*/
+		private BigDecimal dunningDailyInterest;
+		/**	Dunning Interest Amount	*/
+		private BigDecimal dunningInterestAmount;
+		/**	Dunning Tax Rate	*/
+		private BigDecimal dunningTaxRate;
+		/**	Dunning Tax Amount	*/
+		private BigDecimal dunningTaxAmt;
 		
 		public int getPeriodNo() {
 			return periodNo;
@@ -312,6 +491,11 @@ public class LoanUtil {
 			this.endDate = endDate;
 		}
 		public int getDayOfMonth() {
+			if(dayOfMonth == 0
+					&& getStartDate() != null
+					&& getEndDate() != null) {
+				dayOfMonth = TimeUtil.getDaysBetween(getStartDate(), getEndDate());
+			}
 			return dayOfMonth;
 		}
 		public void setDayOfMonth(int dayOfMonth) {
@@ -383,14 +567,61 @@ public class LoanUtil {
 		public void setDueDate(Timestamp dueDate) {
 			this.dueDate = dueDate;
 		}
+		public int getAmortizationId() {
+			return amortizationId;
+		}
+		public void setAmortizationId(int amortizationId) {
+			this.amortizationId = amortizationId;
+		}
+		public int getDaysDue() {
+			return daysDue;
+		}
+		public int getDaysDue(Timestamp now) {
+			if(getDueDate() != null
+					&& now != null) {
+				daysDue = TimeUtil.getDaysBetween(getDueDate(), now);
+			}
+			return daysDue;
+		}
+		public void setDaysDue(int daysDue) {
+			this.daysDue = daysDue;
+		}
+		public BigDecimal getDunningDailyInterest() {
+			return dunningDailyInterest;
+		}
+		public void setDunningDailyInterest(BigDecimal dunningDailyInterest) {
+			this.dunningDailyInterest = dunningDailyInterest;
+		}
+		public BigDecimal getDunningInterestAmount() {
+			return dunningInterestAmount;
+		}
+		public void setDunningInterestAmount(BigDecimal dunningInterestAmount) {
+			this.dunningInterestAmount = dunningInterestAmount;
+		}
+		public BigDecimal getDunningTaxRate() {
+			return dunningTaxRate;
+		}
+		public void setDunningTaxRate(BigDecimal dunningTaxRate) {
+			this.dunningTaxRate = dunningTaxRate;
+		}
+		public BigDecimal getDunningTaxAmt() {
+			return dunningTaxAmt;
+		}
+		public void setDunningTaxAmt(BigDecimal dunningTaxAmt) {
+			this.dunningTaxAmt = dunningTaxAmt;
+		}
+
 		@Override
 		public String toString() {
 			return "AmortizationValue [periodNo=" + periodNo + ", startDate=" + startDate + ", endDate=" + endDate
-					+ ", dayOfMonth=" + dayOfMonth + ", cumulativeDays=" + cumulativeDays + ", remainingCapital="
-					+ remainingCapital + ", monthInterest=" + monthInterest + ", cumulativeInterest="
-					+ cumulativeInterest + ", dailyInterest=" + dailyInterest + ", interestAmtFee=" + interestAmtFee
-					+ ", capitalAmtFee=" + capitalAmtFee + ", taxAmtFee=" + taxAmtFee + ", dailyInterestAmt="
-					+ dailyInterestAmt + ", fixedFeeAmt=" + fixedFeeAmt + "]";
+					+ ", dueDate=" + dueDate + ", dayOfMonth=" + dayOfMonth + ", cumulativeDays=" + cumulativeDays
+					+ ", remainingCapital=" + remainingCapital + ", monthInterest=" + monthInterest
+					+ ", cumulativeInterest=" + cumulativeInterest + ", dailyInterest=" + dailyInterest
+					+ ", interestAmtFee=" + interestAmtFee + ", capitalAmtFee=" + capitalAmtFee + ", taxAmtFee="
+					+ taxAmtFee + ", dailyInterestAmt=" + dailyInterestAmt + ", fixedFeeAmt=" + fixedFeeAmt
+					+ ", amortizationId=" + amortizationId + ", daysDue=" + daysDue + ", dunningDailyInterest="
+					+ dunningDailyInterest + ", dunningInteretAmount=" + dunningInterestAmount + ", dunningTaxRate="
+					+ dunningTaxRate + ", dunningTaxAmt=" + dunningTaxAmt + "]";
 		}
 	}
 }
