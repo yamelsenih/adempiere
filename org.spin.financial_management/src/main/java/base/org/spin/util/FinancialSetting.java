@@ -241,8 +241,10 @@ public class FinancialSetting {
 					returnValues.put(entry.getKey(), entry.getValue());
 				}
 				//	Complete Batch
-				batch.processIt(MFMBatch.ACTION_Complete);
-				batch.saveEx();
+				if(batch != null) {
+					batch.processIt(MFMBatch.ACTION_Complete);
+					batch.saveEx();
+				}
 			}
 		} catch(Exception e) {
 			message.append(e);
