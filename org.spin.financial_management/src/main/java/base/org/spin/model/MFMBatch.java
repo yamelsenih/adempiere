@@ -20,16 +20,27 @@ import java.io.File;
 import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.Timestamp;
+import java.util.List;
+import java.util.Optional;
 import java.util.Properties;
-import org.compiere.model.*;
+
+import org.compiere.model.MCurrency;
+import org.compiere.model.MDocType;
+import org.compiere.model.MPeriod;
+import org.compiere.model.ModelValidationEngine;
+import org.compiere.model.ModelValidator;
+import org.compiere.model.PO;
+import org.compiere.model.Query;
 import org.compiere.process.DocAction;
+import org.compiere.process.DocOptions;
 import org.compiere.process.DocumentEngine;
 import org.compiere.util.DB;
+import org.compiere.util.Env;
 
 /** Generated Model for FM_Batch
  *  @author Adempiere (generated) 
  *  @version Release 3.9.0 - $Id$ */
-public class MFMBatch extends X_FM_Batch implements DocAction {
+public class MFMBatch extends X_FM_Batch implements DocAction, DocOptions {
 
 	/**
 	 *
@@ -106,6 +117,7 @@ public class MFMBatch extends X_FM_Batch implements DocAction {
 	private String		m_processMsg = null;
 	/**	Just Prepared Flag			*/
 	private boolean		m_justPrepared = false;
+	private int currencyPrecision = MCurrency.getStdPrecision(getCtx(), Env.getContextAsInt(p_ctx, "#C_Currency_ID"));
 
 	/**
 	 * 	Unlock Document.
@@ -206,11 +218,13 @@ public class MFMBatch extends X_FM_Batch implements DocAction {
 		
 		//	User Validation
 		String valid = ModelValidationEngine.get().fireDocValidate(this, ModelValidator.TIMING_AFTER_COMPLETE);
-		if (valid != null)
-		{
+		if (valid != null) {
 			m_processMsg = valid;
 			return DocAction.STATUS_Invalid;
 		}
+		//	Update Heder
+		updateHeader();
+		
 		//	Set Definitive Document No
 		setDefiniteDocumentNo();
 
@@ -218,6 +232,20 @@ public class MFMBatch extends X_FM_Batch implements DocAction {
 		setDocAction(DOCACTION_Close);
 		return DocAction.STATUS_Completed;
 	}	//	completeIt
+	
+	/**
+	 * Update Header Amount
+	 */
+	private void updateHeader() {
+		//	Get
+		BigDecimal amount = Env.ZERO;
+		for(MFMTransaction transaction : getLines()) {
+			amount = amount.add(transaction.getAmount());
+		}
+		//	Set value
+		setTotalAmt(amount);
+		saveEx();
+	}
 	
 	/**
 	 * 	Set the definite document number after completed
@@ -248,7 +276,7 @@ public class MFMBatch extends X_FM_Batch implements DocAction {
 	public boolean voidIt()
 	{
 		log.info("voidIt - " + toString());
-		return closeIt();
+		return reverseCorrectIt();
 	}	//	voidIt
 	
 	/**
@@ -266,31 +294,57 @@ public class MFMBatch extends X_FM_Batch implements DocAction {
 	}	//	closeIt
 	
 	/**
-	 * 	Reverse Correction
-	 * 	@return true if success 
+	 * 	Reverse Correction - same void
+	 * 	@return true if success
 	 */
-	public boolean reverseCorrectIt()
-	{
+	public boolean reverseCorrectIt() {
 		log.info("reverseCorrectIt - " + toString());
-		return false;
-	}	//	reverseCorrectionIt
-	
+		// Before reverseCorrect
+		m_processMsg = ModelValidationEngine.get().fireDocValidate(this,ModelValidator.TIMING_BEFORE_REVERSECORRECT);
+		if (m_processMsg != null)
+			return false;
+
+		MFMBatch reversal = reverseIt(false);
+		if (reversal == null)
+			return false;
+		// After reverseCorrect
+		m_processMsg = ModelValidationEngine.get().fireDocValidate(this,ModelValidator.TIMING_AFTER_REVERSECORRECT);
+		if (m_processMsg != null)
+			return false;
+		//	
+		return true;
+	}			
+	//	reverseCorrectionIt
+
+
 	/**
 	 * 	Reverse Accrual - none
-	 * 	@return true if success 
+	 * 	@return true if success
 	 */
-	public boolean reverseAccrualIt()
-	{
+	public boolean reverseAccrualIt() {
 		log.info("reverseAccrualIt - " + toString());
-		return false;
+		// Before reverseAccrual
+		m_processMsg = ModelValidationEngine.get().fireDocValidate(this,ModelValidator.TIMING_BEFORE_REVERSEACCRUAL);
+		if (m_processMsg != null)
+			return false;
+
+		MFMBatch reversal = reverseIt(true);
+		if (reversal == null)
+			return false;
+
+		// After reverseAccrual
+		m_processMsg = ModelValidationEngine.get().fireDocValidate(this,ModelValidator.TIMING_AFTER_REVERSEACCRUAL);
+		if (m_processMsg != null)
+			return false;
+		
+		return true;
 	}	//	reverseAccrualIt
 	
 	/** 
 	 * 	Re-activate
 	 * 	@return true if success 
 	 */
-	public boolean reActivateIt()
-	{
+	public boolean reActivateIt() {
 		log.info("reActivateIt - " + toString());
 		setProcessed(false);
 		if (reverseCorrectIt())
@@ -298,6 +352,116 @@ public class MFMBatch extends X_FM_Batch implements DocAction {
 		return false;
 	}	//	reActivateIt
 	
+	/**
+	 * Set Processed to Line and header
+	 */
+	public void setProcessed(boolean processed) {
+		super.setProcessed(processed);
+		//	Change Processed in line
+		for(MFMTransaction transaction : getLines()) {
+			transaction.setProcessed(processed);
+			transaction.saveEx();
+		}
+	}
+	
+	/**
+	 *
+	 * @param isAccrual
+	 * @return
+	 */
+	public MFMBatch reverseIt(boolean isAccrual) {
+		Timestamp currentDate = new Timestamp(System.currentTimeMillis());
+		Optional<Timestamp> loginDateOptional = Optional.of(Env.getContextAsDate(getCtx(),"#Date"));
+		Timestamp reversalDate =  isAccrual ? loginDateOptional.orElse(currentDate) : getDateDoc();
+		MPeriod.testPeriodOpen(getCtx(), reversalDate , getC_DocType_ID(), getAD_Org_ID());
+		MFMBatch reversal = copyFrom(this, getDateDoc(), getC_DocType_ID(), false, null , true);
+		if (reversal == null) {
+			return null;
+		}
+
+//		reversal.setReversal_ID(getFM_Batch_ID());
+		reversal.setProcessing (false);
+		reversal.setDocStatus(DOCSTATUS_Reversed);
+		reversal.setDocAction(DOCACTION_None);
+		//	Update Header
+		reversal.updateHeader();
+		reversal.setProcessed(true);
+		reversal.saveEx();
+		setProcessed(true);
+//		setReversal_ID(reversal.getHR_Process_ID());
+		setDocStatus(DOCSTATUS_Reversed);	//	may come from void
+		setDocAction(DOCACTION_None);
+		setProcessed(true);
+		setDocAction(DOCACTION_None);
+		saveEx();
+		return reversal;
+	}
+	
+	/**
+	 * Copy from
+	 * @param from
+	 * @param dateAcct
+	 * @param documentTypeId
+	 * @param counter
+	 * @param trxName
+	 * @param setOrder
+	 * @return
+	 */
+	public static MFMBatch copyFrom (MFMBatch from, Timestamp dateAcct,
+			int documentTypeId, boolean counter, String trxName, boolean setOrder) {
+		MFMBatch to = new MFMBatch (from.getCtx(), 0, trxName);		
+		PO.copyValues (from, to, from.getAD_Client_ID(), from.getAD_Org_ID());
+//		to.setReversal(true);
+		to.set_ValueNoCheck ("DocumentNo", null);
+		//
+		to.setDocStatus (DOCSTATUS_Drafted);		//	Draft
+		to.setDocAction(DOCACTION_Complete);
+		//
+		to.setC_DocType_ID(documentTypeId);
+//		to.setDateAcct (dateAcct);
+		//
+//		to.setPosted (false);
+		to.setProcessed (false);
+		to.setProcessing(false);
+		to.saveEx(trxName);
+		//	Lines
+		to.copyLinesFrom(from);
+		//	
+		return to;
+	}
+	
+	/**
+	 * Copy Line from Movement
+	 * @param from Human Resource Process
+	 * @return return copy lines
+	 */
+	public int copyLinesFrom (MFMBatch from) {
+		if (isProcessed() 
+//				|| isPosted() 
+				|| from == null)
+			return 0;
+		
+		List<MFMTransaction> fromLines = from.getLines();
+		for (MFMTransaction fromMovement: fromLines) {
+			MFMTransaction toMovement = new MFMTransaction (getCtx(), 0, null);
+			PO.copyValues (fromMovement, toMovement, fromMovement.getAD_Client_ID(), fromMovement.getAD_Org_ID());
+			//	
+			toMovement.setFM_Batch_ID(getFM_Batch_ID());
+			toMovement.setAmount(fromMovement.getAmount().negate());
+			toMovement.setProcessed(false);
+			toMovement.saveEx();		
+		}		
+		return fromLines.size();
+	}	//	copyLinesFrom
+	
+	/**
+	 * Get Lines
+	 * @return
+	 */
+	public List<MFMTransaction> getLines() {
+		return new Query(getCtx(), I_FM_Transaction.Table_Name, COLUMNNAME_FM_Batch_ID + "=" + getFM_Batch_ID(), get_TrxName())
+				.<MFMTransaction>list();
+	}
 	
 	/*************************************************************************
 	 * 	Get Summary
@@ -354,12 +518,58 @@ public class MFMBatch extends X_FM_Batch implements DocAction {
 	//	return pl.getC_Currency_ID();
 		return 0;
 	}	//	getC_Currency_ID
-
+	
 	/**
-	 * Process Batch
+	 * 	get Document Type from Document Base Type
+	 * 	@param docBaseType
 	 */
-	private void process() {
-		
+	public void setC_DocType_ID () {
+		int documentTypeId = MDocType.getDocType("FMB");
+		if (documentTypeId <= 0) {
+			log.severe ("Not found for AD_Client_ID=" + getAD_Client_ID () + ", DocBaseTypeType=" + "FMB");
+		} else {
+			log.fine("(SO) - " + "FMB");
+			setC_DocType_ID(documentTypeId);
+		}
+	}	//	setC_DocTypeTarget_ID
+	
+	/**
+	 * Add Transaction for batch
+	 * @param transactionTypeId
+	 * @param amount
+	 */
+	public MFMTransaction addTransaction(int transactionTypeId, BigDecimal amount) {
+		//	Validate Type
+		if(transactionTypeId <= 0) {
+			return null;
+		}
+		//	
+		MFMTransaction transaction = new MFMTransaction(this);
+		transaction.setFM_TransactionType_ID(transactionTypeId);
+		transaction.setAmount(amount.setScale(currencyPrecision, BigDecimal.ROUND_HALF_UP));
+		transaction.saveEx();
+		return transaction;
+	}
+	
+	@Override
+	public int customizeValidActions(String docStatus, Object processing,
+			String orderType, String isSOTrx, int AD_Table_ID,
+			String[] docAction, String[] options, int index) {
+		//	Valid Document Action
+		if (AD_Table_ID == Table_ID){
+			if (docStatus.equals(DocumentEngine.STATUS_Drafted)
+					|| docStatus.equals(DocumentEngine.STATUS_InProgress)
+					|| docStatus.equals(DocumentEngine.STATUS_Invalid)) {
+					options[index++] = DocumentEngine.ACTION_Prepare;
+				}
+				//	Complete                    ..  CO
+				else if (docStatus.equals(DocumentEngine.STATUS_Completed)) {
+					options[index++] = DocumentEngine.ACTION_Reverse_Accrual;
+					options[index++] = DocumentEngine.ACTION_Reverse_Correct;
+				}
+		}
+		//	Default
+		return index;
 	}
 	
     @Override

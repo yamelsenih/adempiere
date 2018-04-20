@@ -21,7 +21,10 @@ import java.sql.ResultSet;
 import java.util.Properties;
 
 import org.compiere.model.Query;
+import org.compiere.util.CCache;
 import org.compiere.util.DB;
+import org.compiere.util.Env;
+import org.compiere.util.Util;
 /**
  * Financial Management
  *
@@ -75,6 +78,93 @@ public class MFMTransactionType extends X_FM_TransactionType {
             return result;
         return 0;
     }
+    
+    /** Static Cache */
+    private static CCache<String, MFMTransactionType> transactionTypeCacheValue = new CCache<String, MFMTransactionType>(Table_Name + "_Value", 100);
+    private static CCache<String, MFMTransactionType> transactionTypeCacheType = new CCache<String, MFMTransactionType>(Table_Name + "_Type", 100);
+	private static CCache<Integer, MFMTransactionType> transactionTypeCacheIds = new CCache<Integer, MFMTransactionType>(Table_Name, 30);
+    
+    /**
+     * Get transaction type from main type
+     * @param type
+     * @return
+     */
+    public static MFMTransactionType getTransactionTypeFromValue(Properties ctx, String transactionTypeValue) {
+        if (Util.isEmpty(transactionTypeValue, true)) {
+        	return null;
+        }
+        //	
+        int clientId = Env.getAD_Client_ID(ctx);
+        final String key = clientId + "#" + transactionTypeValue;
+        MFMTransactionType transactionType = transactionTypeCacheValue.get(key);
+        if (transactionType != null)
+            return transactionType;
+
+        final String whereClause = COLUMNNAME_Value + "=? AND AD_Client_ID IN (?,?)";
+        transactionType = new Query(ctx, Table_Name, whereClause, null)
+                .setParameters(transactionTypeValue, 0, clientId)
+                .setOnlyActiveRecords(true)
+                .setOrderBy("AD_Client_ID DESC")
+                .first();
+        if (transactionType != null) {
+            transactionTypeCacheValue.put(key, transactionType);
+            transactionTypeCacheIds.put(transactionType.get_ID(), transactionType);
+        }
+        return transactionType;
+    }
+    
+    /**
+     * Get transaction type from main type
+     * @param type
+     * @return
+     */
+    public static MFMTransactionType getTransactionTypeFromType(Properties ctx, String type) {
+        if (Util.isEmpty(type, true)) {
+        	return null;
+        }
+        //	
+        int clientId = Env.getAD_Client_ID(ctx);
+        final String key = clientId + "#" + type;
+        MFMTransactionType transactionType = transactionTypeCacheType.get(key);
+        if (transactionType != null)
+            return transactionType;
+
+        final String whereClause = COLUMNNAME_Type + "=? AND AD_Client_ID IN (?,?)";
+        transactionType = new Query(ctx, Table_Name, whereClause, null)
+                .setParameters(type, 0, clientId)
+                .setOnlyActiveRecords(true)
+                .setOrderBy("AD_Client_ID DESC")
+                .first();
+        if (transactionType != null) {
+        	transactionTypeCacheType.put(key, transactionType);
+            transactionTypeCacheIds.put(transactionType.get_ID(), transactionType);
+        }
+        return transactionType;
+    }
+    
+	/**
+	 * Get/Load Transaction Type [CACHED]
+	 * @param ctx context
+	 * @param transactionTypeId
+	 * @return activity or null
+	 */
+	public static MFMTransactionType getById(Properties ctx, int transactionTypeId) {
+		if (transactionTypeId <= 0)
+			return null;
+
+		MFMTransactionType transactionType = transactionTypeCacheIds.get(transactionTypeId);
+		if (transactionType != null && transactionType.get_ID() > 0)
+			return transactionType;
+
+		transactionType = new Query(ctx , Table_Name , COLUMNNAME_FM_TransactionType_ID + "=?" , null)
+				.setClient_ID()
+				.setParameters(transactionTypeId)
+				.first();
+		if (transactionType != null && transactionType.get_ID() > 0) {
+			transactionTypeCacheIds.put(transactionType.get_ID(), transactionType);
+		}
+		return transactionType;
+	}
     
     /**
      * Return Value + Name

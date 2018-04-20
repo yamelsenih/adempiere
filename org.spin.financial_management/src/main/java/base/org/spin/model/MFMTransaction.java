@@ -40,4 +40,17 @@ public class MFMTransaction extends X_FM_Transaction {
 		super(ctx, rs, trxName);
 	}
 	
+	/**
+	 * Constructor from batch
+	 * @param batch
+	 */
+	public MFMTransaction(MFMBatch batch) {
+		super(batch.getCtx(), 0, batch.get_TrxName());
+		//	Set default values
+		setClientOrg(batch);
+		setDateTrx(batch.getDateDoc());
+		setFM_Batch_ID(batch.getFM_Batch_ID());
+		setFM_Account_ID(batch.getFM_Account_ID());
+	}
+	
 }

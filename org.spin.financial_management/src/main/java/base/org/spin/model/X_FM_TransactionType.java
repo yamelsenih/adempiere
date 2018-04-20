@@ -31,7 +31,7 @@ public class X_FM_TransactionType extends PO implements I_FM_TransactionType, I_
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20180320L;
+	private static final long serialVersionUID = 20180419L;
 
     /** Standard Constructor */
     public X_FM_TransactionType (Properties ctx, int FM_TransactionType_ID, String trxName)
@@ -132,6 +132,18 @@ public class X_FM_TransactionType extends PO implements I_FM_TransactionType, I_
 	public static final int TYPE_AD_Reference_ID=54020;
 	/** Transaction Reverse = TRE */
 	public static final String TYPE_TransactionReverse = "TRE";
+	/** Loan Interest (Calculated) = LIN */
+	public static final String TYPE_LoanInterestCalculated = "LIN";
+	/** Loan Dunning Interest (Calculated) = LDD */
+	public static final String TYPE_LoanDunningInterestCalculated = "LDD";
+	/** Loan Initial Payment = LIP */
+	public static final String TYPE_LoanInitialPayment = "LIP";
+	/** Loan Tax Amount (Calculated) = LIT */
+	public static final String TYPE_LoanTaxAmountCalculated = "LIT";
+	/** Loan Capital (Calculated) = LCC */
+	public static final String TYPE_LoanCapitalCalculated = "LCC";
+	/** Loan Dunning Tax Amount (Calculated) = LDT */
+	public static final String TYPE_LoanDunningTaxAmountCalculated = "LDT";
 	/** Set Type.
 		@param Type 
 		Type of Validation (SQL, Java Script, Java Language)
@@ -139,7 +151,7 @@ public class X_FM_TransactionType extends PO implements I_FM_TransactionType, I_
 	public void setType (String Type)
 	{
 
-		set_Value (COLUMNNAME_Type, Type);
+		set_ValueNoCheck (COLUMNNAME_Type, Type);
 	}
 
 	/** Get Type.

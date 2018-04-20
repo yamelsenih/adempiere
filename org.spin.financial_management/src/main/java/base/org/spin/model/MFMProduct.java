@@ -17,14 +17,11 @@
 package org.spin.model;
 
 import java.sql.ResultSet;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
-import org.compiere.model.MTable;
 import org.compiere.model.Query;
 import org.compiere.util.CCache;
-import org.compiere.util.Util;
 
 /**
  * Financial Management
@@ -49,44 +46,13 @@ public class MFMProduct extends X_FM_Product {
 	}
 	
 	/**
-	 * Get for all
-	 * @param eventType
-	 * @param tableId
-	 * @param eventModelValidator
-	 * @return
-	 */
-	private List<MFMFunctionalApplicability> getApplicability(String eventType, int tableId, String eventModelValidator) {
-		StringBuffer whereClause = new StringBuffer(I_FM_FunctionalApplicability.COLUMNNAME_FM_ProductCategory_ID + " = ?");
-		ArrayList<Object> params =  new ArrayList<Object>();
-		//	
-		whereClause.append(" AND ").append(I_FM_FunctionalApplicability.COLUMNNAME_EventType + " = ?");
-		params.add(getFM_ProductCategory_ID());
-		params.add(eventType);
-		//	For Table
-		if(tableId > 0) {
-			whereClause.append(" AND ").append(I_FM_FunctionalApplicability.COLUMNNAME_AD_Table_ID + " = ?");
-			params.add(tableId);
-		}
-		//	For Event Model Validator
-		if(tableId > 0) {
-			whereClause.append(" AND ").append(I_FM_FunctionalApplicability.COLUMNNAME_EventModelValidator + " = ?");
-			params.add(eventModelValidator);
-		}
-		//	
-		return new Query(getCtx(), I_FM_FunctionalApplicability.Table_Name, whereClause.toString(), get_TrxName())
-				.setClient_ID()
-				.setParameters(params)
-				.setOnlyActiveRecords(true)
-				.<MFMFunctionalApplicability>list();
-	}
-	
-	/**
 	 * Get Applicability without table
 	 * @param eventType
 	 * @return
 	 */
 	public List<MFMFunctionalApplicability> getApplicability(String eventType) {
-		return getApplicability(eventType, 0, null);
+		MFMProductCategory category = MFMProductCategory.getById(getCtx(), getFM_ProductCategory_ID());
+		return category.getApplicability(eventType);
 	}
 
 	/**
@@ -96,12 +62,8 @@ public class MFMProduct extends X_FM_Product {
 	 * @return
 	 */
 	public List<MFMFunctionalApplicability> getApplicability(String tableName, String eventModelValidator) {
-		if(Util.isEmpty(tableName)) {
-			return new ArrayList<MFMFunctionalApplicability>();
-		}
-		//	
-		MTable table = MTable.get(getCtx(), tableName);
-		return getApplicability(MFMFunctionalApplicability.EVENTTYPE_TableAction, table.getAD_Table_ID(), eventModelValidator);
+		MFMProductCategory category = MFMProductCategory.getById(getCtx(), getFM_ProductCategory_ID());
+		return category.getApplicability(tableName, eventModelValidator);
 	}
 	
 	/** Static Cache */
@@ -129,5 +91,11 @@ public class MFMProduct extends X_FM_Product {
 			financialProductCacheIds.put(financialProduct.get_ID(), financialProduct);
 		}
 		return financialProduct;
+	}
+
+	@Override
+	public String toString() {
+		return "MFMProduct [getM_Product_ID()=" + getM_Product_ID() + ", getName()=" + getName() + ", getValue()="
+				+ getValue() + "]";
 	}
 }
