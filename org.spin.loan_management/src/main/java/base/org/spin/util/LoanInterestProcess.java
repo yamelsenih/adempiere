@@ -29,18 +29,18 @@ import org.spin.model.MFMTransactionType;
 import org.spin.util.LoanUtil.AmortizationValue;
 
 /**
- * Loan Dunning Calculation
+ * Loan Daily Interest Calculation
  * Calculate Daily Interest
  * 			(A Variable)					(B Variable)
  * 			((1 + InterestRate) ^ (MonthlyDays / YEAR_DAY)) - 1
  *			Dunning Interest = (DaysDue * InterestRate)
  * @author Yamel Senih, ysenih@erpya.com , http://www.erpya.com
- *      <li> FR [ 1663 ] Calculate daily dunning interest
- *		@see https://github.com/adempiere/adempiere/issues/1663
+ *      <li> FR [ 1666 ] Calculate daily Loan Interest
+ *		@see https://github.com/adempiere/adempiere/issues/1666
  */
-public class LoanDunningProcess extends AbstractFunctionalSetting {
+public class LoanInterestProcess extends AbstractFunctionalSetting {
 
-	public LoanDunningProcess(MFMFunctionalSetting setting) {
+	public LoanInterestProcess(MFMFunctionalSetting setting) {
 		super(setting);
 	}
 
@@ -54,14 +54,14 @@ public class LoanDunningProcess extends AbstractFunctionalSetting {
 			return null;
 		}
 		
-		MFMTransactionType dunningType = MFMTransactionType.getTransactionTypeFromType(getCtx(), MFMTransactionType.TYPE_LoanDunningInterestCalculated);
-		MFMTransactionType dunningTaxType = MFMTransactionType.getTransactionTypeFromType(getCtx(), MFMTransactionType.TYPE_LoanDunningTaxAmountCalculated);
+		MFMTransactionType interetType = MFMTransactionType.getTransactionTypeFromType(getCtx(), MFMTransactionType.TYPE_LoanInterestCalculated);
+		MFMTransactionType interestTaxType = MFMTransactionType.getTransactionTypeFromType(getCtx(), MFMTransactionType.TYPE_LoanTaxAmountCalculated);
 		//	Validate
-		if(dunningType == null) {
-			throw new AdempiereException("@FM_TransactionType_ID@ @NotFound@ " + MFMTransactionType.TYPE_LoanDunningInterestCalculated);
+		if(interetType == null) {
+			throw new AdempiereException("@FM_TransactionType_ID@ @NotFound@ " + MFMTransactionType.TYPE_LoanInterestCalculated);
 		}
 		//	
-		HashMap<String, Object> returnValues = LoanUtil.calculateLoanDunning(getCtx(), agreement.getFM_Agreement_ID(), 
+		HashMap<String, Object> returnValues = LoanUtil.calculateLoanInterest(getCtx(), agreement.getFM_Agreement_ID(), 
 				new Timestamp(System.currentTimeMillis()), getFunctionalSetting().get_TrxName());
 		//	Process it
 		if(returnValues == null
@@ -72,14 +72,14 @@ public class LoanDunningProcess extends AbstractFunctionalSetting {
 		List<AmortizationValue> amortizationList = (List<AmortizationValue>) returnValues.get("AMORTIZATION_LIST");
 		//	Iterate
 		for (AmortizationValue row : amortizationList) {
-			MFMTransaction transaction = batch.addTransaction(dunningType.getFM_TransactionType_ID(), row.getDunningInterestAmount());
+			MFMTransaction transaction = batch.addTransaction(interetType.getFM_TransactionType_ID(), row.getInterestAmtFee());
 			if(transaction != null) {
 				transaction.set_ValueOfColumn("FM_Amortization_ID", row.getAmortizationId());
 				transaction.saveEx();
 			}
-			if(dunningTaxType != null
+			if(interestTaxType != null
 					&& row.getDunningTaxAmt() != null) {
-				transaction = batch.addTransaction(dunningTaxType.getFM_TransactionType_ID(), row.getDunningTaxAmt());
+				transaction = batch.addTransaction(interestTaxType.getFM_TransactionType_ID(), row.getTaxAmtFee());
 				if(transaction != null) {
 					transaction.set_ValueOfColumn("FM_Amortization_ID", row.getAmortizationId());
 					transaction.saveEx();

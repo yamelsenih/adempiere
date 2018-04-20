@@ -260,10 +260,10 @@ public class LoanUtil {
 	 * @return
 	 */
 	public static BigDecimal calculateDailyInterest(int days, BigDecimal interestRate) {
-		BigDecimal _A_Variable = (Env.ONE.add(interestRate));
 		//	Calculate Daily Interest
 		//				(A Variable)					(B Variable)
 		//	((1 + InterestRate) ^ (MonthlyDays / YEAR_DAY)) - 1
+		BigDecimal _A_Variable = (Env.ONE.add(interestRate));
 		BigDecimal _B_Variable = (new BigDecimal(days).divide(YEAR_DAY, MathContext.DECIMAL128));
 		BigDecimal _Result_A_pow_B = new BigDecimal(Math.pow(_A_Variable.doubleValue(), _B_Variable.doubleValue()));
 		BigDecimal dailyInterest = _Result_A_pow_B.subtract(Env.ONE);
@@ -403,6 +403,99 @@ public class LoanUtil {
 	}
 	
 	/**
+	 * Only Interest of loan
+	 * @param ctx
+	 * @param agreementId
+	 * @param runningDate
+	 * @param trxName
+	 * @return
+	 */
+	public static HashMap<String, Object> calculateLoanInterest(Properties ctx, int agreementId, Timestamp runningDate, String trxName){
+		//	Validate agreement
+		if(agreementId <= 0) {
+			return null;
+		}
+		/**	Return Value */
+		HashMap<String, Object> returnValues = new HashMap<String, Object>();
+		//	if null then is now
+		if(runningDate == null) {
+			runningDate = new Timestamp(System.currentTimeMillis());
+		}
+		//	Get agreement
+		MFMAgreement agreement = new MFMAgreement(ctx, agreementId, trxName);
+		//	Calculate it
+		MFMProduct financialProduct = MFMProduct.getById(ctx, agreement.getFM_Product_ID());
+		//	Get Interest Rate
+		int rateId = financialProduct.get_ValueAsInt("FM_Rate_ID");
+		//	Validate Dunning for it
+		if(rateId == 0) {
+			return null;
+		}
+		//	
+		BigDecimal interestRate = Env.ZERO;
+		BigDecimal taxRate = Env.ZERO;
+		MCharge charge = null;
+		if(rateId != 0) {
+			MFMRate rate = MFMRate.getById(ctx, rateId);
+			//	
+			interestRate = rate.getValidRate(agreement.getDateDoc());
+			charge = MCharge.get(ctx, rate.getC_Charge_ID());
+		}
+		//	Validate Charge
+		if(charge != null) {
+			//	Get Tax Rate
+			MTaxCategory taxCategory = (MTaxCategory) charge.getC_TaxCategory();
+			MTax tax = taxCategory.getDefaultTax();
+			//	Calculate rate for fee (Year Interest + (Tax Rate * Year Interest))
+			interestRate = interestRate.divide(Env.ONEHUNDRED);
+			taxRate = tax.getRate().divide(Env.ONEHUNDRED);
+		}
+		//	Get
+		List<MFMAccount> accounts = MFMAccount.getAccountFromAgreement(agreement);
+		MFMAccount account = null;
+		if (accounts.isEmpty()){
+			account = new MFMAccount(agreement);
+			account.saveEx();
+		} else {
+			account = accounts.get(0);
+		}
+		//	Hash Map for Amortization
+		List<AmortizationValue> amortizationList = new ArrayList<AmortizationValue>();
+		//	
+		BigDecimal remainingCapital = (BigDecimal) account.get_Value("CapitalAmt");
+		for(MFMAmortization amortization : MFMAmortization.getFromAccount(account.getFM_Account_ID(), trxName)) {
+			AmortizationValue row = new LoanUtil().new AmortizationValue(amortization);
+			if(row.isPaid()) {
+				continue;
+			}
+			//	Validate after
+			if(runningDate.before(row.getStartDate())) {
+				continue;
+			}
+			//	
+			if(row.getEndDate().before(runningDate)) {
+				runningDate = row.getEndDate();
+			}
+			//	
+			BigDecimal dailyInterest = calculateDailyInterest(row.getDayOfMonth(runningDate), interestRate);
+			if(dailyInterest != null) {
+				row.setDailyInterest(dailyInterest);
+				row.setInterestAmtFee(dailyInterest.multiply(remainingCapital));
+				//	For Tax
+				if(taxRate != null) {
+					row.setTaxAmtFee(row.getInterestAmtFee().multiply(taxRate));
+				}
+			}
+			remainingCapital = remainingCapital.subtract(row.getCapitalAmtFee());
+			//	Add to list
+			amortizationList.add(row);
+		}
+		//	Add list
+		returnValues.put("AMORTIZATION_LIST", amortizationList);
+		return returnValues;
+	}
+	
+	/**
 	 * Used for values on amortization
 	 * @author Yamel Senih, ysenih@erpya.com , http://www.erpya.com
 	 *      <li> FR [ 1583 ] New Definition for loan
@@ -427,6 +520,7 @@ public class LoanUtil {
 			setTaxAmtFee(amortization.getTaxAmt());
 			setInterestAmtFee(amortization.getInterestAmt());
 			setAmortizationId(amortization.getFM_Amortization_ID());
+			setPaid(amortization.isPaid());
 		}
 		
 		/**	Period No	*/
@@ -471,6 +565,8 @@ public class LoanUtil {
 		private BigDecimal dunningTaxRate;
 		/**	Dunning Tax Amount	*/
 		private BigDecimal dunningTaxAmt;
+		/**	Is Paid	*/
+		private boolean isPaid;
 		
 		public int getPeriodNo() {
 			return periodNo;
@@ -497,6 +593,18 @@ public class LoanUtil {
 				dayOfMonth = TimeUtil.getDaysBetween(getStartDate(), getEndDate());
 			}
 			return dayOfMonth;
+		}
+		/**
+		 * Get Day of month from current date
+		 * @param now
+		 * @return
+		 */
+		public int getDayOfMonth(Timestamp now) {
+			if(getStartDate() != null
+					&& now != null) {
+				return TimeUtil.getDaysBetween(getStartDate(), now);
+			}
+			return 0;
 		}
 		public void setDayOfMonth(int dayOfMonth) {
 			this.dayOfMonth = dayOfMonth;
@@ -609,6 +717,12 @@ public class LoanUtil {
 		}
 		public void setDunningTaxAmt(BigDecimal dunningTaxAmt) {
 			this.dunningTaxAmt = dunningTaxAmt;
+		}
+		public boolean isPaid() {
+			return isPaid;
+		}
+		public void setPaid(boolean isPaid) {
+			this.isPaid = isPaid;
 		}
 
 		@Override

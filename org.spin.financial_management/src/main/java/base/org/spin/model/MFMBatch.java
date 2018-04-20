@@ -374,7 +374,7 @@ public class MFMBatch extends X_FM_Batch implements DocAction, DocOptions {
 		Optional<Timestamp> loginDateOptional = Optional.of(Env.getContextAsDate(getCtx(),"#Date"));
 		Timestamp reversalDate =  isAccrual ? loginDateOptional.orElse(currentDate) : getDateDoc();
 		MPeriod.testPeriodOpen(getCtx(), reversalDate , getC_DocType_ID(), getAD_Org_ID());
-		MFMBatch reversal = copyFrom(this, getDateDoc(), getC_DocType_ID(), false, null , true);
+		MFMBatch reversal = copyFrom(this, getDateDoc(), getC_DocType_ID());
 		if (reversal == null) {
 			return null;
 		}
@@ -408,8 +408,8 @@ public class MFMBatch extends X_FM_Batch implements DocAction, DocOptions {
 	 * @return
 	 */
 	public static MFMBatch copyFrom (MFMBatch from, Timestamp dateAcct,
-			int documentTypeId, boolean counter, String trxName, boolean setOrder) {
-		MFMBatch to = new MFMBatch (from.getCtx(), 0, trxName);		
+			int documentTypeId) {
+		MFMBatch to = new MFMBatch (from.getCtx(), 0, from.get_TrxName());		
 		PO.copyValues (from, to, from.getAD_Client_ID(), from.getAD_Org_ID());
 //		to.setReversal(true);
 		to.set_ValueNoCheck ("DocumentNo", null);
@@ -423,7 +423,7 @@ public class MFMBatch extends X_FM_Batch implements DocAction, DocOptions {
 //		to.setPosted (false);
 		to.setProcessed (false);
 		to.setProcessing(false);
-		to.saveEx(trxName);
+		to.saveEx();
 		//	Lines
 		to.copyLinesFrom(from);
 		//	
