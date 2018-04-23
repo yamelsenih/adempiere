@@ -455,6 +455,13 @@ public class GridPanel extends Borderlayout implements EventListener
 				}
 			}
 			if (row != null) {
+				if(data instanceof Col) {
+					Col col = (Col)data;
+					currentCol = (Integer)(col).getAttribute("columnNo");
+					if(row == renderer.getCurrentRow() && currentCol==renderer.getCurrentColumn()) {
+						return;
+					}
+				}
 				//click on selected row to enter edit mode
 				if (row != renderer.getCurrentRow()) {
 					if(renderer.getCurrentDiv() != null) {
@@ -471,7 +478,7 @@ public class GridPanel extends Borderlayout implements EventListener
 			}
 			if(data instanceof Col) {
 				Col col = (Col)data;
-
+				
 				currentCol = (Integer)(col).getAttribute("columnNo");
 				gridTab.navigateCurrent();
 				renderer.setCurrentColumn(currentCol);
@@ -480,7 +487,6 @@ public class GridPanel extends Borderlayout implements EventListener
 			keyListener.setCtrlKeys(CNTRL_KEYS+KEYS_MOVE);
         }
 		else if (event.getName().equals(Events.ON_CTRL_KEY) && event.getTarget() == keyListener) {
-			
 			KeyEvent keyEvent = (KeyEvent) event;
 			int code = keyEvent.getKeyCode();
 			boolean isAlt = keyEvent.isAltKey();
@@ -490,7 +496,6 @@ public class GridPanel extends Borderlayout implements EventListener
 				return;
 			
 			currentCol = gridTab.getCurrentCol();
-			System.out.println( code );
 				
 			int row = renderer.getCurrentRowIndex();
 			
@@ -500,7 +505,17 @@ public class GridPanel extends Borderlayout implements EventListener
 				if(renderer.getCurrentDiv() != null) {
 					if (renderer.isEditing()) { 
 						renderer.stopColEditing(true);
-						currentCol++;
+						if(renderer.isLastColumn()) {
+							currentCol=0;
+							row += 1;
+							if (row == totalRow && (!gridTab.isNew() || dataSave(0)))	
+								onNew();
+							
+							updateListIndex();
+						}
+						else {
+							currentCol++;
+						}
 						renderer.setCurrentColumn(currentCol);
 					}
 						keyListener.setCtrlKeys(CNTRL_KEYS+KEYS_MOVE);
@@ -508,8 +523,6 @@ public class GridPanel extends Borderlayout implements EventListener
 							currentCol++;
 							renderer.setCurrentColumn(currentCol);
 						}
-						
-					keyListener.setCtrlKeys(CNTRL_KEYS);
 				}
 //				updateListIndex();
 			}
@@ -887,9 +900,11 @@ public class GridPanel extends Borderlayout implements EventListener
 	}
 	
 	public void focusCurrentCol() {
-		renderer.getCurrentDiv().setFocus(true);
-		renderer.stopColEditing(true);
-		renderer.getCurrentDiv().invalidate();
+		if(renderer != null && renderer.getCurrentDiv() != null) {
+			renderer.getCurrentDiv().setFocus(true);
+			renderer.stopColEditing(true);
+			renderer.getCurrentDiv().invalidate();
+		}
 
 	}
 	
@@ -973,4 +988,7 @@ public class GridPanel extends Borderlayout implements EventListener
         }
 	}
 	
+	public Keylistener getKeyListener() {
+		return keyListener;
+	}
 }

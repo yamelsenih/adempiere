@@ -132,7 +132,6 @@ public class GridTabRowRenderer implements RowRenderer, RowRendererExt, Renderer
 		}
 			gridField.removePropertyChangeListener(editor);
 			gridField.addPropertyChangeListener(editor);
-		
 			editor.setValue(gridField.getValue());
 
             //streach component to fill grid cell
@@ -379,6 +378,7 @@ public class GridTabRowRenderer implements RowRenderer, RowRendererExt, Renderer
 				}
 			}
 			
+			
 			div.setReadOnly(!gridField[i].isEditable(true));
 			div.setAttribute("columnName", gridField[i].getColumnName());
 			div.setAttribute("columnNo", colIndex);
@@ -438,11 +438,10 @@ public class GridTabRowRenderer implements RowRenderer, RowRendererExt, Renderer
 			GridField gridField = gridTab.getField(colName);
 			org.zkoss.zul.Columns columns = grid.getColumns();
 			WEditor editor = currentDiv.getEditor();
-			
 			if (editor == null) {	
 				editor = getEditorCell(gridField, currentValues[colIndex], false);
 			}
-
+			editor.setADTabPanel(gridPanel.getADTabPanel());
 			org.zkoss.zul.Column column = (org.zkoss.zul.Column) columns.getChildren().get(colIndex);
 			if (column.isVisible() && !(gridField.isReadOnly()) ) {
 				editor.setVisible(false);
@@ -462,9 +461,10 @@ public class GridTabRowRenderer implements RowRenderer, RowRendererExt, Renderer
 				if(currentDiv.getAnchorInput() == null)
 					currentDiv.createAnchorInput();
 				
+
 				String componentUuId = currentDiv.getComponent().getUuid();
 				Clients.evalJavaScript("$('#"+currentDiv.getAnchorInput().getUuid()+"')."
-						+ "keypress(function(event) {"
+						+ "keyup(function(event) {"
 						+ "$('#"+componentUuId+" :input').each(function(){"
 						+" if (event.keyCode >= 48 && event.keyCode <= 90 || event.keyCode >= 96 && event.keyCode <= 105) {" 
 						+ "$(this).val(event.key);"
@@ -477,7 +477,10 @@ public class GridTabRowRenderer implements RowRenderer, RowRendererExt, Renderer
 				}
 				
 				Clients.evalJavaScript("$('#"+currentDiv.getAnchorInput().getUuid()+"')."
-						+ "keypress(function(event) {"
+						+ "keyup(function(event) {"
+						+"if (event.keyCode == 13) {"
+						+ "$('#"+componentUuId+"').show();"
+						+ "}"
 						+ "$('#"+componentUuId+"').focus();"
 						+ "$('#"+componentUuId+"').find('input').focus();"
 						+" if (event.keyCode >= 48 && event.keyCode <= 90 || event.keyCode >= 96 && event.keyCode <= 105) {" 
@@ -677,14 +680,14 @@ public class GridTabRowRenderer implements RowRenderer, RowRendererExt, Renderer
 						currentDiv.getComponent().setVisible(false);
 				}
 				currentDiv.setFocus(false);
-		}
+			}
 		
-		gridTab.setCurrentCol(col);
-		Component cmp = grid.getCell(pgIndex, currentColumn);
-		if(grid.getRows().getChildren().size() > 0 && cmp instanceof Col) {
-			setCurrentDiv((Col)cmp);
-			editCurrentCol(false);
-		}
+			gridTab.setCurrentCol(col);
+			Component cmp = grid.getCell(pgIndex, currentColumn);
+			if(grid.getRows().getChildren().size() > 0 && cmp instanceof Col) {
+				setCurrentDiv((Col)cmp);
+				
+			}editCurrentCol(false);
 		}
 		return true;
 	}

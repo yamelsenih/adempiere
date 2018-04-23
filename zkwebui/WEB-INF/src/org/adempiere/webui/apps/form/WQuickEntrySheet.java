@@ -378,12 +378,12 @@ public class WQuickEntrySheet extends Window implements EventListener, DataStatu
         //  Confirm Warning
         else if (e.isWarning() && !e.isConfirmed())
         {
-//        	curTabPanel.getListPanel().removeKeyListener();
+        	gridPanel.removeKeyListener();
         	FDialog.warn(0, null, e.getAD_Message(), e.getInfo());
-        	
+
         	e.setConfirmed(true);   //  show just once - if MTable.setCurrentRow is involved the status event is re-issued
-            (gridPanel).focusCurrentCol();
-//            curTabPanel.getListPanel().addKeyListener();
+//            (gridPanel).focusCurrentCol();
+            gridPanel.addKeyListener();
         }
 	}
 }

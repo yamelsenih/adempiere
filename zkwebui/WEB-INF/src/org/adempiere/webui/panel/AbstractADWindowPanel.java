@@ -1293,12 +1293,11 @@ public abstract class AbstractADWindowPanel extends AbstractUIPart implements To
         //  Confirm Warning
         else if (e.isWarning() && !e.isConfirmed())
         {
-//        	curTabPanel.getListPanel().removeKeyListener();
+        	((ADTabPanel)toolbar.getCurrentPanel()).getListPanel().removeKeyListener();
         	FDialog.warn(curWindowNo, null, e.getAD_Message(), e.getInfo());
         	
         	e.setConfirmed(true);   //  show just once - if MTable.setCurrentRow is involved the status event is re-issued
-//            (curTabPanel.getListPanel()).focusCurrentCol();
-//            curTabPanel.getListPanel().addKeyListener();
+        	((ADTabPanel)toolbar.getCurrentPanel()).getListPanel().addKeyListener();
         }
 
         //  update Navigation
@@ -2024,7 +2023,7 @@ public abstract class AbstractADWindowPanel extends AbstractUIPart implements To
 			FDialog.error(curWindowNo, parent, "SaveErrorRowNotFound");
 			return;
 		}
-
+		((ADTabPanel)toolbar.getCurrentPanel()).getListPanel().removeKeyListener();
 		boolean isProcessMandatory = false;
 		MProcess process = null;
 		if(wButton.getProcess_ID() != 0) {
@@ -2049,6 +2048,7 @@ public abstract class AbstractADWindowPanel extends AbstractUIPart implements To
 				onSave(false);
 				onRefresh(false);
 			}
+			((ADTabPanel)toolbar.getCurrentPanel()).getListPanel().addKeyListener();
 		} // PaymentRule
 
 		//	Pop up Document Action (Workflow)
@@ -2063,14 +2063,17 @@ public abstract class AbstractADWindowPanel extends AbstractUIPart implements To
 			if (win.getNumberOfOptions() == 0)
 			{
 				logger.info("DocAction - No Options");
+				((ADTabPanel)toolbar.getCurrentPanel()).getListPanel().addKeyListener();
 				return;
 			}
 			else
 			{
 				AEnv.showWindow(win);
 
-				if (!win.isStartProcess())
+				if (!win.isStartProcess()) {
+					((ADTabPanel)toolbar.getCurrentPanel()).getListPanel().addKeyListener();
 					return;
+				}
 
 				//batch = win.isBatch();
 				startWOasking = true;
@@ -2091,6 +2094,7 @@ public abstract class AbstractADWindowPanel extends AbstractUIPart implements To
 					cf.showWindow();
                     currentTab.dataRefresh();
 				}
+				((ADTabPanel)toolbar.getCurrentPanel()).getListPanel().addKeyListener();
 				return;
 			}
 			// else may start process
@@ -2116,6 +2120,7 @@ public abstract class AbstractADWindowPanel extends AbstractUIPart implements To
 				else
 				{
 					FDialog.error(curWindowNo, parent, "PostDocNotComplete");
+					((ADTabPanel)toolbar.getCurrentPanel()).getListPanel().addKeyListener();
 					return;
 				}
 			}
@@ -2153,6 +2158,7 @@ public abstract class AbstractADWindowPanel extends AbstractUIPart implements To
 					onRefresh(false);
 				}
 			}
+			((ADTabPanel)toolbar.getCurrentPanel()).getListPanel().addKeyListener();
 			return;
 		}   //  Posted
 
@@ -2175,8 +2181,10 @@ public abstract class AbstractADWindowPanel extends AbstractUIPart implements To
 
 		if (currentTab.needSave(true, false))
 		{
-			if (!onSave(false))
+			if (!onSave(false)) {
+				((ADTabPanel)toolbar.getCurrentPanel()).getListPanel().addKeyListener();
 				return;
+			}
 		}
 
 		//	Validate Access
@@ -2186,6 +2194,7 @@ public abstract class AbstractADWindowPanel extends AbstractUIPart implements To
 		if(accessRW == null
 				|| !accessRW.booleanValue()) {
 			FDialog.error(curWindowNo, parent, "AccessCannotProcess");
+			((ADTabPanel)toolbar.getCurrentPanel()).getListPanel().addKeyListener();
 			return;
 		}
 		int adFormID = process.getAD_Form_ID();
@@ -2242,6 +2251,8 @@ public abstract class AbstractADWindowPanel extends AbstractUIPart implements To
 
 			//onRefresh(true); // Need to fire events to activate subordinate tabs.
 		}
+		((ADTabPanel)toolbar.getCurrentPanel()).getListPanel().addKeyListener();
+		((ADTabPanel)toolbar.getCurrentPanel()).getListPanel().focusCurrentCol();
 	} // actionButton
 
 	/**

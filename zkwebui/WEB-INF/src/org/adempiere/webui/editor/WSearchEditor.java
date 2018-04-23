@@ -24,13 +24,13 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.logging.Level;
 
+import org.adempiere.exceptions.ValueChangeEvent;
+import org.adempiere.exceptions.ValueChangeListener;
 import org.adempiere.webui.ValuePreference;
 import org.adempiere.webui.apps.AEnv;
 import org.adempiere.webui.component.Searchbox;
 import org.adempiere.webui.event.ContextMenuEvent;
 import org.adempiere.webui.event.ContextMenuListener;
-import org.adempiere.exceptions.ValueChangeEvent;
-import org.adempiere.exceptions.ValueChangeListener;
 import org.adempiere.webui.grid.WBPartner;
 import org.adempiere.webui.panel.InfoBPartnerPanel;
 import org.adempiere.webui.panel.InfoPanel;
@@ -57,6 +57,7 @@ import org.compiere.util.Trx;
 import org.eevolution.model.I_PP_Product_BOMLine;
 import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.event.Events;
+import org.zkoss.zk.ui.event.KeyEvent;
 
 /**
  * Search Editor for web UI.
@@ -214,7 +215,7 @@ public class WSearchEditor extends WEditor implements ContextMenuListener, Value
 		{
 			WRecordInfo.addMenu(popupMenu);
 		}
-		
+	
 		return;
 	}
 
@@ -269,6 +270,7 @@ public class WSearchEditor extends WEditor implements ContextMenuListener, Value
 
 	public void onEvent(Event e)
 	{
+		
 		if(m_settingValue) // Ignore events if in the middle of setting the value
 		{
 			return;
@@ -279,6 +281,7 @@ public class WSearchEditor extends WEditor implements ContextMenuListener, Value
 				autoComplete.setValue(getComponent().getText()); // ADEMPIERE-191
 				autoComplete.setSearchText(getComponent().getText());  // ADEMPIERE-191
 			}
+			
 			actionText(getComponent().getText());
 		}
 		else if (Events.ON_CLICK.equals(e.getName()))
@@ -688,12 +691,19 @@ public class WSearchEditor extends WEditor implements ContextMenuListener, Value
 		}
 		//
 		if (infoPanel != null){
+			if(this.getADTabPanel() != null && this.getADTabPanel().getListPanel() != null)
+				this.getADTabPanel().getListPanel().removeKeyListener();
 			infoPanel.addValueChangeListener(this);
 			AEnv.showWindow(infoPanel);
 			//
 			cancelled = infoPanel.isCancelled();
 			result = infoPanel.getSelectedKeys();
 			//
+			if(this.getADTabPanel() != null && this.getADTabPanel().getListPanel() != null) {
+				this.getADTabPanel().getListPanel().addKeyListener();
+				KeyEvent event = new KeyEvent(Events.ON_CTRL_KEY, this.getADTabPanel().getListPanel().getKeyListener(), 13, false, false, false);
+				Events.postEvent(event); 
+			}
 			infoPanel = null;
 		}
 		//  Result
