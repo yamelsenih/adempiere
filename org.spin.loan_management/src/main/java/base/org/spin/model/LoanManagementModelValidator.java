@@ -23,6 +23,7 @@ import java.util.List;
 import org.adempiere.exceptions.AdempiereException;
 import org.compiere.model.MClient;
 import org.compiere.model.MPaySelection;
+import org.compiere.model.MPayment;
 import org.compiere.model.ModelValidationEngine;
 import org.compiere.model.ModelValidator;
 import org.compiere.model.PO;
@@ -53,6 +54,7 @@ public class LoanManagementModelValidator implements ModelValidator {
 		engine.addModelChange(MFMAgreement.Table_Name, this);
 		engine.addDocValidate(MFMAgreement.Table_Name, this);
 		engine.addDocValidate(MPaySelection.Table_Name, this);
+		engine.addDocValidate(MPayment.Table_Name, this);
     }
 
     @Override
@@ -145,6 +147,41 @@ public class LoanManagementModelValidator implements ModelValidator {
 					if(msg.length() > 0) {
 						throw new AdempiereException("@Loan@ @Processed@ [" + msg.toString() + "]");
 					}
+				}
+			}
+		} else if (entity instanceof MPayment) {
+			if (timing == TIMING_AFTER_COMPLETE) {
+				MPayment payment = (MPayment) entity;
+				if(payment.getReversal_ID() != 0) {
+					return null;
+				}
+				String sql = new String("SELECT pl.FM_Account_ID "
+						+ "FROM C_PaySelectionLine pl "
+						+ "INNER JOIN C_PaySelectionCheck pc ON(pc.C_PaySelectionCheck_ID = pl.C_PaySelectionCheck_ID) "
+						+ "WHERE pc.C_Payment_ID = ?");
+				//	Get 
+				int financialAccountId = DB.getSQLValue(payment.get_TrxName(), sql, payment.getC_Payment_ID());
+				if(financialAccountId > 0) {
+					MFMAccount account = new MFMAccount(payment.getCtx(), financialAccountId, payment.get_TrxName());
+					//	
+					account.set_ValueOfColumn("IsPaid", true);
+					account.saveEx();
+				}
+			} else if(timing == TIMING_AFTER_REVERSECORRECT
+					|| timing == TIMING_AFTER_REVERSEACCRUAL
+					|| timing == TIMING_AFTER_VOID) {
+				MPayment payment = (MPayment) entity;
+				String sql = new String("SELECT pl.FM_Account_ID "
+						+ "FROM C_PaySelectionLine pl "
+						+ "INNER JOIN C_PaySelectionCheck pc ON(pc.C_PaySelectionCheck_ID = pl.C_PaySelectionCheck_ID) "
+						+ "WHERE pc.C_Payment_ID = ?");
+				//	Get 
+				int financialAccountId = DB.getSQLValue(payment.get_TrxName(), sql, payment.getC_Payment_ID());
+				if(financialAccountId > 0) {
+					MFMAccount account = new MFMAccount(payment.getCtx(), financialAccountId, payment.get_TrxName());
+					//	
+					account.set_ValueOfColumn("IsPaid", false);
+					account.saveEx();
 				}
 			}
 		} else if (entity instanceof MFMAgreement) {
