@@ -23,6 +23,7 @@ import java.util.Properties;
 
 import org.compiere.model.Query;
 import org.compiere.util.CCache;
+import org.compiere.util.DB;
 /**
  * Financial Management
  *
@@ -47,6 +48,8 @@ public class MFMDunning extends X_FM_Dunning {
 	
 	/** Static Cache */
 	private static CCache<Integer, MFMDunning> dunningCacheIds = new CCache<Integer, MFMDunning>(Table_Name, 30);
+	/**	Charge	*/
+	private int chargeId;
 
 	/**
 	 * Get/Load dunning [CACHED]
@@ -91,5 +94,23 @@ public class MFMDunning extends X_FM_Dunning {
 				.setClient_ID()
 				.setOnlyActiveRecords(true)
 				.first();
+	}
+	
+	/**
+	 * Get charge for invoice/payment
+	 * @return
+	 */
+	public int getChargeId() {
+		if(chargeId > 0) {
+			return chargeId;
+		}
+		//	
+		chargeId = DB.getSQLValue(get_TrxName(), "SELECT MAX(r.C_Charge_ID) "
+				+ "FROM FM_Rate r "
+				+ "WHERE EXISTS(SELECT 1 FROM FM_DunningLevel dl "
+				+ "					WHERE dl.FM_Dunning_ID = ? "
+				+ "					AND dl.FM_Rate_ID = r.FM_Rate_ID)", getFM_Dunning_ID());
+		//	Default return
+		return chargeId;
 	}
 }

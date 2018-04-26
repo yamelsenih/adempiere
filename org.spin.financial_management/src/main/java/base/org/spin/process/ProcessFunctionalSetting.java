@@ -35,14 +35,17 @@ public class ProcessFunctionalSetting extends ProcessFunctionalSettingAbstract {
 		int agreementId = getRecord_ID();
 		if(agreementId > 0) {
 			MFMAgreement agreement = new MFMAgreement(getCtx(), agreementId, get_TrxName());
-			String log = FinancialSetting.get().fireProcessAgreement(getCtx(), agreement, get_TrxName());
-			if(!Util.isEmpty(log)) {
-				addLog(log);
+			if(agreement.getDocStatus().equals(MFMAgreement.DOCSTATUS_Completed)) {
+				String log = FinancialSetting.get().fireProcessAgreement(getCtx(), agreement, get_TrxName());
+				if(!Util.isEmpty(log)) {
+					addLog(log);
+				}	
 			}
 		} else {
 			List<MFMAgreement> agreementList = new Query(getCtx(), I_FM_Agreement.Table_Name, 
-					I_FM_Agreement.COLUMNNAME_DocStatus + " = 'CO'", get_TrxName()).setClient_ID()
+					I_FM_Agreement.COLUMNNAME_DocStatus + " = ?", get_TrxName()).setClient_ID()
 					.setOnlyActiveRecords(true)
+					.setParameters(MFMAgreement.DOCSTATUS_Completed)
 					.<MFMAgreement>list();
 			//	Get for all agreement
 			for(MFMAgreement agreement : agreementList) {

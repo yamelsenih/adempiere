@@ -34,6 +34,7 @@ import org.compiere.util.Msg;
 import org.spin.model.MFMAccount;
 import org.spin.model.MFMAgreement;
 import org.spin.model.MFMAmortization;
+import org.spin.model.MFMDunning;
 import org.spin.model.MFMProduct;
 import org.spin.model.MFMRate;
 
@@ -53,7 +54,9 @@ public class GenerateInvoiceFromLoan extends GenerateInvoiceFromLoanAbstract {
 		//	Get keys from Smart Browse
 		int chargeForInterestId = 0;
 		int chargeForDunningId = 0;
+		MFMAccount account = null;
 		MFMAgreement agreement = null;
+		MBPartner businessPartner = null;
 		MProduct product = null;
 		for(int amortizationId : getSelectionKeys()) {
 			MFMAmortization amortization = new MFMAmortization(getCtx(), amortizationId, get_TrxName());
@@ -64,29 +67,47 @@ public class GenerateInvoiceFromLoan extends GenerateInvoiceFromLoanAbstract {
 			if(isSplitInvoices() 
 					|| invoice == null) {
 				invoice = new MInvoice(getCtx(), 0, get_TrxName());
-				//	Set Document Information
-				MFMAccount account = (MFMAccount) amortization.getFM_Account();
-				agreement = (MFMAgreement) account.getFM_Agreement();
-				//	Get Financial Product for configuration
-				MFMProduct financialProduct = MFMProduct.getById(getCtx(), agreement.getFM_Product_ID());
-				product = MProduct.get(getCtx(), financialProduct.getM_Product_ID());
-				MBPartner businessPartner = MBPartner.get(getCtx(), agreement.getC_BPartner_ID());
-				int rateForInterestId = financialProduct.get_ValueAsInt("FM_Rate_ID");
-				int rateForDunningInterestId = financialProduct.get_ValueAsInt("DunningInterest_ID");
-				if(interestAmt != null
-						&& rateForInterestId == 0) {
-					throw new AdempiereException("@FM_Rate_ID@ @for@ @Interest@ @NotFound@");
+				//	Get agreement
+				if(account == null) {
+					//	Set Document Information
+					account = (MFMAccount) amortization.getFM_Account();
+					agreement = (MFMAgreement) account.getFM_Agreement();
+					//	Get Financial Product for configuration
+					MFMProduct financialProduct = MFMProduct.getById(getCtx(), agreement.getFM_Product_ID());
+					product = MProduct.get(getCtx(), financialProduct.getM_Product_ID());
+					businessPartner = MBPartner.get(getCtx(), agreement.getC_BPartner_ID());
+					int rateForInterestId = financialProduct.get_ValueAsInt("FM_Rate_ID");
+					int rateForDunningInterestId = financialProduct.get_ValueAsInt("DunningInterest_ID");
+					int dunningId = financialProduct.get_ValueAsInt("FM_Dunning_ID");
+					//	Validate Dunning for it
+					if(rateForDunningInterestId == 0
+							&& dunningId == 0) {
+						throw new AdempiereException("@FM_Dunning_ID@ @for@ @FM_Product_ID@ @NotFound@");
+					}
+					if(interestAmt != null
+							&& rateForInterestId == 0) {
+						throw new AdempiereException("@FM_Rate_ID@ @for@ @Interest@ @NotFound@");
+					}
+					//	For dunning
+					if(dunningAmt != null
+							&& rateForDunningInterestId == 0
+							&& dunningId == 0) {
+						throw new AdempiereException("@DunningInterest_ID@ @NotFound@");
+					}
+					//	For interest
+					if(rateForInterestId != 0) {
+						MFMRate interestRate = MFMRate.getById(getCtx(), rateForInterestId);
+						chargeForInterestId = interestRate.getC_Charge_ID();
+					}
+					//	For Dunning
+					if(rateForDunningInterestId != 0) {
+						MFMRate dunningunningInterest = MFMRate.getById(getCtx(), rateForDunningInterestId);
+						chargeForDunningId = dunningunningInterest.getC_Charge_ID();
+					} else if(dunningId != 0) {
+						MFMDunning dunning = MFMDunning.getById(getCtx(), dunningId);
+						chargeForDunningId = dunning.getChargeId();
+					}
 				}
-				//	For dunning
-				if(dunningAmt != null
-						&& rateForDunningInterestId == 0) {
-					throw new AdempiereException("@DunningInterest_ID@ @NotFound@");
-				}
-				MFMRate interestRate = MFMRate.getById(getCtx(), rateForInterestId);
-				MFMRate dunningunningInterest = MFMRate.getById(getCtx(), rateForDunningInterestId);
-				//	Get Charge
-				chargeForInterestId = interestRate.getC_Charge_ID();
-				chargeForDunningId = dunningunningInterest.getC_Charge_ID();
 				//	Set Values for document
 				invoice.setAD_Org_ID(agreement.getAD_Org_ID());
 				//	Set Document Type

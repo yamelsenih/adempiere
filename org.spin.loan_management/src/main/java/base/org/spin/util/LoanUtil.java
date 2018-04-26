@@ -326,6 +326,11 @@ public class LoanUtil {
 			MFMRate rate = MFMRate.getById(ctx, dunningRateId);
 			//	
 			interestRate = rate.getValidRate(runningDate);
+			if(interestRate != null) {
+				interestRate = interestRate.divide(Env.ONEHUNDRED);
+			} else {
+				interestRate = Env.ZERO;
+			}
 			charge = MCharge.get(ctx, rate.getC_Charge_ID());
 		}
 		//	Validate Charge
@@ -334,8 +339,12 @@ public class LoanUtil {
 			MTaxCategory taxCategory = (MTaxCategory) charge.getC_TaxCategory();
 			MTax tax = taxCategory.getDefaultTax();
 			//	Calculate rate for fee (Year Interest + (Tax Rate * Year Interest))
-			interestRate = interestRate.divide(Env.ONEHUNDRED);
-			taxRate = tax.getRate().divide(Env.ONEHUNDRED);
+			taxRate = tax.getRate();
+			if(taxRate != null) {
+				taxRate = taxRate.divide(Env.ONEHUNDRED);
+			} else {
+				taxRate = Env.ZERO;
+			}
 		}
 		MFMDunning dunning = null;
 		//	Get dunning configuration if exist
@@ -362,7 +371,8 @@ public class LoanUtil {
 			//	For distinct levels
 			MFMDunningLevel level = null;
 			int dunningLevelRateId = 0;
-			if(dunning != null) {
+			if(dunning != null
+					&& dunningRateId == 0) {
 				level = dunning.getValidLevelInstance(row.getDaysDue());
 				dunningLevelRateId = level.getFM_Rate_ID();
 				if(dunningLevelRateId > 0) {
