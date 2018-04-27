@@ -31,6 +31,7 @@ import org.compiere.util.CLogger;
 import org.compiere.util.DB;
 import org.compiere.util.Env;
 import org.compiere.util.KeyNamePair;
+import org.compiere.util.Msg;
 
 /**
  * Loan Management Model Validator
@@ -228,6 +229,107 @@ public class LoanManagementModelValidator implements ModelValidator {
 							account.set_ValueOfColumn("TaxAmt", taxAmt);
 						}
 						account.saveEx();	
+					}
+				}
+			} else if(timing == TIMING_BEFORE_REVERSECORRECT
+					|| timing == TIMING_BEFORE_REVERSEACCRUAL
+					|| timing == TIMING_BEFORE_VOID
+					|| timing == TIMING_BEFORE_REACTIVATE) {
+				MFMAgreement agreement = (MFMAgreement) entity;
+				//	Get values from amortization
+				List<MFMAccount> accountList = agreement.getAccounts();
+				StringBuffer inClause = new StringBuffer();
+				if(accountList != null
+						&& !accountList.isEmpty()) {
+					for(MFMAccount account : accountList) {
+						if(inClause.length() > 0) {
+							inClause.append(", ");
+						}
+						//	Add
+						inClause.append(account.getFM_Account_ID());
+					}
+				}
+				//	Validate and get result
+				if(inClause.length() > 0) {
+					//	For Payment Selection
+					String sql = new String("SELECT ps.C_PaySelection_ID, ps.DocumentNo "
+							+ "FROM C_PaySelection ps "
+							+ "INNER JOIN C_PaySelectionLine pl ON(pl.C_PaySelection_ID = ps.C_PaySelection_ID) "
+							+ "WHERE ps.DocStatus IN('CO', 'CL') "
+							+ "AND pl.FM_Account_ID IN(" + inClause.toString() + ")");
+					KeyNamePair[] paySelectionResult = DB.getKeyNamePairs(agreement.get_TrxName(), sql, false);
+					//	For Payment
+					sql = new String("SELECT p.C_Payment_ID, p.DocumentNo "
+							+ "FROM C_PaySelectionLine pl "
+							+ "INNER JOIN C_PaySelectionCheck pc ON(pc.C_PaySelectionCheck_ID = pl.C_PaySelectionCheck_ID) "
+							+ "INNER JOIN C_Payment p ON(p.C_Payment_ID = pc.C_Payment_ID) "
+							+ "WHERE p.DocStatus IN('CO', 'CL') "
+							+ "AND EXISTS(SELECT 1 FROM C_PaySelection ps "
+							+ "				WHERE ps.C_PaySelection_ID = pl.C_PaySelection_ID"
+							+ "				AND ps.DocStatus IN('CO', 'CL')) "
+							+ "AND pl.FM_Account_ID IN(" + inClause.toString() + ")");
+					KeyNamePair[] paymentResult = DB.getKeyNamePairs(agreement.get_TrxName(), sql, false);
+					//	For Invoice
+					sql = new String("SELECT i.C_Invoice_ID, i.DocumentNo "
+							+ "FROM C_Invoice i "
+							+ "WHERE i.DocStatus IN('CO', 'CL') "
+							+ "AND i.FM_Account_ID IN(" + inClause.toString() + ")");
+					KeyNamePair[] invoiceResult = DB.getKeyNamePairs(agreement.get_TrxName(), sql, false);
+					//	Show Result for Payment Selection
+					StringBuffer resultToShow = new StringBuffer();
+					if(paySelectionResult != null
+							&& paySelectionResult.length > 0) {
+						if(resultToShow.length() > 0) {
+							resultToShow.append(Env.NL);
+						}
+						//	Add result
+						resultToShow.append(Msg.getElement(agreement.getCtx(), "C_PaySelection_ID"));
+						//	Get result
+						for(KeyNamePair result : paySelectionResult) {
+							if(resultToShow.length() > 0) {
+								resultToShow.append(Env.NL);
+							}
+							//	Add result
+							resultToShow.append(result.getName());
+						}
+					}
+					//	Show Result for Payment
+					if(paymentResult != null
+							&& paymentResult.length > 0) {
+						if(resultToShow.length() > 0) {
+							resultToShow.append(Env.NL);
+						}
+						//	Add result
+						resultToShow.append(Msg.getElement(agreement.getCtx(), "C_Payment_ID"));
+						//	Get result
+						for(KeyNamePair result : paymentResult) {
+							if(resultToShow.length() > 0) {
+								resultToShow.append(Env.NL);
+							}
+							//	Add result
+							resultToShow.append(result.getName());
+						}
+					}
+					//	Show Result for Invoice
+					if(invoiceResult != null
+							&& invoiceResult.length > 0) {
+						if(resultToShow.length() > 0) {
+							resultToShow.append(Env.NL);
+						}
+						//	Add result
+						resultToShow.append(Msg.getElement(agreement.getCtx(), "C_Invoice_ID"));
+						//	Get result
+						for(KeyNamePair result : invoiceResult) {
+							if(resultToShow.length() > 0) {
+								resultToShow.append(Env.NL);
+							}
+							//	Add result
+							resultToShow.append(result.getName());
+						}
+					}
+					//	Return result if exists
+					if(resultToShow.length() > 0) {
+						return Msg.getMsg(agreement.getCtx(), "SQLErrorReferenced") + Env.NL + resultToShow.toString();
 					}
 				}
 			}
