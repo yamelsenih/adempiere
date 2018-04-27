@@ -22,8 +22,6 @@ import java.sql.ResultSet;
 import java.sql.Timestamp;
 import java.util.List;
 import java.util.Properties;
-
-import org.adempiere.exceptions.PeriodClosedException;
 import org.compiere.model.*;
 import org.compiere.process.DocAction;
 import org.compiere.process.DocOptions;
