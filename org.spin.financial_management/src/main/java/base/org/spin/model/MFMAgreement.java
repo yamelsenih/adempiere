@@ -22,6 +22,8 @@ import java.sql.ResultSet;
 import java.sql.Timestamp;
 import java.util.List;
 import java.util.Properties;
+
+import org.adempiere.exceptions.PeriodClosedException;
 import org.compiere.model.*;
 import org.compiere.process.DocAction;
 import org.compiere.process.DocOptions;
@@ -305,10 +307,26 @@ public class MFMAgreement extends X_FM_Agreement implements DocAction, DocOption
 	 * 	Same as Close.
 	 * 	@return true if success 
 	 */
-	public boolean voidIt()
-	{
+	public boolean voidIt() {
 		log.info("voidIt - " + toString());
-		return closeIt();
+		// Before Void
+		m_processMsg = ModelValidationEngine.get().fireDocValidate(this,ModelValidator.TIMING_BEFORE_VOID);
+		if (m_processMsg != null)
+			return false;
+		
+		if (DOCSTATUS_Closed.equals(getDocStatus())
+			|| DOCSTATUS_Reversed.equals(getDocStatus())
+			|| DOCSTATUS_Voided.equals(getDocStatus())) {
+			m_processMsg = "Document Closed: " + getDocStatus();
+			return false;
+		}	
+		// After Void
+		m_processMsg = ModelValidationEngine.get().fireDocValidate(this,ModelValidator.TIMING_AFTER_VOID);
+		if (m_processMsg != null)
+			return false;		
+		setProcessed(true);
+		setDocAction(DOCACTION_None);
+		return true;
 	}	//	voidIt
 	
 	/**
