@@ -273,9 +273,15 @@ public class MFMBatch extends X_FM_Batch implements DocAction, DocOptions {
 	 * 	Same as Close.
 	 * 	@return true if success 
 	 */
-	public boolean voidIt()
-	{
+	public boolean voidIt() {
 		log.info("voidIt - " + toString());
+		if(getDocStatus().equals(DOCSTATUS_Drafted)) {
+			setProcessed(true);
+			setProcessing (false);
+			setDocAction(DOCACTION_None);
+			return true;
+		}
+		//	
 		return reverseCorrectIt();
 	}	//	voidIt
 	
