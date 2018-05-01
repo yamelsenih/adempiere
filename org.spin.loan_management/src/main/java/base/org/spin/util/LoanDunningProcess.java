@@ -70,6 +70,9 @@ public class LoanDunningProcess extends AbstractFunctionalSetting {
 		}
 		//	Else
 		List<AmortizationValue> amortizationList = (List<AmortizationValue>) returnValues.get("AMORTIZATION_LIST");
+		if(amortizationList == null) {
+			return null;
+		}
 		//	Iterate
 		for (AmortizationValue row : amortizationList) {
 			MFMTransaction transaction = batch.addTransaction(dunningType.getFM_TransactionType_ID(), row.getDunningInterestAmount());

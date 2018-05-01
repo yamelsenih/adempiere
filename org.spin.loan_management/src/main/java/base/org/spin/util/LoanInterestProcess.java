@@ -70,6 +70,9 @@ public class LoanInterestProcess extends AbstractFunctionalSetting {
 		}
 		//	Else
 		List<AmortizationValue> amortizationList = (List<AmortizationValue>) returnValues.get("AMORTIZATION_LIST");
+		if(amortizationList == null) {
+			return null;
+		}
 		//	Iterate
 		for (AmortizationValue row : amortizationList) {
 			MFMTransaction transaction = batch.addTransaction(interetType.getFM_TransactionType_ID(), row.getInterestAmtFee());
@@ -78,7 +81,7 @@ public class LoanInterestProcess extends AbstractFunctionalSetting {
 				transaction.saveEx();
 			}
 			if(interestTaxType != null
-					&& row.getDunningTaxAmt() != null) {
+					&& row.getTaxAmtFee() != null) {
 				transaction = batch.addTransaction(interestTaxType.getFM_TransactionType_ID(), row.getTaxAmtFee());
 				if(transaction != null) {
 					transaction.set_ValueOfColumn("FM_Amortization_ID", row.getAmortizationId());

@@ -459,6 +459,12 @@ public class LoanUtil {
 			//	Calculate rate for fee (Year Interest + (Tax Rate * Year Interest))
 			interestRate = interestRate.divide(Env.ONEHUNDRED);
 			taxRate = tax.getRate().divide(Env.ONEHUNDRED);
+			//	Calculate
+			interestRate = interestRate.add(interestRate.multiply(taxRate));
+		}
+		//	Validate Zero
+		if(interestRate.equals(Env.ZERO)) {
+			return returnValues;
 		}
 		//	Get
 		List<MFMAccount> accounts = MFMAccount.getAccountFromAgreement(agreement);
@@ -488,7 +494,9 @@ public class LoanUtil {
 			}
 			//	
 			BigDecimal dailyInterest = calculateDailyInterest(row.getDayOfMonth(runningDate), interestRate);
-			if(dailyInterest != null) {
+			if(dailyInterest != null
+					&& !dailyInterest.equals(Env.ZERO)) {
+				dailyInterest = dailyInterest.divide(Env.ONE.add(taxRate), MathContext.DECIMAL128);
 				row.setDailyInterest(dailyInterest);
 				row.setInterestAmtFee(dailyInterest.multiply(remainingCapital));
 				//	For Tax
