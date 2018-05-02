@@ -1536,9 +1536,12 @@ public abstract class InfoPanel extends Window implements EventListener, WTableM
     			//  Buttons
 	        	if (component.equals(confirmPanel.getButton(ConfirmPanel.A_OK)) || event.getName().equals(Events.ON_CTRL_KEY) )
 	            {
+	        		if(event.getTarget().equals(keyListener)) {
 	        		KeyEvent keyEvent = (KeyEvent) event;
     				int code = keyEvent.getKeyCode();
-    				if (code == KEYBOARD_KEY_RETURN) {
+    					if (code != KEYBOARD_KEY_RETURN)
+    						return;
+	        		}	
 						//  The enter key is mapped to the Ok button which will close the dialog.
 						//  Don't let this happen if there are outstanding changes to any of the 
 						//  VLookup fields in the criteria
@@ -1552,7 +1555,7 @@ public abstract class InfoPanel extends Window implements EventListener, WTableM
 							p_triggerRefresh = false;
 						}
 		                onOk();
-    				}
+    			
 	            }
 	            else if (component == p_table && event.getName().equals(Events.ON_DOUBLE_CLICK))
 	            {
