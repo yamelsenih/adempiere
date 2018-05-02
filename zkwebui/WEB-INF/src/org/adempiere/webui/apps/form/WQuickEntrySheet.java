@@ -80,7 +80,7 @@ public class WQuickEntrySheet extends Window implements EventListener, DataStatu
 		gridTab.addDataStatusListener(this);
 		gridTab.addDataStatusListener(tabPanel);
 		gridTab.enableEvents();
-
+		gridPanel.setADTabPanel(tPanel);
 		gridPanel.setADWindowPanel(abstractADWindowPanel);
 		gridTab.setQuickEntry(true);
 
@@ -186,7 +186,6 @@ public class WQuickEntrySheet extends Window implements EventListener, DataStatu
 		{
 			if (event.getTarget() == selSouthPanel.getButton(ConfirmPanel.A_OK))
 			{
-				if(onSave(true))
 				dispose();
 			}
 			else if (event.getTarget() == selSouthPanel.getButton(ConfirmPanel.A_CANCEL))
@@ -235,18 +234,14 @@ public class WQuickEntrySheet extends Window implements EventListener, DataStatu
 				{
 					statusBar.setStatusLine(Msg.getMsg(Env.getCtx(), msg), true, true);
 				}
-//					String msg = CLogger.retrieveErrorString(null);
-//					if (msg != null)
-//					{
-//						statusBar.setStatusLine(Msg.getMsg(Env.getCtx(), msg), true, true);
-//					}
 	        }  else {
-
-	    		
-//		    		gridPanel.setStatusLine("Saved", false, true);
 	    		gridTab.dataRefreshAll();		        	
 	        }
-		//}
+		}
+		abstractADWindowPanel.getToolbar().getCurrentPanel().afterSave(true);
+		save = gridTab.needSave(true, true);
+		if(!gridTab.isNew()) {
+			updateToolbar(true);
 		}
 		trx.commit();
 		
@@ -269,6 +264,7 @@ public class WQuickEntrySheet extends Window implements EventListener, DataStatu
 		if (gridTab.getRowCount() <= 0)
 			gridPanel.createNewLine();
 		gridPanel.updateListIndex();
+		updateToolbar(true);
 	}
 
 	private void onDelete()
@@ -385,5 +381,14 @@ public class WQuickEntrySheet extends Window implements EventListener, DataStatu
 //            (gridPanel).focusCurrentCol();
             gridPanel.addKeyListener();
         }
+        if(gridTab.isNew()) {
+			updateToolbar(false);
+		}
+        else {
+			updateToolbar(true);
+		}
+	}
+	public void updateToolbar(boolean enabled) {
+    	bDelete.setEnabled(enabled);
 	}
 }

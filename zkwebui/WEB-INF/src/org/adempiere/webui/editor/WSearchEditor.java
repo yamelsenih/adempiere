@@ -18,6 +18,7 @@
 package org.adempiere.webui.editor;
 
 import java.awt.event.ActionListener;
+import java.awt.event.KeyListener;
 import java.beans.PropertyChangeEvent;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -28,14 +29,19 @@ import org.adempiere.exceptions.ValueChangeEvent;
 import org.adempiere.exceptions.ValueChangeListener;
 import org.adempiere.webui.ValuePreference;
 import org.adempiere.webui.apps.AEnv;
+import org.adempiere.webui.component.GridPanel;
 import org.adempiere.webui.component.Searchbox;
 import org.adempiere.webui.event.ContextMenuEvent;
 import org.adempiere.webui.event.ContextMenuListener;
 import org.adempiere.webui.grid.WBPartner;
+import org.adempiere.webui.panel.ADTabPanel;
+import org.adempiere.webui.panel.AbstractADWindowPanel;
 import org.adempiere.webui.panel.InfoBPartnerPanel;
 import org.adempiere.webui.panel.InfoPanel;
 import org.adempiere.webui.panel.InfoPanelFactory;
 import org.adempiere.webui.panel.InfoProductPanel;
+import org.adempiere.webui.session.SessionManager;
+import org.adempiere.webui.window.ADWindow;
 import org.adempiere.webui.window.WRecordInfo;
 import org.compiere.model.GridField;
 import org.compiere.model.Lookup;
@@ -55,6 +61,7 @@ import org.compiere.util.Env;
 import org.compiere.util.Msg;
 import org.compiere.util.Trx;
 import org.eevolution.model.I_PP_Product_BOMLine;
+import org.zkforge.keylistener.Keylistener;
 import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.event.Events;
 import org.zkoss.zk.ui.event.KeyEvent;
@@ -693,6 +700,13 @@ public class WSearchEditor extends WEditor implements ContextMenuListener, Value
 		if (infoPanel != null){
 			if(this.getADTabPanel() != null && this.getADTabPanel().getListPanel() != null)
 				this.getADTabPanel().getListPanel().removeKeyListener();
+			GridPanel gridQuick = null;
+			ADTabPanel tabPanel = (ADTabPanel)getADTabPanel();
+			if(tabPanel.getQuickPanel() != null) {
+				gridQuick = tabPanel.getQuickPanel();
+				gridQuick.removeKeyListener();
+			}
+
 			infoPanel.addValueChangeListener(this);
 			AEnv.showWindow(infoPanel);
 			//
@@ -701,8 +715,15 @@ public class WSearchEditor extends WEditor implements ContextMenuListener, Value
 			//
 			if(this.getADTabPanel() != null && this.getADTabPanel().getListPanel() != null) {
 				this.getADTabPanel().getListPanel().addKeyListener();
-				KeyEvent event = new KeyEvent(Events.ON_CTRL_KEY, this.getADTabPanel().getListPanel().getKeyListener(), 13, false, false, false);
-				Events.postEvent(event); 
+				Keylistener keyListener =this.getADTabPanel().getListPanel().getKeyListener();
+				if(gridQuick != null) {
+					gridQuick.addKeyListener();
+					keyListener = gridQuick.getKeyListener();
+				}
+				if(keyListener != null && !cancelled) {
+					KeyEvent event = new KeyEvent(Events.ON_CTRL_KEY, keyListener, 13, false, false, false);
+				 	Events.postEvent(event); 
+				}
 			}
 			infoPanel = null;
 		}

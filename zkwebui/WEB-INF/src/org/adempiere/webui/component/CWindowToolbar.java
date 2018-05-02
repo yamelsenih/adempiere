@@ -311,6 +311,7 @@ public class CWindowToolbar extends FToolbar implements EventListener
 		keyMap.put(KeyEvent.F7, btnAttachment);
 		keyMap.put(KeyEvent.F8, btnGridToggle);
 		keyMap.put(KeyEvent.F9, btnHistoryRecords);
+		keyMap.put(KeyEvent.F10, btnQuickEntry);
 		keyMap.put(KeyEvent.F11, btnReport);
 		keyMap.put(KeyEvent.F12, btnPrint);
 
@@ -612,30 +613,12 @@ public class CWindowToolbar extends FToolbar implements EventListener
 			}
 		}else if (!keyEvent.isAltKey() && keyEvent.isCtrlKey() && !keyEvent.isShiftKey())
 		{
-			if (keyEvent.getKeyCode() == KeyEvent.F2)
-			{
-//				setQuickHrchyTabInfo(getQuickHrchyTabInfo() + "+");
-				sendButtonClickEvent(keyEvent, btnDetailRecord);
-				sendButtonClickEvent(keyEvent, btnQuickEntry);
-				return;
-			}
-			else
-			{
-				btn = ctrlKeyMap.get(keyEvent.getKeyCode());
-			}
+			btn = ctrlKeyMap.get(keyEvent.getKeyCode());
 		}
 		else if (!keyEvent.isAltKey() && keyEvent.isCtrlKey() && !keyEvent.isShiftKey())
 			btn = ctrlKeyMap.get(keyEvent.getKeyCode());
 		else if (!keyEvent.isAltKey() && !keyEvent.isCtrlKey() && !keyEvent.isShiftKey())
 			btn = keyMap.get(keyEvent.getKeyCode());
-
-		else if (!keyEvent.isAltKey() && !keyEvent.isCtrlKey() && keyEvent.isShiftKey())
-		{
-			if (keyEvent.getKeyCode() == KeyEvent.F2)
-			{
-				btn = btnQuickEntry;
-			}
-		}
 		else if (!keyEvent.isAltKey() && keyEvent.isCtrlKey() && !keyEvent.isShiftKey())
 			btn = ctrlKeyMap.get(keyEvent.getKeyCode());
 		else if (!keyEvent.isAltKey() && !keyEvent.isCtrlKey() && !keyEvent.isShiftKey())

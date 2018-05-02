@@ -146,6 +146,8 @@ public class ADTabPanel extends Div implements Evaluatee, EventListener, DataSta
     private boolean isSwitchRow = true;	
     
 	private int INC = 30;
+	
+	private GridPanel quickPanel;
 
 	public CWindowToolbar getGlobalToolbar()
 	{
@@ -1925,5 +1927,11 @@ public class ADTabPanel extends Div implements Evaluatee, EventListener, DataSta
 
     }
 
+    public void setQuickPanel(GridPanel gridPanel) {
+    	quickPanel=gridPanel;
+    }
+    public GridPanel getQuickPanel() {
+    	return quickPanel;
+    }
 }
 

@@ -1483,7 +1483,10 @@ public abstract class AbstractADWindowPanel extends AbstractUIPart implements To
     {
     	GridTab currentTab = toolbar.getCurrentPanel().getGridTab();
     	((ADTabPanel)toolbar.getCurrentPanel()).getListPanel().refresh(currentTab);
-    	
+    	if(quickGridPanel != null ) {
+        	currentTab = quickGridPanel.getADTabPanel().getGridTab();
+        	quickGridPanel.refresh(currentTab);
+    	}
         if (!currentTab.isInsertRecord())
         {
             logger.warning("Insert Record disabled for Tab");
@@ -1621,6 +1624,12 @@ public abstract class AbstractADWindowPanel extends AbstractUIPart implements To
             currentTab.dataRefresh(true);
 	        curTabPanel.dynamicDisplay(0);
 	        toolbar.enableIgnore(false);
+	        curTabPanel.getListPanel().focusCurrentCol();
+	        if(quickGridPanel!=null) {
+	        	quickGridPanel.dynamicDisplay(0);
+	        	quickGridPanel.focusCurrentCol();
+	        	quickGridPanel.onIgnore();
+	        }
     	}
     	focusToActivePanel();
     }
@@ -2457,14 +2466,12 @@ public abstract class AbstractADWindowPanel extends AbstractUIPart implements To
 		quickGridTab.setQuery(query);
 		quickGridTab.setQuickEntry(true);
 		tabPanel.getListPanel().removeKeyListener();
-
-		quickGridPanel = new GridPanel(curWindowNo);
-
 		
-		onIgnore();
+		quickGridPanel = new GridPanel(curWindowNo);
+		
 		//quickGrid.init(quickGridTab);
 		WQuickEntrySheet form = new WQuickEntrySheet(quickGridPanel, quickGridTab, tabPanel, this, m_onlyCurrentDays, m_onlyCurrentRows);
-		
+		tabPanel.setQuickPanel(quickGridPanel);
 		form.setPosition("center");
 		form.setSizable(true);
 		
@@ -2474,21 +2481,12 @@ public abstract class AbstractADWindowPanel extends AbstractUIPart implements To
 		quickGridPanel.removeKeyListener();
 		quickGridPanel.detach();
 		currentTab.setQuickEntry(false);
+		quickGridPanel = null;
 		form.detach();
 		form=null;
+	}
+		public GridPanel getQuickGridPanel() {
+			return quickGridPanel;
 		}
-		/*
-		//form.doPopup();
-		try {
-			form.doModal();
-		} catch (SuspendNotAllowedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		*/
-		
 	
 }

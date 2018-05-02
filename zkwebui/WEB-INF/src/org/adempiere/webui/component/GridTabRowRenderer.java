@@ -105,6 +105,7 @@ public class GridTabRowRenderer implements RowRenderer, RowRendererExt, Renderer
 			editor= editors.get(gridField);
 		else {
 			editor = WebEditorFactory.getEditor(gridField, true);
+			editor.setADTabPanel(gridPanel.getADTabPanel());
 		}
 
 		if (!gridField.isUpdateable() && gridTab.getRecord_ID() <= 0) {	
@@ -492,11 +493,7 @@ public class GridTabRowRenderer implements RowRenderer, RowRendererExt, Renderer
 			GridTableListModel model = (GridTableListModel) grid.getModel();
 			if(showEditor) {
 				if(!(gridField.isReadOnly())) {
-					if(gridField.getDisplayType() == DisplayType.Button)  {
-						Event evt = new Event(Events.ON_CLICK, editor.getComponent(),editor.getComponent());
-						Events.sendEvent(editor.getComponent(), evt);
-						currentDiv.setFocus(true);
-					}
+					
 					showEditor();
 					model.setEditing(true);
 				}
@@ -508,6 +505,7 @@ public class GridTabRowRenderer implements RowRenderer, RowRendererExt, Renderer
 				currentDiv.setFocus(true);
 				editing = false;
 				model.setEditing(false);
+			
 			}
 		}
 		return editing;

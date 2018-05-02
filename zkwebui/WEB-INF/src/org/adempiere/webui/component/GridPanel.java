@@ -79,7 +79,7 @@ public class GridPanel extends Borderlayout implements EventListener
 	private static final int KEYBOARD_KEY_RETURN = 13;
 
 	public static final String		CNTRL_KEYS				= "^s^c#enter";
-	private static final String		KEYS_MOVE			= "#del#end#home#up#down#left#right";
+	private static final String		KEYS_MOVE			= "#f5@z#del#end#home#up#down#left#right";
 	
 
 	private Grid listbox = null;
@@ -211,7 +211,7 @@ public class GridPanel extends Borderlayout implements EventListener
 	 */
 	public void refresh(GridTab gridTab) {
 		if (this.gridTab != gridTab || !isInit())
-		{
+		{		 
 			init = false;
 			init(gridTab);
 		}
@@ -438,9 +438,9 @@ public class GridPanel extends Borderlayout implements EventListener
 					
 				}
 			}	
-			
 			Object data = event.getData();
 			org.zkoss.zul.Row row = null;
+			boolean changeRow = false;
 			
 			if (data != null && data instanceof Component) {
 				if (data instanceof org.zkoss.zul.Row)
@@ -464,6 +464,7 @@ public class GridPanel extends Borderlayout implements EventListener
 				}
 				//click on selected row to enter edit mode
 				if (row != renderer.getCurrentRow()) {
+					changeRow=true;
 					if(renderer.getCurrentDiv() != null) {
 						renderer.getCurrentDiv().setFocus(false);
 						renderer.stopColEditing(true);
@@ -484,7 +485,12 @@ public class GridPanel extends Borderlayout implements EventListener
 				renderer.setCurrentColumn(currentCol);
 				listbox.setModel(listModel);
 			}
-			keyListener.setCtrlKeys(CNTRL_KEYS+KEYS_MOVE);
+				keyListener.setCtrlKeys(CNTRL_KEYS+KEYS_MOVE);
+				if(changeRow) {
+					gridTab.dataIgnore();
+					updateListIndex();
+					refresh(gridTab);
+				}
         }
 		else if (event.getName().equals(Events.ON_CTRL_KEY) && event.getTarget() == keyListener) {
 			KeyEvent keyEvent = (KeyEvent) event;
@@ -500,6 +506,7 @@ public class GridPanel extends Borderlayout implements EventListener
 			int row = renderer.getCurrentRowIndex();
 			
 			int totalRow = gridTab.getRowCount();
+			
 			if (code == KEYBOARD_KEY_RETURN)
 			{
 				if(renderer.getCurrentDiv() != null) {
@@ -507,22 +514,39 @@ public class GridPanel extends Borderlayout implements EventListener
 						renderer.stopColEditing(true);
 						if(renderer.isLastColumn()) {
 							currentCol=0;
-							row += 1;
-							if (row == totalRow && (!gridTab.isNew() || dataSave(0)))	
-								onNew();
-							
-							updateListIndex();
+							row++;
+							if (row == totalRow) {
+								if(!gridTab.isNew() || !dataSave(0)) {
+									onNew();
+								}
+							}
+							else if(!dataSave(0)) {
+								gridTab.navigateRelative(+1);
+								renderer.setCurrentCell(row);
+								updateListIndex();
+							}
+							 
 						}
 						else {
 							currentCol++;
 						}
 						renderer.setCurrentColumn(currentCol);
+						
 					}
-						keyListener.setCtrlKeys(CNTRL_KEYS+KEYS_MOVE);
-						while(!renderer.editCurrentCol(true)) {
-							currentCol++;
-							renderer.setCurrentColumn(currentCol);
-						}
+					if(renderer != null && renderer.getCurrentDiv() != null && 
+							renderer.getCurrentDiv().getEditor() != null &&
+							renderer.getCurrentDiv().getEditor().getGridField().getDisplayType() == DisplayType.Button)  {
+						WEditor editor = renderer.getCurrentDiv().getEditor();
+						Event evt = new Event(Events.ON_CLICK, editor.getComponent(),editor.getComponent());
+						Events.sendEvent(editor.getComponent(), evt);
+						
+					}
+					keyListener.setCtrlKeys(CNTRL_KEYS+KEYS_MOVE);
+					while(!renderer.editCurrentCol(true)) {
+						currentCol++;
+						renderer.setCurrentColumn(currentCol);
+						
+					}
 				}
 //				updateListIndex();
 			}
@@ -575,7 +599,6 @@ public class GridPanel extends Borderlayout implements EventListener
 								onNew();
 								updateListIndex();
 								refresh(gridTab);
-								
 							}
 							return;
 						}else {
@@ -615,7 +638,7 @@ public class GridPanel extends Borderlayout implements EventListener
 				}
 				else if (code == KeyEvent.UP && !isCtrl && !isAlt && !isShift)
 				{
-					if(gridTab.isQuickEntry() || dataSave(0) || !gridTab.isNew()) {
+					if(!dataSave(0) || !gridTab.isNew()) {
 						row -= 1;
 						if(row >= 0) {
 							gridTab.navigateRelative(-1);
@@ -623,6 +646,7 @@ public class GridPanel extends Borderlayout implements EventListener
 							renderer.setCurrentColumn(currentCol);
 						} 
 					}
+					return;
 				}
 				else if (code == KeyEvent.HOME)
 				{
@@ -924,10 +948,12 @@ public class GridPanel extends Borderlayout implements EventListener
 			{
 				windowPanel.getStatusBar().setStatusLine(Msg.getMsg(Env.getCtx(), msg), true, true);
 			}
-            return isSave;
         } 
 		windowPanel.getToolbar().getCurrentPanel().afterSave(true);
-
+		isSave = gridTab.needSave(true, true);
+		if(!gridTab.isNew()) {
+			updateToolbar(true);
+		}
 		return isSave;
 	}
 
@@ -972,15 +998,7 @@ public class GridPanel extends Borderlayout implements EventListener
         boolean newRecord = gridTab.dataNew(false);
         if (newRecord)
         {
-        	windowPanel.getToolbar().getCurrentPanel().dynamicDisplay(0);
-        	windowPanel.getToolbar().enableChanges(false);
-        	windowPanel.getToolbar().enableDelete(false);
-        	windowPanel.getToolbar().enableDeleteSelection(false);
-        	windowPanel.getToolbar().enableNavigation(false);
-        	windowPanel.getToolbar().enableTabNavigation(false);
-        	windowPanel.getToolbar().enableIgnore(true);
-        	windowPanel.getToolbar().enablePrint(gridTab.isPrinted());
-        	windowPanel.getToolbar().enableReport(true);
+        	updateToolbar(false);
         }
         else
         {
@@ -990,5 +1008,26 @@ public class GridPanel extends Borderlayout implements EventListener
 	
 	public Keylistener getKeyListener() {
 		return keyListener;
+	}
+	
+	public void onIgnore() {
+		if(gridTab != null) {
+			gridTab.dataIgnore();
+			gridTab.dataRefresh();
+			updateToolbar(true);
+		}
+	
+	}
+	
+	private void updateToolbar(boolean enabled) {
+		windowPanel.getToolbar().getCurrentPanel().dynamicDisplay(0);
+    	windowPanel.getToolbar().enableChanges(enabled);
+    	windowPanel.getToolbar().enableDelete(enabled);
+    	windowPanel.getToolbar().enableDeleteSelection(enabled);
+    	windowPanel.getToolbar().enableNavigation(enabled);
+    	windowPanel.getToolbar().enableTabNavigation(enabled);
+    	windowPanel.getToolbar().enableIgnore(!enabled);
+    	windowPanel.getToolbar().enablePrint(gridTab.isPrinted());
+    
 	}
 }
