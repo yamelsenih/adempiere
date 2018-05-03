@@ -20,6 +20,7 @@ import java.util.Map;
 import javax.swing.table.AbstractTableModel;
 
 import org.adempiere.webui.LayoutUtils;
+import org.adempiere.webui.editor.WDateEditor;
 import org.adempiere.webui.editor.WEditor;
 import org.adempiere.webui.panel.AbstractADWindowPanel;
 import org.adempiere.webui.panel.IADTabPanel;
@@ -49,6 +50,7 @@ import org.zkoss.zul.Column;
 import org.zkoss.zul.Div;
 import org.zkoss.zul.Paging;
 import org.zkoss.zul.Row;
+import org.zkoss.zul.Vbox;
 import org.zkoss.zul.event.ZulEvents;
 
 /**
@@ -76,9 +78,10 @@ public class GridPanel extends Borderlayout implements EventListener
 
 	private static final int KEYBOARD_KEY_S = 83;
 	private static final int KEYBOARD_KEY_C = 67;
+	private static final int KEYBOARD_KEY_D = 68;
 	private static final int KEYBOARD_KEY_RETURN = 13;
 
-	public static final String		CNTRL_KEYS				= "^s^c#enter";
+	public static final String		CNTRL_KEYS				= "^d^s^c#enter";
 	private static final String		KEYS_MOVE			= "#f5@z#del#end#home#up#down#left#right";
 	
 
@@ -364,6 +367,7 @@ public class GridPanel extends Borderlayout implements EventListener
 		listbox.setVflex(true);
 		listbox.setFixedLayout(true);
 		listbox.addEventListener(Events.ON_CLICK, this);
+		listbox.addEventListener(Events.ON_DOUBLE_CLICK, this);
 		listbox.addEventListener(Events.ON_CANCEL, this);
 		keyListener = new Keylistener();
 		if (windowPanel != null)
@@ -424,6 +428,10 @@ public class GridPanel extends Borderlayout implements EventListener
 				keyListener.setCtrlKeys(CNTRL_KEYS+KEYS_MOVE);
 
 			}
+		}
+		else if (Events.ON_DOUBLE_CLICK.equals(event.getName())) {
+			
+				renderer.editCurrentCol(true);
 		}
 		else if (Events.ON_CLICK.equals(event.getName()))
 		{
@@ -547,19 +555,21 @@ public class GridPanel extends Borderlayout implements EventListener
 						renderer.setCurrentColumn(currentCol);
 						
 					}
+					displayCalendar();
+					
 				}
 //				updateListIndex();
 			}
-			else if (code == KEYBOARD_KEY_C && !isCtrl && !isAlt && !isShift)
+			else if (code == KEYBOARD_KEY_C && isCtrl && !isAlt && !isShift)
 			{
-				//Div div = renderer.getCurrentDiv();
-				/*if (div != null && div.getChildren().get(0) instanceof NumberBox
-						&& (!((NumberBox) div.getChildren().get(0)).getDecimalbox().isDisabled()
-								&& !((NumberBox) div.getChildren().get(0)).getDecimalbox().isReadonly()))
+				Col div = renderer.getCurrentDiv();
+				if (div != null && div.getComponent() instanceof NumberBox
+						&& (!((NumberBox) div.getComponent()).getDecimalBox().isDisabled()
+								&& !((NumberBox) div.getComponent()).getDecimalBox().isReadonly()))
 				{
-					NumberBox nbox = (NumberBox) div.getChildren().get(0);
-					nbox.setEnabled(true);
-					nbox.getPopupMenu().open(nbox, "after_end");
+					NumberBox nbox = (NumberBox) div.getComponent();
+//					nbox.setEnabled(true);
+					nbox.getPopupMenu().open(nbox.getDecimalBox(), "after_end");
 					for (Object vBoxObj : nbox.getPopupMenu().getChildren())
 					{
 						if (vBoxObj instanceof Vbox)
@@ -567,7 +577,7 @@ public class GridPanel extends Borderlayout implements EventListener
 								if (obj instanceof Textbox)
 									((Textbox) obj).focus();
 					}
-				}*/
+				}
 			}
 			else if (code == KEYBOARD_KEY_S && isCtrl && !isAlt && !isShift) {
 				if (!dataSave(code))
@@ -745,6 +755,7 @@ public class GridPanel extends Borderlayout implements EventListener
 			renderer.editCurrentCol(true);
 		}
 
+		displayCalendar();
 	}
 
 	/**
@@ -761,6 +772,7 @@ public class GridPanel extends Borderlayout implements EventListener
 				columnOnClick = null;
 			} else {
 				renderer.setFocusToEditor();
+				displayCalendar();
 			}
 		} else {
 			Component cmp = null;
@@ -795,6 +807,7 @@ public class GridPanel extends Borderlayout implements EventListener
 				columnOnClick = null;
 			}
 		}
+
 	}
 
 	private boolean isRowRendered(org.zkoss.zul.Row row, int index) {
@@ -894,7 +907,9 @@ public class GridPanel extends Borderlayout implements EventListener
 		refresh(gridTab); 
 		if (renderer != null && renderer.isEditing()) {
 			renderer.setFocusToEditor();
+			displayCalendar();
 		}
+		
 	}
 
 	/**
@@ -1029,5 +1044,17 @@ public class GridPanel extends Borderlayout implements EventListener
     	windowPanel.getToolbar().enableIgnore(!enabled);
     	windowPanel.getToolbar().enablePrint(gridTab.isPrinted());
     
+	}
+	
+	private void displayCalendar() {
+		Col col = renderer.getCurrentDiv();
+		if (col != null && col.getComponent() instanceof Datebox
+				&& (!((Datebox) col.getComponent()).isDisabled()
+						&& !((Datebox) col.getComponent()).isReadonly()))
+		{
+			Datebox nbox = (Datebox) col.getComponent();
+			Event evt = new Event(Events.ON_CLICK, nbox,nbox);
+			Events.sendEvent(nbox, evt);
+		}
 	}
 }
