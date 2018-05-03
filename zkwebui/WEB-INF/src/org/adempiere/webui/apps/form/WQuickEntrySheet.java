@@ -25,9 +25,11 @@ import org.compiere.util.CLogger;
 import org.compiere.util.Env;
 import org.compiere.util.Msg;
 import org.compiere.util.Trx;
+import org.zkforge.keylistener.Keylistener;
 import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.event.EventListener;
 import org.zkoss.zk.ui.event.Events;
+import org.zkoss.zk.ui.event.KeyEvent;
 import org.zkoss.zkex.zul.Borderlayout;
 import org.zkoss.zkex.zul.Center;
 import org.zkoss.zkex.zul.North;
@@ -67,6 +69,13 @@ public class WQuickEntrySheet extends Window implements EventListener, DataStatu
 	private GridTab					formGridTab;
 	private StatusBarPanel statusBar = new StatusBarPanel();
 	private Panel southPanel = new Panel();
+	
+	public static final String		CNTRL_KEYS				= "^q^#enter";
+
+	private static final int KEYBOARD_KEY_RETURN = 13;
+	private static final int KEYBOARD_KEY_Q = 81;
+	private Keylistener	keyListener;
+	
 
 	public WQuickEntrySheet(GridPanel grid, GridTab gTab, ADTabPanel tPanel, AbstractADWindowPanel abstractPanel,
 			int onlyCurrentDays, boolean onlyCurrentRows)
@@ -93,6 +102,10 @@ public class WQuickEntrySheet extends Window implements EventListener, DataStatu
 
 		gridPanel.init(gridTab);
 
+		keyListener = new Keylistener();
+			appendChild(keyListener);
+		keyListener.setCtrlKeys(CNTRL_KEYS);
+		keyListener.addEventListener(Events.ON_CTRL_KEY, this);
 		
 		initForm();
 		setWidth("70%");
@@ -164,7 +177,9 @@ public class WQuickEntrySheet extends Window implements EventListener, DataStatu
 		bSave.addEventListener(Events.ON_CLICK, this);
 		bDelete.addEventListener(Events.ON_CLICK, this);
 		bIgnore.addEventListener(Events.ON_CLICK, this);
-
+		Keylistener keylistener = new Keylistener();
+		selSouthPanel.getButton(ConfirmPanel.A_CANCEL).addEventListener(Events.ON_CANCEL, this);
+		appendChild(keylistener);
 		selSouthPanel.addComponentsLeft(bSave);
 		selSouthPanel.addComponentsLeft(bDelete);
 		selSouthPanel.addComponentsLeft(bIgnore);
@@ -182,13 +197,25 @@ public class WQuickEntrySheet extends Window implements EventListener, DataStatu
 
 	public void onEvent(Event event) throws Exception
 	{
-		if (Events.ON_CLICK.equals(event.getName()))
-		{
-			if (event.getTarget() == selSouthPanel.getButton(ConfirmPanel.A_OK))
+		boolean dispose = false;
+		boolean isIgnore = false;
+		if (event.getName().equals(Events.ON_CTRL_KEY) && event.getTarget() == keyListener) {
+				
+				KeyEvent keyEvent = (KeyEvent) event;
+				int code = keyEvent.getKeyCode();
+				boolean isCtrl = keyEvent.isCtrlKey();
+				if (code == KEYBOARD_KEY_RETURN && isCtrl) {
+					dispose = true; 
+				}
+				if(code == KEYBOARD_KEY_Q && isCtrl)
+					isIgnore = true; 
+		 }
+			if (event.getTarget() == selSouthPanel.getButton(ConfirmPanel.A_OK) || dispose)
 			{
 				dispose();
 			}
-			else if (event.getTarget() == selSouthPanel.getButton(ConfirmPanel.A_CANCEL))
+			else if (event.getTarget() == selSouthPanel.getButton(ConfirmPanel.A_CANCEL) 
+					|| isIgnore )
 			{
 				onIgnore();
 				dispose();
@@ -209,11 +236,8 @@ public class WQuickEntrySheet extends Window implements EventListener, DataStatu
 			{
 				onIgnore();
 			}
-		}
-		else
-		{
-			dispose();
-		}
+		
+		
 	}
 
 	
