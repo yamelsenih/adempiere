@@ -481,19 +481,20 @@ public class LoanUtil {
 		BigDecimal remainingCapital = (BigDecimal) account.get_Value("CapitalAmt");
 		for(MFMAmortization amortization : MFMAmortization.getFromAccount(account.getFM_Account_ID(), trxName)) {
 			AmortizationValue row = new LoanUtil().new AmortizationValue(amortization);
+			Timestamp calculationDate = runningDate;
 			if(row.isPaid()) {
 				continue;
 			}
 			//	Validate after
-			if(runningDate.before(row.getStartDate())) {
+			if(calculationDate.before(row.getStartDate())) {
 				continue;
 			}
 			//	
-			if(row.getEndDate().before(runningDate)) {
-				runningDate = row.getEndDate();
+			if(row.getEndDate().before(calculationDate)) {
+				calculationDate = row.getEndDate();
 			}
 			//	
-			BigDecimal dailyInterest = calculateDailyInterest(row.getDayOfMonth(runningDate), interestRate);
+			BigDecimal dailyInterest = calculateDailyInterest(row.getDayOfMonth(calculationDate), interestRate);
 			if(dailyInterest != null
 					&& !dailyInterest.equals(Env.ZERO)) {
 				dailyInterest = dailyInterest.divide(Env.ONE.add(taxRate), MathContext.DECIMAL128);
