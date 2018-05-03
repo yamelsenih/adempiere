@@ -53,7 +53,7 @@ public class MFMTransactionType extends X_FM_TransactionType {
      * @return
      */
     public X_FM_TransactionType_Acct getTransactionTypeAcct(int acctSchemaId) {
-    	return new Query(getCtx(), I_FM_TransactionType.Table_Name, 
+    	return new Query(getCtx(), I_FM_TransactionType_Acct.Table_Name, 
     			"FM_TransactionType_ID = ? AND C_AcctSchema_ID = ?", get_TrxName())
     		.setParameters(getFM_TransactionType_ID(), acctSchemaId)
     		.first();
