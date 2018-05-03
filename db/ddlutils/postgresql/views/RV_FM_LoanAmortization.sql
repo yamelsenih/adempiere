@@ -33,8 +33,8 @@ ac.FeesQty, ac.PaymentFrequency, ac.PayDate, am.FM_Amortization_ID, am.PeriodNo,
 am.CapitalAmt, am.InterestAmt, am.TaxAmt, (COALESCE(am.CapitalAmt, 0) + COALESCE(am.InterestAmt, 0) + COALESCE(am.TaxAmt, 0)) AS FeeAmt,
 am.StartDate, am.EndDate, am.DueDate, am.IsPaid,
 ca.CapitalAmt AS CurrentCapitalAmt, ca.InterestAmt AS CurrentInterestAmt, ca.TaxAmt AS CurrentTaxAmt, ca.DunningAmt AS CurrentDunningAmt, ca.DunningTaxAmt AS CurrentDunningTaxAmt, 
-(COALESCE(am.CapitalAmt, 0) + COALESCE(ca.InterestAmt, 0) + COALESCE(ca.TaxAmt, 0) + COALESCE(ca.DunningTaxAmt, 0) + COALESCE(ca.DunningAmt, 0)) AS CurrentFeeAmt,
-(CASE WHEN am.DueDate <= now() THEN 'Y' ELSE 'N' END) AS IsDue
+(COALESCE(ca.CapitalAmt, 0) + COALESCE(ca.InterestAmt, 0) + COALESCE(ca.TaxAmt, 0) + COALESCE(ca.DunningTaxAmt, 0) + COALESCE(ca.DunningAmt, 0)) AS CurrentFeeAmt,
+(CASE WHEN am.DueDate >= now() THEN 'Y' ELSE 'N' END) AS IsDue
 FROM FM_Agreement ag
 INNER JOIN FM_Account ac ON(ac.FM_Agreement_ID = ag.FM_Agreement_ID)
 INNER JOIN FM_Amortization am ON(am.FM_Account_ID = ac.FM_Account_ID)
