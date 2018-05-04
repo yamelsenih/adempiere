@@ -31,7 +31,7 @@ public class X_FM_TransactionType extends PO implements I_FM_TransactionType, I_
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20180419L;
+	private static final long serialVersionUID = 20180503L;
 
     /** Standard Constructor */
     public X_FM_TransactionType (Properties ctx, int FM_TransactionType_ID, String trxName)
@@ -144,6 +144,16 @@ public class X_FM_TransactionType extends PO implements I_FM_TransactionType, I_
 	public static final String TYPE_LoanCapitalCalculated = "LCC";
 	/** Loan Dunning Tax Amount (Calculated) = LDT */
 	public static final String TYPE_LoanDunningTaxAmountCalculated = "LDT";
+	/** Loan Capital (Invoiced) = LCI */
+	public static final String TYPE_LoanCapitalInvoiced = "LCI";
+	/** Loan Interest (Invoiced) = LII */
+	public static final String TYPE_LoanInterestInvoiced = "LII";
+	/** Loan Dunning Interest (Invoiced) = LDI */
+	public static final String TYPE_LoanDunningInterestInvoiced = "LDI";
+	/** Loan Tax Amount (Invoiced) = LTI */
+	public static final String TYPE_LoanTaxAmountInvoiced = "LTI";
+	/** Loan Dunning Tax Amount (Invoiced) = LTT */
+	public static final String TYPE_LoanDunningTaxAmountInvoiced = "LTT";
 	/** Set Type.
 		@param Type 
 		Type of Validation (SQL, Java Script, Java Language)

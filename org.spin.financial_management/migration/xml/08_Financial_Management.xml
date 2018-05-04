@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<Migrations>
+  <Migration EntityType="D" Name="Add supported transaction Types #1680" ReleaseNo="3.9.1" SeqNo="8">
+    <Comments>See: https://github.com/adempiere/adempiere/issues/1680</Comments>
+    <Step SeqNo="10" StepType="AD">
+      <PO AD_Table_ID="104" Action="I" Record_ID="55167" Table="AD_Ref_List">
+        <Data AD_Column_ID="564" Column="Created">2018-05-03 18:48:29.338</Data>
+        <Data AD_Column_ID="566" Column="Updated">2018-05-03 18:48:29.338</Data>
+        <Data AD_Column_ID="563" Column="IsActive">true</Data>
+        <Data AD_Column_ID="200" Column="Value">LCI</Data>
+        <Data AD_Column_ID="150" Column="Description" isNewNull="true"/>
+        <Data AD_Column_ID="152" Column="ValidFrom" isNewNull="true"/>
+        <Data AD_Column_ID="149" Column="Name">Loan Capital (Invoiced)</Data>
+        <Data AD_Column_ID="153" Column="ValidTo" isNewNull="true"/>
+        <Data AD_Column_ID="7712" Column="EntityType">FMS</Data>
+        <Data AD_Column_ID="148" Column="AD_Ref_List_ID">55167</Data>
+        <Data AD_Column_ID="372" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="371" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="151" Column="AD_Reference_ID">54020</Data>
+        <Data AD_Column_ID="565" Column="CreatedBy">100</Data>
+        <Data AD_Column_ID="567" Column="UpdatedBy">100</Data>
+        <Data AD_Column_ID="84390" Column="UUID" isNewNull="true"/>
+      </PO>
+    </Step>
+    <Step SeqNo="20" StepType="AD">
+      <PO AD_Table_ID="136" Action="I" Record_ID="55167" Table="AD_Ref_List_Trl">
+        <Data AD_Column_ID="706" Column="IsActive">true</Data>
+        <Data AD_Column_ID="707" Column="Created">2018-05-03 18:48:30.483</Data>
+        <Data AD_Column_ID="709" Column="Updated">2018-05-03 18:48:30.483</Data>
+        <Data AD_Column_ID="338" Column="Name">Loan Capital (Invoiced)</Data>
+        <Data AD_Column_ID="340" Column="IsTranslated">false</Data>
+        <Data AD_Column_ID="339" Column="Description" isNewNull="true"/>
+        <Data AD_Column_ID="1216" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="1215" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="710" Column="UpdatedBy">100</Data>
+        <Data AD_Column_ID="708" Column="CreatedBy">100</Data>
+        <Data AD_Column_ID="336" Column="AD_Ref_List_ID">55167</Data>
+        <Data AD_Column_ID="337" Column="AD_Language">es_MX</Data>
+        <Data AD_Column_ID="84391" Column="UUID" isNewNull="true"/>
+      </PO>
+    </Step>
+    <Step SeqNo="30" StepType="AD">
+      <PO AD_Table_ID="136" Action="U" Record_ID="55167" Table="AD_Ref_List_Trl">
+        <Data AD_Column_ID="338" Column="Name" oldValue="Loan Capital (Invoiced)">Cuota de Capital (Facturado)</Data>
+        <Data AD_Column_ID="336" Column="AD_Ref_List_ID" oldValue="55167">55167</Data>
+        <Data AD_Column_ID="337" Column="AD_Language" oldValue="es_MX">es_MX</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="40" StepType="AD">
+      <PO AD_Table_ID="104" Action="I" Record_ID="55168" Table="AD_Ref_List">
+        <Data AD_Column_ID="564" Column="Created">2018-05-03 18:49:57.469</Data>
+        <Data AD_Column_ID="566" Column="Updated">2018-05-03 18:49:57.469</Data>
+        <Data AD_Column_ID="563" Column="IsActive">true</Data>
+        <Data AD_Column_ID="200" Column="Value">LII</Data>
+        <Data AD_Column_ID="150" Column="Description" isNewNull="true"/>
+        <Data AD_Column_ID="152" Column="ValidFrom" isNewNull="true"/>
+        <Data AD_Column_ID="149" Column="Name">Loan Interest (Invoiced)</Data>
+        <Data AD_Column_ID="153" Column="ValidTo" isNewNull="true"/>
+        <Data AD_Column_ID="7712" Column="EntityType">FMS</Data>
+        <Data AD_Column_ID="148" Column="AD_Ref_List_ID">55168</Data>
+        <Data AD_Column_ID="372" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="371" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="151" Column="AD_Reference_ID">54020</Data>
+        <Data AD_Column_ID="565" Column="CreatedBy">100</Data>
+        <Data AD_Column_ID="567" Column="UpdatedBy">100</Data>
+        <Data AD_Column_ID="84390" Column="UUID" isNewNull="true"/>
+      </PO>
+    </Step>
+    <Step SeqNo="50" StepType="AD">
+      <PO AD_Table_ID="136" Action="I" Record_ID="55168" Table="AD_Ref_List_Trl">
+        <Data AD_Column_ID="706" Column="IsActive">true</Data>
+        <Data AD_Column_ID="707" Column="Created">2018-05-03 18:49:58.926</Data>
+        <Data AD_Column_ID="709" Column="Updated">2018-05-03 18:49:58.926</Data>
+        <Data AD_Column_ID="338" Column="Name">Loan Interest (Invoiced)</Data>
+        <Data AD_Column_ID="340" Column="IsTranslated">false</Data>
+        <Data AD_Column_ID="339" Column="Description" isNewNull="true"/>
+        <Data AD_Column_ID="1216" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="1215" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="710" Column="UpdatedBy">100</Data>
+        <Data AD_Column_ID="708" Column="CreatedBy">100</Data>
+        <Data AD_Column_ID="336" Column="AD_Ref_List_ID">55168</Data>
+        <Data AD_Column_ID="337" Column="AD_Language">es_MX</Data>
+        <Data AD_Column_ID="84391" Column="UUID" isNewNull="true"/>
+      </PO>
+    </Step>
+    <Step SeqNo="60" StepType="AD">
+      <PO AD_Table_ID="136" Action="U" Record_ID="55168" Table="AD_Ref_List_Trl">
+        <Data AD_Column_ID="338" Column="Name" oldValue="Loan Interest (Invoiced)">Cuota de Interés (Facturado)</Data>
+        <Data AD_Column_ID="336" Column="AD_Ref_List_ID" oldValue="55168">55168</Data>
+        <Data AD_Column_ID="337" Column="AD_Language" oldValue="es_MX">es_MX</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="70" StepType="AD">
+      <PO AD_Table_ID="104" Action="I" Record_ID="55169" Table="AD_Ref_List">
+        <Data AD_Column_ID="564" Column="Created">2018-05-03 18:51:23.954</Data>
+        <Data AD_Column_ID="566" Column="Updated">2018-05-03 18:51:23.954</Data>
+        <Data AD_Column_ID="563" Column="IsActive">true</Data>
+        <Data AD_Column_ID="200" Column="Value">LDI</Data>
+        <Data AD_Column_ID="150" Column="Description" isNewNull="true"/>
+        <Data AD_Column_ID="152" Column="ValidFrom" isNewNull="true"/>
+        <Data AD_Column_ID="149" Column="Name">Loan Dunning Interest (Invoiced)</Data>
+        <Data AD_Column_ID="153" Column="ValidTo" isNewNull="true"/>
+        <Data AD_Column_ID="7712" Column="EntityType">FMS</Data>
+        <Data AD_Column_ID="148" Column="AD_Ref_List_ID">55169</Data>
+        <Data AD_Column_ID="372" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="371" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="151" Column="AD_Reference_ID">54020</Data>
+        <Data AD_Column_ID="565" Column="CreatedBy">100</Data>
+        <Data AD_Column_ID="567" Column="UpdatedBy">100</Data>
+        <Data AD_Column_ID="84390" Column="UUID" isNewNull="true"/>
+      </PO>
+    </Step>
+    <Step SeqNo="80" StepType="AD">
+      <PO AD_Table_ID="136" Action="I" Record_ID="55169" Table="AD_Ref_List_Trl">
+        <Data AD_Column_ID="706" Column="IsActive">true</Data>
+        <Data AD_Column_ID="707" Column="Created">2018-05-03 18:51:25.476</Data>
+        <Data AD_Column_ID="709" Column="Updated">2018-05-03 18:51:25.476</Data>
+        <Data AD_Column_ID="338" Column="Name">Loan Dunning Interest (Invoiced)</Data>
+        <Data AD_Column_ID="340" Column="IsTranslated">false</Data>
+        <Data AD_Column_ID="339" Column="Description" isNewNull="true"/>
+        <Data AD_Column_ID="1216" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="1215" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="710" Column="UpdatedBy">100</Data>
+        <Data AD_Column_ID="708" Column="CreatedBy">100</Data>
+        <Data AD_Column_ID="336" Column="AD_Ref_List_ID">55169</Data>
+        <Data AD_Column_ID="337" Column="AD_Language">es_MX</Data>
+        <Data AD_Column_ID="84391" Column="UUID" isNewNull="true"/>
+      </PO>
+    </Step>
+    <Step SeqNo="90" StepType="AD">
+      <PO AD_Table_ID="136" Action="U" Record_ID="55169" Table="AD_Ref_List_Trl">
+        <Data AD_Column_ID="338" Column="Name" oldValue="Loan Dunning Interest (Invoiced)">Cuota de Interés de Mora (Facturado)</Data>
+        <Data AD_Column_ID="336" Column="AD_Ref_List_ID" oldValue="55169">55169</Data>
+        <Data AD_Column_ID="337" Column="AD_Language" oldValue="es_MX">es_MX</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="100" StepType="AD">
+      <PO AD_Table_ID="104" Action="I" Record_ID="55170" Table="AD_Ref_List">
+        <Data AD_Column_ID="564" Column="Created">2018-05-03 18:57:37.53</Data>
+        <Data AD_Column_ID="566" Column="Updated">2018-05-03 18:57:37.53</Data>
+        <Data AD_Column_ID="563" Column="IsActive">true</Data>
+        <Data AD_Column_ID="200" Column="Value">LTI</Data>
+        <Data AD_Column_ID="150" Column="Description" isNewNull="true"/>
+        <Data AD_Column_ID="152" Column="ValidFrom" isNewNull="true"/>
+        <Data AD_Column_ID="149" Column="Name">Loan Tax Amount (Invoiced)</Data>
+        <Data AD_Column_ID="153" Column="ValidTo" isNewNull="true"/>
+        <Data AD_Column_ID="7712" Column="EntityType">FMS</Data>
+        <Data AD_Column_ID="148" Column="AD_Ref_List_ID">55170</Data>
+        <Data AD_Column_ID="372" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="371" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="151" Column="AD_Reference_ID">54020</Data>
+        <Data AD_Column_ID="565" Column="CreatedBy">100</Data>
+        <Data AD_Column_ID="567" Column="UpdatedBy">100</Data>
+        <Data AD_Column_ID="84390" Column="UUID" isNewNull="true"/>
+      </PO>
+    </Step>
+    <Step SeqNo="110" StepType="AD">
+      <PO AD_Table_ID="136" Action="I" Record_ID="55170" Table="AD_Ref_List_Trl">
+        <Data AD_Column_ID="706" Column="IsActive">true</Data>
+        <Data AD_Column_ID="707" Column="Created">2018-05-03 18:57:38.495</Data>
+        <Data AD_Column_ID="709" Column="Updated">2018-05-03 18:57:38.495</Data>
+        <Data AD_Column_ID="338" Column="Name">Loan Tax Amount (Invoiced)</Data>
+        <Data AD_Column_ID="340" Column="IsTranslated">false</Data>
+        <Data AD_Column_ID="339" Column="Description" isNewNull="true"/>
+        <Data AD_Column_ID="1216" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="1215" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="710" Column="UpdatedBy">100</Data>
+        <Data AD_Column_ID="708" Column="CreatedBy">100</Data>
+        <Data AD_Column_ID="336" Column="AD_Ref_List_ID">55170</Data>
+        <Data AD_Column_ID="337" Column="AD_Language">es_MX</Data>
+        <Data AD_Column_ID="84391" Column="UUID" isNewNull="true"/>
+      </PO>
+    </Step>
+    <Step SeqNo="120" StepType="AD">
+      <PO AD_Table_ID="136" Action="U" Record_ID="55170" Table="AD_Ref_List_Trl">
+        <Data AD_Column_ID="338" Column="Name" oldValue="Loan Tax Amount (Invoiced)">Impuesto de Cuota (Facturado)</Data>
+        <Data AD_Column_ID="336" Column="AD_Ref_List_ID" oldValue="55170">55170</Data>
+        <Data AD_Column_ID="337" Column="AD_Language" oldValue="es_MX">es_MX</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="130" StepType="AD">
+      <PO AD_Table_ID="104" Action="I" Record_ID="55171" Table="AD_Ref_List">
+        <Data AD_Column_ID="564" Column="Created">2018-05-03 18:58:52.263</Data>
+        <Data AD_Column_ID="566" Column="Updated">2018-05-03 18:58:52.263</Data>
+        <Data AD_Column_ID="563" Column="IsActive">true</Data>
+        <Data AD_Column_ID="200" Column="Value">LTT</Data>
+        <Data AD_Column_ID="150" Column="Description" isNewNull="true"/>
+        <Data AD_Column_ID="152" Column="ValidFrom" isNewNull="true"/>
+        <Data AD_Column_ID="149" Column="Name">Loan Dunning Tax Amount (Calculated)</Data>
+        <Data AD_Column_ID="153" Column="ValidTo" isNewNull="true"/>
+        <Data AD_Column_ID="7712" Column="EntityType">FMS</Data>
+        <Data AD_Column_ID="148" Column="AD_Ref_List_ID">55171</Data>
+        <Data AD_Column_ID="372" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="371" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="151" Column="AD_Reference_ID">54020</Data>
+        <Data AD_Column_ID="565" Column="CreatedBy">100</Data>
+        <Data AD_Column_ID="567" Column="UpdatedBy">100</Data>
+        <Data AD_Column_ID="84390" Column="UUID" isNewNull="true"/>
+      </PO>
+    </Step>
+    <Step SeqNo="140" StepType="AD">
+      <PO AD_Table_ID="136" Action="I" Record_ID="55171" Table="AD_Ref_List_Trl">
+        <Data AD_Column_ID="706" Column="IsActive">true</Data>
+        <Data AD_Column_ID="707" Column="Created">2018-05-03 18:58:53.27</Data>
+        <Data AD_Column_ID="709" Column="Updated">2018-05-03 18:58:53.27</Data>
+        <Data AD_Column_ID="338" Column="Name">Loan Dunning Tax Amount (Calculated)</Data>
+        <Data AD_Column_ID="340" Column="IsTranslated">false</Data>
+        <Data AD_Column_ID="339" Column="Description" isNewNull="true"/>
+        <Data AD_Column_ID="1216" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="1215" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="710" Column="UpdatedBy">100</Data>
+        <Data AD_Column_ID="708" Column="CreatedBy">100</Data>
+        <Data AD_Column_ID="336" Column="AD_Ref_List_ID">55171</Data>
+        <Data AD_Column_ID="337" Column="AD_Language">es_MX</Data>
+        <Data AD_Column_ID="84391" Column="UUID" isNewNull="true"/>
+      </PO>
+    </Step>
+    <Step SeqNo="150" StepType="AD">
+      <PO AD_Table_ID="136" Action="U" Record_ID="55171" Table="AD_Ref_List_Trl">
+        <Data AD_Column_ID="338" Column="Name" oldValue="Loan Dunning Tax Amount (Calculated)">Impuesto de Morosidad de Cuota (Facturado)</Data>
+        <Data AD_Column_ID="336" Column="AD_Ref_List_ID" oldValue="55171">55171</Data>
+        <Data AD_Column_ID="337" Column="AD_Language" oldValue="es_MX">es_MX</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="160" StepType="AD">
+      <PO AD_Table_ID="104" Action="U" Record_ID="55171" Table="AD_Ref_List">
+        <Data AD_Column_ID="149" Column="Name" oldValue="Loan Dunning Tax Amount (Calculated)">Loan Dunning Tax Amount (Invoiced)</Data>
+      </PO>
+    </Step>
+  </Migration>
+</Migrations>
