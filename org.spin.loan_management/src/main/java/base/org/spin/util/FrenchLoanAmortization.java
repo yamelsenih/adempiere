@@ -43,7 +43,6 @@ public class FrenchLoanAmortization extends AbstractFunctionalSetting {
 
 	@Override
 	public String run() {
-		// TODO Auto-generated method stub
 		MFMAgreement loan = (MFMAgreement) getParameter(FinancialSetting.PARAMETER_PO);
 		return generateAmortization(loan);
 	}
@@ -100,6 +99,4 @@ public class FrenchLoanAmortization extends AbstractFunctionalSetting {
 		}
 		return null;
 	}
-	
-
 }

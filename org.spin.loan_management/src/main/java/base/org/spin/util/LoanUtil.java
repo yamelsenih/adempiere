@@ -313,6 +313,7 @@ public class LoanUtil {
 		//	Get Interest Rate
 		int dunningRateId = financialProduct.get_ValueAsInt("DunningInterest_ID");
 		int dunningId = financialProduct.get_ValueAsInt("FM_Dunning_ID");
+		int graceDays = financialProduct.get_ValueAsInt("FM_Dunning_ID");
 		//	Validate Dunning for it
 		if(dunningRateId == 0
 				&& dunningId == 0) {

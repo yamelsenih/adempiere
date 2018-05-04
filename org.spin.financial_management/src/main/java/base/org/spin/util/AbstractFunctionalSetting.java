@@ -17,11 +17,15 @@
 package org.spin.util;
 
 import java.math.BigDecimal;
+import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.Map.Entry;
 import java.util.Properties;
 
+import org.compiere.model.PO;
 import org.compiere.util.Env;
+import org.spin.model.MFMAccount;
+import org.spin.model.MFMBatch;
 import org.spin.model.MFMFunctionalApplicability;
 import org.spin.model.MFMFunctionalSetting;
 
@@ -165,6 +169,36 @@ public abstract class AbstractFunctionalSetting {
 	 */
 	public HashMap<String, Object> getReturnValues() {
 		return returnValues;
+	}
+	
+	/**
+	 * Create Batch helper method
+	 * @param trxName
+	 * @param dateDoc (optional)
+	 * @return
+	 */
+	protected MFMBatch createBatch(Timestamp dateDoc) {
+		String trxName = (String) getParameter(FinancialSetting.PARAMETER_TRX_NAME);
+		PO entity = (PO) getParameter(FinancialSetting.PARAMETER_PO);
+		MFMAccount account = (MFMAccount) parameters.get(FinancialSetting.ACCOUNT_PO);
+		if(account == null) {
+			return null;
+		}
+		//	
+		MFMBatch batch = new MFMBatch(getCtx(), 0, trxName);
+		if(dateDoc == null) {
+			dateDoc = new Timestamp(System.currentTimeMillis());
+		}
+		batch.setDateDoc(dateDoc);
+		batch.setFM_Account_ID(account.getFM_Account_ID());
+		batch.setFM_FunctionalSetting_ID(applicability.getFM_FunctionalSetting_ID());
+		if(entity != null) {
+			batch.setAD_Org_ID(entity.getAD_Org_ID());
+		}
+		batch.setC_DocType_ID();
+		batch.saveEx();
+		//	Default Return
+		return batch;
 	}
 	
 	/**

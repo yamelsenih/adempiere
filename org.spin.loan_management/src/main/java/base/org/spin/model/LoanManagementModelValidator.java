@@ -21,7 +21,9 @@ import java.math.BigDecimal;
 import java.util.List;
 
 import org.adempiere.exceptions.AdempiereException;
+import org.compiere.model.I_C_Invoice;
 import org.compiere.model.MClient;
+import org.compiere.model.MInvoice;
 import org.compiere.model.MPaySelection;
 import org.compiere.model.MPayment;
 import org.compiere.model.ModelValidationEngine;
@@ -32,6 +34,7 @@ import org.compiere.util.DB;
 import org.compiere.util.Env;
 import org.compiere.util.KeyNamePair;
 import org.compiere.util.Msg;
+import org.spin.util.FinancialSetting;
 
 /**
  * Loan Management Model Validator
@@ -56,6 +59,7 @@ public class LoanManagementModelValidator implements ModelValidator {
 		engine.addDocValidate(MFMAgreement.Table_Name, this);
 		engine.addDocValidate(MPaySelection.Table_Name, this);
 		engine.addDocValidate(MPayment.Table_Name, this);
+		engine.addDocValidate(MInvoice.Table_Name, this);
     }
 
     @Override
@@ -333,7 +337,22 @@ public class LoanManagementModelValidator implements ModelValidator {
 					}
 				}
 			}
-		}
+		} else if(entity.get_TableName().equals(I_C_Invoice.Table_Name)) {
+			MInvoice invoice = (MInvoice) entity;
+    		int financialAccountId = invoice.get_ValueAsInt("FM_Account_ID");
+        	if(financialAccountId <= 0) {
+        		return null;
+        	}
+        	//	Get Account
+        	MFMAccount account = new MFMAccount(invoice.getCtx(), financialAccountId, invoice.get_TrxName());
+        	//	Get Agreement
+        	MFMAgreement agreement = (MFMAgreement) account.getFM_Agreement();
+        	//	Get Financial Product
+        	String processMsg = FinancialSetting.get().fireDocValidate(invoice, timing, agreement.getFM_Product_ID());
+			if (processMsg != null) {
+				return processMsg;
+			}
+    	}
         return null;
     }
 }

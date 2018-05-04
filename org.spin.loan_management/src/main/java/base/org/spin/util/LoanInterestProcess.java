@@ -54,10 +54,10 @@ public class LoanInterestProcess extends AbstractFunctionalSetting {
 			return null;
 		}
 		
-		MFMTransactionType interetType = MFMTransactionType.getTransactionTypeFromType(getCtx(), MFMTransactionType.TYPE_LoanInterestCalculated);
+		MFMTransactionType interestType = MFMTransactionType.getTransactionTypeFromType(getCtx(), MFMTransactionType.TYPE_LoanInterestCalculated);
 		MFMTransactionType interestTaxType = MFMTransactionType.getTransactionTypeFromType(getCtx(), MFMTransactionType.TYPE_LoanTaxAmountCalculated);
 		//	Validate
-		if(interetType == null) {
+		if(interestType == null) {
 			throw new AdempiereException("@FM_TransactionType_ID@ @NotFound@ " + MFMTransactionType.TYPE_LoanInterestCalculated);
 		}
 		//	
@@ -75,7 +75,7 @@ public class LoanInterestProcess extends AbstractFunctionalSetting {
 		}
 		//	Iterate
 		for (AmortizationValue row : amortizationList) {
-			MFMTransaction transaction = batch.addTransaction(interetType.getFM_TransactionType_ID(), row.getInterestAmtFee());
+			MFMTransaction transaction = batch.addTransaction(interestType.getFM_TransactionType_ID(), row.getInterestAmtFee());
 			if(transaction != null) {
 				transaction.set_ValueOfColumn("FM_Amortization_ID", row.getAmortizationId());
 				transaction.saveEx();
