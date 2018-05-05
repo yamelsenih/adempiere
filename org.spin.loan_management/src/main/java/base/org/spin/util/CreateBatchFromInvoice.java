@@ -16,9 +16,15 @@
  *****************************************************************************/
 package org.spin.util;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.adempiere.exceptions.AdempiereException;
 import org.compiere.model.MInvoice;
 import org.compiere.model.MInvoiceLine;
+import org.compiere.model.Query;
+import org.compiere.util.DB;
+import org.spin.model.I_FM_Batch;
 import org.spin.model.MFMAccount;
 import org.spin.model.MFMAgreement;
 import org.spin.model.MFMBatch;
@@ -56,10 +62,35 @@ public class CreateBatchFromInvoice extends AbstractFunctionalSetting {
 	 * @param invoice
 	 * @return
 	 */
-	private String generateBatch(MInvoice invoice){
+	private String generateBatch(MInvoice invoice) {
 		int financialAccountId = invoice.get_ValueAsInt("FM_Account_ID");
     	if(financialAccountId <= 0) {
     		return null;
+    	}
+    	//	Get Reversal
+    	if(invoice.getReversal_ID() != 0) {
+    		List<Object> parameters = new ArrayList<Object>();
+    		parameters.add(financialAccountId);
+    		parameters.add(MFMBatch.DOCSTATUS_Completed);
+    		parameters.add(invoice.getReversal_ID());
+    		//	
+    		MFMBatch previousBatch = new Query(invoice.getCtx(), I_FM_Batch.Table_Name, 
+    						I_FM_Batch.COLUMNNAME_FM_Account_ID + "=? "
+    						+ "AND " + I_FM_Batch.COLUMNNAME_DocStatus + "=? " 
+    						+ "AND EXISTS(SELECT 1 "
+    						+ "					FROM FM_Transaction t "
+    						+ "					INNER JOIN C_InvoiceLine il ON(il.C_InvoiceLine_ID = t.C_InvoiceLine_ID) "
+    						+ "					WHERE t.FM_Batch_ID = FM_Batch.FM_Batch_ID "
+    						+ "					AND il.C_Invoice_ID = ?)", invoice.get_TrxName())
+    					.setParameters(parameters)
+    					.setOrderBy(I_FM_Batch.COLUMNNAME_DateDoc + " DESC")
+    					.first();
+    		//	Verify
+    		if(previousBatch != null) {
+    			previousBatch.reverseAccrualIt();
+    		} else {
+    			return null;
+    		}
     	}
     	//	Get Account
     	MFMAccount account = new MFMAccount(invoice.getCtx(), financialAccountId, invoice.get_TrxName());
@@ -71,10 +102,10 @@ public class CreateBatchFromInvoice extends AbstractFunctionalSetting {
     	//	Create Batch
     	MFMBatch batch = createBatch(invoice.getDateInvoiced());
     	if(batch != null) {
-    		MFMTransactionType capitalType = MFMTransactionType.getTransactionTypeFromType(getCtx(), MFMTransactionType.TYPE_LoanInterestInvoiced);
+    		MFMTransactionType capitalType = MFMTransactionType.getTransactionTypeFromType(getCtx(), MFMTransactionType.TYPE_LoanCapitalInvoiced);
     		//	Validate
     		if(capitalType == null) {
-    			throw new AdempiereException("@FM_TransactionType_ID@ @NotFound@ " + MFMTransactionType.TYPE_LoanInterestInvoiced);
+    			throw new AdempiereException("@FM_TransactionType_ID@ @NotFound@ " + MFMTransactionType.TYPE_LoanCapitalInvoiced);
     		}
     		//	Get Interest Rate
     		int rateId = financialProduct.get_ValueAsInt("FM_Rate_ID");
@@ -120,7 +151,7 @@ public class CreateBatchFromInvoice extends AbstractFunctionalSetting {
     				transaction = batch.addTransaction(interetType.getFM_TransactionType_ID(), line.getLineNetAmt());
     				transactionTax = batch.addTransaction(interestTaxType.getFM_TransactionType_ID(), line.getTaxAmt());
     			} else if(line.getC_Charge_ID() != 0
-    					&& line.getC_Charge_ID() == dunningChargeId) {
+    					&& line.getC_Charge_ID() == dunningChargeId) {	//	Dunning
     				transaction = batch.addTransaction(dunningType.getFM_TransactionType_ID(), line.getLineNetAmt());
     				transactionTax = batch.addTransaction(dunningTaxType.getFM_TransactionType_ID(), line.getTaxAmt());
     			}
