@@ -23,7 +23,6 @@ import org.adempiere.exceptions.AdempiereException;
 import org.compiere.model.MInvoice;
 import org.compiere.model.MInvoiceLine;
 import org.compiere.model.Query;
-import org.compiere.util.DB;
 import org.spin.model.I_FM_Batch;
 import org.spin.model.MFMAccount;
 import org.spin.model.MFMAgreement;
