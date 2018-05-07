@@ -108,6 +108,8 @@ public class WLoanSimulator extends LoanSimulator
 	private Label capitalAmtLabel = new Label();
 	private WNumberEditor capitalAmtField;
 	private Label financialRateLabel = new Label();
+	private Label userLabel = new Label();
+	private WTableDirEditor userField;
 	private WNumberEditor financialRateField;
 	private Grid parameterLayout = GridFactory.newGridLayout();
 	private Panel southPanel = new Panel();
@@ -169,6 +171,9 @@ public class WLoanSimulator extends LoanSimulator
 		row.appendChild(financialProductLabel.rightAlign());
 		row.appendChild(financialProductField.getComponent());
 		row = rows.newRow();
+		row.appendChild(userLabel.rightAlign());
+		row.appendChild(userField.getComponent());
+		row = rows.newRow();
 		row.appendChild(capitalAmtLabel.rightAlign());
 		row.appendChild(capitalAmtField.getComponent());
 		row.appendChild(paymentFrequencyLabel.rightAlign());
@@ -225,6 +230,10 @@ public class WLoanSimulator extends LoanSimulator
 		MLookup financialProductLookup = MLookupFactory.get (ctx, windowNo, 0, 87268, DisplayType.TableDir);
 		financialProductField = new WTableDirEditor("FM_Product_ID", true, false, true, financialProductLookup);
 		financialProductField.addValueChangeListener(this);
+		//	User/Contact
+		MLookup userLookup = MLookupFactory.get (ctx, windowNo, 0, 88319, DisplayType.TableDir);
+		userField = new WTableDirEditor("AD_User_ID", true, false, true, userLookup);
+		userField.addValueChangeListener(this);
 		//	Capital Amount
 		capitalAmtField = new WNumberEditor();
 		capitalAmtField.setMandatory(true);
@@ -339,9 +348,12 @@ public class WLoanSimulator extends LoanSimulator
 			businessPartnerId = ((Integer)e.getNewValue()).intValue();
 			clearFieldValues(false);
 			financialProductField.actionRefresh();
+			userField.actionRefresh();
 		} else if(e.getPropertyName().equals("FM_Product_ID")) {
 			financialProductId = ((Integer)e.getNewValue()).intValue();
 			reloadFinancialProductInfo();
+		} else if(e.getPropertyName().equals("AD_User_ID")) {
+			userId = ((Integer)e.getNewValue()).intValue();
 		} else if(e.getPropertyName().equals("StartDate")) {
 			payDateField.setValue((Timestamp) e.getNewValue());
 			reloadFinancialProductInfo();
@@ -415,6 +427,7 @@ public class WLoanSimulator extends LoanSimulator
 		businessPartnerId = (int) (businessPartnerField.getValue() != null? businessPartnerField.getValue(): 0);
 		financialProductId = (int) (financialProductField.getValue() != null? financialProductField.getValue(): 0);
 		currencyId = (int) (currencyField.getValue() != null? currencyField.getValue(): 0);
+		userId = (int) (userField.getValue() != null? userField.getValue(): 0);
 		capitalAmt = (BigDecimal) capitalAmtField.getValue();
 		feesQty = ((BigDecimal) (feesQtyField.getValue() != null? feesQtyField.getValue(): Env.ZERO)).intValue();
 		financialRate = (BigDecimal) financialRateField.getValue();
@@ -435,6 +448,7 @@ public class WLoanSimulator extends LoanSimulator
 		}
 		financialProductField.setValue(null);
 		currencyField.setValue(null);
+		userField.setValue(null);
 		capitalAmtField.setValue(null);
 		feesQtyField.setValue(null);
 		financialRateField.setValue(null);

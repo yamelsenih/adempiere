@@ -124,6 +124,10 @@ public class GenerateInvoiceFromLoan extends GenerateInvoiceFromLoanAbstract {
 				invoice.setDateAcct(getDateInvoiced());
 				//	Set Business Partner Information
 				invoice.setBPartner(businessPartner);
+				//	Add contact from Loan
+				if(agreement.get_ValueAsInt("AD_User_ID") != 0) {
+					invoice.setAD_User_ID(agreement.get_ValueAsInt("AD_User_ID"));
+				}
 				//	Set Description
 				invoice.setDescription(Msg.parseTranslation(Env.getCtx(), "@Generate@ @from@ @Loan@") 
 						+ " - " + agreement.getDocumentNo());

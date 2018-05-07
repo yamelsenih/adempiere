@@ -55,6 +55,8 @@ public abstract class LoanSimulator {
 	public int 			financialProductId = 0;
 	/**	Currency			*/
 	public int 			currencyId = 0;
+	/**	User/Contact		*/
+	public int 			userId = 0;
 	/**	Capital Amount		*/
 	public BigDecimal	capitalAmt;
 	/**	Fees Amount		*/
@@ -115,6 +117,9 @@ public abstract class LoanSimulator {
 		MFMAgreement agreement = new MFMAgreement(Env.getCtx(), 0, trxName);
 		agreement.setC_BPartner_ID(businessPartnerId);
 		agreement.setFM_Product_ID(financialProductId);
+		if(userId != 0) {
+			agreement.set_ValueOfColumn("AD_User_ID", userId);
+		}
 		agreement.setC_DocType_ID("FMA");
 		agreement.setFM_AgreementType_ID();
 		agreement.setDescription(Msg.parseTranslation(Env.getCtx(), "@Generate@ @from@ @Simulation@"));
@@ -211,6 +216,7 @@ public abstract class LoanSimulator {
 		businessPartnerId = 0;
 		financialProductId = 0;
 		currencyId = 0;
+		userId = 0;
 		capitalAmt = Env.ZERO;
 		feesQty = 0;
 		financialRate = Env.ZERO;
