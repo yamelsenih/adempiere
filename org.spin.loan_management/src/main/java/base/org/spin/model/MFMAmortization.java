@@ -161,5 +161,18 @@ public class MFMAmortization extends X_FM_Amortization {
 				.setParameters(financialAccountId)
 				.<MFMAmortization>list();
 	}
+	
+	/**
+	 * Get Last Amortization from Account
+	 * @param financialAccountId
+	 * @param trxName
+	 * @return
+	 */
+	public static MFMAmortization getLastAmortizationFromAccount(int financialAccountId, String trxName) {
+		return new Query(Env.getCtx(), I_FM_Amortization.Table_Name, "FM_Account_ID = ?", trxName)
+				.setParameters(financialAccountId)
+				.setOrderBy(I_FM_Amortization.COLUMNNAME_PeriodNo + " DESC")
+				.first();
+	}
 
 }

@@ -58,7 +58,7 @@ public class GenerateInvoiceFromLoan extends GenerateInvoiceFromLoanAbstract {
 		MFMAgreement agreement = null;
 		MBPartner businessPartner = null;
 		MProduct product = null;
-		int feeQty = 0;
+		MFMAmortization lastAmortization = null;
 		for(int amortizationId : getSelectionKeys()) {
 			MFMAmortization amortization = new MFMAmortization(getCtx(), amortizationId, get_TrxName());
 			BigDecimal capitalAmt = getSelectionAsBigDecimal(amortizationId, "LA_CapitalAmt");
@@ -73,7 +73,7 @@ public class GenerateInvoiceFromLoan extends GenerateInvoiceFromLoanAbstract {
 					//	Set Document Information
 					account = (MFMAccount) amortization.getFM_Account();
 					agreement = (MFMAgreement) account.getFM_Agreement();
-					feeQty = MFMAmortization.getFromAccount(account.getFM_Account_ID(), get_TrxName()).size();
+					lastAmortization = MFMAmortization.getLastAmortizationFromAccount(account.getFM_Account_ID(), get_TrxName());
 					//	Get Financial Product for configuration
 					MFMProduct financialProduct = MFMProduct.getById(getCtx(), agreement.getFM_Product_ID());
 					product = MProduct.get(getCtx(), financialProduct.getM_Product_ID());
@@ -149,7 +149,10 @@ public class GenerateInvoiceFromLoan extends GenerateInvoiceFromLoanAbstract {
 				createLine(capitalAmt, product, 0, agreement, amortization);
 				//	Add Description from Quote
 				String description = invoice.getDescription();
-				description = description + Env.NL + Msg.getMsg(getCtx(), "Fee") + " " + amortization.getPeriodNo() + "/" + feeQty;
+				description = description + Env.NL + Msg.getMsg(getCtx(), "Fee") + " " + amortization.getPeriodNo() 
+									+ (lastAmortization != null
+										? "/" + lastAmortization.getPeriodNo()
+										: "");
 				invoice.setDescription(description);
 			}
 			//	For Interest

@@ -16,13 +16,16 @@
  *****************************************************************************/
 package org.spin.util;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.adempiere.exceptions.AdempiereException;
+import org.compiere.model.MDocType;
 import org.compiere.model.MInvoice;
 import org.compiere.model.MInvoiceLine;
 import org.compiere.model.Query;
+import org.compiere.util.Env;
 import org.spin.model.I_FM_Batch;
 import org.spin.model.MFMAccount;
 import org.spin.model.MFMAgreement;
@@ -87,9 +90,9 @@ public class CreateBatchFromInvoice extends AbstractFunctionalSetting {
     		//	Verify
     		if(previousBatch != null) {
     			previousBatch.reverseAccrualIt();
-    		} else {
-    			return null;
     		}
+    		//	Return
+    		return null;
     	}
     	//	Get Account
     	MFMAccount account = new MFMAccount(invoice.getCtx(), financialAccountId, invoice.get_TrxName());
@@ -101,6 +104,12 @@ public class CreateBatchFromInvoice extends AbstractFunctionalSetting {
     	//	Create Batch
     	MFMBatch batch = createBatch(invoice.getDateInvoiced());
     	if(batch != null) {
+    		MDocType documentType = MDocType.get(getCtx(), invoice.getC_DocType_ID());
+    		BigDecimal multiplier = Env.ONE;
+    		//	Change Multiplier
+    		if(documentType.getDocBaseType().endsWith("C")) {
+    			multiplier = multiplier.negate();
+    		}
     		MFMTransactionType capitalType = MFMTransactionType.getTransactionTypeFromType(getCtx(), MFMTransactionType.TYPE_LoanCapitalInvoiced);
     		//	Validate
     		if(capitalType == null) {
@@ -144,15 +153,15 @@ public class CreateBatchFromInvoice extends AbstractFunctionalSetting {
     			MFMTransaction transactionTax = null;
     			if(line.getM_Product_ID() != 0
     					&& line.getM_Product_ID() == financialProduct.getM_Product_ID()) {	//	Capital
-    				transaction = batch.addTransaction(capitalType.getFM_TransactionType_ID(), line.getLineNetAmt());
+    				transaction = batch.addTransaction(capitalType.getFM_TransactionType_ID(), line.getLineNetAmt().multiply(multiplier));
     			} else if(line.getC_Charge_ID() != 0
     					&& line.getC_Charge_ID() == interestChargeId) {	//	Interest
-    				transaction = batch.addTransaction(interetType.getFM_TransactionType_ID(), line.getLineNetAmt());
-    				transactionTax = batch.addTransaction(interestTaxType.getFM_TransactionType_ID(), line.getTaxAmt());
+    				transaction = batch.addTransaction(interetType.getFM_TransactionType_ID(), line.getLineNetAmt().multiply(multiplier));
+    				transactionTax = batch.addTransaction(interestTaxType.getFM_TransactionType_ID(), line.getTaxAmt().multiply(multiplier));
     			} else if(line.getC_Charge_ID() != 0
     					&& line.getC_Charge_ID() == dunningChargeId) {	//	Dunning
-    				transaction = batch.addTransaction(dunningType.getFM_TransactionType_ID(), line.getLineNetAmt());
-    				transactionTax = batch.addTransaction(dunningTaxType.getFM_TransactionType_ID(), line.getTaxAmt());
+    				transaction = batch.addTransaction(dunningType.getFM_TransactionType_ID(), line.getLineNetAmt().multiply(multiplier));
+    				transactionTax = batch.addTransaction(dunningTaxType.getFM_TransactionType_ID(), line.getTaxAmt().multiply(multiplier));
     			}
     			//	Add reference
     			if(transaction != null) {

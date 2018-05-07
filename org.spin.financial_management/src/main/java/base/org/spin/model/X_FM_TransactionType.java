@@ -31,7 +31,7 @@ public class X_FM_TransactionType extends PO implements I_FM_TransactionType, I_
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20180503L;
+	private static final long serialVersionUID = 20180507L;
 
     /** Standard Constructor */
     public X_FM_TransactionType (Properties ctx, int FM_TransactionType_ID, String trxName)
