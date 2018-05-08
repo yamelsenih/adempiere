@@ -89,7 +89,8 @@ public class CreateBatchFromInvoice extends AbstractFunctionalSetting {
     					.first();
     		//	Verify
     		if(previousBatch != null) {
-    			previousBatch.reverseAccrualIt();
+    			previousBatch.processIt(MFMBatch.ACTION_Reverse_Accrual);
+    			previousBatch.saveEx();
     		}
     		//	Return
     		return null;

@@ -34,7 +34,7 @@ public class X_FM_Batch extends PO implements I_FM_Batch, I_Persistent
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20180320L;
+	private static final long serialVersionUID = 20180508L;
 
     /** Standard Constructor */
     public X_FM_Batch (Properties ctx, int FM_Batch_ID, String trxName)
@@ -361,6 +361,30 @@ public class X_FM_Batch extends PO implements I_FM_Batch, I_Persistent
 		return false;
 	}
 
+	/** Set Posted.
+		@param Posted 
+		Posting status
+	  */
+	public void setPosted (boolean Posted)
+	{
+		set_Value (COLUMNNAME_Posted, Boolean.valueOf(Posted));
+	}
+
+	/** Get Posted.
+		@return Posting status
+	  */
+	public boolean isPosted () 
+	{
+		Object oo = get_Value(COLUMNNAME_Posted);
+		if (oo != null) 
+		{
+			 if (oo instanceof Boolean) 
+				 return ((Boolean)oo).booleanValue(); 
+			return "Y".equals(oo);
+		}
+		return false;
+	}
+
 	/** Set Processed.
 		@param Processed 
 		The document has been processed
@@ -404,6 +428,34 @@ public class X_FM_Batch extends PO implements I_FM_Batch, I_Persistent
 			return "Y".equals(oo);
 		}
 		return false;
+	}
+
+	public org.spin.model.I_FM_Batch getReversal() throws RuntimeException
+    {
+		return (org.spin.model.I_FM_Batch)MTable.get(getCtx(), org.spin.model.I_FM_Batch.Table_Name)
+			.getPO(getReversal_ID(), get_TrxName());	}
+
+	/** Set Reversal ID.
+		@param Reversal_ID 
+		ID of document reversal
+	  */
+	public void setReversal_ID (int Reversal_ID)
+	{
+		if (Reversal_ID < 1) 
+			set_Value (COLUMNNAME_Reversal_ID, null);
+		else 
+			set_Value (COLUMNNAME_Reversal_ID, Integer.valueOf(Reversal_ID));
+	}
+
+	/** Get Reversal ID.
+		@return ID of document reversal
+	  */
+	public int getReversal_ID () 
+	{
+		Integer ii = (Integer)get_Value(COLUMNNAME_Reversal_ID);
+		if (ii == null)
+			 return 0;
+		return ii.intValue();
 	}
 
 	/** Set Total Amount.

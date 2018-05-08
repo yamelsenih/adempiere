@@ -385,21 +385,24 @@ public class MFMBatch extends X_FM_Batch implements DocAction, DocOptions {
 			return null;
 		}
 
-//		reversal.setReversal_ID(getFM_Batch_ID());
+		reversal.setReversal_ID(getFM_Batch_ID());
 		reversal.setProcessing (false);
 		reversal.setDocStatus(DOCSTATUS_Reversed);
 		reversal.setDocAction(DOCACTION_None);
 		//	Update Header
 		reversal.updateHeader();
 		reversal.setProcessed(true);
+		reversal.setProcessing(false);
+		reversal.setPosted(false);
 		reversal.saveEx();
-		setProcessed(true);
-//		setReversal_ID(reversal.getHR_Process_ID());
+		setReversal_ID(reversal.getFM_Batch_ID());
 		setDocStatus(DOCSTATUS_Reversed);	//	may come from void
 		setDocAction(DOCACTION_None);
 		setProcessed(true);
 		setDocAction(DOCACTION_None);
 		saveEx();
+		//	Fact
+		reversal.processIt(ACTION_Post);
 		return reversal;
 	}
 	
