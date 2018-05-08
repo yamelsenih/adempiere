@@ -156,6 +156,7 @@ public class WLoanSimulator extends LoanSimulator
 		interestAmtLabel.setText(Msg.translate(Env.getCtx(), "InterestAmt"));
 		taxAmtLabel.setText(Msg.translate(Env.getCtx(), "TaxAmt"));
 		currencyLabel.setText(Msg.translate(Env.getCtx(), "C_Currency_ID"));
+		userLabel.setText(Msg.translate(Env.getCtx(), "AD_User_ID"));
 		grandTotalLabel.setText(Msg.translate(Env.getCtx(), "GrandTotal"));
 		paymentFrequencyLabel.setText(Msg.translate(Env.getCtx(), "PaymentFrequency"));
 		endDateLabel.setText(Msg.translate(Env.getCtx(), "EndDate"));
@@ -326,7 +327,7 @@ public class WLoanSimulator extends LoanSimulator
 		} else if(e.getTarget().getId().equals(ConfirmPanel.A_PROCESS)) {
 			simulate();
 		} else if(e.getTarget().getId().equals(ConfirmPanel.A_OK)) {
-			if (FDialog.ask(windowNo, parameterPanel, "FM_Agreement_ID", 
+			if (FDialog.ask(windowNo, parameterPanel, "GenerateLoan", 
 					Msg.parseTranslation(Env.getCtx(), 
 							"@GenerateLoanAsk@"))) {
 				saveData();
