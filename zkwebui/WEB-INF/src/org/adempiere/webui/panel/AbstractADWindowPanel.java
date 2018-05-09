@@ -1638,6 +1638,7 @@ public abstract class AbstractADWindowPanel extends AbstractUIPart implements To
 	        }
 	        
     	}
+    	curTabPanel.getListPanel().addKeyListener();
     	focusToActivePanel();
     }
 

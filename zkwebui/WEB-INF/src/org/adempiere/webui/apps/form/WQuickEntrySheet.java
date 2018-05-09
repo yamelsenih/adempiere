@@ -289,6 +289,7 @@ public class WQuickEntrySheet extends Window implements EventListener, DataStatu
 //		gridPanel.isNewLineSaved = true;
 		if (gridTab.getRowCount() <= 0)
 			gridPanel.createNewLine();
+		gridPanel.addKeyListener();
 		gridPanel.updateListIndex();
 		
 		updateToolbar(true);
