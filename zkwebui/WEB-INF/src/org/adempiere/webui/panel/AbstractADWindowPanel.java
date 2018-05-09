@@ -1632,7 +1632,11 @@ public abstract class AbstractADWindowPanel extends AbstractUIPart implements To
 	        	quickGridPanel.dynamicDisplay(0);
 	        	quickGridPanel.focusCurrentCol();
 	        	quickGridPanel.onIgnore();
+	        	toolbar.enableDelete(true);
+		        toolbar.enableDeleteSelection(true);
+		        updateToolbar();
 	        }
+	        
     	}
     	focusToActivePanel();
     }
@@ -2462,29 +2466,40 @@ public abstract class AbstractADWindowPanel extends AbstractUIPart implements To
 //			return;
 //		}
 		
+		GridTab currentGrid = tabPanel.getGridTab();
 		MQuery query = tabPanel.getGridTab().getQuery();
 		GridTab quickGridTab = new GridTab(tabPanel.getGridTab().getM_vo(), gridWindow);
 		quickGridTab.setLinkColumnName(tabPanel.getGridTab().getLinkColumnName());
 		quickGridTab.query(false);
 		quickGridTab.setQuery(query);
 		quickGridTab.setQuickEntry(true);
-		tabPanel.getListPanel().removeKeyListener();
-		
-		quickGridPanel = new GridPanel(curWindowNo);
+		curTabPanel.getListPanel().removeKeyListener();
+		boolean isChangeView = false;
+		if(!((ADTabPanel)curTabPanel).isGridView()) {
+			curTabPanel.switchRowPresentation();
+			isChangeView = true;
+		}
 		
 		//quickGrid.init(quickGridTab);
-		WQuickEntrySheet form = new WQuickEntrySheet(quickGridPanel, quickGridTab, tabPanel, this, m_onlyCurrentDays, m_onlyCurrentRows);
-		tabPanel.setQuickPanel(quickGridPanel);
+		WQuickEntrySheet form = new WQuickEntrySheet(curTabPanel.getListPanel(), quickGridTab, tabPanel, this, m_onlyCurrentDays, m_onlyCurrentRows);
 		form.setPosition("center");
 		form.setSizable(true);
-		
-//		AEnv.showWindow(form);
 
 		AEnv.showCenterScreen(form);
-		quickGridPanel.removeKeyListener();
-		quickGridPanel.detach();
+
+		if(isChangeView) 
+			curTabPanel.switchRowPresentation();
+		
+		adTab.getSelectedTabpanel().getListPanel().addKeyListener();	
 		currentTab.setQuickEntry(false);
-		quickGridPanel = null;
+
+		tabPanel.getGridTab().setQuickEntry(false);
+//		currentGrid.setQuickEntry(false);
+		currentTab.dataRefreshAll();
+		curTabPanel.getListPanel().refresh(currentGrid);
+		curTabPanel.getListPanel().invalidate();
+		curTabPanel.appendChild(curTabPanel.getListPanel());
+		curTabPanel.invalidate();
 		form.detach();
 		form=null;
 	}

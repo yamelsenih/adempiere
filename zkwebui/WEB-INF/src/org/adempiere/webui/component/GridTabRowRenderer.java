@@ -666,7 +666,8 @@ public class GridTabRowRenderer implements RowRenderer, RowRendererExt, Renderer
 			org.zkoss.zul.Row row = (org.zkoss.zul.Row) grid.getRows().getChildren().get(pgIndex);
 			currentRow = row;
 		}
-
+		if(isEditing())
+			stopColEditing(true);
 		if(col < 0 || col >= currentRow.getChildren().size())
 			return false;
 		if(col <= totalColumns) {
@@ -685,7 +686,8 @@ public class GridTabRowRenderer implements RowRenderer, RowRendererExt, Renderer
 			if(grid.getRows().getChildren().size() > 0 && cmp instanceof Col) {
 				setCurrentDiv((Col)cmp);
 				
-			}editCurrentCol(false);
+			}
+			editCurrentCol(false);
 		}
 		return true;
 	}
