@@ -31,6 +31,7 @@ import org.compiere.model.ModelValidator;
 import org.compiere.model.PO;
 import org.compiere.util.CLogger;
 import org.compiere.util.DB;
+import org.compiere.util.DisplayType;
 import org.compiere.util.Env;
 import org.compiere.util.KeyNamePair;
 import org.compiere.util.Msg;
@@ -190,8 +191,42 @@ public class LoanManagementModelValidator implements ModelValidator {
 				}
 			}
 		} else if (entity instanceof MFMAgreement) {
-			if (timing == TIMING_AFTER_COMPLETE) {
-				MFMAgreement agreement = (MFMAgreement) entity;
+			MFMAgreement agreement = (MFMAgreement) entity;
+			if (timing == TIMING_BEFORE_COMPLETE) {
+				if(!agreement.isSOTrx()) {
+					return null;
+				}
+				//	Get Loan on Dunning
+				String sql = new String("SELECT SUM(COALESCE(la.CurrentDunningAmt, 0)) AS CurrentDunningAmt "
+						+ "FROM RV_FM_LoanAmortization la "
+						+ "WHERE DocStatus IN('CO') "
+						+ "AND C_BPartner_ID = ? "
+						+ "AND la.IsSOTrx = 'Y' "
+						+ "AND la.IsPaid = 'N' "
+						+ "AND ("
+						+ "		NOT EXISTS(SELECT 1 FROM C_Invoice i "
+						+ "					INNER JOIN C_InvoiceLine il ON(il.C_Invoice_ID = i.C_Invoice_ID) "
+						+ "					WHERE il.FM_Amortization_ID = la.FM_Amortization_ID "
+						+ "					AND i.DocStatus IN('CO', 'CL')"
+						+ "		) "
+						+ "		OR "
+						+ "		EXISTS(SELECT 1 FROM C_Invoice i "
+						+ "					INNER JOIN C_DocType dt ON(dt.C_DocType_ID = i.C_DocType_ID) "
+						+ "					INNER JOIN C_InvoiceLine il ON(il.C_Invoice_ID = i.C_Invoice_ID) "
+						+ "					WHERE il.FM_Amortization_ID = la.FM_Amortization_ID "
+						+ "					AND i.DocStatus IN('CO', 'CL') "
+						+ "					GROUP BY il.FM_Amortization_ID "
+						+ "					HAVING(SUM((CASE WHEN dt.DocBaseType IN('ARC', 'APC') THEN -1 ELSE 1 END) * il.LineNetAmt) = 0)"
+						+ "		)"
+						+ ") "
+						+ "HAVING(SUM(COALESCE(la.CurrentDunningAmt, 0)) > 0)");
+				//	Query
+				BigDecimal balance = DB.getSQLValueBD(agreement.get_TrxName(), sql, agreement.getC_BPartner_ID());
+				if(balance != null) {
+					return Msg.getMsg(agreement.getCtx(), "Loan.DunningBalanceOpen") 
+							+ ": " + DisplayType.getNumberFormat(DisplayType.Amount).format(balance);
+				}
+			} else if (timing == TIMING_AFTER_COMPLETE) {
 				//	Get values from amortization
 				List<MFMAccount> accountList = agreement.getAccounts();
 				if(accountList != null
@@ -239,7 +274,6 @@ public class LoanManagementModelValidator implements ModelValidator {
 					|| timing == TIMING_BEFORE_REVERSEACCRUAL
 					|| timing == TIMING_BEFORE_VOID
 					|| timing == TIMING_BEFORE_REACTIVATE) {
-				MFMAgreement agreement = (MFMAgreement) entity;
 				//	Get values from amortization
 				List<MFMAccount> accountList = agreement.getAccounts();
 				StringBuffer inClause = new StringBuffer();
