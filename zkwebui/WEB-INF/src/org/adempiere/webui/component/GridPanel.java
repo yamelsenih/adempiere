@@ -22,6 +22,7 @@ import javax.swing.table.AbstractTableModel;
 import org.adempiere.webui.LayoutUtils;
 import org.adempiere.webui.editor.WDateEditor;
 import org.adempiere.webui.editor.WEditor;
+import org.adempiere.webui.panel.ADTabPanel;
 import org.adempiere.webui.panel.AbstractADWindowPanel;
 import org.adempiere.webui.panel.IADTabPanel;
 import org.adempiere.webui.util.SortComparator;
@@ -84,6 +85,7 @@ public class GridPanel extends Borderlayout implements EventListener
 	public static final String		CNTRL_KEYS				= "#f5#del^d^s#enter$#enter";
 	private static final String		KEYS_MOVE			= "#end#home#up#down#left#right";
 	
+	private int lastKeyEvent = 0;	
 
 	private Grid listbox = null;
 
@@ -330,7 +332,7 @@ public class GridPanel extends Borderlayout implements EventListener
 
 				
 				int l = DisplayType.isNumeric(gridField[i].getDisplayType())
-					? 120 : displayLength ;
+					? 155 : displayLength ;
 				
 				if (gridField[i].getHeader().length() * 9 > l)
 					l = gridField[i].getHeader().length() * 9;
@@ -426,11 +428,15 @@ public class GridPanel extends Borderlayout implements EventListener
 
 	public void onEvent(Event event) throws Exception
 	{
-		if (event == null)
+		if (event == null || !((ADTabPanel)tabPanel).isGridView()) {
+			removeKeyListener();
 			return;
+		}
+			
 		
 		else if (Events.ON_CANCEL.equals(event.getName())) {
 			if (renderer.isEditing()) {
+				renderer.stopColEditing(false);
 				onIgnore();
 				addKeyListener();
 
@@ -513,6 +519,7 @@ public class GridPanel extends Borderlayout implements EventListener
 			boolean isAlt = keyEvent.isAltKey();
 			boolean isCtrl = keyEvent.isCtrlKey();
 			boolean isShift = keyEvent.isShiftKey();
+			lastKeyEvent = code;
 			if(renderer == null || gridTab == null) 
 				return;
 			
@@ -538,7 +545,6 @@ public class GridPanel extends Borderlayout implements EventListener
 							else if(!dataSave(0)) {
 								gridTab.navigateRelative(+1);
 								renderer.setCurrentCell(row);
-								updateListIndex();
 							}
 						}
 						else {
@@ -553,17 +559,16 @@ public class GridPanel extends Borderlayout implements EventListener
 						WEditor editor = renderer.getCurrentDiv().getEditor();
 						Event evt = new Event(Events.ON_CLICK, editor.getComponent(),editor.getComponent());
 						Events.sendEvent(editor.getComponent(), evt);
-						
 					}
+					
 					while(!renderer.editCurrentCol(true)) {
 						currentCol++;
 						renderer.setCurrentColumn(currentCol);
 						
 					}
-					
+				
 				}
 				addKeyListener();
-				updateListIndex();
 			}
 			else if (code == KEYBOARD_KEY_S && isCtrl && !isAlt && !isShift) {
 				if (!dataSave(code))
@@ -615,9 +620,7 @@ public class GridPanel extends Borderlayout implements EventListener
 						} else
 							renderer.setCurrentColumn(currentCol-1);
 						
-//						listbox.setModel(listModel);
 						addKeyListener();
-//						updateListIndex();
 					}
 				}
 				else if (code == KeyEvent.DELETE && !isCtrl && !isAlt && !isShift)
@@ -736,10 +739,11 @@ public class GridPanel extends Borderlayout implements EventListener
 				focusToRow(row);
 			}
 		}
-		if(gridTab.isNew()) {
+		if(gridTab.isNew() || lastKeyEvent == KEYBOARD_KEY_RETURN) {
 			if(renderer.isLastColumn()) {
 				renderer.setCurrentColumn(0); 
 			}
+			renderer.stopColEditing(true);
 			renderer.editCurrentCol(true);
 		}
 
@@ -973,6 +977,7 @@ public class GridPanel extends Borderlayout implements EventListener
 	}
 	public void removeKeyListener() {
 		if(keyListener != null) {
+			keyListener.setCtrlKeys("");
 			keyListener.removeEventListener(Events.ON_CTRL_KEY, this);
 			keyListener.invalidate();
 		}

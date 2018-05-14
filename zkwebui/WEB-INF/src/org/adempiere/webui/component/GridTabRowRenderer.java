@@ -493,9 +493,9 @@ public class GridTabRowRenderer implements RowRenderer, RowRendererExt, Renderer
 			GridTableListModel model = (GridTableListModel) grid.getModel();
 			if(showEditor) {
 				if(!(gridField.isReadOnly())) {
-					
 					showEditor();
 					model.setEditing(true);
+					
 				}
 			}	
 			else {
