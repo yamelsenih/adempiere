@@ -2475,6 +2475,7 @@ public abstract class AbstractADWindowPanel extends AbstractUIPart implements To
 		quickGridTab.setQuery(query);
 		quickGridTab.setQuickEntry(true);
 		curTabPanel.getListPanel().removeKeyListener();
+		toolbar.enableHelp(false);
 		boolean isChangeView = false;
 		if(!((ADTabPanel)curTabPanel).isGridView()) {
 			curTabPanel.switchRowPresentation();
@@ -2488,19 +2489,21 @@ public abstract class AbstractADWindowPanel extends AbstractUIPart implements To
 
 		AEnv.showCenterScreen(form);
 
-		if(isChangeView) 
+		adTab.getSelectedTabpanel().getListPanel().addKeyListener();
+		if(isChangeView) {
 			curTabPanel.switchRowPresentation();
-		
-		adTab.getSelectedTabpanel().getListPanel().addKeyListener();	
+		}
 		currentTab.setQuickEntry(false);
-
+		toolbar.enableHelp(true);
 		tabPanel.getGridTab().setQuickEntry(false);
-//		currentGrid.setQuickEntry(false);
 		currentTab.dataRefreshAll();
 		curTabPanel.getListPanel().refresh(currentGrid);
 		curTabPanel.getListPanel().invalidate();
 		curTabPanel.appendChild(curTabPanel.getListPanel());
 		curTabPanel.invalidate();
+		if(!((ADTabPanel)curTabPanel).isGridView()) {
+			curTabPanel.getListPanel().removeKeyListener();
+		}
 		form.detach();
 		form=null;
 	}

@@ -579,7 +579,10 @@ public class CWindowToolbar extends FToolbar implements EventListener
     {
     	btnQuickEntry.setDisabled(!enabled);
     }
- 
+    public void enableHelp(boolean enabled)
+    {
+        this.btnHelp.setDisabled(!enabled);
+    }
     public void lock(boolean locked)
     {
     	this.btnLock.setPressed(locked);
