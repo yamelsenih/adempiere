@@ -229,7 +229,7 @@ public class GridPanel extends Borderlayout implements EventListener
 	 * Update current row from model
 	 */
 	public void updateListIndex() {
-		if (gridTab == null || !gridTab.isOpen() || paging == null ||gridTab.getRowCount() <= 0) return;
+		if (gridTab == null || !gridTab.isOpen() || paging == null ||gridTab.getRowCount() < 0) return;
 
 		int rowIndex  = gridTab.getCurrentRow();
 		
@@ -531,6 +531,8 @@ public class GridPanel extends Borderlayout implements EventListener
 			
 			if (code == KEYBOARD_KEY_RETURN && !isShift)
 			{
+				if(totalRow <= 0)
+					return;
 				if(renderer.getCurrentDiv() != null) {
 					if (renderer.isEditing()) { 
 						renderer.stopColEditing(true);
@@ -590,8 +592,10 @@ public class GridPanel extends Borderlayout implements EventListener
 				// if fire event on last row then it will create new record
 				// line.
 				if (code == KeyEvent.DOWN && !isCtrl && !isAlt && !isShift)	{
-					if(totalRow <= 0)
+					if(totalRow <= 0) {
 						onNew();
+						onPostSelectedRowChanged();
+					}
 					else if(((GridTable)tableModel).checkField(row)) {
 						row += 1;
 						if (row == totalRow)	{
@@ -740,10 +744,10 @@ public class GridPanel extends Borderlayout implements EventListener
 			}
 		}
 		if(gridTab.isNew() || lastKeyEvent == KEYBOARD_KEY_RETURN) {
-			if(renderer.isLastColumn()) {
-				renderer.setCurrentColumn(0); 
-			}
-			renderer.stopColEditing(true);
+			System.out.println("pasa");
+			renderer.setCurrentColumn(0); 
+			if(renderer.isEditing())
+				renderer.stopColEditing(true);
 			renderer.editCurrentCol(true);
 		}
 
@@ -897,6 +901,9 @@ public class GridPanel extends Borderlayout implements EventListener
 		refresh(gridTab); 
 		if (renderer != null && renderer.isEditing()) {
 			renderer.setFocusToEditor();
+			removeKeyListener();
+		} else {
+			addKeyListener();
 		}
 		
 	}
@@ -928,7 +935,7 @@ public class GridPanel extends Borderlayout implements EventListener
 	}
 	
 	public void focusCurrentCol() {
-		if(renderer != null && renderer.getCurrentDiv() != null) {
+		if(renderer != null && renderer.getCurrentDiv() != null && gridTab.getRowCount() > 0) {
 			renderer.getCurrentDiv().setFocus(true);
 			renderer.stopColEditing(true);
 			renderer.getCurrentDiv().invalidate();
@@ -1013,6 +1020,8 @@ public class GridPanel extends Borderlayout implements EventListener
         	updateToolbar(false);
 			updateListIndex();
 			refresh(gridTab);
+			renderer.setCurrentColumn(0);
+			renderer.editCurrentCol(true);
         }
         else
         {

@@ -1233,11 +1233,11 @@ public abstract class AbstractADWindowPanel extends AbstractUIPart implements To
 	 */
     public void dataStatusChanged(DataStatusEvent e)
     {
-    	CWindowToolbar toolbar = curTabPanel.getGlobalToolbar();
+    		
     	//ignore non-ui thread event for now.
-    	if (Executions.getCurrent() == null)
+    	if (Executions.getCurrent() == null || curTabPanel.getGlobalToolbar() == null)
     		return;
-    	
+    	CWindowToolbar toolbar = curTabPanel.getGlobalToolbar();
     	
         logger.info(e.getMessage());
         String dbInfo = e.getMessage();
@@ -1486,11 +1486,9 @@ public abstract class AbstractADWindowPanel extends AbstractUIPart implements To
     {
     	GridTab currentTab = toolbar.getCurrentPanel().getGridTab();
     	((ADTabPanel)toolbar.getCurrentPanel()).getListPanel().refresh(currentTab);
-    	if(quickGridPanel != null ) {
-        	currentTab = quickGridPanel.getADTabPanel().getGridTab();
-        	quickGridPanel.refresh(currentTab);
-    	}
-        if (!currentTab.isInsertRecord())
+    	
+
+    	if (!currentTab.isInsertRecord())
         {
             logger.warning("Insert Record disabled for Tab");
             return;
@@ -1520,6 +1518,7 @@ public abstract class AbstractADWindowPanel extends AbstractUIPart implements To
             logger.severe("Could not create new record");
         }
         focusToActivePanel();
+        ((ADTabPanel)toolbar.getCurrentPanel()).getListPanel().onPostSelectedRowChanged();
     }
 
     private boolean autoSave() {
