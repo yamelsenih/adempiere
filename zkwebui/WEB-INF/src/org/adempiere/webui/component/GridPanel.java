@@ -78,8 +78,6 @@ public class GridPanel extends Borderlayout implements EventListener
 	private static final int MIN_NUMERIC_COL_WIDTH = 130;
 
 	private static final int KEYBOARD_KEY_S = 83;
-	private static final int KEYBOARD_KEY_C = 67;
-	private static final int KEYBOARD_KEY_D = 68;
 	private static final int KEYBOARD_KEY_RETURN = 13;
 
 	public static final String		CNTRL_KEYS				= "#f5#del^d^s#enter$#enter";
@@ -231,7 +229,7 @@ public class GridPanel extends Borderlayout implements EventListener
 	 * Update current row from model
 	 */
 	public void updateListIndex() {
-		if (gridTab == null || !gridTab.isOpen()) return;
+		if (gridTab == null || !gridTab.isOpen() || paging == null ||gridTab.getRowCount() <= 0) return;
 
 		int rowIndex  = gridTab.getCurrentRow();
 		
@@ -332,7 +330,7 @@ public class GridPanel extends Borderlayout implements EventListener
 
 				
 				int l = DisplayType.isNumeric(gridField[i].getDisplayType())
-					? 155 : displayLength ;
+					? 165 : displayLength ;
 				
 				if (gridField[i].getHeader().length() * 9 > l)
 					l = gridField[i].getHeader().length() * 9;
@@ -415,6 +413,8 @@ public class GridPanel extends Borderlayout implements EventListener
 			listbox.appendChild(new Rows());
 		listbox.setRowRenderer(renderer);
 		listbox.setModel(listModel);
+		if(gridTab.getRowCount() == 0)
+			onNew();
 
 	}
 
@@ -590,7 +590,9 @@ public class GridPanel extends Borderlayout implements EventListener
 				// if fire event on last row then it will create new record
 				// line.
 				if (code == KeyEvent.DOWN && !isCtrl && !isAlt && !isShift)	{
-					if(((GridTable)tableModel).checkField(row)) {
+					if(totalRow <= 0)
+						onNew();
+					else if(((GridTable)tableModel).checkField(row)) {
 						row += 1;
 						if (row == totalRow)	{
 							if(gridTab.isQuickEntry() || !gridTab.isNew() || dataSave(0)) {
@@ -598,8 +600,6 @@ public class GridPanel extends Borderlayout implements EventListener
 									renderer.setCurrentColumn(0); 
 								}
 								onNew();
-								updateListIndex();
-								refresh(gridTab);
 							}
 							return;
 						}else {
@@ -1011,11 +1011,14 @@ public class GridPanel extends Borderlayout implements EventListener
         if (newRecord)
         {
         	updateToolbar(false);
+			updateListIndex();
+			refresh(gridTab);
         }
         else
         {
 //            log.severe("Could not create new record");
         }
+        
 	}
 	
 	public Keylistener getKeyListener() {
