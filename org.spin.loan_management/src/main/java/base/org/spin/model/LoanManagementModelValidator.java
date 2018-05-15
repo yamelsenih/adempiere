@@ -18,6 +18,7 @@
 package org.spin.model;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.adempiere.exceptions.AdempiereException;
@@ -37,6 +38,8 @@ import org.compiere.util.DisplayType;
 import org.compiere.util.Env;
 import org.compiere.util.KeyNamePair;
 import org.compiere.util.Msg;
+import org.compiere.util.Util;
+import org.compiere.util.ValueNamePair;
 import org.spin.util.FinancialSetting;
 
 /**
@@ -207,23 +210,32 @@ public class LoanManagementModelValidator implements ModelValidator {
 					return null;
 				}
 				//	Get Loan on Dunning
-				String sql = new String("SELECT SUM(COALESCE(la.CurrentDunningAmt, 0)) AS CurrentDunningAmt "
+				String sql = new String("SELECT la.DocumentNo, SUM(COALESCE(la.CurrentDunningAmt, 0)) AS CurrentDunningAmt "
 						+ "FROM RV_FM_LoanAmortization la "
 						+ "WHERE DocStatus IN('CO') "
 						+ "AND C_BPartner_ID = ? "
 						+ "AND la.IsSOTrx = 'Y' "
-						+ "AND la.IsPaid = 'N' "
-						+ "AND NOT EXISTS(SELECT 1 FROM C_Invoice i "
-						+ "					INNER JOIN C_InvoiceLine il ON(il.C_Invoice_ID = i.C_Invoice_ID) "
-						+ "					WHERE il.FM_Amortization_ID = la.FM_Amortization_ID "
-						+ "					AND i.DocStatus IN('CO', 'CL')"
-						+ ") "
+						+ "AND (la.IsPaid = 'N' OR la.IsInvoiced = 'N') "
+						+ "GROUP BY la.DocumentNo "
 						+ "HAVING(SUM(COALESCE(la.CurrentDunningAmt, 0)) > 0)");
 				//	Query
-				BigDecimal balance = DB.getSQLValueBD(agreement.get_TrxName(), sql, agreement.getC_BPartner_ID());
-				if(balance != null) {
-					return Msg.getMsg(agreement.getCtx(), "Loan.DunningBalanceOpen") 
-							+ ": " + DisplayType.getNumberFormat(DisplayType.Amount).format(balance);
+				List<Object> params = new ArrayList<>();
+				params.add(agreement.getC_BPartner_ID());
+				ValueNamePair[] pairs = DB.getValueNamePairs(sql, false, params);
+				if(pairs != null) {
+					StringBuffer resultToShow = new StringBuffer(Msg.getMsg(agreement.getCtx(), "Loan.DunningBalanceOpen"));
+					String loanMsg = Msg.getMsg(agreement.getCtx(), "Loan");
+					for(ValueNamePair pair : pairs) {
+						if(Util.isEmpty(pair.getName())) {
+							continue;
+						}
+						resultToShow.append(Env.NL);
+						//	
+						BigDecimal dunningAmount = new BigDecimal(pair.getName());
+						resultToShow.append("- " + loanMsg + ": " + pair.getID() 
+											+ " = " + DisplayType.getNumberFormat(DisplayType.Amount).format(dunningAmount));
+					}
+					return resultToShow.toString();
 				}
 			} else if (timing == TIMING_AFTER_COMPLETE) {
 				//	Get values from amortization
