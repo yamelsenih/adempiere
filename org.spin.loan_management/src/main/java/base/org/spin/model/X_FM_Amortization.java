@@ -34,7 +34,7 @@ public class X_FM_Amortization extends PO implements I_FM_Amortization, I_Persis
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20180305L;
+	private static final long serialVersionUID = 20180514L;
 
     /** Standard Constructor */
     public X_FM_Amortization (Properties ctx, int FM_Amortization_ID, String trxName)
@@ -210,6 +210,30 @@ public class X_FM_Amortization extends PO implements I_FM_Amortization, I_Persis
 		if (bd == null)
 			 return Env.ZERO;
 		return bd;
+	}
+
+	/** Set Invoiced.
+		@param IsInvoiced 
+		Is this invoiced?
+	  */
+	public void setIsInvoiced (boolean IsInvoiced)
+	{
+		set_Value (COLUMNNAME_IsInvoiced, Boolean.valueOf(IsInvoiced));
+	}
+
+	/** Get Invoiced.
+		@return Is this invoiced?
+	  */
+	public boolean isInvoiced () 
+	{
+		Object oo = get_Value(COLUMNNAME_IsInvoiced);
+		if (oo != null) 
+		{
+			 if (oo instanceof Boolean) 
+				 return ((Boolean)oo).booleanValue(); 
+			return "Y".equals(oo);
+		}
+		return false;
 	}
 
 	/** Set Paid.

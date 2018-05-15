@@ -173,6 +173,19 @@ public interface I_FM_Amortization
 	  */
 	public boolean isActive();
 
+    /** Column name IsInvoiced */
+    public static final String COLUMNNAME_IsInvoiced = "IsInvoiced";
+
+	/** Set Invoiced.
+	  * Is this invoiced?
+	  */
+	public void setIsInvoiced (boolean IsInvoiced);
+
+	/** Get Invoiced.
+	  * Is this invoiced?
+	  */
+	public boolean isInvoiced();
+
     /** Column name IsPaid */
     public static final String COLUMNNAME_IsPaid = "IsPaid";
 

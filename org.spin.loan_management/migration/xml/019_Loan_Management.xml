@@ -44,5 +44,58 @@
         <Data AD_Column_ID="6767" Column="AD_Message_ID" oldValue="53424">53424</Data>
       </PO>
     </Step>
+    <Step SeqNo="40" StepType="AD">
+      <PO AD_Table_ID="53224" Action="U" Record_ID="50119" Table="AD_Browse">
+        <Data AD_Column_ID="58000" Column="WhereClause" oldValue="la.DocStatus IN('CO') &#10;AND la.IsSOTrx = 'Y'&#10;AND NOT EXISTS(SELECT 1 FROM C_Invoice i &#10;&#9;&#9;INNER JOIN C_InvoiceLine il ON(il.C_Invoice_ID = i.C_Invoice_ID)&#10;&#9;&#9;WHERE il.FM_Amortization_ID = la.FM_Amortization_ID&#10;&#9;&#9;AND i.DocStatus IN('CO', 'CL'))">la.DocStatus IN('CO') 
+AND la.IsSOTrx = 'Y'
+AND la.IsPaid = 'Y'
+AND NOT EXISTS(SELECT 1 FROM C_Invoice i 
+		INNER JOIN C_InvoiceLine il ON(il.C_Invoice_ID = i.C_Invoice_ID)
+		WHERE il.FM_Amortization_ID = la.FM_Amortization_ID
+		AND i.DocStatus IN('CO', 'CL'))</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="50" StepType="AD">
+      <PO AD_Table_ID="109" Action="I" Record_ID="53425" Table="AD_Message">
+        <Data AD_Column_ID="591" Column="Updated">2018-05-10 17:51:38.832</Data>
+        <Data AD_Column_ID="588" Column="IsActive">true</Data>
+        <Data AD_Column_ID="589" Column="Created">2018-05-10 17:51:38.832</Data>
+        <Data AD_Column_ID="198" Column="MsgText">Previous Fee Unpaid</Data>
+        <Data AD_Column_ID="197" Column="MsgType">I</Data>
+        <Data AD_Column_ID="6766" Column="Value">Loan.PreviousFeeUnpaid</Data>
+        <Data AD_Column_ID="199" Column="MsgTip" isNewNull="true"/>
+        <Data AD_Column_ID="392" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="391" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="7716" Column="EntityType">FMS</Data>
+        <Data AD_Column_ID="6765" Column="AD_Message_ID">53425</Data>
+        <Data AD_Column_ID="590" Column="CreatedBy">100</Data>
+        <Data AD_Column_ID="592" Column="UpdatedBy">100</Data>
+        <Data AD_Column_ID="84346" Column="UUID" isNewNull="true"/>
+      </PO>
+    </Step>
+    <Step SeqNo="60" StepType="AD">
+      <PO AD_Table_ID="119" Action="I" Record_ID="0" Table="AD_Message_Trl">
+        <Data AD_Column_ID="609" Column="Created">2018-05-10 17:51:40.376</Data>
+        <Data AD_Column_ID="611" Column="Updated">2018-05-10 17:51:40.376</Data>
+        <Data AD_Column_ID="608" Column="IsActive">true</Data>
+        <Data AD_Column_ID="344" Column="IsTranslated">false</Data>
+        <Data AD_Column_ID="342" Column="MsgText">Previous Fee Unpaid</Data>
+        <Data AD_Column_ID="343" Column="MsgTip" isNewNull="true"/>
+        <Data AD_Column_ID="1192" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="1193" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="610" Column="CreatedBy">100</Data>
+        <Data AD_Column_ID="341" Column="AD_Language">es_MX</Data>
+        <Data AD_Column_ID="6767" Column="AD_Message_ID">53425</Data>
+        <Data AD_Column_ID="612" Column="UpdatedBy">100</Data>
+        <Data AD_Column_ID="84347" Column="UUID" isNewNull="true"/>
+      </PO>
+    </Step>
+    <Step SeqNo="70" StepType="AD">
+      <PO AD_Table_ID="119" Action="U" Record_ID="0" Table="AD_Message_Trl">
+        <Data AD_Column_ID="342" Column="MsgText" oldValue="Previous Fee Unpaid">Cuota Anterior no Pagada</Data>
+        <Data AD_Column_ID="341" Column="AD_Language" oldValue="es_MX">es_MX</Data>
+        <Data AD_Column_ID="6767" Column="AD_Message_ID" oldValue="53425">53425</Data>
+      </PO>
+    </Step>
   </Migration>
 </Migrations>

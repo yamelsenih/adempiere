@@ -23,7 +23,9 @@ import java.util.List;
 import org.adempiere.exceptions.AdempiereException;
 import org.compiere.model.I_C_Invoice;
 import org.compiere.model.MClient;
+import org.compiere.model.MDocType;
 import org.compiere.model.MInvoice;
+import org.compiere.model.MInvoiceLine;
 import org.compiere.model.MPaySelection;
 import org.compiere.model.MPayment;
 import org.compiere.model.ModelValidationEngine;
@@ -57,6 +59,7 @@ public class LoanManagementModelValidator implements ModelValidator {
 			clientId = client.getAD_Client_ID();
 		}
 		engine.addModelChange(MFMAgreement.Table_Name, this);
+		engine.addModelChange(MInvoice.Table_Name, this);
 		engine.addDocValidate(MFMAgreement.Table_Name, this);
 		engine.addDocValidate(MPaySelection.Table_Name, this);
 		engine.addDocValidate(MPayment.Table_Name, this);
@@ -110,6 +113,25 @@ public class LoanManagementModelValidator implements ModelValidator {
     				account.deleteEx(true);
     			}
     		}
+    	} else if(po.get_TableName().equals(I_C_Invoice.Table_Name)) {
+    		if(type == TYPE_AFTER_CHANGE) {
+    			log.fine("C_Invoice = type == TYPE_AFTER_CHANGE");
+    			MInvoice invoice = (MInvoice) po;
+    			if(invoice.is_ValueChanged(I_C_Invoice.COLUMNNAME_IsPaid)) {
+    				boolean isPaid = invoice.isPaid();
+    				if(!invoice.getDocStatus().equals(MInvoice.DOCACTION_Complete)
+    						&& !invoice.getDocStatus().equals(MInvoice.DOCACTION_Close)) {
+    					isPaid = false;
+    				}
+    				for(MInvoiceLine line : invoice.getLines()) {
+    					if(line.get_ValueAsInt("FM_Amortization_ID") != 0) {
+    						MFMAmortization amortization = new MFMAmortization(invoice.getCtx(), line.get_ValueAsInt("FM_Amortization_ID"), invoice.get_TrxName());
+    						amortization.setIsPaid(isPaid);
+    						amortization.saveEx();
+    					}
+    				}
+    			}
+    		}
     	}
         return null;
     }
@@ -156,9 +178,13 @@ public class LoanManagementModelValidator implements ModelValidator {
 				}
 			}
 		} else if (entity instanceof MPayment) {
-			if (timing == TIMING_AFTER_COMPLETE) {
+			if (timing == TIMING_AFTER_COMPLETE
+					|| timing == TIMING_AFTER_REVERSECORRECT
+					|| timing == TIMING_AFTER_REVERSEACCRUAL
+					|| timing == TIMING_AFTER_VOID) {
 				MPayment payment = (MPayment) entity;
-				if(payment.getReversal_ID() != 0) {
+				if(timing == TIMING_AFTER_COMPLETE
+						&& payment.getReversal_ID() != 0) {
 					return null;
 				}
 				String sql = new String("SELECT pl.FM_Account_ID "
@@ -170,23 +196,7 @@ public class LoanManagementModelValidator implements ModelValidator {
 				if(financialAccountId > 0) {
 					MFMAccount account = new MFMAccount(payment.getCtx(), financialAccountId, payment.get_TrxName());
 					//	
-					account.set_ValueOfColumn("IsPaid", true);
-					account.saveEx();
-				}
-			} else if(timing == TIMING_AFTER_REVERSECORRECT
-					|| timing == TIMING_AFTER_REVERSEACCRUAL
-					|| timing == TIMING_AFTER_VOID) {
-				MPayment payment = (MPayment) entity;
-				String sql = new String("SELECT pl.FM_Account_ID "
-						+ "FROM C_PaySelectionLine pl "
-						+ "INNER JOIN C_PaySelectionCheck pc ON(pc.C_PaySelectionCheck_ID = pl.C_PaySelectionCheck_ID) "
-						+ "WHERE pc.C_Payment_ID = ?");
-				//	Get 
-				int financialAccountId = DB.getSQLValue(payment.get_TrxName(), sql, payment.getC_Payment_ID());
-				if(financialAccountId > 0) {
-					MFMAccount account = new MFMAccount(payment.getCtx(), financialAccountId, payment.get_TrxName());
-					//	
-					account.set_ValueOfColumn("IsPaid", false);
+					account.set_ValueOfColumn("IsPaid", timing == TIMING_AFTER_COMPLETE);
 					account.saveEx();
 				}
 			}
@@ -203,21 +213,10 @@ public class LoanManagementModelValidator implements ModelValidator {
 						+ "AND C_BPartner_ID = ? "
 						+ "AND la.IsSOTrx = 'Y' "
 						+ "AND la.IsPaid = 'N' "
-						+ "AND ("
-						+ "		NOT EXISTS(SELECT 1 FROM C_Invoice i "
+						+ "AND NOT EXISTS(SELECT 1 FROM C_Invoice i "
 						+ "					INNER JOIN C_InvoiceLine il ON(il.C_Invoice_ID = i.C_Invoice_ID) "
 						+ "					WHERE il.FM_Amortization_ID = la.FM_Amortization_ID "
 						+ "					AND i.DocStatus IN('CO', 'CL')"
-						+ "		) "
-						+ "		OR "
-						+ "		EXISTS(SELECT 1 FROM C_Invoice i "
-						+ "					INNER JOIN C_DocType dt ON(dt.C_DocType_ID = i.C_DocType_ID) "
-						+ "					INNER JOIN C_InvoiceLine il ON(il.C_Invoice_ID = i.C_Invoice_ID) "
-						+ "					WHERE il.FM_Amortization_ID = la.FM_Amortization_ID "
-						+ "					AND i.DocStatus IN('CO', 'CL') "
-						+ "					GROUP BY il.FM_Amortization_ID "
-						+ "					HAVING(SUM((CASE WHEN dt.DocBaseType IN('ARC', 'APC') THEN -1 ELSE 1 END) * il.LineNetAmt) = 0)"
-						+ "		)"
 						+ ") "
 						+ "HAVING(SUM(COALESCE(la.CurrentDunningAmt, 0)) > 0)");
 				//	Query
@@ -373,9 +372,54 @@ public class LoanManagementModelValidator implements ModelValidator {
 			}
 		} else if(entity.get_TableName().equals(I_C_Invoice.Table_Name)) {
 			MInvoice invoice = (MInvoice) entity;
-    		int financialAccountId = invoice.get_ValueAsInt("FM_Account_ID");
+			int financialAccountId = invoice.get_ValueAsInt("FM_Account_ID");
         	if(financialAccountId <= 0) {
         		return null;
+        	}
+        	//	For Complete
+        	if (timing == TIMING_BEFORE_COMPLETE) {
+        		int periodNo = DB.getSQLValue(invoice.get_TrxName(), "SELECT MIN(a.PeriodNo) AS PeriodNo "
+        				+ "FROM C_InvoiceLine il "
+        				+ "INNER JOIN FM_Amortization a ON(a.FM_Amortization_ID = il.FM_Amortization_ID) "
+        				+ "WHERE il.C_Invoice_ID = ?", invoice.getC_Invoice_ID());
+        		//	Validate
+        		String sql = new String("SELECT la.PeriodNo "
+						+ "FROM RV_FM_LoanAmortization la "
+						+ "WHERE FM_Account_ID = ? "
+						+ "AND la.IsSOTrx = 'Y' "
+						+ "AND (la.IsPaid = 'N' OR la.IsInvoiced = 'N') "
+						+ "AND la.PeriodNo < ?");
+        		//	Get
+        		int previousPeriodNo = DB.getSQLValue(invoice.get_TrxName(), sql, financialAccountId, periodNo);
+        		//	
+        		if(previousPeriodNo > 0) {
+        			return Msg.getMsg(invoice.getCtx(), "Loan.PreviousFeeUnpaid") + ": " + previousPeriodNo; 
+        		}
+        	} else if(timing == TIMING_AFTER_COMPLETE) {
+        		boolean isInvoiced = true;
+				if(!invoice.getDocStatus().equals(MInvoice.DOCSTATUS_Completed)
+						&& !invoice.getDocStatus().equals(MInvoice.DOCSTATUS_Closed)
+						&& !invoice.getDocStatus().equals(MInvoice.DOCSTATUS_InProgress)
+						|| invoice.getReversal_ID() != 0) {
+					isInvoiced = false;
+				} else {
+					//	For Credit Memo
+					MDocType documentType = MDocType.get(invoice.getCtx(), invoice.getC_DocType_ID());
+					if(documentType.getDocBaseType().endsWith("C")) {
+						isInvoiced = false;
+					}
+				}
+				//	Set All quotes
+				for(MInvoiceLine line : invoice.getLines()) {
+					if(line.get_ValueAsInt("FM_Amortization_ID") != 0) {
+						MFMAmortization amortization = new MFMAmortization(invoice.getCtx(), line.get_ValueAsInt("FM_Amortization_ID"), invoice.get_TrxName());
+						amortization.setIsInvoiced(isInvoiced);
+						if(!isInvoiced) {
+							amortization.setIsPaid(false);
+						}
+						amortization.saveEx();
+					}
+				}
         	}
         	//	Get Account
         	MFMAccount account = new MFMAccount(invoice.getCtx(), financialAccountId, invoice.get_TrxName());

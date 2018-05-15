@@ -313,7 +313,7 @@ public class LoanUtil {
 		//	Get Interest Rate
 		int dunningRateId = financialProduct.get_ValueAsInt("DunningInterest_ID");
 		int dunningId = financialProduct.get_ValueAsInt("FM_Dunning_ID");
-		int graceDays = financialProduct.get_ValueAsInt("FM_Dunning_ID");
+		int graceDays = financialProduct.get_ValueAsInt("GraceDays");
 		//	Validate Dunning for it
 		if(dunningRateId == 0
 				&& dunningId == 0) {
@@ -365,8 +365,12 @@ public class LoanUtil {
 		List<AmortizationValue> amortizationList = new ArrayList<AmortizationValue>();
 		//	
 		for(MFMAmortization amortization : MFMAmortization.getFromAccount(account.getFM_Account_ID(), trxName)) {
+			if(amortization.isInvoiced()
+					|| amortization.isPaid()) {
+				continue;
+			}
 			AmortizationValue row = new LoanUtil().new AmortizationValue(amortization);
-			if(row.getDaysDue(runningDate) <= 0) {
+			if(row.getDaysDue(runningDate) - graceDays <= 0) {
 				continue;
 			}
 			//	For distinct levels
@@ -479,13 +483,13 @@ public class LoanUtil {
 		//	Hash Map for Amortization
 		List<AmortizationValue> amortizationList = new ArrayList<AmortizationValue>();
 		//	
-		BigDecimal remainingCapital = (BigDecimal) account.get_Value("CapitalAmt");
 		for(MFMAmortization amortization : MFMAmortization.getFromAccount(account.getFM_Account_ID(), trxName)) {
-			AmortizationValue row = new LoanUtil().new AmortizationValue(amortization);
-			Timestamp calculationDate = runningDate;
-			if(row.isPaid()) {
+			if(amortization.isInvoiced()
+					|| amortization.isPaid()) {
 				continue;
 			}
+			AmortizationValue row = new LoanUtil().new AmortizationValue(amortization);
+			Timestamp calculationDate = runningDate;
 			//	Validate after
 			if(calculationDate.before(row.getStartDate())) {
 				continue;
@@ -495,18 +499,25 @@ public class LoanUtil {
 				calculationDate = row.getEndDate();
 			}
 			//	
-			BigDecimal dailyInterest = calculateDailyInterest(row.getDayOfMonth(calculationDate), interestRate);
+			int daysOfMonth = row.getDayOfMonth();
+			int daysToNow = row.getDayOfMonth(runningDate);
+			if(daysOfMonth == 0) {
+				continue;
+			}
+			//	For back months
+			if(daysToNow > daysOfMonth) {
+				daysToNow = daysOfMonth;
+			}
+			BigDecimal dailyInterest = amortization.getInterestAmt().divide(new BigDecimal(daysOfMonth), MathContext.DECIMAL128);
 			if(dailyInterest != null
 					&& !dailyInterest.equals(Env.ZERO)) {
-				dailyInterest = dailyInterest.divide(Env.ONE.add(taxRate), MathContext.DECIMAL128);
 				row.setDailyInterest(dailyInterest);
-				row.setInterestAmtFee(dailyInterest.multiply(remainingCapital));
+				row.setInterestAmtFee(dailyInterest.multiply(new BigDecimal(daysToNow)));
 				//	For Tax
 				if(taxRate != null) {
 					row.setTaxAmtFee(row.getInterestAmtFee().multiply(taxRate));
 				}
 			}
-			remainingCapital = remainingCapital.subtract(row.getCapitalAmtFee());
 			//	Add to list
 			amortizationList.add(row);
 		}

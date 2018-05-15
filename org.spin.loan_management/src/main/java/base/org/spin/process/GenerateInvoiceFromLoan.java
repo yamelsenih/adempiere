@@ -148,6 +148,7 @@ public class GenerateInvoiceFromLoan extends GenerateInvoiceFromLoanAbstract {
 			}
 			//	For Capital Amount
 			if(capitalAmt != null
+					&& !capitalAmt.equals(Env.ZERO)
 					&& product != null) {
 				//	Create Line
 				createLine(capitalAmt, product, 0, agreement, amortization);
@@ -161,12 +162,14 @@ public class GenerateInvoiceFromLoan extends GenerateInvoiceFromLoanAbstract {
 			}
 			//	For Interest
 			if(interestAmt != null
+					&& !interestAmt.equals(Env.ZERO)
 					&& chargeForInterestId != 0) {
 				//	Create Line
 				createLine(interestAmt, null, chargeForInterestId, agreement, amortization);
 			}
 			//	For Dunning
 			if(dunningAmt != null
+					&& !dunningAmt.equals(Env.ZERO)
 					&& chargeForDunningId != 0) {
 				//	Create Line
 				createLine(dunningAmt, null, chargeForDunningId, agreement, amortization);
