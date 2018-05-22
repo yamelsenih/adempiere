@@ -126,6 +126,8 @@ public class GridPanel extends Borderlayout implements EventListener
 	
 	private Center center;
 	
+	boolean newRecord; 
+	
 	public void setADTabPanel(IADTabPanel panel)
 	{
 		tabPanel = panel;
@@ -327,10 +329,12 @@ public class GridPanel extends Borderlayout implements EventListener
 				column.setLabel(gridField[i].getHeader());
 				
 				int displayLength = gridField[i].getPreferredWidthInListView() > 0 ? gridField[i].getPreferredWidthInListView() : gridField[i].getDisplayLength() * 9 ;
-
+				int l =displayLength ;
 				
-				int l = DisplayType.isNumeric(gridField[i].getDisplayType())
-					? 165 : displayLength ;
+				if(DisplayType.isNumeric(gridField[i].getDisplayType()))
+					l = 165;
+				else if(DisplayType.isDate(gridField[i].getDisplayType()))
+					l = 135;
 				
 				if (gridField[i].getHeader().length() * 9 > l)
 					l = gridField[i].getHeader().length() * 9;
@@ -413,7 +417,8 @@ public class GridPanel extends Borderlayout implements EventListener
 			listbox.appendChild(new Rows());
 		listbox.setRowRenderer(renderer);
 		listbox.setModel(listModel);
-		if(gridTab.getRowCount() == 0)
+		
+		if(gridTab.isQuickEntry() && gridTab.getRowCount() == 0)
 			onNew();
 
 	}
@@ -444,7 +449,9 @@ public class GridPanel extends Borderlayout implements EventListener
 		}
 		else if (Events.ON_DOUBLE_CLICK.equals(event.getName())) {
 			
-				renderer.editCurrentCol(true);
+			renderer.editCurrentCol(true);
+			addKeyListener();
+
 		}
 		else if (Events.ON_CLICK.equals(event.getName()))
 		{
@@ -486,15 +493,18 @@ public class GridPanel extends Borderlayout implements EventListener
 				//click on selected row to enter edit mode
 				if (row != renderer.getCurrentRow()) {
 					changeRow=true;
+					if(dataSave(0)) {
+						renderer.editCurrentCol(true);
+						return;
+					}
 					if(renderer.getCurrentDiv() != null) {
-						renderer.getCurrentDiv().setFocus(false);
 						renderer.stopColEditing(true);
 					}
 					int index = listbox.getRows().getChildren().indexOf(row);
-					renderer.setCurrentRow(row);
+//					renderer.setCurrentRow(row);
 					renderer.setCurrentCell(index);
 					if (index >= 0 ) {
-						onSelectedRowChange(index);
+//						onSelectedRowChange(index);
 					}
 				}
 			}
@@ -502,15 +512,14 @@ public class GridPanel extends Borderlayout implements EventListener
 				Col col = (Col)data;
 				
 				currentCol = (Integer)(col).getAttribute("columnNo");
-				gridTab.navigateCurrent();
+//				gridTab.navigateCurrent();
 				renderer.setCurrentColumn(currentCol);
-				listbox.setModel(listModel);
 			}
 				if(changeRow) {
+					
 					gridTab.dataIgnore();
-					refresh(gridTab);
 				}
-				updateListIndex();
+//				updateListIndex();
 				addKeyListener();
         }
 		else if (event.getName().equals(Events.ON_CTRL_KEY) && event.getTarget() == keyListener) {
@@ -643,7 +652,7 @@ public class GridPanel extends Borderlayout implements EventListener
 				}
 				else if (code == KeyEvent.UP && !isCtrl && !isAlt && !isShift)
 				{
-					if(!dataSave(0) || !gridTab.isNew()) {
+					if(totalRow > 0 && !dataSave(0) || !gridTab.isNew()) {
 						row -= 1;
 						if(row >= 0) {
 							gridTab.navigateRelative(-1);
@@ -737,14 +746,13 @@ public class GridPanel extends Borderlayout implements EventListener
 					setFocusToField(columnOnClick);
 					columnOnClick = null;
 				} else {
-					renderer.setFocusToEditor();
+//					renderer.setFocusToEditor();
 				}
 			} else {
 				focusToRow(row);
 			}
 		}
 		if(gridTab.isNew() || lastKeyEvent == KEYBOARD_KEY_RETURN) {
-			System.out.println("pasa");
 			renderer.setCurrentColumn(0); 
 			if(renderer.isEditing())
 				renderer.stopColEditing(true);
@@ -898,7 +906,7 @@ public class GridPanel extends Borderlayout implements EventListener
 
 	@Override
 	public void focus() {
-		refresh(gridTab); 
+//		refresh(gridTab); 
 		if (renderer != null && renderer.isEditing()) {
 			renderer.setFocusToEditor();
 			removeKeyListener();
@@ -964,6 +972,7 @@ public class GridPanel extends Borderlayout implements EventListener
 		isSave = gridTab.needSave(true, true);
 		if(!gridTab.isNew()) {
 			updateToolbar(true);
+			newRecord = false;
 		}
 		return isSave;
 	}
@@ -1013,21 +1022,16 @@ public class GridPanel extends Borderlayout implements EventListener
 	} // createListbox
 	
 	private void onNew() {
-		
-        boolean newRecord = gridTab.dataNew(false);
-        if (newRecord)
-        {
-        	updateToolbar(false);
-			updateListIndex();
-			refresh(gridTab);
-			renderer.setCurrentColumn(0);
-			renderer.editCurrentCol(true);
-        }
-        else
-        {
-//            log.severe("Could not create new record");
-        }
-        
+		if(renderer.getTotalColumns() != -1) {
+			newRecord = gridTab.dataNew(false);
+	        if (newRecord)
+	        {
+	        	updateToolbar(false);
+				updateListIndex();
+				renderer.setCurrentColumn(0);
+				renderer.editCurrentCol(true);
+	        }
+		}
 	}
 	
 	public Keylistener getKeyListener() {
@@ -1039,12 +1043,14 @@ public class GridPanel extends Borderlayout implements EventListener
 			gridTab.dataIgnore();
 			gridTab.dataRefresh();
 			updateToolbar(true);
+			newRecord = false;
 		}
 	
 	}
 	
 	private void updateToolbar(boolean enabled) {
-		windowPanel.getToolbar().getCurrentPanel().dynamicDisplay(0);
+		if(windowPanel.getToolbar().getCurrentPanel() != null)
+			windowPanel.getToolbar().getCurrentPanel().dynamicDisplay(0);
     	windowPanel.getToolbar().enableChanges(enabled);
     	windowPanel.getToolbar().enableDelete(enabled);
     	windowPanel.getToolbar().enableDeleteSelection(enabled);

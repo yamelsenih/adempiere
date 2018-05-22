@@ -64,7 +64,7 @@ import org.zkoss.zul.RowRendererExt;
  */
 public class GridTabRowRenderer implements RowRenderer, RowRendererExt, RendererCtrl, EventListener {
 
-//	private static final String CURRENT_ROW_STYLE = "border-top: 2px solid #1f9bde; border-bottom: 2px solid #1f9bde";
+	private static final String CURRENT_ROW_STYLE = "border-top: 2px solid #1f9bde; border-bottom: 2px solid #1f9bde";
 	private static final int MAX_TEXT_LENGTH = 60;
 	private GridTab gridTab;
 	private int windowNo;
@@ -311,7 +311,7 @@ public class GridTabRowRenderer implements RowRenderer, RowRendererExt, Renderer
 			component.setVisible(true);
 			entry.setVisible(false);
 			
-			currentDiv.setFocus(true);
+//			currentDiv.setFocus(true);
 		}
 		
 
@@ -344,7 +344,6 @@ public class GridTabRowRenderer implements RowRenderer, RowRendererExt, Renderer
 		currentValues = (Object[])data;
 		
 		int columnCount = gridTab.getTableModel().getColumnCount();
-		totalColumns=columnCount;
 		int rowIndex = row.getParent().getChildren().indexOf(row);
 		if (paging != null && paging.getPageSize() > 0) {
 			rowIndex = (paging.getActivePage() * paging.getPageSize()) + rowIndex;
@@ -407,7 +406,11 @@ public class GridTabRowRenderer implements RowRenderer, RowRendererExt, Renderer
 	 * @param row
 	 */
 	public void setCurrentRow(Row row) {
+//		if(isEditing() && currentRowIndex > 1 )
+//			stopColEditing(true);
+		
 		currentRow = row;
+
 		if (currentRowIndex != gridTab.getCurrentRow()) {
 			currentRowIndex = gridTab.getCurrentRow();
 		}
@@ -432,7 +435,8 @@ public class GridTabRowRenderer implements RowRenderer, RowRendererExt, Renderer
 	 * Enter edit mode
 	 */
 	public boolean editCurrentCol(boolean showEditor) {
-		if (grid != null && grid.isVisible() && grid.getParent() != null && grid.getParent().isVisible()) {
+		if (grid != null && grid.isVisible() && grid.getParent() != null 
+				&& grid.getParent().isVisible() && totalColumns > 0) {
 
 			int colIndex = (Integer)currentDiv.getAttribute("columnNo");
 			String colName = (String)currentDiv.getAttribute("columnName");
@@ -661,10 +665,17 @@ public class GridTabRowRenderer implements RowRenderer, RowRendererExt, Renderer
 	 * @return
 	 */
 	public boolean setCurrentColumn(int col) {
-		int pgIndex = currentRowIndex >= 0 ? currentRowIndex % paging.getPageSize() : 0;
+		int pgIndex;
+		if(paging != null)
+			pgIndex = currentRowIndex >= 0 ? currentRowIndex % paging.getPageSize() : 0;
+		else
+			pgIndex = currentRowIndex;
 		if(grid != null) {
 			org.zkoss.zul.Row row = (org.zkoss.zul.Row) grid.getRows().getChildren().get(pgIndex);
+			currentRow.setStyle("");
 			currentRow = row;
+			if(!gridTab.isQuickEntry())
+				currentRow.setStyle(CURRENT_ROW_STYLE);
 		}
 		if(isEditing() && currentRowIndex > 1 )
 			stopColEditing(true);
@@ -749,6 +760,9 @@ public class GridTabRowRenderer implements RowRenderer, RowRendererExt, Renderer
 			return false;
 	}
 	
+	public int getTotalColumns() {
+		return totalColumns;
+	}
 	@Override
 	public void onEvent(Event e) throws Exception {
 
