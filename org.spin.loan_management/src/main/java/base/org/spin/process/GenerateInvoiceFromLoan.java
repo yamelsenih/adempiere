@@ -43,14 +43,16 @@ import org.spin.model.MFMRate;
  *  @version Release 3.9.0
  */
 public class GenerateInvoiceFromLoan extends GenerateInvoiceFromLoanAbstract {
-	
 	/**	Invoice list to be completed	*/
 	private List<MInvoice> invoiceList = new ArrayList<MInvoice>();
 	/**	Current Invoice	*/
 	private MInvoice invoice;
+	/**	Precision	*/
+	private int precision;
 	
 	@Override
 	protected String doIt() throws Exception {
+		precision = MCurrency.getStdPrecision(getCtx(), Env.getContextAsInt(getCtx(), "#C_Currency_ID"));
 		//	Get keys from Smart Browse
 		int chargeForInterestId = 0;
 		int chargeForDunningId = 0;
@@ -58,12 +60,14 @@ public class GenerateInvoiceFromLoan extends GenerateInvoiceFromLoanAbstract {
 		MFMAgreement agreement = null;
 		MBPartner businessPartner = null;
 		MProduct product = null;
+		MFMProduct financialProduct = null;
 		MFMAmortization lastAmortization = null;
 		for(int amortizationId : getSelectionKeys()) {
 			MFMAmortization amortization = new MFMAmortization(getCtx(), amortizationId, get_TrxName());
 			BigDecimal capitalAmt = getSelectionAsBigDecimal(amortizationId, "LA_CapitalAmt");
 			BigDecimal interestAmt = getSelectionAsBigDecimal(amortizationId, "LA_InterestAmt");
 			BigDecimal dunningAmt = getSelectionAsBigDecimal(amortizationId, "LA_CurrentDunningAmt");
+			boolean isDue = getSelectionAsBoolean(amortizationId, "LA_IsDue");
 			//	Create Invoice
 			if(isSplitInvoices() 
 					|| invoice == null) {
@@ -75,7 +79,7 @@ public class GenerateInvoiceFromLoan extends GenerateInvoiceFromLoanAbstract {
 					agreement = (MFMAgreement) account.getFM_Agreement();
 					lastAmortization = MFMAmortization.getLastAmortizationFromAccount(account.getFM_Account_ID(), get_TrxName());
 					//	Get Financial Product for configuration
-					MFMProduct financialProduct = MFMProduct.getById(getCtx(), agreement.getFM_Product_ID());
+					financialProduct = MFMProduct.getById(getCtx(), agreement.getFM_Product_ID());
 					product = MProduct.get(getCtx(), financialProduct.getM_Product_ID());
 					businessPartner = MBPartner.get(getCtx(), agreement.getC_BPartner_ID());
 					int rateForInterestId = financialProduct.get_ValueAsInt("FM_Rate_ID");
@@ -147,9 +151,7 @@ public class GenerateInvoiceFromLoan extends GenerateInvoiceFromLoanAbstract {
 				invoiceList.add(invoice);
 			}
 			//	For Capital Amount
-			if(capitalAmt != null
-					&& !capitalAmt.equals(Env.ZERO)
-					&& product != null) {
+			if(product != null) {
 				//	Create Line
 				createLine(capitalAmt, product, 0, agreement, amortization);
 				//	Add Description from Quote
@@ -161,16 +163,26 @@ public class GenerateInvoiceFromLoan extends GenerateInvoiceFromLoanAbstract {
 				invoice.setDescription(description);
 			}
 			//	For Interest
-			if(interestAmt != null
-					&& !interestAmt.equals(Env.ZERO)
-					&& chargeForInterestId != 0) {
+			if(chargeForInterestId != 0) {
+				//	For not due fees
+				if(!isDue) {
+					int prepayFeeRateId = financialProduct.get_ValueAsInt("PrepayFeeRate_ID");
+					if(prepayFeeRateId > 0) {
+						MFMRate rateToApply = MFMRate.getById(getCtx(), prepayFeeRateId);
+						if(rateToApply != null) {
+							BigDecimal rateVersion = rateToApply.getValidRate(getDateInvoiced());
+							if(rateVersion != null) {
+								interestAmt = interestAmt.multiply(rateVersion);
+								interestAmt = interestAmt.divide(Env.ONEHUNDRED);
+							}
+						}
+					}
+				}
 				//	Create Line
 				createLine(interestAmt, null, chargeForInterestId, agreement, amortization);
 			}
 			//	For Dunning
-			if(dunningAmt != null
-					&& !dunningAmt.equals(Env.ZERO)
-					&& chargeForDunningId != 0) {
+			if(chargeForDunningId != 0) {
 				//	Create Line
 				createLine(dunningAmt, null, chargeForDunningId, agreement, amortization);
 			}
@@ -207,6 +219,11 @@ public class GenerateInvoiceFromLoan extends GenerateInvoiceFromLoanAbstract {
 	 * @param amortization
 	 */
 	private void createLine(BigDecimal amount, MProduct product, int chargeId, MFMAgreement loan, MFMAmortization amortization) {
+		//	Validate Amount
+		if(amount == null
+				|| amount.equals(Env.ZERO)) {
+			return;
+		}
 		//	Set values for line
 		MInvoiceLine invoiceLine = new MInvoiceLine(invoice);
 		if(product != null) {
@@ -215,6 +232,9 @@ public class GenerateInvoiceFromLoan extends GenerateInvoiceFromLoanAbstract {
 			invoiceLine.setC_Charge_ID(chargeId);
 		}
 		invoiceLine.setQty(Env.ONE);
+		if(precision > 0) {
+			amount.setScale(precision, BigDecimal.ROUND_HALF_UP);
+		}
 		invoiceLine.setPrice(amount);
 		invoiceLine.setDescription(
 				Msg.parseTranslation(Env.getCtx(), 
