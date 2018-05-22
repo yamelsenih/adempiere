@@ -213,13 +213,12 @@ public class WQuickEntrySheet extends Window implements EventListener, DataStatu
 		 }
 			if (event.getTarget() == selSouthPanel.getButton(ConfirmPanel.A_OK) || dispose)
 			{
-				dispose();
+				super.dispose();
 			}
 			else if (event.getTarget() == selSouthPanel.getButton(ConfirmPanel.A_CANCEL) 
 					|| isIgnore )
 			{
-				onIgnore();
-				dispose();
+				super.dispose();
 			}
 			else if (event.getTarget() == selSouthPanel.getButton(ConfirmPanel.A_SAVE))
 			{
@@ -259,9 +258,7 @@ public class WQuickEntrySheet extends Window implements EventListener, DataStatu
 				{
 					statusBar.setStatusLine(Msg.getMsg(Env.getCtx(), msg), true, true);
 				}
-	        }  else {
-	    		gridTab.dataRefreshAll();		        	
-	        }
+	        }  
 		}
 		abstractADWindowPanel.getToolbar().getCurrentPanel().afterSave(true);
 		save = gridTab.needSave(true, true);
@@ -275,7 +272,6 @@ public class WQuickEntrySheet extends Window implements EventListener, DataStatu
 
 	private void onRefresh()
 	{
-		gridTab.dataRefreshAll();
 		gridPanel.updateListIndex();
 	}
 
@@ -285,8 +281,6 @@ public class WQuickEntrySheet extends Window implements EventListener, DataStatu
 			trx.rollback();
 //		gridPanel.setStatusLine("Changes rolled back", false, true);
 		gridTab.dataIgnore();
-		gridTab.dataRefreshAll();
-//		gridPanel.isNewLineSaved = true;
 		if (gridTab.getRowCount() <= 0)
 			gridPanel.createNewLine();
 		gridPanel.addKeyListener();
@@ -300,7 +294,7 @@ public class WQuickEntrySheet extends Window implements EventListener, DataStatu
 		if (gridTab == null)
 			return;
 
-		if (gridTab.getCurrentRow() >0)
+		if (gridTab.getCurrentRow() >= 0)
 		{
 		
 			boolean istrue = FDialog.ask(gridTab.getWindowNo(), null, "DeleteRecord?");
@@ -325,7 +319,6 @@ public class WQuickEntrySheet extends Window implements EventListener, DataStatu
 	{
 		onIgnore();
 		
-
 		gridTab.setQuickEntry(false);
 		formGridTab.setQuickEntry(false);
 		gridTab.removeDataStatusListener(this);
@@ -352,7 +345,7 @@ public class WQuickEntrySheet extends Window implements EventListener, DataStatu
 //			abstractADWindowPanel.onParentRecord();
 //		}
 //		abstractADWindowPanel.onRefreshFromQuickForm();
-		super.dispose();
+		
 	}
 
 	@Override

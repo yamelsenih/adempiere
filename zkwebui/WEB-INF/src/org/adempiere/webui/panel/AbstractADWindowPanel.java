@@ -1235,7 +1235,7 @@ public abstract class AbstractADWindowPanel extends AbstractUIPart implements To
     {
     		
     	//ignore non-ui thread event for now.
-    	if (Executions.getCurrent() == null || curTabPanel.getGlobalToolbar() == null)
+    	if (Executions.getCurrent() == null || curTabPanel == null ||  curTabPanel.getGlobalToolbar() == null)
     		return;
     	CWindowToolbar toolbar = curTabPanel.getGlobalToolbar();
     	
@@ -2461,13 +2461,47 @@ public abstract class AbstractADWindowPanel extends AbstractUIPart implements To
 	public void onQuickEntry() {
 		logger.log(Level.FINE, "Invoke Quick Entry Form");
 		ADTabPanel tabPanel = (ADTabPanel) getADTab().getSelectedTabpanel();
-//		if (!SessionManager.registerQuickGrid(tabPanel.getGridTab().getAD_Tab_ID())) {
-//			logger.fine("TabID=" + tabPanel.getGridTab().getAD_Tab_ID() + "  is already opened.");
-//			return;
-//		}
-		
 		GridTab currentGrid = tabPanel.getGridTab();
-		MQuery query = tabPanel.getGridTab().getQuery();
+			m_popup = new Menupopup();
+
+			Menuitem m_open = new Menuitem(Msg.translate(Env.getCtx(), "AllRecords"));
+			m_popup.appendChild(m_open);
+			
+			
+			m_open.addEventListener(Events.ON_CLICK, new EventListener()
+			{
+				public void onEvent(Event event) throws Exception
+				{
+					MQuery query = tabPanel.getGridTab().getQuery();
+					showQuickGridPanel(query, tabPanel, currentGrid);
+				}
+			});
+
+			Menuitem newRecord = new Menuitem(Msg.translate(Env.getCtx(), "NewRecord"));
+			m_popup.appendChild(newRecord);
+			newRecord.addEventListener(Events.ON_CLICK, new EventListener()
+			{
+				public void onEvent(Event event) throws Exception
+				{
+					MQuery query = tabPanel.getGridTab().getQuery().getNoRecordQuery(currentGrid.get_TableName(), true);
+					showQuickGridPanel(query, tabPanel, currentGrid);
+				}
+			});
+
+			m_popup.setPage(toolbar.getButton("QuickEntry").getPage());
+		
+		m_popup.open(toolbar.getButton("QuickEntry"));
+	
+////		if (!SessionManager.registerQuickGrid(tabPanel.getGridTab().getAD_Tab_ID())) {
+////			logger.fine("TabID=" + tabPanel.getGridTab().getAD_Tab_ID() + "  is already opened.");
+////			return;
+////		}
+//		
+		
+		
+	}
+	
+	private void showQuickGridPanel(MQuery query, ADTabPanel tabPanel, GridTab currentGrid) {
 		GridTab quickGridTab = new GridTab(tabPanel.getGridTab().getM_vo(), gridWindow);
 		quickGridTab.setLinkColumnName(tabPanel.getGridTab().getLinkColumnName());
 		quickGridTab.query(false);
@@ -2487,7 +2521,7 @@ public abstract class AbstractADWindowPanel extends AbstractUIPart implements To
 		form.setSizable(true);
 
 		AEnv.showCenterScreen(form);
-
+		form.dispose();
 		adTab.getSelectedTabpanel().getListPanel().addKeyListener();
 		if(isChangeView) {
 			curTabPanel.switchRowPresentation();
