@@ -222,7 +222,8 @@ public class LoanManagementModelValidator implements ModelValidator {
 				List<Object> params = new ArrayList<>();
 				params.add(agreement.getC_BPartner_ID());
 				ValueNamePair[] pairs = DB.getValueNamePairs(sql, false, params);
-				if(pairs != null) {
+				if(pairs != null
+						&& pairs.length > 0) {
 					StringBuffer resultToShow = new StringBuffer(Msg.getMsg(agreement.getCtx(), "Loan.DunningBalanceOpen"));
 					String loanMsg = Msg.getMsg(agreement.getCtx(), "Loan");
 					for(ValueNamePair pair : pairs) {
