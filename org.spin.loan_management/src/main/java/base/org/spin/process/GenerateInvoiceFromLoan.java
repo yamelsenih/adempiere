@@ -177,6 +177,8 @@ public class GenerateInvoiceFromLoan extends GenerateInvoiceFromLoanAbstract {
 								interestAmt = interestAmt.divide(Env.ONEHUNDRED);
 							}
 						}
+					} else {
+						interestAmt = Env.ZERO;
 					}
 				}
 				//	Create Line
