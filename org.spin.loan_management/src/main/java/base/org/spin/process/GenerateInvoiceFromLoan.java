@@ -165,7 +165,8 @@ public class GenerateInvoiceFromLoan extends GenerateInvoiceFromLoanAbstract {
 			//	For Interest
 			if(chargeForInterestId != 0) {
 				//	For not due fees
-				if(!isDue) {
+				if(!isDue
+						&& amortization.getStartDate().after(getDateInvoiced())) {
 					int prepayFeeRateId = financialProduct.get_ValueAsInt("PrepayFeeRate_ID");
 					if(prepayFeeRateId > 0) {
 						MFMRate rateToApply = MFMRate.getById(getCtx(), prepayFeeRateId);

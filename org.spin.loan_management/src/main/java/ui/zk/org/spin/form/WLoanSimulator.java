@@ -57,7 +57,7 @@ import org.compiere.util.Trx;
 import org.compiere.util.TrxRunnable;
 import org.spin.model.MFMProduct;
 import org.spin.model.MFMRate;
-import org.spin.util.LoanUtil.AmortizationValue;
+import org.spin.util.AmortizationValue;
 import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.event.EventListener;
 import org.zkoss.zk.ui.event.Events;

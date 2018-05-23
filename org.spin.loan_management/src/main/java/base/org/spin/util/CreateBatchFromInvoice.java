@@ -24,11 +24,13 @@ import org.adempiere.exceptions.AdempiereException;
 import org.compiere.model.MDocType;
 import org.compiere.model.MInvoice;
 import org.compiere.model.MInvoiceLine;
+import org.compiere.model.MTax;
 import org.compiere.model.Query;
 import org.compiere.util.Env;
 import org.spin.model.I_FM_Batch;
 import org.spin.model.MFMAccount;
 import org.spin.model.MFMAgreement;
+import org.spin.model.MFMAmortization;
 import org.spin.model.MFMBatch;
 import org.spin.model.MFMDunning;
 import org.spin.model.MFMFunctionalSetting;
@@ -157,8 +159,31 @@ public class CreateBatchFromInvoice extends AbstractFunctionalSetting {
     				transaction = batch.addTransaction(capitalType.getFM_TransactionType_ID(), line.getLineNetAmt().multiply(multiplier));
     			} else if(line.getC_Charge_ID() != 0
     					&& line.getC_Charge_ID() == interestChargeId) {	//	Interest
-    				transaction = batch.addTransaction(interetType.getFM_TransactionType_ID(), line.getLineNetAmt().multiply(multiplier));
-    				transactionTax = batch.addTransaction(interestTaxType.getFM_TransactionType_ID(), line.getTaxAmt().multiply(multiplier));
+    				int amortizationId = line.get_ValueAsInt("FM_Amortization_ID");
+    				if(amortizationId > 0) {
+    					MFMAmortization amortization = new MFMAmortization(getCtx(), amortizationId, invoice.get_TrxName());
+    					if(amortization.getEndDate().after(invoice.getDateInvoiced())
+    							&& amortization.getStartDate().getTime() <= invoice.getDateInvoiced().getTime()) {
+    						BigDecimal currentInterest = LoanUtil.getCurrentLoanInterest(new AmortizationValue(amortization), invoice.getDateInvoiced());
+    						if(currentInterest != null
+    								&& !currentInterest.equals(Env.ZERO)) {
+    							transaction = batch.addTransaction(interetType.getFM_TransactionType_ID(), currentInterest.multiply(multiplier));
+    							MTax tax = (MTax) line.getC_Tax();
+    							//	Calculate rate for fee (Year Interest + (Tax Rate * Year Interest))
+    							BigDecimal taxRate = tax.getRate().divide(Env.ONEHUNDRED);
+    							if(!taxRate.equals(Env.ZERO)) {
+    								transactionTax = batch.addTransaction(interestTaxType.getFM_TransactionType_ID(), 
+    										currentInterest.multiply(taxRate).multiply(multiplier));
+    							}
+    						}
+    					} else if(amortization.getEndDate().getTime() <= invoice.getDateInvoiced().getTime()) {
+    						transaction = batch.addTransaction(interetType.getFM_TransactionType_ID(), line.getLineNetAmt().multiply(multiplier));
+            				transactionTax = batch.addTransaction(interestTaxType.getFM_TransactionType_ID(), line.getTaxAmt().multiply(multiplier));
+    					}
+    				} else {
+    					transaction = batch.addTransaction(interetType.getFM_TransactionType_ID(), line.getLineNetAmt().multiply(multiplier));
+        				transactionTax = batch.addTransaction(interestTaxType.getFM_TransactionType_ID(), line.getTaxAmt().multiply(multiplier));
+    				}
     			} else if(line.getC_Charge_ID() != 0
     					&& line.getC_Charge_ID() == dunningChargeId) {	//	Dunning
     				transaction = batch.addTransaction(dunningType.getFM_TransactionType_ID(), line.getLineNetAmt().multiply(multiplier));
