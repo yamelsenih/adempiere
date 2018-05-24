@@ -2473,7 +2473,7 @@ public abstract class AbstractADWindowPanel extends AbstractUIPart implements To
 				public void onEvent(Event event) throws Exception
 				{
 					MQuery query = tabPanel.getGridTab().getQuery();
-					showQuickGridPanel(query, tabPanel, currentGrid);
+					showQuickGridPanel(query, tabPanel, currentGrid, false);
 				}
 			});
 
@@ -2484,7 +2484,7 @@ public abstract class AbstractADWindowPanel extends AbstractUIPart implements To
 				public void onEvent(Event event) throws Exception
 				{
 					MQuery query = tabPanel.getGridTab().getQuery().getNoRecordQuery(currentGrid.get_TableName(), true);
-					showQuickGridPanel(query, tabPanel, currentGrid);
+					showQuickGridPanel(query, tabPanel, currentGrid, true);
 				}
 			});
 
@@ -2501,7 +2501,7 @@ public abstract class AbstractADWindowPanel extends AbstractUIPart implements To
 		
 	}
 	
-	private void showQuickGridPanel(MQuery query, ADTabPanel tabPanel, GridTab currentGrid) {
+	private void showQuickGridPanel(MQuery query, ADTabPanel tabPanel, GridTab currentGrid, boolean isAutoNew) {
 		GridTab quickGridTab = new GridTab(tabPanel.getGridTab().getM_vo(), gridWindow);
 		quickGridTab.setLinkColumnName(tabPanel.getGridTab().getLinkColumnName());
 		quickGridTab.query(false);
@@ -2519,7 +2519,8 @@ public abstract class AbstractADWindowPanel extends AbstractUIPart implements To
 		WQuickEntrySheet form = new WQuickEntrySheet(curTabPanel.getListPanel(), quickGridTab, tabPanel, this, m_onlyCurrentDays, m_onlyCurrentRows);
 		form.setPosition("center");
 		form.setSizable(true);
-
+		if(isAutoNew)
+			curTabPanel.getListPanel().createNewLine();
 		AEnv.showCenterScreen(form);
 		form.dispose();
 		adTab.getSelectedTabpanel().getListPanel().addKeyListener();

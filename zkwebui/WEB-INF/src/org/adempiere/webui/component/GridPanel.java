@@ -126,8 +126,6 @@ public class GridPanel extends Borderlayout implements EventListener
 	
 	private Center center;
 	
-	boolean newRecord; 
-	
 	public void setADTabPanel(IADTabPanel panel)
 	{
 		tabPanel = panel;
@@ -589,6 +587,8 @@ public class GridPanel extends Borderlayout implements EventListener
 				// save data if row changes is made.
 				if (code == KeyEvent.RIGHT || code == KeyEvent.LEFT || code == KeyEvent.DOWN || code == KeyEvent.UP || 
 						code == KeyEvent.HOME || code == KeyEvent.END) {
+					if(totalRow <= 0 )
+						return;
 					if (renderer.isEditing())
 						renderer.stopColEditing(true);
 					ArrayList<Integer> i = gridTab.getMTable().getRowChanged();
@@ -630,8 +630,10 @@ public class GridPanel extends Borderlayout implements EventListener
 						if(row < 0 || gridTab.getCurrentRow()< 0) {
 							renderer.setGrid(listbox);
 							renderer.setCurrentCell(0);
-						} else
+						} else {
+							renderer.stopColEditing(true);
 							renderer.setCurrentColumn(currentCol-1);
+						}
 						
 						addKeyListener();
 					}
@@ -972,7 +974,6 @@ public class GridPanel extends Borderlayout implements EventListener
 		isSave = gridTab.needSave(true, true);
 		if(!gridTab.isNew()) {
 			updateToolbar(true);
-			newRecord = false;
 		}
 		return isSave;
 	}
@@ -1023,7 +1024,7 @@ public class GridPanel extends Borderlayout implements EventListener
 	
 	private void onNew() {
 		if(renderer.getTotalColumns() != -1) {
-			newRecord = gridTab.dataNew(false);
+			boolean newRecord = gridTab.dataNew(false);
 	        if (newRecord)
 	        {
 	        	updateToolbar(false);
@@ -1043,7 +1044,6 @@ public class GridPanel extends Borderlayout implements EventListener
 			gridTab.dataIgnore();
 			gridTab.dataRefresh();
 			updateToolbar(true);
-			newRecord = false;
 		}
 	
 	}
