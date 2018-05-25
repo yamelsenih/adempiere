@@ -27,6 +27,7 @@ import org.compiere.model.MAcctSchema;
 import org.compiere.model.Query;
 import org.compiere.util.Env;
 import org.spin.model.I_FM_Transaction;
+import org.spin.model.MFMAccount;
 import org.spin.model.MFMAgreement;
 import org.spin.model.MFMBatch;
 import org.spin.model.MFMTransaction;
@@ -45,6 +46,8 @@ import org.spin.model.X_FM_TransactionType_Acct;
 public class   Doc_FMBatch extends Doc {
 	/**	Batch	*/
 	private MFMBatch batch = null;
+	/**	Account	*/
+	private MFMAccount account = null;
 	/**	Agreement	*/
 	private MFMAgreement agreement = null;
 	/** Batch **/
@@ -62,7 +65,8 @@ public class   Doc_FMBatch extends Doc {
 	@Override
 	protected String loadDocumentDetails () {
 		batch = (MFMBatch)getPO();
-		agreement = (MFMAgreement) batch.getFM_Account().getFM_Agreement();
+		account = (MFMAccount) batch.getFM_Account();
+		agreement = (MFMAgreement) account.getFM_Agreement();
 		setDateDoc(getDateAcct());
 		//	Contained Objects
 		p_lines = loadLines(batch);
@@ -127,17 +131,17 @@ public class   Doc_FMBatch extends Doc {
 			if (!agreement.isSOTrx()) {
 				//	DR
 				MAccount accountBPD = MAccount.get (getCtx(), transactionTypeAcct.getFM_Expense_Acct());
-				fact.createLine(line, accountBPD, as.getC_Currency_ID(),sumAmount, null);
+				fact.createLine(line, accountBPD, account.getC_Currency_ID(), sumAmount, null);
 				//	CR
 				MAccount accountBPC = MAccount.get (getCtx(), transactionTypeAcct.getFM_Revenue_Acct());
-				fact.createLine(line,accountBPC, as.getC_Currency_ID(),null,sumAmount);
+				fact.createLine(line,accountBPC, account.getC_Currency_ID(),null, sumAmount);
 			} else {
 				//	DR
 				MAccount accountBPD = MAccount.get (getCtx(), transactionTypeAcct.getFM_Expense_Acct());
-				fact.createLine(line, accountBPD, as.getC_Currency_ID(),sumAmount, null);
+				fact.createLine(line, accountBPD, account.getC_Currency_ID(), sumAmount, null);
 				//	CR
 				MAccount accountBPC = MAccount.get (getCtx(), transactionTypeAcct.getFM_Revenue_Acct());
-				fact.createLine(line,accountBPC, as.getC_Currency_ID(),null,sumAmount);
+				fact.createLine(line,accountBPC, account.getC_Currency_ID(),null, sumAmount);
 			}
 		}
 		ArrayList<Fact> facts = new ArrayList<Fact>();
