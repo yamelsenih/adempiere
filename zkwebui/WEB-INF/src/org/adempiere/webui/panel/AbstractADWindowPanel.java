@@ -1099,7 +1099,7 @@ public abstract class AbstractADWindowPanel extends AbstractUIPart implements To
 		if (oldTabPanel != null) {
 			oldTabPanel.activate(false); 
 			if(oldTabPanel.getListPanel() != null) {
-				oldTabPanel.getListPanel().removeKeyListener();
+				oldTabPanel.getListPanel().addKeyListener();
 			}
 		}
 		newTabPanel.activate(true);
@@ -1296,7 +1296,7 @@ public abstract class AbstractADWindowPanel extends AbstractUIPart implements To
         //  Confirm Warning
         else if (e.isWarning() && !e.isConfirmed())
         {
-        	((ADTabPanel)toolbar.getCurrentPanel()).getListPanel().removeKeyListener();
+        	((ADTabPanel)toolbar.getCurrentPanel()).getListPanel().addKeyListener();
         	FDialog.warn(curWindowNo, null, e.getAD_Message(), e.getInfo());
         	
         	e.setConfirmed(true);   //  show just once - if MTable.setCurrentRow is involved the status event is re-issued
@@ -2039,7 +2039,7 @@ public abstract class AbstractADWindowPanel extends AbstractUIPart implements To
 			FDialog.error(curWindowNo, parent, "SaveErrorRowNotFound");
 			return;
 		}
-		((ADTabPanel)toolbar.getCurrentPanel()).getListPanel().removeKeyListener();
+		((ADTabPanel)toolbar.getCurrentPanel()).getListPanel().addKeyListener();
 		boolean isProcessMandatory = false;
 		MProcess process = null;
 		if(wButton.getProcess_ID() != 0) {
@@ -2507,7 +2507,7 @@ public abstract class AbstractADWindowPanel extends AbstractUIPart implements To
 		quickGridTab.query(false);
 		quickGridTab.setQuery(query);
 		quickGridTab.setQuickEntry(true);
-		curTabPanel.getListPanel().removeKeyListener();
+		curTabPanel.getListPanel().addKeyListener();
 		toolbar.enableHelp(false);
 		boolean isChangeView = false;
 		if(!((ADTabPanel)curTabPanel).isGridView()) {
@@ -2536,8 +2536,9 @@ public abstract class AbstractADWindowPanel extends AbstractUIPart implements To
 		curTabPanel.appendChild(curTabPanel.getListPanel());
 		curTabPanel.invalidate();
 		if(!((ADTabPanel)curTabPanel).isGridView()) {
-			curTabPanel.getListPanel().removeKeyListener();
+			curTabPanel.getListPanel().addKeyListener();
 		}
+		m_popup = null;
 		form.detach();
 		form=null;
 	}

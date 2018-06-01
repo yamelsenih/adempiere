@@ -2,7 +2,6 @@ package org.adempiere.webui.apps.form;
 
 
 import java.util.ArrayList;
-import java.util.Arrays;
 
 import org.adempiere.exceptions.AdempiereException;
 import org.adempiere.webui.component.Button;
@@ -324,7 +323,7 @@ public class WQuickEntrySheet extends Window implements EventListener, DataStatu
 		gridTab.removeDataStatusListener(this);
 		gridTab.removeDataStatusListener(tabPanel);
 		tabPanel.getGridTab().setQuickEntry(false);
-		gridPanel.removeKeyListener();
+		gridPanel.addKeyListener();
 		tabPanel.getListPanel().addKeyListener();
 		keyListener = null;
 		
@@ -395,7 +394,7 @@ public class WQuickEntrySheet extends Window implements EventListener, DataStatu
         //  Confirm Warning
         else if (e.isWarning() && !e.isConfirmed())
         {
-        	gridPanel.removeKeyListener();
+        	gridPanel.addKeyListener();
         	FDialog.warn(0, null, e.getAD_Message(), e.getInfo());
 
         	e.setConfirmed(true);   //  show just once - if MTable.setCurrentRow is involved the status event is re-issued
@@ -412,4 +411,5 @@ public class WQuickEntrySheet extends Window implements EventListener, DataStatu
 	public void updateToolbar(boolean enabled) {
     	bDelete.setEnabled(enabled);
 	}
+	
 }

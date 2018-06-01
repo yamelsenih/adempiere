@@ -20,7 +20,6 @@ import java.util.Map;
 import javax.swing.table.AbstractTableModel;
 
 import org.adempiere.webui.LayoutUtils;
-import org.adempiere.webui.editor.WDateEditor;
 import org.adempiere.webui.editor.WEditor;
 import org.adempiere.webui.panel.ADTabPanel;
 import org.adempiere.webui.panel.AbstractADWindowPanel;
@@ -51,7 +50,6 @@ import org.zkoss.zul.Column;
 import org.zkoss.zul.Div;
 import org.zkoss.zul.Paging;
 import org.zkoss.zul.Row;
-import org.zkoss.zul.Vbox;
 import org.zkoss.zul.event.ZulEvents;
 
 /**
@@ -79,9 +77,10 @@ public class GridPanel extends Borderlayout implements EventListener
 
 	private static final int KEYBOARD_KEY_S = 83;
 	private static final int KEYBOARD_KEY_RETURN = 13;
+	private static final int MOVE_SIZE = 7;
 
 	public static final String		CNTRL_KEYS				= "#f5#del^d^s#enter$#enter";
-	private static final String		KEYS_MOVE			= "#end#home#up#down#left#right";
+	private static final String		KEYS_MOVE			= "#pgup#pgdn#end#home#up#down#left#right";
 	
 	private int lastKeyEvent = 0;	
 
@@ -125,6 +124,8 @@ public class GridPanel extends Borderlayout implements EventListener
 	private int currentCol = 0;
 	
 	private Center center;
+	
+	private boolean isNewRecord;
 	
 	public void setADTabPanel(IADTabPanel panel)
 	{
@@ -432,7 +433,7 @@ public class GridPanel extends Borderlayout implements EventListener
 	public void onEvent(Event event) throws Exception
 	{
 		if (event == null || !((ADTabPanel)tabPanel).isGridView()) {
-			removeKeyListener();
+			addKeyListener();
 			return;
 		}
 			
@@ -508,7 +509,8 @@ public class GridPanel extends Borderlayout implements EventListener
 			}
 			if(data instanceof Col) {
 				Col col = (Col)data;
-				
+				if(renderer.isEditing())
+					renderer.stopColEditing(false);
 				currentCol = (Integer)(col).getAttribute("columnNo");
 //				gridTab.navigateCurrent();
 				renderer.setCurrentColumn(currentCol);
@@ -589,7 +591,8 @@ public class GridPanel extends Borderlayout implements EventListener
 						code == KeyEvent.HOME || code == KeyEvent.END) {
 					if(totalRow <= 0 )
 						return;
-					if (renderer.isEditing())
+					gridTab.dataSave(true);
+					if (renderer.isEditing() && !gridTab.needSave(true, true))
 						renderer.stopColEditing(true);
 					ArrayList<Integer> i = gridTab.getMTable().getRowChanged();
 					if (i.contains(row)) {
@@ -598,31 +601,8 @@ public class GridPanel extends Borderlayout implements EventListener
 					}
 				}
 
-				// if fire event on last row then it will create new record
-				// line.
 				if (code == KeyEvent.DOWN && !isCtrl && !isAlt && !isShift)	{
-					if(totalRow <= 0) {
-						onNew();
-						onPostSelectedRowChanged();
-					}
-					else if(((GridTable)tableModel).checkField(row)) {
-						row += 1;
-						if (row == totalRow)	{
-							if(gridTab.isQuickEntry() || !gridTab.isNew() || dataSave(0)) {
-								if(renderer.isLastColumn()) {
-									renderer.setCurrentColumn(0); 
-								}
-								onNew();
-							}
-							return;
-						}else {
-							if(!gridTab.isNew()) {
-								gridTab.navigateRelative(+1);
-								renderer.setCurrentCell(row);
-								renderer.setCurrentColumn(currentCol); 
-							}
-						}
-					}
+					setUpDownRow(1);
 				}
 				else if ((code == KEYBOARD_KEY_RETURN && isShift) || (code == KeyEvent.LEFT && !isCtrl && !isAlt && !isShift))
 				{
@@ -649,18 +629,11 @@ public class GridPanel extends Borderlayout implements EventListener
 						renderer.setCurrentCell(0);
 					} else
 						renderer.setCurrentColumn(currentCol+1);
-					
-//					listbox.setModel(listModel);
 				}
 				else if (code == KeyEvent.UP && !isCtrl && !isAlt && !isShift)
 				{
 					if(totalRow > 0 && !dataSave(0) || !gridTab.isNew()) {
-						row -= 1;
-						if(row >= 0) {
-							gridTab.navigateRelative(-1);
-							renderer.setCurrentCell(row);
-							renderer.setCurrentColumn(currentCol);
-						} 
+						setUpDownRow(-1);
 					}
 					return;
 				}
@@ -669,7 +642,15 @@ public class GridPanel extends Borderlayout implements EventListener
 					row = 0;
 					renderer.setCurrentCell(row);
 					renderer.setCurrentColumn(currentCol);
-				}				
+				}
+				else if (code == KeyEvent.PAGE_DOWN)
+				{
+					setUpDownRow(MOVE_SIZE);
+				}
+				else if (code == KeyEvent.PAGE_UP)
+				{
+					setUpDownRow(-MOVE_SIZE);
+				}		
 			}
 			
 		}
@@ -908,14 +889,10 @@ public class GridPanel extends Borderlayout implements EventListener
 
 	@Override
 	public void focus() {
-//		refresh(gridTab); 
 		if (renderer != null && renderer.isEditing()) {
 			renderer.setFocusToEditor();
-			removeKeyListener();
-		} else {
-			addKeyListener();
-		}
-		
+		} 
+		addKeyListener();
 	}
 
 	/**
@@ -974,6 +951,7 @@ public class GridPanel extends Borderlayout implements EventListener
 		isSave = gridTab.needSave(true, true);
 		if(!gridTab.isNew()) {
 			updateToolbar(true);
+			isNewRecord = false;
 		}
 		return isSave;
 	}
@@ -981,7 +959,7 @@ public class GridPanel extends Borderlayout implements EventListener
 
 	public void createNewLine()
 	{
-		gridTab.dataNew(false);
+		isNewRecord = gridTab.dataNew(false);
 	}
 	
 	/**
@@ -992,14 +970,10 @@ public class GridPanel extends Borderlayout implements EventListener
 		if (renderer != null)
 			renderer.setADWindowPanel(windowPanel);
 	}
-	public void removeKeyListener() {
-		if(keyListener != null) {
-			keyListener.setCtrlKeys("");
-			keyListener.removeEventListener(Events.ON_CTRL_KEY, this);
-			keyListener.invalidate();
-		}
-		
-	}
+
+	/**
+	 * 
+	 */
 	public void addKeyListener() {
 		if(renderer == null)
 			return;
@@ -1015,6 +989,7 @@ public class GridPanel extends Borderlayout implements EventListener
 		
 		keyListener.addEventListener(Events.ON_CTRL_KEY, this);
 	}
+	
 	protected void createListbox()
 	{
 		listbox = new Grid();
@@ -1024,13 +999,11 @@ public class GridPanel extends Borderlayout implements EventListener
 	
 	private void onNew() {
 		if(renderer.getTotalColumns() != -1) {
-			boolean newRecord = gridTab.dataNew(false);
-	        if (newRecord)
-	        {
+			isNewRecord = gridTab.dataNew(false);
+	        if (isNewRecord) {
 	        	updateToolbar(false);
 				updateListIndex();
-				renderer.setCurrentColumn(0);
-				renderer.editCurrentCol(true);
+				addKeyListener();
 	        }
 		}
 	}
@@ -1044,6 +1017,7 @@ public class GridPanel extends Borderlayout implements EventListener
 			gridTab.dataIgnore();
 			gridTab.dataRefresh();
 			updateToolbar(true);
+			isNewRecord = false;
 		}
 	
 	}
@@ -1061,4 +1035,51 @@ public class GridPanel extends Borderlayout implements EventListener
     
 	}
 	
+	private void setUpDownRow(int value) {
+		int row = renderer.getCurrentRowIndex();
+		int totalRow = gridTab.getRowCount();
+
+		if(totalRow <= 0) {
+			onNew();
+			onPostSelectedRowChanged();
+		}
+		else if(((GridTable)tableModel).checkField(row)) {
+			
+			// multiply by 2 to avoid last row
+			int verifyRow = row + (value * 2);
+			row += value;
+			if(row <= 0)
+				return;
+			else if(verifyRow < 0)
+				verifyRow = 0;
+			else if(verifyRow >= totalRow)
+				verifyRow = totalRow-1;
+			
+			// set next Row for scroll
+			org.zkoss.zul.Row r = (org.zkoss.zul.Row) listbox.getRows().getChildren().get(verifyRow);
+			
+			if(row >= totalRow) {
+				row = totalRow;
+				gridTab.navigate(totalRow-1);
+				renderer.setCurrentColumn(currentCol);
+			}
+			if (row == totalRow)	{
+				if(!isNewRecord && !dataSave(0)) {
+					if(renderer.isLastColumn()) {
+						renderer.setCurrentColumn(0); 
+					}
+					onNew();
+				}
+				return;
+			}
+			else {
+				if(!gridTab.isNew()) {
+					gridTab.navigateRelative(value);
+					renderer.setCurrentCell(row);
+					renderer.setCurrentColumn(currentCol);
+					Clients.scrollIntoView(r);
+				}
+			}
+		}
+	}
 }

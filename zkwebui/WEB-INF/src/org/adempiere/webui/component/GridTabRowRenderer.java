@@ -408,9 +408,9 @@ public class GridTabRowRenderer implements RowRenderer, RowRendererExt, Renderer
 	public void setCurrentRow(Row row) {
 //		if(isEditing() && currentRowIndex > 1 )
 //			stopColEditing(true);
-		
+		currentRow.setStyle("");
 		currentRow = row;
-
+		Clients.scrollIntoView(currentRow);
 		if (currentRowIndex != gridTab.getCurrentRow()) {
 			currentRowIndex = gridTab.getCurrentRow();
 		}
