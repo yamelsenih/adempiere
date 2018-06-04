@@ -1048,7 +1048,7 @@ public class GridPanel extends Borderlayout implements EventListener
 			// multiply by 2 to avoid last row
 			int verifyRow = row + (value * 2);
 			row += value;
-			if(row <= 0)
+			if(row < 0)
 				return;
 			else if(verifyRow < 0)
 				verifyRow = 0;
