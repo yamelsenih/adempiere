@@ -741,7 +741,9 @@ public class GridPanel extends Borderlayout implements EventListener
 				renderer.stopColEditing(true);
 			renderer.editCurrentCol(true);
 		}
-
+		
+		// Verify Key Listener
+		addKeyListener();
 	}
 
 	/**
