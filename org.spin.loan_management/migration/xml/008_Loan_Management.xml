@@ -2,120 +2,15 @@
 <Migrations>
   <Migration EntityType="D" Name="Generate Invoice from Amortization Quote #1599" ReleaseNo="3.9.1" SeqNo="8">
     <Comments>See: https://github.com/adempiere/adempiere/issues/1599</Comments>
-    <Step DBType="Oracle" Parse="N" SeqNo="0" StepType="SQL">
-      <Comments>Add View For Amortization</Comments>
-      <SQLStatement>-- View: RV_FM_LoanAmortization
--- DROP VIEW RV_FM_LoanAmortization;
-/******************************************************************************
- * Product: Adempiere ERP &amp; CRM Smart Business Solution                       *
- * This program is free software; you can redistribute it and/or modify it    *
- * under the terms version 2 of the GNU General Public License as published   *
- * by the Free Software Foundation. This program is distributed in the hope   *
- * that it will be useful, but WITHOUT ANY WARRANTY; without even the implied *
- * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.           *
- * See the GNU General Public License for more details.                       *
- * You should have received a copy of the GNU General Public License along    *
- * with this program; if not, write to the Free Software Foundation, Inc.,    *
- * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.                     *
- * For the text or an alternative of this public license, you may reach us    *
- * Copyright (C) 2003-2015 E.R.P. Consultores y Asociados, C.A.               *
- * All Rights Reserved.                                                       *
- * Contributor(s): Yamel Senih www.erpya.com                                  *
- *****************************************************************************
- ***
- * Title:	Loan Amortization from Agreement
- * Description:
- *	Show Loan Amortization and amount for payment for a quote
- *
- * Test:
- * 	SELECT * FROM RV_FM_LoanAmortization WHERE FM_Agreement_ID = 1000000;
- ************************************************************************/
-CREATE OR REPLACE VIEW RV_FM_LoanAmortization AS
-SELECT ag.AD_Client_ID, ag.AD_Org_ID, ag.IsActive, ag.Created, ag.CreatedBy, ag.Updated, ag.UpdatedBy, 
-ag.FM_Agreement_ID, ag.FM_AgreementType_ID, ag.C_DocType_ID, ag.DocumentNo, ag.DateDoc, 
-ag.DocStatus, ag.FM_Product_ID, ag.C_BPartner_ID, ag.IsSOTrx, ag.Status, 
-ac.FM_Account_ID, ac.C_Currency_ID, ac.AccountNo, 
-ac.FeesQty, ac.PaymentFrequency, ac.PayDate, am.FM_Amortization_ID, am.PeriodNo,
-am.CapitalAmt, am.InterestAmt, am.TaxAmt, (COALESCE(am.CapitalAmt, 0) + COALESCE(am.InterestAmt, 0) + COALESCE(am.TaxAmt, 0)) AS FeeAmt,
-am.StartDate, am.EndDate, am.DueDate, am.IsPaid,
-ca.CapitalAmt AS CurrentCapitalAmt, ca.InterestAmt AS CurrentInterestAmt, ca.TaxAmt AS CurrentTaxAmt, ca.DunningAmt AS CurrentDunningAmt, ca.DunningTaxAmt AS CurrentDunningTaxAmt, 
-(COALESCE(am.CapitalAmt, 0) + COALESCE(ca.InterestAmt, 0) + COALESCE(ca.TaxAmt, 0) + COALESCE(ca.DunningTaxAmt, 0) + COALESCE(ca.DunningAmt, 0)) AS CurrentFeeAmt,
-(CASE WHEN am.DueDate &lt;= now() THEN 'Y' ELSE 'N' END) AS IsDue
-FROM FM_Agreement ag
-INNER JOIN FM_Account ac ON(ac.FM_Agreement_ID = ag.FM_Agreement_ID)
-INNER JOIN FM_Amortization am ON(am.FM_Account_ID = ac.FM_Account_ID)
-LEFT JOIN (SELECT t.FM_Amortization_ID, SUM(CASE WHEN tt.Type = 'LCC' THEN t.Amount ELSE 0 END) AS CapitalAmt,
-          SUM(CASE WHEN tt.Type = 'LIN' THEN t.Amount ELSE 0 END) AS InterestAmt, 
-          SUM(CASE WHEN tt.Type = 'LIT' THEN t.Amount ELSE 0 END) AS TaxAmt,
-          SUM(CASE WHEN tt.Type = 'LDD' THEN t.Amount ELSE 0 END) AS DunningAmt,
-          SUM(CASE WHEN tt.Type = 'LDT' THEN t.Amount ELSE 0 END) AS DunningTaxAmt
-          FROM FM_Transaction t 
-          INNER JOIN FM_TransactionType tt ON(tt.FM_TransactionType_ID = t.FM_TransactionType_ID)
-		  WHERE tt.Type IN('LCC', 'LIN', 'LIT', 'LDD', 'LDT')
-          AND EXISTS(SELECT 1 FROM FM_Batch b 
-                     WHERE b.FM_Batch_ID = t.FM_Batch_ID
-                     AND b.DocStatus IN('CO', 'CL'))
-          GROUP BY t.FM_Amortization_ID) AS ca ON(ca.FM_Amortization_ID = am.FM_Amortization_ID)</SQLStatement>
-      <RollbackStatement>DROP VIEW RV_FM_LoanAmortization</RollbackStatement>
-    </Step>
-    <Step DBType="Postgres" Parse="N" SeqNo="0" StepType="SQL">
-      <Comments>Add View For Amortization</Comments>
-      <SQLStatement>-- View: RV_FM_LoanAmortization
--- DROP VIEW RV_FM_LoanAmortization;
-/******************************************************************************
- * Product: Adempiere ERP &amp; CRM Smart Business Solution                       *
- * This program is free software; you can redistribute it and/or modify it    *
- * under the terms version 2 of the GNU General Public License as published   *
- * by the Free Software Foundation. This program is distributed in the hope   *
- * that it will be useful, but WITHOUT ANY WARRANTY; without even the implied *
- * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.           *
- * See the GNU General Public License for more details.                       *
- * You should have received a copy of the GNU General Public License along    *
- * with this program; if not, write to the Free Software Foundation, Inc.,    *
- * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.                     *
- * For the text or an alternative of this public license, you may reach us    *
- * Copyright (C) 2003-2015 E.R.P. Consultores y Asociados, C.A.               *
- * All Rights Reserved.                                                       *
- * Contributor(s): Yamel Senih www.erpya.com                                  *
- *****************************************************************************
- ***
- * Title:	Loan Amortization from Agreement
- * Description:
- *	Show Loan Amortization and amount for payment for a quote
- *
- * Test:
- * 	SELECT * FROM RV_FM_LoanAmortization WHERE FM_Agreement_ID = 1000000;
- ************************************************************************/
-CREATE OR REPLACE VIEW RV_FM_LoanAmortization AS
-SELECT ag.AD_Client_ID, ag.AD_Org_ID, ag.IsActive, ag.Created, ag.CreatedBy, ag.Updated, ag.UpdatedBy, 
-ag.FM_Agreement_ID, ag.FM_AgreementType_ID, ag.C_DocType_ID, ag.DocumentNo, ag.DateDoc, 
-ag.DocStatus, ag.FM_Product_ID, ag.C_BPartner_ID, ag.IsSOTrx, ag.Status, 
-ac.FM_Account_ID, ac.C_Currency_ID, ac.AccountNo, 
-ac.FeesQty, ac.PaymentFrequency, ac.PayDate, am.FM_Amortization_ID, am.PeriodNo,
-am.CapitalAmt, am.InterestAmt, am.TaxAmt, (COALESCE(am.CapitalAmt, 0) + COALESCE(am.InterestAmt, 0) + COALESCE(am.TaxAmt, 0)) AS FeeAmt,
-am.StartDate, am.EndDate, am.DueDate, am.IsPaid,
-ca.CapitalAmt AS CurrentCapitalAmt, ca.InterestAmt AS CurrentInterestAmt, ca.TaxAmt AS CurrentTaxAmt, ca.DunningAmt AS CurrentDunningAmt, ca.DunningTaxAmt AS CurrentDunningTaxAmt, 
-(COALESCE(am.CapitalAmt, 0) + COALESCE(ca.InterestAmt, 0) + COALESCE(ca.TaxAmt, 0) + COALESCE(ca.DunningTaxAmt, 0) + COALESCE(ca.DunningAmt, 0)) AS CurrentFeeAmt,
-(CASE WHEN am.DueDate &lt;= now() THEN 'Y' ELSE 'N' END) AS IsDue
-FROM FM_Agreement ag
-INNER JOIN FM_Account ac ON(ac.FM_Agreement_ID = ag.FM_Agreement_ID)
-INNER JOIN FM_Amortization am ON(am.FM_Account_ID = ac.FM_Account_ID)
-LEFT JOIN (SELECT t.FM_Amortization_ID, SUM(CASE WHEN tt.Type = 'LCC' THEN t.Amount ELSE 0 END) AS CapitalAmt,
-          SUM(CASE WHEN tt.Type = 'LIN' THEN t.Amount ELSE 0 END) AS InterestAmt, 
-          SUM(CASE WHEN tt.Type = 'LIT' THEN t.Amount ELSE 0 END) AS TaxAmt,
-          SUM(CASE WHEN tt.Type = 'LDD' THEN t.Amount ELSE 0 END) AS DunningAmt,
-          SUM(CASE WHEN tt.Type = 'LDT' THEN t.Amount ELSE 0 END) AS DunningTaxAmt
-          FROM FM_Transaction t 
-          INNER JOIN FM_TransactionType tt ON(tt.FM_TransactionType_ID = t.FM_TransactionType_ID)
-		  WHERE tt.Type IN('LCC', 'LIN', 'LIT', 'LDD', 'LDT')
-          AND EXISTS(SELECT 1 FROM FM_Batch b 
-                     WHERE b.FM_Batch_ID = t.FM_Batch_ID
-                     AND b.DocStatus IN('CO', 'CL'))
-          GROUP BY t.FM_Amortization_ID) AS ca ON(ca.FM_Amortization_ID = am.FM_Amortization_ID)</SQLStatement>
-      <RollbackStatement>DROP VIEW RV_FM_LoanAmortization</RollbackStatement>
-    </Step>
     <Step SeqNo="10" StepType="AD">
       <PO AD_Table_ID="104" Action="I" Record_ID="55135" Table="AD_Ref_List">
+        <Data AD_Column_ID="7712" Column="EntityType">FMS</Data>
+        <Data AD_Column_ID="148" Column="AD_Ref_List_ID">55135</Data>
+        <Data AD_Column_ID="372" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="371" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="151" Column="AD_Reference_ID">54020</Data>
+        <Data AD_Column_ID="565" Column="CreatedBy">100</Data>
+        <Data AD_Column_ID="567" Column="UpdatedBy">100</Data>
         <Data AD_Column_ID="564" Column="Created">2018-03-20 13:50:02.942</Data>
         <Data AD_Column_ID="566" Column="Updated">2018-03-20 13:50:02.942</Data>
         <Data AD_Column_ID="563" Column="IsActive">true</Data>
@@ -124,13 +19,6 @@ LEFT JOIN (SELECT t.FM_Amortization_ID, SUM(CASE WHEN tt.Type = 'LCC' THEN t.Amo
         <Data AD_Column_ID="152" Column="ValidFrom" isNewNull="true"/>
         <Data AD_Column_ID="149" Column="Name">Loan Interest</Data>
         <Data AD_Column_ID="153" Column="ValidTo" isNewNull="true"/>
-        <Data AD_Column_ID="7712" Column="EntityType">FMS</Data>
-        <Data AD_Column_ID="148" Column="AD_Ref_List_ID">55135</Data>
-        <Data AD_Column_ID="372" Column="AD_Org_ID">0</Data>
-        <Data AD_Column_ID="371" Column="AD_Client_ID">0</Data>
-        <Data AD_Column_ID="151" Column="AD_Reference_ID">54020</Data>
-        <Data AD_Column_ID="565" Column="CreatedBy">100</Data>
-        <Data AD_Column_ID="567" Column="UpdatedBy">100</Data>
         <Data AD_Column_ID="84390" Column="UUID" isNewNull="true"/>
       </PO>
     </Step>
@@ -156,7 +44,6 @@ LEFT JOIN (SELECT t.FM_Amortization_ID, SUM(CASE WHEN tt.Type = 'LCC' THEN t.Amo
         <Data AD_Column_ID="564" Column="Created">2018-03-20 13:50:26.155</Data>
         <Data AD_Column_ID="566" Column="Updated">2018-03-20 13:50:26.155</Data>
         <Data AD_Column_ID="563" Column="IsActive">true</Data>
-        <Data AD_Column_ID="200" Column="Value">LDI</Data>
         <Data AD_Column_ID="150" Column="Description" isNewNull="true"/>
         <Data AD_Column_ID="152" Column="ValidFrom" isNewNull="true"/>
         <Data AD_Column_ID="149" Column="Name">Loan Dunning Interest</Data>
@@ -169,6 +56,7 @@ LEFT JOIN (SELECT t.FM_Amortization_ID, SUM(CASE WHEN tt.Type = 'LCC' THEN t.Amo
         <Data AD_Column_ID="565" Column="CreatedBy">100</Data>
         <Data AD_Column_ID="567" Column="UpdatedBy">100</Data>
         <Data AD_Column_ID="84390" Column="UUID" isNewNull="true"/>
+        <Data AD_Column_ID="200" Column="Value">LDD</Data>
       </PO>
     </Step>
     <Step SeqNo="40" StepType="AD">
@@ -230,7 +118,6 @@ LEFT JOIN (SELECT t.FM_Amortization_ID, SUM(CASE WHEN tt.Type = 'LCC' THEN t.Amo
         <Data AD_Column_ID="564" Column="Created">2018-03-20 13:52:01.598</Data>
         <Data AD_Column_ID="566" Column="Updated">2018-03-20 13:52:01.598</Data>
         <Data AD_Column_ID="563" Column="IsActive">true</Data>
-        <Data AD_Column_ID="200" Column="Value">LRI</Data>
         <Data AD_Column_ID="150" Column="Description" isNewNull="true"/>
         <Data AD_Column_ID="152" Column="ValidFrom" isNewNull="true"/>
         <Data AD_Column_ID="149" Column="Name">Loan AR Invoice</Data>
@@ -243,6 +130,7 @@ LEFT JOIN (SELECT t.FM_Amortization_ID, SUM(CASE WHEN tt.Type = 'LCC' THEN t.Amo
         <Data AD_Column_ID="565" Column="CreatedBy">100</Data>
         <Data AD_Column_ID="567" Column="UpdatedBy">100</Data>
         <Data AD_Column_ID="84390" Column="UUID" isNewNull="true"/>
+        <Data AD_Column_ID="200" Column="Value">LTA</Data>
       </PO>
     </Step>
     <Step SeqNo="80" StepType="AD">
@@ -264,87 +152,7 @@ LEFT JOIN (SELECT t.FM_Amortization_ID, SUM(CASE WHEN tt.Type = 'LCC' THEN t.Amo
     </Step>
     <Step SeqNo="90" StepType="AD">
       <PO AD_Table_ID="104" Action="U" Record_ID="55138" Table="AD_Ref_List">
-        <Data AD_Column_ID="200" Column="Value" oldValue="LRI">LCI</Data>
         <Data AD_Column_ID="149" Column="Name" oldValue="Loan AR Invoice">Loan AR Capital Invoice</Data>
-      </PO>
-    </Step>
-    <Step SeqNo="100" StepType="AD">
-      <PO AD_Table_ID="104" Action="I" Record_ID="55139" Table="AD_Ref_List">
-        <Data AD_Column_ID="564" Column="Created">2018-03-20 13:52:46.917</Data>
-        <Data AD_Column_ID="566" Column="Updated">2018-03-20 13:52:46.917</Data>
-        <Data AD_Column_ID="563" Column="IsActive">true</Data>
-        <Data AD_Column_ID="200" Column="Value">LII</Data>
-        <Data AD_Column_ID="150" Column="Description" isNewNull="true"/>
-        <Data AD_Column_ID="152" Column="ValidFrom" isNewNull="true"/>
-        <Data AD_Column_ID="149" Column="Name">Loan Interest Invoice</Data>
-        <Data AD_Column_ID="153" Column="ValidTo" isNewNull="true"/>
-        <Data AD_Column_ID="7712" Column="EntityType">FMS</Data>
-        <Data AD_Column_ID="148" Column="AD_Ref_List_ID">55139</Data>
-        <Data AD_Column_ID="372" Column="AD_Org_ID">0</Data>
-        <Data AD_Column_ID="371" Column="AD_Client_ID">0</Data>
-        <Data AD_Column_ID="151" Column="AD_Reference_ID">54020</Data>
-        <Data AD_Column_ID="565" Column="CreatedBy">100</Data>
-        <Data AD_Column_ID="567" Column="UpdatedBy">100</Data>
-        <Data AD_Column_ID="84390" Column="UUID" isNewNull="true"/>
-      </PO>
-    </Step>
-    <Step SeqNo="110" StepType="AD">
-      <PO AD_Table_ID="136" Action="I" Record_ID="55139" Table="AD_Ref_List_Trl">
-        <Data AD_Column_ID="706" Column="IsActive">true</Data>
-        <Data AD_Column_ID="707" Column="Created">2018-03-20 13:52:47.879</Data>
-        <Data AD_Column_ID="709" Column="Updated">2018-03-20 13:52:47.879</Data>
-        <Data AD_Column_ID="338" Column="Name">Loan Interest Invoice</Data>
-        <Data AD_Column_ID="340" Column="IsTranslated">false</Data>
-        <Data AD_Column_ID="339" Column="Description" isNewNull="true"/>
-        <Data AD_Column_ID="1216" Column="AD_Org_ID">0</Data>
-        <Data AD_Column_ID="1215" Column="AD_Client_ID">0</Data>
-        <Data AD_Column_ID="710" Column="UpdatedBy">100</Data>
-        <Data AD_Column_ID="708" Column="CreatedBy">100</Data>
-        <Data AD_Column_ID="336" Column="AD_Ref_List_ID">55139</Data>
-        <Data AD_Column_ID="337" Column="AD_Language">es_MX</Data>
-        <Data AD_Column_ID="84391" Column="UUID" isNewNull="true"/>
-      </PO>
-    </Step>
-    <Step SeqNo="120" StepType="AD">
-      <PO AD_Table_ID="104" Action="U" Record_ID="55136" Table="AD_Ref_List">
-        <Data AD_Column_ID="200" Column="Value" oldValue="LDI">LDD</Data>
-      </PO>
-    </Step>
-    <Step SeqNo="130" StepType="AD">
-      <PO AD_Table_ID="104" Action="I" Record_ID="55141" Table="AD_Ref_List">
-        <Data AD_Column_ID="564" Column="Created">2018-03-20 13:53:49.182</Data>
-        <Data AD_Column_ID="566" Column="Updated">2018-03-20 13:53:49.182</Data>
-        <Data AD_Column_ID="563" Column="IsActive">true</Data>
-        <Data AD_Column_ID="200" Column="Value">LDI</Data>
-        <Data AD_Column_ID="150" Column="Description" isNewNull="true"/>
-        <Data AD_Column_ID="152" Column="ValidFrom" isNewNull="true"/>
-        <Data AD_Column_ID="149" Column="Name">Loan Dunning Interest Invoice</Data>
-        <Data AD_Column_ID="153" Column="ValidTo" isNewNull="true"/>
-        <Data AD_Column_ID="7712" Column="EntityType">FMS</Data>
-        <Data AD_Column_ID="148" Column="AD_Ref_List_ID">55141</Data>
-        <Data AD_Column_ID="372" Column="AD_Org_ID">0</Data>
-        <Data AD_Column_ID="371" Column="AD_Client_ID">0</Data>
-        <Data AD_Column_ID="151" Column="AD_Reference_ID">54020</Data>
-        <Data AD_Column_ID="565" Column="CreatedBy">100</Data>
-        <Data AD_Column_ID="567" Column="UpdatedBy">100</Data>
-        <Data AD_Column_ID="84390" Column="UUID" isNewNull="true"/>
-      </PO>
-    </Step>
-    <Step SeqNo="140" StepType="AD">
-      <PO AD_Table_ID="136" Action="I" Record_ID="55141" Table="AD_Ref_List_Trl">
-        <Data AD_Column_ID="706" Column="IsActive">true</Data>
-        <Data AD_Column_ID="707" Column="Created">2018-03-20 13:53:50.18</Data>
-        <Data AD_Column_ID="709" Column="Updated">2018-03-20 13:53:50.18</Data>
-        <Data AD_Column_ID="338" Column="Name">Loan Dunning Interest Invoice</Data>
-        <Data AD_Column_ID="340" Column="IsTranslated">false</Data>
-        <Data AD_Column_ID="339" Column="Description" isNewNull="true"/>
-        <Data AD_Column_ID="1216" Column="AD_Org_ID">0</Data>
-        <Data AD_Column_ID="1215" Column="AD_Client_ID">0</Data>
-        <Data AD_Column_ID="710" Column="UpdatedBy">100</Data>
-        <Data AD_Column_ID="708" Column="CreatedBy">100</Data>
-        <Data AD_Column_ID="336" Column="AD_Ref_List_ID">55141</Data>
-        <Data AD_Column_ID="337" Column="AD_Language">es_MX</Data>
-        <Data AD_Column_ID="84391" Column="UUID" isNewNull="true"/>
       </PO>
     </Step>
     <Step SeqNo="150" StepType="AD">
@@ -355,36 +163,6 @@ LEFT JOIN (SELECT t.FM_Amortization_ID, SUM(CASE WHEN tt.Type = 'LCC' THEN t.Amo
     <Step SeqNo="160" StepType="AD">
       <PO AD_Table_ID="104" Action="U" Record_ID="55136" Table="AD_Ref_List">
         <Data AD_Column_ID="149" Column="Name" oldValue="Loan Dunning Interest">Loan Dunning Interest (Calculated)</Data>
-      </PO>
-    </Step>
-    <Step SeqNo="170" StepType="AD">
-      <PO AD_Table_ID="104" Action="U" Record_ID="55141" Table="AD_Ref_List">
-        <Data AD_Column_ID="149" Column="Name" oldValue="Loan Dunning Interest Invoice">Loan Dunning Interest Invoiced</Data>
-      </PO>
-    </Step>
-    <Step SeqNo="180" StepType="AD">
-      <PO AD_Table_ID="104" Action="U" Record_ID="55139" Table="AD_Ref_List">
-        <Data AD_Column_ID="149" Column="Name" oldValue="Loan Interest Invoice">Loan Interest Invoiced</Data>
-      </PO>
-    </Step>
-    <Step SeqNo="190" StepType="AD">
-      <PO AD_Table_ID="104" Action="U" Record_ID="55139" Table="AD_Ref_List">
-        <Data AD_Column_ID="149" Column="Name" oldValue="Loan Interest Invoiced">Loan Invoiced Interest</Data>
-      </PO>
-    </Step>
-    <Step SeqNo="200" StepType="AD">
-      <PO AD_Table_ID="104" Action="U" Record_ID="55141" Table="AD_Ref_List">
-        <Data AD_Column_ID="149" Column="Name" oldValue="Loan Dunning Interest Invoiced">Loan Dunning Invoiced Interest</Data>
-      </PO>
-    </Step>
-    <Step SeqNo="210" StepType="AD">
-      <PO AD_Table_ID="104" Action="U" Record_ID="55141" Table="AD_Ref_List">
-        <Data AD_Column_ID="149" Column="Name" oldValue="Loan Dunning Invoiced Interest">Loan Dunning Interest Invoiced</Data>
-      </PO>
-    </Step>
-    <Step SeqNo="220" StepType="AD">
-      <PO AD_Table_ID="104" Action="U" Record_ID="55139" Table="AD_Ref_List">
-        <Data AD_Column_ID="149" Column="Name" oldValue="Loan Invoiced Interest">Loan Interest Invoiced</Data>
       </PO>
     </Step>
     <Step SeqNo="230" StepType="AD">
@@ -480,9 +258,9 @@ LEFT JOIN (SELECT t.FM_Amortization_ID, SUM(CASE WHEN tt.Type = 'LCC' THEN t.Amo
     </Step>
     <Step SeqNo="330" StepType="AD">
       <PO AD_Table_ID="136" Action="U" Record_ID="55135" Table="AD_Ref_List_Trl">
-        <Data AD_Column_ID="338" Column="Name" oldValue="Loan Interest">Cuota de Interés (Calculado)</Data>
         <Data AD_Column_ID="336" Column="AD_Ref_List_ID" oldValue="55135">55135</Data>
         <Data AD_Column_ID="337" Column="AD_Language" oldValue="es_MX">es_MX</Data>
+        <Data AD_Column_ID="338" Column="Name" oldValue="Loan Interest">Cuota de Interés (Calculado)</Data>
       </PO>
     </Step>
     <Step SeqNo="340" StepType="AD">
@@ -531,10 +309,10 @@ LEFT JOIN (SELECT t.FM_Amortization_ID, SUM(CASE WHEN tt.Type = 'LCC' THEN t.Amo
     </Step>
     <Step SeqNo="370" StepType="AD">
       <PO AD_Table_ID="53229" Action="U" Record_ID="50110" Table="AD_View_Trl">
-        <Data AD_Column_ID="58062" Column="Description" oldValue="View for Create AR Invoice from Loan">Vista para Crear Factura desde Préstamo</Data>
         <Data AD_Column_ID="58064" Column="Name" oldValue="Loan for AR Invoice">Crear Factura desde Préstamo</Data>
         <Data AD_Column_ID="58060" Column="AD_View_ID" oldValue="50110">50110</Data>
         <Data AD_Column_ID="58061" Column="AD_Language" oldValue="es_MX">es_MX</Data>
+        <Data AD_Column_ID="58062" Column="Description" oldValue="View for Create AR Invoice from Loan">Vista para Crear Factura desde Préstamo</Data>
       </PO>
     </Step>
     <Step SeqNo="380" StepType="AD">
@@ -560,17 +338,6 @@ LEFT JOIN (SELECT t.FM_Amortization_ID, SUM(CASE WHEN tt.Type = 'LCC' THEN t.Amo
         <Data AD_Column_ID="84463" Column="UUID" isNewNull="true"/>
       </PO>
     </Step>
-    <Step SeqNo="1790" StepType="AD">
-      <PO AD_Table_ID="104" Action="U" Record_ID="55138" Table="AD_Ref_List">
-        <Data AD_Column_ID="200" Column="Value" oldValue="LCI">LTT</Data>
-        <Data AD_Column_ID="149" Column="Name" oldValue="Loan AR Capital Invoiced">Loan Tax Amount (Calculated)</Data>
-      </PO>
-    </Step>
-    <Step SeqNo="1800" StepType="AD">
-      <PO AD_Table_ID="104" Action="U" Record_ID="55138" Table="AD_Ref_List">
-        <Data AD_Column_ID="200" Column="Value" oldValue="LTT">LTA</Data>
-      </PO>
-    </Step>
     <Step SeqNo="1810" StepType="AD">
       <PO AD_Table_ID="136" Action="U" Record_ID="55138" Table="AD_Ref_List_Trl">
         <Data AD_Column_ID="338" Column="Name" oldValue="Cuota de Capital (Facturado)">Cuota de Impuesto (Calculado)</Data>
@@ -581,80 +348,6 @@ LEFT JOIN (SELECT t.FM_Amortization_ID, SUM(CASE WHEN tt.Type = 'LCC' THEN t.Amo
     <Step SeqNo="1820" StepType="AD">
       <PO AD_Table_ID="104" Action="U" Record_ID="55138" Table="AD_Ref_List">
         <Data AD_Column_ID="200" Column="Value" oldValue="LTA">LIT</Data>
-      </PO>
-    </Step>
-    <Step SeqNo="1830" StepType="AD">
-      <PO AD_Table_ID="136" Action="D" Record_ID="55141" Table="AD_Ref_List_Trl">
-        <Data AD_Column_ID="706" Column="IsActive" isNewNull="true" oldValue="true"/>
-        <Data AD_Column_ID="707" Column="Created" isNewNull="true" oldValue="2018-03-20 13:53:50.0"/>
-        <Data AD_Column_ID="709" Column="Updated" isNewNull="true" oldValue="2018-03-20 14:03:06.0"/>
-        <Data AD_Column_ID="338" Column="Name" isNewNull="true" oldValue="Cuota de Interés de Mora (Facturado)"/>
-        <Data AD_Column_ID="340" Column="IsTranslated" isNewNull="true" oldValue="false"/>
-        <Data AD_Column_ID="339" Column="Description" isNewNull="true" isOldNull="true"/>
-        <Data AD_Column_ID="1216" Column="AD_Org_ID" isNewNull="true" oldValue="0"/>
-        <Data AD_Column_ID="1215" Column="AD_Client_ID" isNewNull="true" oldValue="0"/>
-        <Data AD_Column_ID="710" Column="UpdatedBy" isNewNull="true" oldValue="100"/>
-        <Data AD_Column_ID="708" Column="CreatedBy" isNewNull="true" oldValue="100"/>
-        <Data AD_Column_ID="336" Column="AD_Ref_List_ID" oldValue="55141">55141</Data>
-        <Data AD_Column_ID="337" Column="AD_Language" oldValue="es_MX">es_MX</Data>
-        <Data AD_Column_ID="84391" Column="UUID" isNewNull="true" isOldNull="true"/>
-      </PO>
-    </Step>
-    <Step SeqNo="1840" StepType="AD">
-      <PO AD_Table_ID="104" Action="D" Record_ID="55141" Table="AD_Ref_List">
-        <Data AD_Column_ID="564" Column="Created" isNewNull="true" oldValue="2018-03-20 13:53:49.0"/>
-        <Data AD_Column_ID="566" Column="Updated" isNewNull="true" oldValue="2018-03-20 13:56:46.0"/>
-        <Data AD_Column_ID="563" Column="IsActive" isNewNull="true" oldValue="true"/>
-        <Data AD_Column_ID="200" Column="Value" isNewNull="true" oldValue="LDI"/>
-        <Data AD_Column_ID="150" Column="Description" isNewNull="true" isOldNull="true"/>
-        <Data AD_Column_ID="152" Column="ValidFrom" isNewNull="true" isOldNull="true"/>
-        <Data AD_Column_ID="149" Column="Name" isNewNull="true" oldValue="Loan Dunning Interest Invoiced"/>
-        <Data AD_Column_ID="153" Column="ValidTo" isNewNull="true" isOldNull="true"/>
-        <Data AD_Column_ID="7712" Column="EntityType" isNewNull="true" oldValue="FMS"/>
-        <Data AD_Column_ID="148" Column="AD_Ref_List_ID" isNewNull="true" oldValue="55141"/>
-        <Data AD_Column_ID="372" Column="AD_Org_ID" isNewNull="true" oldValue="0"/>
-        <Data AD_Column_ID="371" Column="AD_Client_ID" isNewNull="true" oldValue="0"/>
-        <Data AD_Column_ID="151" Column="AD_Reference_ID" isNewNull="true" oldValue="54020"/>
-        <Data AD_Column_ID="565" Column="CreatedBy" isNewNull="true" oldValue="100"/>
-        <Data AD_Column_ID="567" Column="UpdatedBy" isNewNull="true" oldValue="100"/>
-        <Data AD_Column_ID="84390" Column="UUID" isNewNull="true" isOldNull="true"/>
-      </PO>
-    </Step>
-    <Step SeqNo="1850" StepType="AD">
-      <PO AD_Table_ID="136" Action="D" Record_ID="55139" Table="AD_Ref_List_Trl">
-        <Data AD_Column_ID="706" Column="IsActive" isNewNull="true" oldValue="true"/>
-        <Data AD_Column_ID="707" Column="Created" isNewNull="true" oldValue="2018-03-20 13:52:47.0"/>
-        <Data AD_Column_ID="709" Column="Updated" isNewNull="true" oldValue="2018-03-20 14:02:35.0"/>
-        <Data AD_Column_ID="338" Column="Name" isNewNull="true" oldValue="Cuota de Interés (Facturado)"/>
-        <Data AD_Column_ID="340" Column="IsTranslated" isNewNull="true" oldValue="false"/>
-        <Data AD_Column_ID="339" Column="Description" isNewNull="true" isOldNull="true"/>
-        <Data AD_Column_ID="1216" Column="AD_Org_ID" isNewNull="true" oldValue="0"/>
-        <Data AD_Column_ID="1215" Column="AD_Client_ID" isNewNull="true" oldValue="0"/>
-        <Data AD_Column_ID="710" Column="UpdatedBy" isNewNull="true" oldValue="100"/>
-        <Data AD_Column_ID="708" Column="CreatedBy" isNewNull="true" oldValue="100"/>
-        <Data AD_Column_ID="336" Column="AD_Ref_List_ID" oldValue="55139">55139</Data>
-        <Data AD_Column_ID="337" Column="AD_Language" oldValue="es_MX">es_MX</Data>
-        <Data AD_Column_ID="84391" Column="UUID" isNewNull="true" isOldNull="true"/>
-      </PO>
-    </Step>
-    <Step SeqNo="1860" StepType="AD">
-      <PO AD_Table_ID="104" Action="D" Record_ID="55139" Table="AD_Ref_List">
-        <Data AD_Column_ID="564" Column="Created" isNewNull="true" oldValue="2018-03-20 13:52:46.0"/>
-        <Data AD_Column_ID="566" Column="Updated" isNewNull="true" oldValue="2018-03-20 13:57:00.0"/>
-        <Data AD_Column_ID="563" Column="IsActive" isNewNull="true" oldValue="true"/>
-        <Data AD_Column_ID="200" Column="Value" isNewNull="true" oldValue="LII"/>
-        <Data AD_Column_ID="150" Column="Description" isNewNull="true" isOldNull="true"/>
-        <Data AD_Column_ID="152" Column="ValidFrom" isNewNull="true" isOldNull="true"/>
-        <Data AD_Column_ID="149" Column="Name" isNewNull="true" oldValue="Loan Interest Invoiced"/>
-        <Data AD_Column_ID="153" Column="ValidTo" isNewNull="true" isOldNull="true"/>
-        <Data AD_Column_ID="7712" Column="EntityType" isNewNull="true" oldValue="FMS"/>
-        <Data AD_Column_ID="148" Column="AD_Ref_List_ID" isNewNull="true" oldValue="55139"/>
-        <Data AD_Column_ID="372" Column="AD_Org_ID" isNewNull="true" oldValue="0"/>
-        <Data AD_Column_ID="371" Column="AD_Client_ID" isNewNull="true" oldValue="0"/>
-        <Data AD_Column_ID="151" Column="AD_Reference_ID" isNewNull="true" oldValue="54020"/>
-        <Data AD_Column_ID="565" Column="CreatedBy" isNewNull="true" oldValue="100"/>
-        <Data AD_Column_ID="567" Column="UpdatedBy" isNewNull="true" oldValue="100"/>
-        <Data AD_Column_ID="84390" Column="UUID" isNewNull="true" isOldNull="true"/>
       </PO>
     </Step>
     <Step SeqNo="1870" StepType="AD">
@@ -3789,11 +3482,11 @@ If the document type of your document has no automatic document sequence defined
     </Step>
     <Step SeqNo="2870" StepType="AD">
       <PO AD_Table_ID="276" Action="U" Record_ID="59918" Table="AD_Element">
-        <Data AD_Column_ID="2603" Column="Name" oldValue="currentcapitalamt">Current Capital Amount</Data>
         <Data AD_Column_ID="2602" Column="ColumnName" oldValue="currentcapitalamt">CurrentCapitalAmt</Data>
         <Data AD_Column_ID="4299" Column="PrintName" oldValue="currentcapitalamt">Current Capital Amount</Data>
         <Data AD_Column_ID="58589" Column="FieldLength" isOldNull="true">10</Data>
         <Data AD_Column_ID="58588" Column="AD_Reference_ID" isOldNull="true">12</Data>
+        <Data AD_Column_ID="2603" Column="Name" oldValue="currentcapitalamt">Current Capital Amount</Data>
       </PO>
     </Step>
     <Step SeqNo="2880" StepType="AD">
@@ -3811,11 +3504,11 @@ If the document type of your document has no automatic document sequence defined
     </Step>
     <Step SeqNo="2900" StepType="AD">
       <PO AD_Table_ID="276" Action="U" Record_ID="59921" Table="AD_Element">
-        <Data AD_Column_ID="2603" Column="Name" oldValue="currentdunningamt">Current Dunning Amount</Data>
         <Data AD_Column_ID="2602" Column="ColumnName" oldValue="currentdunningamt">CurrentDunningAmt</Data>
         <Data AD_Column_ID="4299" Column="PrintName" oldValue="currentdunningamt">Current Dunning Amount</Data>
         <Data AD_Column_ID="58589" Column="FieldLength" isOldNull="true">10</Data>
         <Data AD_Column_ID="58588" Column="AD_Reference_ID" isOldNull="true">12</Data>
+        <Data AD_Column_ID="2603" Column="Name" oldValue="currentdunningamt">Current Dunning Amount</Data>
       </PO>
     </Step>
     <Step SeqNo="2910" StepType="AD">
@@ -3848,10 +3541,10 @@ If the document type of your document has no automatic document sequence defined
     </Step>
     <Step SeqNo="2950" StepType="AD">
       <PO AD_Table_ID="277" Action="U" Record_ID="0" Table="AD_Element_Trl">
-        <Data AD_Column_ID="2646" Column="Name" oldValue="currentfeeamt">Monto Actual de Cuota</Data>
         <Data AD_Column_ID="4300" Column="PrintName" oldValue="currentfeeamt">Monto Actual de Cuota</Data>
         <Data AD_Column_ID="2638" Column="AD_Language" oldValue="es_MX">es_MX</Data>
         <Data AD_Column_ID="2637" Column="AD_Element_ID" oldValue="59922">59922</Data>
+        <Data AD_Column_ID="2646" Column="Name" oldValue="currentfeeamt">Monto Actual de Cuota</Data>
       </PO>
     </Step>
     <Step SeqNo="2960" StepType="AD">
@@ -3877,9 +3570,9 @@ If the document type of your document has no automatic document sequence defined
     </Step>
     <Step SeqNo="2990" StepType="AD">
       <PO AD_Table_ID="277" Action="U" Record_ID="0" Table="AD_Element_Trl">
-        <Data AD_Column_ID="4300" Column="PrintName" oldValue="currentinterestamt">Monto Actual de Interés</Data>
         <Data AD_Column_ID="2638" Column="AD_Language" oldValue="es_MX">es_MX</Data>
         <Data AD_Column_ID="2637" Column="AD_Element_ID" oldValue="59919">59919</Data>
+        <Data AD_Column_ID="4300" Column="PrintName" oldValue="currentinterestamt">Monto Actual de Interés</Data>
       </PO>
     </Step>
     <Step SeqNo="3000" StepType="AD">
@@ -5536,8 +5229,6 @@ If the document type of your document has no automatic document sequence defined
     <Step SeqNo="3850" StepType="AD">
       <PO AD_Table_ID="53224" Action="I" Record_ID="50119" Table="AD_Browse">
         <Data AD_Column_ID="58003" Column="IsBetaFunctionality">false</Data>
-        <Data AD_Column_ID="85781" Column="AD_Table_ID" isNewNull="true"/>
-        <Data AD_Column_ID="85782" Column="IsUpdateable">false</Data>
         <Data AD_Column_ID="57988" Column="IsActive">true</Data>
         <Data AD_Column_ID="57989" Column="Created">2018-03-20 20:09:19.198</Data>
         <Data AD_Column_ID="57990" Column="Updated">2018-03-20 20:09:19.198</Data>
@@ -8238,10 +7929,10 @@ If the document type of your document has no automatic document sequence defined
     </Step>
     <Step SeqNo="4670" StepType="AD">
       <PO AD_Table_ID="53226" Action="U" Record_ID="0" Table="AD_Browse_Trl">
-        <Data AD_Column_ID="58023" Column="Description" oldValue="Create AR Invoice lines from Loan selected">Crea lineas de Factura desde la Amortización de Préstamo</Data>
         <Data AD_Column_ID="58026" Column="Name" oldValue="Generate AR Invoice (From Loan)">Generar Factura (Desde Préstamo)</Data>
         <Data AD_Column_ID="58022" Column="AD_Language" oldValue="es_MX">es_MX</Data>
         <Data AD_Column_ID="58021" Column="AD_Browse_ID" oldValue="50119">50119</Data>
+        <Data AD_Column_ID="58023" Column="Description" oldValue="Create AR Invoice lines from Loan selected">Crea lineas de Factura desde la Amortización de Préstamo</Data>
       </PO>
     </Step>
     <Step SeqNo="4680" StepType="AD">
@@ -8414,8 +8105,8 @@ If the document type of your document has no automatic document sequence defined
     </Step>
     <Step SeqNo="5010" StepType="AD">
       <PO AD_Table_ID="53223" Action="U" Record_ID="60732" Table="AD_Browse_Field">
-        <Data AD_Column_ID="57976" Column="IsDisplayed" oldValue="false">true</Data>
         <Data AD_Column_ID="57982" Column="SeqNo" oldValue="41">40</Data>
+        <Data AD_Column_ID="57976" Column="IsDisplayed" oldValue="false">true</Data>
       </PO>
     </Step>
     <Step SeqNo="5020" StepType="AD">
@@ -8462,8 +8153,8 @@ If the document type of your document has no automatic document sequence defined
     </Step>
     <Step SeqNo="5090" StepType="AD">
       <PO AD_Table_ID="53223" Action="U" Record_ID="60709" Table="AD_Browse_Field">
-        <Data AD_Column_ID="57979" Column="IsQueryCriteria" oldValue="false">true</Data>
         <Data AD_Column_ID="78559" Column="SeqNoGrid" oldValue="0">20</Data>
+        <Data AD_Column_ID="57979" Column="IsQueryCriteria" oldValue="false">true</Data>
       </PO>
     </Step>
     <Step SeqNo="5100" StepType="AD">
@@ -8584,10 +8275,10 @@ If the document type of your document has no automatic document sequence defined
     </Step>
     <Step SeqNo="5230" StepType="AD">
       <PO AD_Table_ID="452" Action="U" Record_ID="54280" Table="AD_TreeNodeMM">
-        <Data AD_Column_ID="6161" Column="Node_ID" oldValue="54280">54280</Data>
         <Data AD_Column_ID="6155" Column="Parent_ID" oldValue="0">54269</Data>
         <Data AD_Column_ID="6157" Column="SeqNo" oldValue="999">3</Data>
         <Data AD_Column_ID="6160" Column="AD_Tree_ID" oldValue="10">10</Data>
+        <Data AD_Column_ID="6161" Column="Node_ID" oldValue="54280">54280</Data>
       </PO>
     </Step>
     <Step SeqNo="5240" StepType="AD">
@@ -8654,10 +8345,10 @@ If the document type of your document has no automatic document sequence defined
     </Step>
     <Step SeqNo="5270" StepType="AD">
       <PO AD_Table_ID="287" Action="U" Record_ID="0" Table="AD_Process_Trl">
-        <Data AD_Column_ID="2853" Column="Description" oldValue="Generate AR Invoice from Loan Process">Generar Factura desde Préstamo</Data>
         <Data AD_Column_ID="2852" Column="Name" oldValue="Generate AR Invoice from Loan">Generar Factura desde Préstamo</Data>
         <Data AD_Column_ID="2844" Column="AD_Language" oldValue="es_MX">es_MX</Data>
         <Data AD_Column_ID="2843" Column="AD_Process_ID" oldValue="54059">54059</Data>
+        <Data AD_Column_ID="2853" Column="Description" oldValue="Generate AR Invoice from Loan Process">Generar Factura desde Préstamo</Data>
       </PO>
     </Step>
     <Step SeqNo="5280" StepType="AD">
@@ -8670,9 +8361,9 @@ If the document type of your document has no automatic document sequence defined
     <Step SeqNo="5290" StepType="AD">
       <PO AD_Table_ID="284" Action="U" Record_ID="54059" Table="AD_Process">
         <Data AD_Column_ID="6485" Column="EntityType" oldValue="U">FMS</Data>
-        <Data AD_Column_ID="2810" Column="Description" oldValue="Generate AR Invoice from Loan Process">Generate Invoice from Loan Process</Data>
         <Data AD_Column_ID="2809" Column="Name" oldValue="Generate AR Invoice from Loan">Generate Invoice from Loan</Data>
         <Data AD_Column_ID="4023" Column="Value" oldValue="SBP_GenerateARInvoiceFromLoan">SBP_GenerateInvoiceFromLoan</Data>
+        <Data AD_Column_ID="2810" Column="Description" oldValue="Generate AR Invoice from Loan Process">Generate Invoice from Loan Process</Data>
       </PO>
     </Step>
     <Step SeqNo="5300" StepType="AD">
@@ -8893,11 +8584,11 @@ If the document type of your document has no automatic document sequence defined
     </Step>
     <Step SeqNo="5390" StepType="AD">
       <PO AD_Table_ID="277" Action="U" Record_ID="0" Table="AD_Element_Trl">
-        <Data AD_Column_ID="2646" Column="Name" oldValue="Split Invoices">Dividir Facturas</Data>
         <Data AD_Column_ID="2647" Column="Description" isOldNull="true">Permite Dividir los documentos</Data>
         <Data AD_Column_ID="4300" Column="PrintName" oldValue="Split Invoices">Dividir Facturas</Data>
         <Data AD_Column_ID="2638" Column="AD_Language" oldValue="es_MX">es_MX</Data>
         <Data AD_Column_ID="2637" Column="AD_Element_ID" oldValue="59924">59924</Data>
+        <Data AD_Column_ID="2646" Column="Name" oldValue="Split Invoices">Dividir Facturas</Data>
       </PO>
     </Step>
     <Step SeqNo="5400" StepType="AD">
@@ -8956,9 +8647,9 @@ If the document type of your document has no automatic document sequence defined
     </Step>
     <Step SeqNo="5420" StepType="AD">
       <PO AD_Table_ID="53224" Action="U" Record_ID="50119" Table="AD_Browse">
-        <Data AD_Column_ID="57994" Column="Description" oldValue="Create AR Invoice lines from Loan selected">Create Invoice lines from Loan selected</Data>
         <Data AD_Column_ID="57997" Column="Name" oldValue="Generate AR Invoice (From Loan)">Generate Invoice (From Loan)</Data>
         <Data AD_Column_ID="58002" Column="AD_Process_ID" isOldNull="true">54059</Data>
+        <Data AD_Column_ID="57994" Column="Description" oldValue="Create AR Invoice lines from Loan selected">Create Invoice lines from Loan selected</Data>
       </PO>
     </Step>
     <Step SeqNo="5430" StepType="AD">
@@ -9032,8 +8723,8 @@ If the document type of your document has no automatic document sequence defined
     </Step>
     <Step SeqNo="5560" StepType="AD">
       <PO AD_Table_ID="53223" Action="U" Record_ID="60736" Table="AD_Browse_Field">
-        <Data AD_Column_ID="57976" Column="IsDisplayed" oldValue="true">false</Data>
         <Data AD_Column_ID="57982" Column="SeqNo" oldValue="40">0</Data>
+        <Data AD_Column_ID="57976" Column="IsDisplayed" oldValue="true">false</Data>
       </PO>
     </Step>
     <Step SeqNo="5570" StepType="AD">
@@ -9168,8 +8859,8 @@ If the document type of your document has no automatic document sequence defined
     </Step>
     <Step SeqNo="5650" StepType="AD">
       <PO AD_Table_ID="53223" Action="U" Record_ID="60740" Table="AD_Browse_Field">
-        <Data AD_Column_ID="57976" Column="IsDisplayed" oldValue="true">false</Data>
         <Data AD_Column_ID="57982" Column="SeqNo" oldValue="70">0</Data>
+        <Data AD_Column_ID="57976" Column="IsDisplayed" oldValue="true">false</Data>
       </PO>
     </Step>
     <Step SeqNo="5660" StepType="AD">
@@ -9216,9 +8907,9 @@ If the document type of your document has no automatic document sequence defined
     </Step>
     <Step SeqNo="5690" StepType="AD">
       <PO AD_Table_ID="136" Action="U" Record_ID="55138" Table="AD_Ref_List_Trl">
-        <Data AD_Column_ID="338" Column="Name" oldValue="Cuota de Impuesto (Calculado)">Impuesto de Cuota (Calculado)</Data>
         <Data AD_Column_ID="336" Column="AD_Ref_List_ID" oldValue="55138">55138</Data>
         <Data AD_Column_ID="337" Column="AD_Language" oldValue="es_MX">es_MX</Data>
+        <Data AD_Column_ID="338" Column="Name" oldValue="Cuota de Impuesto (Calculado)">Impuesto de Cuota (Calculado)</Data>
       </PO>
     </Step>
     <Step SeqNo="5700" StepType="AD">
@@ -9347,19 +9038,19 @@ If the document type of your document has no automatic document sequence defined
     </Step>
     <Step SeqNo="5750" StepType="AD">
       <PO AD_Table_ID="276" Action="U" Record_ID="59929" Table="AD_Element">
-        <Data AD_Column_ID="2603" Column="Name" oldValue="currentdunningtaxamt">Current Dunning Tax Amount</Data>
         <Data AD_Column_ID="2602" Column="ColumnName" oldValue="currentdunningtaxamt">CurrentDunningTaxAmt</Data>
         <Data AD_Column_ID="4299" Column="PrintName" oldValue="currentdunningtaxamt">Current Dunning Tax Amount</Data>
         <Data AD_Column_ID="58589" Column="FieldLength" isOldNull="true">10</Data>
         <Data AD_Column_ID="58588" Column="AD_Reference_ID" isOldNull="true">12</Data>
+        <Data AD_Column_ID="2603" Column="Name" oldValue="currentdunningtaxamt">Current Dunning Tax Amount</Data>
       </PO>
     </Step>
     <Step SeqNo="5760" StepType="AD">
       <PO AD_Table_ID="101" Action="U" Record_ID="87581" Table="AD_Column">
         <Data AD_Column_ID="112" Column="Description" isNewNull="true" isOldNull="true"/>
         <Data AD_Column_ID="111" Column="Name" oldValue="currentdunningtaxamt">Current Dunning Tax Amount</Data>
-        <Data AD_Column_ID="116" Column="ColumnName" oldValue="currentdunningtaxamt">CurrentDunningTaxAmt</Data>
         <Data AD_Column_ID="113" Column="Help" isNewNull="true" isOldNull="true"/>
+        <Data AD_Column_ID="116" Column="ColumnName" oldValue="currentdunningtaxamt">CurrentDunningTaxAmt</Data>
       </PO>
     </Step>
     <Step SeqNo="5770" StepType="AD">
@@ -9617,6 +9308,7 @@ AND la.IsSOTrx = 'Y'</Data>
     </Step>
     <Step SeqNo="5970" StepType="AD">
       <PO AD_Table_ID="752" Action="I" Record_ID="0" Table="AD_Column_Trl">
+        <Data AD_Column_ID="84310" Column="UUID" isNewNull="true"/>
         <Data AD_Column_ID="12960" Column="Created">2018-03-24 18:09:37.619</Data>
         <Data AD_Column_ID="12959" Column="IsActive">true</Data>
         <Data AD_Column_ID="12952" Column="Updated">2018-03-24 18:09:37.619</Data>
@@ -9628,7 +9320,6 @@ AND la.IsSOTrx = 'Y'</Data>
         <Data AD_Column_ID="12956" Column="CreatedBy">100</Data>
         <Data AD_Column_ID="12953" Column="AD_Language">es_MX</Data>
         <Data AD_Column_ID="12955" Column="AD_Column_ID">87583</Data>
-        <Data AD_Column_ID="84310" Column="UUID" isNewNull="true"/>
       </PO>
     </Step>
     <Step SeqNo="5980" StepType="AD">
@@ -9763,8 +9454,8 @@ AND la.IsSOTrx = 'Y'</Data>
     </Step>
     <Step SeqNo="6030" StepType="AD">
       <PO AD_Table_ID="101" Action="U" Record_ID="87584" Table="AD_Column">
-        <Data AD_Column_ID="227" Column="AD_Reference_Value_ID" isOldNull="true">54026</Data>
         <Data AD_Column_ID="226" Column="AD_Reference_ID" oldValue="19">30</Data>
+        <Data AD_Column_ID="227" Column="AD_Reference_Value_ID" isOldNull="true">54026</Data>
       </PO>
     </Step>
     <Step SeqNo="6040" StepType="AD">
@@ -9825,6 +9516,7 @@ AND NOT EXISTS(SELECT 1 FROM C_Invoice i
     </Step>
     <Step SeqNo="6090" StepType="AD">
       <PO AD_Table_ID="108" Action="U" Record_ID="52578" Table="AD_Val_Rule">
+        <Data AD_Column_ID="188" Column="Name" oldValue="FM_Agreement of Business Partner (SB)">FM_Agreement Open of Business Partner (SB)</Data>
         <Data AD_Column_ID="193" Column="Code" oldValue="FM_Agreement.C_BPartner_ID = @LA_C_BPartner_ID@">FM_Agreement.C_BPartner_ID = @LA_C_BPartner_ID@
 AND EXISTS(SELECT 1 FROM FM_Account ac
 INNER JOIN FM_Amortization am ON(am.FM_Account_ID = ac.FM_Account_ID)
@@ -9833,8 +9525,119 @@ WHERE ac.FM_Agreement_ID = FM_Agreement.FM_Agreement_ID
                 INNER JOIN C_InvoiceLine il ON(il.C_Invoice_ID = i.C_Invoice_ID)
                 WHERE il.FM_Amortization_ID = am.FM_Amortization_ID
                 AND i.DocStatus IN('CO', 'CL')))</Data>
-        <Data AD_Column_ID="188" Column="Name" oldValue="FM_Agreement of Business Partner (SB)">FM_Agreement Open of Business Partner (SB)</Data>
       </PO>
+    </Step>
+    <Step DBType="Postgres" Parse="N" SeqNo="6100" StepType="SQL">
+      <Comments>Add View For Amortization</Comments>
+      <SQLStatement>-- View: RV_FM_LoanAmortization
+-- DROP VIEW RV_FM_LoanAmortization;
+/******************************************************************************
+ * Product: Adempiere ERP &amp; CRM Smart Business Solution                       *
+ * This program is free software; you can redistribute it and/or modify it    *
+ * under the terms version 2 of the GNU General Public License as published   *
+ * by the Free Software Foundation. This program is distributed in the hope   *
+ * that it will be useful, but WITHOUT ANY WARRANTY; without even the implied *
+ * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.           *
+ * See the GNU General Public License for more details.                       *
+ * You should have received a copy of the GNU General Public License along    *
+ * with this program; if not, write to the Free Software Foundation, Inc.,    *
+ * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.                     *
+ * For the text or an alternative of this public license, you may reach us    *
+ * Copyright (C) 2003-2015 E.R.P. Consultores y Asociados, C.A.               *
+ * All Rights Reserved.                                                       *
+ * Contributor(s): Yamel Senih www.erpya.com                                  *
+ *****************************************************************************
+ ***
+ * Title:	Loan Amortization from Agreement
+ * Description:
+ *	Show Loan Amortization and amount for payment for a quote
+ *
+ * Test:
+ * 	SELECT * FROM RV_FM_LoanAmortization WHERE FM_Agreement_ID = 1000000;
+ ************************************************************************/
+CREATE OR REPLACE VIEW RV_FM_LoanAmortization AS
+SELECT ag.AD_Client_ID, ag.AD_Org_ID, ag.IsActive, ag.Created, ag.CreatedBy, ag.Updated, ag.UpdatedBy, 
+ag.FM_Agreement_ID, ag.FM_AgreementType_ID, ag.C_DocType_ID, ag.DocumentNo, ag.DateDoc, 
+ag.DocStatus, ag.FM_Product_ID, ag.C_BPartner_ID, ag.IsSOTrx, ag.Status, 
+ac.FM_Account_ID, ac.C_Currency_ID, ac.AccountNo, 
+ac.FeesQty, ac.PaymentFrequency, ac.PayDate, am.FM_Amortization_ID, am.PeriodNo,
+am.CapitalAmt, am.InterestAmt, am.TaxAmt, (COALESCE(am.CapitalAmt, 0) + COALESCE(am.InterestAmt, 0) + COALESCE(am.TaxAmt, 0)) AS FeeAmt,
+am.StartDate, am.EndDate, am.DueDate, am.IsPaid,
+ca.CapitalAmt AS CurrentCapitalAmt, ca.InterestAmt AS CurrentInterestAmt, ca.TaxAmt AS CurrentTaxAmt, ca.DunningAmt AS CurrentDunningAmt, ca.DunningTaxAmt AS CurrentDunningTaxAmt, 
+(COALESCE(am.CapitalAmt, 0) + COALESCE(ca.InterestAmt, 0) + COALESCE(ca.TaxAmt, 0) + COALESCE(ca.DunningTaxAmt, 0) + COALESCE(ca.DunningAmt, 0)) AS CurrentFeeAmt,
+(CASE WHEN am.DueDate &lt;= now() THEN 'Y' ELSE 'N' END) AS IsDue
+FROM FM_Agreement ag
+INNER JOIN FM_Account ac ON(ac.FM_Agreement_ID = ag.FM_Agreement_ID)
+INNER JOIN FM_Amortization am ON(am.FM_Account_ID = ac.FM_Account_ID)
+LEFT JOIN (SELECT t.FM_Amortization_ID, SUM(CASE WHEN tt.Type = 'LCC' THEN t.Amount ELSE 0 END) AS CapitalAmt,
+          SUM(CASE WHEN tt.Type = 'LIN' THEN t.Amount ELSE 0 END) AS InterestAmt, 
+          SUM(CASE WHEN tt.Type = 'LIT' THEN t.Amount ELSE 0 END) AS TaxAmt,
+          SUM(CASE WHEN tt.Type = 'LDD' THEN t.Amount ELSE 0 END) AS DunningAmt,
+          SUM(CASE WHEN tt.Type = 'LDT' THEN t.Amount ELSE 0 END) AS DunningTaxAmt
+          FROM FM_Transaction t 
+          INNER JOIN FM_TransactionType tt ON(tt.FM_TransactionType_ID = t.FM_TransactionType_ID)
+		  WHERE tt.Type IN('LCC', 'LIN', 'LIT', 'LDD', 'LDT')
+          AND EXISTS(SELECT 1 FROM FM_Batch b 
+                     WHERE b.FM_Batch_ID = t.FM_Batch_ID
+                     AND b.DocStatus IN('CO', 'CL'))
+          GROUP BY t.FM_Amortization_ID) AS ca ON(ca.FM_Amortization_ID = am.FM_Amortization_ID)</SQLStatement>
+      <RollbackStatement>DROP VIEW RV_FM_LoanAmortization</RollbackStatement>
+    </Step>
+    <Step DBType="Oracle" Parse="N" SeqNo="6100" StepType="SQL">
+      <Comments>Add View For Amortization</Comments>
+      <SQLStatement>-- View: RV_FM_LoanAmortization
+-- DROP VIEW RV_FM_LoanAmortization;
+/******************************************************************************
+ * Product: Adempiere ERP &amp; CRM Smart Business Solution                       *
+ * This program is free software; you can redistribute it and/or modify it    *
+ * under the terms version 2 of the GNU General Public License as published   *
+ * by the Free Software Foundation. This program is distributed in the hope   *
+ * that it will be useful, but WITHOUT ANY WARRANTY; without even the implied *
+ * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.           *
+ * See the GNU General Public License for more details.                       *
+ * You should have received a copy of the GNU General Public License along    *
+ * with this program; if not, write to the Free Software Foundation, Inc.,    *
+ * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.                     *
+ * For the text or an alternative of this public license, you may reach us    *
+ * Copyright (C) 2003-2015 E.R.P. Consultores y Asociados, C.A.               *
+ * All Rights Reserved.                                                       *
+ * Contributor(s): Yamel Senih www.erpya.com                                  *
+ *****************************************************************************
+ ***
+ * Title:	Loan Amortization from Agreement
+ * Description:
+ *	Show Loan Amortization and amount for payment for a quote
+ *
+ * Test:
+ * 	SELECT * FROM RV_FM_LoanAmortization WHERE FM_Agreement_ID = 1000000;
+ ************************************************************************/
+CREATE OR REPLACE VIEW RV_FM_LoanAmortization AS
+SELECT ag.AD_Client_ID, ag.AD_Org_ID, ag.IsActive, ag.Created, ag.CreatedBy, ag.Updated, ag.UpdatedBy, 
+ag.FM_Agreement_ID, ag.FM_AgreementType_ID, ag.C_DocType_ID, ag.DocumentNo, ag.DateDoc, 
+ag.DocStatus, ag.FM_Product_ID, ag.C_BPartner_ID, ag.IsSOTrx, ag.Status, 
+ac.FM_Account_ID, ac.C_Currency_ID, ac.AccountNo, 
+ac.FeesQty, ac.PaymentFrequency, ac.PayDate, am.FM_Amortization_ID, am.PeriodNo,
+am.CapitalAmt, am.InterestAmt, am.TaxAmt, (COALESCE(am.CapitalAmt, 0) + COALESCE(am.InterestAmt, 0) + COALESCE(am.TaxAmt, 0)) AS FeeAmt,
+am.StartDate, am.EndDate, am.DueDate, am.IsPaid,
+ca.CapitalAmt AS CurrentCapitalAmt, ca.InterestAmt AS CurrentInterestAmt, ca.TaxAmt AS CurrentTaxAmt, ca.DunningAmt AS CurrentDunningAmt, ca.DunningTaxAmt AS CurrentDunningTaxAmt, 
+(COALESCE(am.CapitalAmt, 0) + COALESCE(ca.InterestAmt, 0) + COALESCE(ca.TaxAmt, 0) + COALESCE(ca.DunningTaxAmt, 0) + COALESCE(ca.DunningAmt, 0)) AS CurrentFeeAmt,
+(CASE WHEN am.DueDate &lt;= now() THEN 'Y' ELSE 'N' END) AS IsDue
+FROM FM_Agreement ag
+INNER JOIN FM_Account ac ON(ac.FM_Agreement_ID = ag.FM_Agreement_ID)
+INNER JOIN FM_Amortization am ON(am.FM_Account_ID = ac.FM_Account_ID)
+LEFT JOIN (SELECT t.FM_Amortization_ID, SUM(CASE WHEN tt.Type = 'LCC' THEN t.Amount ELSE 0 END) AS CapitalAmt,
+          SUM(CASE WHEN tt.Type = 'LIN' THEN t.Amount ELSE 0 END) AS InterestAmt, 
+          SUM(CASE WHEN tt.Type = 'LIT' THEN t.Amount ELSE 0 END) AS TaxAmt,
+          SUM(CASE WHEN tt.Type = 'LDD' THEN t.Amount ELSE 0 END) AS DunningAmt,
+          SUM(CASE WHEN tt.Type = 'LDT' THEN t.Amount ELSE 0 END) AS DunningTaxAmt
+          FROM FM_Transaction t 
+          INNER JOIN FM_TransactionType tt ON(tt.FM_TransactionType_ID = t.FM_TransactionType_ID)
+		  WHERE tt.Type IN('LCC', 'LIN', 'LIT', 'LDD', 'LDT')
+          AND EXISTS(SELECT 1 FROM FM_Batch b 
+                     WHERE b.FM_Batch_ID = t.FM_Batch_ID
+                     AND b.DocStatus IN('CO', 'CL'))
+          GROUP BY t.FM_Amortization_ID) AS ca ON(ca.FM_Amortization_ID = am.FM_Amortization_ID)</SQLStatement>
+      <RollbackStatement>DROP VIEW RV_FM_LoanAmortization</RollbackStatement>
     </Step>
   </Migration>
 </Migrations>

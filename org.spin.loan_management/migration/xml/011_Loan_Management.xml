@@ -109,11 +109,6 @@
         <Data AD_Column_ID="181" Column="SeqNo" oldValue="390">400</Data>
       </PO>
     </Step>
-    <Step SeqNo="120" StepType="AD">
-      <PO AD_Table_ID="107" Action="U" Record_ID="85508" Table="AD_Field">
-        <Data AD_Column_ID="181" Column="SeqNo" oldValue="400">410</Data>
-      </PO>
-    </Step>
     <Step SeqNo="130" StepType="AD">
       <PO AD_Table_ID="107" Action="U" Record_ID="3663" Table="AD_Field">
         <Data AD_Column_ID="181" Column="SeqNo" oldValue="410">420</Data>
@@ -260,9 +255,9 @@
     </Step>
     <Step SeqNo="260" StepType="AD">
       <PO AD_Table_ID="136" Action="U" Record_ID="55150" Table="AD_Ref_List_Trl">
-        <Data AD_Column_ID="338" Column="Name" oldValue="Invoice Customer From Loan">Documento por Cobrar de Cuota</Data>
         <Data AD_Column_ID="336" Column="AD_Ref_List_ID" oldValue="55150">55150</Data>
         <Data AD_Column_ID="337" Column="AD_Language" oldValue="es_MX">es_MX</Data>
+        <Data AD_Column_ID="338" Column="Name" oldValue="Invoice Customer From Loan">Documento por Cobrar de Cuota</Data>
       </PO>
     </Step>
     <Step SeqNo="270" StepType="AD">
@@ -304,9 +299,9 @@
     </Step>
     <Step SeqNo="290" StepType="AD">
       <PO AD_Table_ID="136" Action="U" Record_ID="55151" Table="AD_Ref_List_Trl">
-        <Data AD_Column_ID="338" Column="Name" oldValue="Loan of Invoice Customer">Préstamo de Cuota</Data>
         <Data AD_Column_ID="336" Column="AD_Ref_List_ID" oldValue="55151">55151</Data>
         <Data AD_Column_ID="337" Column="AD_Language" oldValue="es_MX">es_MX</Data>
+        <Data AD_Column_ID="338" Column="Name" oldValue="Loan of Invoice Customer">Préstamo de Cuota</Data>
       </PO>
     </Step>
     <Step SeqNo="300" StepType="AD">
