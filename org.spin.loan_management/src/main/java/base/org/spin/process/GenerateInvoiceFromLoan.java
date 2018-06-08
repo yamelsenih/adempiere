@@ -82,11 +82,11 @@ public class GenerateInvoiceFromLoan extends GenerateInvoiceFromLoanAbstract {
 						//	Validate to invoice as empty
 						if(toInvoiceList == null
 								|| toInvoiceList.isEmpty()) {
-							throw new AdempiereException("LoanManagement.NoToInvoice");
+							throw new AdempiereException("@LoanManagement.NoToInvoice@");
 						}
 						//	Validate difference
 						if(toInvoiceList.size() > getSelectionKeys().size()) {
-							throw new AdempiereException("LoanManagement.AllFeesNotSelected");
+							throw new AdempiereException("@LoanManagement.AllFeesNotSelected@");
 						}
 					}
 					//	
