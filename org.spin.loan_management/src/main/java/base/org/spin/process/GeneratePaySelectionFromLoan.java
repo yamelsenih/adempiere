@@ -87,7 +87,11 @@ public class GeneratePaySelectionFromLoan extends GeneratePaySelectionFromLoanAb
 				//	get values from result set
 				int financialAccountId = key;
 				MFMAccount account = new MFMAccount(getCtx(), financialAccountId, get_TrxName());
-				BigDecimal capitalAmt = (BigDecimal) account.get_Value("CapitalAmt");
+				BigDecimal openCapitalAmt = getSelectionAsBigDecimal(key, "AC_OpenCapitalAmt");
+				BigDecimal payAmt = getSelectionAsBigDecimal(key, "AC_PayAmt");
+				if(openCapitalAmt.compareTo(payAmt) < 0) {
+					throw new AdempiereException("@LoanManagement.OpenCapitalLessPay@");
+				}
 				MFMAgreement agreement = (MFMAgreement) account.getFM_Agreement();
 				MFMProduct financialProduct = MFMProduct.getById(getCtx(), agreement.get_ValueAsInt("FM_Product_ID"));
 				if(financialProduct == null) {
@@ -108,7 +112,7 @@ public class GeneratePaySelectionFromLoan extends GeneratePaySelectionFromLoanAb
 					line.setC_Charge_ID(chargeId);
 				}
 				line.setIsSOTrx(false);
-				line.setAmtSource(capitalAmt);
+				line.setAmtSource(payAmt);
 				int conversionRateId = MConversionRate.getConversionRateId(account.getC_Currency_ID(), bankAccount.getC_Currency_ID(), 
 						getPayDate(), 0, getAD_Client_ID(), paymentSelection.getAD_Org_ID());
 				if(conversionRateId <= 0
@@ -116,10 +120,10 @@ public class GeneratePaySelectionFromLoan extends GeneratePaySelectionFromLoanAb
 					throw new AdempiereException(MConversionRate.getErrorMessage(getCtx(), "NoCurrencyConversion", 
 							account.getC_Currency_ID(), bankAccount.getC_Currency_ID(), 0, getPayDate(), get_TrxName()));
 				}
-				BigDecimal convertedAmt = convert(conversionRateId, capitalAmt);
+				BigDecimal convertedAmt = convert(conversionRateId, payAmt);
 				if(convertedAmt == null
 						&& account.getC_Currency_ID() == bankAccount.getC_Currency_ID()) {
-					convertedAmt = capitalAmt;
+					convertedAmt = payAmt;
 				}
 				line.setOpenAmt(convertedAmt);
 				line.setPayAmt (convertedAmt);
@@ -177,7 +181,11 @@ public class GeneratePaySelectionFromLoan extends GeneratePaySelectionFromLoanAb
 				paymentSelection.saveEx();
 				//	
 				MPaySelectionLine line = new MPaySelectionLine(paymentSelection, seqNo, getPaymentRule());
-				BigDecimal capitalAmt = (BigDecimal) account.get_Value("CapitalAmt");
+				BigDecimal openCapitalAmt = getSelectionAsBigDecimal(key, "AC_OpenCapitalAmt");
+				BigDecimal payAmt = getSelectionAsBigDecimal(key, "AC_PayAmt");
+				if(openCapitalAmt.compareTo(payAmt) < 0) {
+					throw new AdempiereException("@LoanManagement.OpenCapitalLessPay@");
+				}
 				seqNo += 10;
 				//	Account
 				line.setC_BPartner_ID(partner.getC_BPartner_ID());
@@ -185,7 +193,7 @@ public class GeneratePaySelectionFromLoan extends GeneratePaySelectionFromLoanAb
 					line.setC_Charge_ID(chargeId);
 				}
 				line.setIsSOTrx(false);
-				line.setAmtSource(capitalAmt);
+				line.setAmtSource(payAmt);
 				int conversionRateId = MConversionRate.getConversionRateId(account.getC_Currency_ID(), bankAccount.getC_Currency_ID(), 
 						getPayDate(), 0, getAD_Client_ID(), paymentSelection.getAD_Org_ID());
 				if(conversionRateId <= 0
@@ -193,10 +201,10 @@ public class GeneratePaySelectionFromLoan extends GeneratePaySelectionFromLoanAb
 					throw new AdempiereException(MConversionRate.getErrorMessage(getCtx(), "NoCurrencyConversion", 
 							account.getC_Currency_ID(), bankAccount.getC_Currency_ID(), 0, getPayDate(), get_TrxName()));
 				}
-				BigDecimal convertedAmt = convert(conversionRateId, capitalAmt);
+				BigDecimal convertedAmt = convert(conversionRateId, payAmt);
 				if(convertedAmt == null
 						&& account.getC_Currency_ID() == bankAccount.getC_Currency_ID()) {
-					convertedAmt = capitalAmt;
+					convertedAmt = payAmt;
 				}
 				line.setOpenAmt(convertedAmt);
 				line.setPayAmt (convertedAmt);
