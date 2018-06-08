@@ -77,6 +77,19 @@ public class GenerateInvoiceFromLoan extends GenerateInvoiceFromLoanAbstract {
 					//	Set Document Information
 					account = (MFMAccount) amortization.getFM_Account();
 					agreement = (MFMAgreement) account.getFM_Agreement();
+					if(getParameterAsBoolean("IsPrepayment")) {
+						List<MFMAmortization> toInvoiceList = MFMAmortization.getToInvoiceList(account.getFM_Account_ID(), get_TrxName());
+						//	Validate to invoice as empty
+						if(toInvoiceList == null
+								|| toInvoiceList.isEmpty()) {
+							throw new AdempiereException("LoanManagement.NoToInvoice");
+						}
+						//	Validate difference
+						if(toInvoiceList.size() > getSelectionKeys().size()) {
+							throw new AdempiereException("LoanManagement.AllFeesNotSelected");
+						}
+					}
+					//	
 					lastAmortization = MFMAmortization.getLastAmortizationFromAccount(account.getFM_Account_ID(), get_TrxName());
 					//	Get Financial Product for configuration
 					financialProduct = MFMProduct.getById(getCtx(), agreement.getFM_Product_ID());

@@ -25,6 +25,7 @@ import java.util.Properties;
 import org.compiere.model.Query;
 import org.compiere.util.DB;
 import org.compiere.util.Env;
+import org.compiere.util.Util;
 
 /**
  * Loan Amortization
@@ -173,6 +174,44 @@ public class MFMAmortization extends X_FM_Amortization {
 				.setParameters(financialAccountId)
 				.setOrderBy(I_FM_Amortization.COLUMNNAME_PeriodNo + " DESC")
 				.first();
+	}
+	
+	/**
+	 * Get Amortization List from account
+	 * @param financialAccountId
+	 * @param whereClause
+	 * @param trxName
+	 * @return
+	 */
+	public static List<MFMAmortization> getAmortizationList(int financialAccountId, String whereClause, String trxName) {
+		StringBuffer internalWhereClause = new StringBuffer("FM_Account_ID = ?");
+		if(!Util.isEmpty(whereClause)) {
+			internalWhereClause.append(" AND ").append(whereClause);
+		}
+		return new Query(Env.getCtx(), I_FM_Amortization.Table_Name, internalWhereClause.toString(), trxName)
+				.setParameters(financialAccountId)
+				.setOrderBy(I_FM_Amortization.COLUMNNAME_PeriodNo)
+				.list();
+	}
+	
+	/**
+	 * Get Amortization List to Invoice
+	 * @param financialAccountId
+	 * @param trxName
+	 * @return
+	 */
+	public static List<MFMAmortization> getToInvoiceList(int financialAccountId, String trxName) {
+		return getAmortizationList(financialAccountId, "IsInvoiced = 'N'", trxName);
+	}
+	
+	/**
+	 * Get Amortization List to Pay
+	 * @param financialAccountId
+	 * @param trxName
+	 * @return
+	 */
+	public static List<MFMAmortization> getToPayList(int financialAccountId, String trxName) {
+		return getAmortizationList(financialAccountId, "IsPaid = 'N'", trxName);
 	}
 
 }
