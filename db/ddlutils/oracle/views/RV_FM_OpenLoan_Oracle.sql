@@ -33,14 +33,15 @@ ac.FeesQty, ac.PaymentFrequency, ac.PayDate,
 ac.CapitalAmt, 
 ac.InterestAmt, 
 ac.TaxAmt, 
-SUM(COALESCE(am.CapitalAmt, 0) + COALESCE(am.InterestAmt, 0) + COALESCE(am.TaxAmt, 0)) AS FeeAmt,
+COALESCE(ac.CapitalAmt, 0) + COALESCE(ac.InterestAmt, 0) + COALESCE(ac.TaxAmt, 0) AS FeeAmt,
 SUM(COALESCE(am.CapitalAmt, 0)) AS CurrentCapitalAmt, 
-SUM(COALESCE(am.CurrentInterestAmt, 0)) AS CurrentInterestAmt, 
-SUM(COALESCE(am.CurrentTaxAmt, 0)) AS CurrentTaxAmt, 
+SUM(COALESCE(am.InterestAmt, 0)) AS CurrentInterestAmt, 
+SUM(COALESCE(am.TaxAmt, 0)) AS CurrentTaxAmt, 
 SUM(COALESCE(am.CurrentDunningAmt, 0)) AS CurrentDunningAmt, 
 SUM(COALESCE(am.CurrentDunningTaxAmt, 0)) AS CurrentDunningTaxAmt, 
-SUM(COALESCE(am.CapitalAmt, 0) + COALESCE(am.CurrentInterestAmt, 0) + COALESCE(am.CurrentTaxAmt, 0) + COALESCE(am.CurrentDunningAmt, 0) + COALESCE(am.CurrentDunningTaxAmt, 0)) AS CurrentFeeAmt,
-COUNT(am.FM_Amortization_ID) OpenFeesQty
+SUM(COALESCE(am.CurrentFeeAmt, 0)) AS CurrentFeeAmt,
+COUNT(am.FM_Amortization_ID) OpenFeesQty,
+(ac.FeesQty - COUNT(am.FM_Amortization_ID)) PaidFeesQty
 FROM RV_FM_LoanAmortization am
 INNER JOIN FM_Account ac ON(ac.FM_Account_ID = am.FM_Account_ID)
 WHERE am.DocStatus = 'CO'

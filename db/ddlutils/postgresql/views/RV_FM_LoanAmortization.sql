@@ -34,7 +34,8 @@ am.CapitalAmt, am.InterestAmt, am.TaxAmt, (COALESCE(am.CapitalAmt, 0) + COALESCE
 am.StartDate, am.EndDate, am.DueDate, am.IsPaid,
 ca.CapitalAmt AS CurrentCapitalAmt, ca.InterestAmt AS CurrentInterestAmt, ca.TaxAmt AS CurrentTaxAmt, ca.DunningAmt AS CurrentDunningAmt, ca.DunningTaxAmt AS CurrentDunningTaxAmt, 
 (COALESCE(am.CapitalAmt, 0) + COALESCE(am.InterestAmt, 0) + COALESCE(am.TaxAmt, 0) + COALESCE(ca.DunningTaxAmt, 0) + COALESCE(ca.DunningAmt, 0)) AS CurrentFeeAmt,
-(CASE WHEN am.DueDate <= now() THEN 'Y' ELSE 'N' END) AS IsDue, am.IsInvoiced
+(CASE WHEN am.DueDate <= now() THEN 'Y' ELSE 'N' END) AS IsDue, am.IsInvoiced,
+ca.C_Invoice_ID
 FROM FM_Agreement ag
 INNER JOIN FM_Account ac ON(ac.FM_Agreement_ID = ag.FM_Agreement_ID)
 INNER JOIN FM_Amortization am ON(am.FM_Account_ID = ac.FM_Account_ID)
@@ -42,9 +43,11 @@ LEFT JOIN (SELECT t.FM_Amortization_ID, SUM(CASE WHEN tt.Type = 'LCC' THEN t.Amo
           SUM(CASE WHEN tt.Type = 'LIN' THEN t.Amount ELSE 0 END) AS InterestAmt, 
           SUM(CASE WHEN tt.Type = 'LIT' THEN t.Amount ELSE 0 END) AS TaxAmt,
           SUM(CASE WHEN tt.Type = 'LDD' THEN t.Amount ELSE 0 END) AS DunningAmt,
-          SUM(CASE WHEN tt.Type = 'LDT' THEN t.Amount ELSE 0 END) AS DunningTaxAmt
+          SUM(CASE WHEN tt.Type = 'LDT' THEN t.Amount ELSE 0 END) AS DunningTaxAmt,
+          MAX(il.C_Invoice_ID) AS C_Invoice_ID
           FROM FM_Transaction t 
           INNER JOIN FM_TransactionType tt ON(tt.FM_TransactionType_ID = t.FM_TransactionType_ID)
+          LEFT JOIN C_InvoiceLine il ON(il.C_InvoiceLine_ID = t.C_InvoiceLine_ID)
 		  WHERE tt.Type IN('LCC', 'LIN', 'LIT', 'LDD', 'LDT')
           AND EXISTS(SELECT 1 FROM FM_Batch b 
                      WHERE b.FM_Batch_ID = t.FM_Batch_ID
