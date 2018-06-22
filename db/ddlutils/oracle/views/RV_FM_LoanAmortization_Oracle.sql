@@ -35,7 +35,7 @@ am.StartDate, am.EndDate, am.DueDate, am.IsPaid,
 ca.CapitalAmt AS CurrentCapitalAmt, ca.InterestAmt AS CurrentInterestAmt, ca.TaxAmt AS CurrentTaxAmt, ca.DunningAmt AS CurrentDunningAmt, ca.DunningTaxAmt AS CurrentDunningTaxAmt, 
 (COALESCE(am.CapitalAmt, 0) + COALESCE(am.InterestAmt, 0) + COALESCE(am.TaxAmt, 0) + COALESCE(ca.DunningTaxAmt, 0) + COALESCE(ca.DunningAmt, 0)) AS CurrentFeeAmt,
 (CASE WHEN am.DueDate <= now() THEN 'Y' ELSE 'N' END) AS IsDue, am.IsInvoiced,
-ca.C_Invoice_ID
+ca.C_Invoice_ID, i.DateInvoiced
 FROM FM_Agreement ag
 INNER JOIN FM_Account ac ON(ac.FM_Agreement_ID = ag.FM_Agreement_ID)
 INNER JOIN FM_Amortization am ON(am.FM_Account_ID = ac.FM_Account_ID)
@@ -53,5 +53,5 @@ LEFT JOIN (SELECT t.FM_Amortization_ID, SUM(CASE WHEN tt.Type = 'LCC' THEN t.Amo
                      WHERE b.FM_Batch_ID = t.FM_Batch_ID
                      AND b.DocStatus IN('CO', 'CL'))
           GROUP BY t.FM_Amortization_ID) AS ca ON(ca.FM_Amortization_ID = am.FM_Amortization_ID)
-
+LEFT JOIN C_Invoice i ON(i.C_Invoice_ID = ca.C_Invoice_ID)
 /
