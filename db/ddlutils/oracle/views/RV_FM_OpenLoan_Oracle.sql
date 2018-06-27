@@ -33,14 +33,14 @@ ac.FeesQty, ac.PaymentFrequency, ac.PayDate,
 ac.CapitalAmt, 
 ac.InterestAmt, 
 ac.TaxAmt, 
-COALESCE(ac.CapitalAmt, 0) + COALESCE(ac.InterestAmt, 0) + COALESCE(ac.TaxAmt, 0) AS FeeAmt, 
+COALESCE(ac.CapitalAmt, 0) + COALESCE(ac.InterestAmt, 0) + COALESCE(ac.TaxAmt, 0) AS FeeAmt,
 SUM(CASE WHEN am.IsInvoiced = 'N' OR am.IsPaid = 'N' THEN COALESCE(am.CapitalAmt, 0) ELSE 0 END) AS CurrentCapitalAmt, 
 SUM(CASE WHEN am.IsInvoiced = 'N' OR am.IsPaid = 'N' THEN COALESCE(am.InterestAmt, 0) ELSE 0 END) AS CurrentInterestAmt, 
 SUM(CASE WHEN am.IsInvoiced = 'N' OR am.IsPaid = 'N' THEN COALESCE(am.TaxAmt, 0) ELSE 0 END) AS CurrentTaxAmt, 
 SUM(CASE WHEN am.IsInvoiced = 'N' OR am.IsPaid = 'N' THEN COALESCE(am.CurrentDunningAmt, 0) ELSE 0 END) AS CurrentDunningAmt, 
 SUM(CASE WHEN am.IsInvoiced = 'N' OR am.IsPaid = 'N' THEN COALESCE(am.CurrentDunningTaxAmt, 0) ELSE 0 END) AS CurrentDunningTaxAmt, 
 SUM(CASE WHEN am.IsInvoiced = 'N' OR am.IsPaid = 'N' THEN COALESCE(am.CurrentFeeAmt, 0) ELSE 0 END) AS CurrentFeeAmt,
-SUM(CASE WHEN am.IsInvoiced = 'N' AND am.IsPaid = 'Y' THEN 1 ELSE 0 END) OpenFeesQty,
+SUM(CASE WHEN am.IsInvoiced = 'N' OR am.IsPaid = 'N' THEN 1 ELSE 0 END) OpenFeesQty,
 SUM(CASE WHEN am.IsPaid = 'Y' THEN 1 ELSE 0 END) PaidFeesQty,
 SUM(CASE WHEN (am.IsInvoiced = 'N' OR am.IsPaid = 'N') AND am.IsDue = 'Y' THEN COALESCE(am.CurrentFeeAmt, 0) ELSE 0 END) AS CurrentDueFeeAmt,
 SUM(CASE WHEN (am.IsInvoiced = 'N' OR am.IsPaid = 'N') AND am.IsDue = 'Y' THEN 1 ELSE 0 END) AS DueFeesQty,
@@ -48,7 +48,7 @@ SUM(CASE WHEN am.IsInvoiced = 'Y' AND am.IsPaid = 'Y' THEN COALESCE(am.CurrentFe
 lp.DueDate
 FROM RV_FM_LoanAmortization am
 INNER JOIN FM_Account ac ON(ac.FM_Account_ID = am.FM_Account_ID)
-LEFT JOIN (SELECT lp.FM_Amortization_ID, lp.DueDate
+LEFT JOIN (SELECT lp.FM_Account_ID, lp.DueDate
 		FROM RV_FM_LoanAmortization lp
 		WHERE lp.FM_Amortization_ID = (SELECT lpp.FM_Amortization_ID 
 						FROM RV_FM_LoanAmortization lpp
@@ -56,8 +56,11 @@ LEFT JOIN (SELECT lp.FM_Amortization_ID, lp.DueDate
 						AND (lpp.IsInvoiced = 'N' OR lpp.IsPaid = 'N') 
 						AND lpp.IsDue = 'Y'
 						AND ROWNUM <= 1
-						ORDER BY lpp.PeriodNo DESC) lp ON(lp.FM_Amortization_ID = am.FM_Amortization_ID)
+						ORDER BY lpp.PeriodNo DESC) lp ON(lp.FM_Account_ID = am.FM_Account_ID)
 WHERE am.DocStatus = 'CO'
+AND EXISTS(SELECT 1 FROM FM_Amortization la 
+	WHERE la.FM_Account_ID = am.FM_Account_ID 
+	AND (la.IsInvoiced = 'N' OR la.IsPaid = 'N'))
 GROUP BY am.AD_Client_ID, am.AD_Org_ID, am.IsActive, am.Created, am.CreatedBy, am.Updated, am.UpdatedBy, 
 am.FM_Agreement_ID, am.FM_AgreementType_ID, am.C_DocType_ID, am.DocumentNo, am.DateDoc, 
 am.DocStatus, am.FM_Product_ID, am.C_BPartner_ID, am.IsSOTrx, am.Status, 
