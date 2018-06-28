@@ -55,7 +55,7 @@ LEFT JOIN (SELECT lp.FM_Account_ID, lp.DueDate
 						WHERE lpp.FM_Account_ID = lp.FM_Account_ID
 						AND (lpp.IsInvoiced = 'N' OR lpp.IsPaid = 'N') 
 						AND lpp.IsDue = 'Y'
-						ORDER BY lpp.PeriodNo DESC
+						ORDER BY lpp.PeriodNo
 						LIMIT 1)) lp ON(lp.FM_Account_ID = am.FM_Account_ID)
 WHERE am.DocStatus = 'CO'
 AND EXISTS(SELECT 1 FROM FM_Amortization la 
