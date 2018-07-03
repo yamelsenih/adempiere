@@ -35,7 +35,7 @@ am.StartDate, am.EndDate, am.DueDate, am.IsPaid,
 ca.CapitalAmt AS CurrentCapitalAmt, ca.InterestAmt AS CurrentInterestAmt, ca.TaxAmt AS CurrentTaxAmt, ca.DunningAmt AS CurrentDunningAmt, ca.DunningTaxAmt AS CurrentDunningTaxAmt, 
 (COALESCE(am.CapitalAmt, 0) + COALESCE(am.InterestAmt, 0) + COALESCE(am.TaxAmt, 0) + COALESCE(ca.DunningTaxAmt, 0) + COALESCE(ca.DunningAmt, 0)) AS CurrentFeeAmt,
 (CASE WHEN am.DueDate <= now() THEN 'Y' ELSE 'N' END) AS IsDue, am.IsInvoiced,
-ca.C_Invoice_ID, i.DateInvoiced
+i.C_Invoice_ID, i.DateInvoiced
 FROM FM_Agreement ag
 INNER JOIN FM_Account ac ON(ac.FM_Agreement_ID = ag.FM_Agreement_ID)
 INNER JOIN FM_Amortization am ON(am.FM_Account_ID = ac.FM_Account_ID)
@@ -43,15 +43,17 @@ LEFT JOIN (SELECT t.FM_Amortization_ID, SUM(CASE WHEN tt.Type = 'LCC' THEN t.Amo
           SUM(CASE WHEN tt.Type = 'LIN' THEN t.Amount ELSE 0 END) AS InterestAmt, 
           SUM(CASE WHEN tt.Type = 'LIT' THEN t.Amount ELSE 0 END) AS TaxAmt,
           SUM(CASE WHEN tt.Type = 'LDD' THEN t.Amount ELSE 0 END) AS DunningAmt,
-          SUM(CASE WHEN tt.Type = 'LDT' THEN t.Amount ELSE 0 END) AS DunningTaxAmt,
-          MAX(il.C_Invoice_ID) AS C_Invoice_ID
+          SUM(CASE WHEN tt.Type = 'LDT' THEN t.Amount ELSE 0 END) AS DunningTaxAmt
           FROM FM_Transaction t 
           INNER JOIN FM_TransactionType tt ON(tt.FM_TransactionType_ID = t.FM_TransactionType_ID)
-          LEFT JOIN C_InvoiceLine il ON(il.C_InvoiceLine_ID = t.C_InvoiceLine_ID)
-		  WHERE tt.Type IN('LCC', 'LIN', 'LIT', 'LDD', 'LDT')
+          WHERE tt.Type IN('LCC', 'LIN', 'LIT', 'LDD', 'LDT')
           AND EXISTS(SELECT 1 FROM FM_Batch b 
                      WHERE b.FM_Batch_ID = t.FM_Batch_ID
                      AND b.DocStatus IN('CO', 'CL'))
           GROUP BY t.FM_Amortization_ID) AS ca ON(ca.FM_Amortization_ID = am.FM_Amortization_ID)
-LEFT JOIN C_Invoice i ON(i.C_Invoice_ID = ca.C_Invoice_ID)
+LEFT JOIN (SELECT il.FM_Amortization_ID, MAX(i.C_Invoice_ID) AS C_Invoice_ID, MAX(i.DateInvoiced) AS DateInvoiced
+	FROM C_Invoice i
+	INNER JOIN C_InvoiceLine il ON(il.C_Invoice_ID = i.C_Invoice_ID)
+	WHERE i.DocStatus IN('CO', 'CL')
+	GROUP BY il.FM_Amortization_ID) i ON(i.FM_Amortization_ID = am.FM_Amortization_ID)
 /
