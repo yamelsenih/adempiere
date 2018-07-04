@@ -18,20 +18,18 @@ package org.spin.util.impexp;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
-
-import org.compiere.util.Env;
 import org.compiere.util.Util;
 
 /**
- * Custom format for Provincial Bank Transaction
+ * Custom format for Tesoro Bank Transaction
  * It is a specific solution for a bank
  * @author Yamel Senih, ysenih@erpya.com , http://www.erpya.com
  * <li> FR [ 1701 ] Add support to MT940 format
  * @see https://github.com/adempiere/adempiere/issues/1701
  */
-public class Provincial_BankTransaction extends BankTransactionAbstract {
+public class Tesoro_BankTransaction extends BankTransactionAbstract {
 	/**	Ignore it line because is a first line as head */
-	public static final String HEAD_REFERENCE_FIRST_LINE_FLAG = "Fecha;Referencia;";
+	public static final String HEAD_REFERENCE_FIRST_LINE_FLAG = "Fecha";
 	/**	Value Date [dddMMyyyy]	*/
 	public static final String LINE_TRANSACTION_Date = "TrxDate";
 	/**	Transaction type Transaction type (description)	*/ 
@@ -45,7 +43,7 @@ public class Provincial_BankTransaction extends BankTransactionAbstract {
 	/**	Amount	*/
 	public static final String LINE_TRANSACTION_Amount = "Amount";
 	/**	Start Column Index	*/
-	private static final char START_CHAR_VALUE = ';';
+	private static final char START_CHAR_VALUE = '\t';
 	/**	Debt Constant	*/
 	public static final String DEBT = "DR";
 	/**	Credit Constant	*/
@@ -61,7 +59,7 @@ public class Provincial_BankTransaction extends BankTransactionAbstract {
 		if(Util.isEmpty(line)) {
 			return;
 		}
-		if(line.contains(HEAD_REFERENCE_FIRST_LINE_FLAG)) {
+		if(line.startsWith(HEAD_REFERENCE_FIRST_LINE_FLAG)) {
 			isTransaction = false;
 			return;
 		}
@@ -73,8 +71,8 @@ public class Provincial_BankTransaction extends BankTransactionAbstract {
 		//	Replace bad characters
 		line = line.replaceAll("\"", "");
 		//	Set Transaction Date
-		addValue(LINE_TRANSACTION_Date, getDate("dd-MM-yyyy", subString(line, 0, 10)));
-		//	Set Reference
+		addValue(LINE_TRANSACTION_Date, getDate("dd/MM/yy", subString(line, 0, 8)));
+		//	Set Memo
 		int startIndex = 0;
 		int endIndex = 0;
 		int initPosition = 1;
@@ -83,29 +81,37 @@ public class Provincial_BankTransaction extends BankTransactionAbstract {
 		endIndex = line.substring(startIndex).indexOf(START_CHAR_VALUE) + startIndex + initPosition;
 		value = subString(line, startIndex, endIndex);
 		if(!Util.isEmpty(value)) {
-			addValue(LINE_TRANSACTION_ReferenceNo, value.replaceAll(";", "").trim());
+			addValue(LINE_TRANSACTION_Memo, value.replaceAll(";", "").trim());
 		}
-		//	
+		//	Set Reference
 		line = line.substring(endIndex);
 		startIndex = 0;
 		endIndex = line.indexOf(START_CHAR_VALUE) + initPosition;
 		//	Set Memo
 		value = subString(line, startIndex, endIndex);
 		if(!Util.isEmpty(value)) {
-			addValue(LINE_TRANSACTION_Memo, value.replaceAll(";", "").trim());
+			addValue(LINE_TRANSACTION_ReferenceNo, value.replaceAll(";", "").trim());
 		}
 		//	
 		line = line.substring(endIndex);
 		startIndex = 0;
 		endIndex = line.indexOf(START_CHAR_VALUE) + initPosition;
 		//	Set Debt
-		BigDecimal amount = getNumber('.', "#,###,###,###,###,###.##", subString(line, startIndex, endIndex));
-		addValue(LINE_TRANSACTION_Amount, amount);
+		BigDecimal debit = getNumber('.', "#,###,###,###,###,###.##", subString(line, startIndex, endIndex));
+		//	
+		line = line.substring(endIndex);
+		startIndex = 0;
+		endIndex = line.indexOf(START_CHAR_VALUE) + initPosition;
+		//	Set Credit
+		BigDecimal credit = getNumber('.', "#,###,###,###,###,###.##", subString(line, startIndex, endIndex));
 		//	Add to index (ignore balance)
-		if(amount != null
-				&& amount.compareTo(Env.ZERO) < 0) {
+		if(debit != null
+				&& debit.doubleValue() != 0) {
+			addValue(LINE_TRANSACTION_Amount, debit.negate());
 			addValue(LINE_TRANSACTION_Type, DEBT);
-		} else if(amount != null) {
+		} else if(credit != null
+				&& credit.doubleValue() != 0) {
+			addValue(LINE_TRANSACTION_Amount, credit);
 			addValue(LINE_TRANSACTION_Type, CREDIT);
 		}
 		//	fine

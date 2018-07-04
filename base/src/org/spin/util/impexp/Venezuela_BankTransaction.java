@@ -18,8 +18,6 @@ package org.spin.util.impexp;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
-
-import org.compiere.util.Env;
 import org.compiere.util.Util;
 
 /**
@@ -82,10 +80,10 @@ public class Venezuela_BankTransaction extends BankTransactionAbstract {
 		BigDecimal credit = getNumber('.', "##################", subString(line, index, index += 18));
 		//	Add to index (ignore balance)
 		if(debit != null
-				&& !debit.equals(Env.ZERO)) {
-			addValue(LINE_TRANSACTION_Amount, debit);			
+				&& debit.doubleValue() != 0) {
+			addValue(LINE_TRANSACTION_Amount, debit.negate());			
 		} else if(credit != null
-				&& !credit.equals(Env.ZERO)) {
+				&& credit.doubleValue() != 0) {
 			addValue(LINE_TRANSACTION_Amount, credit);
 		}
 		index += 18;

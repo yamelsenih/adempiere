@@ -18,8 +18,6 @@ package org.spin.util.impexp;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
-
-import org.compiere.util.Env;
 import org.compiere.util.Util;
 
 /**
@@ -111,20 +109,20 @@ public class Banplus_BankTransaction extends BankTransactionAbstract {
 		startIndex = 0;
 		endIndex = line.indexOf(START_CHAR_VALUE) + initPosition;
 		//	Set Debt
-		BigDecimal debit = getNumber(',', "##################", subString(line, startIndex, endIndex));
+		BigDecimal debit = getNumber('.', "##################", subString(line, startIndex, endIndex));
 		//	
 		line = line.substring(endIndex);
 		startIndex = 0;
 		endIndex = line.indexOf(START_CHAR_VALUE) + initPosition;
 		//	Set Credit
-		BigDecimal credit = getNumber(',', "##################", subString(line, startIndex, endIndex));
+		BigDecimal credit = getNumber('.', "##################", subString(line, startIndex, endIndex));
 		//	Add to index (ignore balance)
 		if(debit != null
-				&& !debit.equals(Env.ZERO)) {
-			addValue(LINE_TRANSACTION_Amount, debit);
+				&& debit.doubleValue() != 0) {
+			addValue(LINE_TRANSACTION_Amount, debit.negate());
 			addValue(LINE_TRANSACTION_Type, DEBT);
 		} else if(credit != null
-				&& !credit.equals(Env.ZERO)) {
+				&& credit.doubleValue() != 0) {
 			addValue(LINE_TRANSACTION_Amount, credit);
 			addValue(LINE_TRANSACTION_Type, CREDIT);
 		}
