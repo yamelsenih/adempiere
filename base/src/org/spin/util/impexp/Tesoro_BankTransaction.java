@@ -90,7 +90,7 @@ public class Tesoro_BankTransaction extends BankTransactionAbstract {
 		//	Set Memo
 		value = subString(line, startIndex, endIndex);
 		if(!Util.isEmpty(value)) {
-			addValue(LINE_TRANSACTION_ReferenceNo, value.replaceAll(";", "").trim());
+			addValue(LINE_TRANSACTION_ReferenceNo, getNumber('.', "#,###,###,###,###,###.##", value.replaceAll(";", "").trim()));
 		}
 		//	
 		line = line.substring(endIndex);
