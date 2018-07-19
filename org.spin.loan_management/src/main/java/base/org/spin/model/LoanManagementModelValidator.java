@@ -32,6 +32,7 @@ import org.compiere.model.MPayment;
 import org.compiere.model.ModelValidationEngine;
 import org.compiere.model.ModelValidator;
 import org.compiere.model.PO;
+import org.compiere.model.Query;
 import org.compiere.util.CLogger;
 import org.compiere.util.DB;
 import org.compiere.util.DisplayType;
@@ -190,17 +191,22 @@ public class LoanManagementModelValidator implements ModelValidator {
 						&& payment.getReversal_ID() != 0) {
 					return null;
 				}
-				String sql = new String("SELECT pl.FM_Account_ID "
+				String whereClause = new String("EXISTS(SELECT 1 "
 						+ "FROM C_PaySelectionLine pl "
 						+ "INNER JOIN C_PaySelectionCheck pc ON(pc.C_PaySelectionCheck_ID = pl.C_PaySelectionCheck_ID) "
-						+ "WHERE pc.C_Payment_ID = ?");
-				//	Get 
-				int financialAccountId = DB.getSQLValue(payment.get_TrxName(), sql, payment.getC_Payment_ID());
-				if(financialAccountId > 0) {
-					MFMAccount account = new MFMAccount(payment.getCtx(), financialAccountId, payment.get_TrxName());
-					//	
-					account.set_ValueOfColumn("IsPaid", timing == TIMING_AFTER_COMPLETE);
-					account.saveEx();
+						+ "WHERE pl.FM_Account_ID = FM_Account.FM_Account_ID "
+						+ "AND pc.C_Payment_ID = ?)");
+				//	Get Financial Account from Payment
+				List<MFMAccount> accountList = new Query(payment.getCtx(), I_FM_Account.Table_Name, whereClause, payment.get_TrxName())
+					.setParameters(payment.getC_Payment_ID())
+					.list();
+				//	Mark it
+				if(accountList != null
+						&& accountList.size() > 0) {
+					accountList.stream().forEach(account -> {
+						account.set_ValueOfColumn("IsPaid", timing == TIMING_AFTER_COMPLETE);
+						account.saveEx();
+					});
 				}
 			}
 		} else if (entity instanceof MFMAgreement) {
