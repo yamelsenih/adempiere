@@ -34,7 +34,7 @@ public class X_HR_WorkShift extends PO implements I_HR_WorkShift, I_Persistent
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20170731L;
+	private static final long serialVersionUID = 20180730L;
 
     /** Standard Constructor */
     public X_HR_WorkShift (Properties ctx, int HR_WorkShift_ID, String trxName)
@@ -78,6 +78,60 @@ public class X_HR_WorkShift extends PO implements I_HR_WorkShift, I_Persistent
         .append(get_ID()).append("]");
       return sb.toString();
     }
+
+	/** Set Break End Time.
+		@param BreakEndTime 
+		End Time for Break
+	  */
+	public void setBreakEndTime (Timestamp BreakEndTime)
+	{
+		set_Value (COLUMNNAME_BreakEndTime, BreakEndTime);
+	}
+
+	/** Get Break End Time.
+		@return End Time for Break
+	  */
+	public Timestamp getBreakEndTime () 
+	{
+		return (Timestamp)get_Value(COLUMNNAME_BreakEndTime);
+	}
+
+	/** Set Break Hours No.
+		@param BreakHoursNo 
+		Break Hours Number
+	  */
+	public void setBreakHoursNo (int BreakHoursNo)
+	{
+		set_Value (COLUMNNAME_BreakHoursNo, Integer.valueOf(BreakHoursNo));
+	}
+
+	/** Get Break Hours No.
+		@return Break Hours Number
+	  */
+	public int getBreakHoursNo () 
+	{
+		Integer ii = (Integer)get_Value(COLUMNNAME_BreakHoursNo);
+		if (ii == null)
+			 return 0;
+		return ii.intValue();
+	}
+
+	/** Set Break Start Time.
+		@param BreakStartTime 
+		Start Time for Break
+	  */
+	public void setBreakStartTime (Timestamp BreakStartTime)
+	{
+		set_Value (COLUMNNAME_BreakStartTime, BreakStartTime);
+	}
+
+	/** Get Break Start Time.
+		@return Start Time for Break
+	  */
+	public Timestamp getBreakStartTime () 
+	{
+		return (Timestamp)get_Value(COLUMNNAME_BreakStartTime);
+	}
 
 	/** Set Description.
 		@param Description 
@@ -235,6 +289,174 @@ public class X_HR_WorkShift extends PO implements I_HR_WorkShift, I_Persistent
 		if (bd == null)
 			 return Env.ZERO;
 		return bd;
+	}
+
+	/** Set Friday.
+		@param OnFriday 
+		Available on Fridays
+	  */
+	public void setOnFriday (boolean OnFriday)
+	{
+		set_Value (COLUMNNAME_OnFriday, Boolean.valueOf(OnFriday));
+	}
+
+	/** Get Friday.
+		@return Available on Fridays
+	  */
+	public boolean isOnFriday () 
+	{
+		Object oo = get_Value(COLUMNNAME_OnFriday);
+		if (oo != null) 
+		{
+			 if (oo instanceof Boolean) 
+				 return ((Boolean)oo).booleanValue(); 
+			return "Y".equals(oo);
+		}
+		return false;
+	}
+
+	/** Set Monday.
+		@param OnMonday 
+		Available on Mondays
+	  */
+	public void setOnMonday (boolean OnMonday)
+	{
+		set_Value (COLUMNNAME_OnMonday, Boolean.valueOf(OnMonday));
+	}
+
+	/** Get Monday.
+		@return Available on Mondays
+	  */
+	public boolean isOnMonday () 
+	{
+		Object oo = get_Value(COLUMNNAME_OnMonday);
+		if (oo != null) 
+		{
+			 if (oo instanceof Boolean) 
+				 return ((Boolean)oo).booleanValue(); 
+			return "Y".equals(oo);
+		}
+		return false;
+	}
+
+	/** Set Saturday.
+		@param OnSaturday 
+		Available on Saturday
+	  */
+	public void setOnSaturday (boolean OnSaturday)
+	{
+		set_Value (COLUMNNAME_OnSaturday, Boolean.valueOf(OnSaturday));
+	}
+
+	/** Get Saturday.
+		@return Available on Saturday
+	  */
+	public boolean isOnSaturday () 
+	{
+		Object oo = get_Value(COLUMNNAME_OnSaturday);
+		if (oo != null) 
+		{
+			 if (oo instanceof Boolean) 
+				 return ((Boolean)oo).booleanValue(); 
+			return "Y".equals(oo);
+		}
+		return false;
+	}
+
+	/** Set Sunday.
+		@param OnSunday 
+		Available on Sundays
+	  */
+	public void setOnSunday (boolean OnSunday)
+	{
+		set_Value (COLUMNNAME_OnSunday, Boolean.valueOf(OnSunday));
+	}
+
+	/** Get Sunday.
+		@return Available on Sundays
+	  */
+	public boolean isOnSunday () 
+	{
+		Object oo = get_Value(COLUMNNAME_OnSunday);
+		if (oo != null) 
+		{
+			 if (oo instanceof Boolean) 
+				 return ((Boolean)oo).booleanValue(); 
+			return "Y".equals(oo);
+		}
+		return false;
+	}
+
+	/** Set Thursday.
+		@param OnThursday 
+		Available on Thursdays
+	  */
+	public void setOnThursday (boolean OnThursday)
+	{
+		set_Value (COLUMNNAME_OnThursday, Boolean.valueOf(OnThursday));
+	}
+
+	/** Get Thursday.
+		@return Available on Thursdays
+	  */
+	public boolean isOnThursday () 
+	{
+		Object oo = get_Value(COLUMNNAME_OnThursday);
+		if (oo != null) 
+		{
+			 if (oo instanceof Boolean) 
+				 return ((Boolean)oo).booleanValue(); 
+			return "Y".equals(oo);
+		}
+		return false;
+	}
+
+	/** Set Tuesday.
+		@param OnTuesday 
+		Available on Tuesdays
+	  */
+	public void setOnTuesday (boolean OnTuesday)
+	{
+		set_Value (COLUMNNAME_OnTuesday, Boolean.valueOf(OnTuesday));
+	}
+
+	/** Get Tuesday.
+		@return Available on Tuesdays
+	  */
+	public boolean isOnTuesday () 
+	{
+		Object oo = get_Value(COLUMNNAME_OnTuesday);
+		if (oo != null) 
+		{
+			 if (oo instanceof Boolean) 
+				 return ((Boolean)oo).booleanValue(); 
+			return "Y".equals(oo);
+		}
+		return false;
+	}
+
+	/** Set Wednesday.
+		@param OnWednesday 
+		Available on Wednesdays
+	  */
+	public void setOnWednesday (boolean OnWednesday)
+	{
+		set_Value (COLUMNNAME_OnWednesday, Boolean.valueOf(OnWednesday));
+	}
+
+	/** Get Wednesday.
+		@return Available on Wednesdays
+	  */
+	public boolean isOnWednesday () 
+	{
+		Object oo = get_Value(COLUMNNAME_OnWednesday);
+		if (oo != null) 
+		{
+			 if (oo instanceof Boolean) 
+				 return ((Boolean)oo).booleanValue(); 
+			return "Y".equals(oo);
+		}
+		return false;
 	}
 
 	/** Set Over Time Amount.

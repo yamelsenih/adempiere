@@ -19,15 +19,48 @@ package org.eevolution.model;
 import java.sql.ResultSet;
 import java.util.Properties;
 
+import org.compiere.util.CCache;
+
 /**
  * Created by victor.perez@e-evolution.com, e-Evolution on 03/12/13.
  */
 public class MHRWorkShift extends X_HR_WorkShift {
-    public MHRWorkShift(Properties ctx, int HR_WorkShift_ID, String trxName) {
+
+	public MHRWorkShift(Properties ctx, int HR_WorkShift_ID, String trxName) {
         super(ctx, HR_WorkShift_ID, trxName);
     }
 
     public MHRWorkShift(Properties ctx, ResultSet rs, String trxName) {
         super(ctx, rs, trxName);
     }
+    
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 955746318164528261L;
+    
+	/** Cache */
+	private static CCache<Integer, MHRWorkShift> workShiftCache = new CCache<Integer, MHRWorkShift>(Table_Name, 1000);
+	
+	/**
+	 * Get Work Shift by Id
+	 * @param ctx
+	 * @param workShiftId
+	 * @return
+	 */
+	public static MHRWorkShift getById(Properties ctx, int workShiftId) {
+		if (workShiftId <= 0)
+			return null;
+
+		MHRWorkShift employee = workShiftCache.get(workShiftId);
+		if (employee != null)
+			return employee;
+
+		employee = new MHRWorkShift(ctx, workShiftId, null);
+		if (employee.get_ID() == workShiftId)
+			workShiftCache.put(workShiftId, employee);
+		else
+			employee = null;
+		return employee;
+	}
 }

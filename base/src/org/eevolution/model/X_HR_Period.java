@@ -32,7 +32,7 @@ public class X_HR_Period extends PO implements I_HR_Period, I_Persistent
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20170731L;
+	private static final long serialVersionUID = 20180730L;
 
     /** Standard Constructor */
     public X_HR_Period (Properties ctx, int HR_Period_ID, String trxName)
@@ -43,7 +43,6 @@ public class X_HR_Period extends PO implements I_HR_Period, I_Persistent
 			setC_Period_ID (0);
 			setC_Year_ID (0);
 			setDateAcct (new Timestamp( System.currentTimeMillis() ));
-			setHR_Payroll_ID (0);
 			setHR_Period_ID (0);
 			setName (null);
 			setPeriodNo (0);
@@ -184,6 +183,31 @@ public class X_HR_Period extends PO implements I_HR_Period, I_Persistent
 	public Timestamp getEndDate () 
 	{
 		return (Timestamp)get_Value(COLUMNNAME_EndDate);
+	}
+
+	public org.spin.model.I_HR_Calendar getHR_Calendar() throws RuntimeException
+    {
+		return (org.spin.model.I_HR_Calendar)MTable.get(getCtx(), org.spin.model.I_HR_Calendar.Table_Name)
+			.getPO(getHR_Calendar_ID(), get_TrxName());	}
+
+	/** Set Human Resource Calendar.
+		@param HR_Calendar_ID Human Resource Calendar	  */
+	public void setHR_Calendar_ID (int HR_Calendar_ID)
+	{
+		if (HR_Calendar_ID < 1) 
+			set_Value (COLUMNNAME_HR_Calendar_ID, null);
+		else 
+			set_Value (COLUMNNAME_HR_Calendar_ID, Integer.valueOf(HR_Calendar_ID));
+	}
+
+	/** Get Human Resource Calendar.
+		@return Human Resource Calendar	  */
+	public int getHR_Calendar_ID () 
+	{
+		Integer ii = (Integer)get_Value(COLUMNNAME_HR_Calendar_ID);
+		if (ii == null)
+			 return 0;
+		return ii.intValue();
 	}
 
 	public org.eevolution.model.I_HR_Payroll getHR_Payroll() throws RuntimeException
