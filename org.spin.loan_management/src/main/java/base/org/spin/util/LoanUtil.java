@@ -24,9 +24,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
 
+import org.adempiere.model.GenericPO;
 import org.compiere.model.MCharge;
 import org.compiere.model.MTax;
 import org.compiere.model.MTaxCategory;
+import org.compiere.model.Query;
 import org.compiere.util.Env;
 import org.compiere.util.TimeUtil;
 import org.spin.model.MFMAccount;
@@ -418,6 +420,166 @@ public class LoanUtil {
 	}
 	
 	/**
+	 * Only dunning of loan
+	 * @param ctx
+	 * @param agreementId
+	 * @param runningDate
+	 * @param trxName
+	 * @return
+	 */
+	public static HashMap<String, Object> calculateLoanProvision(Properties ctx, int agreementId, Timestamp runningDate, String trxName){
+		//	Validate agreement
+		if(agreementId <= 0) {
+			return null;
+		}
+		/**	Return Value */
+		HashMap<String, Object> returnValues = new HashMap<String, Object>();
+		//	if null then is now
+		if(runningDate == null) {
+			runningDate = new Timestamp(System.currentTimeMillis());
+		}
+		//	Get agreement
+		MFMAgreement agreement = new MFMAgreement(ctx, agreementId, trxName);
+		//	Calculate it
+		MFMProduct financialProduct = MFMProduct.getById(ctx, agreement.getFM_Product_ID());
+		//	Get Interest Rate
+		int dunningRateId = financialProduct.get_ValueAsInt("DunningInterest_ID");
+		int dunningId = financialProduct.get_ValueAsInt("FM_Dunning_ID");
+		//	Validate Dunning for it
+		if(dunningRateId == 0
+				&& dunningId == 0) {
+			return null;
+		}
+		//	
+		MFMDunning dunning = null;
+		//	Get dunning configuration if exist
+		if(dunningId > 0) {
+			dunning = MFMDunning.getById(ctx, dunningId);
+		}
+		//	Get
+		List<MFMAccount> accounts = MFMAccount.getAccountFromAgreement(agreement);
+		MFMAccount account = null;
+		if (accounts.isEmpty()){
+			account = new MFMAccount(agreement);
+			account.saveEx();
+		} else {
+			account = accounts.get(0);
+		}
+		//	Hash Map for Amortization
+		List<AmortizationValue> amortizationList = new ArrayList<AmortizationValue>();
+		//	
+		for(AmortizationValue row : getCurrentAmortizationList(ctx, agreementId, trxName)) {
+			if(row.isPaid()) {
+				continue;
+			}
+			if(row.getDaysDue(runningDate) <= 0) {
+				continue;
+			}
+			//	For distinct levels
+			MFMDunningLevel level = null;
+			if(dunning != null
+					&& dunningRateId == 0) {
+				level = dunning.getValidLevelInstance(row.getDaysDue());
+				if(level == null
+						|| !level.isAccrual()) {
+					continue;
+				}
+				//	Get Provision Rate
+				BigDecimal provisionRate = level.getProvisionPercentage();
+				provisionRate = provisionRate.divide(Env.ONEHUNDRED);
+				//	Set Capital
+				BigDecimal capitalAmount = row.getCapitalAmtFee();
+				//	Set Interest
+				BigDecimal interestAmount = row.getInterestAmtFee();
+				//	Set Dunning
+				BigDecimal dunningInterestAmount = row.getDunningInterestAmount();
+				//	Set Provision
+				BigDecimal provisionAmount = (capitalAmount.add(interestAmount).add(dunningInterestAmount)).multiply(provisionRate);
+				row.setProvisionAmt(provisionAmount);
+				amortizationList.add(row);
+			}
+		}
+		//	Add list
+		returnValues.put("AMORTIZATION_LIST", amortizationList);
+		return returnValues;
+	}
+	
+	/**
+	 * Only dunning of loan
+	 * @param ctx
+	 * @param agreementId
+	 * @param runningDate
+	 * @param trxName
+	 * @return
+	 */
+	public static HashMap<String, Object> calculateLoanSuspension(Properties ctx, int agreementId, Timestamp runningDate, String trxName){
+		//	Validate agreement
+		if(agreementId <= 0) {
+			return null;
+		}
+		/**	Return Value */
+		HashMap<String, Object> returnValues = new HashMap<String, Object>();
+		//	if null then is now
+		if(runningDate == null) {
+			runningDate = new Timestamp(System.currentTimeMillis());
+		}
+		//	Get agreement
+		MFMAgreement agreement = new MFMAgreement(ctx, agreementId, trxName);
+		//	Calculate it
+		MFMProduct financialProduct = MFMProduct.getById(ctx, agreement.getFM_Product_ID());
+		//	Get Interest Rate
+		int dunningRateId = financialProduct.get_ValueAsInt("DunningInterest_ID");
+		int dunningId = financialProduct.get_ValueAsInt("FM_Dunning_ID");
+		//	Validate Dunning for it
+		if(dunningRateId == 0
+				&& dunningId == 0) {
+			return null;
+		}
+		//	
+		MFMDunning dunning = null;
+		//	Get dunning configuration if exist
+		if(dunningId > 0) {
+			dunning = MFMDunning.getById(ctx, dunningId);
+		}
+		//	Get
+		List<MFMAccount> accounts = MFMAccount.getAccountFromAgreement(agreement);
+		MFMAccount account = null;
+		if (accounts.isEmpty()){
+			account = new MFMAccount(agreement);
+			account.saveEx();
+		} else {
+			account = accounts.get(0);
+		}
+		//	Hash Map for Amortization
+		List<AmortizationValue> amortizationList = new ArrayList<AmortizationValue>();
+		//	
+		for(AmortizationValue row : getCurrentAmortizationList(ctx, agreementId, trxName)) {
+			if(row.isPaid()) {
+				continue;
+			}
+			if(row.getDaysDue(runningDate) <= 0) {
+				continue;
+			}
+			//	For distinct levels
+			MFMDunningLevel level = null;
+			if(dunning != null
+					&& dunningRateId == 0) {
+				level = dunning.getValidLevelInstance(row.getDaysDue());
+				if(level == null
+						|| !level.get_ValueAsBoolean("IsSuspend")) {
+					continue;
+				}
+				//	Get Provision Rate
+				amortizationList.add(row);
+			}
+		}
+		//	Add list
+		returnValues.put("AMORTIZATION_LIST", amortizationList);
+		return returnValues;
+	}
+	
+	
+	/**
 	 * Only Interest of loan
 	 * @param ctx
 	 * @param agreementId
@@ -522,6 +684,39 @@ public class LoanUtil {
 		//	Add list
 		returnValues.put("AMORTIZATION_LIST", amortizationList);
 		return returnValues;
+	}
+	
+	/**
+	 * Get Current Amortization Values from View
+	 * @param ctx
+	 * @param agreementId
+	 * @param trxName
+	 * @return
+	 */
+	private static List<AmortizationValue> getCurrentAmortizationList(Properties ctx, int agreementId, String trxName) {
+		//	Hash Map for Amortization
+		List<AmortizationValue> amortizationList = new ArrayList<AmortizationValue>();
+		List<GenericPO> amortizationPOList = new Query(ctx, "RV_FM_LoanAmortization", "FM_Agreement_ID = ?", trxName)
+			.setParameters(agreementId)
+			.list();
+		//	Iterate It
+		if(amortizationPOList != null) {
+			for(GenericPO amortization : amortizationPOList) {
+				AmortizationValue row = new AmortizationValue();
+				row.setAmortizationId(amortization.get_ValueAsInt("FM_Amortization_ID"));
+				row.setPeriodNo(amortization.get_ValueAsInt("PeriodNo"));
+				row.setCapitalAmtFee((BigDecimal) amortization.get_Value("CapitalAmt"));
+				row.setInterestAmtFee((BigDecimal) amortization.get_Value("CurrentInterestAmt"));
+				row.setDunningInterestAmount((BigDecimal) amortization.get_Value("CurrentDunningAmt"));
+				row.setStartDate((Timestamp) amortization.get_Value("StartDate"));
+				row.setEndDate((Timestamp) amortization.get_Value("EndDate"));
+				row.setDueDate((Timestamp) amortization.get_Value("DueDate"));
+				row.setPaid(amortization.get_ValueAsBoolean("IsPaid"));
+				amortizationList.add(row);
+			}
+		}
+		//	Default
+		return amortizationList;
 	}
 	
 	/**

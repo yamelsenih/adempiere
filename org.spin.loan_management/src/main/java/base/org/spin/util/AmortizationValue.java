@@ -94,6 +94,8 @@ public class AmortizationValue {
 	private BigDecimal dunningTaxAmt;
 	/**	Is Paid	*/
 	private boolean isPaid;
+	/**	Provision Amount	*/
+	private BigDecimal provisionAmt;
 	
 	public int getPeriodNo() {
 		return periodNo;
@@ -250,6 +252,14 @@ public class AmortizationValue {
 	}
 	public void setPaid(boolean isPaid) {
 		this.isPaid = isPaid;
+	}
+	
+	public BigDecimal getProvisionAmt() {
+		return provisionAmt;
+	}
+
+	public void setProvisionAmt(BigDecimal provisionAmt) {
+		this.provisionAmt = provisionAmt;
 	}
 
 	@Override

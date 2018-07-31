@@ -29,18 +29,15 @@ import org.spin.model.MFMTransactionType;
 import org.spin.util.AmortizationValue;
 
 /**
- * Loan Daily Interest Calculation
- * Calculate Daily Interest
- * 			(A Variable)					(B Variable)
- * 			((1 + InterestRate) ^ (MonthlyDays / YEAR_DAY)) - 1
- *			Dunning Interest = (DaysDue * InterestRate)
+ * Loan Provision Calculation
+ * ProvisionAmt = (CapitalAmt + CurrentInterestAmt + CurrentDunningAmt) * ProvisionRate
  * @author Yamel Senih, ysenih@erpya.com , http://www.erpya.com
- *      <li> FR [ 1666 ] Calculate daily Loan Interest
- *		@see https://github.com/adempiere/adempiere/issues/1666
+ *      <li> FR [ 1847 ] Create Loan Provision
+ *		@see https://github.com/adempiere/adempiere/issues/1847
  */
-public class LoanInterestProcess extends AbstractFunctionalSetting {
+public class LoanProvisionProcess extends AbstractFunctionalSetting {
 
-	public LoanInterestProcess(MFMFunctionalSetting setting) {
+	public LoanProvisionProcess(MFMFunctionalSetting setting) {
 		super(setting);
 	}
 
@@ -54,14 +51,13 @@ public class LoanInterestProcess extends AbstractFunctionalSetting {
 			return null;
 		}
 		
-		MFMTransactionType interestType = MFMTransactionType.getTransactionTypeFromType(getCtx(), MFMTransactionType.TYPE_LoanInterestCalculated);
-		MFMTransactionType interestTaxType = MFMTransactionType.getTransactionTypeFromType(getCtx(), MFMTransactionType.TYPE_LoanDunningTaxAmountCalculated);
+		MFMTransactionType provisionType = MFMTransactionType.getTransactionTypeFromType(getCtx(), MFMTransactionType.TYPE_LoanProvisionCalculated);
 		//	Validate
-		if(interestType == null) {
-			throw new AdempiereException("@FM_TransactionType_ID@ @NotFound@ " + MFMTransactionType.TYPE_LoanInterestCalculated);
+		if(provisionType == null) {
+			throw new AdempiereException("@FM_TransactionType_ID@ @NotFound@ " + MFMTransactionType.TYPE_LoanProvisionCalculated);
 		}
 		//	
-		HashMap<String, Object> returnValues = LoanUtil.calculateLoanInterest(getCtx(), agreement.getFM_Agreement_ID(), 
+		HashMap<String, Object> returnValues = LoanUtil.calculateLoanProvision(getCtx(), agreement.getFM_Agreement_ID(), 
 				new Timestamp(System.currentTimeMillis()), getFunctionalSetting().get_TrxName());
 		//	Process it
 		if(returnValues == null
@@ -75,18 +71,10 @@ public class LoanInterestProcess extends AbstractFunctionalSetting {
 		}
 		//	Iterate
 		for (AmortizationValue row : amortizationList) {
-			MFMTransaction transaction = batch.addTransaction(interestType.getFM_TransactionType_ID(), row.getInterestAmtFee());
+			MFMTransaction transaction = batch.addTransaction(provisionType.getFM_TransactionType_ID(), row.getProvisionAmt());
 			if(transaction != null) {
 				transaction.set_ValueOfColumn("FM_Amortization_ID", row.getAmortizationId());
 				transaction.saveEx();
-			}
-			if(interestTaxType != null
-					&& row.getTaxAmtFee() != null) {
-				transaction = batch.addTransaction(interestTaxType.getFM_TransactionType_ID(), row.getTaxAmtFee());
-				if(transaction != null) {
-					transaction.set_ValueOfColumn("FM_Amortization_ID", row.getAmortizationId());
-					transaction.saveEx();
-				}
 			}
 		}
 		return null;
