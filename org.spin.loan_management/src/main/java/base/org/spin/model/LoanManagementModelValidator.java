@@ -242,7 +242,9 @@ public class LoanManagementModelValidator implements ModelValidator {
 						resultToShow.append("- " + loanMsg + ": " + pair.getID() 
 											+ " = " + DisplayType.getNumberFormat(DisplayType.Amount).format(dunningAmount));
 					}
-					return resultToShow.toString();
+					//	Set last result
+					agreement.set_ValueOfColumn("LastResult", resultToShow.toString());
+					agreement.saveEx();
 				}
 			} else if (timing == TIMING_AFTER_COMPLETE) {
 				//	Get values from amortization
