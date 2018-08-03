@@ -33,7 +33,7 @@ public class X_FM_DunningLevel extends PO implements I_FM_DunningLevel, I_Persis
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20180305L;
+	private static final long serialVersionUID = 20180803L;
 
     /** Standard Constructor */
     public X_FM_DunningLevel (Properties ctx, int FM_DunningLevel_ID, String trxName)
@@ -243,6 +243,27 @@ public class X_FM_DunningLevel extends PO implements I_FM_DunningLevel, I_Persis
 	public boolean isAccrual () 
 	{
 		Object oo = get_Value(COLUMNNAME_IsAccrual);
+		if (oo != null) 
+		{
+			 if (oo instanceof Boolean) 
+				 return ((Boolean)oo).booleanValue(); 
+			return "Y".equals(oo);
+		}
+		return false;
+	}
+
+	/** Set Suspend Loan.
+		@param IsSuspend Suspend Loan	  */
+	public void setIsSuspend (boolean IsSuspend)
+	{
+		set_Value (COLUMNNAME_IsSuspend, Boolean.valueOf(IsSuspend));
+	}
+
+	/** Get Suspend Loan.
+		@return Suspend Loan	  */
+	public boolean isSuspend () 
+	{
+		Object oo = get_Value(COLUMNNAME_IsSuspend);
 		if (oo != null) 
 		{
 			 if (oo instanceof Boolean) 

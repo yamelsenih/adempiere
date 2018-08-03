@@ -52,15 +52,15 @@ public class LoanSuspendProcess extends AbstractFunctionalSetting {
 			return null;
 		}
 		
-		MFMTransactionType suspensionInterestType = MFMTransactionType.getTransactionTypeFromType(getCtx(), "LSI");
-		MFMTransactionType suspensionDunningType = MFMTransactionType.getTransactionTypeFromType(getCtx(), "LSD");
+		MFMTransactionType suspensionInterestType = MFMTransactionType.getTransactionTypeFromType(getCtx(), MFMTransactionType.TYPE_LoanSuspendInterestCalculated);
+		MFMTransactionType suspensionDunningType = MFMTransactionType.getTransactionTypeFromType(getCtx(), MFMTransactionType.TYPE_LoanSuspendDunningCalculated);
 		//	Validate (Loan Suspend Interest)
 		if(suspensionInterestType == null) {
-			throw new AdempiereException("@FM_TransactionType_ID@ @NotFound@ " + "LSI");
+			throw new AdempiereException("@FM_TransactionType_ID@ @NotFound@ " + MFMTransactionType.TYPE_LoanSuspendInterestCalculated);
 		}
 		//	Validate (Loan Suspend Dunning)
 		if(suspensionDunningType == null) {
-			throw new AdempiereException("@FM_TransactionType_ID@ @NotFound@ " + "LSD");
+			throw new AdempiereException("@FM_TransactionType_ID@ @NotFound@ " + MFMTransactionType.TYPE_LoanSuspendDunningCalculated);
 		}
 		//	
 		HashMap<String, Object> returnValues = LoanUtil.calculateLoanSuspension(getCtx(), agreement.getFM_Agreement_ID(), 

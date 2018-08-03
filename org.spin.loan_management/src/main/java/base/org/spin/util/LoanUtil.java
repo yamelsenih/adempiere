@@ -566,7 +566,7 @@ public class LoanUtil {
 					&& dunningRateId == 0) {
 				level = dunning.getValidLevelInstance(row.getDaysDue());
 				if(level == null
-						|| !level.get_ValueAsBoolean("IsSuspend")) {
+						|| !level.isSuspend()) {
 					continue;
 				}
 				//	Get Provision Rate

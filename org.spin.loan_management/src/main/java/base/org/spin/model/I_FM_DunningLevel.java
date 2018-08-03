@@ -178,6 +178,15 @@ public interface I_FM_DunningLevel
 	  */
 	public boolean isActive();
 
+    /** Column name IsSuspend */
+    public static final String COLUMNNAME_IsSuspend = "IsSuspend";
+
+	/** Set Suspend Loan	  */
+	public void setIsSuspend (boolean IsSuspend);
+
+	/** Get Suspend Loan	  */
+	public boolean isSuspend();
+
     /** Column name ProvisionPercentage */
     public static final String COLUMNNAME_ProvisionPercentage = "ProvisionPercentage";
 
