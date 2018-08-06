@@ -29,6 +29,7 @@ import org.compiere.model.MCurrency;
 import org.compiere.util.CLogger;
 import org.compiere.util.Env;
 import org.compiere.util.Msg;
+import org.compiere.util.Util;
 import org.spin.model.MFMAccount;
 import org.spin.model.MFMAgreement;
 import org.spin.model.MFMFunctionalApplicability;
@@ -145,7 +146,13 @@ public abstract class LoanSimulator {
 		agreement.setDocAction(X_FM_Agreement.DOCACTION_Complete);
 		agreement.processIt(X_FM_Agreement.DOCACTION_Complete);
 		agreement.saveEx();
-		msg = "@FM_Agreement_ID@ @Generate@ [" + agreement.getDocumentInfo() + "]";
+		//	Validate Action
+		if(agreement.getDocStatus().equals(X_FM_Agreement.DOCACTION_Complete)
+				&& !Util.isEmpty(agreement.get_ValueAsString("LastResult"))) {
+			msg = "@Error@: @FM_Agreement_ID@ @NotApproved@ [" + agreement.get_ValueAsString("LastResult") + "]";
+		} else {
+			msg = "@FM_Agreement_ID@ @Generate@ [" + agreement.getDocumentInfo() + "]";
+		}
 		return Msg.parseTranslation(Env.getCtx(), msg);
 	}
 	

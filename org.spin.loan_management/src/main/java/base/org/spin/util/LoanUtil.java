@@ -381,6 +381,9 @@ public class LoanUtil {
 			if(dunning != null
 					&& dunningRateId == 0) {
 				level = dunning.getValidLevelInstance(row.getDaysDue());
+				if(level == null) {
+					continue;
+				}
 				dunningLevelRateId = level.getFM_Rate_ID();
 				if(dunningLevelRateId > 0) {
 					MFMRate rate = MFMRate.getById(ctx, dunningLevelRateId);
