@@ -26,7 +26,7 @@ package org.adempiere.webui.panel;
 import java.util.List;
 import java.util.Properties;
 
-import org.adempiere.webui.LayoutUtils;
+import org.adempiere.webui.theme.ThemeUtils;
 import org.adempiere.webui.component.CompositeADTab;
 import org.adempiere.webui.component.IADTab;
 import org.adempiere.webui.component.Tabbox;
@@ -35,6 +35,7 @@ import org.adempiere.webui.component.Tabs;
 import org.adempiere.webui.panel.ADTabPanel.EmbeddedPanel;
 import org.adempiere.webui.part.ITabOnSelectHandler;
 import org.adempiere.webui.session.SessionManager;
+import org.adempiere.webui.theme.ThemeUtils;
 import org.adempiere.webui.util.UserPreference;
 import org.compiere.model.GridWindow;
 import org.compiere.model.MQuery;
@@ -48,12 +49,12 @@ import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.event.EventListener;
 import org.zkoss.zk.ui.event.Events;
 import org.zkoss.zk.ui.event.KeyEvent;
-import org.zkoss.zkex.zul.Borderlayout;
-import org.zkoss.zkex.zul.Center;
-import org.zkoss.zkex.zul.East;
-import org.zkoss.zkex.zul.North;
-import org.zkoss.zkex.zul.South;
-import org.zkoss.zkex.zul.West;
+import org.zkoss.zul.Borderlayout;
+import org.zkoss.zul.Center;
+import org.zkoss.zul.East;
+import org.zkoss.zul.North;
+import org.zkoss.zul.South;
+import org.zkoss.zul.West;
 import org.zkoss.zul.Tab;
 import org.zkoss.zul.Vbox;
 
@@ -81,6 +82,7 @@ public class ADWindowPanel extends AbstractADWindowPanel
     @SuppressWarnings("unused")
 	private static final CLogger logger = CLogger.getCLogger(ADWindowPanel.class);
 
+	private Borderlayout layout;
 	
 	private Center contentArea;
 
@@ -113,17 +115,19 @@ public class ADWindowPanel extends AbstractADWindowPanel
         } else {
         	layout.setPage(page);
         }
+        ThemeUtils.addSclass("ad-adwindowpanel", layout);
 
         if (!isEmbedded())
         {
 	        North n = new North();
 	        n.setParent(layout);
 	        n.setCollapsible(false);
-	        n.setFlex(true);
-	        Vbox box = new Vbox();
-	        box.setWidth("100%");
-	        toolbar.setParent(box);
-	        box.setParent(n);
+//	        n.setFlex(true);
+//	        Vbox box = new Vbox();
+//	        box.setWidth("100%");
+//	        toolbar.setParent(box);
+	        ThemeUtils.addSclass("ad-adwindowpanel-toolbar-layout", n);
+//	        box.setParent(n);
 	        toolbar.setWindowNo(getWindowNo());
 	        //	FR [ 588 ]
 	        South s = new South();
@@ -138,7 +142,7 @@ public class ADWindowPanel extends AbstractADWindowPanel
 	        s.setCollapsible(false);
 	        statusBar.setParent(s);
         }
-        LayoutUtils.addSclass("adwindow-status", statusBar);
+        ThemeUtils.addSclass("ad-adwindowpanel-status", statusBar);
 
         if (!isEmbedded() && adTab.isUseExternalSelection())
         {
@@ -149,8 +153,9 @@ public class ADWindowPanel extends AbstractADWindowPanel
     	        layout.appendChild(west);
     	        west.setSplittable(false);
     	        west.setAutoscroll(true);
-    	        west.setFlex(true);
-    	        LayoutUtils.addSclass("adwindow-nav adwindow-left-nav", west);
+    	        west.setHflex("true");
+    	        west.setVflex("true");
+    	        ThemeUtils.addSclass("ad-adwindowpanel-nav ad-adwindowpanel-nav-left", west);
     	        adTab.setTabplacement(IADTab.LEFT);
     	        adTab.getTabSelectionComponent().setParent(west);
 
@@ -166,8 +171,9 @@ public class ADWindowPanel extends AbstractADWindowPanel
 		        layout.appendChild(east);
 		        east.setSplittable(false);
 		        east.setAutoscroll(true);
-		        east.setFlex(true);
-		        LayoutUtils.addSclass("adwindow-nav adwindow-right-nav", east);
+		        east.setHflex("true");
+		        east.setVflex("true");
+		        ThemeUtils.addSclass("ad-adwindowpanel-nav ad-adwindowpanel-nav-right", east);
 		        adTab.setTabplacement(IADTab.RIGHT);
 		        adTab.getTabSelectionComponent().setParent(east);
 
@@ -177,7 +183,7 @@ public class ADWindowPanel extends AbstractADWindowPanel
     	        	east.setCollapsible(true);
     	        }
         	}
-	        LayoutUtils.addSclass("adwindow-nav-content", (HtmlBasedComponent) adTab.getTabSelectionComponent());
+	        ThemeUtils.addSclass("ad-adwindowpanel-nav-content", (HtmlBasedComponent) adTab.getTabSelectionComponent());
         }
 
         contentArea = new Center();

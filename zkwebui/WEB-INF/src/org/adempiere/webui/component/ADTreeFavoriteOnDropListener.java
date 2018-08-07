@@ -18,9 +18,9 @@ import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.event.EventListener;
 import org.zkoss.zk.ui.event.Events;
 import org.zkoss.zk.ui.event.MouseEvent;
+import org.zkoss.zul.DefaultTreeNode;
 import org.zkoss.zul.Menuitem;
 import org.zkoss.zul.Menupopup;
-import org.zkoss.zul.SimpleTreeNode;
 import org.zkoss.zul.Tree;
 import org.zkoss.zul.Treeitem;
 import org.zkoss.zul.Treerow;
@@ -59,7 +59,7 @@ public class ADTreeFavoriteOnDropListener implements EventListener
 		{
 			MouseEvent me = (MouseEvent) event;
 			Treeitem target = (Treeitem) ((Treerow) me.getTarget()).getParent();
-			SimpleTreeNode toNode = (SimpleTreeNode) target.getValue();
+			DefaultTreeNode<?> toNode = (DefaultTreeNode<?>) target.getValue();
 			menuItemList(toNode);
 		}
 		if (event instanceof DropEvent)
@@ -82,8 +82,8 @@ public class ADTreeFavoriteOnDropListener implements EventListener
 				 */
 				if (!strDraggable.equals("favourite"))
 				{
-					SimpleTreeNode stn_src = (SimpleTreeNode) src.getValue();
-					SimpleTreeNode stn_target = (SimpleTreeNode) target.getValue();
+					DefaultTreeNode stn_src = (DefaultTreeNode) src.getValue();
+					DefaultTreeNode stn_target = (DefaultTreeNode) target.getValue();
 					MTreeNode nd_src = (MTreeNode) stn_src.getData();
 					MTreeNode nd_target = (MTreeNode) stn_target.getData();
 
@@ -101,11 +101,11 @@ public class ADTreeFavoriteOnDropListener implements EventListener
 						{
 							menuAvailable = mTreeFavorite.isMenuAvailable(menuID, nd_target.getParent_ID(),	mTreeFavoriteID);
 							if (nd_src.getParent_ID() == nd_target.getParent_ID())
-								moveNode((SimpleTreeNode) src.getValue(), (SimpleTreeNode) target.getValue());
+								moveNode((DefaultTreeNode) src.getValue(), (DefaultTreeNode) target.getValue());
 							else if (menuAvailable)
 								showDialog();
 							else
-								moveNode((SimpleTreeNode) src.getValue(), (SimpleTreeNode) target.getValue());
+								moveNode((DefaultTreeNode) src.getValue(), (DefaultTreeNode) target.getValue());
 						}
 						else
 						{
@@ -113,18 +113,18 @@ public class ADTreeFavoriteOnDropListener implements EventListener
 							if (menuAvailable)
 								showDialog();
 							else
-								moveNode((SimpleTreeNode) src.getValue(), (SimpleTreeNode) target.getValue());
+								moveNode((DefaultTreeNode) src.getValue(), (DefaultTreeNode) target.getValue());
 						}
 					}
 					else
 					{
-						moveNode((SimpleTreeNode) src.getValue(), (SimpleTreeNode) target.getValue());
+						moveNode((DefaultTreeNode) src.getValue(), (DefaultTreeNode) target.getValue());
 					}
 				}
 				else
 				{
 					int mID = Integer.valueOf((src.getValue().toString()));
-					SimpleTreeNode stn_target = (SimpleTreeNode) target.getValue();
+					DefaultTreeNode stn_target = (DefaultTreeNode) target.getValue();
 					MTreeNode nd = (MTreeNode) stn_target.getData();
 					/*
 					 * True when Target is Folder, Otherwise its Menu item.
@@ -138,7 +138,7 @@ public class ADTreeFavoriteOnDropListener implements EventListener
 					}
 					else
 					{
-						SimpleTreeNode stn_target_parent = treeModel.getParent(stn_target);
+						DefaultTreeNode stn_target_parent = treeModel.getParent(stn_target);
 						int pID = ((MTreeNode) stn_target_parent.getData()).getNode_ID();
 
 						if (mTreeFavorite.isMenuAvailable(mID, pID, mTreeFavoriteID))
@@ -163,9 +163,9 @@ public class ADTreeFavoriteOnDropListener implements EventListener
 	 * When Right click on Item show Delete Menupopup for Delete a node.
 	 * @param toNode
 	 */
-	private void menuItemList(SimpleTreeNode toNode)
+	private void menuItemList(DefaultTreeNode<?> toNode)
 	{
-		int path[] = treeModel.getPath(treeModel.getRoot(), toNode);
+		int path[] = treeModel.getPath(treeModel.getRoot());
 		Treeitem toItem = tree.renderItemByPath(path);
 
 		tree.setSelectedItem(toItem);
@@ -204,11 +204,11 @@ public class ADTreeFavoriteOnDropListener implements EventListener
 	 * 
 	 * @author Logilite
 	 */
-	class DeleteListener implements EventListener
+	class DeleteListener implements EventListener<Event>
 	{
-		private SimpleTreeNode	toNode;
+		private DefaultTreeNode<?>	toNode;
 
-		DeleteListener(SimpleTreeNode toNode)
+		DeleteListener(DefaultTreeNode<?> toNode)
 		{
 			this.toNode = toNode;
 		}
@@ -230,7 +230,7 @@ public class ADTreeFavoriteOnDropListener implements EventListener
 		 * 
 		 * @param toNode
 		 */
-		private void deleteNodeItem(SimpleTreeNode toNode)
+		private void deleteNodeItem(DefaultTreeNode<?> toNode)
 		{
 			int nodeID = ((MTreeNode) toNode.getData()).getNode_ID();
 			String deleteNodeQuery = "DELETE FROM ad_tree_favorite_node " + "WHERE ad_tree_favorite_node_id IN ( "
@@ -293,7 +293,7 @@ public class ADTreeFavoriteOnDropListener implements EventListener
 	 * @param parentNodeID
 	 * @param stn
 	 */
-	public void insertNodeMenu(int menuID, int parentNodeID, SimpleTreeNode stn)
+	public void insertNodeMenu(int menuID, int parentNodeID, DefaultTreeNode stn)
 	{
 		MTreeFavoriteNode mTreeFavoriteNode = new MTreeFavoriteNode(Env.getCtx(), 0, null);
 		mTreeFavoriteNode.set_ValueOfColumn(MTreeFavoriteNode.COLUMNNAME_AD_Client_ID, AD_Client_ID);
@@ -312,13 +312,13 @@ public class ADTreeFavoriteOnDropListener implements EventListener
 				menu.getName(), menu.getName(), mTreeFavoriteNode.getParent_ID(), mTreeFavoriteNode.isSummary(),
 				mTreeFavoriteNode.getAD_Menu_ID(), menu.getAction(), false);
 
-		SimpleTreeNode node = new SimpleTreeNode(mNode, new ArrayList());
+		DefaultTreeNode node = new DefaultTreeNode(mNode, new ArrayList());
 		int index = 0;
 		if (mNode.isSummary())
 			index = stn.getChildren().indexOf(node) + 1;
 		
 		treeModel.addNode(stn, node, index);
-		int[] path = treeModel.getPath(treeModel.getRoot(), node);
+		int[] path = treeModel.getPath(node);
 		Treeitem ti =	tree.renderItemByPath(path);
 		tree.setSelectedItem(ti);		
 		Events.sendEvent(tree, new Event(Events.ON_SELECT, tree));
@@ -330,7 +330,7 @@ public class ADTreeFavoriteOnDropListener implements EventListener
 	 * @param movingNode
 	 * @param toNode
 	 */
-	private void moveNode(SimpleTreeNode movingNode, SimpleTreeNode toNode)
+	private void moveNode(DefaultTreeNode movingNode, DefaultTreeNode toNode)
 	{
 		log.info(movingNode.toString() + " to " + toNode.toString());
 
@@ -345,7 +345,7 @@ public class ADTreeFavoriteOnDropListener implements EventListener
 		else // drop on a summary node
 		{
 			// prompt user to select insert after or drop into the summary node
-			int path[] = treeModel.getPath(treeModel.getRoot(), toNode);
+			int path[] = treeModel.getPath(toNode);
 			Treeitem toItem = tree.renderItemByPath(path);
 
 			tree.setSelectedItem(toItem);
@@ -376,13 +376,13 @@ public class ADTreeFavoriteOnDropListener implements EventListener
 	 * @param toNode
 	 * @param moveInto
 	 */
-	private void moveNode(SimpleTreeNode movingNode, SimpleTreeNode toNode, boolean moveInto)
+	private void moveNode(DefaultTreeNode movingNode, DefaultTreeNode toNode, boolean moveInto)
 	{
-		SimpleTreeNode newParent;
+		DefaultTreeNode newParent;
 		int index;
 
 		// remove
-		SimpleTreeNode oldParent = treeModel.getParent(movingNode);
+		DefaultTreeNode oldParent = treeModel.getParent(movingNode);
 		treeModel.removeNode(movingNode);
 
 		// get new index
@@ -401,7 +401,7 @@ public class ADTreeFavoriteOnDropListener implements EventListener
 		// insert
 		treeModel.addNode(newParent, movingNode, index);
 
-		int path[] = treeModel.getPath(treeModel.getRoot(), movingNode);
+		int path[] = treeModel.getPath(movingNode);
 		Treeitem movingItem = tree.renderItemByPath(path);
 		tree.setSelectedItem(movingItem);
 		Events.sendEvent(tree, new Event(Events.ON_SELECT, tree));
@@ -413,7 +413,7 @@ public class ADTreeFavoriteOnDropListener implements EventListener
 			MTreeNode oldMParent = (MTreeNode) oldParent.getData();
 			for (int i = 0; i < oldParent.getChildCount(); i++)
 			{
-				SimpleTreeNode nd = (SimpleTreeNode) oldParent.getChildAt(i);
+				DefaultTreeNode nd = (DefaultTreeNode) oldParent.getChildAt(i);
 				MTreeNode md = (MTreeNode) nd.getData();
 				StringBuffer sql = new StringBuffer("UPDATE ");
 				sql.append(" AD_Tree_Favorite_Node ").append(" SET Parent_ID=").append(oldMParent.getNode_ID())
@@ -428,7 +428,7 @@ public class ADTreeFavoriteOnDropListener implements EventListener
 				MTreeNode newMParent = (MTreeNode) newParent.getData();
 				for (int i = 0; i < newParent.getChildCount(); i++)
 				{
-					SimpleTreeNode nd = (SimpleTreeNode) newParent.getChildAt(i);
+					DefaultTreeNode nd = (DefaultTreeNode) newParent.getChildAt(i);
 					MTreeNode md = (MTreeNode) nd.getData();
 					StringBuffer sql = new StringBuffer("UPDATE ");
 					sql.append(" AD_Tree_Favorite_Node ").append(" SET Parent_ID=").append(newMParent.getNode_ID())
@@ -461,10 +461,10 @@ public class ADTreeFavoriteOnDropListener implements EventListener
 	 */
 	class MenuListener implements EventListener
 	{
-		private SimpleTreeNode	movingNode;
-		private SimpleTreeNode	toNode;
+		private DefaultTreeNode	movingNode;
+		private DefaultTreeNode	toNode;
 
-		MenuListener(SimpleTreeNode movingNode, SimpleTreeNode toNode)
+		MenuListener(DefaultTreeNode movingNode, DefaultTreeNode toNode)
 		{
 			this.movingNode = movingNode;
 			this.toNode = toNode;

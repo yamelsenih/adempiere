@@ -22,11 +22,12 @@ import java.util.List;
 import org.adempiere.exceptions.ValueChangeEvent;
 import org.adempiere.webui.ValuePreference;
 import org.adempiere.webui.component.Combobox;
-import org.adempiere.webui.component.StringBox;
+import org.adempiere.webui.component.Textbox;
 import org.adempiere.webui.component.Window;
 import org.adempiere.webui.event.ContextMenuEvent;
 import org.adempiere.webui.event.ContextMenuListener;
 import org.adempiere.webui.session.SessionManager;
+import org.adempiere.webui.theme.ThemeUtils;
 import org.adempiere.webui.window.WRecordInfo;
 import org.adempiere.webui.window.WTextEditorDialog;
 import org.compiere.model.GridField;
@@ -79,7 +80,8 @@ public class WStringEditor extends WEditor implements ContextMenuListener
 
     public WStringEditor(GridField gridField, boolean tableEditor)
     {
-        super(gridField.isAutocomplete() ? new Combobox() : new StringBox(), gridField);
+        super(gridField.isAutocomplete() ? new Combobox() : new Textbox(), gridField);
+        ThemeUtils.addSclass("ad-wstringeditor", this.getComponent());
         this.getComponent().setAttribute("zk_component_prefix", "Field_" + gridField.getColumnName() + "_" + gridField.getAD_Tab_ID() + "_" + gridField.getWindowNo() + "_");
         this.tableEditor = tableEditor;
         init(gridField.getObscureType());
@@ -99,18 +101,18 @@ public class WStringEditor extends WEditor implements ContextMenuListener
     public WStringEditor(String columnName, boolean mandatory, boolean isReadOnly, boolean isUpdateable,
     		int displayLength, int fieldLength, String vFormat, String obscureType)
     {
-    	super(new StringBox(), columnName, null, null, mandatory, isReadOnly,isUpdateable);
-    	
+    	super(new Textbox(), columnName, null, null, mandatory, isReadOnly,isUpdateable);
+        ThemeUtils.addSclass("ad-wstringeditor", this.getComponent());
     	init(obscureType);
     }
 
     @Override
     public org.zkoss.zul.Textbox getComponent() {
     	// BR [ 640 ]
-    	if(gridField != null && gridField.isAutocomplete())
-    		return (org.zkoss.zul.Textbox) (((Combobox)component));
-    	else
-    		return (org.zkoss.zul.Textbox) (((StringBox)component).getTextBox());
+//    	if(gridField != null && gridField.isAutocomplete())
+    		return (org.zkoss.zul.Textbox) component;
+//    	else
+//    		return (org.zkoss.zul.Textbox) (((StringBox)component).getTextBox());
     }
 
     @Override
@@ -183,9 +185,6 @@ public class WStringEditor extends WEditor implements ContextMenuListener
 	        		combo.appendItem(s);
 	        	}
 	        }
-	        //	BR [ 640 ]
-	        else  if (getComponent() instanceof org.zkoss.zul.api.Textbox)
-	        	((StringBox)component).setObscureType(obscureType);
 		}
     }
 

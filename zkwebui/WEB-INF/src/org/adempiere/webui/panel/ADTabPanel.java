@@ -39,7 +39,9 @@ import org.adempiere.webui.component.Tabpanels;
 import org.adempiere.webui.component.Tabs;
 import org.adempiere.webui.editor.*;
 import org.adempiere.webui.event.ContextMenuListener;
+import org.adempiere.webui.theme.ThemeUtils;
 import org.adempiere.webui.util.GridTabDataBinder;
+import org.adempiere.webui.util.TreeUtils;
 import org.adempiere.webui.window.FDialog;
 import org.compiere.model.*;
 import org.compiere.util.CLogger;
@@ -54,12 +56,21 @@ import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.event.EventListener;
 import org.zkoss.zk.ui.event.Events;
 import org.zkoss.zk.ui.util.Clients;
-import org.zkoss.zkex.zul.Borderlayout;
-import org.zkoss.zkex.zul.Center;
-import org.zkoss.zkex.zul.West;
-import org.zkoss.zul.*;
+import org.zkoss.zul.Borderlayout;
+import org.zkoss.zul.Cell;
+import org.zkoss.zul.Center;
+import org.zkoss.zul.DefaultTreeNode;
+import org.zkoss.zul.Div;
+import org.zkoss.zul.Group;
+import org.zkoss.zul.Groupfoot;
 import org.zkoss.zul.Panel;
+import org.zkoss.zul.Panelchildren;
 import org.zkoss.zul.Row;
+import org.zkoss.zul.Separator;
+import org.zkoss.zul.Space;
+import org.zkoss.zul.TreeModel;
+import org.zkoss.zul.Treeitem;
+import org.zkoss.zul.West;
 
 /**
  *
@@ -138,10 +149,25 @@ public class ADTabPanel extends Div implements Evaluatee, EventListener, DataSta
 
 	private Group currentGroup;
 
+	private Rows rows;
+
 	private boolean m_vetoActive = false;
 
+	private boolean m_processingEvent;
+	
 	private CWindowToolbar globalToolbar;
 
+	private static final String ON_DEFER_SET_SELECTED_NODE = "onDeferSetSelectedNode";
+	
+	private int numCols = 0; // TODO - make this variable
+	
+	private List<Group> allCollapsibleGroups = new ArrayList<Group>();
+
+	/**
+	 * Used to select the first of multiple events that can occur
+	 */
+	private long m_lastCallTime = 0;
+	
     private boolean isEmbedded = false;
 
     private boolean isSwitchRow = true;	
@@ -962,10 +988,12 @@ public class ADTabPanel extends Div implements Evaluatee, EventListener, DataSta
     		if(isSwitchRowPresentation())
     			this.switchRowPresentation();
     	}
-
-    	else if (event.getTarget() == treePanel.getTree()) {
+    	else if (treePanel != null && event.getTarget() == treePanel.getTree()) 
+    	{
+    		set_processingEvent(true);
     		Treeitem item =  treePanel.getTree().getSelectedItem();
-    		navigateTo((SimpleTreeNode)item.getValue());
+    		navigateTo((DefaultTreeNode<MTreeNode>)item.getValue());
+    		set_processingEvent(false);
     	}
     }
 
@@ -1053,7 +1081,7 @@ public class ADTabPanel extends Div implements Evaluatee, EventListener, DataSta
     		editor.repaintComponent(isRow);
     }
 
-    private void navigateTo(SimpleTreeNode value) {
+    private void navigateTo(DefaultTreeNode<MTreeNode> value) {
     	MTreeNode treeNode = (MTreeNode) value.getData();
     	//  We Have a TreeNode
 		int nodeID = treeNode.getNode_ID();
@@ -1171,10 +1199,10 @@ public class ADTabPanel extends Div implements Evaluatee, EventListener, DataSta
     private void deleteNode(int recordId) {
 		if (recordId <= 0) return;
 
-		SimpleTreeModel model = (SimpleTreeModel) treePanel.getTree().getModel();
+		SimpleTreeModel model = (SimpleTreeModel)(TreeModel<?>) treePanel.getTree().getModel();
 
 		if (treePanel.getTree().getSelectedItem() != null) {
-			SimpleTreeNode treeNode = (SimpleTreeNode) treePanel.getTree().getSelectedItem().getValue();
+			DefaultTreeNode treeNode = (DefaultTreeNode) treePanel.getTree().getSelectedItem().getValue();
 			MTreeNode data = (MTreeNode) treeNode.getData();
 			if (data.getNode_ID() == recordId) {
 				model.removeNode(treeNode);
@@ -1182,7 +1210,7 @@ public class ADTabPanel extends Div implements Evaluatee, EventListener, DataSta
 			}
 		}
 
-		SimpleTreeNode treeNode = model.find(null, recordId);
+		DefaultTreeNode treeNode = model.find(null, recordId);
 		if (treeNode != null) {
 			model.removeNode(treeNode);
 		}
@@ -1195,14 +1223,14 @@ public class ADTabPanel extends Div implements Evaluatee, EventListener, DataSta
 			boolean summary = gridTab.getValueAsBoolean("IsSummary");
 			String imageIndicator = (String)gridTab.getValue("Action");  //  Menu - Action
 			//
-			SimpleTreeModel model = (SimpleTreeModel) treePanel.getTree().getModel();
-			SimpleTreeNode treeNode = model.getRoot();
+			SimpleTreeModel model = (SimpleTreeModel)(TreeModel<?>) treePanel.getTree().getModel();
+			DefaultTreeNode treeNode = model.getRoot();
 			MTreeNode root = (MTreeNode) treeNode.getData();
 			MTreeNode node = new MTreeNode (gridTab.getRecord_ID(), 0, name, description,
 					root.getNode_ID(), summary, imageIndicator, false, null);
-			SimpleTreeNode newNode = new SimpleTreeNode(node, new ArrayList<Object>());
+			DefaultTreeNode newNode = new DefaultTreeNode(node, new ArrayList<Object>());
 			model.addNode(newNode);
-			int[] path = model.getPath(model.getRoot(), newNode);
+			int[] path = model.getPath(newNode);
 			Treeitem ti = treePanel.getTree().renderItemByPath(path);
 			treePanel.getTree().setSelectedItem(ti);
     	}
@@ -1211,16 +1239,30 @@ public class ADTabPanel extends Div implements Evaluatee, EventListener, DataSta
 	private void setSelectedNode(int recordId) {
 		if (recordId <= 0) return;
 
-		if (treePanel.getTree().getSelectedItem() != null) {
-			SimpleTreeNode treeNode = (SimpleTreeNode) treePanel.getTree().getSelectedItem().getValue();
-			MTreeNode data = (MTreeNode) treeNode.getData();
-			if (data.getNode_ID() == recordId) return;
+		if (TreeUtils.isOnInitRenderPosted(treePanel.getTree()) || treePanel.getTree().getTreechildren() == null) {
+			treePanel.getTree().onInitRender();
 		}
 
-		SimpleTreeModel model = (SimpleTreeModel) treePanel.getTree().getModel();
-		SimpleTreeNode treeNode = model.find(null, recordId);
+		
+		SimpleTreeModel model = (SimpleTreeModel)(TreeModel<?>) treePanel.getTree().getModel();
+		
+		
+		if (treePanel.getTree().getSelectedItem() != null) {
+			DefaultTreeNode<Object> treeNode = treePanel.getTree().getSelectedItem().getValue();
+			MTreeNode data = (MTreeNode) treeNode.getData();
+			if (data.getNode_ID() == recordId){
+				int[] path = model.getPath(treeNode);
+				Treeitem ti = treePanel.getTree().renderItemByPath(path);
+				if (ti.getPage() == null) {
+					Events.echoEvent(ON_DEFER_SET_SELECTED_NODE, this, null);
+				}
+				 return;
+			}
+		}
+
+		DefaultTreeNode<Object> treeNode = model.find(null, recordId);
 		if (treeNode != null) {
-			int[] path = model.getPath(model.getRoot(), treeNode);
+			int[] path = model.getPath(treeNode);
 			Treeitem ti = treePanel.getTree().renderItemByPath(path);
 			treePanel.getTree().setSelectedItem(ti);
 		} else {
@@ -1244,8 +1286,11 @@ public class ADTabPanel extends Div implements Evaluatee, EventListener, DataSta
 	 * Toggle between form and grid view
 	 */
 	public void switchRowPresentation() {
+		Component adwindowContentArea = formComponent.getParent().getParent().getParent();
 		if (formComponent.isVisible()) {
 			formComponent.setVisible(false);
+			ThemeUtils.removeSclass("form", adwindowContentArea);
+			ThemeUtils.addSclass("list", adwindowContentArea);
 			//de-activate embedded panel
 	        for(EmbeddedPanel ep : includedPanel)
 	        {
@@ -1258,7 +1303,8 @@ public class ADTabPanel extends Div implements Evaluatee, EventListener, DataSta
             }
 		} else {
 			formComponent.setVisible(true);
-			repaintComponents(false);
+			ThemeUtils.removeSclass("list", adwindowContentArea);
+			ThemeUtils.addSclass("form", adwindowContentArea);
 			//activate embedded panel
 	        for(EmbeddedPanel ep : includedPanel)
 	        {
@@ -1641,7 +1687,7 @@ public class ADTabPanel extends Div implements Evaluatee, EventListener, DataSta
 
 		for (Object o : ((Row) row).getChildren()) {
 
-			if(o instanceof org.zkoss.zkex.zul.Borderlayout)
+			if(o instanceof org.zkoss.zul.Borderlayout)
 			{
 				return 0;
 			}
@@ -1809,7 +1855,20 @@ public class ADTabPanel extends Div implements Evaluatee, EventListener, DataSta
 //        panel.embeddedGrid.setStyle("border: none; position: relative; ");
 //
 //    }
-
+    /**
+	 * Add a row to the rows and group.
+	 * 
+	 * @param row
+	 */
+	private void addRow(Row row) {
+        rows.appendChild(row);
+        if (rowList != null) {
+			rowList.add(row);
+        }
+        if (currentGroup != null) {
+//        	currentGroup.add(row);
+        }
+	}
     private void createHorizontalEmbeddedPanelUI(HorizontalEmbeddedPanel ep) {
 
         org.zkoss.zul.Row ChildRow = createHorizontalPanelForEmbedded(ep.divComponent, includedTabFooter.get(ep.adTabId), ep);
@@ -1956,5 +2015,18 @@ public class ADTabPanel extends Div implements Evaluatee, EventListener, DataSta
 		//	Set Context info
 		((HtmlBasedComponent) editor.getComponent()).setTooltiptext(messageValue);
     }
+    /**
+	 * @return the m_processingEvent
+	 */
+	public boolean is_processingEvent() {
+		return m_processingEvent;
+	}
+
+	/**
+	 * @param m_processingEvent the m_processingEvent to set
+	 */
+	public void set_processingEvent(boolean m_processingEvent) {
+		this.m_processingEvent = m_processingEvent;
+	}
 }
 

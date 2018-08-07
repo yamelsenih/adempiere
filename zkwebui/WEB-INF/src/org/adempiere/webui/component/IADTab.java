@@ -16,6 +16,7 @@ import org.adempiere.webui.part.UIPart;
 import org.compiere.model.DataStatusEvent;
 import org.compiere.model.GridTab;
 import org.zkoss.zk.ui.Component;
+import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.event.EventListener;
 
 /**
@@ -89,7 +90,7 @@ public interface IADTab extends UIPart {
 	 *
 	 * @param listener
 	 */
-	public void addSelectionEventListener(EventListener listener);
+	public void addSelectionEventListener(EventListener<Event> listener);
 
 	/**
 	 * @return tab selection component

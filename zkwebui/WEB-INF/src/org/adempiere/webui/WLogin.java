@@ -19,9 +19,11 @@ import java.util.Properties;
 
 import org.adempiere.webui.apps.AEnv;
 import org.adempiere.webui.part.AbstractUIPart;
+import org.adempiere.webui.theme.ThemeUtils;
 import org.adempiere.webui.theme.ITheme;
 import org.adempiere.webui.theme.ThemeUtils;
 import org.adempiere.webui.window.LoginWindow;
+import org.zkoss.web.fn.ServletFns;
 import org.zkoss.zhtml.Text;
 import org.zkoss.zk.ui.Component;
 import org.zkoss.zk.ui.Executions;
@@ -56,6 +58,7 @@ public class WLogin extends AbstractUIPart
     public WLogin(IWebClient app)
     {
         this.app = app;
+        ThemeUtils.addSclass("ad-wlogin", this);
     }
 
     protected Component doCreatePart(Component parent)
@@ -69,10 +72,10 @@ public class WLogin extends AbstractUIPart
 
         Center center = new Center();
         center.setParent(layout);
-        center.setBorder("none");
-        center.setFlex(true);
+        center.setHflex("true");
+        center.setVflex("true");
         center.setAutoscroll(true);
-        center.setStyle("border: none; background-color: transparent;");
+        ThemeUtils.addSclass("ad-wlogin-layout-center", center);
 
         Vbox vb = new Vbox();
         vb.setParent(center);
@@ -80,7 +83,8 @@ public class WLogin extends AbstractUIPart
         vb.setWidth("100%");
         vb.setPack("center");
         vb.setAlign("center");
-        vb.setStyle("background-color: transparent;");
+        vb.setWidth("100%");
+        vb.setHeight("100%");
 
         loginWindow = new LoginWindow(app);
         loginWindow.setParent(vb);
@@ -90,12 +94,12 @@ public class WLogin extends AbstractUIPart
         	//TODO: localization
         	String msg = "You might experience slow performance and user interface anomalies using your current browser to access the application. We recommend the use of Firefox, Google Chrome or Apple Safari.";
         	browserWarningWindow = new Window();
+        	ThemeUtils.addSclass("ad-wlogin-browser-not-supported", browserWarningWindow);
         	Div div = new Div();
         	div.setStyle("font-size: 9pt");
         	div.appendChild(new Text(msg));
-        	browserWarningWindow.appendChild(div);
         	browserWarningWindow.setPosition("top,right");
-        	browserWarningWindow.setWidth("550px");
+        	browserWarningWindow.appendChild(div);
         	browserWarningWindow.setPage(page);
         	browserWarningWindow.doOverlapped();
         }

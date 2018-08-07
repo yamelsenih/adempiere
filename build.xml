@@ -1,0 +1,23 @@
+<project name="CST-STD" default="compileall" basedir=".">
+    <description>
+        Building CST-STD.jar
+    </description>
+  <!-- set global properties for this build -->
+  <property name="zkjar" value="dist/zkclass"/>
+  
+  <target name="zkcompile" 
+        description="compile the source " >
+    <!-- Compile the zk java code from ${src} into ${zkclasses} -->
+    <copy todir="${zkjar}"> 
+		<fileset dir="${basedir}">
+			<include name="theme/**" />
+			<include name="images/**" />
+		</fileset>
+	</copy>
+    <jar jarfile="${basedir}/zkpackages/Theme/lib/Theme.jar" basedir="${zkjar}"/>
+  </target>
+
+   
+	
+	
+</project>

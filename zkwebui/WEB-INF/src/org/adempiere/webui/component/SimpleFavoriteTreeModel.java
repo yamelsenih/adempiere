@@ -17,16 +17,17 @@ import org.zkoss.zk.ui.Component;
 import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.event.EventListener;
 import org.zkoss.zk.ui.event.Events;
-import org.zkoss.zul.SimpleTreeModel;
-import org.zkoss.zul.SimpleTreeNode;
+import org.zkoss.zul.DefaultTreeNode;
 import org.zkoss.zul.Tree;
 import org.zkoss.zul.Treecell;
 import org.zkoss.zul.Treeitem;
 import org.zkoss.zul.TreeitemRenderer;
 import org.zkoss.zul.Treerow;
+import org.zkoss.zul.TreeNode;
 import org.zkoss.zul.event.TreeDataEvent;
 
-public class SimpleFavoriteTreeModel extends SimpleTreeModel implements EventListener, TreeitemRenderer
+@SuppressWarnings("rawtypes")
+public class SimpleFavoriteTreeModel extends SimpleTreeModel implements EventListener<Event>, TreeitemRenderer<Object>
 {
 
 	private static final long		serialVersionUID	= -2948153996477803421L;
@@ -35,7 +36,7 @@ public class SimpleFavoriteTreeModel extends SimpleTreeModel implements EventLis
 	private static int				currFolderID		= 0;
 	private List<EventListener>		onDropListners		= new ArrayList<EventListener>();
 
-	public SimpleFavoriteTreeModel(SimpleTreeNode root)
+	public SimpleFavoriteTreeModel(DefaultTreeNode root)
 	{
 		super(root);
 	}
@@ -63,7 +64,7 @@ public class SimpleFavoriteTreeModel extends SimpleTreeModel implements EventLis
 	 * @param trxName
 	 * @return
 	 */
-	private static SimpleFavoriteTreeModel initADTree(Tree tree, int AD_Tree_Favorite_ID, int windowNo,
+	public static SimpleFavoriteTreeModel initADTree(Tree tree, int AD_Tree_Favorite_ID, int windowNo,
 			boolean editable, String trxName)
 	{
 
@@ -100,11 +101,11 @@ public class SimpleFavoriteTreeModel extends SimpleTreeModel implements EventLis
 		SimpleFavoriteTreeModel model = null;
 		Enumeration nodeEnum = root.children();
 
-		SimpleTreeNode stRoot = new SimpleTreeNode(root, new ArrayList());
+		DefaultTreeNode stRoot = new DefaultTreeNode(root, new ArrayList());
 		while (nodeEnum.hasMoreElements())
 		{
 			MTreeNode childNode = (MTreeNode) nodeEnum.nextElement();
-			SimpleTreeNode stNode = new SimpleTreeNode(childNode, new ArrayList());
+			DefaultTreeNode stNode = new DefaultTreeNode(childNode, new ArrayList());
 			stRoot.getChildren().add(stNode);
 			if (childNode.getChildCount() > 0)
 			{
@@ -121,13 +122,13 @@ public class SimpleFavoriteTreeModel extends SimpleTreeModel implements EventLis
 	 * @param stNode
 	 * @param root
 	 */
-	private static void populate(SimpleTreeNode stNode, MTreeNode root)
+	private static void populate(DefaultTreeNode stNode, MTreeNode root)
 	{
 		Enumeration nodeEnum = root.children();
 		while (nodeEnum.hasMoreElements())
 		{
 			MTreeNode childNode = (MTreeNode) nodeEnum.nextElement();
-			SimpleTreeNode stChildNode = new SimpleTreeNode(childNode, new ArrayList());
+			DefaultTreeNode stChildNode = new DefaultTreeNode(childNode, new ArrayList());
 			stNode.getChildren().add(stChildNode);
 			if (childNode.getChildCount() > 0)
 			{
@@ -139,10 +140,9 @@ public class SimpleFavoriteTreeModel extends SimpleTreeModel implements EventLis
 	/* (non-Javadoc)
 	 * @see org.zkoss.zul.TreeitemRenderer#render(org.zkoss.zul.Treeitem, java.lang.Object)
 	 */
-	@Override
 	public void render(Treeitem ti, Object node) throws Exception
 	{
-		SimpleTreeNode stn = (SimpleTreeNode) node;
+		DefaultTreeNode stn = (DefaultTreeNode) node;
 		MTreeNode mtn = (MTreeNode) stn.getData();
 		Treecell tc;
 		if (!mtn.isSummary())
@@ -238,7 +238,7 @@ public class SimpleFavoriteTreeModel extends SimpleTreeModel implements EventLis
 				Treeitem treeitem = (Treeitem) treerow.getParent();
 				Object value = treeitem.getValue();
 
-				SimpleTreeNode simpleTreeNode = (SimpleTreeNode) value;
+				DefaultTreeNode simpleTreeNode = (DefaultTreeNode) value;
 				MTreeNode mtn = (MTreeNode) simpleTreeNode.getData();
 				if (!mtn.isSummary())
 				{
@@ -260,7 +260,7 @@ public class SimpleFavoriteTreeModel extends SimpleTreeModel implements EventLis
 				Treeitem treeitem = (Treeitem) treerow.getParent();
 				Object value = treeitem.getValue();
 
-				SimpleTreeNode simpleTreeNode = (SimpleTreeNode) value;
+				DefaultTreeNode simpleTreeNode = (DefaultTreeNode) value;
 				MTreeNode mtn = (MTreeNode) simpleTreeNode.getData();
 				if (mtn.isSummary())
 				{
@@ -276,14 +276,14 @@ public class SimpleFavoriteTreeModel extends SimpleTreeModel implements EventLis
 						treeFavNode.setNodeName(dialog.getText());
 						treeFavNode.saveEx();
 
-						int path[] = this.getPath(getRoot(), simpleTreeNode);
+						int path[] = this.getPath(simpleTreeNode);
 						if (path != null && path.length > 0)
 						{
-							SimpleTreeNode parentNode = getRoot();
+							DefaultTreeNode parentNode = getRoot();
 							int index = path.length - 1;
 							for (int i = 0; i < index; i++)
 							{
-								parentNode = (SimpleTreeNode) getChild(parentNode, path[i]);
+								parentNode = (DefaultTreeNode) getChild(parentNode, path[i]);
 							}
 							fireEvent(parentNode, path[index], path[index], TreeDataEvent.CONTENTS_CHANGED);
 						}
@@ -293,31 +293,31 @@ public class SimpleFavoriteTreeModel extends SimpleTreeModel implements EventLis
 		}
 	}
 
-	public void removeNode(SimpleTreeNode treeNode)
+	public void removeNode(DefaultTreeNode treeNode)
 	{
-		int path[] = this.getPath(getRoot(), treeNode);
+		int path[] = this.getPath(treeNode);
 
 		if (path != null && path.length > 0)
 		{
-			SimpleTreeNode parentNode = getRoot();
+			DefaultTreeNode parentNode = getRoot();
 			int index = path.length - 1;
 			for (int i = 0; i < index; i++)
 			{
-				parentNode = (SimpleTreeNode) getChild(parentNode, path[i]);
+				parentNode = (DefaultTreeNode) getChild(parentNode, path[i]);
 			}
 			parentNode.getChildren().remove(path[index]);
 			fireEvent(parentNode, path[index], path[index], TreeDataEvent.INTERVAL_REMOVED);
 		}
 	}
 
-	public void addNode(SimpleTreeNode newNode)
+	public void addNode(DefaultTreeNode newNode)
 	{
-		SimpleTreeNode root = (SimpleTreeNode) getRoot();
+		DefaultTreeNode root = (DefaultTreeNode) getRoot();
 		root.getChildren().add(newNode);
 		fireEvent(root, root.getChildCount() - 1, root.getChildCount() - 1, TreeDataEvent.INTERVAL_ADDED);
 	}
 
-	public void addNode(SimpleTreeNode newParent, SimpleTreeNode newNode, int index)
+	public void addNode(DefaultTreeNode newParent, DefaultTreeNode newNode, int index)
 	{
 		newParent.getChildren().add(index, newNode);
 		fireEvent(newParent, index, index, TreeDataEvent.INTERVAL_ADDED);
@@ -338,29 +338,29 @@ public class SimpleFavoriteTreeModel extends SimpleTreeModel implements EventLis
 		return itemDraggable;
 	}
 
-	public SimpleTreeNode getRoot()
+	public DefaultTreeNode getRoot()
 	{
-		return (SimpleTreeNode) super.getRoot();
+		return (DefaultTreeNode) super.getRoot();
 	}
 
-	public SimpleTreeNode getParent(SimpleTreeNode treeNode)
+	public DefaultTreeNode getParent(DefaultTreeNode treeNode)
 	{
-		int path[] = this.getPath(getRoot(), treeNode);
+		int path[] = this.getPath(treeNode);
 
 		if (path != null && path.length > 0)
 		{
-			SimpleTreeNode parentNode = getRoot();
+			DefaultTreeNode parentNode = getRoot();
 			int index = path.length - 1;
 			for (int i = 0; i < index; i++)
 			{
-				parentNode = (SimpleTreeNode) getChild((Object) parentNode, path[i]);
+				parentNode = (DefaultTreeNode) getChild(parentNode, path[i]);
 			}
 			return parentNode;
 		}
 		return null;
 	}
 	
-	public SimpleTreeNode find(SimpleTreeNode fromNode, int recordId) {
+	public DefaultTreeNode find(DefaultTreeNode fromNode, int recordId) {
 		if (fromNode == null)
 			fromNode = getRoot();
 		MTreeNode data = (MTreeNode) fromNode.getData();
@@ -370,17 +370,11 @@ public class SimpleFavoriteTreeModel extends SimpleTreeModel implements EventLis
 			return null;
 		int cnt = getChildCount(fromNode);
 		for (int i = 0; i < cnt; i++) {
-			SimpleTreeNode child = getChild(fromNode, i);
-			SimpleTreeNode treeNode = find(child, recordId);
+			DefaultTreeNode child = (DefaultTreeNode) getChild(fromNode, i);
+			DefaultTreeNode treeNode = find(child, recordId);
 			if (treeNode != null)
 				return treeNode;
 		}
 		return null;
 	}
-	
-	@Override
-	public SimpleTreeNode getChild(Object parent, int index) {
-		return (SimpleTreeNode) super.getChild(parent, index);
-	}
-
 }

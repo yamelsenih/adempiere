@@ -21,10 +21,12 @@ import java.math.BigDecimal;
 import java.text.NumberFormat;
 import java.text.ParseException;
 
-import org.adempiere.webui.LayoutUtils;
+import org.adempiere.webui.theme.ThemeUtils;
 import org.adempiere.webui.apps.AEnv;
 import org.compiere.util.DisplayType;
 import org.compiere.util.Env;
+import org.zkoss.web.fn.ServletFns;
+import org.zkoss.web.fn.ServletFns;
 import org.zkoss.zhtml.Table;
 import org.zkoss.zhtml.Td;
 import org.zkoss.zhtml.Tr;
@@ -75,6 +77,7 @@ public class NumberBox extends Div
     public NumberBox(boolean integral)
     {
         super();
+        ThemeUtils.addSclass("ad-numberbox", this);
         this.integral = integral;
         init();
     }
@@ -89,12 +92,13 @@ public class NumberBox extends Div
 		grid.setDynamicProperty("cellspacing", "0");
 		
 		Tr tr = new Tr();
+		ThemeUtils.addSclass("ad-numberbox-row", tr);
 		grid.appendChild(tr);
 		tr.setStyle("border: none; padding: 0px; margin: 0px; white-space:nowrap; ");
 
 		Td td = new Td();
 		tr.appendChild(td);
-		td.setStyle("border: none; padding: 0px; margin: 0px;");
+		ThemeUtils.addSclass("ad-numberbox-cell-input", td);
 		decimalBox = new Decimalbox();
     	if (integral)
     		decimalBox.setScale(0);
@@ -104,16 +108,15 @@ public class NumberBox extends Div
 		
 		Td btnColumn = new Td();
 		tr.appendChild(btnColumn);
-		btnColumn.setStyle("border: none; padding: 0px; margin: 0px;");
-		btnColumn.setSclass("editor-button");
+		ThemeUtils.addSclass("ad-numberbox-cell-button", btnColumn);
 		btn = new Button();
         btn.setImage("/images/Calculator10.png");
 		btn.setTabindex(-1);
-		LayoutUtils.addSclass("editor-button", btn);
+		ThemeUtils.addSclass("ad-numberbox-button", btn);
 		btnColumn.appendChild(btn);
         
         popup = getCalculatorPopup();
-        LayoutUtils.addSclass("editor-button", btn);
+//        LayoutUtils.addSclass("editor-button", btn);
         btn.setPopup(popup);
         btn.setStyle("text-align: center;");
         appendChild(popup);
@@ -139,7 +142,7 @@ public class NumberBox extends Div
     public void setValue(Object value)
     {
     	if (value == null)
-    		decimalBox.setValue(null);
+    		decimalBox.setValue((BigDecimal) null);
     	else if (value instanceof BigDecimal)
     		decimalBox.setValue((BigDecimal) value);
     	else if (value instanceof Number)

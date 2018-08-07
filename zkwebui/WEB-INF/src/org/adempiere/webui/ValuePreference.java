@@ -54,7 +54,7 @@ import org.zkoss.zul.Vbox;
  *  @author Jorg Janke
  *  @version  $Id: ValuePreference.java,v 1.2 2006/07/30 00:51:28 jjanke Exp $
  */
-public class ValuePreference extends Window implements EventListener
+public class ValuePreference extends Window implements EventListener<Event>
 {	
 	/**
 	 * 
@@ -278,28 +278,28 @@ public class ValuePreference extends Window implements EventListener
 		Row row = new Row();
 		row.setSpans("1, 4, 1");
 		Div div = new Div();
-		div.setStyle("text-align: right");
+		div.setSclass("label-right");
 		div.appendChild(lAttribute);
-		row.appendChild(div);
-		row.appendChild(fAttribute);
+		row.appendCellChild(div);
+		row.appendCellChild(fAttribute,4);
 		fAttribute.setWidth("100%");
-		row.appendChild(lAttributeValue);
+		row.appendCellChild(lAttributeValue);
 		rows.appendChild(row);
 		
 		row = new Row();
 		row.setSpans("1, 4, 1");
 		div = new Div();
-		div.setStyle("text-align: right");
+		div.setSclass("label-right");
 		div.appendChild(lValue);
-		row.appendChild(div);
-		row.appendChild(fValue);
+		row.appendCellChild(div);
+		row.appendCellChild(fValue,4);
 		fValue.setWidth("100%");
-		row.appendChild(lValueValue);
+		row.appendCellChild(lValueValue);
 		rows.appendChild(row);
 		
 		row = new Row();
 		div = new Div();
-		div.setStyle("text-align: right");
+		div.setSclass("label-right");
 		div.appendChild(lSetFor);
 		row.appendChild(div);
 		row.appendChild(cbClient);
@@ -311,7 +311,7 @@ public class ValuePreference extends Window implements EventListener
 		row = new Row();
 		row.setSpans("1, 5");
 		row.appendChild(new Space());
-		row.appendChild(lExplanation);
+		row.appendCellChild(lExplanation,5);
 		rows.appendChild(row);
 		
 		//

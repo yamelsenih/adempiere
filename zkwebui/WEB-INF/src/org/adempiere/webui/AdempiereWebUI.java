@@ -39,6 +39,8 @@ import org.adempiere.webui.session.SessionContextListener;
 import org.adempiere.webui.session.SessionManager;
 import org.adempiere.webui.theme.DefaultTheme;
 import org.adempiere.webui.theme.ThemeManager;
+import org.adempiere.webui.theme.DefaultTheme;
+import org.adempiere.webui.theme.ThemeUtils;
 import org.adempiere.webui.theme.ThemeUtils;
 import org.adempiere.webui.util.BrowserToken;
 import org.adempiere.webui.util.UserPreference;
@@ -84,7 +86,7 @@ import org.zkoss.zul.theme.Themes;
  * @see  [ 1258 ]The change role throw exception  </a>
  *         <a href="https://github.com/adempiere/adempiere/issues/1258">
  */
-public class AdempiereWebUI extends Window implements EventListener, IWebClient
+public class AdempiereWebUI extends Window implements EventListener<Event>, IWebClient
 {
 	/**
 	 *
@@ -133,8 +135,6 @@ public class AdempiereWebUI extends Window implements EventListener, IWebClient
 
     public void onCreate()
     {
-        this.getPage().setTitle(ThemeManager.getBrowserTitle());
-
         Properties ctx = Env.getCtx();
         langSession = Env.getContext(ctx, Env.LANGUAGE);
         SessionManager.setSessionApplication(this);

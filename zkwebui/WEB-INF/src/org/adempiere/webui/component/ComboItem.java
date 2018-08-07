@@ -17,6 +17,8 @@
 
 package org.adempiere.webui.component;
 
+import org.adempiere.webui.theme.ThemeUtils;
+
 /**
  * Bad stuff, cannot overide method equals in AbstractComponent.
  * @author  <a href="mailto:agramdass@gmail.com">Ashley G Ramdass</a>

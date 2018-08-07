@@ -54,14 +54,22 @@ public class WindowContainer extends AbstractUIPart
     protected Component doCreatePart(Component parent)
     {
         tabbox = new Tabbox();
+        tabbox.setSclass("desktop-tabbox");
+        tabbox.setId("desktop_tabbox");
+        
         
         Tabpanels tabpanels = new Tabpanels();
+        tabpanels.setVflex("1");
+        tabpanels.setHflex("1");
+        
         Tabs tabs = new Tabs();
 
         tabbox.appendChild(tabs);
         tabbox.appendChild(tabpanels);
         tabbox.setWidth("100%");
         tabbox.setHeight("100%");
+        tabbox.setVflex("1");
+        tabbox.setHflex("1");
         
         if (parent != null)
         	tabbox.setParent(parent);
@@ -119,7 +127,7 @@ public class WindowContainer extends AbstractUIPart
         tab.setClosable(closeable);
         
         // fix scroll position lost coming back into a grid view tab
-        tab.addEventListener(Events.ON_SELECT, new EventListener() {
+        tab.addEventListener(Events.ON_SELECT, new EventListener<Event>() {
 			public void onEvent(Event event) throws Exception {
 				Tab tab = (Tab)event.getTarget();
 				org.zkoss.zul.Tabpanel panel = tab.getLinkedPanel();

@@ -281,6 +281,7 @@ public final class ThemeUtils {
 		String url = "";
 		String currentTheme = Themes.getCurrentTheme();
 		MTheme theme = MTheme.get(Env.getCtx(), currentTheme);
+		System.out.println(theme);
 		url = theme.getBrowser_Icon_Image();
 		if (url == null || url.length() == 0) {
 			url = MSysConfig.getValue("ZK_BROWSER_ICON", DefaultTheme.ZK_BROWSER_ICON_IMAGE); 
