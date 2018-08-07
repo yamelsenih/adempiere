@@ -76,14 +76,40 @@ public class MFMDunning extends X_FM_Dunning {
 	}
 	
 	/**
-	 * Get Valid Level Instance of MFMDunning
-	 * @param validFrom
+	 * Get Valid Level for dunning, all
+	 * @param daysDue
 	 * @return
 	 */
 	public MFMDunningLevel getValidLevelInstance(int daysDue) {
+		return getValidLevelInstance(daysDue, true, false, false);
+	}
+	
+	/**
+	 * Get Valid Level
+	 * @param daysDue
+	 * @param isPrevision
+	 * @param isSuspend
+	 * @return
+	 */
+	public MFMDunningLevel getValidLevelInstance(int daysDue, boolean isPrevision, boolean isSuspend) {
+		return getValidLevelInstance(daysDue, false, isPrevision, isSuspend);
+	}
+	
+	/**
+	 * Get Valid Level Instance of MFMDunning
+	 * @param daysDue
+	 * @param isPrevision
+	 * @param isSuspend
+	 * @return
+	 */
+	public MFMDunningLevel getValidLevelInstance(int daysDue, boolean isAllDunning, boolean isPrevision, boolean isSuspend) {
 		ArrayList<Object> params = new ArrayList<Object>();
 		StringBuffer whereClause = new StringBuffer(MFMDunningLevel.COLUMNNAME_FM_Dunning_ID + " = ?");
 		params.add(getFM_Dunning_ID());
+		if(!isAllDunning) {
+			whereClause.append(" AND IsAccrual = '").append(isPrevision? "Y": "N").append("'");
+			whereClause.append(" AND IsSuspend = '").append(isSuspend? "Y": "N").append("'");
+		}
 		// check ValidFrom
 		whereClause.append(" AND ")
 			.append("? BETWEEN " + MFMDunningLevel.COLUMNNAME_DaysFrom + " AND " + MFMDunningLevel.COLUMNNAME_DaysTo);

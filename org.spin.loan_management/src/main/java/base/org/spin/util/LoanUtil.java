@@ -18,19 +18,24 @@ package org.spin.util;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
+import java.util.logging.Level;
 
-import org.adempiere.model.GenericPO;
 import org.compiere.model.MCharge;
 import org.compiere.model.MTax;
 import org.compiere.model.MTaxCategory;
-import org.compiere.model.Query;
+import org.compiere.util.CLogger;
+import org.compiere.util.DB;
 import org.compiere.util.Env;
 import org.compiere.util.TimeUtil;
+import org.compiere.util.Util;
 import org.spin.model.MFMAccount;
 import org.spin.model.MFMAgreement;
 import org.spin.model.MFMAmortization;
@@ -51,6 +56,8 @@ public class LoanUtil {
 
 	/**	It is hardcode and must be changed	*/
 	private final static BigDecimal YEAR_DAY = new BigDecimal(360);
+	/**	Logger			*/
+	private static CLogger	log = CLogger.getCLogger(LoanUtil.class);
 	
 	/**
 	 * Get End Date from Frequency and Start Date
@@ -378,27 +385,35 @@ public class LoanUtil {
 			//	For distinct levels
 			MFMDunningLevel level = null;
 			int dunningLevelRateId = 0;
-			if(dunning != null
-					&& dunningRateId == 0) {
+			if(dunning != null) {
 				level = dunning.getValidLevelInstance(row.getDaysDue());
 				if(level == null) {
 					continue;
 				}
-				dunningLevelRateId = level.getFM_Rate_ID();
-				if(dunningLevelRateId > 0) {
-					MFMRate rate = MFMRate.getById(ctx, dunningLevelRateId);
-					//	
-					interestRate = rate.getValidRate(runningDate);
-					charge = MCharge.get(ctx, rate.getC_Charge_ID());
-					//	Validate Charge
-					if(charge != null) {
-						//	Get Tax Rate
-						MTaxCategory taxCategory = (MTaxCategory) charge.getC_TaxCategory();
-						MTax tax = taxCategory.getDefaultTax();
-						//	Calculate rate for fee (Year Interest + (Tax Rate * Year Interest))
-						interestRate = interestRate.divide(Env.ONEHUNDRED);
-						taxRate = tax.getRate().divide(Env.ONEHUNDRED);
+				//	Apply for parent
+				if(dunningRateId == 0) {
+					dunningLevelRateId = level.getFM_Rate_ID();
+					if(dunningLevelRateId > 0) {
+						MFMRate rate = MFMRate.getById(ctx, dunningLevelRateId);
+						//	
+						interestRate = rate.getValidRate(runningDate);
+						charge = MCharge.get(ctx, rate.getC_Charge_ID());
+						//	Validate Charge
+						if(charge != null) {
+							//	Get Tax Rate
+							MTaxCategory taxCategory = (MTaxCategory) charge.getC_TaxCategory();
+							MTax tax = taxCategory.getDefaultTax();
+							//	Calculate rate for fee (Year Interest + (Tax Rate * Year Interest))
+							interestRate = interestRate.divide(Env.ONEHUNDRED);
+							taxRate = tax.getRate().divide(Env.ONEHUNDRED);
+						}
 					}
+				}
+				//	Validate Rate
+				if(interestRate == null
+						|| interestRate.doubleValue() == 0
+						|| taxRate == null) {
+					continue;
 				}
 			}
 			//	
@@ -446,11 +461,9 @@ public class LoanUtil {
 		//	Calculate it
 		MFMProduct financialProduct = MFMProduct.getById(ctx, agreement.getFM_Product_ID());
 		//	Get Interest Rate
-		int dunningRateId = financialProduct.get_ValueAsInt("DunningInterest_ID");
 		int dunningId = financialProduct.get_ValueAsInt("FM_Dunning_ID");
 		//	Validate Dunning for it
-		if(dunningRateId == 0
-				&& dunningId == 0) {
+		if(dunningId == 0) {
 			return null;
 		}
 		//	
@@ -480,15 +493,18 @@ public class LoanUtil {
 			}
 			//	For distinct levels
 			MFMDunningLevel level = null;
-			if(dunning != null
-					&& dunningRateId == 0) {
-				level = dunning.getValidLevelInstance(row.getDaysDue());
+			if(dunning != null) {
+				level = dunning.getValidLevelInstance(row.getDaysDue(), true, false);
 				if(level == null
 						|| !level.isAccrual()) {
 					continue;
 				}
 				//	Get Provision Rate
 				BigDecimal provisionRate = level.getProvisionPercentage();
+				if(provisionRate == null
+						|| provisionRate.doubleValue() == 0) {
+					continue;
+				}
 				provisionRate = provisionRate.divide(Env.ONEHUNDRED);
 				//	Set Capital
 				BigDecimal capitalAmount = row.getCapitalAmtFee();
@@ -531,11 +547,9 @@ public class LoanUtil {
 		//	Calculate it
 		MFMProduct financialProduct = MFMProduct.getById(ctx, agreement.getFM_Product_ID());
 		//	Get Interest Rate
-		int dunningRateId = financialProduct.get_ValueAsInt("DunningInterest_ID");
 		int dunningId = financialProduct.get_ValueAsInt("FM_Dunning_ID");
 		//	Validate Dunning for it
-		if(dunningRateId == 0
-				&& dunningId == 0) {
+		if(dunningId == 0) {
 			return null;
 		}
 		//	
@@ -565,9 +579,8 @@ public class LoanUtil {
 			}
 			//	For distinct levels
 			MFMDunningLevel level = null;
-			if(dunning != null
-					&& dunningRateId == 0) {
-				level = dunning.getValidLevelInstance(row.getDaysDue());
+			if(dunning != null) {
+				level = dunning.getValidLevelInstance(row.getDaysDue(), false, true);
 				if(level == null
 						|| !level.isSuspend()) {
 					continue;
@@ -699,24 +712,45 @@ public class LoanUtil {
 	private static List<AmortizationValue> getCurrentAmortizationList(Properties ctx, int agreementId, String trxName) {
 		//	Hash Map for Amortization
 		List<AmortizationValue> amortizationList = new ArrayList<AmortizationValue>();
-		List<GenericPO> amortizationPOList = new Query(ctx, "RV_FM_LoanAmortization", "FM_Agreement_ID = ?", trxName)
-			.setParameters(agreementId)
-			.list();
-		//	Iterate It
-		if(amortizationPOList != null) {
-			for(GenericPO amortization : amortizationPOList) {
+		String sql = new String("SELECT * FROM RV_FM_LoanAmortization WHERE FM_Agreement_ID = ?");
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		try {
+			pstmt = DB.prepareStatement(sql, trxName);
+			pstmt.setInt(1, agreementId);
+			rs = pstmt.executeQuery();
+			while (rs.next()) {
+				ResultSetMetaData rsmd = rs.getMetaData();
 				AmortizationValue row = new AmortizationValue();
-				row.setAmortizationId(amortization.get_ValueAsInt("FM_Amortization_ID"));
-				row.setPeriodNo(amortization.get_ValueAsInt("PeriodNo"));
-				row.setCapitalAmtFee((BigDecimal) amortization.get_Value("CapitalAmt"));
-				row.setInterestAmtFee((BigDecimal) amortization.get_Value("CurrentInterestAmt"));
-				row.setDunningInterestAmount((BigDecimal) amortization.get_Value("CurrentDunningAmt"));
-				row.setStartDate((Timestamp) amortization.get_Value("StartDate"));
-				row.setEndDate((Timestamp) amortization.get_Value("EndDate"));
-				row.setDueDate((Timestamp) amortization.get_Value("DueDate"));
-				row.setPaid(amortization.get_ValueAsBoolean("IsPaid"));
+				for (int index = 1; index <= rsmd.getColumnCount(); index++) {
+					String columnName = rsmd.getColumnName (index);
+					if (columnName.equalsIgnoreCase("FM_Amortization_ID")) {
+						row.setAmortizationId(rs.getInt(index));
+					} else if(columnName.equalsIgnoreCase("PeriodNo")) {
+						row.setPeriodNo(rs.getInt(index));
+					} else if(columnName.equalsIgnoreCase("CapitalAmt")) {
+						row.setCapitalAmtFee(rs.getBigDecimal(index));
+					} else if(columnName.equalsIgnoreCase("CurrentInterestAmt")) {
+						row.setInterestAmtFee(rs.getBigDecimal(index));
+					} else if(columnName.equalsIgnoreCase("CurrentDunningAmt")) {
+						row.setDunningInterestAmount(rs.getBigDecimal(index));
+					} else if(columnName.equalsIgnoreCase("StartDate")) {
+						row.setStartDate(rs.getTimestamp(index));
+					} else if(columnName.equalsIgnoreCase("EndDate")) {
+						row.setEndDate(rs.getTimestamp(index));
+					} else if(columnName.equalsIgnoreCase("DueDate")) {
+						row.setDueDate(rs.getTimestamp(index));
+					} else if(columnName.equalsIgnoreCase("IsPaid")) {
+						String booleanValue = rs.getString(index);
+						row.setPaid(!Util.isEmpty(booleanValue) && booleanValue.equals("Y")? true: false);
+					}
+				}
 				amortizationList.add(row);
 			}
+		} catch (Exception e) {
+			log.log(Level.SEVERE, sql, e);
+		} finally {
+			DB.close(rs, pstmt);
 		}
 		//	Default
 		return amortizationList;
