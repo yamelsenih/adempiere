@@ -17,6 +17,7 @@
 
 package org.adempiere.webui.component;
 
+import org.adempiere.webui.theme.ThemeUtils;
 import org.zkoss.zk.ui.Component;
 
 /**
@@ -34,6 +35,7 @@ public class Grid extends org.zkoss.zul.Grid
     public Grid() {
 		super();
 		//cache default
+		ThemeUtils.addSclass("ad-grid", this);
 		oddRowSclass = super.getOddRowSclass();
 		super.setOddRowSclass(oddRowSclass);
 	}

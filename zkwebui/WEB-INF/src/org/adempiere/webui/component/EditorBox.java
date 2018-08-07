@@ -15,7 +15,7 @@ package org.adempiere.webui.component;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 
-import org.adempiere.webui.LayoutUtils;
+import org.adempiere.webui.theme.ThemeUtils;
 import org.adempiere.webui.apps.AEnv;
 import org.zkoss.zhtml.Table;
 import org.zkoss.zhtml.Td;
@@ -46,6 +46,7 @@ public class EditorBox extends Div {
 	 * @param text
 	 */
 	public EditorBox(String text) {
+		ThemeUtils.addSclass("ad-editorbox", this);
 		initComponents();
 		setText(text);
 	}
@@ -59,6 +60,7 @@ public class EditorBox extends Div {
 
 	private void initComponents() {
 		Table grid = new Table();
+		ThemeUtils.addSclass("ad-editorbox-grid", grid);
 		appendChild(grid);
 		this.setWidth("100%");
 		grid.setStyle("border: none; padding: 0px; margin: 0px;");
@@ -68,14 +70,16 @@ public class EditorBox extends Div {
 		grid.setDynamicProperty("cellspacing", "0");
 
 		Tr tr = new Tr();
+		ThemeUtils.addSclass("ad-editorbox-row", tr);
 		grid.appendChild(tr);
 		tr.setStyle("width: 100%; border: none; padding: 0px; margin: 0px; white-space:nowrap; ");
 
 		Td td = new Td();
+		ThemeUtils.addSclass("ad-editorbox-cell-input", td);
 		tr.appendChild(td);
 		td.setStyle("border: none; padding: 0px; margin: 0px;");
 		txt = new Textbox();
-		txt.setStyle("display: inline; width: 99%;");
+		ThemeUtils.addSclass("ad-editorbox-input", txt);
 		td.appendChild(txt);
 
 		btnColumn = new Td();
@@ -84,7 +88,7 @@ public class EditorBox extends Div {
 		btnColumn.setSclass("editor-button");
 		btn = new Button();
 		btn.setTabindex(-1);
-		LayoutUtils.addSclass("editor-button", btn);
+		ThemeUtils.addSclass("ad-editorbox-button", btn);
 		btnColumn.appendChild(btn);
 
 		String style = AEnv.isFirefox2() ? "display: inline"
@@ -125,9 +129,9 @@ public class EditorBox extends Div {
 		btn.setVisible(enabled);
 		btnColumn.setVisible(enabled);
 		if (enabled)
-			btnColumn.setSclass("editor-button");
+			ThemeUtils.addSclass("enabled", btnColumn);
 		else
-			btnColumn.setSclass("");
+			ThemeUtils.removeSclass("enabled", btnColumn);
 	}
 
 	/**
@@ -140,9 +144,9 @@ public class EditorBox extends Div {
 		btn.setVisible(keepButton);
 		btnColumn.setVisible(keepButton);
 		if (keepButton)
-			btnColumn.setSclass("editor-button");
+			ThemeUtils.addSclass("enabled", btnColumn);
 		else
-			btnColumn.setSclass("");
+			ThemeUtils.removeSclass("enabled", btnColumn);
 	}
 
 	/**

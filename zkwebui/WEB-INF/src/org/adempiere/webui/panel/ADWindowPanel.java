@@ -52,6 +52,7 @@ import org.zkoss.zk.ui.event.KeyEvent;
 import org.zkoss.zul.Borderlayout;
 import org.zkoss.zul.Center;
 import org.zkoss.zul.East;
+import org.zkoss.zul.Group;
 import org.zkoss.zul.North;
 import org.zkoss.zul.South;
 import org.zkoss.zul.West;
@@ -188,8 +189,10 @@ public class ADWindowPanel extends AbstractADWindowPanel
 
         contentArea = new Center();
         contentArea.setParent(layout);
-        contentArea.setAutoscroll(true);
-        contentArea.setFlex(true);
+        //contentArea.setAutoscroll(true);
+        contentArea.setHflex("true");
+        contentArea.setVflex("true");
+        ThemeUtils.addSclass("ad-adwindowpanel-content-area", contentArea);
         adTab.createPart(contentArea);
 
         if (parent instanceof Tabpanel) {
@@ -198,14 +201,14 @@ public class ADWindowPanel extends AbstractADWindowPanel
         }
 
         if (!isEmbedded()) {
-        	if (keyListener != null)
-        		keyListener.detach();
-        	keyListener = new Keylistener();
-        	statusBar.appendChild(keyListener);
-        	keyListener.setCtrlKeys("#f1#f2#f3#f4#f5#f6#f7#f8#f9#f10#f11#f12^f^i^n^s^d@#left@#right@#up@#down@#pgup@#pgdn@p^p@z@x#enter");
-        	keyListener.addEventListener(Events.ON_CTRL_KEY, toolbar);
-        	keyListener.addEventListener(Events.ON_CTRL_KEY, this);
-        	keyListener.setAutoBlur(false);
+//        	if (keyListener != null)
+//        		keyListener.detach();
+//        	keyListener = new Keylistener();
+//        	statusBar.appendChild(keyListener);
+//        	keyListener.setCtrlKeys("#f1#f2#f3#f4#f5#f6#f7#f8#f9#f10#f11#f12^f^i^n^s^d@#left@#right@#up@#down@#pgup@#pgdn@p^p@z@x#enter");
+//        	keyListener.addEventListener(Events.ON_CTRL_KEY, toolbar);
+//        	keyListener.addEventListener(Events.ON_CTRL_KEY, this);
+//        	keyListener.setAutoBlur(false);
         }
 
         layout.setAttribute(ITabOnSelectHandler.ATTRIBUTE_KEY, new ITabOnSelectHandler() {

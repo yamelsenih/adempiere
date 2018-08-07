@@ -61,7 +61,6 @@ import org.zkoss.zul.Cell;
 import org.zkoss.zul.Center;
 import org.zkoss.zul.DefaultTreeNode;
 import org.zkoss.zul.Div;
-import org.zkoss.zul.Group;
 import org.zkoss.zul.Groupfoot;
 import org.zkoss.zul.Panel;
 import org.zkoss.zul.Panelchildren;

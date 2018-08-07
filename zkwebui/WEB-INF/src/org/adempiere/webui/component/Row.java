@@ -19,7 +19,6 @@ package org.adempiere.webui.component;
 
 import org.zkoss.zk.ui.Component;
 import org.zkoss.zul.Cell;
-import org.zkoss.zul.Group;
 import org.zkoss.zk.ui.Component;
 import org.zkoss.zul.Cell;
 
@@ -62,8 +61,8 @@ public class Row extends org.zkoss.zul.Row
 
 	public void setGroup(Group group) {
 		this.m_group = group;
-//		if (m_group != null)
-//			m_group.add(this);
+		if (m_group != null)
+			m_group.add(this);
 	}
 	
 	public Cell getLastCell() {

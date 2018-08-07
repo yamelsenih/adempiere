@@ -35,11 +35,13 @@ public class ComboItem extends org.zkoss.zul.Comboitem
 	public ComboItem(String label)
     {
         super(label);
+        ThemeUtils.addSclass("ad-comboitem", this);
     }
     
     public ComboItem(String label, Object value)
     {
         super(label);
+        ThemeUtils.addSclass("ad-comboitem", this);
         this.setValue(value);
     }    
 }

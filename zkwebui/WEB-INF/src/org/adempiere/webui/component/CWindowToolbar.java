@@ -25,16 +25,18 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.logging.Level;
 
-import org.adempiere.webui.LayoutUtils;
 import org.adempiere.webui.event.ToolbarListener;
 import org.adempiere.webui.panel.IADTabPanel;
 import org.adempiere.webui.session.SessionManager;
 import org.adempiere.webui.theme.ITheme;
+import org.adempiere.webui.theme.ThemeUtils;
 import org.compiere.model.MRole;
 import org.compiere.util.CLogger;
 import org.compiere.util.Env;
 import org.compiere.util.Msg;
+import org.zkoss.web.fn.ServletFns;
 import org.zkoss.zk.ui.Component;
+import org.zkoss.zk.ui.HtmlBasedComponent;
 import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.event.EventListener;
 import org.zkoss.zk.ui.event.Events;
@@ -163,7 +165,7 @@ public class CWindowToolbar extends FToolbar implements EventListener
 
     private void init()
     {
-    	LayoutUtils.addSclass("adwindow-toolbar", this);
+    	ThemeUtils.addSclass("ad-cwindowtoolbar", this);
 
         btnIgnore = createButton("Ignore", "Ignore", "Ignore");
         addSeparator();
@@ -219,6 +221,7 @@ public class CWindowToolbar extends FToolbar implements EventListener
 
         if (embedded)
         {
+        	ThemeUtils.addSclass("embedded", this);
         	btnParentRecord.setVisible(false);
     		btnDetailRecord.setVisible(false);
     		btnActiveWorkflows.setVisible(false);
@@ -230,7 +233,7 @@ public class CWindowToolbar extends FToolbar implements EventListener
         }
         else
         {
-        	setWidth("100%");
+        	ThemeUtils.removeSclass("embedded", this);
         }
     }
 
@@ -240,15 +243,16 @@ public class CWindowToolbar extends FToolbar implements EventListener
     	ToolBarButton btn = new ToolBarButton("");
         btn.setName("btn"+name);
         btn.setImage(ITheme.TOOLBAR_FOLDER_IMAGE + "/"+image + (embedded ? "16.png" : "24.png"));
+        btn.setImage(ServletFns.resolveThemeURL("~./images/"+image + (embedded ? "16.png" : "24.png")));
         btn.setTooltiptext(Msg.getMsg(Env.getCtx(),tooltip));
         if (embedded)
         {
-        	btn.setStyle(EMBEDDED_TOOLBAR_BUTTON_STYLE);
+        	//btn.setStyle(EMBEDDED_TOOLBAR_BUTTON_STYLE);  // Moved to theme
         	btn.setSclass("embedded-toolbar-button");
         }
         else
         {
-        	btn.setStyle(TOOLBAR_BUTTON_STYLE);
+        	//btn.setStyle(TOOLBAR_BUTTON_STYLE);  // Moved to theme
         	btn.setSclass("toolbar-button");
         }
         buttons.put(name, btn);
@@ -328,6 +332,7 @@ public class CWindowToolbar extends FToolbar implements EventListener
 	protected void addSeparator()
     {
 		Space s = new Space();
+		// TODO - move to theme
 		if (embedded)
 			s.setSpacing("3px");
 		else
@@ -392,23 +397,11 @@ public class CWindowToolbar extends FToolbar implements EventListener
 		        Method method = tListener.getClass().getMethod(methodName, (Class[]) null);
 		        method.invoke(tListener, (Object[]) null);
 		    }
-		    catch(SecurityException e)
-		    {
-		        log.log(Level.SEVERE, "Could not invoke Toolbar listener method: " + methodName + "()", e);
-		    }
-		    catch(NoSuchMethodException e)
-		    {
-		        log.log(Level.SEVERE, "Could not invoke Toolbar listener method: " + methodName + "()", e);
-		    }
-		    catch(IllegalArgumentException e)
-		    {
-		        log.log(Level.SEVERE, "Could not invoke Toolbar listener method: " + methodName + "()", e);
-		    }
-		    catch(IllegalAccessException e)
-		    {
-		        log.log(Level.SEVERE, "Could not invoke Toolbar listener method: " + methodName + "()", e);
-		    }
-		    catch(InvocationTargetException e)
+		    catch(SecurityException | 
+		    	  NoSuchMethodException |
+		    	  IllegalArgumentException |
+		    	  IllegalAccessException |
+		    	  InvocationTargetException e)
 		    {
 		        log.log(Level.SEVERE, "Could not invoke Toolbar listener method: " + methodName + "()", e);
 		    }
