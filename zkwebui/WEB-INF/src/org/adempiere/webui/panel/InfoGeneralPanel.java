@@ -37,6 +37,7 @@ import org.compiere.util.DisplayType;
 import org.compiere.util.Env;
 import org.compiere.util.Msg;
 import org.compiere.util.Util;
+import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.event.EventListener;
 import org.zkoss.zk.ui.event.Events;
 
@@ -48,7 +49,7 @@ import org.zkoss.zk.ui.event.Events;
  * @author Michael McKay, ADEMPIERE-72 VLookup and Info Window improvements
  * 	<li>https://adempiere.atlassian.net/browse/ADEMPIERE-72
  */
-public class InfoGeneralPanel extends InfoPanel implements EventListener
+public class InfoGeneralPanel extends InfoPanel implements EventListener<Event>
 {
 	/**
 	 * 

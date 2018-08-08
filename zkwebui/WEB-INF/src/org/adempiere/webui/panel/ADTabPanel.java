@@ -196,7 +196,7 @@ public class ADTabPanel extends Div implements Evaluatee, EventListener, DataSta
 
     private void initComponents()
     {
-    	LayoutUtils.addSclass("adtab-content", this);
+    	ThemeUtils.addSclass("ad-adtabpanel adtab-content", this);
         grid = new Grid();
         //have problem moving the following out as css class
         grid.setWidth("100%");

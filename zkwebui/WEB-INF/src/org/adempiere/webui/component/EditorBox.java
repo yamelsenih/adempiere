@@ -17,6 +17,7 @@ import java.beans.PropertyChangeSupport;
 
 import org.adempiere.webui.theme.ThemeUtils;
 import org.adempiere.webui.apps.AEnv;
+import org.adempiere.webui.theme.ThemeUtils;
 import org.zkoss.zhtml.Table;
 import org.zkoss.zhtml.Td;
 import org.zkoss.zhtml.Tr;
@@ -84,8 +85,7 @@ public class EditorBox extends Div {
 
 		btnColumn = new Td();
 		tr.appendChild(btnColumn);
-		btnColumn.setStyle("border: none; padding: 0px; margin: 0px;");
-		btnColumn.setSclass("editor-button");
+		ThemeUtils.addSclass("ad-editorbox-cell-button", btnColumn);
 		btn = new Button();
 		btn.setTabindex(-1);
 		ThemeUtils.addSclass("ad-editorbox-button", btn);

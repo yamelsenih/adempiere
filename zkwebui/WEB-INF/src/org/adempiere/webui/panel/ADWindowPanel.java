@@ -129,6 +129,7 @@ public class ADWindowPanel extends AbstractADWindowPanel
 //	        toolbar.setParent(box);
 	        ThemeUtils.addSclass("ad-adwindowpanel-toolbar-layout", n);
 //	        box.setParent(n);
+	        toolbar.setParent(n);
 	        toolbar.setWindowNo(getWindowNo());
 	        //	FR [ 588 ]
 	        South s = new South();

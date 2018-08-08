@@ -19,7 +19,7 @@ package org.adempiere.webui.panel;
 
 import java.util.Properties;
 
-import org.adempiere.webui.LayoutUtils;
+import org.adempiere.webui.theme.ThemeUtils;
 import org.adempiere.webui.apps.AEnv;
 import org.adempiere.webui.component.Label;
 import org.adempiere.webui.component.Messagebox;
@@ -50,7 +50,7 @@ import org.zkoss.zul.Vbox;
  * @author Michael Mckay
  * Add context viewer.  Configurable.
  */
-public class UserPanel extends Vbox  implements EventListener
+public class UserPanel extends Vbox  implements EventListener<Event>
 {
 
 	private static final long serialVersionUID = -45350536628290540L;
@@ -82,9 +82,11 @@ public class UserPanel extends Vbox  implements EventListener
     	this.setAlign("right");
     	//
 
-    	lblUserNameValue.setValue(getUserName() + "@" + getClientName() + "." + getOrgName());
-    	lblUserNameValue.setStyle("text-align:right");
-    	LayoutUtils.addSclass("desktop-header-font", lblUserNameValue);
+    	// Top row
+    	lblUserNameValue.setValue(getUserName() + "@" + getClientName() + "." + getOrgName()+"/"+getRoleName());
+    	lblUserNameValue.setId("loginUserAndRole");
+
+    	ThemeUtils.addSclass("user-panel-username", lblUserNameValue);
     	this.appendChild(lblUserNameValue);
 
     	Hbox hbox = new Hbox();
@@ -92,14 +94,12 @@ public class UserPanel extends Vbox  implements EventListener
     	// TODO - make configurable
     	context.setLabel(Msg.getMsg(Env.getCtx(), "Context"));
     	context.addEventListener(Events.ON_CLICK, this);
-    	context.setStyle("text-align:right");
-    	LayoutUtils.addSclass("desktop-header-font", context);
+    	ThemeUtils.addSclass("link", context);
     	context.setParent(hbox);    	
 
     	preference.setLabel(Msg.getMsg(Env.getCtx(), "Preference"));
     	preference.addEventListener(Events.ON_CLICK, this);
-    	preference.setStyle("text-align:right");
-    	LayoutUtils.addSclass("desktop-header-font", preference);
+    	ThemeUtils.addSclass("link", preference);
     	preference.setParent(hbox);
 
     	Separator sep = new Separator("vertical");
@@ -108,8 +108,7 @@ public class UserPanel extends Vbox  implements EventListener
 
     	role.setLabel(this.getRoleName());
     	role.addEventListener(Events.ON_CLICK, this);
-    	role.setStyle("text-align:right");
-    	LayoutUtils.addSclass("desktop-header-font", role);
+    	ThemeUtils.addSclass("link", role);
     	role.setParent(hbox);
 
     	sep = new Separator("vertical");
@@ -119,7 +118,7 @@ public class UserPanel extends Vbox  implements EventListener
     	changeRole.setLabel(Msg.getMsg(Env.getCtx(),"changeRole"));
     	changeRole.addEventListener(Events.ON_CLICK, this);
     	changeRole.setStyle("text-align:right");
-    	LayoutUtils.addSclass("desktop-header-font", changeRole);
+//    	LayoutUtils.addSclass("desktop-header-font", changeRole);
     	changeRole.setParent(hbox);
     	
     	sep = new Separator("vertical");
@@ -129,7 +128,7 @@ public class UserPanel extends Vbox  implements EventListener
     	logout.setLabel(Msg.getMsg(Env.getCtx(),"Logout"));
     	logout.addEventListener(Events.ON_CLICK, this);
     	logout.setStyle("text-align:right");
-    	LayoutUtils.addSclass("desktop-header-font", logout);
+//    	LayoutUtils.addSclass("desktop-header-font", logout);
     	logout.setParent(hbox);
 
     	this.appendChild(hbox);

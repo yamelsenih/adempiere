@@ -33,6 +33,7 @@ import java.util.Set;
 import org.adempiere.webui.apps.AEnv;
 import org.adempiere.webui.event.TableValueChangeEvent;
 import org.adempiere.webui.event.TableValueChangeListener;
+import org.adempiere.webui.theme.ThemeUtils;
 import org.compiere.minigrid.ColumnInfo;
 import org.compiere.minigrid.IDColumn;
 import org.compiere.util.DisplayType;
@@ -179,8 +180,17 @@ public class WListItemRenderer implements ListitemRenderer, EventListener, Listi
 			if (colorCode < 0)
 			{
 				//  Color the row.
-				//  TODO: do this with a class and CSS
-				item.setStyle("color: #FF0000; " + item.getStyle());
+				ThemeUtils.addSclass("color-row-low", item);
+			}
+			if (colorCode == 0)
+			{
+				//  Color the row.
+				ThemeUtils.addSclass("color-row-normal", item);
+			}
+			if (colorCode > 0)
+			{
+				//  Color the row.
+				ThemeUtils.addSclass("color-row-high", item);
 			}
 		}
 
@@ -947,6 +957,11 @@ public class WListItemRenderer implements ListitemRenderer, EventListener, Listi
 			}
 		}
 
+	}
+
+	@Override
+	public void render(Listitem item, Object data, int index) throws Exception {
+		render(item, data);	
 	}
 }
 

@@ -36,16 +36,17 @@ import org.compiere.util.Env;
 import org.compiere.util.Msg;
 import org.zkoss.util.media.AMedia;
 import org.zkoss.util.media.Media;
-import org.zkoss.zk.au.AuScript;
+import org.zkoss.web.fn.ServletFns;
 import org.zkoss.zk.au.out.AuEcho;
+import org.zkoss.zk.au.out.AuScript;
 import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.event.EventListener;
 import org.zkoss.zk.ui.event.Events;
 import org.zkoss.zk.ui.util.Clients;
-import org.zkoss.zkex.zul.Borderlayout;
-import org.zkoss.zkex.zul.Center;
-import org.zkoss.zkex.zul.North;
-import org.zkoss.zkex.zul.South;
+import org.zkoss.zul.Borderlayout;
+import org.zkoss.zul.Center;
+import org.zkoss.zul.North;
+import org.zkoss.zul.South;
 import org.zkoss.zul.Div;
 import org.zkoss.zul.Filedownload;
 import org.zkoss.zul.Fileupload;
@@ -143,8 +144,11 @@ public class WAttachment extends Window implements EventListener
 			setAttribute(Window.MODE_KEY, Window.MODE_HIGHLIGHTED);			
 			AEnv.showWindow(this);
 			displayData(0, false);
-			String script = "setTimeout(\"$e('"+ preview.getUuid() + "').src = $e('" +
-			preview.getUuid() + "').src\", 1000)";
+			
+			/* TODO-evenos: zk 6 */
+			
+			String script = "setTimeout(\"zk.Widget.$('"+ preview.getUuid() + "').$n().src = zk.Widget.$('" +
+					preview.getUuid() + "').$n().src\", 1000)";
 			Clients.response(new AuScript(null, script));
 			
 			//enter modal
@@ -452,8 +456,6 @@ public class WAttachment extends Window implements EventListener
 		
 		Media media = null;
 		
-		try 
-		{
 			media = Fileupload.get(true); 
 			
 			if (media != null)
@@ -467,11 +469,6 @@ public class WAttachment extends Window implements EventListener
 				preview.invalidate();
 				return;
 			}
-		}
-		catch (InterruptedException e) 
-		{
-			log.log(Level.WARNING, e.getLocalizedMessage(), e);
-		}
 	
 		String fileName = media.getName(); 
 		log.config(fileName);

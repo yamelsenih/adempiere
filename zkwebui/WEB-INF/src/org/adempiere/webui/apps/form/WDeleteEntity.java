@@ -47,10 +47,10 @@ import org.compiere.util.KeyNamePair;
 import org.compiere.util.Msg;
 import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.event.EventListener;
-import org.zkoss.zkex.zul.Borderlayout;
-import org.zkoss.zkex.zul.Center;
-import org.zkoss.zkex.zul.North;
-import org.zkoss.zkex.zul.South;
+import org.zkoss.zul.Borderlayout;
+import org.zkoss.zul.Center;
+import org.zkoss.zul.North;
+import org.zkoss.zul.South;
 import org.zkoss.zul.Checkbox;
 import org.zkoss.zul.Comboitem;
 import org.zkoss.zul.Hbox;
@@ -71,7 +71,7 @@ import org.zkoss.zul.Treerow;
  * 		@see FR [ 880 ] Allow "Delete Entities" form to be accessible only for role "System Administrator"</a>
  */
 public class WDeleteEntity extends DeleteEntityControler 
-			implements IFormController,EventListener, ValueChangeListener{
+			implements IFormController,EventListener<Event>, ValueChangeListener{
 	
 	/**
 	 * 
