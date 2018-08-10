@@ -268,6 +268,7 @@ public interface I_HR_Process
 	  */
 	public boolean isActive();
 
+<<<<<<< HEAD
     /** Column name IsPostPerEmployee */
     public static final String COLUMNNAME_IsPostPerEmployee = "IsPostPerEmployee";
 
@@ -281,6 +282,8 @@ public interface I_HR_Process
 	  */
 	public boolean isPostPerEmployee();
 
+=======
+>>>>>>> refs/heads/develop
     /** Column name Name */
     public static final String COLUMNNAME_Name = "Name";
 

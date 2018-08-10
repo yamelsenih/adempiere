@@ -33,7 +33,11 @@ public class X_HR_Process extends PO implements I_HR_Process, I_Persistent
 	/**
 	 *
 	 */
+<<<<<<< HEAD
 	private static final long serialVersionUID = 20180730L;
+=======
+	private static final long serialVersionUID = 20180728L;
+>>>>>>> refs/heads/develop
 
     /** Standard Constructor */
     public X_HR_Process (Properties ctx, int HR_Process_ID, String trxName)
@@ -48,8 +52,11 @@ public class X_HR_Process extends PO implements I_HR_Process, I_Persistent
 			setDocStatus (null);
 // DR
 			setHR_Payroll_ID (0);
+<<<<<<< HEAD
 			setIsPostPerEmployee (false);
 // N
+=======
+>>>>>>> refs/heads/develop
 			setName (null);
 			setPosted (false);
 // N
@@ -468,6 +475,7 @@ public class X_HR_Process extends PO implements I_HR_Process, I_Persistent
 		return ii.intValue();
 	}
 
+<<<<<<< HEAD
 	/** Set IsPostPerEmployee.
 		@param IsPostPerEmployee 
 		A Payroll is posted per employee when the value is Yes, it is posted accumulated when the value is N
@@ -492,6 +500,8 @@ public class X_HR_Process extends PO implements I_HR_Process, I_Persistent
 		return false;
 	}
 
+=======
+>>>>>>> refs/heads/develop
 	/** Set Name.
 		@param Name 
 		Alphanumeric identifier of the entity
