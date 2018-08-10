@@ -268,22 +268,6 @@ public interface I_HR_Process
 	  */
 	public boolean isActive();
 
-<<<<<<< HEAD
-    /** Column name IsPostPerEmployee */
-    public static final String COLUMNNAME_IsPostPerEmployee = "IsPostPerEmployee";
-
-	/** Set IsPostPerEmployee.
-	  * A Payroll is posted per employee when the value is Yes, it is posted accumulated when the value is N
-	  */
-	public void setIsPostPerEmployee (boolean IsPostPerEmployee);
-
-	/** Get IsPostPerEmployee.
-	  * A Payroll is posted per employee when the value is Yes, it is posted accumulated when the value is N
-	  */
-	public boolean isPostPerEmployee();
-
-=======
->>>>>>> refs/heads/develop
     /** Column name Name */
     public static final String COLUMNNAME_Name = "Name";
 

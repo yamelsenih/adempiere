@@ -194,6 +194,19 @@ public interface I_HR_WorkShift
 	  */
 	public boolean isOverTimeApplicable();
 
+    /** Column name IsVariableEntrance */
+    public static final String COLUMNNAME_IsVariableEntrance = "IsVariableEntrance";
+
+	/** Set Variable Entrance.
+	  * Variable Entrance
+	  */
+	public void setIsVariableEntrance (boolean IsVariableEntrance);
+
+	/** Get Variable Entrance.
+	  * Variable Entrance
+	  */
+	public boolean isVariableEntrance();
+
     /** Column name Name */
     public static final String COLUMNNAME_Name = "Name";
 

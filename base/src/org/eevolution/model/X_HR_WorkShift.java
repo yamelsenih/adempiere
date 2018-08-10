@@ -34,7 +34,7 @@ public class X_HR_WorkShift extends PO implements I_HR_WorkShift, I_Persistent
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20180730L;
+	private static final long serialVersionUID = 20180809L;
 
     /** Standard Constructor */
     public X_HR_WorkShift (Properties ctx, int HR_WorkShift_ID, String trxName)
@@ -237,6 +237,30 @@ public class X_HR_WorkShift extends PO implements I_HR_WorkShift, I_Persistent
 	public boolean isOverTimeApplicable () 
 	{
 		Object oo = get_Value(COLUMNNAME_IsOverTimeApplicable);
+		if (oo != null) 
+		{
+			 if (oo instanceof Boolean) 
+				 return ((Boolean)oo).booleanValue(); 
+			return "Y".equals(oo);
+		}
+		return false;
+	}
+
+	/** Set Variable Entrance.
+		@param IsVariableEntrance 
+		Variable Entrance
+	  */
+	public void setIsVariableEntrance (boolean IsVariableEntrance)
+	{
+		set_Value (COLUMNNAME_IsVariableEntrance, Boolean.valueOf(IsVariableEntrance));
+	}
+
+	/** Get Variable Entrance.
+		@return Variable Entrance
+	  */
+	public boolean isVariableEntrance () 
+	{
+		Object oo = get_Value(COLUMNNAME_IsVariableEntrance);
 		if (oo != null) 
 		{
 			 if (oo instanceof Boolean) 
