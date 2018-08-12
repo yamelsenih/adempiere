@@ -69,6 +69,10 @@ public class MHRAttendanceRecord extends X_HR_AttendanceRecord {
 		//	Return
 		return parent;
 	}
-	
 
+	@Override
+	public String toString() {
+		return "MHRAttendanceRecord [getAttendanceTime()=" + getAttendanceTime() + ", getHR_AttendanceRecord_ID()="
+				+ getHR_AttendanceRecord_ID() + "]";
+	}
 }

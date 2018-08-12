@@ -82,12 +82,12 @@ public interface I_HR_WorkShift
 	/** Set Break Hours No.
 	  * Break Hours Number
 	  */
-	public void setBreakHoursNo (int BreakHoursNo);
+	public void setBreakHoursNo (BigDecimal BreakHoursNo);
 
 	/** Get Break Hours No.
 	  * Break Hours Number
 	  */
-	public int getBreakHoursNo();
+	public BigDecimal getBreakHoursNo();
 
     /** Column name BreakStartTime */
     public static final String COLUMNNAME_BreakStartTime = "BreakStartTime";

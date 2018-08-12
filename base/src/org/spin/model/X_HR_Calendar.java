@@ -31,7 +31,7 @@ public class X_HR_Calendar extends PO implements I_HR_Calendar, I_Persistent
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20180730L;
+	private static final long serialVersionUID = 20180810L;
 
     /** Standard Constructor */
     public X_HR_Calendar (Properties ctx, int HR_Calendar_ID, String trxName)

@@ -34,7 +34,7 @@ public class X_HR_WorkShift extends PO implements I_HR_WorkShift, I_Persistent
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20180809L;
+	private static final long serialVersionUID = 20180811L;
 
     /** Standard Constructor */
     public X_HR_WorkShift (Properties ctx, int HR_WorkShift_ID, String trxName)
@@ -100,20 +100,20 @@ public class X_HR_WorkShift extends PO implements I_HR_WorkShift, I_Persistent
 		@param BreakHoursNo 
 		Break Hours Number
 	  */
-	public void setBreakHoursNo (int BreakHoursNo)
+	public void setBreakHoursNo (BigDecimal BreakHoursNo)
 	{
-		set_Value (COLUMNNAME_BreakHoursNo, Integer.valueOf(BreakHoursNo));
+		set_Value (COLUMNNAME_BreakHoursNo, BreakHoursNo);
 	}
 
 	/** Get Break Hours No.
 		@return Break Hours Number
 	  */
-	public int getBreakHoursNo () 
+	public BigDecimal getBreakHoursNo () 
 	{
-		Integer ii = (Integer)get_Value(COLUMNNAME_BreakHoursNo);
-		if (ii == null)
-			 return 0;
-		return ii.intValue();
+		BigDecimal bd = (BigDecimal)get_Value(COLUMNNAME_BreakHoursNo);
+		if (bd == null)
+			 return Env.ZERO;
+		return bd;
 	}
 
 	/** Set Break Start Time.

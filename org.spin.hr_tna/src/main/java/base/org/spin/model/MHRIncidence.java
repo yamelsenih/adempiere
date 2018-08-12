@@ -20,11 +20,15 @@ import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.Timestamp;
 import java.util.Properties;
+
+import org.adempiere.exceptions.AdempiereException;
 import org.compiere.model.*;
 import org.compiere.process.DocAction;
 import org.compiere.process.DocOptions;
 import org.compiere.process.DocumentEngine;
 import org.compiere.util.DB;
+import org.compiere.util.Env;
+import org.compiere.util.Util;
 
 /** Generated Model for HR_Incidence
  *  @author Adempiere (generated) 
@@ -48,6 +52,64 @@ public class MHRIncidence extends X_HR_Incidence implements DocAction, DocOption
     public MHRIncidence (Properties ctx, ResultSet rs, String trxName)
     {
       super (ctx, rs, trxName);
+    }
+    
+    /**
+     * Create from Attendance batch and Shift Incidence
+     * @param batch
+     * @param shiftIncidence
+     * @param durationInMillis
+     */
+    public MHRIncidence(MHRAttendanceBatch batch, MHRShiftIncidence shiftIncidence, long durationInMillis) {
+    	super(batch.getCtx(), 0, batch.get_TrxName());
+    	//	Set default values
+    	setHR_AttendanceBatch_ID(batch.getHR_AttendanceBatch_ID());
+    	setDateDoc(batch.getDateDoc());
+    	setServiceDate(batch.getDateDoc());
+    	setC_BPartner_ID(batch.getC_BPartner_ID());
+    	setHR_Employee_ID(batch.getHR_Employee_ID());
+    	setHR_ShiftIncidence_ID(shiftIncidence.getHR_ShiftIncidence_ID());
+    	setHR_Concept_ID(shiftIncidence.getHR_Concept_ID());
+    	//	Validate time
+    	if(durationInMillis == 0
+    			|| Util.isEmpty(shiftIncidence.getTimeUnit())) {
+    		if(shiftIncidence.getFixedQty() != null
+    				&& !shiftIncidence.getFixedQty().equals(Env.ZERO)) {
+    			setQty(shiftIncidence.getFixedQty());
+    		}if(shiftIncidence.getFixedAmt() != null
+    				&& !shiftIncidence.getFixedAmt().equals(Env.ZERO)) {
+    			setAmt(shiftIncidence.getFixedAmt());
+    		}
+    	} else {
+    		//	Set Quantity
+    		double time = getTime(shiftIncidence.getTimeUnit(), durationInMillis);
+    		if(time == 0) {
+    			throw new AdempiereException("@TimeUnit@ @NotFound@");
+    		}
+    		//	
+    		setQty(new BigDecimal(time));
+    	}
+    }
+    
+    /**
+     * Get Time from duration and time unit
+     * @param timeUnit
+     * @param durationInMillis
+     * @return
+     */
+    public static double getTime(String timeUnit, long durationInMillis) {
+    	if(Util.isEmpty(timeUnit)) {
+			return 0;
+		}
+		//	Set time
+		double time = 0;
+		if(timeUnit.equals(X_HR_ShiftIncidence.TIMEUNIT_Minute)) {
+			time = (durationInMillis / (double)(1000 * 60));
+		} else if(timeUnit.equals(X_HR_ShiftIncidence.TIMEUNIT_Hour)) {
+			time = (durationInMillis / (double)(1000 * 60 * 60));
+		}
+		//	Return
+		return time;
     }
 
 	/**

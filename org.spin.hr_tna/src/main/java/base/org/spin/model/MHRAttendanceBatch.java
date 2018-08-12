@@ -19,7 +19,6 @@ import java.io.File;
 import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.Timestamp;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 import org.compiere.model.*;
@@ -28,10 +27,14 @@ import org.compiere.process.DocOptions;
 import org.compiere.process.DocumentEngine;
 import org.compiere.util.DB;
 import org.compiere.util.Util;
+import org.eevolution.model.MHRWorkShift;
 
-/** Generated Model for HR_AttendanceBatch
- *  @author Adempiere (generated) 
- *  @version Release 3.9.0 - $Id$ */
+/**
+ * 	Class added for handle Attendance batch
+ * 	@author Yamel Senih, ysenih@erpcya.com, ERPCyA http://www.erpcya.com
+ *		<a href="https://github.com/adempiere/adempiere/issues/1870>
+ * 		@see FR [ 1870 ] Add Calulation for Attendance Record</a>
+ */
 public class MHRAttendanceBatch extends X_HR_AttendanceBatch implements DocAction, DocOptions {
 
 	/**
@@ -39,7 +42,7 @@ public class MHRAttendanceBatch extends X_HR_AttendanceBatch implements DocActio
 	 */
 	private static final long serialVersionUID = 20180728L;
 	/**	Lines						*/
-	private List<MHRAttendanceRecord> attendanceRecordList = new ArrayList<MHRAttendanceRecord>();
+	private List<MHRAttendanceRecord> attendanceRecordList = null;
 	/** Standard documents	*/
 	public static final String		DocBaseType_Standard = "TNA";
 
@@ -150,9 +153,13 @@ public class MHRAttendanceBatch extends X_HR_AttendanceBatch implements DocActio
 		MDocType dt = MDocType.get(getCtx(), getC_DocType_ID());
 
 		//	Std Period open?
-		if (!MPeriod.isOpen(getCtx(), getDateDoc(), dt.getDocBaseType(), getAD_Org_ID()))
-		{
+		if (!MPeriod.isOpen(getCtx(), getDateDoc(), dt.getDocBaseType(), getAD_Org_ID())) {
 			m_processMsg = "@PeriodClosed@";
+			return DocAction.STATUS_Invalid;
+		}
+		//	Validate and prepare atendance
+		m_processMsg = processShiftIncidence();
+		if (m_processMsg != null) {
 			return DocAction.STATUS_Invalid;
 		}
 		//	Add up Amounts
@@ -196,9 +203,70 @@ public class MHRAttendanceBatch extends X_HR_AttendanceBatch implements DocActio
 	
 	/**
 	 * Process Shift Incidence
+	 * @return
 	 */
-	private void processShiftIncidence() {
-		
+	private String processShiftIncidence() {
+		StringBuffer errorMessage = new StringBuffer();
+		//	 Validate pair
+		if(getLines(false).size() % 2 != 0) {
+			errorMessage.append("@TNA.AttendanceNotPair@");
+		}
+		//	Get Worked time
+		MHRWorkShift workShift = MHRWorkShift.getById(getCtx(), getHR_WorkShift_ID());
+		List<MHRShiftIncidence> shiftIncidenceList = workShift.getShiftIncidenceList(X_HR_ShiftIncidence.EVENTTYPE_ShiftAttendance, getDateDoc());
+		//	Delete Old
+		int deleted = DB.executeUpdateEx("DELETE FROM HR_Incidence WHERE IsManual = 'N' AND HR_AttendanceBatch_ID = " + getHR_AttendanceBatch_ID(), get_TrxName());
+		log.info("Incidences Deleted = " + deleted);
+		//	Create record
+		shiftIncidenceList.stream().forEach(shiftIncidence -> {
+			long durationInMillis = 0;
+			long startTime = 0;
+			long endTime = 0;
+			for(MHRAttendanceRecord attendance : getLines(false)) {
+				if(startTime == 0) {
+					startTime = attendance.getAttendanceTime().getTime();
+				} else {
+					endTime = attendance.getAttendanceTime().getTime();
+				}
+				//	sum it
+				if(startTime != 0
+						&& endTime != 0) {
+					durationInMillis += (endTime - startTime);
+					endTime = 0;
+					startTime = 0;
+				}
+			}
+			//	Create Incidence
+			if(durationInMillis != 0) {
+				MHRIncidence incidence = new MHRIncidence(this, shiftIncidence, durationInMillis);
+				incidence.saveEx();
+			}
+		});
+		//	Create Incidence for extra
+		boolean isEntrance = true;
+		for(MHRAttendanceRecord attendance : getLines(false)) {
+			shiftIncidenceList = workShift.getShiftIncidenceList(isEntrance? 
+					X_HR_ShiftIncidence.EVENTTYPE_Entrance: 
+						X_HR_ShiftIncidence.EVENTTYPE_Egress, getDateDoc());
+			//	Get incidence from attendance
+			shiftIncidenceList.stream()
+				.filter(shiftIncidence -> shiftIncidence.evaluateTime(attendance.getAttendanceTime()))
+					.forEach(shiftIncidence -> {
+						long durationInMillis = shiftIncidence.getDurationInMillis(attendance.getAttendanceTime());
+						if(durationInMillis != 0) {
+							MHRIncidence incidence = new MHRIncidence(this, shiftIncidence, durationInMillis);
+							incidence.saveEx();
+						}
+			});
+			//	Change event type
+			isEntrance = !isEntrance;
+		}
+		//	Return Message
+		if(errorMessage.length() > 0) {
+			return errorMessage.toString();
+		}
+		//	default
+		return null;
 	}
 	
 	/**
@@ -375,10 +443,11 @@ public class MHRAttendanceBatch extends X_HR_AttendanceBatch implements DocActio
 	 *	@return lines
 	 */
 	public List<MHRAttendanceRecord> getLines(boolean requery) {
-		if (attendanceRecordList != null && !requery) {
+		if (attendanceRecordList != null 
+				&& !requery) {
 			attendanceRecordList.stream()
-					.filter(paySelectionLine -> paySelectionLine != null )
-					.forEach( attendanceLine -> attendanceLine.set_TrxName(get_TrxName()));
+					.filter(attendanceLine -> attendanceLine != null )
+					.forEach(attendanceLine -> attendanceLine.set_TrxName(get_TrxName()));
 			return attendanceRecordList;
 		}
 		//	

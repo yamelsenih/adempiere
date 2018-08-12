@@ -32,7 +32,7 @@ public class X_HR_EmployeeDependent extends PO implements I_HR_EmployeeDependent
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20180809L;
+	private static final long serialVersionUID = 20180811L;
 
     /** Standard Constructor */
     public X_HR_EmployeeDependent (Properties ctx, int HR_EmployeeDependent_ID, String trxName)

@@ -23,7 +23,6 @@ import java.sql.Timestamp;
 import java.util.Properties;
 import org.compiere.model.*;
 import org.compiere.util.Env;
-import org.compiere.util.KeyNamePair;
 
 /** Generated Model for HR_ShiftIncidence
  *  @author Adempiere (generated) 
@@ -34,7 +33,7 @@ public class X_HR_ShiftIncidence extends PO implements I_HR_ShiftIncidence, I_Pe
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20180730L;
+	private static final long serialVersionUID = 20180811L;
 
     /** Standard Constructor */
     public X_HR_ShiftIncidence (Properties ctx, int HR_ShiftIncidence_ID, String trxName)
@@ -42,11 +41,11 @@ public class X_HR_ShiftIncidence extends PO implements I_HR_ShiftIncidence, I_Pe
       super (ctx, HR_ShiftIncidence_ID, trxName);
       /** if (HR_ShiftIncidence_ID == 0)
         {
+			setEventType (null);
+// I
 			setHR_Concept_ID (0);
 			setHR_ShiftIncidence_ID (0);
 			setHR_WorkShift_ID (0);
-			setShiftFromTime (new Timestamp( System.currentTimeMillis() ));
-			setShiftToTime (new Timestamp( System.currentTimeMillis() ));
         } */
     }
 
@@ -77,6 +76,23 @@ public class X_HR_ShiftIncidence extends PO implements I_HR_ShiftIncidence, I_Pe
         .append(get_ID()).append("]");
       return sb.toString();
     }
+
+	/** Set Beginning Time.
+		@param BeginningTime 
+		Beginning Time for evaluate incidence
+	  */
+	public void setBeginningTime (Timestamp BeginningTime)
+	{
+		set_Value (COLUMNNAME_BeginningTime, BeginningTime);
+	}
+
+	/** Get Beginning Time.
+		@return Beginning Time for evaluate incidence
+	  */
+	public Timestamp getBeginningTime () 
+	{
+		return (Timestamp)get_Value(COLUMNNAME_BeginningTime);
+	}
 
 	/** Set Default Amount.
 		@param DefaultAmt 
@@ -133,6 +149,32 @@ public class X_HR_ShiftIncidence extends PO implements I_HR_ShiftIncidence, I_Pe
 	public String getDescription () 
 	{
 		return (String)get_Value(COLUMNNAME_Description);
+	}
+
+	/** EventType AD_Reference_ID=1000003 */
+	public static final int EVENTTYPE_AD_Reference_ID=1000003;
+	/** Entrance = I */
+	public static final String EVENTTYPE_Entrance = "I";
+	/** Egress = O */
+	public static final String EVENTTYPE_Egress = "O";
+	/** Shift Attendance = S */
+	public static final String EVENTTYPE_ShiftAttendance = "S";
+	/** Set Event Type.
+		@param EventType 
+		Type of Event
+	  */
+	public void setEventType (String EventType)
+	{
+
+		set_Value (COLUMNNAME_EventType, EventType);
+	}
+
+	/** Get Event Type.
+		@return Type of Event
+	  */
+	public String getEventType () 
+	{
+		return (String)get_Value(COLUMNNAME_EventType);
 	}
 
 	/** Set Fixed Amount.
@@ -254,21 +296,45 @@ public class X_HR_ShiftIncidence extends PO implements I_HR_ShiftIncidence, I_Pe
 		return ii.intValue();
 	}
 
-	/** Set In Attendance Record.
-		@param IsInAttendance 
-		Is a In Attendance
+	/** Set Approved.
+		@param IsApproved 
+		Indicates if this document requires approval
 	  */
-	public void setIsInAttendance (boolean IsInAttendance)
+	public void setIsApproved (boolean IsApproved)
 	{
-		set_Value (COLUMNNAME_IsInAttendance, Boolean.valueOf(IsInAttendance));
+		set_Value (COLUMNNAME_IsApproved, Boolean.valueOf(IsApproved));
 	}
 
-	/** Get In Attendance Record.
-		@return Is a In Attendance
+	/** Get Approved.
+		@return Indicates if this document requires approval
 	  */
-	public boolean isInAttendance () 
+	public boolean isApproved () 
 	{
-		Object oo = get_Value(COLUMNNAME_IsInAttendance);
+		Object oo = get_Value(COLUMNNAME_IsApproved);
+		if (oo != null) 
+		{
+			 if (oo instanceof Boolean) 
+				 return ((Boolean)oo).booleanValue(); 
+			return "Y".equals(oo);
+		}
+		return false;
+	}
+
+	/** Set Mandatory Range.
+		@param IsMandatoryRange 
+		Mandatory Range for Attendance
+	  */
+	public void setIsMandatoryRange (boolean IsMandatoryRange)
+	{
+		set_Value (COLUMNNAME_IsMandatoryRange, Boolean.valueOf(IsMandatoryRange));
+	}
+
+	/** Get Mandatory Range.
+		@return Mandatory Range for Attendance
+	  */
+	public boolean isMandatoryRange () 
+	{
+		Object oo = get_Value(COLUMNNAME_IsMandatoryRange);
 		if (oo != null) 
 		{
 			 if (oo instanceof Boolean) 
@@ -446,46 +512,38 @@ public class X_HR_ShiftIncidence extends PO implements I_HR_ShiftIncidence, I_Pe
 		return false;
 	}
 
-	/** Set Shift From Time.
-		@param ShiftFromTime 
-		Shift Starting Time
+	/** Set Time (From).
+		@param TimeFrom 
+		Starting Time
 	  */
-	public void setShiftFromTime (Timestamp ShiftFromTime)
+	public void setTimeFrom (Timestamp TimeFrom)
 	{
-		set_Value (COLUMNNAME_ShiftFromTime, ShiftFromTime);
+		set_Value (COLUMNNAME_TimeFrom, TimeFrom);
 	}
 
-	/** Get Shift From Time.
-		@return Shift Starting Time
+	/** Get Time (From).
+		@return Starting Time
 	  */
-	public Timestamp getShiftFromTime () 
+	public Timestamp getTimeFrom () 
 	{
-		return (Timestamp)get_Value(COLUMNNAME_ShiftFromTime);
+		return (Timestamp)get_Value(COLUMNNAME_TimeFrom);
 	}
 
-    /** Get Record ID/ColumnName
-        @return ID/ColumnName pair
-      */
-    public KeyNamePair getKeyNamePair() 
-    {
-        return new KeyNamePair(get_ID(), String.valueOf(getShiftFromTime()));
-    }
-
-	/** Set Shift To Time.
-		@param ShiftToTime 
-		Shift Ending At Time
+	/** Set Time (To).
+		@param TimeTo 
+		Ending Time
 	  */
-	public void setShiftToTime (Timestamp ShiftToTime)
+	public void setTimeTo (Timestamp TimeTo)
 	{
-		set_Value (COLUMNNAME_ShiftToTime, ShiftToTime);
+		set_Value (COLUMNNAME_TimeTo, TimeTo);
 	}
 
-	/** Get Shift To Time.
-		@return Shift Ending At Time
+	/** Get Time (To).
+		@return Ending Time
 	  */
-	public Timestamp getShiftToTime () 
+	public Timestamp getTimeTo () 
 	{
-		return (Timestamp)get_Value(COLUMNNAME_ShiftToTime);
+		return (Timestamp)get_Value(COLUMNNAME_TimeTo);
 	}
 
 	/** TimeUnit AD_Reference_ID=53376 */

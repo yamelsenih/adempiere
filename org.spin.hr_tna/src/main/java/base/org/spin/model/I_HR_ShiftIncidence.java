@@ -63,6 +63,19 @@ public interface I_HR_ShiftIncidence
 	  */
 	public int getAD_Org_ID();
 
+    /** Column name BeginningTime */
+    public static final String COLUMNNAME_BeginningTime = "BeginningTime";
+
+	/** Set Beginning Time.
+	  * Beginning Time for evaluate incidence
+	  */
+	public void setBeginningTime (Timestamp BeginningTime);
+
+	/** Get Beginning Time.
+	  * Beginning Time for evaluate incidence
+	  */
+	public Timestamp getBeginningTime();
+
     /** Column name Created */
     public static final String COLUMNNAME_Created = "Created";
 
@@ -117,6 +130,19 @@ public interface I_HR_ShiftIncidence
 	  * Optional short description of the record
 	  */
 	public String getDescription();
+
+    /** Column name EventType */
+    public static final String COLUMNNAME_EventType = "EventType";
+
+	/** Set Event Type.
+	  * Type of Event
+	  */
+	public void setEventType (String EventType);
+
+	/** Get Event Type.
+	  * Type of Event
+	  */
+	public String getEventType();
 
     /** Column name FixedAmt */
     public static final String COLUMNNAME_FixedAmt = "FixedAmt";
@@ -200,18 +226,31 @@ public interface I_HR_ShiftIncidence
 	  */
 	public boolean isActive();
 
-    /** Column name IsInAttendance */
-    public static final String COLUMNNAME_IsInAttendance = "IsInAttendance";
+    /** Column name IsApproved */
+    public static final String COLUMNNAME_IsApproved = "IsApproved";
 
-	/** Set In Attendance Record.
-	  * Is a In Attendance
+	/** Set Approved.
+	  * Indicates if this document requires approval
 	  */
-	public void setIsInAttendance (boolean IsInAttendance);
+	public void setIsApproved (boolean IsApproved);
 
-	/** Get In Attendance Record.
-	  * Is a In Attendance
+	/** Get Approved.
+	  * Indicates if this document requires approval
 	  */
-	public boolean isInAttendance();
+	public boolean isApproved();
+
+    /** Column name IsMandatoryRange */
+    public static final String COLUMNNAME_IsMandatoryRange = "IsMandatoryRange";
+
+	/** Set Mandatory Range.
+	  * Mandatory Range for Attendance
+	  */
+	public void setIsMandatoryRange (boolean IsMandatoryRange);
+
+	/** Get Mandatory Range.
+	  * Mandatory Range for Attendance
+	  */
+	public boolean isMandatoryRange();
 
     /** Column name OnFriday */
     public static final String COLUMNNAME_OnFriday = "OnFriday";
@@ -304,31 +343,31 @@ public interface I_HR_ShiftIncidence
 	  */
 	public boolean isOnWednesday();
 
-    /** Column name ShiftFromTime */
-    public static final String COLUMNNAME_ShiftFromTime = "ShiftFromTime";
+    /** Column name TimeFrom */
+    public static final String COLUMNNAME_TimeFrom = "TimeFrom";
 
-	/** Set Shift From Time.
-	  * Shift Starting Time
+	/** Set Time (From).
+	  * Starting Time
 	  */
-	public void setShiftFromTime (Timestamp ShiftFromTime);
+	public void setTimeFrom (Timestamp TimeFrom);
 
-	/** Get Shift From Time.
-	  * Shift Starting Time
+	/** Get Time (From).
+	  * Starting Time
 	  */
-	public Timestamp getShiftFromTime();
+	public Timestamp getTimeFrom();
 
-    /** Column name ShiftToTime */
-    public static final String COLUMNNAME_ShiftToTime = "ShiftToTime";
+    /** Column name TimeTo */
+    public static final String COLUMNNAME_TimeTo = "TimeTo";
 
-	/** Set Shift To Time.
-	  * Shift Ending At Time
+	/** Set Time (To).
+	  * Ending Time
 	  */
-	public void setShiftToTime (Timestamp ShiftToTime);
+	public void setTimeTo (Timestamp TimeTo);
 
-	/** Get Shift To Time.
-	  * Shift Ending At Time
+	/** Get Time (To).
+	  * Ending Time
 	  */
-	public Timestamp getShiftToTime();
+	public Timestamp getTimeTo();
 
     /** Column name TimeUnit */
     public static final String COLUMNNAME_TimeUnit = "TimeUnit";

@@ -34,7 +34,7 @@ public class X_HR_Incidence extends PO implements I_HR_Incidence, I_Persistent
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20180730L;
+	private static final long serialVersionUID = 20180811L;
 
     /** Standard Constructor */
     public X_HR_Incidence (Properties ctx, int HR_Incidence_ID, String trxName)
@@ -42,6 +42,7 @@ public class X_HR_Incidence extends PO implements I_HR_Incidence, I_Persistent
       super (ctx, HR_Incidence_ID, trxName);
       /** if (HR_Incidence_ID == 0)
         {
+			setC_BPartner_ID (0);
 			setC_DocType_ID (0);
 			setDateDoc (new Timestamp( System.currentTimeMillis() ));
 // @#Date@
@@ -51,6 +52,7 @@ public class X_HR_Incidence extends PO implements I_HR_Incidence, I_Persistent
 // DR
 			setDocumentNo (null);
 			setHR_Concept_ID (0);
+			setHR_Employee_ID (0);
 			setHR_Incidence_ID (0);
 			setIsApproved (false);
 // N
@@ -106,6 +108,34 @@ public class X_HR_Incidence extends PO implements I_HR_Incidence, I_Persistent
 		if (bd == null)
 			 return Env.ZERO;
 		return bd;
+	}
+
+	public org.compiere.model.I_C_BPartner getC_BPartner() throws RuntimeException
+    {
+		return (org.compiere.model.I_C_BPartner)MTable.get(getCtx(), org.compiere.model.I_C_BPartner.Table_Name)
+			.getPO(getC_BPartner_ID(), get_TrxName());	}
+
+	/** Set Business Partner .
+		@param C_BPartner_ID 
+		Identifies a Business Partner
+	  */
+	public void setC_BPartner_ID (int C_BPartner_ID)
+	{
+		if (C_BPartner_ID < 1) 
+			set_ValueNoCheck (COLUMNNAME_C_BPartner_ID, null);
+		else 
+			set_ValueNoCheck (COLUMNNAME_C_BPartner_ID, Integer.valueOf(C_BPartner_ID));
+	}
+
+	/** Get Business Partner .
+		@return Identifies a Business Partner
+	  */
+	public int getC_BPartner_ID () 
+	{
+		Integer ii = (Integer)get_Value(COLUMNNAME_C_BPartner_ID);
+		if (ii == null)
+			 return 0;
+		return ii.intValue();
 	}
 
 	public org.compiere.model.I_C_DocType getC_DocType() throws RuntimeException
@@ -356,6 +386,31 @@ public class X_HR_Incidence extends PO implements I_HR_Incidence, I_Persistent
     {
         return new KeyNamePair(get_ID(), String.valueOf(getHR_Concept_ID()));
     }
+
+	public org.eevolution.model.I_HR_Employee getHR_Employee() throws RuntimeException
+    {
+		return (org.eevolution.model.I_HR_Employee)MTable.get(getCtx(), org.eevolution.model.I_HR_Employee.Table_Name)
+			.getPO(getHR_Employee_ID(), get_TrxName());	}
+
+	/** Set Payroll Employee.
+		@param HR_Employee_ID Payroll Employee	  */
+	public void setHR_Employee_ID (int HR_Employee_ID)
+	{
+		if (HR_Employee_ID < 1) 
+			set_ValueNoCheck (COLUMNNAME_HR_Employee_ID, null);
+		else 
+			set_ValueNoCheck (COLUMNNAME_HR_Employee_ID, Integer.valueOf(HR_Employee_ID));
+	}
+
+	/** Get Payroll Employee.
+		@return Payroll Employee	  */
+	public int getHR_Employee_ID () 
+	{
+		Integer ii = (Integer)get_Value(COLUMNNAME_HR_Employee_ID);
+		if (ii == null)
+			 return 0;
+		return ii.intValue();
+	}
 
 	/** Set Employee Incidence.
 		@param HR_Incidence_ID Employee Incidence	  */
