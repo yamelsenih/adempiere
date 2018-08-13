@@ -18,9 +18,15 @@ package org.spin.model;
 
 import java.sql.ResultSet;
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
 import java.util.Properties;
 
+import org.compiere.model.Query;
+import org.compiere.util.CCache;
 import org.compiere.util.TimeUtil;
+import org.compiere.util.Util;
 import org.jfree.data.time.Millisecond;
 
 /**
@@ -53,6 +59,11 @@ public class MHRShiftIncidence extends X_HR_ShiftIncidence {
 	public MHRShiftIncidence(Properties ctx, ResultSet rs, String trxName) {
 		super(ctx, rs, trxName);
 	}
+	
+	/**	Hash for days	*/
+	private static CCache<String, List<MHRShiftIncidence>> shiftIncidenceForDaysCache = new CCache<String, List<MHRShiftIncidence>>(Table_Name, 1000);
+	/** Cache Incidence */
+	private static CCache<String, List<MHRShiftIncidence>> shiftIncidenceListCache = new CCache<String, List<MHRShiftIncidence>>(Table_Name, 1000);
 	
 	
 	/**
@@ -128,6 +139,127 @@ public class MHRShiftIncidence extends X_HR_ShiftIncidence {
 		return duration;
 	}
 
+	/**
+	 * Get Shift Incidence List
+	 * @param requery
+	 * @return
+	 */
+	public static List<MHRShiftIncidence> getShiftIncidenceList(Properties ctx, int workShiftId, boolean requery) {
+		String key = "IncidenceList|" + workShiftId;
+		List<MHRShiftIncidence> shiftIncidenceList = shiftIncidenceListCache.get(key);
+		if(requery
+				|| shiftIncidenceList == null) {
+			shiftIncidenceList = new Query(ctx, I_HR_ShiftIncidence.Table_Name, "HR_WorkShift_ID = ?", null)
+					.setParameters(workShiftId)
+					.list();
+			if(shiftIncidenceList != null) {
+				shiftIncidenceListCache.put(key, shiftIncidenceList);
+			}
+		}
+		//	Default return
+		return shiftIncidenceList;
+	}
+	
+	/**
+	 * Get Shift Incidence List
+	 * @param eventType
+	 * @param attendanceTime
+	 * @return
+	 */
+	public static List<MHRShiftIncidence> getShiftIncidenceList(Properties ctx, int workShiftId, String eventType, Timestamp attendanceTime) {
+		String keyPrefix = workShiftId + "|";
+		//	Validate
+		if(attendanceTime == null
+				|| Util.isEmpty(eventType)) {
+			return new ArrayList<MHRShiftIncidence>();
+		}
+		//	Get reload false
+		List<MHRShiftIncidence> shiftIncidenceList = getShiftIncidenceList(ctx, workShiftId, false);
+		if(shiftIncidenceList == null) {
+			return new ArrayList<MHRShiftIncidence>();
+		}
+		String entrance = X_HR_ShiftIncidence.EVENTTYPE_Entrance;
+		String egress = X_HR_ShiftIncidence.EVENTTYPE_Egress;
+		String shiftAttendance = X_HR_ShiftIncidence.EVENTTYPE_ShiftAttendance;
+		
+		//	Load Hash
+		if(shiftIncidenceForDaysCache.isEmpty()) {
+			//	Sunday
+			shiftIncidenceForDaysCache.put(keyPrefix + entrance + Calendar.SUNDAY, new ArrayList<MHRShiftIncidence>());
+			shiftIncidenceForDaysCache.put(keyPrefix + egress + Calendar.SUNDAY, new ArrayList<MHRShiftIncidence>());
+			shiftIncidenceForDaysCache.put(keyPrefix + shiftAttendance + Calendar.SUNDAY, new ArrayList<MHRShiftIncidence>());
+			//	Monday
+			shiftIncidenceForDaysCache.put(keyPrefix + entrance + Calendar.MONDAY, new ArrayList<MHRShiftIncidence>());
+			shiftIncidenceForDaysCache.put(keyPrefix + egress + Calendar.MONDAY, new ArrayList<MHRShiftIncidence>());
+			shiftIncidenceForDaysCache.put(keyPrefix + shiftAttendance + Calendar.MONDAY, new ArrayList<MHRShiftIncidence>());
+			//	Tuesday
+			shiftIncidenceForDaysCache.put(keyPrefix + entrance + Calendar.TUESDAY, new ArrayList<MHRShiftIncidence>());
+			shiftIncidenceForDaysCache.put(keyPrefix + egress + Calendar.TUESDAY, new ArrayList<MHRShiftIncidence>());
+			shiftIncidenceForDaysCache.put(keyPrefix + shiftAttendance + Calendar.TUESDAY, new ArrayList<MHRShiftIncidence>());
+			//	Wednesday
+			shiftIncidenceForDaysCache.put(keyPrefix + entrance + Calendar.WEDNESDAY, new ArrayList<MHRShiftIncidence>());
+			shiftIncidenceForDaysCache.put(keyPrefix + egress + Calendar.WEDNESDAY, new ArrayList<MHRShiftIncidence>());
+			shiftIncidenceForDaysCache.put(keyPrefix + shiftAttendance + Calendar.WEDNESDAY, new ArrayList<MHRShiftIncidence>());
+			//	Thursday
+			shiftIncidenceForDaysCache.put(keyPrefix + entrance + Calendar.THURSDAY, new ArrayList<MHRShiftIncidence>());
+			shiftIncidenceForDaysCache.put(keyPrefix + egress + Calendar.THURSDAY, new ArrayList<MHRShiftIncidence>());
+			shiftIncidenceForDaysCache.put(keyPrefix + shiftAttendance + Calendar.THURSDAY, new ArrayList<MHRShiftIncidence>());
+			//	Friday
+			shiftIncidenceForDaysCache.put(keyPrefix + entrance + Calendar.FRIDAY, new ArrayList<MHRShiftIncidence>());
+			shiftIncidenceForDaysCache.put(keyPrefix + egress + Calendar.FRIDAY, new ArrayList<MHRShiftIncidence>());
+			shiftIncidenceForDaysCache.put(keyPrefix + shiftAttendance + Calendar.FRIDAY, new ArrayList<MHRShiftIncidence>());
+			//	Saturday
+			shiftIncidenceForDaysCache.put(keyPrefix + entrance + Calendar.SATURDAY, new ArrayList<MHRShiftIncidence>());
+			shiftIncidenceForDaysCache.put(keyPrefix + egress+ Calendar.SATURDAY, new ArrayList<MHRShiftIncidence>());
+			shiftIncidenceForDaysCache.put(keyPrefix + shiftAttendance+ Calendar.SATURDAY, new ArrayList<MHRShiftIncidence>());
+			//	Add
+			for(MHRShiftIncidence shiftIncidence : shiftIncidenceList) {
+				//	Sunday
+				if(shiftIncidence.isOnSunday()) {
+					shiftIncidenceForDaysCache.get(keyPrefix + shiftIncidence.getEventType() + Calendar.SUNDAY).add(shiftIncidence);
+				}
+				//	Monday
+				if(shiftIncidence.isOnMonday()) {
+					shiftIncidenceForDaysCache.get(keyPrefix + shiftIncidence.getEventType() + Calendar.MONDAY).add(shiftIncidence);
+				}
+				//	Tuesday
+				if(shiftIncidence.isOnTuesday()) {
+					shiftIncidenceForDaysCache.get(keyPrefix + shiftIncidence.getEventType() + Calendar.TUESDAY).add(shiftIncidence);
+				}
+				//	Wednesday
+				if(shiftIncidence.isOnWednesday()) {
+					shiftIncidenceForDaysCache.get(keyPrefix + shiftIncidence.getEventType() + Calendar.WEDNESDAY).add(shiftIncidence);
+				}
+				//	Thursday
+				if(shiftIncidence.isOnThursday()) {
+					shiftIncidenceForDaysCache.get(keyPrefix + shiftIncidence.getEventType() + Calendar.THURSDAY).add(shiftIncidence);
+				}
+				//	Friday
+				if(shiftIncidence.isOnFriday()) {
+					shiftIncidenceForDaysCache.get(keyPrefix + shiftIncidence.getEventType() + Calendar.FRIDAY).add(shiftIncidence);
+				}
+				//	Saturday
+				if(shiftIncidence.isOnSaturday()) {
+					shiftIncidenceForDaysCache.get(keyPrefix + shiftIncidence.getEventType() + Calendar.SATURDAY).add(shiftIncidence);
+				}
+			}	
+		}
+		//	Return
+		return shiftIncidenceForDaysCache.get(keyPrefix + eventType + getDayOfWeek(attendanceTime));
+	}
+	
+	/**
+	 * Get Day of Week
+	 * @param attendanceTime
+	 * @return
+	 */
+	public static int getDayOfWeek(Timestamp attendanceTime) {
+		Timestamp truncatedDay = TimeUtil.getDay(attendanceTime);
+		Calendar calendar = TimeUtil.getCalendar(truncatedDay);
+		//	Get
+		return calendar.get(Calendar.DAY_OF_WEEK);
+	}
+	
 	@Override
 	public String toString() {
 		return "MHRShiftIncidence [getBeginningTime()=" + getBeginningTime() + ", getDescription()=" + getDescription()

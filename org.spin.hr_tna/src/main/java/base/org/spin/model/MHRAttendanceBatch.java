@@ -213,7 +213,7 @@ public class MHRAttendanceBatch extends X_HR_AttendanceBatch implements DocActio
 		}
 		//	Get Worked time
 		MHRWorkShift workShift = MHRWorkShift.getById(getCtx(), getHR_WorkShift_ID());
-		List<MHRShiftIncidence> shiftIncidenceList = workShift.getShiftIncidenceList(X_HR_ShiftIncidence.EVENTTYPE_ShiftAttendance, getDateDoc());
+		List<MHRShiftIncidence> shiftIncidenceList = MHRShiftIncidence.getShiftIncidenceList(getCtx(), workShift.getHR_WorkShift_ID(), X_HR_ShiftIncidence.EVENTTYPE_ShiftAttendance, getDateDoc());
 		//	Delete Old
 		int deleted = DB.executeUpdateEx("DELETE FROM HR_Incidence WHERE IsManual = 'N' AND HR_AttendanceBatch_ID = " + getHR_AttendanceBatch_ID(), get_TrxName());
 		log.info("Incidences Deleted = " + deleted);
@@ -245,7 +245,8 @@ public class MHRAttendanceBatch extends X_HR_AttendanceBatch implements DocActio
 		//	Create Incidence for extra
 		boolean isEntrance = true;
 		for(MHRAttendanceRecord attendance : getLines(false)) {
-			shiftIncidenceList = workShift.getShiftIncidenceList(isEntrance? 
+			shiftIncidenceList = MHRShiftIncidence.getShiftIncidenceList(getCtx(), workShift.getHR_WorkShift_ID(), 
+					isEntrance? 
 					X_HR_ShiftIncidence.EVENTTYPE_Entrance: 
 						X_HR_ShiftIncidence.EVENTTYPE_Egress, getDateDoc());
 			//	Get incidence from attendance
