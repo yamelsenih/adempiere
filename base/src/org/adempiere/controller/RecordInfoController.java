@@ -64,7 +64,7 @@ public class RecordInfoController {
 	/**	Logger			*/
 	private CLogger		log = CLogger.getCLogger(getClass());
 	/** The Data		*/
-	private Vector<Vector<String>>	m_data = new Vector<Vector<String>>();
+	private Vector<Vector<Object>>	m_data = new Vector<Vector<Object>>();
 	/** Info			*/
 	private StringBuffer	m_info = new StringBuffer();
 	/**	Specific field	*/
@@ -281,7 +281,7 @@ public class RecordInfoController {
 	private void addLine (int AD_Column_ID, Timestamp Updated, int UpdatedBy,
 		String OldValue, String NewValue)
 	{
-		Vector<String> line = new Vector<String>();
+		Vector<Object> line = new Vector<Object>();
 		//	Column
 		MColumn column = MColumn.get (Env.getCtx(), AD_Column_ID);
 		//	No for specific column
@@ -407,7 +407,7 @@ public class RecordInfoController {
 	 * getData loaded
 	 * @return
 	 */
-	public Vector<Vector<String>> getData() {
+	public Vector<Vector<Object>> getData() {
 		return m_data;
 	}
 	

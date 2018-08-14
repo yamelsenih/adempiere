@@ -70,9 +70,9 @@ import org.zkoss.zk.ui.Executions;
 import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.event.EventListener;
 import org.zkoss.zk.ui.event.Events;
-import org.zkoss.zkex.zul.Borderlayout;
-import org.zkoss.zkex.zul.Center;
-import org.zkoss.zkex.zul.North;
+import org.zkoss.zul.Borderlayout;
+import org.zkoss.zul.Center;
+import org.zkoss.zul.North;
 import org.zkoss.zul.Div;
 import org.zkoss.zul.Filedownload;
 import org.zkoss.zul.Fileupload;
@@ -925,16 +925,9 @@ public class ZkReportViewer extends Window implements EventListener {
 		//  Show File Open Dialog
 		Media file = null;
 
-		try {
-			file = Fileupload.get(true);
-			if (file == null)
-				return;
-		}
-		catch (InterruptedException e)
-		{
-			log.warning(e.getLocalizedMessage());
+		file = Fileupload.get(true);
+		if (file == null)
 			return;
-		}
 
 		FileOutputStream fos = null;
 		try {
@@ -1244,27 +1237,23 @@ public class ZkReportViewer extends Window implements EventListener {
 		//	Launch dialog
 		ProcessModalDialog processModalDialog = new ProcessModalDialog(null, m_WindowNo, pi);
 		if (processModalDialog.isValidDialog()) {
-			try {
-				processModalDialog.setPage(this.getPage());
-				processModalDialog.doModal();
-				//	Valid
-				if(processModalDialog.isOK()) {
-					//	execute
-					//ProcessCtl worker = new ProcessCtl(null, m_WindowNo, pi, true, null);
-					//synchrous
-					//worker.run();
-					processModalDialog.runProcess();
-					//	
-					ReportEngine re = ReportEngine.get(Env.getCtx(), pi);
-					//	
-					if(re != null) {
-						m_reportEngine.setQuery(re.getQuery());
-					}
-					//	
-					return true;
+			processModalDialog.setPage(this.getPage());
+			processModalDialog.doModal();
+			//	Valid
+			if(processModalDialog.isOK()) {
+				//	execute
+				//ProcessCtl worker = new ProcessCtl(null, m_WindowNo, pi, true, null);
+				//synchrous
+				//worker.run();
+				processModalDialog.runProcess();
+				//	
+				ReportEngine re = ReportEngine.get(Env.getCtx(), pi);
+				//	
+				if(re != null) {
+					m_reportEngine.setQuery(re.getQuery());
 				}
-			} catch (InterruptedException e) {
-				log.severe(e.getLocalizedMessage());
+				//	
+				return true;
 			}
 		}
 		else
