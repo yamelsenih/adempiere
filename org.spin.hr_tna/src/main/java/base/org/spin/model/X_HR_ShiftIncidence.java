@@ -157,8 +157,10 @@ public class X_HR_ShiftIncidence extends PO implements I_HR_ShiftIncidence, I_Pe
 	public static final String EVENTTYPE_Entrance = "I";
 	/** Egress = O */
 	public static final String EVENTTYPE_Egress = "O";
-	/** Shift Attendance = S */
-	public static final String EVENTTYPE_ShiftAttendance = "S";
+	/** Shift Attendance = A */
+	public static final String EVENTTYPE_Attendance = "A";
+	/** Shift Attendance = L */
+	public static final String EVENTTYPE_Leave = "L";
 	/** Set Event Type.
 		@param EventType 
 		Type of Event

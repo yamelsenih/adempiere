@@ -26,6 +26,7 @@ import org.compiere.process.DocAction;
 import org.compiere.process.DocOptions;
 import org.compiere.process.DocumentEngine;
 import org.compiere.util.DB;
+import org.compiere.util.Env;
 import org.compiere.util.Util;
 import org.eevolution.model.MHRWorkShift;
 
@@ -202,23 +203,15 @@ public class MHRAttendanceBatch extends X_HR_AttendanceBatch implements DocActio
 	}
 	
 	/**
-	 * Process Shift Incidence
+	 * Process Attendance
 	 * @return
 	 */
-	private String processShiftIncidence() {
-		StringBuffer errorMessage = new StringBuffer();
-		//	 Validate pair
-		if(getLines(false).size() % 2 != 0) {
-			errorMessage.append("@TNA.AttendanceNotPair@");
-		}
+	private BigDecimal processAttendance() {
 		//	Get Worked time
 		MHRWorkShift workShift = MHRWorkShift.getById(getCtx(), getHR_WorkShift_ID());
-		List<MHRShiftIncidence> shiftIncidenceList = MHRShiftIncidence.getShiftIncidenceList(getCtx(), workShift.getHR_WorkShift_ID(), X_HR_ShiftIncidence.EVENTTYPE_ShiftAttendance, getDateDoc());
-		//	Delete Old
-		int deleted = DB.executeUpdateEx("DELETE FROM HR_Incidence WHERE IsManual = 'N' AND HR_AttendanceBatch_ID = " + getHR_AttendanceBatch_ID(), get_TrxName());
-		log.info("Incidences Deleted = " + deleted);
-		//	Create record
-		shiftIncidenceList.stream().forEach(shiftIncidence -> {
+		List<MHRShiftIncidence> shiftIncidenceList = MHRShiftIncidence.getShiftIncidenceList(getCtx(), workShift.getHR_WorkShift_ID(), X_HR_ShiftIncidence.EVENTTYPE_Attendance, getDateDoc());
+		BigDecimal attendanceHours = Env.ZERO;
+		for(MHRShiftIncidence shiftIncidence : shiftIncidenceList) {
 			long durationInMillis = 0;
 			long startTime = 0;
 			long endTime = 0;
@@ -240,12 +233,53 @@ public class MHRAttendanceBatch extends X_HR_AttendanceBatch implements DocActio
 			if(durationInMillis != 0) {
 				MHRIncidence incidence = new MHRIncidence(this, shiftIncidence, durationInMillis);
 				incidence.saveEx();
+				//	Set value for worked hours
+				attendanceHours = attendanceHours.add(new BigDecimal(durationInMillis));
 			}
+		}
+		//	Return 
+		return attendanceHours;
+	}
+	
+	
+	/**
+	 * Process Leave
+	 * @param attendanceHours
+	 */
+	private void processLeave(BigDecimal attendanceHours) {
+		//	Get Worked time
+		MHRWorkShift workShift = MHRWorkShift.getById(getCtx(), getHR_WorkShift_ID());
+		List<MHRShiftIncidence> shiftIncidenceList = MHRShiftIncidence.getShiftIncidenceList(getCtx(), workShift.getHR_WorkShift_ID(), X_HR_ShiftIncidence.EVENTTYPE_Attendance, getDateDoc());
+		//	Get from work shift
+		BigDecimal noOfHours = workShift.getNoOfHours();
+		if(noOfHours == null) {
+			return;
+		}
+		//	Leave value
+		BigDecimal leaveHours = noOfHours.subtract(attendanceHours);
+		if(leaveHours.signum() <= 0) {
+			return;
+		}
+		//	Duration in millis
+		final long durationInMillis = leaveHours.longValue() * (1000 * 60 * 60);
+		//	Create record
+		shiftIncidenceList.stream().forEach(shiftIncidence -> {
+			//	Create Incidence
+			MHRIncidence incidence = new MHRIncidence(this, shiftIncidence, durationInMillis);
+			incidence.saveEx();
 		});
+	}
+	
+	/**
+	 * Process Incidence
+	 */
+	private void processIncidence() {
+		//	Get Worked time
+		MHRWorkShift workShift = MHRWorkShift.getById(getCtx(), getHR_WorkShift_ID());
 		//	Create Incidence for extra
 		boolean isEntrance = true;
 		for(MHRAttendanceRecord attendance : getLines(false)) {
-			shiftIncidenceList = MHRShiftIncidence.getShiftIncidenceList(getCtx(), workShift.getHR_WorkShift_ID(), 
+			List<MHRShiftIncidence> shiftIncidenceList = MHRShiftIncidence.getShiftIncidenceList(getCtx(), workShift.getHR_WorkShift_ID(), 
 					isEntrance? 
 					X_HR_ShiftIncidence.EVENTTYPE_Entrance: 
 						X_HR_ShiftIncidence.EVENTTYPE_Egress, getDateDoc());
@@ -262,6 +296,25 @@ public class MHRAttendanceBatch extends X_HR_AttendanceBatch implements DocActio
 			//	Change event type
 			isEntrance = !isEntrance;
 		}
+	}
+	
+	/**
+	 * Process Shift Incidence
+	 * @return
+	 */
+	private String processShiftIncidence() {
+		StringBuffer errorMessage = new StringBuffer();
+		//	 Validate pair
+		if(getLines(false).size() % 2 != 0) {
+			errorMessage.append("@TNA.AttendanceNotPair@");
+		}
+		//	Delete Old
+		int deleted = DB.executeUpdateEx("DELETE FROM HR_Incidence WHERE IsManual = 'N' AND HR_AttendanceBatch_ID = " + getHR_AttendanceBatch_ID(), get_TrxName());
+		log.info("Incidences Deleted = " + deleted);		
+		//	
+		BigDecimal attendanceHours = processAttendance();
+		processLeave(attendanceHours);
+		processIncidence();
 		//	Return Message
 		if(errorMessage.length() > 0) {
 			return errorMessage.toString();

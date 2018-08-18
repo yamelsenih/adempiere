@@ -92,6 +92,45 @@ public class MHRIncidence extends X_HR_Incidence implements DocAction, DocOption
     }
     
     /**
+     * Create from Attendance batch and Shift Incidence from leave hours
+     * @param batch
+     * @param shiftIncidence
+     * @param durationInHours
+     */
+    public MHRIncidence(MHRAttendanceBatch batch, MHRShiftIncidence shiftIncidence, BigDecimal durationInHours) {
+    	super(batch.getCtx(), 0, batch.get_TrxName());
+    	//	Set default values
+    	setHR_AttendanceBatch_ID(batch.getHR_AttendanceBatch_ID());
+    	setDateDoc(batch.getDateDoc());
+    	setServiceDate(batch.getDateDoc());
+    	setC_BPartner_ID(batch.getC_BPartner_ID());
+    	setHR_Employee_ID(batch.getHR_Employee_ID());
+    	setHR_ShiftIncidence_ID(shiftIncidence.getHR_ShiftIncidence_ID());
+    	setHR_Concept_ID(shiftIncidence.getHR_Concept_ID());
+    	//	Validate time
+    	if(durationInHours == null
+    			|| durationInHours.doubleValue() == 0
+    			|| Util.isEmpty(shiftIncidence.getTimeUnit())) {
+    		if(shiftIncidence.getFixedQty() != null
+    				&& !shiftIncidence.getFixedQty().equals(Env.ZERO)) {
+    			setQty(shiftIncidence.getFixedQty());
+    		}if(shiftIncidence.getFixedAmt() != null
+    				&& !shiftIncidence.getFixedAmt().equals(Env.ZERO)) {
+    			setAmt(shiftIncidence.getFixedAmt());
+    		}
+    	} else {
+    		//	Set Quantity
+    		if(durationInHours == null
+    				|| durationInHours.doubleValue() == 0) {
+    			throw new AdempiereException("@TimeUnit@ @NotFound@");
+    		}
+    		//	
+    		setQty(durationInHours);
+    	}
+    }
+    
+    
+    /**
      * Get Time from duration and time unit
      * @param timeUnit
      * @param durationInMillis
