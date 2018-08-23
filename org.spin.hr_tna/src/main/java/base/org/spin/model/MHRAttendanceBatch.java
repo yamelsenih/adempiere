@@ -284,28 +284,18 @@ public class MHRAttendanceBatch extends X_HR_AttendanceBatch implements DocActio
 					&& attendanceHours.doubleValue() >= workShift.getNoOfHours().doubleValue()) {
 				List<MHRAttendanceRecord> attendanceList = getLines(false);
 				MHRAttendanceRecord firstAttendance = attendanceList.get(0);
-				
-				//	Get from last attendance
-				//	Create Incidence for extra
-				boolean isEntrance = true;
-				for(MHRAttendanceRecord attendance : attendanceList) {
-					List<MHRShiftIncidence> shiftIncidenceList = MHRShiftIncidence.getShiftIncidenceList(getCtx(), workShift.getHR_WorkShift_ID(), 
-							isEntrance? 
-							X_HR_ShiftIncidence.EVENTTYPE_Entrance: 
-								X_HR_ShiftIncidence.EVENTTYPE_Egress, getDateDoc());
-					//	Get incidence from attendance
-					shiftIncidenceList.stream()
-						.filter(shiftIncidence -> shiftIncidence.evaluateTime(attendance.getAttendanceTime()))
-							.forEach(shiftIncidence -> {
-								long durationInMillis = shiftIncidence.getDurationInMillis(attendance.getAttendanceTime());
-								if(durationInMillis != 0) {
-									MHRIncidence incidence = new MHRIncidence(this, shiftIncidence, durationInMillis);
-									incidence.saveEx();
-								}
-					});
-					//	Change event type
-					isEntrance = !isEntrance;
-				}
+				Timestamp lastTimeForAttendance = TimeUtil.addDuration(firstAttendance.getAttendanceTime(), TimeUtil.DURATIONUNIT_Hour, workShift.getNoOfHours());
+				//	Get incidence from attendance
+				MHRShiftIncidence.getShiftIncidenceList(getCtx(), workShift.getHR_WorkShift_ID(), 
+						X_HR_ShiftIncidence.EVENTTYPE_Egress, getDateDoc()).stream()
+					.filter(shiftIncidence -> shiftIncidence.evaluateTime(lastTimeForAttendance))
+						.forEach(shiftIncidence -> {
+							long durationInMillis = shiftIncidence.getDurationInMillis(lastTimeForAttendance);
+							if(durationInMillis != 0) {
+								MHRIncidence incidence = new MHRIncidence(this, shiftIncidence, durationInMillis);
+								incidence.saveEx();
+							}
+				});
 			}
 		} else {
 			//	Create Incidence for extra

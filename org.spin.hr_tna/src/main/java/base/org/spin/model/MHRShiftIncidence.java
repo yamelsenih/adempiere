@@ -174,7 +174,7 @@ public class MHRShiftIncidence extends X_HR_ShiftIncidence {
 			return new ArrayList<MHRShiftIncidence>();
 		}
 		//	Get
-		List<MHRShiftIncidence> shiftIncidenceList = shiftIncidenceForDaysCache.get(keyPrefix + eventType + getDayOfWeek(attendanceTime));
+		List<MHRShiftIncidence> shiftIncidenceList = shiftIncidenceForDaysCache.get(keyPrefix + eventType + TimeUtil.getDayOfWeek(attendanceTime));
 		if(shiftIncidenceList != null) {
 			return shiftIncidenceList;
 		}
@@ -254,24 +254,12 @@ public class MHRShiftIncidence extends X_HR_ShiftIncidence {
 			}	
 		}
 		//	Get
-		shiftIncidenceList = shiftIncidenceForDaysCache.get(keyPrefix + eventType + getDayOfWeek(attendanceTime));
+		shiftIncidenceList = shiftIncidenceForDaysCache.get(keyPrefix + eventType + TimeUtil.getDayOfWeek(attendanceTime));
 		if(shiftIncidenceList == null) {
 			return new ArrayList<MHRShiftIncidence>();
 		}
 		//	Return
 		return shiftIncidenceList;
-	}
-	
-	/**
-	 * Get Day of Week
-	 * @param attendanceTime
-	 * @return
-	 */
-	public static int getDayOfWeek(Timestamp attendanceTime) {
-		Timestamp truncatedDay = TimeUtil.getDay(attendanceTime);
-		Calendar calendar = TimeUtil.getCalendar(truncatedDay);
-		//	Get
-		return calendar.get(Calendar.DAY_OF_WEEK);
 	}
 	
 	@Override
