@@ -27,6 +27,7 @@ import org.compiere.process.DocOptions;
 import org.compiere.process.DocumentEngine;
 import org.compiere.util.DB;
 import org.compiere.util.Env;
+import org.compiere.util.TimeUtil;
 import org.compiere.util.Util;
 import org.eevolution.model.MHRWorkShift;
 
@@ -272,29 +273,61 @@ public class MHRAttendanceBatch extends X_HR_AttendanceBatch implements DocActio
 	
 	/**
 	 * Process Incidence
+	 * @param attendanceHours
 	 */
-	private void processIncidence() {
+	private void processIncidence(BigDecimal attendanceHours) {
 		//	Get Worked time
 		MHRWorkShift workShift = MHRWorkShift.getById(getCtx(), getHR_WorkShift_ID());
-		//	Create Incidence for extra
-		boolean isEntrance = true;
-		for(MHRAttendanceRecord attendance : getLines(false)) {
-			List<MHRShiftIncidence> shiftIncidenceList = MHRShiftIncidence.getShiftIncidenceList(getCtx(), workShift.getHR_WorkShift_ID(), 
-					isEntrance? 
-					X_HR_ShiftIncidence.EVENTTYPE_Entrance: 
-						X_HR_ShiftIncidence.EVENTTYPE_Egress, getDateDoc());
-			//	Get incidence from attendance
-			shiftIncidenceList.stream()
-				.filter(shiftIncidence -> shiftIncidence.evaluateTime(attendance.getAttendanceTime()))
-					.forEach(shiftIncidence -> {
-						long durationInMillis = shiftIncidence.getDurationInMillis(attendance.getAttendanceTime());
-						if(durationInMillis != 0) {
-							MHRIncidence incidence = new MHRIncidence(this, shiftIncidence, durationInMillis);
-							incidence.saveEx();
-						}
-			});
-			//	Change event type
-			isEntrance = !isEntrance;
+		//	For Variable entrance
+		if(workShift.isVariableEntrance()) {
+			if(attendanceHours != null
+					&& attendanceHours.doubleValue() >= workShift.getNoOfHours().doubleValue()) {
+				List<MHRAttendanceRecord> attendanceList = getLines(false);
+				MHRAttendanceRecord firstAttendance = attendanceList.get(0);
+				
+				//	Get from last attendance
+				//	Create Incidence for extra
+				boolean isEntrance = true;
+				for(MHRAttendanceRecord attendance : attendanceList) {
+					List<MHRShiftIncidence> shiftIncidenceList = MHRShiftIncidence.getShiftIncidenceList(getCtx(), workShift.getHR_WorkShift_ID(), 
+							isEntrance? 
+							X_HR_ShiftIncidence.EVENTTYPE_Entrance: 
+								X_HR_ShiftIncidence.EVENTTYPE_Egress, getDateDoc());
+					//	Get incidence from attendance
+					shiftIncidenceList.stream()
+						.filter(shiftIncidence -> shiftIncidence.evaluateTime(attendance.getAttendanceTime()))
+							.forEach(shiftIncidence -> {
+								long durationInMillis = shiftIncidence.getDurationInMillis(attendance.getAttendanceTime());
+								if(durationInMillis != 0) {
+									MHRIncidence incidence = new MHRIncidence(this, shiftIncidence, durationInMillis);
+									incidence.saveEx();
+								}
+					});
+					//	Change event type
+					isEntrance = !isEntrance;
+				}
+			}
+		} else {
+			//	Create Incidence for extra
+			boolean isEntrance = true;
+			for(MHRAttendanceRecord attendance : getLines(false)) {
+				List<MHRShiftIncidence> shiftIncidenceList = MHRShiftIncidence.getShiftIncidenceList(getCtx(), workShift.getHR_WorkShift_ID(), 
+						isEntrance? 
+						X_HR_ShiftIncidence.EVENTTYPE_Entrance: 
+							X_HR_ShiftIncidence.EVENTTYPE_Egress, getDateDoc());
+				//	Get incidence from attendance
+				shiftIncidenceList.stream()
+					.filter(shiftIncidence -> shiftIncidence.evaluateTime(attendance.getAttendanceTime()))
+						.forEach(shiftIncidence -> {
+							long durationInMillis = shiftIncidence.getDurationInMillis(attendance.getAttendanceTime());
+							if(durationInMillis != 0) {
+								MHRIncidence incidence = new MHRIncidence(this, shiftIncidence, durationInMillis);
+								incidence.saveEx();
+							}
+				});
+				//	Change event type
+				isEntrance = !isEntrance;
+			}
 		}
 	}
 	
@@ -314,7 +347,7 @@ public class MHRAttendanceBatch extends X_HR_AttendanceBatch implements DocActio
 		//	
 		BigDecimal attendanceHours = processAttendance();
 		processLeave(attendanceHours);
-		processIncidence();
+		processIncidence(attendanceHours);
 		//	Return Message
 		if(errorMessage.length() > 0) {
 			return errorMessage.toString();

@@ -19,7 +19,9 @@ package org.eevolution.model;
 import java.sql.ResultSet;
 import java.util.Properties;
 
+import org.adempiere.exceptions.AdempiereException;
 import org.compiere.util.CCache;
+import org.compiere.util.TimeUtil;
 
 /**
  * Created by victor.perez@e-evolution.com, e-Evolution on 03/12/13.
@@ -65,6 +67,35 @@ public class MHRWorkShift extends X_HR_WorkShift {
 		else
 			workShift = null;
 		return workShift;
+	}
+	
+	@Override
+	protected boolean beforeSave(boolean newRecord) {
+		//	Validate for non business day
+		if(isOnSunday()
+				&& isOnMonday()
+				&& isOnTuesday()
+				&& isOnWednesday()
+				&& isOnThursday()
+				&& isOnFriday()
+				&& isOnSaturday()) {
+			throw new AdempiereException("@TNA.AtLeastNonBusinessDay@");
+		}
+		//	Validate break
+		if(!TimeUtil.isValid(getShiftFromTime(), getShiftToTime(), getBreakStartTime())) {
+			throw new AdempiereException("@TNA.InvalidBreakStartTime@");
+		}
+		//	
+		if(!TimeUtil.isValid(getShiftFromTime(), getShiftToTime(), getBreakEndTime())) {
+			throw new AdempiereException("@TNA.InvalidBreakEndTime@");
+		}
+		//	
+		if(getBreakStartTime() != null
+				&& getBreakEndTime() != null
+				&& getBreakEndTime().getTime() < getBreakStartTime().getTime()) {
+			throw new AdempiereException("@TNA.InvalidBreakTime@");
+		}
+		return true;
 	}
 
 	@Override
