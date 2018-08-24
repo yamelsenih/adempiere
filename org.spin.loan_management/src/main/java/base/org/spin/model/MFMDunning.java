@@ -112,7 +112,9 @@ public class MFMDunning extends X_FM_Dunning {
 		}
 		// check ValidFrom
 		whereClause.append(" AND ")
-			.append("? BETWEEN " + MFMDunningLevel.COLUMNNAME_DaysFrom + " AND " + MFMDunningLevel.COLUMNNAME_DaysTo);
+			.append("? >= " + MFMDunningLevel.COLUMNNAME_DaysFrom)
+			.append(" AND (? <= " + MFMDunningLevel.COLUMNNAME_DaysTo + " OR " + MFMDunningLevel.COLUMNNAME_DaysTo + " IS NULL)");
+		params.add(daysDue);
 		params.add(daysDue);
 		//check client
 		return new Query(getCtx(), MFMDunningLevel.Table_Name, whereClause.toString(), null)
