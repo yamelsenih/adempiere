@@ -494,7 +494,7 @@ public class LoanUtil {
 			//	For distinct levels
 			MFMDunningLevel level = null;
 			if(dunning != null) {
-				level = dunning.getValidLevelInstance(row.getDaysDue(), true, false);
+				level = dunning.getValidLevelInstance(row.getDaysDue());
 				if(level == null
 						|| !level.isAccrual()) {
 					continue;
