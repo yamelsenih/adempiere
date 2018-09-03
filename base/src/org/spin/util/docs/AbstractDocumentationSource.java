@@ -69,4 +69,14 @@ public abstract class AbstractDocumentationSource {
 		//	default
 		return null;
 	}
+	
+	/**
+	 * Get Valid Name
+	 */
+	protected String getValidValue(String value) {
+		String fileName = value;
+		fileName = fileName.replace(" ", "").trim();
+		fileName = fileName.replaceAll("[+^:&áàäéèëíìïóòöúùñÁÀÄÉÈËÍÌÏÓÒÖÚÙÜÑçÇ$,;*/()]", "");
+		return fileName;
+	}
 }

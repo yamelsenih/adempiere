@@ -38,10 +38,22 @@ public class FunctionalDocsForProcess extends AbstractDocumentationSource {
 
 	/**	Document	*/
 	private MProcess process;
+	/**	Folder Name	*/
+	public static final String FOLDER_NAME = "process";
 	
 	@Override
 	public boolean createDocumentation(AbstractTextConverter textConverter, PO source) {
 		process = (MProcess) source;
+		//	Add link from internal reference
+		textConverter.addHeaderIndexName((getFolderName() + "-" + getDocumentName()).toLowerCase());
+		//	Add Name
+		textConverter.addSection(process.getName());
+		textConverter.newLine();
+		//	Description
+		if(!Util.isEmpty(process.getDescription())) {
+			textConverter.addText(process.getDescription());
+			textConverter.newLine();
+		}
 		//	Help
 		if(!Util.isEmpty(process.getHelp())) {
 			textConverter.addSubSection("Help");
@@ -144,13 +156,13 @@ public class FunctionalDocsForProcess extends AbstractDocumentationSource {
 
 	@Override
 	public String getFolderName() {
-		return "process";
+		return FOLDER_NAME;
 	}
 
 	@Override
 	public String getDocumentName() {
 		if(process != null) {
-			return process.getValue();
+			return getValidValue(process.getValue());
 		}
 		//	
 		return null;

@@ -52,9 +52,22 @@ public class ReStructuredTextConverter extends AbstractTextConverter {
 	
 	@Override
 	public AbstractTextConverter addText(String text) {
-		formattedText.append(text);
+		formattedText.append(formatText(text));
 		log.fine("addText=" + text);
 		return this;
+	}
+	
+	/**
+	 * Format Text
+	 * @param text
+	 * @return
+	 */
+	private String formatText(String text) {
+		return text.replaceAll("(?i)<p */?>", "")
+				.replaceAll("(?i)<br */?>\\n", "\n")
+				.replaceAll("(?i)<br */?>", "* ")
+				.replaceAll("(?i)<b */?>", "\\\\ **")
+				.replaceAll("(?i)</b */?>", "**\\\\ ");
 	}
 	
 	@Override
@@ -216,6 +229,36 @@ public class ReStructuredTextConverter extends AbstractTextConverter {
 		log.fine("addExternalLink=" + text);
 		addText(formatExternalLinkText(text));
 		urlSource.append(formatExternalLink(text, link));
+		return this;
+	}
+	
+	@Override
+	public AbstractTextConverter addSeeAlso(String internalLink) {
+		if(Util.isEmpty(internalLink)) {
+			return this;
+		}
+		log.fine("addSeeAlso=" + internalLink);
+		addText(formatSeeAlso(internalLink));
+		return this;
+	}
+	
+	@Override
+	public AbstractTextConverter addHeaderIndexName(String indexName) {
+		if(Util.isEmpty(indexName)) {
+			return this;
+		}
+		log.fine("addSeeAlso=" + indexName);
+		addText(formatHeaderIndexName(indexName));
+		return this;
+	}
+	
+	@Override
+	public AbstractTextConverter addComment(String comment) {
+		if(Util.isEmpty(comment)) {
+			return this;
+		}
+		log.fine("addComment=" + comment);
+		addText(formatComment(comment));
 		return this;
 	}
 	
@@ -487,6 +530,53 @@ public class ReStructuredTextConverter extends AbstractTextConverter {
 		formattedValue.append(".. note::")
 			.append(Env.NL)
 			.append("    ").append(text.trim())
+			.append(Env.NL);
+		return formattedValue.toString();
+	}
+	
+	/**
+	 * See Also
+	 * @param internalLink
+	 * @return
+	 */
+	private String formatSeeAlso(String internalLink) {
+		//	.. seealso::
+		    //	:ref:`vdufun`
+		StringBuffer formattedValue = new StringBuffer(Env.NL);
+		//	
+		formattedValue.append(".. seealso::")
+			.append(Env.NL)
+			.append("    :ref:`").append(internalLink).append("`")
+			.append(Env.NL);
+		return formattedValue.toString();
+	}
+	
+	/**
+	 * Format Header link
+	 * @param indexName
+	 * @return
+	 */
+	private String formatHeaderIndexName(String indexName) {
+		//	.. _api/db/security:
+		StringBuffer formattedValue = new StringBuffer(Env.NL);
+		//	
+		formattedValue.append(".. _")
+			.append(indexName).append(":")
+			.append(Env.NL);
+		return formattedValue.toString();
+	}
+	
+	/**
+	 * Format Comment
+	 * @param internalLink
+	 * @return
+	 */
+	private String formatComment(String comment) {
+		//	.. _api/db/security:
+		StringBuffer formattedValue = new StringBuffer(Env.NL);
+		//	
+		formattedValue.append(".. ")
+			.append(comment.replaceAll("\\n", "\n.."))
 			.append(Env.NL);
 		return formattedValue.toString();
 	}

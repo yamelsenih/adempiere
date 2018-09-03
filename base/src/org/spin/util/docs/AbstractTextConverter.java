@@ -173,6 +173,27 @@ public abstract class AbstractTextConverter {
 	public abstract AbstractTextConverter newLine();
 	
 	/**
+	 * Add Internal Link
+	 * @param internalLink
+	 * @return
+	 */
+	public abstract AbstractTextConverter addSeeAlso(String internalLink);
+	
+	/**
+	 * Add Header Index Name used for make link from other file
+	 * @param indexName
+	 * @return
+	 */
+	public abstract AbstractTextConverter addHeaderIndexName(String indexName);
+	
+	/**
+	 * Add Comment that is not view for end user
+	 * @param comment
+	 * @return
+	 */
+	public abstract AbstractTextConverter addComment(String comment);
+	
+	/**
 	 * Validate if is numeric
 	 * @param value
 	 * @return

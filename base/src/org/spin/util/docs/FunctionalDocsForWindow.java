@@ -27,7 +27,7 @@ import org.compiere.util.Util;
 
 /**
  * @author Yamel Senih, ysenih@erpya.com , http://www.erpya.com
- * Documentation generator for Process entity
+ * Documentation generator for Window entity
  * @see: https://github.com/adempiere/adempiere/issues/1934
  * For formst reference use: http://www.sphinx-doc.org/en/master/usage/restructuredtext/basics.html
  */
@@ -39,10 +39,22 @@ public class FunctionalDocsForWindow extends AbstractDocumentationSource {
 
 	/**	Document	*/
 	private MWindow window;
+	/**	Folder Name	*/
+	public static final String FOLDER_NAME = "window";
 	
 	@Override
 	public boolean createDocumentation(AbstractTextConverter textConverter, PO source) {
 		window = (MWindow) source;
+		//	Add link from internal reference
+		textConverter.addHeaderIndexName((getFolderName() + "-" + getDocumentName()).toLowerCase());
+		//	Add Name
+		textConverter.addSection(window.getName());
+		textConverter.newLine();
+		//	Description
+		if(!Util.isEmpty(window.getDescription())) {
+			textConverter.addText(window.getDescription());
+			textConverter.newLine();
+		}
 		//	Help
 		if(!Util.isEmpty(window.getHelp())) {
 			textConverter.addSubSection("Help");
@@ -230,16 +242,16 @@ public class FunctionalDocsForWindow extends AbstractDocumentationSource {
 
 	@Override
 	public String getFolderName() {
-		return "window";
+		return FOLDER_NAME;
 	}
 
 	@Override
 	public String getDocumentName() {
 		if(window != null) {
-			return window.getName();
+			return getValidValue(window.getName());
 		}
 		//	
-		return null;
+		return "";
 	}
 
 }

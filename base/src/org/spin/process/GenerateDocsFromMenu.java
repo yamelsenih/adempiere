@@ -19,18 +19,14 @@ package org.spin.process;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.adempiere.exceptions.AdempiereException;
 import org.compiere.model.MMenu;
 import org.compiere.model.MProcess;
-import org.compiere.model.MTree;
 import org.compiere.model.MWindow;
-import org.compiere.util.DB;
-import org.compiere.util.Util;
-import org.spin.util.docs.AbstractTextConverter;
 import org.spin.util.docs.AbstractDocumentationSource;
+import org.spin.util.docs.AbstractTextConverter;
+import org.spin.util.docs.FunctionalDocsForMenu;
 import org.spin.util.docs.FunctionalDocsForProcess;
 import org.spin.util.docs.FunctionalDocsForWindow;
 
@@ -80,18 +76,10 @@ public class GenerateDocsFromMenu extends GenerateDocsFromMenuAbstract {
 		}
 		//	
 		for(MMenu menu : menuList) {
-			//	Write File
 			textConverter.clear();
-			//	Add Name
-			textConverter.addSection(menu.getName());
-			textConverter.newLine();
-			//	Description
-			if(!Util.isEmpty(menu.getDescription())) {
-				textConverter.addText(menu.getDescription());
-				textConverter.newLine();
-			}
-			//	Path
-			writePath(menu);
+			//	For Menu
+			documentForMenu(menu);
+			textConverter.clear();
 			//	
 			if(menu.getAction().equals(MMenu.ACTION_Process)) {
 				documentForProcess(MProcess.get(getCtx(), menu.getAD_Process_ID()));
@@ -102,33 +90,28 @@ public class GenerateDocsFromMenu extends GenerateDocsFromMenuAbstract {
 	}
 	
 	/**
-	 * Write Path from menu
-	 * @param menu
+	 * Create Document for menu
+	 * @param process
+	 * @throws IOException 
 	 */
-	private void writePath(MMenu menu) {
-		List<MMenu> menuList = new ArrayList<MMenu>();
-		int currentMenuId = menu.getAD_Menu_ID();
-		int parentId = 0;
-		int treeId = MTree.getDefaultAD_Tree_ID(getAD_Client_ID(), "AD_Menu_ID");
-		//	Add current
-		menuList.add(menu);
-		do {
-			parentId = DB.getSQLValue(get_TrxName(), "SELECT Parent_ID "
-					+ "FROM AD_TreeNodeMM "
-					+ "WHERE AD_Tree_ID = ? AND Node_ID = ?", treeId, currentMenuId);
-			if(parentId > 0) {
-				currentMenuId = parentId;
-				menuList.add(MMenu.getFromId(getCtx(), currentMenuId));
-			}
-		} while(parentId > 0);
-		//	Write Path
-		textConverter.addSubSection("Menu Path");
-		for(int index = menuList.size() -1, level = 0; index >= 0; index--, level++) {
-			MMenu menuItem = menuList.get(index);
-			textConverter.addQuote(menuItem.getName(), level);
+	private void documentForMenu(MMenu menu) throws IOException {
+		AbstractDocumentationSource documentGenerator = new FunctionalDocsForMenu();
+		boolean isOk = documentGenerator.createDocumentation(textConverter, menu);
+		if(!isOk) { 
+			return;
 		}
-		//	
-		textConverter.newLine();
+		String menuFolderName = getDirectory() + File.separator + documentGenerator.getFolderName();
+		File exportProcessDir = new File(menuFolderName);
+		exportProcessDir.mkdirs();
+		//	Create File
+		File exportProcess = new File(menuFolderName + File.separator + getValidName(documentGenerator.getDocumentName()));
+		FileWriter writer = new FileWriter(exportProcess);
+		writer.write(textConverter.toString());
+		writer.flush();
+		writer.close();
+		//	Add to list
+		addLog("@AD_Menu_ID@ " + menu.getName());
+		created++;
 	}
 	
 	/**
@@ -187,8 +170,6 @@ public class GenerateDocsFromMenu extends GenerateDocsFromMenuAbstract {
 	 * @return
 	 */
 	private String getValidName(String fileName) {
-		fileName = fileName.replace(" ", "").trim();
-		fileName = fileName.replaceAll("[+^:&áàäéèëíìïóòöúùñÁÀÄÉÈËÍÌÏÓÒÖÚÙÜÑçÇ$,;*/]", "");
 		//	
 		return fileName + "." + textConverter.getExtension();
 	}
