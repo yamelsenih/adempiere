@@ -19,15 +19,25 @@ package org.spin.process;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.List;
 
 import org.adempiere.exceptions.AdempiereException;
+import org.adempiere.model.I_AD_Browse;
+import org.adempiere.model.MBrowse;
+import org.compiere.model.I_AD_Form;
+import org.compiere.model.I_AD_Process;
+import org.compiere.model.I_AD_Window;
+import org.compiere.model.MForm;
 import org.compiere.model.MMenu;
 import org.compiere.model.MProcess;
 import org.compiere.model.MWindow;
+import org.compiere.model.Query;
 import org.spin.util.docs.AbstractDocumentationSource;
 import org.spin.util.docs.AbstractTextConverter;
+import org.spin.util.docs.FunctionalDocsForForm;
 import org.spin.util.docs.FunctionalDocsForMenu;
 import org.spin.util.docs.FunctionalDocsForProcess;
+import org.spin.util.docs.FunctionalDocsForSmartBrowse;
 import org.spin.util.docs.FunctionalDocsForWindow;
 
 /**
@@ -56,6 +66,10 @@ public class GenerateDocsFromMenu extends GenerateDocsFromMenuAbstract {
 		//	Instance
 		textConverter = (AbstractTextConverter) clazz.newInstance();
 		loadMenu();
+		loadProcess();
+		loadWindow();
+		loadForm();
+		loadSmartBrowse();
 		return "@Created@ " + created;
 	}
 	
@@ -76,16 +90,97 @@ public class GenerateDocsFromMenu extends GenerateDocsFromMenuAbstract {
 		}
 		//	
 		for(MMenu menu : menuList) {
-			textConverter.clear();
 			//	For Menu
 			documentForMenu(menu);
 			textConverter.clear();
-			//	
-			if(menu.getAction().equals(MMenu.ACTION_Process)) {
-				documentForProcess(MProcess.get(getCtx(), menu.getAD_Process_ID()));
-			} else if(menu.getAction().equals(MMenu.ACTION_Window)) {
-				documentForWindow((MWindow) menu.getAD_Window());
-			}
+		}
+	}
+	
+	/**
+	 * Load Process for documents
+	 * @throws IOException 
+	 */
+	private void loadProcess() throws IOException {
+		List<MProcess> processList = new Query(getCtx(), I_AD_Process.Table_Name, null, get_TrxName())
+				.setOnlyActiveRecords(true)
+				.setClient_ID()
+				.list();
+		//	Get Result
+		if(processList == null
+				|| processList.size() == 0) {
+			return;
+		}
+		//	
+		for(MProcess process : processList) {
+			//	For Process
+			documentForProcess(process);
+			textConverter.clear();
+		}
+	}
+	
+	/**
+	 * Load window for documents
+	 * @throws IOException 
+	 */
+	private void loadWindow() throws IOException {
+		List<MWindow> windowList = new Query(getCtx(), I_AD_Window.Table_Name, null, get_TrxName())
+				.setOnlyActiveRecords(true)
+				.setClient_ID()
+				.list();
+		//	Get Result
+		if(windowList == null
+				|| windowList.size() == 0) {
+			return;
+		}
+		//	
+		for(MWindow window : windowList) {
+			//	For Window
+			documentForWindow(window);
+			textConverter.clear();
+		}
+	}
+	
+	/**
+	 * Load Form for documents
+	 * @throws IOException 
+	 */
+	private void loadForm() throws IOException {
+		List<MForm> formList = new Query(getCtx(), I_AD_Form.Table_Name, null, get_TrxName())
+				.setOnlyActiveRecords(true)
+				.setClient_ID()
+				.list();
+		//	Get Result
+		if(formList == null
+				|| formList.size() == 0) {
+			return;
+		}
+		//	
+		for(MForm form : formList) {
+			//	For Window
+			documentForForm(form);
+			textConverter.clear();
+		}
+	}
+	
+	/**
+	 * Load Smart Browse for documents
+	 * @throws IOException 
+	 */
+	private void loadSmartBrowse() throws IOException {
+		List<MBrowse> smartBrowseList = new Query(getCtx(), I_AD_Browse.Table_Name, null, get_TrxName())
+				.setOnlyActiveRecords(true)
+				.setClient_ID()
+				.list();
+		//	Get Result
+		if(smartBrowseList == null
+				|| smartBrowseList.size() == 0) {
+			return;
+		}
+		//	
+		for(MBrowse smartBrowse : smartBrowseList) {
+			//	For Window
+			documentForSmartBrowse(smartBrowse);
+			textConverter.clear();
 		}
 	}
 	
@@ -150,17 +245,67 @@ public class GenerateDocsFromMenu extends GenerateDocsFromMenuAbstract {
 		if(!isOk) { 
 			return;
 		}
-		String processFolderName = getDirectory() + File.separator + documentGenerator.getFolderName();
-		File exportProcessDir = new File(processFolderName);
-		exportProcessDir.mkdirs();
+		String formFolderName = getDirectory() + File.separator + documentGenerator.getFolderName();
+		File exportFormDir = new File(formFolderName);
+		exportFormDir.mkdirs();
 		//	Create File
-		File exportProcess = new File(processFolderName + File.separator + getValidName(documentGenerator.getDocumentName()));
+		File exportProcess = new File(formFolderName + File.separator + getValidName(documentGenerator.getDocumentName()));
 		FileWriter writer = new FileWriter(exportProcess);
 		writer.write(textConverter.toString());
 		writer.flush();
 		writer.close();
 		//	Add to list
 		addLog("@AD_Window_ID@ " + window.getName());
+		created++;
+	}
+	
+	/**
+	 * Create Document for Form
+	 * @param form
+	 * @throws IOException 
+	 */
+	private void documentForForm(MForm form) throws IOException {
+		AbstractDocumentationSource documentGenerator = new FunctionalDocsForForm();
+		boolean isOk = documentGenerator.createDocumentation(textConverter, form);
+		if(!isOk) { 
+			return;
+		}
+		String formFolderName = getDirectory() + File.separator + documentGenerator.getFolderName();
+		File exportFormDir = new File(formFolderName);
+		exportFormDir.mkdirs();
+		//	Create File
+		File exportProcess = new File(formFolderName + File.separator + getValidName(documentGenerator.getDocumentName()));
+		FileWriter writer = new FileWriter(exportProcess);
+		writer.write(textConverter.toString());
+		writer.flush();
+		writer.close();
+		//	Add to list
+		addLog("@AD_Form_ID@ " + form.getName());
+		created++;
+	}
+	
+	/**
+	 * Create Document for Smart Browse
+	 * @param smartBrowse
+	 * @throws IOException 
+	 */
+	private void documentForSmartBrowse(MBrowse smartBrowse) throws IOException {
+		AbstractDocumentationSource documentGenerator = new FunctionalDocsForSmartBrowse();
+		boolean isOk = documentGenerator.createDocumentation(textConverter, smartBrowse);
+		if(!isOk) { 
+			return;
+		}
+		String smartBrowseFolderName = getDirectory() + File.separator + documentGenerator.getFolderName();
+		File exportSmartBrowseDir = new File(smartBrowseFolderName);
+		exportSmartBrowseDir.mkdirs();
+		//	Create File
+		File exportProcess = new File(smartBrowseFolderName + File.separator + getValidName(documentGenerator.getDocumentName()));
+		FileWriter writer = new FileWriter(exportProcess);
+		writer.write(textConverter.toString());
+		writer.flush();
+		writer.close();
+		//	Add to list
+		addLog("@AD_Browse_ID@ " + smartBrowse.getName());
 		created++;
 	}
 	
