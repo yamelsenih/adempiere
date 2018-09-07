@@ -106,6 +106,14 @@ public class FunctionalDocsForMenu extends AbstractDocumentationSource {
 	public boolean createDocumentation(AbstractTextConverter textConverter) {
 		return false;
 	}
+	
+	@Override
+	public boolean addIndex(AbstractTextConverter textConverter, PO source) {
+		menu = (MMenu) source;
+		textConverter.newLine();
+		textConverter.addText(getDocumentName().toLowerCase(), 4);
+		return true;
+	}
 
 	@Override
 	public String getFolderName() {

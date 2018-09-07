@@ -150,6 +150,14 @@ public class FunctionalDocsForProcess extends AbstractDocumentationSource {
 	}
 
 	@Override
+	public boolean addIndex(AbstractTextConverter textConverter, PO source) {
+		process = (MProcess) source;
+		textConverter.newLine();
+		textConverter.addText(getDocumentName().toLowerCase(), 4);
+		return true;
+	}
+	
+	@Override
 	public boolean createDocumentation(AbstractTextConverter textConverter) {
 		return false;
 	}

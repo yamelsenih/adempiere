@@ -670,4 +670,37 @@ public class ReStructuredTextConverter extends AbstractTextConverter {
 	public String getExtension() {
 		return "rst";
 	}
+	
+	@Override
+	public String getIndexFileName() {
+		return "index";
+	}
+
+	@Override
+	public AbstractTextConverter addText(String text, int margin) {
+		if(Util.isEmpty(text)) {
+			return this;
+		}
+		//	Add Margin
+		String leftSpace = "";
+		if(margin > 0) {
+			leftSpace = String.format("%1$" + margin + "s", "");
+		}
+		addText(leftSpace + text);
+		return this;
+	}
+
+	@Override
+	public AbstractTextConverter addTreeDefinition(int maxdepth, boolean isnumbered) {
+		formattedText.append(".. toctree::");
+		newLine();
+		addText(":maxdepth: " + maxdepth, 4);
+		newLine();
+		if(isnumbered) {
+			addText(":numbered:", 4);
+		}
+		newLine();
+		//	
+		return this;
+	}
 }

@@ -32,6 +32,7 @@ import org.compiere.model.MMenu;
 import org.compiere.model.MProcess;
 import org.compiere.model.MWindow;
 import org.compiere.model.Query;
+import org.compiere.util.Util;
 import org.spin.util.docs.AbstractDocumentationSource;
 import org.spin.util.docs.AbstractTextConverter;
 import org.spin.util.docs.FunctionalDocsForForm;
@@ -54,6 +55,8 @@ public class GenerateDocsFromMenu extends GenerateDocsFromMenuAbstract {
 	
 	/**	Converter	*/
 	private AbstractTextConverter textConverter = null;
+	/**	Index Converter	*/
+	private AbstractTextConverter indexConverter = null;
 	/**	Created	*/
 	private int created = 0;
 
@@ -65,6 +68,7 @@ public class GenerateDocsFromMenu extends GenerateDocsFromMenuAbstract {
 		}
 		//	Instance
 		textConverter = (AbstractTextConverter) clazz.newInstance();
+		indexConverter = (AbstractTextConverter) clazz.newInstance();
 		loadMenu();
 		loadProcess();
 		loadWindow();
@@ -88,12 +92,22 @@ public class GenerateDocsFromMenu extends GenerateDocsFromMenuAbstract {
 				|| menuList.length == 0) {
 			return;
 		}
+		String folderName = getDirectory() + File.separator + FunctionalDocsForMenu.FOLDER_NAME;
+		String fileName = getValidName(textConverter.getIndexFileName());
+		if(!Util.isEmpty(fileName)) {
+			indexConverter.addTreeDefinition(3, true);
+		}
 		//	
 		for(MMenu menu : menuList) {
 			//	For Menu
-			documentForMenu(menu);
+			documentForMenu(menu, folderName);
 			textConverter.clear();
 		}
+		if(!Util.isEmpty(fileName)) {
+			writeFile(folderName, fileName, indexConverter.toString());
+		}
+		//	Clear
+		indexConverter.clear();
 	}
 	
 	/**
@@ -110,12 +124,23 @@ public class GenerateDocsFromMenu extends GenerateDocsFromMenuAbstract {
 				|| processList.size() == 0) {
 			return;
 		}
+		String folderName = getDirectory() + File.separator + FunctionalDocsForProcess.FOLDER_NAME;
+		String fileName = getValidName(textConverter.getIndexFileName());
+		if(!Util.isEmpty(fileName)) {
+			indexConverter.addTreeDefinition(3, true);
+		}
 		//	
 		for(MProcess process : processList) {
 			//	For Process
-			documentForProcess(process);
+			documentForProcess(process, folderName);
 			textConverter.clear();
 		}
+		//	
+		if(!Util.isEmpty(fileName)) {
+			writeFile(folderName, fileName, indexConverter.toString());
+		}
+		//	Clear
+		indexConverter.clear();
 	}
 	
 	/**
@@ -132,12 +157,22 @@ public class GenerateDocsFromMenu extends GenerateDocsFromMenuAbstract {
 				|| windowList.size() == 0) {
 			return;
 		}
+		String folderName = getDirectory() + File.separator + FunctionalDocsForWindow.FOLDER_NAME;
+		String fileName = getValidName(textConverter.getIndexFileName());
+		if(!Util.isEmpty(fileName)) {
+			indexConverter.addTreeDefinition(3, true);
+		}
 		//	
 		for(MWindow window : windowList) {
 			//	For Window
-			documentForWindow(window);
+			documentForWindow(window, folderName);
 			textConverter.clear();
 		}
+		if(!Util.isEmpty(fileName)) {
+			writeFile(folderName, fileName, indexConverter.toString());
+		}
+		//	Clear
+		indexConverter.clear();
 	}
 	
 	/**
@@ -154,12 +189,22 @@ public class GenerateDocsFromMenu extends GenerateDocsFromMenuAbstract {
 				|| formList.size() == 0) {
 			return;
 		}
+		String folderName = getDirectory() + File.separator + FunctionalDocsForForm.FOLDER_NAME;
+		String fileName = getValidName(textConverter.getIndexFileName());
+		if(!Util.isEmpty(fileName)) {
+			indexConverter.addTreeDefinition(3, true);
+		}
 		//	
 		for(MForm form : formList) {
 			//	For Window
-			documentForForm(form);
+			documentForForm(form, folderName);
 			textConverter.clear();
 		}
+		if(!Util.isEmpty(fileName)) {
+			writeFile(folderName, fileName, indexConverter.toString());
+		}
+		//	Clear
+		indexConverter.clear();
 	}
 	
 	/**
@@ -176,12 +221,22 @@ public class GenerateDocsFromMenu extends GenerateDocsFromMenuAbstract {
 				|| smartBrowseList.size() == 0) {
 			return;
 		}
+		String folderName = getDirectory() + File.separator + FunctionalDocsForSmartBrowse.FOLDER_NAME;
+		String fileName = getValidName(textConverter.getIndexFileName());
+		if(!Util.isEmpty(fileName)) {
+			indexConverter.addTreeDefinition(3, true);
+		}
 		//	
 		for(MBrowse smartBrowse : smartBrowseList) {
 			//	For Window
-			documentForSmartBrowse(smartBrowse);
+			documentForSmartBrowse(smartBrowse, folderName);
 			textConverter.clear();
 		}
+		if(!Util.isEmpty(fileName)) {
+			writeFile(folderName, fileName, indexConverter.toString());
+		}
+		//	Clear
+		indexConverter.clear();
 	}
 	
 	/**
@@ -189,21 +244,20 @@ public class GenerateDocsFromMenu extends GenerateDocsFromMenuAbstract {
 	 * @param process
 	 * @throws IOException 
 	 */
-	private void documentForMenu(MMenu menu) throws IOException {
+	private void documentForMenu(MMenu menu, String folderName) throws IOException {
 		AbstractDocumentationSource documentGenerator = new FunctionalDocsForMenu();
 		boolean isOk = documentGenerator.createDocumentation(textConverter, menu);
 		if(!isOk) { 
 			return;
 		}
-		String menuFolderName = getDirectory() + File.separator + documentGenerator.getFolderName();
-		File exportProcessDir = new File(menuFolderName);
-		exportProcessDir.mkdirs();
-		//	Create File
-		File exportProcess = new File(menuFolderName + File.separator + getValidName(documentGenerator.getDocumentName()));
-		FileWriter writer = new FileWriter(exportProcess);
-		writer.write(textConverter.toString());
-		writer.flush();
-		writer.close();
+		//	Get
+		if(!Util.isEmpty(textConverter.getIndexFileName())) {
+			documentGenerator.addIndex(indexConverter, menu);
+		}
+		//	
+		String fileName = getValidName(documentGenerator.getDocumentName());
+		//	Write
+		writeFile(folderName, fileName, textConverter.toString());
 		//	Add to list
 		addLog("@AD_Menu_ID@ " + menu.getName());
 		created++;
@@ -212,23 +266,22 @@ public class GenerateDocsFromMenu extends GenerateDocsFromMenuAbstract {
 	/**
 	 * Create Document for process
 	 * @param process
+	 * @param folderName
 	 * @throws IOException 
 	 */
-	private void documentForProcess(MProcess process) throws IOException {
+	private void documentForProcess(MProcess process, String folderName) throws IOException {
 		AbstractDocumentationSource documentGenerator = new FunctionalDocsForProcess();
 		boolean isOk = documentGenerator.createDocumentation(textConverter, process);
 		if(!isOk) { 
 			return;
 		}
-		String processFolderName = getDirectory() + File.separator + documentGenerator.getFolderName();
-		File exportProcessDir = new File(processFolderName);
-		exportProcessDir.mkdirs();
-		//	Create File
-		File exportProcess = new File(processFolderName + File.separator + getValidName(documentGenerator.getDocumentName()));
-		FileWriter writer = new FileWriter(exportProcess);
-		writer.write(textConverter.toString());
-		writer.flush();
-		writer.close();
+		//	Get
+		if(!Util.isEmpty(textConverter.getIndexFileName())) {
+			documentGenerator.addIndex(indexConverter, process);
+		}
+		String fileName = getValidName(documentGenerator.getDocumentName());
+		//	Write
+		writeFile(folderName, fileName, textConverter.toString());
 		//	Add to list
 		addLog("@AD_Process_ID@ " + process.getName());
 		created++;
@@ -237,23 +290,22 @@ public class GenerateDocsFromMenu extends GenerateDocsFromMenuAbstract {
 	/**
 	 * Create Document for Window
 	 * @param window
+	 * @param folderName
 	 * @throws IOException 
 	 */
-	private void documentForWindow(MWindow window) throws IOException {
+	private void documentForWindow(MWindow window, String folderName) throws IOException {
 		AbstractDocumentationSource documentGenerator = new FunctionalDocsForWindow();
 		boolean isOk = documentGenerator.createDocumentation(textConverter, window);
 		if(!isOk) { 
 			return;
 		}
-		String formFolderName = getDirectory() + File.separator + documentGenerator.getFolderName();
-		File exportFormDir = new File(formFolderName);
-		exportFormDir.mkdirs();
-		//	Create File
-		File exportProcess = new File(formFolderName + File.separator + getValidName(documentGenerator.getDocumentName()));
-		FileWriter writer = new FileWriter(exportProcess);
-		writer.write(textConverter.toString());
-		writer.flush();
-		writer.close();
+		//	Get
+		if(!Util.isEmpty(textConverter.getIndexFileName())) {
+			documentGenerator.addIndex(indexConverter, window);
+		}
+		String fileName = getValidName(documentGenerator.getDocumentName());
+		//	Write
+		writeFile(folderName, fileName, textConverter.toString());
 		//	Add to list
 		addLog("@AD_Window_ID@ " + window.getName());
 		created++;
@@ -262,23 +314,22 @@ public class GenerateDocsFromMenu extends GenerateDocsFromMenuAbstract {
 	/**
 	 * Create Document for Form
 	 * @param form
+	 * @param folderName
 	 * @throws IOException 
 	 */
-	private void documentForForm(MForm form) throws IOException {
+	private void documentForForm(MForm form, String folderName) throws IOException {
 		AbstractDocumentationSource documentGenerator = new FunctionalDocsForForm();
 		boolean isOk = documentGenerator.createDocumentation(textConverter, form);
 		if(!isOk) { 
 			return;
 		}
-		String formFolderName = getDirectory() + File.separator + documentGenerator.getFolderName();
-		File exportFormDir = new File(formFolderName);
-		exportFormDir.mkdirs();
-		//	Create File
-		File exportProcess = new File(formFolderName + File.separator + getValidName(documentGenerator.getDocumentName()));
-		FileWriter writer = new FileWriter(exportProcess);
-		writer.write(textConverter.toString());
-		writer.flush();
-		writer.close();
+		//	Get
+		if(!Util.isEmpty(textConverter.getIndexFileName())) {
+			documentGenerator.addIndex(indexConverter, form);
+		}
+		String fileName = getValidName(documentGenerator.getDocumentName());
+		//	Write
+		writeFile(folderName, fileName, textConverter.toString());
 		//	Add to list
 		addLog("@AD_Form_ID@ " + form.getName());
 		created++;
@@ -287,26 +338,43 @@ public class GenerateDocsFromMenu extends GenerateDocsFromMenuAbstract {
 	/**
 	 * Create Document for Smart Browse
 	 * @param smartBrowse
+	 * @param folderName
 	 * @throws IOException 
 	 */
-	private void documentForSmartBrowse(MBrowse smartBrowse) throws IOException {
+	private void documentForSmartBrowse(MBrowse smartBrowse, String folderName) throws IOException {
 		AbstractDocumentationSource documentGenerator = new FunctionalDocsForSmartBrowse();
 		boolean isOk = documentGenerator.createDocumentation(textConverter, smartBrowse);
 		if(!isOk) { 
 			return;
 		}
-		String smartBrowseFolderName = getDirectory() + File.separator + documentGenerator.getFolderName();
-		File exportSmartBrowseDir = new File(smartBrowseFolderName);
-		exportSmartBrowseDir.mkdirs();
-		//	Create File
-		File exportProcess = new File(smartBrowseFolderName + File.separator + getValidName(documentGenerator.getDocumentName()));
-		FileWriter writer = new FileWriter(exportProcess);
-		writer.write(textConverter.toString());
-		writer.flush();
-		writer.close();
+		//	Get
+		if(!Util.isEmpty(textConverter.getIndexFileName())) {
+			documentGenerator.addIndex(indexConverter, smartBrowse);
+		}
+		String fileName = getValidName(documentGenerator.getDocumentName());
+		//	Write
+		writeFile(folderName, fileName, textConverter.toString());
 		//	Add to list
 		addLog("@AD_Browse_ID@ " + smartBrowse.getName());
 		created++;
+	}
+	
+	/**
+	 * Write file
+	 * @param folderName
+	 * @param fileName
+	 * @param value
+	 * @throws IOException
+	 */
+	private void writeFile(String folderName, String fileName, String value) throws IOException {
+		File exportDir = new File(folderName);
+		exportDir.mkdirs();
+		//	Create File
+		File exportFile = new File(folderName + File.separator + fileName);
+		FileWriter writer = new FileWriter(exportFile);
+		writer.write(value);
+		writer.flush();
+		writer.close();
 	}
 	
 	/**

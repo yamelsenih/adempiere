@@ -33,11 +33,27 @@ public abstract class AbstractTextConverter {
 	}
 
 	/**
+	 * Add a tree for file
+	 * @param maxdepth
+	 * @param isnumbered
+	 * @return
+	 */
+	public abstract AbstractTextConverter addTreeDefinition(int maxdepth, boolean isnumbered);
+	
+	/**
 	 * Add simple text
 	 * @param text
 	 * @return
 	 */
 	public abstract AbstractTextConverter addText(String text);
+	
+	/**
+	 * Add simple text
+	 * @param text
+	 * @param margin
+	 * @return
+	 */
+	public abstract AbstractTextConverter addText(String text, int margin);
 	
 	/**
 	 * Add a text as bold
@@ -192,6 +208,14 @@ public abstract class AbstractTextConverter {
 	 * @return
 	 */
 	public abstract AbstractTextConverter addComment(String comment);
+	
+	/**
+	 * Get file name for index
+	 * @return
+	 */
+	public String getIndexFileName() {
+		return null;
+	}
 	
 	/**
 	 * Validate if is numeric

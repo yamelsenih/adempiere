@@ -45,6 +45,16 @@ public abstract class AbstractDocumentationSource {
 	public abstract boolean createDocumentation(AbstractTextConverter textConverter);
 	
 	/**
+	 * Create index
+	 * @param textConverter
+	 * @param source
+	 * @return
+	 */
+	public boolean addIndex(AbstractTextConverter textConverter, PO source) {
+		return false;
+	}
+	
+	/**
 	 * Get Folder Name for entity
 	 * @return
 	 */

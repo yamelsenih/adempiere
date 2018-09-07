@@ -62,6 +62,14 @@ public class FunctionalDocsForForm extends AbstractDocumentationSource {
 		}
 		return true;
 	}
+	
+	@Override
+	public boolean addIndex(AbstractTextConverter textConverter, PO source) {
+		form = (MForm) source;
+		textConverter.newLine();
+		textConverter.addText(getDocumentName().toLowerCase(), 4);
+		return true;
+	}
 
 	@Override
 	public boolean createDocumentation(AbstractTextConverter textConverter) {

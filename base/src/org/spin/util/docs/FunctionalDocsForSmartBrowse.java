@@ -163,6 +163,14 @@ public class FunctionalDocsForSmartBrowse extends AbstractDocumentationSource {
 		}
 		return true;
 	}
+	
+	@Override
+	public boolean addIndex(AbstractTextConverter textConverter, PO source) {
+		smartBrowse = (MBrowse) source;
+		textConverter.newLine();
+		textConverter.addText(getDocumentName().toLowerCase(), 4);
+		return true;
+	}
 
 	@Override
 	public boolean createDocumentation(AbstractTextConverter textConverter) {
