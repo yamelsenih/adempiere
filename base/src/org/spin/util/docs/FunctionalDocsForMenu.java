@@ -15,6 +15,7 @@
  *************************************************************************************/
 package org.spin.util.docs;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,14 +42,16 @@ public class FunctionalDocsForMenu extends AbstractDocumentationSource {
 
 	/**	Document	*/
 	private MMenu menu;
+	/**	Sub-Folder Name	*/
+	public static final String SUB_FOLDER_NAME = "menu";
 	/**	Folder Name	*/
-	public static final String FOLDER_NAME = "menu";
+	public static final String FOLDER_NAME = "functional-guide" + File.separator + SUB_FOLDER_NAME;
 	
 	@Override
 	public boolean createDocumentation(AbstractTextConverter textConverter, PO source) {
 		menu = (MMenu) source;
 		//	Add link from internal reference
-		textConverter.addHeaderIndexName((getFolderName() + "-" + getDocumentName()).toLowerCase());
+		textConverter.addHeaderIndexName((getFolderName() + "/" + getDocumentName()).toLowerCase());
 		//	Add Name
 		textConverter.addSection(menu.getName());
 		textConverter.newLine();
@@ -91,9 +94,9 @@ public class FunctionalDocsForMenu extends AbstractDocumentationSource {
 		textConverter.newLine();
 		String internalReference = null;
 		if(menu.getAction().equals(MMenu.ACTION_Process)) {
-			internalReference = FunctionalDocsForProcess.FOLDER_NAME + "-" + MProcess.get(menu.getCtx(), menu.getAD_Process_ID()).getValue();
+			internalReference = FunctionalDocsForProcess.FOLDER_NAME + File.separator + FunctionalDocsForProcess.SUB_FOLDER_NAME + File.separator + FunctionalDocsForProcess.SUB_FOLDER_NAME + "-" + MProcess.get(menu.getCtx(), menu.getAD_Process_ID()).getValue();
 		} else if(menu.getAction().equals(MMenu.ACTION_Window)) {
-			internalReference = FunctionalDocsForWindow.FOLDER_NAME + "-" + menu.getAD_Window().getName();
+			internalReference = FunctionalDocsForWindow.FOLDER_NAME + File.separator + FunctionalDocsForWindow.SUB_FOLDER_NAME + File.separator + FunctionalDocsForWindow.SUB_FOLDER_NAME + "-" + menu.getAD_Window().getName();
 		}
 		//	Validate null
 		if(!Util.isEmpty(internalReference)) {
@@ -123,7 +126,7 @@ public class FunctionalDocsForMenu extends AbstractDocumentationSource {
 	@Override
 	public String getDocumentName() {
 		if(menu != null) {
-			return getValidValue(menu.getName());
+			return getValidValue(SUB_FOLDER_NAME + "-" + menu.getName());
 		}
 		//	
 		return null;

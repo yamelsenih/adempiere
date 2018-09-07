@@ -95,7 +95,11 @@ public class GenerateDocsFromMenu extends GenerateDocsFromMenuAbstract {
 		String folderName = getDirectory() + File.separator + FunctionalDocsForMenu.FOLDER_NAME;
 		String fileName = getValidName(textConverter.getIndexFileName());
 		if(!Util.isEmpty(fileName)) {
-			indexConverter.addTreeDefinition(3, true);
+			indexConverter.addHeaderIndexName(FunctionalDocsForMenu.FOLDER_NAME);
+			indexConverter.newLine();
+			indexConverter.addSection("Menu");
+			indexConverter.newLine();
+			indexConverter.addTreeDefinition(1, true);
 		}
 		//	
 		for(MMenu menu : menuList) {
@@ -127,7 +131,11 @@ public class GenerateDocsFromMenu extends GenerateDocsFromMenuAbstract {
 		String folderName = getDirectory() + File.separator + FunctionalDocsForProcess.FOLDER_NAME;
 		String fileName = getValidName(textConverter.getIndexFileName());
 		if(!Util.isEmpty(fileName)) {
-			indexConverter.addTreeDefinition(3, true);
+			indexConverter.addHeaderIndexName(FunctionalDocsForProcess.FOLDER_NAME);
+			indexConverter.newLine();
+			indexConverter.addSection("Process");
+			indexConverter.newLine();
+			indexConverter.addTreeDefinition(1, true);
 		}
 		//	
 		for(MProcess process : processList) {
@@ -160,7 +168,11 @@ public class GenerateDocsFromMenu extends GenerateDocsFromMenuAbstract {
 		String folderName = getDirectory() + File.separator + FunctionalDocsForWindow.FOLDER_NAME;
 		String fileName = getValidName(textConverter.getIndexFileName());
 		if(!Util.isEmpty(fileName)) {
-			indexConverter.addTreeDefinition(3, true);
+			indexConverter.addHeaderIndexName(FunctionalDocsForWindow.FOLDER_NAME);
+			indexConverter.newLine();
+			indexConverter.addSection("Windows");
+			indexConverter.newLine();
+			indexConverter.addTreeDefinition(1, true);
 		}
 		//	
 		for(MWindow window : windowList) {
@@ -192,7 +204,11 @@ public class GenerateDocsFromMenu extends GenerateDocsFromMenuAbstract {
 		String folderName = getDirectory() + File.separator + FunctionalDocsForForm.FOLDER_NAME;
 		String fileName = getValidName(textConverter.getIndexFileName());
 		if(!Util.isEmpty(fileName)) {
-			indexConverter.addTreeDefinition(3, true);
+			indexConverter.addHeaderIndexName(FunctionalDocsForForm.FOLDER_NAME);
+			indexConverter.newLine();
+			indexConverter.addSection("Forms");
+			indexConverter.newLine();
+			indexConverter.addTreeDefinition(1, true);
 		}
 		//	
 		for(MForm form : formList) {
@@ -224,7 +240,11 @@ public class GenerateDocsFromMenu extends GenerateDocsFromMenuAbstract {
 		String folderName = getDirectory() + File.separator + FunctionalDocsForSmartBrowse.FOLDER_NAME;
 		String fileName = getValidName(textConverter.getIndexFileName());
 		if(!Util.isEmpty(fileName)) {
-			indexConverter.addTreeDefinition(3, true);
+			indexConverter.addHeaderIndexName(FunctionalDocsForSmartBrowse.FOLDER_NAME);
+			indexConverter.newLine();
+			indexConverter.addSection("Smart Browsers");
+			indexConverter.newLine();
+			indexConverter.addTreeDefinition(1, true);
 		}
 		//	
 		for(MBrowse smartBrowse : smartBrowseList) {
@@ -384,6 +404,6 @@ public class GenerateDocsFromMenu extends GenerateDocsFromMenuAbstract {
 	 */
 	private String getValidName(String fileName) {
 		//	
-		return fileName + "." + textConverter.getExtension();
+		return (fileName + "." + textConverter.getExtension()).toLowerCase();
 	}
 }

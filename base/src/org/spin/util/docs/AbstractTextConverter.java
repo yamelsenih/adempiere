@@ -218,6 +218,13 @@ public abstract class AbstractTextConverter {
 	}
 	
 	/**
+	 * add translation text
+	 * @param text
+	 * @return
+	 */
+	public abstract AbstractTextConverter addTranslationText(String text);
+	
+	/**
 	 * Validate if is numeric
 	 * @param value
 	 * @return

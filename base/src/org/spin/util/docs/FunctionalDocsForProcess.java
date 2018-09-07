@@ -15,6 +15,8 @@
  *************************************************************************************/
 package org.spin.util.docs;
 
+import java.io.File;
+
 import org.adempiere.model.MBrowse;
 import org.compiere.model.MForm;
 import org.compiere.model.MProcess;
@@ -38,14 +40,16 @@ public class FunctionalDocsForProcess extends AbstractDocumentationSource {
 
 	/**	Document	*/
 	private MProcess process;
+	/**	Sub-Folder Name	*/
+	public static final String SUB_FOLDER_NAME = "process";
 	/**	Folder Name	*/
-	public static final String FOLDER_NAME = "process";
+	public static final String FOLDER_NAME = "functional-guide" + File.separator + SUB_FOLDER_NAME;
 	
 	@Override
 	public boolean createDocumentation(AbstractTextConverter textConverter, PO source) {
 		process = (MProcess) source;
 		//	Add link from internal reference
-		textConverter.addHeaderIndexName((getFolderName() + "-" + getDocumentName()).toLowerCase());
+		textConverter.addHeaderIndexName((getFolderName() + "/" + getDocumentName()).toLowerCase());
 		//	Add Name
 		textConverter.addSection(process.getName());
 		textConverter.newLine();
@@ -170,7 +174,7 @@ public class FunctionalDocsForProcess extends AbstractDocumentationSource {
 	@Override
 	public String getDocumentName() {
 		if(process != null) {
-			return getValidValue(process.getValue());
+			return getValidValue(SUB_FOLDER_NAME + "-" + process.getValue());
 		}
 		//	
 		return null;

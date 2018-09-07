@@ -15,6 +15,7 @@
  *************************************************************************************/
 package org.spin.util.docs;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,14 +40,16 @@ public class FunctionalDocsForSmartBrowse extends AbstractDocumentationSource {
 
 	/**	Document	*/
 	private MBrowse smartBrowse;
+	/**	Sub-Folder Name	*/
+	public static final String SUB_FOLDER_NAME = "smart-browse";
 	/**	Folder Name	*/
-	public static final String FOLDER_NAME = "smart-browse";
+	public static final String FOLDER_NAME = "functional-guide" + File.separator + SUB_FOLDER_NAME;
 	
 	@Override
 	public boolean createDocumentation(AbstractTextConverter textConverter, PO source) {
 		smartBrowse = (MBrowse) source;
 		//	Add link from internal reference
-		textConverter.addHeaderIndexName((getFolderName() + "-" + getDocumentName()).toLowerCase());
+		textConverter.addHeaderIndexName((getFolderName() + "/" + getDocumentName()).toLowerCase());
 		//	Add Name
 		textConverter.addSection(smartBrowse.getName());
 		textConverter.newLine();
@@ -67,13 +70,13 @@ public class FunctionalDocsForSmartBrowse extends AbstractDocumentationSource {
 		}
 		//	window
 		if(smartBrowse.getAD_Window_ID() != 0) {
-			String internalReference = FunctionalDocsForWindow.FOLDER_NAME + "-" + smartBrowse.getAD_Window().getName();
+			String internalReference = FunctionalDocsForWindow.FOLDER_NAME + File.separator + FunctionalDocsForWindow.SUB_FOLDER_NAME + File.separator + FunctionalDocsForWindow.SUB_FOLDER_NAME + "-" + smartBrowse.getAD_Window().getName();
 			textConverter.addSeeAlso(getValidValue(internalReference).toLowerCase());
 			textConverter.newLine();
 		}
 		//	Process
 		if(smartBrowse.getAD_Process_ID() != 0) {
-			String internalReference = FunctionalDocsForProcess.FOLDER_NAME + "-" + smartBrowse.getAD_Process().getValue();
+			String internalReference = FunctionalDocsForProcess.FOLDER_NAME + File.separator + FunctionalDocsForProcess.SUB_FOLDER_NAME + File.separator + FunctionalDocsForProcess.SUB_FOLDER_NAME + "-" + smartBrowse.getAD_Process().getValue();
 			textConverter.addSeeAlso(getValidValue(internalReference).toLowerCase());
 			textConverter.newLine();
 		}
@@ -185,7 +188,7 @@ public class FunctionalDocsForSmartBrowse extends AbstractDocumentationSource {
 	@Override
 	public String getDocumentName() {
 		if(smartBrowse != null) {
-			return getValidValue(smartBrowse.getValue());
+			return getValidValue(SUB_FOLDER_NAME + "-" + smartBrowse.getValue());
 		}
 		//	
 		return null;

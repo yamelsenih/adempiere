@@ -15,6 +15,7 @@
  *************************************************************************************/
 package org.spin.util.docs;
 
+import java.io.File;
 import java.util.ArrayList;
 
 import org.compiere.model.MField;
@@ -39,14 +40,16 @@ public class FunctionalDocsForWindow extends AbstractDocumentationSource {
 
 	/**	Document	*/
 	private MWindow window;
+	/**	Sub-Folder Name	*/
+	public static final String SUB_FOLDER_NAME = "window";
 	/**	Folder Name	*/
-	public static final String FOLDER_NAME = "window";
+	public static final String FOLDER_NAME = "functional-guide" + File.separator + SUB_FOLDER_NAME;
 	
 	@Override
 	public boolean createDocumentation(AbstractTextConverter textConverter, PO source) {
 		window = (MWindow) source;
 		//	Add link from internal reference
-		textConverter.addHeaderIndexName((getFolderName() + "-" + getDocumentName()).toLowerCase());
+		textConverter.addHeaderIndexName((getFolderName() + "/" + getDocumentName()).toLowerCase());
 		//	Add Name
 		textConverter.addSection(window.getName());
 		textConverter.newLine();
@@ -256,7 +259,7 @@ public class FunctionalDocsForWindow extends AbstractDocumentationSource {
 	@Override
 	public String getDocumentName() {
 		if(window != null) {
-			return getValidValue(window.getName());
+			return getValidValue(SUB_FOLDER_NAME + "-" + window.getName());
 		}
 		//	
 		return "";

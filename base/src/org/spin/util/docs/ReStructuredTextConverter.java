@@ -38,11 +38,14 @@ public class ReStructuredTextConverter extends AbstractTextConverter {
 		super();
 		//	
 		formattedText = new StringBuffer();
+		translatedText = new StringBuffer();
 		urlSource = new StringBuffer();
 	}
 	
 	/**	Formatted text	*/
 	private StringBuffer formattedText;
+	/**	Translated text	*/
+	private StringBuffer translatedText;
 	/**	Previous level	*/
 	private int previouslevel = -1;
 	/**	Url source	*/
@@ -701,6 +704,12 @@ public class ReStructuredTextConverter extends AbstractTextConverter {
 		}
 		newLine();
 		//	
+		return this;
+	}
+
+	@Override
+	public AbstractTextConverter addTranslationText(String text) {
+		translatedText.append(text);
 		return this;
 	}
 }

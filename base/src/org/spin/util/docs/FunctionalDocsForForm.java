@@ -15,6 +15,8 @@
  *************************************************************************************/
 package org.spin.util.docs;
 
+import java.io.File;
+
 import org.compiere.model.MForm;
 import org.compiere.model.MWindow;
 import org.compiere.model.PO;
@@ -34,14 +36,16 @@ public class FunctionalDocsForForm extends AbstractDocumentationSource {
 
 	/**	Document	*/
 	private MForm form;
+	/**	Sub-Folder Name	*/
+	public static final String SUB_FOLDER_NAME = "form";
 	/**	Folder Name	*/
-	public static final String FOLDER_NAME = "form";
+	public static final String FOLDER_NAME = "functional-guide" + File.separator + SUB_FOLDER_NAME;
 	
 	@Override
 	public boolean createDocumentation(AbstractTextConverter textConverter, PO source) {
 		form = (MForm) source;
 		//	Add link from internal reference
-		textConverter.addHeaderIndexName((getFolderName() + "-" + getDocumentName()).toLowerCase());
+		textConverter.addHeaderIndexName((getFolderName() + "/" + getDocumentName()).toLowerCase());
 		//	Add Name
 		textConverter.addSection(form.getName());
 		textConverter.newLine();
@@ -84,7 +88,7 @@ public class FunctionalDocsForForm extends AbstractDocumentationSource {
 	@Override
 	public String getDocumentName() {
 		if(form != null) {
-			return getValidValue(form.getName());
+			return getValidValue(SUB_FOLDER_NAME + "-" + form.getName());
 		}
 		//	
 		return "";
