@@ -85,8 +85,8 @@ public abstract class AbstractDocumentationSource {
 	 */
 	protected String getValidValue(String value) {
 		String fileName = value;
-		fileName = fileName.replace(" ", "").trim();
 		fileName = fileName.replaceAll("[+^:&áàäéèëíìïóòöúùñÁÀÄÉÈËÍÌÏÓÒÖÚÙÜÑçÇ$,;*/()]", "");
+		fileName = fileName.replace(" ", "-").trim();
 		return fileName;
 	}
 }

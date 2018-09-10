@@ -70,14 +70,14 @@ public class FunctionalDocsForSmartBrowse extends AbstractDocumentationSource {
 		}
 		//	window
 		if(smartBrowse.getAD_Window_ID() != 0) {
-			String internalReference = FunctionalDocsForWindow.FOLDER_NAME + File.separator + FunctionalDocsForWindow.SUB_FOLDER_NAME + File.separator + FunctionalDocsForWindow.SUB_FOLDER_NAME + "-" + smartBrowse.getAD_Window().getName();
+			String internalReference = FunctionalDocsForWindow.FOLDER_NAME + File.separator + FunctionalDocsForWindow.SUB_FOLDER_NAME + "-" + getValidValue(smartBrowse.getAD_Window().getName());
 			textConverter.addSeeAlso(getValidValue(internalReference).toLowerCase());
 			textConverter.newLine();
 		}
 		//	Process
 		if(smartBrowse.getAD_Process_ID() != 0) {
-			String internalReference = FunctionalDocsForProcess.FOLDER_NAME + File.separator + FunctionalDocsForProcess.SUB_FOLDER_NAME + File.separator + FunctionalDocsForProcess.SUB_FOLDER_NAME + "-" + smartBrowse.getAD_Process().getValue();
-			textConverter.addSeeAlso(getValidValue(internalReference).toLowerCase());
+			String internalReference = FunctionalDocsForProcess.FOLDER_NAME + File.separator + FunctionalDocsForProcess.SUB_FOLDER_NAME + "-" + getValidValue(smartBrowse.getAD_Process().getValue());
+			textConverter.addSeeAlso(internalReference.toLowerCase());
 			textConverter.newLine();
 		}
 		StringBuffer note = new StringBuffer();

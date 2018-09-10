@@ -94,13 +94,13 @@ public class FunctionalDocsForMenu extends AbstractDocumentationSource {
 		textConverter.newLine();
 		String internalReference = null;
 		if(menu.getAction().equals(MMenu.ACTION_Process)) {
-			internalReference = FunctionalDocsForProcess.FOLDER_NAME + File.separator + FunctionalDocsForProcess.SUB_FOLDER_NAME + File.separator + FunctionalDocsForProcess.SUB_FOLDER_NAME + "-" + MProcess.get(menu.getCtx(), menu.getAD_Process_ID()).getValue();
+			internalReference = FunctionalDocsForProcess.FOLDER_NAME + File.separator + FunctionalDocsForProcess.SUB_FOLDER_NAME + "-" + getValidValue(MProcess.get(menu.getCtx(), menu.getAD_Process_ID()).getValue());
 		} else if(menu.getAction().equals(MMenu.ACTION_Window)) {
-			internalReference = FunctionalDocsForWindow.FOLDER_NAME + File.separator + FunctionalDocsForWindow.SUB_FOLDER_NAME + File.separator + FunctionalDocsForWindow.SUB_FOLDER_NAME + "-" + menu.getAD_Window().getName();
+			internalReference = FunctionalDocsForWindow.FOLDER_NAME + File.separator + FunctionalDocsForWindow.SUB_FOLDER_NAME + "-" + getValidValue(menu.getAD_Window().getName());
 		}
 		//	Validate null
 		if(!Util.isEmpty(internalReference)) {
-			textConverter.addSeeAlso(getValidValue(internalReference.toLowerCase()));
+			textConverter.addSeeAlso(internalReference.toLowerCase());
 		}
 		return true;
 	}

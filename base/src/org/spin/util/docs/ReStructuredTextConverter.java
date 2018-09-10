@@ -241,7 +241,7 @@ public class ReStructuredTextConverter extends AbstractTextConverter {
 			return this;
 		}
 		log.fine("addSeeAlso=" + internalLink);
-		addText(formatSeeAlso(internalLink));
+		formattedText.append(formatSeeAlso(internalLink));
 		return this;
 	}
 	
