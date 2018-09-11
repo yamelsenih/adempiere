@@ -144,6 +144,17 @@ public interface I_HR_Concept_Acct
 
 	public I_C_ValidCombination getHR_Expense_A() throws RuntimeException;
 
+    /** Column name HR_Payroll_ID */
+    public static final String COLUMNNAME_HR_Payroll_ID = "HR_Payroll_ID";
+
+	/** Set Payroll	  */
+	public void setHR_Payroll_ID (int HR_Payroll_ID);
+
+	/** Get Payroll	  */
+	public int getHR_Payroll_ID();
+
+	public org.eevolution.model.I_HR_Payroll getHR_Payroll() throws RuntimeException;
+
     /** Column name HR_Revenue_Acct */
     public static final String COLUMNNAME_HR_Revenue_Acct = "HR_Revenue_Acct";
 
