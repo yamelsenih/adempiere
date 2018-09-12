@@ -22,7 +22,10 @@ import java.sql.Timestamp;
 import java.util.Properties;
 
 import org.adempiere.exceptions.AdempiereException;
-import org.compiere.model.*;
+import org.compiere.model.MDocType;
+import org.compiere.model.MPeriod;
+import org.compiere.model.ModelValidationEngine;
+import org.compiere.model.ModelValidator;
 import org.compiere.process.DocAction;
 import org.compiere.process.DocOptions;
 import org.compiere.process.DocumentEngine;
@@ -505,7 +508,7 @@ public class MHRIncidence extends X_HR_Incidence implements DocAction, DocOption
 		//	Default
 		return index;
 	}
-
+	
     @Override
     public String toString()
     {

@@ -1,4 +1,4 @@
-<project name="TimeAndAttendance" basedir=".">
+<project name="TimeAndAttendance" default="dist" basedir=".">
     <description>
         Building TimeAndAttendance.jar
         by

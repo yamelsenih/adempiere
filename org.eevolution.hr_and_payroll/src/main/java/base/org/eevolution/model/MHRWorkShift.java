@@ -20,8 +20,11 @@ import java.sql.ResultSet;
 import java.util.Properties;
 
 import org.adempiere.exceptions.AdempiereException;
+import org.compiere.model.Query;
 import org.compiere.util.CCache;
+import org.compiere.util.Env;
 import org.compiere.util.TimeUtil;
+import org.compiere.util.Util;
 
 /**
  * Created by victor.perez@e-evolution.com, e-Evolution on 03/12/13.
@@ -46,6 +49,8 @@ public class MHRWorkShift extends X_HR_WorkShift {
     
 	/** Cache */
 	private static CCache<Integer, MHRWorkShift> workShiftCache = new CCache<Integer, MHRWorkShift>(Table_Name, 1000);
+	/** Cache */
+	private static CCache<String, MHRWorkShift> workShiftValueCache = new CCache<String, MHRWorkShift>(Table_Name, 1000);
 	
 	/**
 	 * Get Work Shift by Id
@@ -53,7 +58,7 @@ public class MHRWorkShift extends X_HR_WorkShift {
 	 * @param workShiftId
 	 * @return
 	 */
-	public static MHRWorkShift getById(Properties ctx, int workShiftId) {
+	public static MHRWorkShift getById(Properties ctx, int workShiftId, String trxName) {
 		if (workShiftId <= 0)
 			return null;
 
@@ -61,13 +66,63 @@ public class MHRWorkShift extends X_HR_WorkShift {
 		if (workShift != null)
 			return workShift;
 
-		workShift = new MHRWorkShift(ctx, workShiftId, null);
+		workShift = new MHRWorkShift(ctx, workShiftId, trxName);
 		if (workShift.get_ID() == workShiftId)
 			workShiftCache.put(workShiftId, workShift);
 		else
 			workShift = null;
 		return workShift;
 	}
+	
+	/**
+	 * Old Compatibility
+	 * @param ctx
+	 * @param workShiftId
+	 * @return
+	 */
+	public static MHRWorkShift getById(Properties ctx, int workShiftId) {
+		return getById(ctx, workShiftId, null);
+	}
+	
+	 /**
+     * Get Work shift by Value
+     * @param ctx
+     * @param workShiftValue
+     * @param trxName
+     * @return
+     */
+    public static MHRWorkShift getByValue(Properties ctx, String workShiftValue, String trxName) {
+        if (Util.isEmpty(workShiftValue, true))
+            return null;
+
+        int clientId = Env.getAD_Client_ID(ctx);
+        final String key = clientId + "#" + workShiftValue;
+        MHRWorkShift workShift = workShiftValueCache.get(key);
+        if (workShift != null)
+            return workShift;
+
+        final String whereClause = COLUMNNAME_Value + "=? AND AD_Client_ID IN (?,?)";
+        workShift = new Query(ctx, Table_Name, whereClause, trxName)
+                .setParameters(workShiftValue, 0, clientId)
+                .setOnlyActiveRecords(true)
+                .setOrderBy("AD_Client_ID DESC")
+                .first();
+        if (workShift != null) {
+        	workShiftValueCache.put(key, workShift);
+        	workShiftCache.put(workShift.get_ID(), workShift);
+        }
+        return workShift;
+    }
+    
+    /**
+     * Get By Value
+     * @param ctx
+     * @param workShiftValue
+     * @return
+     */
+    public static MHRWorkShift getByValue(Properties ctx, String workShiftValue) {
+    	return getByValue(ctx, workShiftValue, null);
+    }
 	
 	@Override
 	protected boolean beforeSave(boolean newRecord) {
