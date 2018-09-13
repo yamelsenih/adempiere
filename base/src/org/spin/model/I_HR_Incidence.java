@@ -348,6 +348,36 @@ public interface I_HR_Incidence
 	  */
 	public Timestamp getServiceDate();
 
+    /** Column name S_TimeExpense_ID */
+    public static final String COLUMNNAME_S_TimeExpense_ID = "S_TimeExpense_ID";
+
+	/** Set Expense Report.
+	  * Time and Expense Report
+	  */
+	public void setS_TimeExpense_ID (int S_TimeExpense_ID);
+
+	/** Get Expense Report.
+	  * Time and Expense Report
+	  */
+	public int getS_TimeExpense_ID();
+
+	public org.compiere.model.I_S_TimeExpense getS_TimeExpense() throws RuntimeException;
+
+    /** Column name S_TimeExpenseLine_ID */
+    public static final String COLUMNNAME_S_TimeExpenseLine_ID = "S_TimeExpenseLine_ID";
+
+	/** Set Expense Line.
+	  * Time and Expense Report Line
+	  */
+	public void setS_TimeExpenseLine_ID (int S_TimeExpenseLine_ID);
+
+	/** Get Expense Line.
+	  * Time and Expense Report Line
+	  */
+	public int getS_TimeExpenseLine_ID();
+
+	public org.compiere.model.I_S_TimeExpenseLine getS_TimeExpenseLine() throws RuntimeException;
+
     /** Column name Updated */
     public static final String COLUMNNAME_Updated = "Updated";
 

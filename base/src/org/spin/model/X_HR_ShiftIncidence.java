@@ -33,7 +33,7 @@ public class X_HR_ShiftIncidence extends PO implements I_HR_ShiftIncidence, I_Pe
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20180811L;
+	private static final long serialVersionUID = 20180913L;
 
     /** Standard Constructor */
     public X_HR_ShiftIncidence (Properties ctx, int HR_ShiftIncidence_ID, String trxName)
@@ -157,9 +157,9 @@ public class X_HR_ShiftIncidence extends PO implements I_HR_ShiftIncidence, I_Pe
 	public static final String EVENTTYPE_Entrance = "I";
 	/** Egress = O */
 	public static final String EVENTTYPE_Egress = "O";
-	/** Shift Attendance = A */
+	/** Attendance = A */
 	public static final String EVENTTYPE_Attendance = "A";
-	/** Shift Attendance = L */
+	/** Leave = L */
 	public static final String EVENTTYPE_Leave = "L";
 	/** Set Event Type.
 		@param EventType 
@@ -322,6 +322,30 @@ public class X_HR_ShiftIncidence extends PO implements I_HR_ShiftIncidence, I_Pe
 		return false;
 	}
 
+	/** Set Invoiced.
+		@param IsInvoiced 
+		Is this invoiced?
+	  */
+	public void setIsInvoiced (boolean IsInvoiced)
+	{
+		set_Value (COLUMNNAME_IsInvoiced, Boolean.valueOf(IsInvoiced));
+	}
+
+	/** Get Invoiced.
+		@return Is this invoiced?
+	  */
+	public boolean isInvoiced () 
+	{
+		Object oo = get_Value(COLUMNNAME_IsInvoiced);
+		if (oo != null) 
+		{
+			 if (oo instanceof Boolean) 
+				 return ((Boolean)oo).booleanValue(); 
+			return "Y".equals(oo);
+		}
+		return false;
+	}
+
 	/** Set Mandatory Range.
 		@param IsMandatoryRange 
 		Mandatory Range for Attendance
@@ -344,6 +368,58 @@ public class X_HR_ShiftIncidence extends PO implements I_HR_ShiftIncidence, I_Pe
 			return "Y".equals(oo);
 		}
 		return false;
+	}
+
+	/** Set Time Report.
+		@param IsTimeReport 
+		Line is a time report only (no expense)
+	  */
+	public void setIsTimeReport (boolean IsTimeReport)
+	{
+		set_Value (COLUMNNAME_IsTimeReport, Boolean.valueOf(IsTimeReport));
+	}
+
+	/** Get Time Report.
+		@return Line is a time report only (no expense)
+	  */
+	public boolean isTimeReport () 
+	{
+		Object oo = get_Value(COLUMNNAME_IsTimeReport);
+		if (oo != null) 
+		{
+			 if (oo instanceof Boolean) 
+				 return ((Boolean)oo).booleanValue(); 
+			return "Y".equals(oo);
+		}
+		return false;
+	}
+
+	public org.compiere.model.I_M_Product getM_Product() throws RuntimeException
+    {
+		return (org.compiere.model.I_M_Product)MTable.get(getCtx(), org.compiere.model.I_M_Product.Table_Name)
+			.getPO(getM_Product_ID(), get_TrxName());	}
+
+	/** Set Product.
+		@param M_Product_ID 
+		Product, Service, Item
+	  */
+	public void setM_Product_ID (int M_Product_ID)
+	{
+		if (M_Product_ID < 1) 
+			set_Value (COLUMNNAME_M_Product_ID, null);
+		else 
+			set_Value (COLUMNNAME_M_Product_ID, Integer.valueOf(M_Product_ID));
+	}
+
+	/** Get Product.
+		@return Product, Service, Item
+	  */
+	public int getM_Product_ID () 
+	{
+		Integer ii = (Integer)get_Value(COLUMNNAME_M_Product_ID);
+		if (ii == null)
+			 return 0;
+		return ii.intValue();
 	}
 
 	/** Set Friday.

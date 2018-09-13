@@ -129,5 +129,6 @@ public class CreateAttendance extends CreateAttendanceAbstract {
 		}
 		//	
 		attendanceBatch.saveEx();
+		addLog(attendanceBatch.getHR_AttendanceBatch_ID(), null, null, attendanceBatch.toString());
 	}
 }

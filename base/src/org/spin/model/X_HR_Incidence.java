@@ -34,7 +34,7 @@ public class X_HR_Incidence extends PO implements I_HR_Incidence, I_Persistent
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20180811L;
+	private static final long serialVersionUID = 20180913L;
 
     /** Standard Constructor */
     public X_HR_Incidence (Properties ctx, int HR_Incidence_ID, String trxName)
@@ -588,6 +588,62 @@ public class X_HR_Incidence extends PO implements I_HR_Incidence, I_Persistent
 	public Timestamp getServiceDate () 
 	{
 		return (Timestamp)get_Value(COLUMNNAME_ServiceDate);
+	}
+
+	public org.compiere.model.I_S_TimeExpense getS_TimeExpense() throws RuntimeException
+    {
+		return (org.compiere.model.I_S_TimeExpense)MTable.get(getCtx(), org.compiere.model.I_S_TimeExpense.Table_Name)
+			.getPO(getS_TimeExpense_ID(), get_TrxName());	}
+
+	/** Set Expense Report.
+		@param S_TimeExpense_ID 
+		Time and Expense Report
+	  */
+	public void setS_TimeExpense_ID (int S_TimeExpense_ID)
+	{
+		if (S_TimeExpense_ID < 1) 
+			set_Value (COLUMNNAME_S_TimeExpense_ID, null);
+		else 
+			set_Value (COLUMNNAME_S_TimeExpense_ID, Integer.valueOf(S_TimeExpense_ID));
+	}
+
+	/** Get Expense Report.
+		@return Time and Expense Report
+	  */
+	public int getS_TimeExpense_ID () 
+	{
+		Integer ii = (Integer)get_Value(COLUMNNAME_S_TimeExpense_ID);
+		if (ii == null)
+			 return 0;
+		return ii.intValue();
+	}
+
+	public org.compiere.model.I_S_TimeExpenseLine getS_TimeExpenseLine() throws RuntimeException
+    {
+		return (org.compiere.model.I_S_TimeExpenseLine)MTable.get(getCtx(), org.compiere.model.I_S_TimeExpenseLine.Table_Name)
+			.getPO(getS_TimeExpenseLine_ID(), get_TrxName());	}
+
+	/** Set Expense Line.
+		@param S_TimeExpenseLine_ID 
+		Time and Expense Report Line
+	  */
+	public void setS_TimeExpenseLine_ID (int S_TimeExpenseLine_ID)
+	{
+		if (S_TimeExpenseLine_ID < 1) 
+			set_Value (COLUMNNAME_S_TimeExpenseLine_ID, null);
+		else 
+			set_Value (COLUMNNAME_S_TimeExpenseLine_ID, Integer.valueOf(S_TimeExpenseLine_ID));
+	}
+
+	/** Get Expense Line.
+		@return Time and Expense Report Line
+	  */
+	public int getS_TimeExpenseLine_ID () 
+	{
+		Integer ii = (Integer)get_Value(COLUMNNAME_S_TimeExpenseLine_ID);
+		if (ii == null)
+			 return 0;
+		return ii.intValue();
 	}
 
 	/** Set Immutable Universally Unique Identifier.
