@@ -31,7 +31,7 @@ public class X_HR_Year extends PO implements I_HR_Year, I_Persistent
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20180811L;
+	private static final long serialVersionUID = 20180918L;
 
     /** Standard Constructor */
     public X_HR_Year (Properties ctx, int HR_Year_ID, String trxName)
@@ -40,6 +40,7 @@ public class X_HR_Year extends PO implements I_HR_Year, I_Persistent
       /** if (HR_Year_ID == 0)
         {
 			setC_Year_ID (0);
+			setHR_Payroll_ID (0);
 			setHR_Year_ID (0);
 			setNetDays (0);
 			setQty (0);

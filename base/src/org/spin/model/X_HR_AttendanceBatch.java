@@ -32,7 +32,7 @@ public class X_HR_AttendanceBatch extends PO implements I_HR_AttendanceBatch, I_
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20180917L;
+	private static final long serialVersionUID = 20180918L;
 
     /** Standard Constructor */
     public X_HR_AttendanceBatch (Properties ctx, int HR_AttendanceBatch_ID, String trxName)
@@ -294,8 +294,8 @@ public class X_HR_AttendanceBatch extends PO implements I_HR_AttendanceBatch, I_
         return new KeyNamePair(get_ID(), getDocumentNo());
     }
 
-	/** Set Attendance Batch ID.
-		@param HR_AttendanceBatch_ID Attendance Batch ID	  */
+	/** Set Attendance Batch.
+		@param HR_AttendanceBatch_ID Attendance Batch	  */
 	public void setHR_AttendanceBatch_ID (int HR_AttendanceBatch_ID)
 	{
 		if (HR_AttendanceBatch_ID < 1) 
@@ -304,8 +304,8 @@ public class X_HR_AttendanceBatch extends PO implements I_HR_AttendanceBatch, I_
 			set_ValueNoCheck (COLUMNNAME_HR_AttendanceBatch_ID, Integer.valueOf(HR_AttendanceBatch_ID));
 	}
 
-	/** Get Attendance Batch ID.
-		@return Attendance Batch ID	  */
+	/** Get Attendance Batch.
+		@return Attendance Batch	  */
 	public int getHR_AttendanceBatch_ID () 
 	{
 		Integer ii = (Integer)get_Value(COLUMNNAME_HR_AttendanceBatch_ID);

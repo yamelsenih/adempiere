@@ -95,10 +95,10 @@ public interface I_HR_Calendar
     /** Column name HR_Calendar_ID */
     public static final String COLUMNNAME_HR_Calendar_ID = "HR_Calendar_ID";
 
-	/** Set Human Resource Calendar ID	  */
+	/** Set Human Resource Calendar	  */
 	public void setHR_Calendar_ID (int HR_Calendar_ID);
 
-	/** Get Human Resource Calendar ID	  */
+	/** Get Human Resource Calendar	  */
 	public int getHR_Calendar_ID();
 
     /** Column name IsActive */

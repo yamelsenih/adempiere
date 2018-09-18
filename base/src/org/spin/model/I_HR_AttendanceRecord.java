@@ -121,12 +121,12 @@ public interface I_HR_AttendanceRecord
     /** Column name HR_AttendanceRecord_ID */
     public static final String COLUMNNAME_HR_AttendanceRecord_ID = "HR_AttendanceRecord_ID";
 
-	/** Set Attendance Record ID.
+	/** Set Attendance Record.
 	  * Attendance Record
 	  */
 	public void setHR_AttendanceRecord_ID (int HR_AttendanceRecord_ID);
 
-	/** Get Attendance Record ID.
+	/** Get Attendance Record.
 	  * Attendance Record
 	  */
 	public int getHR_AttendanceRecord_ID();

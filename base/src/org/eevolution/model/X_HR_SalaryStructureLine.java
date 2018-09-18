@@ -32,7 +32,7 @@ public class X_HR_SalaryStructureLine extends PO implements I_HR_SalaryStructure
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20180811L;
+	private static final long serialVersionUID = 20180918L;
 
     /** Standard Constructor */
     public X_HR_SalaryStructureLine (Properties ctx, int HR_SalaryStructureLine_ID, String trxName)

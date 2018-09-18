@@ -328,8 +328,16 @@ public class MHRAttendanceBatch extends X_HR_AttendanceBatch implements DocActio
 	private String processShiftIncidence() {
 		StringBuffer errorMessage = new StringBuffer();
 		//	 Validate pair
-		if(getLines(false).size() % 2 != 0) {
+		int attendanceQuantity = getLines(false).size();
+		if(attendanceQuantity % 2 != 0) {
 			errorMessage.append("@TNA.AttendanceNotPair@");
+		}
+		//	For Quantity
+		MHRWorkShift workShift = MHRWorkShift.getById(getCtx(), getHR_WorkShift_ID());
+		if(workShift.getMinAttendanceRequire() > 0) {
+			if(attendanceQuantity < workShift.getMinAttendanceRequire()) {
+				errorMessage.append("@MinAttendanceRequire@");
+			}
 		}
 		//	Delete Old
 		int deleted = DB.executeUpdateEx("DELETE FROM HR_Incidence WHERE IsManual = 'N' AND HR_AttendanceBatch_ID = " + getHR_AttendanceBatch_ID(), get_TrxName());

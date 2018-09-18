@@ -177,10 +177,10 @@ public interface I_HR_AttendanceBatch
     /** Column name HR_AttendanceBatch_ID */
     public static final String COLUMNNAME_HR_AttendanceBatch_ID = "HR_AttendanceBatch_ID";
 
-	/** Set Attendance Batch ID	  */
+	/** Set Attendance Batch	  */
 	public void setHR_AttendanceBatch_ID (int HR_AttendanceBatch_ID);
 
-	/** Get Attendance Batch ID	  */
+	/** Get Attendance Batch	  */
 	public int getHR_AttendanceBatch_ID();
 
     /** Column name HR_Employee_ID */

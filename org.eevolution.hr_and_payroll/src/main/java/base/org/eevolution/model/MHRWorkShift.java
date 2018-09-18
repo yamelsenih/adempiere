@@ -170,6 +170,11 @@ public class MHRWorkShift extends X_HR_WorkShift {
 				&& getBreakEndTime().getTime() < getBreakStartTime().getTime()) {
 			throw new AdempiereException("@TNA.InvalidBreakTime@");
 		}
+		//	Validate Pair
+		if(getMinAttendanceRequire() > 0
+				&& getMinAttendanceRequire() % 2 != 0) {
+			throw new AdempiereException("@TNA.AttendanceNotPair@");
+		}
 		return true;
 	}
 

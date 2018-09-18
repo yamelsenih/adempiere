@@ -174,6 +174,19 @@ public interface I_HR_Leave
 	  */
 	public String getDocumentNo();
 
+    /** Column name EndDate */
+    public static final String COLUMNNAME_EndDate = "EndDate";
+
+	/** Set End Date.
+	  * Last effective date (inclusive)
+	  */
+	public void setEndDate (Timestamp EndDate);
+
+	/** Get End Date.
+	  * Last effective date (inclusive)
+	  */
+	public Timestamp getEndDate();
+
     /** Column name HR_Employee_ID */
     public static final String COLUMNNAME_HR_Employee_ID = "HR_Employee_ID";
 
@@ -303,6 +316,19 @@ public interface I_HR_Leave
 
 	/** Get Process Now	  */
 	public boolean isProcessing();
+
+    /** Column name StartDate */
+    public static final String COLUMNNAME_StartDate = "StartDate";
+
+	/** Set Start Date.
+	  * First effective day (inclusive)
+	  */
+	public void setStartDate (Timestamp StartDate);
+
+	/** Get Start Date.
+	  * First effective day (inclusive)
+	  */
+	public Timestamp getStartDate();
 
     /** Column name Updated */
     public static final String COLUMNNAME_Updated = "Updated";

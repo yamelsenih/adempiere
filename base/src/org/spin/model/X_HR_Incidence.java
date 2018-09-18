@@ -34,7 +34,7 @@ public class X_HR_Incidence extends PO implements I_HR_Incidence, I_Persistent
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20180917L;
+	private static final long serialVersionUID = 20180918L;
 
     /** Standard Constructor */
     public X_HR_Incidence (Properties ctx, int HR_Incidence_ID, String trxName)
@@ -412,8 +412,8 @@ public class X_HR_Incidence extends PO implements I_HR_Incidence, I_Persistent
 		return ii.intValue();
 	}
 
-	/** Set Employee Incidence ID.
-		@param HR_Incidence_ID Employee Incidence ID	  */
+	/** Set Employee Incidence.
+		@param HR_Incidence_ID Employee Incidence	  */
 	public void setHR_Incidence_ID (int HR_Incidence_ID)
 	{
 		if (HR_Incidence_ID < 1) 
@@ -422,8 +422,8 @@ public class X_HR_Incidence extends PO implements I_HR_Incidence, I_Persistent
 			set_ValueNoCheck (COLUMNNAME_HR_Incidence_ID, Integer.valueOf(HR_Incidence_ID));
 	}
 
-	/** Get Employee Incidence ID.
-		@return Employee Incidence ID	  */
+	/** Get Employee Incidence.
+		@return Employee Incidence	  */
 	public int getHR_Incidence_ID () 
 	{
 		Integer ii = (Integer)get_Value(COLUMNNAME_HR_Incidence_ID);

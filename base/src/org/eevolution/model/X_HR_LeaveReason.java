@@ -31,7 +31,7 @@ public class X_HR_LeaveReason extends PO implements I_HR_LeaveReason, I_Persiste
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20180811L;
+	private static final long serialVersionUID = 20180918L;
 
     /** Standard Constructor */
     public X_HR_LeaveReason (Properties ctx, int HR_LeaveReason_ID, String trxName)
@@ -128,7 +128,7 @@ public class X_HR_LeaveReason extends PO implements I_HR_LeaveReason, I_Persiste
 	public void setLeaveReasonType (String LeaveReasonType)
 	{
 
-		set_Value (COLUMNNAME_LeaveReasonType, LeaveReasonType);
+		set_ValueNoCheck (COLUMNNAME_LeaveReasonType, LeaveReasonType);
 	}
 
 	/** Get Leave Reason Type.

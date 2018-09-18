@@ -32,7 +32,7 @@ public class X_HR_Leave extends PO implements I_HR_Leave, I_Persistent
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20180911L;
+	private static final long serialVersionUID = 20180918L;
 
     /** Standard Constructor */
     public X_HR_Leave (Properties ctx, int HR_Leave_ID, String trxName)
@@ -40,6 +40,7 @@ public class X_HR_Leave extends PO implements I_HR_Leave, I_Persistent
       super (ctx, HR_Leave_ID, trxName);
       /** if (HR_Leave_ID == 0)
         {
+			setC_BPartner_ID (0);
 			setC_DocType_ID (0);
 			setDateDoc (new Timestamp( System.currentTimeMillis() ));
 // @#Date@
@@ -48,7 +49,9 @@ public class X_HR_Leave extends PO implements I_HR_Leave, I_Persistent
 			setDocStatus (null);
 // DR
 			setDocumentNo (null);
+			setEndDate (new Timestamp( System.currentTimeMillis() ));
 			setHR_Leave_ID (0);
+			setHR_LeaveReason_ID (0);
 			setHR_LeaveType_ID (0);
 			setIsApproved (false);
 // N
@@ -57,6 +60,7 @@ public class X_HR_Leave extends PO implements I_HR_Leave, I_Persistent
 // N
 			setProcessing (false);
 // N
+			setStartDate (new Timestamp( System.currentTimeMillis() ));
         } */
     }
 
@@ -100,9 +104,9 @@ public class X_HR_Leave extends PO implements I_HR_Leave, I_Persistent
 	public void setC_BPartner_ID (int C_BPartner_ID)
 	{
 		if (C_BPartner_ID < 1) 
-			set_ValueNoCheck (COLUMNNAME_C_BPartner_ID, null);
+			set_Value (COLUMNNAME_C_BPartner_ID, null);
 		else 
-			set_ValueNoCheck (COLUMNNAME_C_BPartner_ID, Integer.valueOf(C_BPartner_ID));
+			set_Value (COLUMNNAME_C_BPartner_ID, Integer.valueOf(C_BPartner_ID));
 	}
 
 	/** Get Business Partner .
@@ -294,6 +298,23 @@ public class X_HR_Leave extends PO implements I_HR_Leave, I_Persistent
     {
         return new KeyNamePair(get_ID(), getDocumentNo());
     }
+
+	/** Set End Date.
+		@param EndDate 
+		Last effective date (inclusive)
+	  */
+	public void setEndDate (Timestamp EndDate)
+	{
+		set_Value (COLUMNNAME_EndDate, EndDate);
+	}
+
+	/** Get End Date.
+		@return Last effective date (inclusive)
+	  */
+	public Timestamp getEndDate () 
+	{
+		return (Timestamp)get_Value(COLUMNNAME_EndDate);
+	}
 
 	public org.eevolution.model.I_HR_Employee getHR_Employee() throws RuntimeException
     {
@@ -514,6 +535,23 @@ public class X_HR_Leave extends PO implements I_HR_Leave, I_Persistent
 			return "Y".equals(oo);
 		}
 		return false;
+	}
+
+	/** Set Start Date.
+		@param StartDate 
+		First effective day (inclusive)
+	  */
+	public void setStartDate (Timestamp StartDate)
+	{
+		set_Value (COLUMNNAME_StartDate, StartDate);
+	}
+
+	/** Get Start Date.
+		@return First effective day (inclusive)
+	  */
+	public Timestamp getStartDate () 
+	{
+		return (Timestamp)get_Value(COLUMNNAME_StartDate);
 	}
 
 	/** Set Immutable Universally Unique Identifier.
