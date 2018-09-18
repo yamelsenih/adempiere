@@ -34,7 +34,7 @@ public class X_HR_WorkShift extends PO implements I_HR_WorkShift, I_Persistent
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20180811L;
+	private static final long serialVersionUID = 20180917L;
 
     /** Standard Constructor */
     public X_HR_WorkShift (Properties ctx, int HR_WorkShift_ID, String trxName)
@@ -45,6 +45,8 @@ public class X_HR_WorkShift extends PO implements I_HR_WorkShift, I_Persistent
 			setHR_WorkShift_ID (0);
 			setIsHasFixedWorkgroup (false);
 			setIsOverTimeApplicable (false);
+			setMinAttendanceRequire (0);
+// 2
 			setName (null);
 			setShiftFromTime (new Timestamp( System.currentTimeMillis() ));
 			setShiftToTime (new Timestamp( System.currentTimeMillis() ));
@@ -268,6 +270,26 @@ public class X_HR_WorkShift extends PO implements I_HR_WorkShift, I_Persistent
 			return "Y".equals(oo);
 		}
 		return false;
+	}
+
+	/** Set Minimum Attendance Require.
+		@param MinAttendanceRequire 
+		Minimum Attendance Require to elgibile leave
+	  */
+	public void setMinAttendanceRequire (int MinAttendanceRequire)
+	{
+		set_Value (COLUMNNAME_MinAttendanceRequire, Integer.valueOf(MinAttendanceRequire));
+	}
+
+	/** Get Minimum Attendance Require.
+		@return Minimum Attendance Require to elgibile leave
+	  */
+	public int getMinAttendanceRequire () 
+	{
+		Integer ii = (Integer)get_Value(COLUMNNAME_MinAttendanceRequire);
+		if (ii == null)
+			 return 0;
+		return ii.intValue();
 	}
 
 	/** Set Name.

@@ -31,7 +31,7 @@ public class X_HR_ShiftSchedule extends PO implements I_HR_ShiftSchedule, I_Pers
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20180913L;
+	private static final long serialVersionUID = 20180917L;
 
     /** Standard Constructor */
     public X_HR_ShiftSchedule (Properties ctx, int HR_ShiftSchedule_ID, String trxName)
@@ -109,9 +109,9 @@ public class X_HR_ShiftSchedule extends PO implements I_HR_ShiftSchedule, I_Pers
 	public void setHR_Period_ID (int HR_Period_ID)
 	{
 		if (HR_Period_ID < 1) 
-			set_Value (COLUMNNAME_HR_Period_ID, null);
+			set_ValueNoCheck (COLUMNNAME_HR_Period_ID, null);
 		else 
-			set_Value (COLUMNNAME_HR_Period_ID, Integer.valueOf(HR_Period_ID));
+			set_ValueNoCheck (COLUMNNAME_HR_Period_ID, Integer.valueOf(HR_Period_ID));
 	}
 
 	/** Get Payroll Period.
@@ -125,7 +125,9 @@ public class X_HR_ShiftSchedule extends PO implements I_HR_ShiftSchedule, I_Pers
 	}
 
 	/** Set Shift Schedule.
-		@param HR_ShiftSchedule_ID Shift Schedule	  */
+		@param HR_ShiftSchedule_ID 
+		Shift Schedule
+	  */
 	public void setHR_ShiftSchedule_ID (int HR_ShiftSchedule_ID)
 	{
 		if (HR_ShiftSchedule_ID < 1) 
@@ -135,7 +137,8 @@ public class X_HR_ShiftSchedule extends PO implements I_HR_ShiftSchedule, I_Pers
 	}
 
 	/** Get Shift Schedule.
-		@return Shift Schedule	  */
+		@return Shift Schedule
+	  */
 	public int getHR_ShiftSchedule_ID () 
 	{
 		Integer ii = (Integer)get_Value(COLUMNNAME_HR_ShiftSchedule_ID);
@@ -156,9 +159,9 @@ public class X_HR_ShiftSchedule extends PO implements I_HR_ShiftSchedule, I_Pers
 	public void setHR_WorkGroup_ID (int HR_WorkGroup_ID)
 	{
 		if (HR_WorkGroup_ID < 1) 
-			set_Value (COLUMNNAME_HR_WorkGroup_ID, null);
+			set_ValueNoCheck (COLUMNNAME_HR_WorkGroup_ID, null);
 		else 
-			set_Value (COLUMNNAME_HR_WorkGroup_ID, Integer.valueOf(HR_WorkGroup_ID));
+			set_ValueNoCheck (COLUMNNAME_HR_WorkGroup_ID, Integer.valueOf(HR_WorkGroup_ID));
 	}
 
 	/** Get Work Group.

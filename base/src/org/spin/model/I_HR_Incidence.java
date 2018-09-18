@@ -31,7 +31,7 @@ public interface I_HR_Incidence
     /** TableName=HR_Incidence */
     public static final String Table_Name = "HR_Incidence";
 
-    /** AD_Table_ID=1000006 */
+    /** AD_Table_ID=54501 */
     public static final int Table_ID = MTable.getTable_ID(Table_Name);
 
     KeyNamePair Model = new KeyNamePair(Table_ID, Table_Name);
@@ -240,10 +240,10 @@ public interface I_HR_Incidence
     /** Column name HR_Incidence_ID */
     public static final String COLUMNNAME_HR_Incidence_ID = "HR_Incidence_ID";
 
-	/** Set Employee Incidence	  */
+	/** Set Employee Incidence ID	  */
 	public void setHR_Incidence_ID (int HR_Incidence_ID);
 
-	/** Get Employee Incidence	  */
+	/** Get Employee Incidence ID	  */
 	public int getHR_Incidence_ID();
 
     /** Column name HR_ShiftIncidence_ID */

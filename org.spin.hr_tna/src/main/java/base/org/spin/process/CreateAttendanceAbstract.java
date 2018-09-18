@@ -30,7 +30,7 @@ public abstract class CreateAttendanceAbstract extends SvrProcess {
 	/** Process Name 	*/
 	private static final String NAME_FOR_PROCESS = "Create Attendance Record";
 	/** Process Id 	*/
-	private static final int ID_FOR_PROCESS = 1000002;
+	private static final int ID_FOR_PROCESS = 54135;
 	/**	Parameter Name for Document Type	*/
 	public static final String C_DOCTYPE_ID = "C_DocType_ID";
 	/**	Parameter Name for Document Date	*/

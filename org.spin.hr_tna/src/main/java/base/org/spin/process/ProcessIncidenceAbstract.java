@@ -29,7 +29,7 @@ public abstract class ProcessIncidenceAbstract extends SvrProcess {
 	/** Process Name 	*/
 	private static final String NAME_FOR_PROCESS = "Process HR Incidence";
 	/** Process Id 	*/
-	private static final int ID_FOR_PROCESS = 1000004;
+	private static final int ID_FOR_PROCESS = 54137;
 	/**	Parameter Name for Document Action	*/
 	public static final String DOCACTION = "DocAction";
 	/**	Parameter Value for Document Action	*/

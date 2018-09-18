@@ -17,6 +17,7 @@
 package org.eevolution.model;
 
 import java.sql.ResultSet;
+import java.util.List;
 import java.util.Properties;
 
 import org.adempiere.exceptions.AdempiereException;
@@ -112,6 +113,25 @@ public class MHRWorkShift extends X_HR_WorkShift {
         	workShiftCache.put(workShift.get_ID(), workShift);
         }
         return workShift;
+    }
+    
+	 /**
+     * Get Work shift from Shift Group
+     * @param ctx
+     * @param shiftGroupId
+     * @param trxName
+     * @return
+     */
+    public static List<MHRWorkShift> getFromGroup(Properties ctx, int shiftGroupId, String trxName) {
+        if(shiftGroupId <= 0) {
+        	return null;
+        }
+        final String whereClause = COLUMNNAME_HR_ShiftGroup_ID + "=?";
+        return new Query(ctx, Table_Name, whereClause, trxName)
+                .setParameters(shiftGroupId)
+                .setOnlyActiveRecords(true)
+                .setOrderBy(COLUMNNAME_SeqNo)
+                .list();
     }
     
     /**

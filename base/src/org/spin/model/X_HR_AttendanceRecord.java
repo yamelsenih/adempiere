@@ -32,7 +32,7 @@ public class X_HR_AttendanceRecord extends PO implements I_HR_AttendanceRecord, 
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20180913L;
+	private static final long serialVersionUID = 20180917L;
 
     /** Standard Constructor */
     public X_HR_AttendanceRecord (Properties ctx, int HR_AttendanceRecord_ID, String trxName)
@@ -152,8 +152,10 @@ public class X_HR_AttendanceRecord extends PO implements I_HR_AttendanceRecord, 
 		return ii.intValue();
 	}
 
-	/** Set Attendance Record.
-		@param HR_AttendanceRecord_ID Attendance Record	  */
+	/** Set Attendance Record ID.
+		@param HR_AttendanceRecord_ID 
+		Attendance Record
+	  */
 	public void setHR_AttendanceRecord_ID (int HR_AttendanceRecord_ID)
 	{
 		if (HR_AttendanceRecord_ID < 1) 
@@ -162,8 +164,9 @@ public class X_HR_AttendanceRecord extends PO implements I_HR_AttendanceRecord, 
 			set_ValueNoCheck (COLUMNNAME_HR_AttendanceRecord_ID, Integer.valueOf(HR_AttendanceRecord_ID));
 	}
 
-	/** Get Attendance Record.
-		@return Attendance Record	  */
+	/** Get Attendance Record ID.
+		@return Attendance Record
+	  */
 	public int getHR_AttendanceRecord_ID () 
 	{
 		Integer ii = (Integer)get_Value(COLUMNNAME_HR_AttendanceRecord_ID);

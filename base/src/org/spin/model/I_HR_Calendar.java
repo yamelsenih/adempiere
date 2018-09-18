@@ -31,7 +31,7 @@ public interface I_HR_Calendar
     /** TableName=HR_Calendar */
     public static final String Table_Name = "HR_Calendar";
 
-    /** AD_Table_ID=1000001 */
+    /** AD_Table_ID=54503 */
     public static final int Table_ID = MTable.getTable_ID(Table_Name);
 
     KeyNamePair Model = new KeyNamePair(Table_ID, Table_Name);
@@ -95,10 +95,10 @@ public interface I_HR_Calendar
     /** Column name HR_Calendar_ID */
     public static final String COLUMNNAME_HR_Calendar_ID = "HR_Calendar_ID";
 
-	/** Set Human Resource Calendar	  */
+	/** Set Human Resource Calendar ID	  */
 	public void setHR_Calendar_ID (int HR_Calendar_ID);
 
-	/** Get Human Resource Calendar	  */
+	/** Get Human Resource Calendar ID	  */
 	public int getHR_Calendar_ID();
 
     /** Column name IsActive */

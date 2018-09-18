@@ -31,7 +31,7 @@ public interface I_HR_AttendanceBatch
     /** TableName=HR_AttendanceBatch */
     public static final String Table_Name = "HR_AttendanceBatch";
 
-    /** AD_Table_ID=1000003 */
+    /** AD_Table_ID=54498 */
     public static final int Table_ID = MTable.getTable_ID(Table_Name);
 
     KeyNamePair Model = new KeyNamePair(Table_ID, Table_Name);
@@ -177,10 +177,10 @@ public interface I_HR_AttendanceBatch
     /** Column name HR_AttendanceBatch_ID */
     public static final String COLUMNNAME_HR_AttendanceBatch_ID = "HR_AttendanceBatch_ID";
 
-	/** Set Attendance Batch	  */
+	/** Set Attendance Batch ID	  */
 	public void setHR_AttendanceBatch_ID (int HR_AttendanceBatch_ID);
 
-	/** Get Attendance Batch	  */
+	/** Get Attendance Batch ID	  */
 	public int getHR_AttendanceBatch_ID();
 
     /** Column name HR_Employee_ID */
@@ -197,10 +197,14 @@ public interface I_HR_AttendanceBatch
     /** Column name HR_ShiftSchedule_ID */
     public static final String COLUMNNAME_HR_ShiftSchedule_ID = "HR_ShiftSchedule_ID";
 
-	/** Set Shift Schedule	  */
+	/** Set Shift Schedule.
+	  * Shift Schedule
+	  */
 	public void setHR_ShiftSchedule_ID (int HR_ShiftSchedule_ID);
 
-	/** Get Shift Schedule	  */
+	/** Get Shift Schedule.
+	  * Shift Schedule
+	  */
 	public int getHR_ShiftSchedule_ID();
 
 	public org.spin.model.I_HR_ShiftSchedule getHR_ShiftSchedule() throws RuntimeException;

@@ -207,6 +207,19 @@ public interface I_HR_WorkShift
 	  */
 	public boolean isVariableEntrance();
 
+    /** Column name MinAttendanceRequire */
+    public static final String COLUMNNAME_MinAttendanceRequire = "MinAttendanceRequire";
+
+	/** Set Minimum Attendance Require.
+	  * Minimum Attendance Require to elgibile leave
+	  */
+	public void setMinAttendanceRequire (int MinAttendanceRequire);
+
+	/** Get Minimum Attendance Require.
+	  * Minimum Attendance Require to elgibile leave
+	  */
+	public int getMinAttendanceRequire();
+
     /** Column name Name */
     public static final String COLUMNNAME_Name = "Name";
 

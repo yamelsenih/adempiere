@@ -31,7 +31,7 @@ public interface I_HR_AttendanceRecord
     /** TableName=HR_AttendanceRecord */
     public static final String Table_Name = "HR_AttendanceRecord";
 
-    /** AD_Table_ID=1000004 */
+    /** AD_Table_ID=54499 */
     public static final int Table_ID = MTable.getTable_ID(Table_Name);
 
     KeyNamePair Model = new KeyNamePair(Table_ID, Table_Name);
@@ -121,10 +121,14 @@ public interface I_HR_AttendanceRecord
     /** Column name HR_AttendanceRecord_ID */
     public static final String COLUMNNAME_HR_AttendanceRecord_ID = "HR_AttendanceRecord_ID";
 
-	/** Set Attendance Record	  */
+	/** Set Attendance Record ID.
+	  * Attendance Record
+	  */
 	public void setHR_AttendanceRecord_ID (int HR_AttendanceRecord_ID);
 
-	/** Get Attendance Record	  */
+	/** Get Attendance Record ID.
+	  * Attendance Record
+	  */
 	public int getHR_AttendanceRecord_ID();
 
     /** Column name IsActive */

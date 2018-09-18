@@ -31,7 +31,7 @@ public interface I_HR_ShiftIncidence
     /** TableName=HR_ShiftIncidence */
     public static final String Table_Name = "HR_ShiftIncidence";
 
-    /** AD_Table_ID=1000000 */
+    /** AD_Table_ID=54502 */
     public static final int Table_ID = MTable.getTable_ID(Table_Name);
 
     KeyNamePair Model = new KeyNamePair(Table_ID, Table_Name);

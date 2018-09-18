@@ -32,7 +32,7 @@ public class X_HR_AttendanceBatch extends PO implements I_HR_AttendanceBatch, I_
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20180913L;
+	private static final long serialVersionUID = 20180917L;
 
     /** Standard Constructor */
     public X_HR_AttendanceBatch (Properties ctx, int HR_AttendanceBatch_ID, String trxName)
@@ -294,8 +294,8 @@ public class X_HR_AttendanceBatch extends PO implements I_HR_AttendanceBatch, I_
         return new KeyNamePair(get_ID(), getDocumentNo());
     }
 
-	/** Set Attendance Batch.
-		@param HR_AttendanceBatch_ID Attendance Batch	  */
+	/** Set Attendance Batch ID.
+		@param HR_AttendanceBatch_ID Attendance Batch ID	  */
 	public void setHR_AttendanceBatch_ID (int HR_AttendanceBatch_ID)
 	{
 		if (HR_AttendanceBatch_ID < 1) 
@@ -304,8 +304,8 @@ public class X_HR_AttendanceBatch extends PO implements I_HR_AttendanceBatch, I_
 			set_ValueNoCheck (COLUMNNAME_HR_AttendanceBatch_ID, Integer.valueOf(HR_AttendanceBatch_ID));
 	}
 
-	/** Get Attendance Batch.
-		@return Attendance Batch	  */
+	/** Get Attendance Batch ID.
+		@return Attendance Batch ID	  */
 	public int getHR_AttendanceBatch_ID () 
 	{
 		Integer ii = (Integer)get_Value(COLUMNNAME_HR_AttendanceBatch_ID);
@@ -345,7 +345,9 @@ public class X_HR_AttendanceBatch extends PO implements I_HR_AttendanceBatch, I_
 			.getPO(getHR_ShiftSchedule_ID(), get_TrxName());	}
 
 	/** Set Shift Schedule.
-		@param HR_ShiftSchedule_ID Shift Schedule	  */
+		@param HR_ShiftSchedule_ID 
+		Shift Schedule
+	  */
 	public void setHR_ShiftSchedule_ID (int HR_ShiftSchedule_ID)
 	{
 		if (HR_ShiftSchedule_ID < 1) 
@@ -355,7 +357,8 @@ public class X_HR_AttendanceBatch extends PO implements I_HR_AttendanceBatch, I_
 	}
 
 	/** Get Shift Schedule.
-		@return Shift Schedule	  */
+		@return Shift Schedule
+	  */
 	public int getHR_ShiftSchedule_ID () 
 	{
 		Integer ii = (Integer)get_Value(COLUMNNAME_HR_ShiftSchedule_ID);

@@ -31,7 +31,7 @@ public interface I_HR_ShiftSchedule
     /** TableName=HR_ShiftSchedule */
     public static final String Table_Name = "HR_ShiftSchedule";
 
-    /** AD_Table_ID=1000002 */
+    /** AD_Table_ID=54504 */
     public static final int Table_ID = MTable.getTable_ID(Table_Name);
 
     KeyNamePair Model = new KeyNamePair(Table_ID, Table_Name);
@@ -106,10 +106,14 @@ public interface I_HR_ShiftSchedule
     /** Column name HR_ShiftSchedule_ID */
     public static final String COLUMNNAME_HR_ShiftSchedule_ID = "HR_ShiftSchedule_ID";
 
-	/** Set Shift Schedule	  */
+	/** Set Shift Schedule.
+	  * Shift Schedule
+	  */
 	public void setHR_ShiftSchedule_ID (int HR_ShiftSchedule_ID);
 
-	/** Get Shift Schedule	  */
+	/** Get Shift Schedule.
+	  * Shift Schedule
+	  */
 	public int getHR_ShiftSchedule_ID();
 
     /** Column name HR_WorkGroup_ID */

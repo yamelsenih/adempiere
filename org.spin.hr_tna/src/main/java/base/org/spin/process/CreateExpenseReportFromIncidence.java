@@ -89,7 +89,6 @@ public class CreateExpenseReportFromIncidence extends CreateExpenseReportFromInc
 	
 	/**
 	 * Process Expense
-	 * @param expenseReport
 	 */
 	private void processDocument() {
 		if(expenseReport == null) {

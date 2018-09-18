@@ -33,7 +33,7 @@ public class X_HR_ShiftIncidence extends PO implements I_HR_ShiftIncidence, I_Pe
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20180913L;
+	private static final long serialVersionUID = 20180917L;
 
     /** Standard Constructor */
     public X_HR_ShiftIncidence (Properties ctx, int HR_ShiftIncidence_ID, String trxName)
@@ -151,16 +151,16 @@ public class X_HR_ShiftIncidence extends PO implements I_HR_ShiftIncidence, I_Pe
 		return (String)get_Value(COLUMNNAME_Description);
 	}
 
-	/** EventType AD_Reference_ID=1000003 */
-	public static final int EVENTTYPE_AD_Reference_ID=1000003;
-	/** Entrance = I */
-	public static final String EVENTTYPE_Entrance = "I";
-	/** Egress = O */
-	public static final String EVENTTYPE_Egress = "O";
+	/** EventType AD_Reference_ID=54066 */
+	public static final int EVENTTYPE_AD_Reference_ID=54066;
 	/** Attendance = A */
 	public static final String EVENTTYPE_Attendance = "A";
+	/** Entrance = I */
+	public static final String EVENTTYPE_Entrance = "I";
 	/** Leave = L */
 	public static final String EVENTTYPE_Leave = "L";
+	/** Egress = O */
+	public static final String EVENTTYPE_Egress = "O";
 	/** Set Event Type.
 		@param EventType 
 		Type of Event
