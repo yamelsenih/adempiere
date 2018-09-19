@@ -55,7 +55,7 @@ public class LoanInterestProcess extends AbstractFunctionalSetting {
 		}
 		
 		MFMTransactionType interestType = MFMTransactionType.getTransactionTypeFromType(getCtx(), MFMTransactionType.TYPE_LoanInterestCalculated);
-		MFMTransactionType interestTaxType = MFMTransactionType.getTransactionTypeFromType(getCtx(), MFMTransactionType.TYPE_LoanDunningTaxAmountCalculated);
+		MFMTransactionType interestTaxType = MFMTransactionType.getTransactionTypeFromType(getCtx(), MFMTransactionType.TYPE_LoanInterestTaxCalculated);
 		//	Validate
 		if(interestType == null) {
 			throw new AdempiereException("@FM_TransactionType_ID@ @NotFound@ " + MFMTransactionType.TYPE_LoanInterestCalculated);

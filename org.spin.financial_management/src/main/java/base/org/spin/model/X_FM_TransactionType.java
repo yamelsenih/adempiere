@@ -31,7 +31,7 @@ public class X_FM_TransactionType extends PO implements I_FM_TransactionType, I_
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20180803L;
+	private static final long serialVersionUID = 20180919L;
 
     /** Standard Constructor */
     public X_FM_TransactionType (Properties ctx, int FM_TransactionType_ID, String trxName)
@@ -138,8 +138,8 @@ public class X_FM_TransactionType extends PO implements I_FM_TransactionType, I_
 	public static final String TYPE_LoanDunningInterestCalculated = "LDD";
 	/** Loan Initial Payment = LIP */
 	public static final String TYPE_LoanInitialPayment = "LIP";
-	/** Loan AR Capital Invoiced = LIT */
-	public static final String TYPE_LoanARCapitalInvoiced = "LIT";
+	/** Loan Interest Tax Calculated = LIT */
+	public static final String TYPE_LoanInterestTaxCalculated = "LIT";
 	/** Loan Capital (Calculated) = LCC */
 	public static final String TYPE_LoanCapitalCalculated = "LCC";
 	/** Loan Dunning Tax Amount (Calculated) = LDT */

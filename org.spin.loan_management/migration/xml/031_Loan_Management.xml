@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<Migrations>
+  <Migration EntityType="D" Name="Add Interest Taxt for Transaction Type" ReleaseNo="3.9.1" SeqNo="31">
+    <Step SeqNo="10" StepType="AD">
+      <PO AD_Table_ID="104" Action="U" Record_ID="55138" Table="AD_Ref_List">
+        <Data AD_Column_ID="149" Column="Name" oldValue="Loan AR Capital Invoiced">Loan Interest Tax Calculated</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="20" StepType="AD">
+      <PO AD_Table_ID="136" Action="U" Record_ID="55138" Table="AD_Ref_List_Trl">
+        <Data AD_Column_ID="338" Column="Name" oldValue="Impuesto de Cuota (Calculado)">Impuesto Interés de Cuota (Calculado)</Data>
+        <Data AD_Column_ID="336" Column="AD_Ref_List_ID" oldValue="55138">55138</Data>
+        <Data AD_Column_ID="337" Column="AD_Language" oldValue="es_MX">es_MX</Data>
+      </PO>
+    </Step>
+  </Migration>
+</Migrations>
