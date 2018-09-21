@@ -223,33 +223,56 @@ public class MHRShiftIncidence extends X_HR_ShiftIncidence {
 			shiftIncidenceForDaysCache.put(keyPrefix + leave + Calendar.SATURDAY, new ArrayList<MHRShiftIncidence>());
 			//	Add
 			for(MHRShiftIncidence shiftIncidence : shiftIncidenceList) {
-				//	Sunday
-				if(shiftIncidence.isOnSunday()) {
+				if(!shiftIncidence.isOnSunday()
+						&& !shiftIncidence.isOnMonday()
+						&& !shiftIncidence.isOnTuesday()
+						&& !shiftIncidence.isOnWednesday()
+						&& !shiftIncidence.isOnThursday()
+						&& !shiftIncidence.isOnFriday()
+						&& !shiftIncidence.isOnSaturday()) {
+					//	Sunday
 					shiftIncidenceForDaysCache.get(keyPrefix + shiftIncidence.getEventType() + Calendar.SUNDAY).add(shiftIncidence);
-				}
-				//	Monday
-				if(shiftIncidence.isOnMonday()) {
+					//	Monday
 					shiftIncidenceForDaysCache.get(keyPrefix + shiftIncidence.getEventType() + Calendar.MONDAY).add(shiftIncidence);
-				}
-				//	Tuesday
-				if(shiftIncidence.isOnTuesday()) {
+					//	Tuesday
 					shiftIncidenceForDaysCache.get(keyPrefix + shiftIncidence.getEventType() + Calendar.TUESDAY).add(shiftIncidence);
-				}
-				//	Wednesday
-				if(shiftIncidence.isOnWednesday()) {
+					//	Wednesday
 					shiftIncidenceForDaysCache.get(keyPrefix + shiftIncidence.getEventType() + Calendar.WEDNESDAY).add(shiftIncidence);
-				}
-				//	Thursday
-				if(shiftIncidence.isOnThursday()) {
+					//	Thursday
 					shiftIncidenceForDaysCache.get(keyPrefix + shiftIncidence.getEventType() + Calendar.THURSDAY).add(shiftIncidence);
-				}
-				//	Friday
-				if(shiftIncidence.isOnFriday()) {
+					//	Friday
 					shiftIncidenceForDaysCache.get(keyPrefix + shiftIncidence.getEventType() + Calendar.FRIDAY).add(shiftIncidence);
-				}
-				//	Saturday
-				if(shiftIncidence.isOnSaturday()) {
+					//	Saturday
 					shiftIncidenceForDaysCache.get(keyPrefix + shiftIncidence.getEventType() + Calendar.SATURDAY).add(shiftIncidence);
+				} else {
+					//	Sunday
+					if(shiftIncidence.isOnSunday()) {
+						shiftIncidenceForDaysCache.get(keyPrefix + shiftIncidence.getEventType() + Calendar.SUNDAY).add(shiftIncidence);
+					}
+					//	Monday
+					if(shiftIncidence.isOnMonday()) {
+						shiftIncidenceForDaysCache.get(keyPrefix + shiftIncidence.getEventType() + Calendar.MONDAY).add(shiftIncidence);
+					}
+					//	Tuesday
+					if(shiftIncidence.isOnTuesday()) {
+						shiftIncidenceForDaysCache.get(keyPrefix + shiftIncidence.getEventType() + Calendar.TUESDAY).add(shiftIncidence);
+					}
+					//	Wednesday
+					if(shiftIncidence.isOnWednesday()) {
+						shiftIncidenceForDaysCache.get(keyPrefix + shiftIncidence.getEventType() + Calendar.WEDNESDAY).add(shiftIncidence);
+					}
+					//	Thursday
+					if(shiftIncidence.isOnThursday()) {
+						shiftIncidenceForDaysCache.get(keyPrefix + shiftIncidence.getEventType() + Calendar.THURSDAY).add(shiftIncidence);
+					}
+					//	Friday
+					if(shiftIncidence.isOnFriday()) {
+						shiftIncidenceForDaysCache.get(keyPrefix + shiftIncidence.getEventType() + Calendar.FRIDAY).add(shiftIncidence);
+					}
+					//	Saturday
+					if(shiftIncidence.isOnSaturday()) {
+						shiftIncidenceForDaysCache.get(keyPrefix + shiftIncidence.getEventType() + Calendar.SATURDAY).add(shiftIncidence);
+					}
 				}
 			}	
 		}
