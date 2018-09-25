@@ -226,6 +226,19 @@ public interface I_HR_ShiftIncidence
 	  */
 	public boolean isActive();
 
+    /** Column name IsAnticipatedRecord */
+    public static final String COLUMNNAME_IsAnticipatedRecord = "IsAnticipatedRecord";
+
+	/** Set Entrance / Egress Anticipated.
+	  * Entrance / Egress Anticipated allows define what is the range for get time diff
+	  */
+	public void setIsAnticipatedRecord (boolean IsAnticipatedRecord);
+
+	/** Get Entrance / Egress Anticipated.
+	  * Entrance / Egress Anticipated allows define what is the range for get time diff
+	  */
+	public boolean isAnticipatedRecord();
+
     /** Column name IsApproved */
     public static final String COLUMNNAME_IsApproved = "IsApproved";
 

@@ -33,7 +33,7 @@ public class X_HR_ShiftIncidence extends PO implements I_HR_ShiftIncidence, I_Pe
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20180918L;
+	private static final long serialVersionUID = 20180924L;
 
     /** Standard Constructor */
     public X_HR_ShiftIncidence (Properties ctx, int HR_ShiftIncidence_ID, String trxName)
@@ -296,6 +296,30 @@ public class X_HR_ShiftIncidence extends PO implements I_HR_ShiftIncidence, I_Pe
 		if (ii == null)
 			 return 0;
 		return ii.intValue();
+	}
+
+	/** Set Entrance / Egress Anticipated.
+		@param IsAnticipatedRecord 
+		Entrance / Egress Anticipated allows define what is the range for get time diff
+	  */
+	public void setIsAnticipatedRecord (boolean IsAnticipatedRecord)
+	{
+		set_Value (COLUMNNAME_IsAnticipatedRecord, Boolean.valueOf(IsAnticipatedRecord));
+	}
+
+	/** Get Entrance / Egress Anticipated.
+		@return Entrance / Egress Anticipated allows define what is the range for get time diff
+	  */
+	public boolean isAnticipatedRecord () 
+	{
+		Object oo = get_Value(COLUMNNAME_IsAnticipatedRecord);
+		if (oo != null) 
+		{
+			 if (oo instanceof Boolean) 
+				 return ((Boolean)oo).booleanValue(); 
+			return "Y".equals(oo);
+		}
+		return false;
 	}
 
 	/** Set Approved.

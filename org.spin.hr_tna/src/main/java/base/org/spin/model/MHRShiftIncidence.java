@@ -109,30 +109,30 @@ public class MHRShiftIncidence extends X_HR_ShiftIncidence {
 				beginninTime = timeFrom;
 			}
 			//	Add to duration
-			if(TimeUtil.isValid(beginninTime, getTimeTo(), evaluateTime)) {
+			if(!TimeUtil.isValid(beginninTime, getTimeTo(), evaluateTime)) {
+				duration = 0;
+			} else if(isAnticipatedRecord()) {
+				duration = timeTo.getTime() - evaluateTime.getTime();
+			} else if(evaluateTime.after(beginninTime)) {
 				duration = evaluateTime.getTime() - beginninTime.getTime();
 			}
 		} else if(getEventType().equals(EVENTTYPE_Egress)) {
 			if(beginninTime == null) {
 				beginninTime = timeFrom;
 			}
-			//	Add to duration
-			if(evaluateTime.after(beginninTime)) {
+			//	Is from last to beginning
+			if(isAnticipatedRecord()) {
+				beginninTime = getTimeTo();
+				if(evaluateTime.before(timeFrom)) {
+					evaluateTime = timeFrom;
+				}
+				duration = beginninTime.getTime() - evaluateTime.getTime();
+			} else if(evaluateTime.after(beginninTime)) {
 				if(evaluateTime.after(timeTo)) {
 					evaluateTime = timeTo;
 				}
 				//	Calculate
 				duration = evaluateTime.getTime() - beginninTime.getTime();
-			}
-			//	Is from last to beginning
-			if(duration == 0) {
-				beginninTime = getTimeTo();
-				if(evaluateTime.before(beginninTime)) {
-					if(evaluateTime.before(timeFrom)) {
-						evaluateTime = timeFrom;
-					}
-					duration = beginninTime.getTime() - evaluateTime.getTime();
-				}
 			}
 		}
 		//	Return
