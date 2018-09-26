@@ -339,9 +339,7 @@ public class MHRAttendanceBatch extends X_HR_AttendanceBatch implements DocActio
 				errorMessage.append("@MinAttendanceRequire@");
 			}
 		}
-		//	Delete Old
-		int deleted = DB.executeUpdateEx("DELETE FROM HR_Incidence WHERE IsManual = 'N' AND HR_AttendanceBatch_ID = " + getHR_AttendanceBatch_ID(), get_TrxName());
-		log.info("Incidences Deleted = " + deleted);		
+		deleteMovements();
 		//	
 		BigDecimal attendanceHours = processAttendance();
 		processLeave(attendanceHours);
@@ -352,6 +350,15 @@ public class MHRAttendanceBatch extends X_HR_AttendanceBatch implements DocActio
 		}
 		//	default
 		return null;
+	}
+	
+	/**
+	 * Delete generated movements
+	 */
+	private void deleteMovements() {
+		//	Delete Old
+		int deleted = DB.executeUpdateEx("DELETE FROM HR_Incidence WHERE IsManual = 'N' AND HR_AttendanceBatch_ID = " + getHR_AttendanceBatch_ID(), get_TrxName());
+		log.info("Incidences Deleted = " + deleted);	
 	}
 	
 	/**
@@ -488,6 +495,7 @@ public class MHRAttendanceBatch extends X_HR_AttendanceBatch implements DocActio
 	public boolean reActivateIt()
 	{
 		log.info("reActivateIt - " + toString());
+		deleteMovements();
 		setProcessed(false);
 		return true;
 	}	//	reActivateIt
