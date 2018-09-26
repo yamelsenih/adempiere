@@ -21,6 +21,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.text.DecimalFormat;
 import java.util.Vector;
 import java.util.logging.Level;
 
@@ -29,23 +30,26 @@ import org.adempiere.exceptions.DocTypeNotFoundException;
 import org.compiere.minigrid.IMiniTable;
 import org.compiere.model.MDocType;
 import org.compiere.model.MOrderLine;
+import org.compiere.model.MProduct;
 import org.compiere.model.MRefList;
 import org.compiere.model.MRole;
 import org.compiere.model.MUOM;
 import org.compiere.model.X_C_Order;
 import org.compiere.util.CLogger;
 import org.compiere.util.DB;
+import org.compiere.util.DisplayType;
 import org.compiere.util.Env;
 import org.compiere.util.KeyNamePair;
 import org.compiere.util.Msg;
 import org.compiere.util.Util;
 import org.compiere.util.ValueNamePair;
+import org.eevolution.model.I_DD_Order;
 import org.eevolution.model.MDDOrderLine;
 import org.eevolution.model.MWMInOutBound;
 import org.eevolution.model.MWMInOutBoundLine;
 
 /**
- * @author Yamel Senih 24/06/2011, 12:57
+ * @author Yamel Senih 2011-06-24, 12:57
  * @author Carlos Parada, cparada@erpcya.com
  * <li> FR [ 1 ] Add Support to generate load order with non stocked product
  * @see https://github.com/erpcya/FTA/issues/1
@@ -91,63 +95,49 @@ public class OutBoundOrder {
 	public StringBuffer 		m_QueryAdd = new StringBuffer();
 	
 	/**	Client				*/
-	protected int 				m_AD_Client_ID = 0;
+	protected int 				clientId = 0;
 	/**	Organization		*/
-	protected int 				m_AD_Org_ID = 0;
+	protected int 				orgId = 0;
 	/**	Warehouse			*/
-	protected int 				m_C_SalesRegion_ID = 0;
+	protected int 				salesRegionId = 0;
 	/**	Sales Rep			*/
-	protected int 				m_SalesRep_ID = 0;
+	protected int 				salesRepId = 0;
 	/**	Warehouse			*/
 	protected int 				warehouseId = 0;
 	/**	Operation Type		*/
-	protected String 			m_OperationType = null;
+	protected String 			movementType = null;
 	/**	Document Type 		*/
-	protected int 				m_C_DocType_ID = 0;
+	protected int 				docTypeId = 0;
 	/**	Document Type Target*/
 	protected int 				docTypeTargetId = 0;
-	/**	Invoice Rule		*/
-	protected String 			invoiceRule = null;
 	/**	Delivery Rule		*/
 	protected String 			deliveryRule = null;
-	/**	Vehicle Type		*/
-	protected int 				m_FTA_VehicleType_ID = 0;
+	/**	Delivery Via Rule	*/
+	protected String 			deliveryViaRule = null;
 	/**	Document Date		*/
-	protected Timestamp			m_DateDoc = null;
+	protected Timestamp			documentDate = null;
 	/**	Shipment Date		*/
-	protected Timestamp			m_ShipDate = null;
-	/**	Entry Ticket		*/
-	protected int 				m_FTA_EntryTicket_ID = 0;
+	protected Timestamp			shipmentDate = null;
 	/**	Shipper				*/
 	protected int 				shipperId = 0;
-	/**	Driver				*/
-	protected int 				m_FTA_Driver_ID = 0;
-	/**	Vehicle				*/
-	protected int 				m_FTA_Vehicle_ID = 0;
 	/**	Load Capacity		*/
-	protected BigDecimal 		m_LoadCapacity = Env.ZERO;
+	protected BigDecimal 		payloadCapacity = Env.ZERO;
 	/**	Volume Capacity		*/
-	protected BigDecimal 		m_VolumeCapacity = Env.ZERO;
+	protected BigDecimal 		volumeCapacity = Env.ZERO;
 	/**	Weight Unit Measure	*/
-	protected int 				m_C_UOM_Weight_ID = 0;
+	protected int 				uOMWeightId = 0;
 	/**	Volume Unit Measure	*/
-	protected int 				m_C_UOM_Volume_ID = 0;
+	protected int 				uOMVolumeId = 0;
 	/**	Weight Precision	*/
-	protected int 				m_WeightPrecision = 0;
+	protected int 				weightPrecision = 0;
 	/**	Volume Precision	*/
-	protected int 				m_VolumePrecision = 0;
+	protected int 				volumePrecision = 0;
 	/**	Rows Selected		*/
-	protected int				m_RowsSelected = 0;
-	/**	Is Bulk Product		*/
-	protected boolean			m_IsBulk = false;
+	protected int				rowsSelected = 0;
 	/**	UOM Weight Symbol	*/
-	protected String 			m_UOM_Weight_Symbol = null;
+	protected String 			uOMWeightSymbol = null;
 	/**	UOM Volume Symbol	*/
-	protected String 			m_UOM_Volume_Symbol = null;
-	/**	Product				*/
-	protected int				m_M_Product_ID = 0;
-	/**	Business Partner	*/
-	protected int				m_C_BPartner_ID = 0;
+	protected String 			uOMVolumeSymbol = null;
 	
 	/**	Total Weight		*/
 	protected BigDecimal		totalWeight = Env.ZERO;
@@ -155,20 +145,16 @@ public class OutBoundOrder {
 	protected BigDecimal		totalVolume = Env.ZERO;
 	
 	/**	Max Sequence		*/
-	protected int				m_MaxSeqNo = 0;
+	protected int				maxSeqNo = 0;
 	
 	/**	Validate Quantity	*/
-	protected boolean 			m_IsValidateQuantity = true;
+	protected boolean 			validateQuantity = true;
 	
 	/**	Load Order			*/
-	protected MWMInOutBound  	outBoundOrder = null;	//	outBoundOrder
-	
-	/**	Material Movement	*/
-	private final String 		MATERIAL_MOVEMENT = "MM";
+	protected MWMInOutBound  	outBoundOrder = null;
 	
 	/**
 	 * Get Order data from parameters
-	 * @author <a href="mailto:yamelsenih@gmail.com">Yamel Senih</a> 09/12/2013, 14:10:10
 	 * @return Vector<Vector<Object>>
 	 */
 	protected Vector<Vector<Object>> getOrderData(IMiniTable orderTable, String operationType) {
@@ -177,7 +163,7 @@ public class OutBoundOrder {
 		PreparedStatement pstmt = null;
 		if(docTypeTargetId > 0) { 
 			MDocType m_DocType = MDocType.get(Env.getCtx(), docTypeTargetId);
-			m_IsValidateQuantity = m_DocType.get_ValueAsBoolean("IsValidateQuantity");
+			validateQuantity = m_DocType.get_ValueAsBoolean("IsValidateQuantity");
 		}
 		//	
 		/**
@@ -185,7 +171,7 @@ public class OutBoundOrder {
 		 */
 		Vector<Vector<Object>> data = new Vector<Vector<Object>>();
 		StringBuffer sql = null;
-		if (operationType.equals(MATERIAL_MOVEMENT)) {
+		if (operationType.equals(I_DD_Order.Table_Name)) {
 			//Query for Material Movement
 			sql = new StringBuffer("SELECT " +
 					"wr.Name Warehouse, ord.DD_Order_ID, ord.DocumentNo, " +	//	1..3
@@ -197,7 +183,8 @@ public class OutBoundOrder {
 					"INNER JOIN M_Product pr ON(pr.M_Product_ID = lord.M_Product_ID) " +
 					"INNER JOIN C_BPartner cp ON(cp.C_BPartner_ID = ord.C_BPartner_ID) " +
 					"INNER JOIN AD_User sr ON(sr.AD_User_ID = ord.SalesRep_ID) " +
-					"INNER JOIN M_Warehouse wr ON(wr.M_Warehouse_ID = ord.M_Warehouse_ID) " +
+					"INNER JOIN M_Locator wloc ON(wloc.M_Locator_ID = lord.M_Locator_ID) " + 
+					"INNER JOIN M_Warehouse wr ON(wr.M_Warehouse_ID = wloc.M_Warehouse_ID) " +
 					"INNER JOIN C_BPartner_Location bploc ON(bploc.C_BPartner_Location_ID = ord.C_BPartner_Location_ID) " +
 					"INNER JOIN C_Location loc ON(loc.C_Location_ID = bploc.C_Location_ID) " +
 					"LEFT JOIN C_Region reg ON(reg.C_Region_ID = loc.C_Region_ID) " +
@@ -205,8 +192,8 @@ public class OutBoundOrder {
 					"LEFT JOIN (SELECT lord.DD_OrderLine_ID, " +
 					"	(COALESCE(lord.QtyOrdered, 0) - " +
 					"		SUM(" +
-					"				CASE WHEN (c.IsMoved = 'N' AND c.OperationType = 'MOM' AND c.DocStatus = 'CO') " +
-					"						THEN COALESCE(lc.ConfirmedQty, lc.Qty, 0) " +
+					"				CASE WHEN (c.IsDelivered = 'N' AND lc.DD_Order_ID IS NOT NULL AND c.DocStatus = 'CO') " +
+					"						THEN COALESCE(lc.MovementQty, 0) " +
 					"						ELSE 0 " +
 					"				END" +
 					"			)" +
@@ -223,20 +210,16 @@ public class OutBoundOrder {
 					"AND ord.DocStatus = 'CO' " +
 					"AND COALESCE(qafl.QtyAvailable, 0) > 0 " +
 					"AND ord.AD_Client_ID=? ");
-			if (m_AD_Org_ID != 0)
+			if (orgId > 0)
 				sql.append("AND lord.AD_Org_ID=? ");
-			if (warehouseId != 0 )
-				sql.append("AND lord.M_Warehouse_ID=? ");
-			if (m_C_SalesRegion_ID != 0 )
+			if (warehouseId > 0)
+				sql.append("AND wr.M_Warehouse_ID=? ");
+			if (salesRegionId > 0)
 				sql.append("AND bploc.C_SalesRegion_ID=? ");
-			if (m_SalesRep_ID != 0 )
+			if (salesRepId > 0)
 				sql.append("AND ord.SalesRep_ID=? ");
-			if (m_C_DocType_ID != 0 )
+			if (docTypeId > 0)
 				sql.append("AND ord.C_DocType_ID=? ");
-			if(m_IsBulk) {
-				sql.append("AND lord.M_Product_ID=? ");
-				sql.append("AND ord.C_BPartner_ID=? ");
-			}
 			
 			//	Group By
 			sql.append("GROUP BY wr.Name, ord.DD_Order_ID, ord.DocumentNo, ord.DateOrdered, " +
@@ -270,8 +253,8 @@ public class OutBoundOrder {
 					"LEFT JOIN (SELECT lord.C_OrderLine_ID, " +
 					"	(COALESCE(lord.QtyOrdered, 0) - " +
 					"		SUM(" +
-					"				CASE WHEN (c.IsDelivered = 'N' AND c.OperationType IN('DBM', 'DFP') AND c.DocStatus = 'CO') " +
-					"						THEN COALESCE(lc.ConfirmedQty, lc.Qty, 0) " +
+					"				CASE WHEN (c.IsDelivered = 'N' AND lc.C_Order_ID IS NOT NULL AND c.DocStatus = 'CO') " +
+					"						THEN COALESCE(lc.MovementQty, 0) " +
 					"						ELSE 0 " +
 					"				END" +
 					"			)" +
@@ -290,20 +273,16 @@ public class OutBoundOrder {
 					//"AND pr.IsStocked = 'Y' " +
 					"AND COALESCE(qafl.QtyAvailable, 0) > 0 " +
 					"AND ord.AD_Client_ID=? ");
-			if (m_AD_Org_ID != 0)
+			if (orgId > 0)
 				sql.append("AND lord.AD_Org_ID=? ");
-			if (warehouseId != 0 )
+			if (warehouseId > 0)
 				sql.append("AND lord.M_Warehouse_ID=? ");
-			if (m_C_SalesRegion_ID != 0 )
+			if (salesRegionId > 0)
 				sql.append("AND bploc.C_SalesRegion_ID=? ");
-			if (m_SalesRep_ID != 0 )
+			if (salesRepId > 0)
 				sql.append("AND ord.SalesRep_ID=? ");
-			if (m_C_DocType_ID != 0 )
+			if (docTypeId > 0 )
 				sql.append("AND ord.C_DocType_ID=? ");
-			if(m_IsBulk) {
-				sql.append("AND lord.M_Product_ID=? ");
-				sql.append("AND ord.C_BPartner_ID=? ");
-			}
 			
 			//	Group By
 			sql.append("GROUP BY wr.Name, ord.C_Order_ID, ord.DocumentNo, ord.DateOrdered, " +
@@ -332,26 +311,21 @@ public class OutBoundOrder {
 			
 			pstmt.setInt(param++, Env.getAD_Client_ID(Env.getCtx()));
 			
-			if (m_AD_Org_ID != 0)
-				pstmt.setInt(param++, m_AD_Org_ID);
-			if (warehouseId != 0 )
+			if (orgId > 0)
+				pstmt.setInt(param++, orgId);
+			if (warehouseId > 0)
 				pstmt.setInt(param++, warehouseId);
-			if (m_C_SalesRegion_ID != 0 )
-				pstmt.setInt(param++, m_C_SalesRegion_ID);
-			if (m_SalesRep_ID != 0 )
-				pstmt.setInt(param++, m_SalesRep_ID);
-			if (m_C_DocType_ID != 0 )
-				pstmt.setInt(param++, m_C_DocType_ID);
-			if(m_IsBulk) {
-				pstmt.setInt(param++, m_M_Product_ID);
-				pstmt.setInt(param++, m_C_BPartner_ID);
-			}
+			if (salesRegionId > 0)
+				pstmt.setInt(param++, salesRegionId);
+			if (salesRepId > 0)
+				pstmt.setInt(param++, salesRepId);
+			if (docTypeId > 0)
+				pstmt.setInt(param++, docTypeId);
 			
-			log.fine("AD_Org_ID=" + m_AD_Org_ID);
+			log.fine("AD_Org_ID=" + orgId);
 			log.fine("M_Warehouse_ID=" + warehouseId);
-			log.fine("SalesRep_ID=" + m_SalesRep_ID);
-			log.fine("C_DocType_ID=" + m_C_DocType_ID);
-			log.fine("IsBulk=" + m_IsBulk);
+			log.fine("SalesRep_ID=" + salesRepId);
+			log.fine("C_DocType_ID=" + docTypeId);
 			
 			rs = pstmt.executeQuery();
 			while (rs.next()) {
@@ -400,16 +374,16 @@ public class OutBoundOrder {
 		log.config("getQueryLine");
 		
 		/** 2014-12-02 Carlos Parada Add Support to DD_OrderLine */ 
-		if (p_OperationType.equals(MATERIAL_MOVEMENT)) {
+		if (p_OperationType.equals(I_DD_Order.Table_Name)) {
 			int rows = orderTable.getRowCount();
-			m_RowsSelected = 0;
+			rowsSelected = 0;
 			StringBuffer sqlWhere = new StringBuffer("ord.DD_Order_ID IN(0"); 
 			for (int i = 0; i < rows; i++) {
 				if (((Boolean)orderTable.getValueAt(i, 0)).booleanValue()) {
 					int ID = ((KeyNamePair)orderTable.getValueAt(i, ORDER)).getKey();
 					sqlWhere.append(",");
 					sqlWhere.append(ID);
-					m_RowsSelected ++;
+					rowsSelected ++;
 				}
 			}
 			sqlWhere.append(")");
@@ -420,16 +394,16 @@ public class OutBoundOrder {
 					"lord.QtyOrdered, lord.C_UOM_ID, uom.UOMSymbol, lord.QtyReserved, 0 QtyInvoiced, lord.QtyDelivered, " +
 					"SUM(" +
 					"		COALESCE(CASE " +
-					"			WHEN (c.IsMoved = 'N' AND c.OperationType = 'MOM' AND c.DocStatus = 'CO') " +
-					"			THEN lc.Qty " +
+					"			WHEN (c.IsDelivered = 'N' AND lc.DD_OrderLine_ID IS NOT NULL AND c.DocStatus = 'CO') " +
+					"			THEN lc.MovementQty " +
 					"			ELSE 0 " +
 					"		END, 0)" +
 					") QtyLoc, " +
 					"(COALESCE(lord.QtyOrdered, 0) - COALESCE(lord.QtyInTransit, 0) - COALESCE(lord.QtyDelivered, 0) - " +
 					"	SUM(" +
 					"		COALESCE(CASE " +
-					"			WHEN (c.IsMoved = 'N' AND c.OperationType = 'MOM' AND c.DocStatus = 'CO') " +
-					"			THEN lc.Qty " +
+					"			WHEN (c.IsDelivered = 'N' AND lc.DD_OrderLine_ID IS NOT NULL AND c.DocStatus = 'CO') " +
+					"			THEN lc.MovementQty " +
 					"			ELSE 0 " +
 					"		END, 0)" +
 					"		)" +
@@ -454,13 +428,8 @@ public class OutBoundOrder {
 					"														ON(s.M_Product_ID = lord.M_Product_ID " +
 					"																AND s.M_Warehouse_ID = l.M_Warehouse_ID " +
 					"																AND lord.M_AttributeSetInstance_ID = s.M_AttributeSetInstance_ID) ")
-					.append("WHERE "/*FR [ 1 ]
-							+ "pro.IsStocked = 'Y' ")
-					.append("AND "*/)
+					.append("WHERE ")
 					.append(sqlWhere).append(" ");
-			//	Add Where
-			if(m_IsBulk)
-				sql.append("AND lord.M_Product_ID = ?").append(" ");
 			//	Group By
 			sql.append("GROUP BY alm.M_Warehouse_ID, lord.DD_Order_ID, lord.DD_OrderLine_ID, " +
 					"alm.Name, ord.DocumentNo, lord.M_Product_ID, lord.M_AttributeSetInstance_ID, " + 
@@ -471,8 +440,8 @@ public class OutBoundOrder {
 			sql.append("HAVING (COALESCE(lord.QtyOrdered, 0) - COALESCE(lord.QtyInTransit, 0) - COALESCE(lord.QtyDelivered, 0) - " + 
 					"								SUM(" +
 					"									COALESCE(CASE " +
-					"										WHEN (c.IsMoved = 'N' AND c.OperationType = 'MOM' AND c.DocStatus = 'CO') " +
-					"											THEN lc.Qty " +
+					"										WHEN (c.IsDelivered = 'N' AND lc.DD_OrderLine_ID IS NOT NULL AND c.DocStatus = 'CO') " +
+					"											THEN lc.MovementQty " +
 					"											ELSE 0 " +
 					"										END, 0)" +
 					"								)" +
@@ -484,14 +453,14 @@ public class OutBoundOrder {
 		else{
 
 			int rows = orderTable.getRowCount();
-			m_RowsSelected = 0;
+			rowsSelected = 0;
 			StringBuffer sqlWhere = new StringBuffer("ord.C_Order_ID IN(0"); 
 			for (int i = 0; i < rows; i++) {
 				if (((Boolean)orderTable.getValueAt(i, 0)).booleanValue()) {
 					int ID = ((KeyNamePair)orderTable.getValueAt(i, ORDER)).getKey();
 					sqlWhere.append(",");
 					sqlWhere.append(ID);
-					m_RowsSelected ++;
+					rowsSelected ++;
 				}
 			}
 			sqlWhere.append(")");
@@ -502,16 +471,16 @@ public class OutBoundOrder {
 					"lord.QtyOrdered, lord.C_UOM_ID, uom.UOMSymbol, lord.QtyReserved, lord.QtyInvoiced, lord.QtyDelivered, " +
 					"SUM(" +
 					"		COALESCE(CASE " +
-					"			WHEN (c.IsDelivered = 'N' AND c.OperationType IN('DBM', 'DFP') AND c.DocStatus = 'CO') " +
-					"			THEN lc.Qty " +
+					"			WHEN (c.IsDelivered = 'N' AND lc.C_OrderLine_ID IS NOT NULL AND c.DocStatus = 'CO') " +
+					"			THEN lc.MovementQty " +
 					"			ELSE 0 " +
 					"		END, 0)" +
 					") QtyLoc, " +
 					"(COALESCE(lord.QtyOrdered, 0) - COALESCE(lord.QtyDelivered, 0) - " +
 					"	SUM(" +
 					"		COALESCE(CASE " +
-					"			WHEN (c.IsDelivered = 'N' AND c.OperationType IN('DBM', 'DFP') AND c.DocStatus = 'CO') " +
-					"			THEN lc.Qty " +
+					"			WHEN (c.IsDelivered = 'N' AND lc.C_OrderLine_ID IS NOT NULL AND c.DocStatus = 'CO') " +
+					"			THEN lc.MovementQty " +
 					"			ELSE 0 " +
 					"		END, 0)" +
 					"		)" +
@@ -539,9 +508,6 @@ public class OutBoundOrder {
 							+ "pro.IsStocked = 'Y' ")
 					.append("AND "*/)
 					.append(sqlWhere).append(" ");
-			//	Add Where
-			if(m_IsBulk)
-				sql.append("AND lord.M_Product_ID = ?").append(" ");
 			//	Group By
 			sql.append("GROUP BY lord.M_Warehouse_ID, lord.C_Order_ID, lord.C_OrderLine_ID, " +
 					"alm.Name, ord.DocumentNo, lord.M_Product_ID, lord.M_AttributeSetInstance_ID, " + 
@@ -552,8 +518,8 @@ public class OutBoundOrder {
 			sql.append("HAVING (COALESCE(lord.QtyOrdered, 0) - COALESCE(lord.QtyDelivered, 0) - " + 
 					"									SUM(" +
 					"										COALESCE(CASE " +
-					"											WHEN (c.IsDelivered = 'N' AND c.OperationType IN('DBM', 'DFP') AND c.DocStatus = 'CO') " +
-					"											THEN lc.Qty " +
+					"											WHEN (c.IsDelivered = 'N' AND lc.C_OrderLine_ID IS NOT NULL AND c.DocStatus = 'CO') " +
+					"											THEN lc.MovementQty " +
 					"											ELSE 0 " +
 					"										END, 0)" +
 					"									)" +
@@ -641,11 +607,6 @@ public class OutBoundOrder {
 			
 			pstmt = DB.prepareStatement(sqlPrep.toString(), null);
 			//	Parameter
-			int param = 1;
-			//	
-			if(m_IsBulk)
-				pstmt.setInt(param++, m_M_Product_ID);
-			//	
 			rs = pstmt.executeQuery();
 			int column = 1;
 			KeyNamePair m_Warehouse = null;
@@ -706,7 +667,7 @@ public class OutBoundOrder {
 								X_C_Order.DELIVERYRULE_AD_Reference_ID, deliveryRuleKey));
 				//	Valid Quantity On Hand
 				if(deliveryRule.getID().equals(X_C_Order.DELIVERYRULE_Availability)
-						&&	m_IsValidateQuantity) {
+						&&	validateQuantity) {
 					//FR [ 1 ]
 					BigDecimal diff = ((BigDecimal)(isStocked ? Env.ONE : Env.ZERO)).multiply(m_QtyOnHand.subtract(m_Qty).setScale(precision, BigDecimal.ROUND_HALF_UP));
 					//	Set Quantity
@@ -766,11 +727,9 @@ public class OutBoundOrder {
 		columnNames.add(Msg.translate(Env.getCtx(), "C_UOM_ID"));
 		columnNames.add(Msg.translate(Env.getCtx(), "QtyOnHand"));
 		columnNames.add(Msg.translate(Env.getCtx(), "Qty"));
-		columnNames.add(Msg.translate(Env.getCtx(), "Weight")
-				+ " (" + m_UOM_Weight_Symbol + ")");
-		columnNames.add(Msg.translate(Env.getCtx(), "Volume")
-				+ " (" + m_UOM_Volume_Symbol + ")");
-		columnNames.add(Msg.translate(Env.getCtx(), "LoadSeq"));
+		columnNames.add(Msg.translate(Env.getCtx(), "Weight") + (Util.isEmpty(uOMWeightSymbol)? "": " (" + uOMWeightSymbol + ")"));
+		columnNames.add(Msg.translate(Env.getCtx(), "Volume") + (Util.isEmpty(uOMWeightSymbol)? "": " (" + uOMVolumeSymbol + ")"));
+		columnNames.add(Msg.translate(Env.getCtx(), "LoadSequence"));
 		columnNames.add(Msg.translate(Env.getCtx(), "QtyOrdered"));
 		columnNames.add(Msg.translate(Env.getCtx(), "C_UOM_ID"));
 		columnNames.add(Msg.translate(Env.getCtx(), "QtyReserved"));
@@ -847,6 +806,54 @@ public class OutBoundOrder {
 	}
 	
 	/**
+	 * Validate Quantity
+	 * @param orderLineTable
+	 * @return
+	 */
+	public String validateQuantity(IMiniTable orderLineTable) {
+		StringBuffer errorMessage = new StringBuffer();
+		DecimalFormat format = DisplayType.getNumberFormat(DisplayType.Number);
+		for (int row = 0; row < orderLineTable.getRowCount(); row++) {
+			if (((Boolean)orderLineTable.getValueAt(row, 0)).booleanValue()) {
+				KeyNamePair order = (KeyNamePair)orderLineTable.getValueAt(row, ORDER_LINE);
+				int productId = ((KeyNamePair)orderLineTable.getValueAt(row, OL_PRODUCT)).getKey();
+				BigDecimal qty = (BigDecimal) orderLineTable.getValueAt(row, OL_QTY);
+				BigDecimal qtyOrdered = (BigDecimal) orderLineTable.getValueAt(row, OL_QTY_ORDERED);
+				BigDecimal qtyOrderLine = (BigDecimal) orderLineTable.getValueAt(row, OL_QTY_IN_TRANSIT);
+				BigDecimal qtyDelivered = (BigDecimal) orderLineTable.getValueAt(row, OL_QTY_DELIVERED);
+				KeyNamePair uom = (KeyNamePair) orderLineTable.getValueAt(row, OL_UOM);
+				//	
+				MProduct product = MProduct.get(Env.getCtx(), productId);
+				int precision = MUOM.getPrecision(Env.getCtx(), uom.getKey());
+				//	
+				BigDecimal qtyAvailable = qtyOrdered
+						.subtract(qtyDelivered)
+						.subtract(qtyOrderLine)
+						.setScale(precision, BigDecimal.ROUND_HALF_UP);
+				//	
+				if(qty.setScale(precision, BigDecimal.ROUND_HALF_UP).doubleValue() 
+						> qtyAvailable.doubleValue()) {
+					if(errorMessage.length() > 0) {
+						errorMessage.append(Env.NL);
+					} else {
+						errorMessage.append("@Error@ @Qty@ > @QtyAvailable@");
+					}
+					errorMessage.append("@C_Order_ID@ " + order.getName())
+						.append(", @M_Product_ID@ " + product.getValue() + "-" + product.getName())
+						.append(", @Qty@ " + format.format(qty))
+						.append(", @QtyAvailable@ " + format.format(qtyAvailable));
+				}
+			}
+		}
+		//	
+		if(errorMessage.length() > 0) {
+			return errorMessage.toString();
+		}
+		//	
+		return null;
+	}
+	
+	/**
 	 * Generate Load Order
 	 * @param trxName
 	 * @param orderLineTable
@@ -854,6 +861,10 @@ public class OutBoundOrder {
 	 * @return String
 	 */
 	public String generateLoadOrder(String trxName, IMiniTable orderLineTable) {
+		String errorMessage = validateQuantity(orderLineTable);
+		if(!Util.isEmpty(errorMessage)) {
+			throw new AdempiereException(errorMessage);
+		}
 		int quantity = 0;
 		int rows = orderLineTable.getRowCount();
 		outBoundOrder = new MWMInOutBound(Env.getCtx(), 0, trxName);
@@ -862,27 +873,16 @@ public class OutBoundOrder {
 		BigDecimal totalWeight = Env.ZERO;
 		BigDecimal totalVolume = Env.ZERO;
 		//	
-		outBoundOrder.setAD_Org_ID(m_AD_Org_ID);
-//		outBoundOrder.setOperationType(m_OperationType);
-//		outBoundOrder.setFTA_VehicleType_ID(m_FTA_VehicleType_ID);
-		outBoundOrder.setPickDate(m_DateDoc);
-		outBoundOrder.setShipDate(m_ShipDate);
-//		outBoundOrder.setLoadCapacity(m_LoadCapacity);
-//		outBoundOrder.setVolumeCapacity(m_VolumeCapacity);
-//		outBoundOrder.setC_UOM_Weight_ID(m_C_UOM_Weight_ID);
-//		outBoundOrder.setC_UOM_Volume_ID(m_C_UOM_Volume_ID);
-//		MLocator locator = MLocator.get(getCtx(), getLocatorId());
-//        MWMInOutBound outBoundOrder = new MWMInOutBound(getCtx(), 0, get_TrxName());
-//        outBoundOrder.setShipDate(getShipDate());
-//        outBoundOrder.setPickDate(getPickDate());
-//        if (getPOReference() != null)
-//            outBoundOrder.setPOReference(getPOReference());
-//
-//        if (getDeliveryRule() != null)
-//            outBoundOrder.setDeliveryRule(getDeliveryRule());
-//        if (getDeliveryViaRule() != null)
-//            outBoundOrder.setDeliveryViaRule(getDeliveryViaRule());
-//
+		if(orgId < 0) {
+			orgId = Env.getAD_Org_ID(Env.getCtx());
+		}
+		if(warehouseId < 0) {
+			warehouseId = Env.getContextAsInt(Env.getCtx(), "#M_Warehouse_ID");
+		}
+		outBoundOrder.setAD_Org_ID(orgId);
+		outBoundOrder.setDateTrx(documentDate);
+		outBoundOrder.setPickDate(documentDate);
+		outBoundOrder.setShipDate(shipmentDate);
         if (docTypeTargetId > 0) {
         	outBoundOrder.setC_DocType_ID(docTypeTargetId);
         } else {
@@ -893,44 +893,26 @@ public class OutBoundOrder {
             	outBoundOrder.setC_DocType_ID(docTypeId);
             }
         }
-//
-//        if (getDocAction() != null)
-//            outBoundOrder.setDocAction(getDocAction());
-//        else
-//            outBoundOrder.setDocAction(MWMInOutBound.ACTION_Prepare);
-//
-		//	Set Is Handle Record Weight
-//		outBoundOrder.setIsHandleRecordWeight(MFTAWeightScale.isWeightScaleOrg(m_AD_Org_ID, trxName));
 		//	Set Warehouse
-		if(warehouseId != 0)
+		if(warehouseId > 0) {
 			outBoundOrder.setM_Warehouse_ID(warehouseId);
-		//	Invoice Rule
-//		if(invoiceRule != null
-//				&& invoiceRule.trim().length() > 0)
-//			outBoundOrder.setInvoiceRule(invoiceRule);
+		}
 		//	Delivery Rule
-		if(deliveryRule != null
-				&& deliveryRule.trim().length() > 0)
+		if(!Util.isEmpty(deliveryRule)) {
 			outBoundOrder.setDeliveryRule(deliveryRule);
+		}
+		//	Delivery Via Rule
+		if(!Util.isEmpty(deliveryViaRule)) {
+			outBoundOrder.setDeliveryViaRule(deliveryViaRule);
+		}
 		//	Set Shipper
-		if(shipperId != 0)
+		if(shipperId > 0) {
 			outBoundOrder.setM_Shipper_ID(shipperId);
-//		//	Set Driver
-//		if(m_FTA_Driver_ID != 0)
-//			outBoundOrder.setFTA_Driver_ID(m_FTA_Driver_ID);
-//		//	Set Vehicle
-//		if(m_FTA_Vehicle_ID != 0)
-//			outBoundOrder.setFTA_Vehicle_ID(m_FTA_Vehicle_ID);
-		//	Set Entry Ticket
-//		if(m_FTA_EntryTicket_ID != 0)
-//			outBoundOrder.setFTA_EntryTicket_ID(m_FTA_EntryTicket_ID);
-		//	Set Product
-//		if(m_M_Product_ID != 0)
-//			outBoundOrder.setM_Product_ID(m_M_Product_ID);
+		}
 		//	Save Order
-      outBoundOrder.setDocStatus(MWMInOutBound.DOCSTATUS_Drafted);
-      outBoundOrder.setIsSOTrx(true);
-      outBoundOrder.saveEx();
+		outBoundOrder.setDocStatus(MWMInOutBound.DOCSTATUS_Drafted);
+		outBoundOrder.setIsSOTrx(true);
+		outBoundOrder.saveEx();
 		//	Loop for add Lines
 		for (int i = 0; i < rows; i++) {
 			if (((Boolean)orderLineTable.getValueAt(i, 0)).booleanValue()) {
@@ -939,27 +921,25 @@ public class OutBoundOrder {
 				BigDecimal qty = (BigDecimal) orderLineTable.getValueAt(i, OL_QTY);
 				BigDecimal weight = (BigDecimal) orderLineTable.getValueAt(i, OL_WEIGHT);
 				BigDecimal volume = (BigDecimal) orderLineTable.getValueAt(i, OL_VOLUME);
-				Integer seqNo = (Integer) orderLineTable.getValueAt(i, OL_SEQNO);
 				//	New Line
 				outBoundOrderLine = new MWMInOutBoundLine(outBoundOrder);
 				//	Set Values
-				outBoundOrderLine.setAD_Org_ID(m_AD_Org_ID);
+				outBoundOrderLine.setAD_Org_ID(orgId);
 				/** 2014-12-02 Carlos Parada Add Support to Distribution Order*/ 
-				if (m_OperationType.equals(MATERIAL_MOVEMENT)) {
+				if (movementType.equals(I_DD_Order.Table_Name)) {
 					outBoundOrderLine.setDD_OrderLine_ID(orderLineId);
 					MDDOrderLine line = new MDDOrderLine(Env.getCtx(), orderLineId, trxName);
+					outBoundOrderLine.setDD_Order_ID(line.getDD_Order_ID());
 					outBoundOrderLine.setDD_Order_ID(line.getDD_Order_ID());
 				} else {
 					outBoundOrderLine.setC_OrderLine_ID(orderLineId);
 					MOrderLine line = new MOrderLine(Env.getCtx(), orderLineId, trxName);
-					outBoundOrderLine.setDD_Order_ID(line.getC_Order_ID());
+					outBoundOrderLine.setC_Order_ID(line.getC_Order_ID());
+					outBoundOrderLine.setC_Order_ID(line.getC_Order_ID());
 				}
 				/** End Carlos Parada*/
 				outBoundOrderLine.setM_Product_ID(productId);
 				outBoundOrderLine.setMovementQty(qty);
-//				outBoundOrderLine.setSeqNo(seqNo);
-//				outBoundOrderLine.setWeight(weight);
-//				outBoundOrderLine.setVolume(volume);
 				//	Add Weight
 				totalWeight = totalWeight.add(weight);
 				//	Add Volume
@@ -981,13 +961,13 @@ public class OutBoundOrder {
 		outBoundOrder.processIt(MWMInOutBound.DOCACTION_Complete);
 		outBoundOrder.saveEx();
 		//	Valid Error
-		String errorMsg = outBoundOrder.getProcessMsg();
-		if(errorMsg != null
+		errorMessage = outBoundOrder.getProcessMsg();
+		if(errorMessage != null
 				&& outBoundOrder.getDocStatus().equals(MWMInOutBound.DOCSTATUS_Invalid))
-			throw new AdempiereException(errorMsg);
+			throw new AdempiereException(errorMessage);
 		//	Message
 		return Msg.parseTranslation(Env.getCtx(), "@Created@ = [" + outBoundOrder.getDocumentNo() 
-				+ "] || @LineNo@" + " = [" + quantity + "]" + (errorMsg != null? "\n@Errors@:" + errorMsg: ""));
+				+ "] || @LineNo@" + " = [" + quantity + "]" + (errorMessage != null? "\n@Errors@:" + errorMessage: ""));
 	}
 	
 	/**
@@ -995,53 +975,16 @@ public class OutBoundOrder {
 	 * @return void
 	 */
 	protected void loadDefaultValues() {
-		m_C_UOM_Weight_ID = getC_UOM_Weight_ID();
-		m_C_UOM_Volume_ID = getC_UOM_Volume_ID();
+		uOMWeightId = getC_UOM_Weight_ID();
+		uOMVolumeId = getC_UOM_Volume_ID();
 		//	Get Weight Precision
-		if(m_C_UOM_Weight_ID > 0) {
-			m_WeightPrecision = MUOM.getPrecision(Env.getCtx(), m_C_UOM_Weight_ID);
+		if(uOMWeightId > 0) {
+			weightPrecision = MUOM.getPrecision(Env.getCtx(), uOMWeightId);
 		}
 		//	Get Volume Precision
-		if(m_C_UOM_Volume_ID > 0) {
-			m_VolumePrecision = MUOM.getPrecision(Env.getCtx(), m_C_UOM_Volume_ID);
+		if(uOMVolumeId > 0) {
+			volumePrecision = MUOM.getPrecision(Env.getCtx(), uOMVolumeId);
 		}
-	}
-	
-	/**
-	 * Get Vehicle Type from Vehicle
-	 * @param p_FTA_EntryTicket_ID
-	 * @return
-	 * @return int
-	 */
-	protected int getFTA_VehicleType_ID(int p_FTA_EntryTicket_ID) {
-		return DB.getSQLValue(null, "SELECT v.FTA_VehicleType_ID "
-				+ "FROM FTA_EntryTicket et "
-				+ "INNER JOIN FTA_Vehicle v ON(v.FTA_Vehicle_ID = et.FTA_Vehicle_ID) "
-				+ "AND et.FTA_EntryTicket_ID = ?", p_FTA_EntryTicket_ID);
-	}
-	
-	/**
-	 * Get Load Capacity from Vehicle Type
-	 * @param p_FTA_VehicleType_ID
-	 * @return
-	 * @return BigDecimal
-	 */
-	protected BigDecimal getLoadCapacity(int p_FTA_VehicleType_ID) {
-		return DB.getSQLValueBD(null, "SELECT vt.LoadCapacity "
-				+ "FROM FTA_VehicleType vt "
-				+ "WHERE FTA_VehicleType_ID = ?", p_FTA_VehicleType_ID);
-	}
-	
-	/**
-	 * Get Volume Capacity from Vehicle Type
-	 * @param p_FTA_VehicleType_ID
-	 * @return
-	 * @return BigDecimal
-	 */
-	protected BigDecimal getVolumeCapacity(int p_FTA_VehicleType_ID) {
-		return DB.getSQLValueBD(null, "SELECT vt.VolumeCapacity "
-				+ "FROM FTA_VehicleType vt "
-				+ "WHERE FTA_VehicleType_ID = ?", p_FTA_VehicleType_ID);
 	}
 	
 	/**
@@ -1052,64 +995,18 @@ public class OutBoundOrder {
 	protected int getC_UOM_Weight_ID() {
 		return DB.getSQLValue(null, "SELECT ci.C_UOM_Weight_ID "
 				+ "FROM AD_ClientInfo ci "
-				+ "WHERE ci.AD_Client_ID = ?", m_AD_Client_ID);
+				+ "WHERE ci.AD_Client_ID = ?", clientId);
 	}
 	
 	/**
 	 * Get default Volume UOM
-	 * @author <a href="mailto:yamelsenih@gmail.com">Yamel Senih</a> 19/12/2013, 11:14:38
 	 * @return
 	 * @return int
 	 */
 	protected int getC_UOM_Volume_ID() {
 		return DB.getSQLValue(null, "SELECT ci.C_UOM_Volume_ID "
 				+ "FROM AD_ClientInfo ci "
-				+ "WHERE ci.AD_Client_ID = ?", m_AD_Client_ID);
-	}
-	
-	/**
-	 * Get Driver Data
-	 * @return
-	 * @return KeyNamePair[]
-	 */
-	protected KeyNamePair[] getDataDriver() {
-		String sql = "SELECT d.FTA_Driver_ID, d.Value || ' - ' || d.Name " +
-				"FROM FTA_EntryTicket et " + 
-				"INNER JOIN FTA_Driver d ON(d.FTA_Driver_ID = et.FTA_Driver_ID) " +
-				"WHERE et.FTA_EntryTicket_ID = " + m_FTA_EntryTicket_ID + " " +
-				"ORDER BY d.Value, d.Name";
-		//	
-		return DB.getKeyNamePairs(null, sql, false, new Object[]{});
-	}
-	
-	/**
-	 * Get Driver Data
-	 * @return
-	 * @return KeyNamePair[]
-	 */
-	protected KeyNamePair[] getDataShipper() {
-		String sql = "SELECT s.M_Shipper_ID, s.Name " +
-				"FROM FTA_EntryTicket et " + 
-				"INNER JOIN M_Shipper s ON(s.M_Shipper_ID = et.M_Shipper_ID)  " +
-				"WHERE et.FTA_EntryTicket_ID = " + m_FTA_EntryTicket_ID + " " +
-				"ORDER BY s.Name";
-		//	
-		return DB.getKeyNamePairs(null, sql, false, new Object[]{});
-	}
-	
-	/**
-	 * Get Vehicle Data
-	 * @return
-	 * @return KeyNamePair[]
-	 */
-	protected KeyNamePair[] getVehicleData() {
-		String sql = "SELECT v.FTA_Vehicle_ID, v.VehiclePlate || ' - ' || v.Name " +
-				"FROM FTA_EntryTicket et " + 
-				"INNER JOIN FTA_Vehicle v ON(v.FTA_Vehicle_ID = et.FTA_Vehicle_ID) " +
-				"WHERE et.FTA_EntryTicket_ID = " + m_FTA_EntryTicket_ID + " " +
-				"ORDER BY v.VehiclePlate, v.Name";
-		//	
-		return DB.getKeyNamePairs(null, sql, false, new Object[]{});
+				+ "WHERE ci.AD_Client_ID = ?", clientId);
 	}
 	
 	/**
@@ -1119,17 +1016,14 @@ public class OutBoundOrder {
 	 */
 	protected KeyNamePair[] getDataDocumentType() {
 		
-		if(m_OperationType == null)
+		if(movementType == null)
 			return null;
-		
-		String docBaseType = (m_OperationType.equals("MOM")? "DOO": "SOO");
-		
+		//	Document Base Type
+		String docBaseType = (movementType.equals(I_DD_Order.Table_Name)? "DOO": "SOO");
+		//	
 		String sql = MRole.getDefault().addAccessSQL("SELECT doc.C_DocType_ID, TRIM(doc.Name) " +
 				"FROM C_DocType doc " +
-				"WHERE doc.AD_Client_ID = " + m_AD_Client_ID + " " + 
-				"AND doc.AD_Org_ID = " + m_AD_Org_ID + " " + 
-				"AND doc.DocBaseType = '" + docBaseType + "' " +
-				"AND doc.OperationType = '" + m_OperationType + "' " + 
+				"WHERE doc.DocBaseType = '" + docBaseType + "' " +
 				"AND (doc.DocSubTypeSO IS NULL OR doc.DocSubTypeSO NOT IN('RM', 'OB')) " +
 				"ORDER BY doc.Name", "doc", MRole.SQL_FULLYQUALIFIED, MRole.SQL_RW);		
 		return DB.getKeyNamePairs(null, sql, false, new Object[]{});
@@ -1144,37 +1038,33 @@ public class OutBoundOrder {
 		String sql = "SELECT w.M_Warehouse_ID, w.Name " +
 				"FROM M_Warehouse w " +
 				"WHERE w.IsActive = 'Y' " +
-				"AND w.AD_Org_ID = " + m_AD_Org_ID + " " + 
+				"AND w.AD_Org_ID = " + orgId + " " + 
 				"ORDER BY w.Name";
 		return DB.getKeyNamePairs(null, sql, false, new Object[]{});
 	}
 	
 	/**
 	 * Get Quantity in Transit
-	 * @param p_M_Product_ID
+	 * @param productId
 	 * @param p_M_Warehouse_ID
 	 * @return
 	 * @return BigDecimal
 	 */
-	protected BigDecimal getQtyInTransit(int p_M_Product_ID, int p_M_Warehouse_ID) {
+	protected BigDecimal getQtyInTransit(int productId, int p_M_Warehouse_ID) {
 		//	Valid
-		if(p_M_Product_ID == 0 
+		if(productId == 0 
 				|| p_M_Warehouse_ID == 0)
 			return Env.ZERO;
 		//	
-		String sql = "SELECT COALESCE(SUM(lc.Qty), 0) QtyLoc "
+		String sql = "SELECT COALESCE(SUM(lc.MovementQty), 0) QtyLoc "
 				+ "FROM WM_InOutBound c "
 				+ "INNER JOIN WM_InOutBoundLine lc ON(lc.WM_InOutBound_ID = c.WM_InOutBound_ID) "
 				+ "WHERE lc.M_Product_ID = ? "
 				+ "AND lc.M_Warehouse_ID = ? "
 				+ "AND c.DocStatus = 'CO' "
-				+ "AND ("
-				+ "			(c.IsDelivered = 'N' AND c.OperationType IN('DBM', 'DFP')) "
-				+ "			OR "
-				+ "			(c.IsMoved = 'N' AND c.OperationType = 'MOM')"
-				+ "		)";
+				+ "AND c.IsDelivered = 'N'";
 		//	Query
-		BigDecimal m_QtyInTransit = DB.getSQLValueBD(null, sql, new Object[]{p_M_Product_ID, p_M_Warehouse_ID});
+		BigDecimal m_QtyInTransit = DB.getSQLValueBD(null, sql, new Object[]{productId, p_M_Warehouse_ID});
 		if(m_QtyInTransit == null)
 			m_QtyInTransit = Env.ZERO;
 		//	Return
@@ -1182,13 +1072,13 @@ public class OutBoundOrder {
 	}
 	
 	/**
-	 * Verifica que un numero de secuencia no exista en la tabla
+	 Verify if a sequence exist on table
 	 * @param orderLineTable
 	 * @param seqNo
 	 * @return
 	 */
-	public boolean exists_seqNo(IMiniTable orderLineTable, int row, int seqNo) {
-		log.info("exists_seqNo");
+	public boolean existsSeqNo(IMiniTable orderLineTable, int row, int seqNo) {
+		log.info("existsSeqNo");
 		int rows = orderLineTable.getRowCount();
 		int seqNoTable = 0;
 		for (int i = 0; i < rows; i++) {
@@ -1311,17 +1201,6 @@ public class OutBoundOrder {
 	}
 	
 	/**
-	 * Get is Bulk
-	 * @return
-	 * @return boolean
-	 */
-	protected boolean isBulk() {
-		return false;
-//		return (m_OperationType
-//				.equals(X_WM_InOutBound.OPERATIONTYPE_DeliveryBulkMaterial));
-	}
-	
-	/**
 	 * Verify if more one is selected
 	 * @param table
 	 * @return
@@ -1342,7 +1221,7 @@ public class OutBoundOrder {
 	}
 	
 	/**
-	 * @author Yamel Senih 08/03/2012, 23:46:54
+	 * @author Yamel Senih 2012-03-08, 23:46:54
 	 *
 	 */
 	public class BufferTableSelect {
@@ -1419,6 +1298,4 @@ public class OutBoundOrder {
 		/**	Sequence	*/
 		private Integer seqNo = 0;
 	}
-
-	
 }
