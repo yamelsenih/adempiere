@@ -291,7 +291,8 @@ public class MHRAttendanceBatch extends X_HR_AttendanceBatch implements DocActio
 					.filter(shiftIncidence -> shiftIncidence.evaluateTime(lastTimeForAttendance))
 						.forEach(shiftIncidence -> {
 							long durationInMillis = shiftIncidence.getDurationInMillis(lastTimeForAttendance);
-							if(durationInMillis != 0) {
+							if(durationInMillis > 0
+									|| (durationInMillis == 0 && shiftIncidence.isFixedValue())) {
 								MHRIncidence incidence = new MHRIncidence(this, shiftIncidence, durationInMillis);
 								incidence.saveEx();
 							}
@@ -310,7 +311,8 @@ public class MHRAttendanceBatch extends X_HR_AttendanceBatch implements DocActio
 					.filter(shiftIncidence -> shiftIncidence.evaluateTime(attendance.getAttendanceTime()))
 						.forEach(shiftIncidence -> {
 							long durationInMillis = shiftIncidence.getDurationInMillis(attendance.getAttendanceTime());
-							if(durationInMillis != 0) {
+							if(durationInMillis > 0
+									|| (durationInMillis == 0 && shiftIncidence.isFixedValue())) {
 								MHRIncidence incidence = new MHRIncidence(this, shiftIncidence, durationInMillis);
 								incidence.saveEx();
 							}

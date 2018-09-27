@@ -25,6 +25,7 @@ import java.util.Properties;
 
 import org.compiere.model.Query;
 import org.compiere.util.CCache;
+import org.compiere.util.Env;
 import org.compiere.util.TimeUtil;
 import org.compiere.util.Util;
 import org.jfree.data.time.Millisecond;
@@ -81,6 +82,15 @@ public class MHRShiftIncidence extends X_HR_ShiftIncidence {
 	}
 	
 	/**
+	 * Verify if it have fixed values
+	 * @return
+	 */
+	public boolean isFixedValue() {
+		return (getFixedQty() != null && !getFixedQty().equals(Env.ZERO)) 
+				|| (getFixedAmt() != null && !getFixedAmt().equals(Env.ZERO)); 
+	}
+	
+	/**
 	 * Get Duration in {@link Millisecond}, it can be used after evaluate time
 	 * A example for entrance
 	 * <li>[(8:00)------------(8:30)----------------------------(9:30)-------------------------(12:00)]
@@ -93,7 +103,7 @@ public class MHRShiftIncidence extends X_HR_ShiftIncidence {
 	 */
 	public long getDurationInMillis(Timestamp attendanceTime) {
 		if(!evaluateTime(attendanceTime)) {
-			return 0;
+			return -1;
 		}
 		long duration = 0;
 		Timestamp evaluateTime = TimeUtil.getDayTime(getTimeFrom(), attendanceTime);
@@ -110,7 +120,7 @@ public class MHRShiftIncidence extends X_HR_ShiftIncidence {
 			}
 			//	Add to duration
 			if(!TimeUtil.isValid(beginninTime, getTimeTo(), evaluateTime)) {
-				duration = 0;
+				duration = -1;
 			} else if(isAnticipatedRecord()) {
 				duration = timeTo.getTime() - evaluateTime.getTime();
 			} else if(evaluateTime.after(beginninTime)) {
