@@ -137,25 +137,12 @@ public interface I_HR_ShiftGroup
 	/** Set No of Hours this Shift.
 	  * No of Hours this Shift work hours of the shift
 	  */
-	public void setNoOfHoursThisShift (BigDecimal NoOfHoursThisShift);
+	public void setNoOfHoursThisShift (int NoOfHoursThisShift);
 
 	/** Get No of Hours this Shift.
 	  * No of Hours this Shift work hours of the shift
 	  */
-	public BigDecimal getNoOfHoursThisShift();
-
-    /** Column name UUID */
-    public static final String COLUMNNAME_UUID = "UUID";
-
-	/** Set Immutable Universally Unique Identifier.
-	  * Immutable Universally Unique Identifier
-	  */
-	public void setUUID (String UUID);
-
-	/** Get Immutable Universally Unique Identifier.
-	  * Immutable Universally Unique Identifier
-	  */
-	public String getUUID();
+	public int getNoOfHoursThisShift();
 
     /** Column name Updated */
     public static final String COLUMNNAME_Updated = "Updated";
@@ -172,6 +159,19 @@ public interface I_HR_ShiftGroup
 	  * User who updated this records
 	  */
 	public int getUpdatedBy();
+
+    /** Column name UUID */
+    public static final String COLUMNNAME_UUID = "UUID";
+
+	/** Set Immutable Universally Unique Identifier.
+	  * Immutable Universally Unique Identifier
+	  */
+	public void setUUID (String UUID);
+
+	/** Get Immutable Universally Unique Identifier.
+	  * Immutable Universally Unique Identifier
+	  */
+	public String getUUID();
 
     /** Column name Value */
     public static final String COLUMNNAME_Value = "Value";

@@ -17,11 +17,9 @@
 /** Generated Model - DO NOT CHANGE */
 package org.eevolution.model;
 
-import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.util.Properties;
 import org.compiere.model.*;
-import org.compiere.util.Env;
 import org.compiere.util.KeyNamePair;
 
 /** Generated Model for HR_ShiftGroup
@@ -33,7 +31,7 @@ public class X_HR_ShiftGroup extends PO implements I_HR_ShiftGroup, I_Persistent
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20170731L;
+	private static final long serialVersionUID = 20181004L;
 
     /** Standard Constructor */
     public X_HR_ShiftGroup (Properties ctx, int HR_ShiftGroup_ID, String trxName)
@@ -143,20 +141,20 @@ public class X_HR_ShiftGroup extends PO implements I_HR_ShiftGroup, I_Persistent
 		@param NoOfHoursThisShift 
 		No of Hours this Shift work hours of the shift
 	  */
-	public void setNoOfHoursThisShift (BigDecimal NoOfHoursThisShift)
+	public void setNoOfHoursThisShift (int NoOfHoursThisShift)
 	{
-		set_Value (COLUMNNAME_NoOfHoursThisShift, NoOfHoursThisShift);
+		set_Value (COLUMNNAME_NoOfHoursThisShift, Integer.valueOf(NoOfHoursThisShift));
 	}
 
 	/** Get No of Hours this Shift.
 		@return No of Hours this Shift work hours of the shift
 	  */
-	public BigDecimal getNoOfHoursThisShift () 
+	public int getNoOfHoursThisShift () 
 	{
-		BigDecimal bd = (BigDecimal)get_Value(COLUMNNAME_NoOfHoursThisShift);
-		if (bd == null)
-			 return Env.ZERO;
-		return bd;
+		Integer ii = (Integer)get_Value(COLUMNNAME_NoOfHoursThisShift);
+		if (ii == null)
+			 return 0;
+		return ii.intValue();
 	}
 
 	/** Set Immutable Universally Unique Identifier.

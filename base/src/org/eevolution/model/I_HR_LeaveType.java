@@ -50,19 +50,6 @@ public interface I_HR_LeaveType
 	  */
 	public int getAD_Client_ID();
 
-    /** Column name AD_Org_ID */
-    public static final String COLUMNNAME_AD_Org_ID = "AD_Org_ID";
-
-	/** Set Organization.
-	  * Organizational entity within client
-	  */
-	public void setAD_Org_ID (int AD_Org_ID);
-
-	/** Get Organization.
-	  * Organizational entity within client
-	  */
-	public int getAD_Org_ID();
-
     /** Column name AdjacentHolidayType */
     public static final String COLUMNNAME_AdjacentHolidayType = "AdjacentHolidayType";
 
@@ -75,6 +62,19 @@ public interface I_HR_LeaveType
 	  * Adjacent Holidays Type
 	  */
 	public String getAdjacentHolidayType();
+
+    /** Column name AD_Org_ID */
+    public static final String COLUMNNAME_AD_Org_ID = "AD_Org_ID";
+
+	/** Set Organization.
+	  * Organizational entity within client
+	  */
+	public void setAD_Org_ID (int AD_Org_ID);
+
+	/** Get Organization.
+	  * Organizational entity within client
+	  */
+	public int getAD_Org_ID();
 
     /** Column name Created */
     public static final String COLUMNNAME_Created = "Created";
@@ -118,6 +118,19 @@ public interface I_HR_LeaveType
 	  */
 	public String getDescription();
 
+    /** Column name FrequencyType */
+    public static final String COLUMNNAME_FrequencyType = "FrequencyType";
+
+	/** Set Frequency Type.
+	  * Frequency of event
+	  */
+	public void setFrequencyType (String FrequencyType);
+
+	/** Get Frequency Type.
+	  * Frequency of event
+	  */
+	public String getFrequencyType();
+
     /** Column name HR_LeaveType_ID */
     public static final String COLUMNNAME_HR_LeaveType_ID = "HR_LeaveType_ID";
 
@@ -157,18 +170,18 @@ public interface I_HR_LeaveType
 	  */
 	public boolean isAdjacentHolidayAsLeave();
 
-    /** Column name IsAllowedEnCashment */
-    public static final String COLUMNNAME_IsAllowedEnCashment = "IsAllowedEnCashment";
+    /** Column name IsAllowedEncashment */
+    public static final String COLUMNNAME_IsAllowedEncashment = "IsAllowedEncashment";
 
 	/** Set Allowed En Cashment?.
 	  * Allowed En Cashment? 
 	  */
-	public void setIsAllowedEnCashment (boolean IsAllowedEnCashment);
+	public void setIsAllowedEncashment (boolean IsAllowedEncashment);
 
 	/** Get Allowed En Cashment?.
 	  * Allowed En Cashment? 
 	  */
-	public boolean isAllowedEnCashment();
+	public boolean isAllowedEncashment();
 
     /** Column name IsHalfDayLeaveAllowed */
     public static final String COLUMNNAME_IsHalfDayLeaveAllowed = "IsHalfDayLeaveAllowed";
@@ -241,12 +254,12 @@ public interface I_HR_LeaveType
 	/** Set Maximum continous leaves.
 	  * Maximum continous leaves
 	  */
-	public void setMaxContinousLeaves (BigDecimal MaxContinousLeaves);
+	public void setMaxContinousLeaves (int MaxContinousLeaves);
 
 	/** Get Maximum continous leaves.
 	  * Maximum continous leaves
 	  */
-	public BigDecimal getMaxContinousLeaves();
+	public int getMaxContinousLeaves();
 
     /** Column name MaxLeavesToForward */
     public static final String COLUMNNAME_MaxLeavesToForward = "MaxLeavesToForward";
@@ -254,12 +267,12 @@ public interface I_HR_LeaveType
 	/** Set Maximum leaves carry forwarded.
 	  * Maximum leaves carry forwarded
 	  */
-	public void setMaxLeavesToForward (BigDecimal MaxLeavesToForward);
+	public void setMaxLeavesToForward (int MaxLeavesToForward);
 
 	/** Get Maximum leaves carry forwarded.
 	  * Maximum leaves carry forwarded
 	  */
-	public BigDecimal getMaxLeavesToForward();
+	public int getMaxLeavesToForward();
 
     /** Column name MinAttendanceRequire */
     public static final String COLUMNNAME_MinAttendanceRequire = "MinAttendanceRequire";
@@ -267,25 +280,25 @@ public interface I_HR_LeaveType
 	/** Set Minimum Attendance Require.
 	  * Minimum Attendance Require to elgibile leave
 	  */
-	public void setMinAttendanceRequire (BigDecimal MinAttendanceRequire);
+	public void setMinAttendanceRequire (int MinAttendanceRequire);
 
 	/** Get Minimum Attendance Require.
 	  * Minimum Attendance Require to elgibile leave
 	  */
-	public BigDecimal getMinAttendanceRequire();
+	public int getMinAttendanceRequire();
 
-    /** Column name MinForencashmentDays */
-    public static final String COLUMNNAME_MinForencashmentDays = "MinForencashmentDays";
+    /** Column name MinForEncashmentDays */
+    public static final String COLUMNNAME_MinForEncashmentDays = "MinForEncashmentDays";
 
 	/** Set Minimum Encashment Days in a Request.
 	  * Minimum Encashment Days in a Request
 	  */
-	public void setMinForencashmentDays (BigDecimal MinForencashmentDays);
+	public void setMinForEncashmentDays (int MinForEncashmentDays);
 
 	/** Get Minimum Encashment Days in a Request.
 	  * Minimum Encashment Days in a Request
 	  */
-	public BigDecimal getMinForencashmentDays();
+	public int getMinForEncashmentDays();
 
     /** Column name Name */
     public static final String COLUMNNAME_Name = "Name";
@@ -306,38 +319,12 @@ public interface I_HR_LeaveType
 	/** Set Number of Leaves Allocated.
 	  * Number of Leaves Allocated
 	  */
-	public void setNoOfLeavesAllocated (BigDecimal NoOfLeavesAllocated);
+	public void setNoOfLeavesAllocated (int NoOfLeavesAllocated);
 
 	/** Get Number of Leaves Allocated.
 	  * Number of Leaves Allocated
 	  */
-	public BigDecimal getNoOfLeavesAllocated();
-
-    /** Column name RepeatedType */
-    public static final String COLUMNNAME_RepeatedType = "RepeatedType";
-
-	/** Set Repeated type.
-	  * Repeated type
-	  */
-	public void setRepeatedType (String RepeatedType);
-
-	/** Get Repeated type.
-	  * Repeated type
-	  */
-	public String getRepeatedType();
-
-    /** Column name UUID */
-    public static final String COLUMNNAME_UUID = "UUID";
-
-	/** Set Immutable Universally Unique Identifier.
-	  * Immutable Universally Unique Identifier
-	  */
-	public void setUUID (String UUID);
-
-	/** Get Immutable Universally Unique Identifier.
-	  * Immutable Universally Unique Identifier
-	  */
-	public String getUUID();
+	public int getNoOfLeavesAllocated();
 
     /** Column name Updated */
     public static final String COLUMNNAME_Updated = "Updated";
@@ -354,6 +341,19 @@ public interface I_HR_LeaveType
 	  * User who updated this records
 	  */
 	public int getUpdatedBy();
+
+    /** Column name UUID */
+    public static final String COLUMNNAME_UUID = "UUID";
+
+	/** Set Immutable Universally Unique Identifier.
+	  * Immutable Universally Unique Identifier
+	  */
+	public void setUUID (String UUID);
+
+	/** Get Immutable Universally Unique Identifier.
+	  * Immutable Universally Unique Identifier
+	  */
+	public String getUUID();
 
     /** Column name Value */
     public static final String COLUMNNAME_Value = "Value";

@@ -33,7 +33,7 @@ public class X_HR_Process extends PO implements I_HR_Process, I_Persistent
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20180728L;
+	private static final long serialVersionUID = 20181004L;
 
     /** Standard Constructor */
     public X_HR_Process (Properties ctx, int HR_Process_ID, String trxName)

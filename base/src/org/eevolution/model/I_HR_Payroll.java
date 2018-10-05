@@ -171,12 +171,12 @@ public interface I_HR_Payroll
     /** Column name IsPostPerEmployee */
     public static final String COLUMNNAME_IsPostPerEmployee = "IsPostPerEmployee";
 
-	/** Set IsPostPerEmployee.
+	/** Set Post Per Employee.
 	  * A Payroll is posted per employee when the value is Yes, it is posted accumulated when the value is N
 	  */
 	public void setIsPostPerEmployee (boolean IsPostPerEmployee);
 
-	/** Get IsPostPerEmployee.
+	/** Get Post Per Employee.
 	  * A Payroll is posted per employee when the value is Yes, it is posted accumulated when the value is N
 	  */
 	public boolean isPostPerEmployee();
