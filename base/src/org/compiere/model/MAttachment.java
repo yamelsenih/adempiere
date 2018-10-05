@@ -43,6 +43,7 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
+import org.adempiere.util.Util;
 import org.compiere.util.CLogger;
 import org.compiere.util.Env;
 import org.compiere.util.MimeType;
@@ -63,6 +64,9 @@ import org.xml.sax.SAXException;
   * @author Silvano Trinchero
  *      <li>BF [ 2992291] MAttachment.addEntry not closing streams if an exception occur
  *        http://sourceforge.net/tracker/?func=detail&aid=2992291&group_id=176962&atid=879332
+ *  @author Carlos Parada, cparada@erpya.com, ERPCyA http://www.erpya.com
+ * 		<li> FR[ 2057 ] Add Support to Unique File Path Root
+ * 		@see https://github.com/adempiere/adempiere/issues/2057
  *
  *  @version $Id: MAttachment.java,v 1.4 2006/07/30 00:58:37 jjanke Exp $
  */
@@ -157,6 +161,9 @@ public class MAttachment extends X_AD_Attachment
 	 * to allow the changing of the attachment root. */
 	private final String ATTACHMENT_FOLDER_PLACEHOLDER = "%ATTACHMENT_FOLDER%";
 	
+	/**Is Attachment Root*/
+	private boolean isAttachmentRoot = false;
+	
 	/**
 	 * Get the isStoreAttachmentsOnFileSystem and attachmentPath for the client.
 	 * @param ctx
@@ -164,12 +171,14 @@ public class MAttachment extends X_AD_Attachment
 	 */
 	private void initAttachmentStoreDetails(Properties ctx, String trxName){
 		final MClient client = new MClient(ctx, this.getAD_Client_ID(), trxName);
-		isStoreAttachmentsOnFileSystem = client.isStoreAttachmentsOnFileSystem();
+		//FR[ 2057 ]
+		isAttachmentRoot = client.isStoreAttachmentsOnFileSystem();
+		isStoreAttachmentsOnFileSystem = isAttachmentRoot ? isAttachmentRoot : client.isStoreFilesOnFileSystem();
 		if(isStoreAttachmentsOnFileSystem){
 			if(File.separatorChar == '\\'){
-				m_attachmentPathRoot = client.getWindowsAttachmentPath();
+				m_attachmentPathRoot = isAttachmentRoot ? client.getWindowsAttachmentPath(): client.getWindowsFilePath(); 
 			} else {
-				m_attachmentPathRoot = client.getUnixAttachmentPath();
+				m_attachmentPathRoot = isAttachmentRoot ? client.getUnixAttachmentPath(): client.getUnixFilePath(); 
 			}
 			if(m_attachmentPathRoot==null || "".equals(m_attachmentPathRoot)){
 				log.severe("no attachmentPath defined");
@@ -486,7 +495,7 @@ public class MAttachment extends X_AD_Attachment
 	 * 	Save Entry Data in Zip File format
 	 *	@return true if saved
 	 */
-	private boolean saveLOBData()
+	public boolean saveLOBData()
 	{
 		if(isStoreAttachmentsOnFileSystem){
 			return saveLOBDataToFileSystem();
@@ -516,7 +525,8 @@ public class MAttachment extends X_AD_Attachment
 			for (int i = 0; i < m_items.size(); i++)
 			{
 				MAttachmentEntry item = getEntry(i);
-				ZipEntry entry = new ZipEntry(item.getName());
+				//FR[ 2057 ]
+				ZipEntry entry = new ZipEntry(getEntryFileName(item));
 				entry.setTime(System.currentTimeMillis());
 				entry.setMethod(ZipEntry.DEFLATED);
 				zip.putNextEntry(entry);
@@ -575,15 +585,16 @@ public class MAttachment extends X_AD_Attachment
 					FileChannel in = null;
 					FileChannel out = null;
 					try {
+						//FR[ 2057 ]
 						//create destination folder
-						final File destFolder = new File(m_attachmentPathRoot + File.separator + getAttachmentPathSnippet());
+						final File destFolder = new File(m_attachmentPathRoot + File.separator + (isAttachmentRoot ? getAttachmentPathSnippet() : Util.getFilePathSnippet(this)));
 						if(!destFolder.exists()){
 							if(!destFolder.mkdirs()){
 								log.warning("unable to create folder: " + destFolder.getPath());
 							}
 						}
 						final File destFile = new File(m_attachmentPathRoot + File.separator
-								+ getAttachmentPathSnippet() + File.separator + entryFile.getName());
+								+  (isAttachmentRoot ? getAttachmentPathSnippet() : Util.getFilePathSnippet(this)) + File.separator + entryFile.getName());
 						in = new FileInputStream(entryFile).getChannel();
 						out = new FileOutputStream(destFile).getChannel();
 						in.transferTo(0, in.size(), out);
@@ -600,7 +611,7 @@ public class MAttachment extends X_AD_Attachment
 						e.printStackTrace();
 						log.severe("unable to copy file " + entryFile.getAbsolutePath() + " to "
 								+ m_attachmentPathRoot + File.separator + 
-								getAttachmentPathSnippet() + File.separator + entryFile.getName());
+								Util.getFilePathSnippet(this) + File.separator + entryFile.getName());
 					} finally {
 						if (in != null && in.isOpen()) {
 							in.close();
@@ -641,7 +652,7 @@ public class MAttachment extends X_AD_Attachment
 	 * 	Load Data into local m_data
 	 *	@return true if success
 	 */
-	private boolean loadLOBData ()
+	public boolean loadLOBData ()
 	{
 		if(isStoreAttachmentsOnFileSystem){
 			return loadLOBDataFromFileSystem();
@@ -849,7 +860,7 @@ public class MAttachment extends X_AD_Attachment
 					}
 				}
 			}
-			final File folder = new File(m_attachmentPathRoot + getAttachmentPathSnippet());
+			final File folder = new File(m_attachmentPathRoot + Util.getFilePathSnippet(this));
 			if(folder.exists()){
 				if(!folder.delete()){
 					log.warning("unable to delete " + folder.getAbsolutePath());
@@ -962,4 +973,38 @@ public class MAttachment extends X_AD_Attachment
 		return true;
 	}
 
+	/**
+	 * Save data And Set Is Store Attachment on File System And Path Root
+	 * @param storeAttachmentOnFileSystem
+	 * @param attachmentPathRoot
+	 * @return boolean
+	 * FR[ 2057 ]
+	 */
+	public boolean saveLOBData(boolean storeAttachmentOnFileSystem, String attachmentPathRoot)
+	{
+		isStoreAttachmentsOnFileSystem = storeAttachmentOnFileSystem;
+		isAttachmentRoot =false;
+		if(isStoreAttachmentsOnFileSystem){
+			m_attachmentPathRoot = attachmentPathRoot;
+			return saveLOBDataToFileSystem();
+		}
+		return saveLOBDataToDB();
+	}//saveLOBData
+	
+	/**
+	 * Get Entry File Name From Attachment Entry
+	 * @param item
+	 * @return String
+	 * FR[ 2057 ]
+	 */
+	public String getEntryFileName(MAttachmentEntry item) {
+		if (item != null){
+			//strip path
+			String name = item.getName();
+			name = name.substring(name.lastIndexOf(File.separator)+1);
+			return name;
+		}
+		return null;
+	}//getEntryFileName
+	
 }	//	MAttachment
