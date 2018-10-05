@@ -21,6 +21,10 @@ import java.awt.Image;
 import java.awt.MediaTracker;
 import java.awt.Toolkit;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
@@ -30,11 +34,14 @@ import java.util.logging.Level;
 
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
-
+import org.adempiere.util.Util;
 import org.compiere.util.CCache;
+import org.compiere.util.CLogger;
 import org.compiere.util.Ini;
+
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
+import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
@@ -44,6 +51,9 @@ import java.io.IOException;
  *
  *  @author Jorg Janke
  *  @version $Id: MImage.java,v 1.5 2006/07/30 00:51:02 jjanke Exp $
+ *  @author Carlos Parada, cparada@erpya.com, ERPCyA http://www.erpya.com
+ * 		<li> FR[ 2058 ] Add support to save on disk or database
+ * 		@see https://github.com/adempiere/adempiere/issues/2058
  */
 public class MImage extends X_AD_Image
 {
@@ -51,7 +61,12 @@ public class MImage extends X_AD_Image
 	 * 
 	 */
 	private static final long serialVersionUID = -7361463683427300715L;
-
+	private boolean isStoreImagesOnFileSystem = false;
+	/** image (root) path - if file system is used */
+	private String m_imagePathRoot = "";
+	/**	Static Logger	*/
+	private static CLogger	s_log	= CLogger.getCLogger (MImage.class);
+	
 	/**
 	 * 	Get MImage from Cache
 	 *	@param ctx context
@@ -87,6 +102,8 @@ public class MImage extends X_AD_Image
 		super (ctx, AD_Image_ID, trxName);
 		if (AD_Image_ID < 1)
 			setName("-");
+		
+		initImageStoreDetails(ctx, trxName);
 	}   //  MImage
 
 	/**
@@ -115,7 +132,8 @@ public class MImage extends X_AD_Image
 		if (m_image != null)
 			return m_image;
 		//	Via byte array
-		byte[] data = getBinaryData();
+		//FR[ 2058 ]
+		byte[] data = getBinaryImageData();
 		if (data != null && data.length > 0)
 		{
 			try
@@ -260,7 +278,8 @@ public class MImage extends X_AD_Image
 	 */
 	public byte[] getData()
 	{
-		byte[] data = super.getBinaryData ();
+		//FR[ 2058 ]
+		byte[] data = getBinaryImageData();
 		if (data != null)
 			return data;
 		//	From URL
@@ -321,4 +340,149 @@ public class MImage extends X_AD_Image
 		return true;
 	}	//	beforeSave
 	
+	/**
+	 * Set Image on Disk or Database
+	 * @param name
+	 * @param url
+	 * @param binaryData
+	 * FR[ 2058 ]
+	 */
+	public void setImage(String name,String url, byte[] binaryData) {
+		setName(name);
+		if (binaryData!=null)
+			setImageURL(null);
+		
+		save();
+		if (isStoreImagesOnFileSystem) {
+			saveBinaryDataIntoFileSystem(binaryData);
+			setBinaryData(null);
+		}
+		else
+			setBinaryData(binaryData);
+	}
+	
+	/**
+	 * Get the isStoreAttachmentsOnFileSystem and attachmentPath for the client.
+	 * @param ctx
+	 * @param trxName
+	 * FR[ 2058 ]
+	 */
+	private void initImageStoreDetails(Properties ctx, String trxName){
+		final MClient client = new MClient(ctx, this.getAD_Client_ID(), trxName);
+		isStoreImagesOnFileSystem = client.isStoreFilesOnFileSystem();
+		if(isStoreImagesOnFileSystem){
+			if(File.separatorChar == '\\'){
+				m_imagePathRoot = client.getWindowsFilePath(); 
+			} else {
+				m_imagePathRoot = client.getUnixFilePath(); 
+			}
+			if(m_imagePathRoot==null || "".equals(m_imagePathRoot)){
+				s_log.severe("no Path defined");
+			} else if (!m_imagePathRoot.endsWith(File.separator)){
+				log.warning("path doesn't end with " + File.separator);
+				m_imagePathRoot = m_imagePathRoot + File.separator;
+				s_log.fine(m_imagePathRoot);
+			}
+		}
+	}
+	
+	/**
+	 * Save Binary File on Disk
+	 * @param inflatedData
+	 * FR[ 2058 ]
+	 */
+	private void saveBinaryDataIntoFileSystem(byte[] inflatedData) {
+		if ("".equals(m_imagePathRoot)) {
+			throw new IllegalArgumentException("no file path defined");
+		}
+		if (inflatedData == null || inflatedData.length == 0) {
+			throw new IllegalArgumentException("InflatedData is NULL");
+		}
+		BufferedOutputStream fOS = null;
+		try {
+			final File destFile = new File(m_imagePathRoot + File.separator + Util.getFilePathSnippet(this) + getNameTag());
+			final File destFolder = new File(m_imagePathRoot + File.separator
+					+ Util.getFilePathSnippet(this));
+			if (!destFolder.exists()) {
+				if (!destFolder.mkdirs()) {
+					log.warning("unable to create folder: " + destFolder.getPath());
+				}
+			}
+			fOS = new BufferedOutputStream(new FileOutputStream(destFile));
+			fOS.write(inflatedData);
+			fOS.flush();
+		} catch (FileNotFoundException e) {
+			s_log.warning(e.getMessage());
+			
+		} catch (IOException e) {
+			s_log.warning(e.getMessage());
+			
+		}
+	}//saveBinaryDataIntoFileSystem
+	
+	/**
+	 * Get Binary data from Disk or Database
+	 * @return
+	 * FR[ 2058 ]
+	 */
+	private byte[] getBinaryImageData() {
+		byte[] file=null;
+		if (isStoreImagesOnFileSystem && 
+				getURL()==null) {
+			File f = new File(m_imagePathRoot + Util.getFilePathSnippet(this)+ getNameTag());
+			try {
+				FileInputStream fIO = new FileInputStream(f);
+				ByteArrayOutputStream os = new ByteArrayOutputStream();
+				byte[] buffer = new byte[1024*8];   //  8kB
+				int length = -1;
+				while ((length = fIO.read(buffer)) != -1)
+					os.write(buffer, 0, length);
+				fIO.close();
+				file = os.toByteArray();
+				os.close();
+			} catch (FileNotFoundException e) {
+				s_log.warning(e.getMessage());
+			} catch (IOException e) {
+				s_log.warning(e.getMessage());
+			}
+			
+		}
+		else
+			file =super.getBinaryData ();
+			
+		return file;	
+	}//getBinaryImageData
+	
+	/**
+	 * Set Binary Data And Set Is Store on File System And File Path
+	 * @param inflatedData
+	 * @param storeArchiveOnFileSystem
+	 * @param archivePathRoot
+	 * @return void
+	 * FR[ 2058 ]
+	 */
+	public void saveLOBData(byte[] inflatedData,boolean storeImagesOnFileSystem, String imagePathRoot) {
+		
+		if (inflatedData!=null) {
+			isStoreImagesOnFileSystem = storeImagesOnFileSystem;
+			if (isStoreImagesOnFileSystem) {
+				m_imagePathRoot = imagePathRoot;
+				setImage(getNameTag() ,"", inflatedData);
+			} else {
+				setImage(getNameTag() ,"", inflatedData);
+			}
+		}
+	}//setBinaryData
+	
+	/**
+	 * Get Name without directory separator 
+	 * @return
+	 * FR[ 2058 ]
+	 */
+	public String getNameTag() {
+		if (getName()!=null) {
+			return getName().replace("/", "_").replace("\\", "_");
+		}
+		return "";
+	}
 }   //  MImage

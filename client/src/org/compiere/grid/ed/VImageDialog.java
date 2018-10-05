@@ -52,6 +52,9 @@ import org.compiere.util.Msg;
  *
  *  @author   Jorg Janke
  *  @version  $Id: VImageDialog.java,v 1.4 2006/07/30 00:51:28 jjanke Exp $
+ *  @author Carlos Parada, cparada@erpya.com, ERPCyA http://www.erpya.com
+ * 		<li> FR[ 2058 ] Add support to save on disk or database
+ * 		@see https://github.com/adempiere/adempiere/issues/2058
  */
 public class VImageDialog extends CDialog
 	implements ActionListener
@@ -236,9 +239,8 @@ public class VImageDialog extends CDialog
 		pack();
 
 		//  Save info
-		m_mImage.setName(fileName);
-		m_mImage.setImageURL(fileName);
-		m_mImage.setBinaryData(data);
+		//FR[ 2058 ] 
+		m_mImage.setImage(imageFile.getName(), fileName, data);
 	}   //  cmd_file
 
 	/**

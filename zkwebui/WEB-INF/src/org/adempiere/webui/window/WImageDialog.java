@@ -48,7 +48,9 @@ import org.zkoss.zul.Separator;
  *  
  *  Zk Port
  *  @author Low Heng Sin 
- *  
+ *  @author Carlos Parada, cparada@erpya.com, ERPCyA http://www.erpya.com
+ * 		<li> FR[ 2058 ] Add support to save on disk or database
+ * 		@see https://github.com/adempiere/adempiere/issues/2058
  */
 public class WImageDialog extends Window implements EventListener
 {
@@ -232,12 +234,14 @@ public class WImageDialog extends Window implements EventListener
 		//  Save info
 		if (m_mImage == null)
 			m_mImage = MImage.get (Env.getCtx(), 0);
-		m_mImage.setName(fileName);
-		m_mImage.setImageURL(fileName);
+		
+		
+		byte[] dataImage = null;
 		if (image.getContent() != null)
-			m_mImage.setBinaryData(image.getContent().getByteData());
-		else
-			m_mImage.setBinaryData(null);
+			dataImage =image.getContent().getByteData();
+		
+		//FR[ 2058 ]
+		m_mImage.setImage(fileName, fileName, dataImage);
 	}   //  cmd_file
 
 	/**
