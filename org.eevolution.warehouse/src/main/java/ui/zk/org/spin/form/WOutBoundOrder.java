@@ -554,9 +554,10 @@ public class WOutBoundOrder extends OutBoundOrder
 	 * @return void
 	 */
 	private void cmd_search() {
-		getPanelValues();
-		//	Valid Organization
-		if(!validateData()) {
+		String error = validateData();
+		if(!Util.isEmpty(error)) {
+			FDialog.info(m_WindowNo, parameterPanel, null, Msg.parseTranslation(Env.getCtx(), error));
+			calculate();
 			return;
 		}
 		//	Load Data
@@ -630,11 +631,38 @@ public class WOutBoundOrder extends OutBoundOrder
 	}
 	
 	/**
+	 * Validate For save
+	 * @return
+	 */
+	private boolean validateDataForSave() {
+		String error = validateData();
+		StringBuffer errorMessage = new StringBuffer();
+		if(!Util.isEmpty(error)) {
+			errorMessage.append(error);
+		}
+		//	Valid Message
+		error = validStock(stockTable);
+		if(!Util.isEmpty(error)) {
+			if(errorMessage.length() > 0) {
+				errorMessage.append(Env.NL);
+			}
+			errorMessage.append(error);
+		}
+		if(errorMessage.length() > 0) {
+			FDialog.info(m_WindowNo, parameterPanel, null, Msg.parseTranslation(Env.getCtx(), errorMessage.toString()));
+			calculate();
+			return false;
+		}
+		//	
+		return true;
+	}
+	
+	/**
 	 * Validate data
 	 * @return
-	 * @return boolean
+	 * @return String
 	 */
-	private boolean validateData() {
+	private String validateData() {
 		getPanelValues();
 		StringBuffer errorMessage = new StringBuffer();
 		if(orgId <= 0) {
@@ -652,21 +680,12 @@ public class WOutBoundOrder extends OutBoundOrder
 			}
 			errorMessage.append("@M_Warehouse_ID@ @NotFound@");
 		}
-		//	Valid Message
-		String error = validStock(stockTable);
-		if(!Util.isEmpty(error)) {
-			if(errorMessage.length() > 0) {
-				errorMessage.append(Env.NL);
-			}
-			errorMessage.append(error);
-		}
 		//	
 		if(errorMessage.length() > 0) {
-			FDialog.info(m_WindowNo, parameterPanel, null, Msg.parseTranslation(Env.getCtx(), errorMessage.toString()));
-			calculate();
-			return false;
+			return errorMessage.toString();
 		}
-		return true;
+		//	
+		return null;
 	}
 	
 	/**
@@ -691,7 +710,7 @@ public class WOutBoundOrder extends OutBoundOrder
 		log.config(name + "=" + value);
 		w_orderTable.clear();
 		//	Load Data
-		Vector<Vector<Object>> data = getOrderData(w_orderTable, movementType);
+		Vector<Vector<Object>> data = getOrderData(w_orderTable);
 		Vector<String> columnNames = getOrderColumnNames();
 
 		//  Remove previous listeners
@@ -808,10 +827,11 @@ public class WOutBoundOrder extends OutBoundOrder
 			dispose();
 			return;
 		} else if(eventObject.getTarget().getId().equals(ConfirmPanel.A_OK)) {
-			if(validateData()) {
+			if(validateDataForSave()) {
 				if (FDialog.ask(m_WindowNo, parameterPanel, null, 
 						Msg.translate(Env.getCtx(), "GenerateOrder") + "?")) {
 					saveData();
+					return;
 				}
 			}
 		} else if(eventObject.getTarget().equals(operationTypePick)) {
@@ -865,7 +885,7 @@ public class WOutBoundOrder extends OutBoundOrder
 		comboSearch.removeAllItems();
 		if(!mandatory){
 			comboSearch.appendItem("", "0");
-			comboSearch.setName(""+count++);
+			comboSearch.setName(String.valueOf(count++));
 		}
 		int m_ID = 0;
 		for(KeyNamePair pp : data) {
@@ -881,7 +901,6 @@ public class WOutBoundOrder extends OutBoundOrder
 
 	/**
 	 * Load Combo Box from ArrayList (No Mandatory)
-	 * @author <a href="mailto:raulmunozn@gmail.com">Raul Muñoz</a> 18/12/2015, 10:42:38
 	 * @param comboSearch
 	 * @param data[]
 	 * @return
@@ -907,7 +926,7 @@ public class WOutBoundOrder extends OutBoundOrder
 		if(isOrder) {
 			//	Load Lines
 //			if(m_C_UOM_Weight_ID != 0) {
-				StringBuffer sql = getQueryLine(w_orderTable, movementType);
+				StringBuffer sql = getQueryLine(w_orderTable);
 				Vector<Vector<Object>> data = getOrderLineData(w_orderTable, sql);
 				Vector<String> columnNames = getOrderLineColumnNames();
 				
@@ -1098,7 +1117,6 @@ public class WOutBoundOrder extends OutBoundOrder
 	}
 	/**
 	 * Save Data
-	 * @author <a href="mailto:Raulmunozn@gmail.com">Raul Muñoz</a> 14/01/2015, 12:26:57
 	 * @return void
 	 */
 	private void saveData() {

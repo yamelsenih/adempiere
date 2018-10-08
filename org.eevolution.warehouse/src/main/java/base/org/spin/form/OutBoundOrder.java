@@ -157,7 +157,7 @@ public class OutBoundOrder {
 	 * Get Order data from parameters
 	 * @return Vector<Vector<Object>>
 	 */
-	protected Vector<Vector<Object>> getOrderData(IMiniTable orderTable, String operationType) {
+	protected Vector<Vector<Object>> getOrderData(IMiniTable orderTable) {
 		//	Load Validation Flag
 		ResultSet rs = null;
 		PreparedStatement pstmt = null;
@@ -166,12 +166,9 @@ public class OutBoundOrder {
 			validateQuantity = m_DocType.get_ValueAsBoolean("IsValidateQuantity");
 		}
 		//	
-		/**
-		 * 2014-12-02 Carlos Parada Add Support to DD_Order
-		 */
 		Vector<Vector<Object>> data = new Vector<Vector<Object>>();
 		StringBuffer sql = null;
-		if (operationType.equals(I_DD_Order.Table_Name)) {
+		if (movementType.equals(I_DD_Order.Table_Name)) {
 			//Query for Material Movement
 			sql = new StringBuffer("SELECT " +
 					"wr.Name Warehouse, ord.DD_Order_ID, ord.DocumentNo, " +	//	1..3
@@ -206,7 +203,6 @@ public class OutBoundOrder {
 					"	ORDER BY lord.DD_OrderLine_ID ASC) qafl " +
 					"	ON(qafl.DD_OrderLine_ID = lord.DD_OrderLine_ID) " +
 					"WHERE  wr.IsActive = 'Y' " +
-					"AND ord.DocStatus = 'CO' " +
 					"AND ord.DocStatus = 'CO' " +
 					"AND COALESCE(qafl.QtyAvailable, 0) > 0 " +
 					"AND ord.AD_Client_ID=? ");
@@ -269,8 +265,6 @@ public class OutBoundOrder {
 					"WHERE ord.IsSOTrx = 'Y' " +
 					"AND wr.IsActive = 'Y' " +
 					"AND ord.DocStatus = 'CO' " +
-					//FR [ 1 ]
-					//"AND pr.IsStocked = 'Y' " +
 					"AND COALESCE(qafl.QtyAvailable, 0) > 0 " +
 					"AND ord.AD_Client_ID=? ");
 			if (orgId > 0)
@@ -298,8 +292,7 @@ public class OutBoundOrder {
 			
 			// role security
 		}
-		
-		/** End Carlos Parada **/
+		//	
 		log.fine("LoadOrderSQL=" + sql.toString());
 		//	
 		try {
@@ -368,13 +361,12 @@ public class OutBoundOrder {
 	 * @return
 	 * @return StringBuffer
 	 */
-	protected StringBuffer getQueryLine(IMiniTable orderTable,String p_OperationType) {
+	protected StringBuffer getQueryLine(IMiniTable orderTable) {
 		StringBuffer sql = null;
 				
 		log.config("getQueryLine");
 		
-		/** 2014-12-02 Carlos Parada Add Support to DD_OrderLine */ 
-		if (p_OperationType.equals(I_DD_Order.Table_Name)) {
+		if (movementType.equals(I_DD_Order.Table_Name)) {
 			int rows = orderTable.getRowCount();
 			rowsSelected = 0;
 			StringBuffer sqlWhere = new StringBuffer("ord.DD_Order_ID IN(0"); 
@@ -388,10 +380,10 @@ public class OutBoundOrder {
 			}
 			sqlWhere.append(")");
 			
-			sql = new StringBuffer("SELECT alm.M_Warehouse_ID, alm.Name Warehouse, lord.DD_OrderLine_ID, ord.DocumentNo, lord.M_Product_ID, " + 
+			sql = new StringBuffer("SELECT alm.M_Warehouse_ID, alm.Name Warehouse, lord.DD_OrderLine_ID OrderLine_ID, ord.DocumentNo, lord.M_Product_ID, " + 
 					"(pro.Name || COALESCE(' - ' || productattribute(lord.M_AttributeSetInstance_ID), '')) Product, " +
 					"pro.C_UOM_ID, uomp.UOMSymbol, s.QtyOnHand, " +
-					"lord.QtyOrdered, lord.C_UOM_ID, uom.UOMSymbol, lord.QtyReserved, 0 QtyInvoiced, lord.QtyDelivered, " +
+					"lord.QtyOrdered, lord.C_UOM_ID Order_UOM_ID, uom.UOMSymbol Order_UOMSymbol, lord.QtyReserved, 0 QtyInvoiced, lord.QtyDelivered, " +
 					"SUM(" +
 					"		COALESCE(CASE " +
 					"			WHEN (c.IsDelivered = 'N' AND lc.DD_OrderLine_ID IS NOT NULL AND c.DocStatus = 'CO') " +
@@ -465,10 +457,10 @@ public class OutBoundOrder {
 			}
 			sqlWhere.append(")");
 			
-			sql = new StringBuffer("SELECT lord.M_Warehouse_ID, alm.Name Warehouse, lord.C_OrderLine_ID, ord.DocumentNo, lord.M_Product_ID, " + 
+			sql = new StringBuffer("SELECT lord.M_Warehouse_ID, alm.Name Warehouse, lord.C_OrderLine_ID OrderLine_ID, ord.DocumentNo, lord.M_Product_ID, " + 
 					"(pro.Name || COALESCE(' - ' || productattribute(lord.M_AttributeSetInstance_ID), '')) Product, " +
 					"pro.C_UOM_ID, uomp.UOMSymbol, s.QtyOnHand, " +
-					"lord.QtyOrdered, lord.C_UOM_ID, uom.UOMSymbol, lord.QtyReserved, lord.QtyInvoiced, lord.QtyDelivered, " +
+					"lord.QtyOrdered, lord.C_UOM_ID Order_UOM_ID, uom.UOMSymbol Order_UOMSymbol, lord.QtyReserved, lord.QtyInvoiced, lord.QtyDelivered, " +
 					"SUM(" +
 					"		COALESCE(CASE " +
 					"			WHEN (c.IsDelivered = 'N' AND lc.C_OrderLine_ID IS NOT NULL AND c.DocStatus = 'CO') " +
@@ -504,9 +496,7 @@ public class OutBoundOrder {
 					"														ON(s.M_Product_ID = lord.M_Product_ID " +
 					"																AND s.M_Warehouse_ID = lord.M_Warehouse_ID " +
 					"																AND lord.M_AttributeSetInstance_ID = s.M_AttributeSetInstance_ID) ")
-					.append("WHERE " /* FR [ 1 ]
-							+ "pro.IsStocked = 'Y' ")
-					.append("AND "*/)
+					.append("WHERE ")
 					.append(sqlWhere).append(" ");
 			//	Group By
 			sql.append("GROUP BY lord.M_Warehouse_ID, lord.C_Order_ID, lord.C_OrderLine_ID, " +
@@ -608,55 +598,52 @@ public class OutBoundOrder {
 			pstmt = DB.prepareStatement(sqlPrep.toString(), null);
 			//	Parameter
 			rs = pstmt.executeQuery();
-			int column = 1;
-			KeyNamePair m_Warehouse = null;
-			KeyNamePair m_DocumentNo = null;
-			KeyNamePair m_Product = null;
-			KeyNamePair m_Product_UOM = null;
-			KeyNamePair m_Order_UOM = null;
-			BigDecimal m_QtyOnHand = Env.ZERO;
-			BigDecimal m_QtyReserved = Env.ZERO;
-			BigDecimal m_QtyInvoiced = Env.ZERO;
-			BigDecimal m_QtyDelivered = Env.ZERO;
-			BigDecimal m_QtyInTransit = Env.ZERO;
-			BigDecimal m_QtyOrdered = Env.ZERO;
-			BigDecimal m_Qty = Env.ZERO;
-			BigDecimal m_Weight = Env.ZERO;
-			BigDecimal m_Volume = Env.ZERO;
-			String deliveryRuleKey= null;
+			KeyNamePair warehouse = null;
+			KeyNamePair documentNo = null;
+			KeyNamePair product = null;
+			KeyNamePair productUOM = null;
+			KeyNamePair orderUOM = null;
+			BigDecimal qtyOnHand = Env.ZERO;
+			BigDecimal qtyReserved = Env.ZERO;
+			BigDecimal qtyInvoiced = Env.ZERO;
+			BigDecimal qtyDelivered = Env.ZERO;
+			BigDecimal qtyInTransit = Env.ZERO;
+			BigDecimal qtyOrdered = Env.ZERO;
+			BigDecimal qty = Env.ZERO;
+			BigDecimal weight = Env.ZERO;
+			BigDecimal volume = Env.ZERO;
+			String deliveryRuleKey = null;
 			
-			//FR [ 1 ]
-			boolean isStocked =false;
+			boolean isStocked = false;
 			int precision = 0;
 			//	
 			while (rs.next()) {
-				column = 1;
-				m_Warehouse 		= new KeyNamePair(rs.getInt(column++), rs.getString(column++));
-				m_DocumentNo 		= new KeyNamePair(rs.getInt(column++), rs.getString(column++));
-				m_Product 			= new KeyNamePair(rs.getInt(column++), rs.getString(column++));
-				m_Product_UOM 		= new KeyNamePair(rs.getInt(column++), rs.getString(column++));
-				m_QtyOnHand 		= rs.getBigDecimal(column++);
-				m_QtyOrdered 		= rs.getBigDecimal(column++);
-				m_Order_UOM 		= new KeyNamePair(rs.getInt(column++), rs.getString(column++));
-				m_QtyReserved 		= rs.getBigDecimal(column++);
-				m_QtyInvoiced 		= rs.getBigDecimal(column++);
-				m_QtyDelivered 		= rs.getBigDecimal(column++);
-				m_QtyInTransit 		= rs.getBigDecimal(column++);
-				m_Qty 				= rs.getBigDecimal(column++);
-				m_Weight 			= rs.getBigDecimal(column++);
-				m_Volume 			= rs.getBigDecimal(column++);
-				deliveryRuleKey 	= rs.getString(column++);
+				warehouse 		= new KeyNamePair(rs.getInt("M_Warehouse_ID"), rs.getString("Warehouse"));
+				documentNo 		= new KeyNamePair(rs.getInt("OrderLine_ID"), rs.getString("DocumentNo"));
+				product 		= new KeyNamePair(rs.getInt("M_Product_ID"), rs.getString("Product"));
+				productUOM 		= new KeyNamePair(rs.getInt("C_UOM_ID"), rs.getString("UOMSymbol"));
+				qtyOnHand 		= rs.getBigDecimal("QtyOnHand");
+				qtyOrdered 		= rs.getBigDecimal("QtyOrdered");
+				orderUOM 		= new KeyNamePair(rs.getInt("Order_UOM_ID"), rs.getString("Order_UOMSymbol"));
+				qtyReserved 	= rs.getBigDecimal("QtyReserved");
+				qtyInvoiced 	= rs.getBigDecimal("QtyInvoiced");
+				qtyDelivered 	= rs.getBigDecimal("QtyDelivered");
+				qtyInTransit 	= rs.getBigDecimal("QtyLoc");
+				qty 			= rs.getBigDecimal("Qty");
+				weight 			= rs.getBigDecimal("Weight");
+				volume 			= rs.getBigDecimal("Volume");
+				deliveryRuleKey 	= rs.getString("DeliveryRule");
 				//FR [ 1 ]
-				isStocked = (rs.getString("IsStocked")!=null? "": rs.getString("IsStocked")).equals("Y");
+				isStocked = (rs.getString("IsStocked") == null? "N": rs.getString("IsStocked")).equals("Y");
 				//	Get Precision
-				precision = MUOM.getPrecision(Env.getCtx(), m_Product_UOM.getKey());
+				precision = MUOM.getPrecision(Env.getCtx(), productUOM.getKey());
 				//	
 				//	Valid Null
-				if(m_QtyOnHand == null)
-					m_QtyOnHand = Env.ZERO;
+				if(qtyOnHand == null)
+					qtyOnHand = Env.ZERO;
 				//FR [ 1 ]
 				if (!isStocked) {
-					m_QtyOnHand = m_Qty;
+					qtyOnHand = qty;
 				}
 				if(Util.isEmpty(deliveryRuleKey)) {
 					deliveryRuleKey = X_C_Order.DELIVERYRULE_Availability;
@@ -669,35 +656,35 @@ public class OutBoundOrder {
 				if(deliveryRule.getID().equals(X_C_Order.DELIVERYRULE_Availability)
 						&&	validateQuantity) {
 					//FR [ 1 ]
-					BigDecimal diff = ((BigDecimal)(isStocked ? Env.ONE : Env.ZERO)).multiply(m_QtyOnHand.subtract(m_Qty).setScale(precision, BigDecimal.ROUND_HALF_UP));
+					BigDecimal diff = ((BigDecimal)(isStocked ? Env.ONE : Env.ZERO)).multiply(qtyOnHand.subtract(qty).setScale(precision, BigDecimal.ROUND_HALF_UP));
 					//	Set Quantity
 					if(diff.doubleValue() < 0) {
-						m_Qty = m_Qty
+						qty = qty
 							.subtract(diff.abs())
 							.setScale(precision, BigDecimal.ROUND_HALF_UP);
 					}
 					//	Valid Zero
-					if(m_Qty.doubleValue() <= 0)
+					if(qty.doubleValue() <= 0)
 						continue;
 				}
 				//	Fill Row
 				Vector<Object> line = new Vector<Object>();
 				line.add(new Boolean(false));       			//  0-Selection
-				line.add(m_Warehouse);       					//  1-Warehouse
-				line.add(m_DocumentNo);				       		//  2-DocumentNo
-				line.add(m_Product);				      		//  3-Product
-				line.add(m_Product_UOM);				      	//  4-Unit Product
-				line.add(m_QtyOnHand);  						//  5-QtyOnHand
-				line.add(m_Qty);								//  6-Quantity
-				line.add(m_Weight.multiply(m_Qty));				//	7-Weight
-				line.add(m_Volume.multiply(m_Qty));				//	8-Volume
+				line.add(warehouse);       					//  1-Warehouse
+				line.add(documentNo);				       		//  2-DocumentNo
+				line.add(product);				      		//  3-Product
+				line.add(productUOM);				      	//  4-Unit Product
+				line.add(qtyOnHand);  						//  5-QtyOnHand
+				line.add(qty);								//  6-Quantity
+				line.add(weight.multiply(qty));				//	7-Weight
+				line.add(volume.multiply(qty));				//	8-Volume
 				line.add(Env.ZERO);								//	9-SeqNo
-				line.add(m_QtyOrdered);							//	10-QtyOrdered
-				line.add(m_Order_UOM);							//	11-UOM-Conversion
-				line.add(m_QtyReserved);				      	//  12-QtyReserved
-				line.add(m_QtyInvoiced);				      	//  13-QtyInvoiced
-				line.add(m_QtyDelivered);				      	//  14-QtyDelivered
-				line.add(m_QtyInTransit);				      	//  15-QtyInTransit			
+				line.add(qtyOrdered);							//	10-QtyOrdered
+				line.add(orderUOM);							//	11-UOM-Conversion
+				line.add(qtyReserved);				      	//  12-QtyReserved
+				line.add(qtyInvoiced);				      	//  13-QtyInvoiced
+				line.add(qtyDelivered);				      	//  14-QtyDelivered
+				line.add(qtyInTransit);				      	//  15-QtyInTransit			
 				line.add(deliveryRule);						//	16-Delivery Rule
 				//	Add Data
 				data.add(line);
@@ -1046,14 +1033,14 @@ public class OutBoundOrder {
 	/**
 	 * Get Quantity in Transit
 	 * @param productId
-	 * @param p_M_Warehouse_ID
+	 * @param warehouseId
 	 * @return
 	 * @return BigDecimal
 	 */
-	protected BigDecimal getQtyInTransit(int productId, int p_M_Warehouse_ID) {
+	protected BigDecimal getQtyInTransit(int productId, int warehouseId) {
 		//	Valid
 		if(productId == 0 
-				|| p_M_Warehouse_ID == 0)
+				|| warehouseId == 0)
 			return Env.ZERO;
 		//	
 		String sql = "SELECT COALESCE(SUM(lc.MovementQty), 0) QtyLoc "
@@ -1064,11 +1051,11 @@ public class OutBoundOrder {
 				+ "AND c.DocStatus = 'CO' "
 				+ "AND c.IsDelivered = 'N'";
 		//	Query
-		BigDecimal m_QtyInTransit = DB.getSQLValueBD(null, sql, new Object[]{productId, p_M_Warehouse_ID});
-		if(m_QtyInTransit == null)
-			m_QtyInTransit = Env.ZERO;
+		BigDecimal quantityInTransit = DB.getSQLValueBD(null, sql, new Object[]{productId, warehouseId});
+		if(quantityInTransit == null)
+			quantityInTransit = Env.ZERO;
 		//	Return
-		return m_QtyInTransit;
+		return quantityInTransit;
 	}
 	
 	/**
