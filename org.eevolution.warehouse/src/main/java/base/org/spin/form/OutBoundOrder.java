@@ -912,19 +912,18 @@ public class OutBoundOrder {
 				outBoundOrderLine = new MWMInOutBoundLine(outBoundOrder);
 				//	Set Values
 				outBoundOrderLine.setAD_Org_ID(orgId);
-				/** 2014-12-02 Carlos Parada Add Support to Distribution Order*/ 
 				if (movementType.equals(I_DD_Order.Table_Name)) {
 					outBoundOrderLine.setDD_OrderLine_ID(orderLineId);
 					MDDOrderLine line = new MDDOrderLine(Env.getCtx(), orderLineId, trxName);
 					outBoundOrderLine.setDD_Order_ID(line.getDD_Order_ID());
 					outBoundOrderLine.setDD_Order_ID(line.getDD_Order_ID());
+					outBoundOrderLine.setPickedQty(qty);
 				} else {
 					outBoundOrderLine.setC_OrderLine_ID(orderLineId);
 					MOrderLine line = new MOrderLine(Env.getCtx(), orderLineId, trxName);
 					outBoundOrderLine.setC_Order_ID(line.getC_Order_ID());
 					outBoundOrderLine.setC_Order_ID(line.getC_Order_ID());
 				}
-				/** End Carlos Parada*/
 				outBoundOrderLine.setM_Product_ID(productId);
 				outBoundOrderLine.setMovementQty(qty);
 				//	Add Weight
