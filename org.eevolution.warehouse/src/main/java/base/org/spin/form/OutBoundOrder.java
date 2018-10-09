@@ -917,7 +917,6 @@ public class OutBoundOrder {
 					MDDOrderLine line = new MDDOrderLine(Env.getCtx(), orderLineId, trxName);
 					outBoundOrderLine.setDD_Order_ID(line.getDD_Order_ID());
 					outBoundOrderLine.setDD_Order_ID(line.getDD_Order_ID());
-					outBoundOrderLine.setPickedQty(qty);
 				} else {
 					outBoundOrderLine.setC_OrderLine_ID(orderLineId);
 					MOrderLine line = new MOrderLine(Env.getCtx(), orderLineId, trxName);
@@ -926,6 +925,7 @@ public class OutBoundOrder {
 				}
 				outBoundOrderLine.setM_Product_ID(productId);
 				outBoundOrderLine.setMovementQty(qty);
+				outBoundOrderLine.setPickedQty(qty);
 				//	Add Weight
 				totalWeight = totalWeight.add(weight);
 				//	Add Volume
