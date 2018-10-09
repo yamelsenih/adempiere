@@ -208,8 +208,7 @@ public class GenerateShipmentOutBound extends GenerateShipmentOutBoundAbstract
 
 
 
-	public void processingMovements()
-	{
+	public void processingMovements() {
 		distributionOrders.entrySet().stream().filter(entry -> entry != null).forEach(entry -> {
 			I_DD_Order distributionOrder = entry.getValue();
 			List<Integer> orderIds = new ArrayList<Integer>();
@@ -226,13 +225,15 @@ public class GenerateShipmentOutBound extends GenerateShipmentOutBoundAbstract
 				throw new AdempiereException(processInfo.getSummary());
 
 			addLog(processInfo.getSummary());
-			Arrays.stream(processInfo.getIDs()).forEach(recordId -> {
-				MMovement movement = new MMovement(getCtx(), recordId, get_TrxName());
-				if (movement != null && movement.get_ID() > 0)
-					printDocument(movement, "Inventory Move Hdr (Example)");
-				else
-					throw new AdempiereException("@M_Movement_ID@ @NotFound@");
-			});
+			if(processInfo.getIDs() != null) {
+				Arrays.stream(processInfo.getIDs()).forEach(recordId -> {
+					MMovement movement = new MMovement(getCtx(), recordId, get_TrxName());
+					if (movement != null && movement.get_ID() > 0)
+						printDocument(movement, "Inventory Move Hdr (Example)");
+					else
+						throw new AdempiereException("@M_Movement_ID@ @NotFound@");
+				});
+			}
 		});
 	}
 

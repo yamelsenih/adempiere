@@ -275,13 +275,21 @@ public class MMovementLine extends X_M_MovementLine implements IDocumentLine , D
 				
 				if (isReceipt)
 				{
-					setM_Locator_ID(locator.getM_Locator_ID());
+					if(oLine.getM_Locator_ID() > 0) {
+						setM_Locator_ID(oLine.getM_Locator_ID());
+					} else {
+						setM_Locator_ID(locator.getM_Locator_ID());
+					}
 					setM_LocatorTo_ID(oLine.getM_LocatorTo_ID()); 
 				}
 				else 
 				{
-					setM_Locator_ID(oLine.getM_Locator_ID()); 
-					setM_LocatorTo_ID(locator.getM_Locator_ID());
+					setM_Locator_ID(oLine.getM_Locator_ID());
+					if(oLine.getM_LocatorTo_ID() > 0) {
+						setM_LocatorTo_ID(oLine.getM_LocatorTo_ID());
+					} else {
+						setM_LocatorTo_ID(locator.getM_Locator_ID());
+					}
 				}
 			} 
 			else 
