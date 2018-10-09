@@ -219,6 +219,7 @@ public class GenerateShipmentOutBound extends GenerateShipmentOutBoundAbstract
 					.withSelectedRecordsIds(MDDOrder.Table_ID , orderIds)
 					.withParameter(MWMInOutBound.COLUMNNAME_M_Warehouse_ID, distributionOrder.getM_Warehouse_ID())
 					.withParameter(MMovement.COLUMNNAME_MovementDate, getMovementDate())
+					.withParameter(MMovement.COLUMNNAME_DocAction, getDocAction())
 					.withoutTransactionClose()
 					.execute(get_TrxName());
 			if (processInfo.isError())
