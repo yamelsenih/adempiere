@@ -20,24 +20,24 @@ import java.math.BigDecimal;
 import java.sql.Timestamp;
 import org.compiere.util.KeyNamePair;
 
-/** Generated Interface for AD_User_Roles
+/** Generated Interface for C_LandedCostType
  *  @author Adempiere (generated) 
  *  @version Release 3.9.0
  */
-public interface I_AD_User_Roles 
+public interface I_C_LandedCostType 
 {
 
-    /** TableName=AD_User_Roles */
-    public static final String Table_Name = "AD_User_Roles";
+    /** TableName=C_LandedCostType */
+    public static final String Table_Name = "C_LandedCostType";
 
-    /** AD_Table_ID=157 */
+    /** AD_Table_ID=54528 */
     public static final int Table_ID = MTable.getTable_ID(Table_Name);
 
     KeyNamePair Model = new KeyNamePair(Table_ID, Table_Name);
 
-    /** AccessLevel = 6 - System - Client 
+    /** AccessLevel = 7 - System - Client - Org 
      */
-    BigDecimal accessLevel = BigDecimal.valueOf(6);
+    BigDecimal accessLevel = BigDecimal.valueOf(7);
 
     /** Load Meta Data */
 
@@ -62,35 +62,14 @@ public interface I_AD_User_Roles
 	  */
 	public int getAD_Org_ID();
 
-    /** Column name AD_Role_ID */
-    public static final String COLUMNNAME_AD_Role_ID = "AD_Role_ID";
+    /** Column name C_LandedCostType_ID */
+    public static final String COLUMNNAME_C_LandedCostType_ID = "C_LandedCostType_ID";
 
-	/** Set Role.
-	  * Responsibility Role
-	  */
-	public void setAD_Role_ID (int AD_Role_ID);
+	/** Set LandedCostType ID	  */
+	public void setC_LandedCostType_ID (int C_LandedCostType_ID);
 
-	/** Get Role.
-	  * Responsibility Role
-	  */
-	public int getAD_Role_ID();
-
-	public org.compiere.model.I_AD_Role getAD_Role() throws RuntimeException;
-
-    /** Column name AD_User_ID */
-    public static final String COLUMNNAME_AD_User_ID = "AD_User_ID";
-
-	/** Set User/Contact.
-	  * User within the system - Internal or Business Partner Contact
-	  */
-	public void setAD_User_ID (int AD_User_ID);
-
-	/** Get User/Contact.
-	  * User within the system - Internal or Business Partner Contact
-	  */
-	public int getAD_User_ID();
-
-	public org.compiere.model.I_AD_User getAD_User() throws RuntimeException;
+	/** Get LandedCostType ID	  */
+	public int getC_LandedCostType_ID();
 
     /** Column name Created */
     public static final String COLUMNNAME_Created = "Created";
@@ -108,6 +87,19 @@ public interface I_AD_User_Roles
 	  */
 	public int getCreatedBy();
 
+    /** Column name Description */
+    public static final String COLUMNNAME_Description = "Description";
+
+	/** Set Description.
+	  * Optional short description of the record
+	  */
+	public void setDescription (String Description);
+
+	/** Get Description.
+	  * Optional short description of the record
+	  */
+	public String getDescription();
+
     /** Column name IsActive */
     public static final String COLUMNNAME_IsActive = "IsActive";
 
@@ -121,18 +113,18 @@ public interface I_AD_User_Roles
 	  */
 	public boolean isActive();
 
-    /** Column name IsDefault */
-    public static final String COLUMNNAME_IsDefault = "IsDefault";
+    /** Column name Name */
+    public static final String COLUMNNAME_Name = "Name";
 
-	/** Set Default.
-	  * Default value
+	/** Set Name.
+	  * Alphanumeric identifier of the entity
 	  */
-	public void setIsDefault (boolean IsDefault);
+	public void setName (String Name);
 
-	/** Get Default.
-	  * Default value
+	/** Get Name.
+	  * Alphanumeric identifier of the entity
 	  */
-	public boolean isDefault();
+	public String getName();
 
     /** Column name Updated */
     public static final String COLUMNNAME_Updated = "Updated";
@@ -162,4 +154,17 @@ public interface I_AD_User_Roles
 	  * Immutable Universally Unique Identifier
 	  */
 	public String getUUID();
+
+    /** Column name Value */
+    public static final String COLUMNNAME_Value = "Value";
+
+	/** Set Search Key.
+	  * Search key for the record in the format required - must be unique
+	  */
+	public void setValue (String Value);
+
+	/** Get Search Key.
+	  * Search key for the record in the format required - must be unique
+	  */
+	public String getValue();
 }

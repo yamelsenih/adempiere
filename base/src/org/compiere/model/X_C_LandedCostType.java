@@ -20,36 +20,36 @@ package org.compiere.model;
 import java.sql.ResultSet;
 import java.util.Properties;
 
-/** Generated Model for AD_User_Roles
+/** Generated Model for C_LandedCostType
  *  @author Adempiere (generated) 
  *  @version Release 3.9.0 - $Id$ */
-public class X_AD_User_Roles extends PO implements I_AD_User_Roles, I_Persistent 
+public class X_C_LandedCostType extends PO implements I_C_LandedCostType, I_Persistent 
 {
 
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20180827L;
+	private static final long serialVersionUID = 20180928L;
 
     /** Standard Constructor */
-    public X_AD_User_Roles (Properties ctx, int AD_User_Roles_ID, String trxName)
+    public X_C_LandedCostType (Properties ctx, int C_LandedCostType_ID, String trxName)
     {
-      super (ctx, AD_User_Roles_ID, trxName);
-      /** if (AD_User_Roles_ID == 0)
+      super (ctx, C_LandedCostType_ID, trxName);
+      /** if (C_LandedCostType_ID == 0)
         {
-			setAD_Role_ID (0);
-			setAD_User_ID (0);
+			setC_LandedCostType_ID (0);
+			setName (null);
         } */
     }
 
     /** Load Constructor */
-    public X_AD_User_Roles (Properties ctx, ResultSet rs, String trxName)
+    public X_C_LandedCostType (Properties ctx, ResultSet rs, String trxName)
     {
       super (ctx, rs, trxName);
     }
 
     /** AccessLevel
-      * @return 6 - System - Client 
+      * @return 7 - System - Client - Org 
       */
     protected int get_AccessLevel()
     {
@@ -65,89 +65,63 @@ public class X_AD_User_Roles extends PO implements I_AD_User_Roles, I_Persistent
 
     public String toString()
     {
-      StringBuffer sb = new StringBuffer ("X_AD_User_Roles[")
+      StringBuffer sb = new StringBuffer ("X_C_LandedCostType[")
         .append(get_ID()).append("]");
       return sb.toString();
     }
 
-	public org.compiere.model.I_AD_Role getAD_Role() throws RuntimeException
-    {
-		return (org.compiere.model.I_AD_Role)MTable.get(getCtx(), org.compiere.model.I_AD_Role.Table_Name)
-			.getPO(getAD_Role_ID(), get_TrxName());	}
-
-	/** Set Role.
-		@param AD_Role_ID 
-		Responsibility Role
-	  */
-	public void setAD_Role_ID (int AD_Role_ID)
+	/** Set LandedCostType ID.
+		@param C_LandedCostType_ID LandedCostType ID	  */
+	public void setC_LandedCostType_ID (int C_LandedCostType_ID)
 	{
-		if (AD_Role_ID < 0) 
-			set_ValueNoCheck (COLUMNNAME_AD_Role_ID, null);
+		if (C_LandedCostType_ID < 1) 
+			set_ValueNoCheck (COLUMNNAME_C_LandedCostType_ID, null);
 		else 
-			set_ValueNoCheck (COLUMNNAME_AD_Role_ID, Integer.valueOf(AD_Role_ID));
+			set_ValueNoCheck (COLUMNNAME_C_LandedCostType_ID, Integer.valueOf(C_LandedCostType_ID));
 	}
 
-	/** Get Role.
-		@return Responsibility Role
-	  */
-	public int getAD_Role_ID () 
+	/** Get LandedCostType ID.
+		@return LandedCostType ID	  */
+	public int getC_LandedCostType_ID () 
 	{
-		Integer ii = (Integer)get_Value(COLUMNNAME_AD_Role_ID);
+		Integer ii = (Integer)get_Value(COLUMNNAME_C_LandedCostType_ID);
 		if (ii == null)
 			 return 0;
 		return ii.intValue();
 	}
 
-	public org.compiere.model.I_AD_User getAD_User() throws RuntimeException
-    {
-		return (org.compiere.model.I_AD_User)MTable.get(getCtx(), org.compiere.model.I_AD_User.Table_Name)
-			.getPO(getAD_User_ID(), get_TrxName());	}
-
-	/** Set User/Contact.
-		@param AD_User_ID 
-		User within the system - Internal or Business Partner Contact
+	/** Set Description.
+		@param Description 
+		Optional short description of the record
 	  */
-	public void setAD_User_ID (int AD_User_ID)
+	public void setDescription (String Description)
 	{
-		if (AD_User_ID < 1) 
-			set_ValueNoCheck (COLUMNNAME_AD_User_ID, null);
-		else 
-			set_ValueNoCheck (COLUMNNAME_AD_User_ID, Integer.valueOf(AD_User_ID));
+		set_Value (COLUMNNAME_Description, Description);
 	}
 
-	/** Get User/Contact.
-		@return User within the system - Internal or Business Partner Contact
+	/** Get Description.
+		@return Optional short description of the record
 	  */
-	public int getAD_User_ID () 
+	public String getDescription () 
 	{
-		Integer ii = (Integer)get_Value(COLUMNNAME_AD_User_ID);
-		if (ii == null)
-			 return 0;
-		return ii.intValue();
+		return (String)get_Value(COLUMNNAME_Description);
 	}
 
-	/** Set Default.
-		@param IsDefault 
-		Default value
+	/** Set Name.
+		@param Name 
+		Alphanumeric identifier of the entity
 	  */
-	public void setIsDefault (boolean IsDefault)
+	public void setName (String Name)
 	{
-		set_Value (COLUMNNAME_IsDefault, Boolean.valueOf(IsDefault));
+		set_Value (COLUMNNAME_Name, Name);
 	}
 
-	/** Get Default.
-		@return Default value
+	/** Get Name.
+		@return Alphanumeric identifier of the entity
 	  */
-	public boolean isDefault () 
+	public String getName () 
 	{
-		Object oo = get_Value(COLUMNNAME_IsDefault);
-		if (oo != null) 
-		{
-			 if (oo instanceof Boolean) 
-				 return ((Boolean)oo).booleanValue(); 
-			return "Y".equals(oo);
-		}
-		return false;
+		return (String)get_Value(COLUMNNAME_Name);
 	}
 
 	/** Set Immutable Universally Unique Identifier.
@@ -165,5 +139,22 @@ public class X_AD_User_Roles extends PO implements I_AD_User_Roles, I_Persistent
 	public String getUUID () 
 	{
 		return (String)get_Value(COLUMNNAME_UUID);
+	}
+
+	/** Set Search Key.
+		@param Value 
+		Search key for the record in the format required - must be unique
+	  */
+	public void setValue (String Value)
+	{
+		set_Value (COLUMNNAME_Value, Value);
+	}
+
+	/** Get Search Key.
+		@return Search key for the record in the format required - must be unique
+	  */
+	public String getValue () 
+	{
+		return (String)get_Value(COLUMNNAME_Value);
 	}
 }
