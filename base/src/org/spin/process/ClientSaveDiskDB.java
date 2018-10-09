@@ -65,6 +65,7 @@ public class ClientSaveDiskDB  extends ClientSaveDiskDBAbstract {
 		if (client.isStoreFilesOnFileSystem()!=p_StoreFilesOnFileSystem){
 			processAttachmentFiles(client);
 			processArchiveFiles(client);
+			processImagesFiles();
 			
 			client.setStoreFilesOnFileSystem(p_StoreFilesOnFileSystem);
 			client.setWindowsFilePath(p_WindowsFilePath);
@@ -187,4 +188,57 @@ public class ClientSaveDiskDB  extends ClientSaveDiskDBAbstract {
 			}
 		}
 	}
+	
+	/**
+	 * Process Attachment File or Database
+	 * @return void
+	 */
+	private void processImagesFiles() throws SQLException{
+		if (p_StoreFilesOnFileSystem &&
+				((p_WindowsFilePath!=null && p_WindowsFilePath.equals("")) || p_WindowsFilePath == null)
+					&& ((p_UnixFilePath!=null && p_UnixFilePath.equals("")) || p_UnixFilePath == null))
+			throw new AdempiereException("@Error@ @StoreFilesOnFileSystem@ @IsSelected@ @FillMandatory@ @WindowsFilePath@ @OR@ @UnixFilePath@");
+		else{
+			ResultSet rs = null;
+			PreparedStatement ps = null;
+			StringBuffer sql = new StringBuffer();
+			sql.append("SELECT AD_Image_ID "
+					+ " FROM AD_Image "
+					+ " WHERE AD_Client_ID = ? "
+					+ " AND IsActive = 'Y'");
+
+			ps = DB.prepareStatement(sql.toString(), get_TrxName());
+			ps.setInt(1, getAD_Client_ID());
+			rs = ps.executeQuery();
+			
+			
+			if (p_StoreFilesOnFileSystem){
+				if (p_WindowsFilePath!=null && !p_WindowsFilePath.equals(""))
+					m_FileRootPath = p_WindowsFilePath;
+				
+				if (p_UnixFilePath!=null && !p_UnixFilePath.equals(""))
+					m_FileRootPath = p_UnixFilePath;
+				
+				if (m_FileRootPath!=null && !m_FileRootPath.equals("")){
+					while (rs.next()){
+						MImage image = new MImage(getCtx(), rs.getInt("AD_Image_ID"), get_TrxName());
+						byte[] fileImg = image.getData();
+						image.saveLOBData(fileImg, p_StoreFilesOnFileSystem, m_FileRootPath);
+						image.save();
+					}
+				}
+				else
+					log.severe("no attachmentPath defined");
+			}else{
+				while (rs.next()){
+					MImage image = new MImage(getCtx(), rs.getInt("AD_Image_ID"), get_TrxName());
+					byte[] fileImg = image.getData();
+					image.saveLOBData(fileImg, p_StoreFilesOnFileSystem, m_FileRootPath);
+					image.save();
+				}
+			}
+					
+		}
+	}
+
 }
