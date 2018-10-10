@@ -36,7 +36,6 @@ import java.util.Hashtable;
 import java.util.List;
 
 import org.adempiere.exceptions.AdempiereException;
-import org.compiere.model.MDocType;
 import org.compiere.model.MInOut;
 import org.compiere.model.MInOutLine;
 import org.compiere.model.MMovement;
@@ -66,6 +65,7 @@ public class GenerateShipmentOutBound extends GenerateShipmentOutBoundAbstract
 	private Hashtable<Integer, MPPCostCollector> manufacturingIssues;
 	private Hashtable<Integer, MWMInOutBoundLine> outboundLineFromDDOrderLine;
 	private int created = 0;
+	private StringBuffer generatedDocuments = new StringBuffer();
 	
 	/**
 	 * 	Get Parameters
@@ -100,7 +100,7 @@ public class GenerateShipmentOutBound extends GenerateShipmentOutBoundAbstract
 		//Processing Issues
 		processingIssues();
 
-		return "@Created@ " + created;
+		return "@Created@ " + created + (generatedDocuments.length() > 0? " [" + generatedDocuments + "]": "");
 	}
 
 	/**
@@ -119,6 +119,7 @@ public class GenerateShipmentOutBound extends GenerateShipmentOutBoundAbstract
 			MInOut shipment = getShipment(orderLine, outboundLine.getParent());
 			MInOutLine shipmentLine = new MInOutLine(outboundLine.getCtx(), 0 , outboundLine.get_TrxName());
 			shipmentLine.setM_InOut_ID(shipment.getM_InOut_ID());
+			shipmentLine.setM_Product_ID(outboundLine.getM_Product_ID());
 			//	Set from Storage
 			if(outboundLine.getM_LocatorTo_ID() != 0) {
 				shipmentLine.setM_Locator_ID(outboundLine.getM_LocatorTo_ID());
@@ -126,7 +127,6 @@ public class GenerateShipmentOutBound extends GenerateShipmentOutBoundAbstract
 				shipmentLine.setM_Locator_ID(qtyDelivered);
 			}
 			//	
-			shipmentLine.setM_Product_ID(outboundLine.getM_Product_ID());
 			shipmentLine.setQtyEntered(qtyDelivered);
 			shipmentLine.setMovementQty(qtyDelivered);
 			shipmentLine.setC_OrderLine_ID(orderLine.getC_OrderLine_ID());
@@ -135,9 +135,9 @@ public class GenerateShipmentOutBound extends GenerateShipmentOutBoundAbstract
 			shipmentLine.setFreightAmt(outboundLine.getFreightAmt());
 			shipmentLine.saveEx();
 			//	Set reference
-			//	Set reference
 			outboundLine.setM_InOut_ID(shipment.getM_InOut_ID());
 			outboundLine.setM_InOutLine_ID(shipmentLine.getM_InOutLine_ID());
+			outboundLine.saveEx();
 		}
 		// Generate Delivery Movement
 		if (outboundLine.getDD_OrderLine_ID() > 0) {
@@ -204,21 +204,35 @@ public class GenerateShipmentOutBound extends GenerateShipmentOutBoundAbstract
 			}
 			issue.saveEx();
 			created++;
+			addToMessage(issue.getDocumentNo());
 		});
 	}
 
-	public void processingShipments()
+	/**
+	 * Add Document Info for message to return
+	 * @param documentInfo
+	 */
+	private void addToMessage(String documentInfo) {
+		if(generatedDocuments.length() > 0) {
+			generatedDocuments.append(", ");
+		}
+		//	
+		generatedDocuments.append(documentInfo);
+	}
+	
+	private void processingShipments()
 	{
+		//	
 		shipments.entrySet().stream().filter(entry -> entry != null).forEach(entry -> {
 			MInOut shipment = entry.getValue();
 			shipment.setDocAction(getDocAction());
-			shipment.processIt(getDocAction());
 			if (!shipment.processIt(getDocAction())) {
 				addLog("@ProcessFailed@ : " + shipment.getDocumentInfo());
 				log.warning("@ProcessFailed@ :" + shipment.getDocumentInfo());
 			}
 			shipment.saveEx();
 			created++;
+			addToMessage(shipment.getDocumentNo());
 		});
 	}
 
@@ -269,6 +283,7 @@ public class GenerateShipmentOutBound extends GenerateShipmentOutBoundAbstract
 						outboundLine.setM_MovementLine_ID(movementLine.getM_MovementLine_ID());
 						outboundLine.saveEx();
 					}
+					addToMessage(movement.getDocumentNo());
 				});
 			} else {
 				throw new AdempiereException("@M_Movement_ID@ @NotFound@");
@@ -289,8 +304,7 @@ public class GenerateShipmentOutBound extends GenerateShipmentOutBoundAbstract
 			return shipment;
 
 		MOrder order = orderLine.getParent();
-		int docTypeId = MDocType.getDocType(MDocType.DOCBASETYPE_MaterialDelivery , orderLine.getAD_Org_ID());
-		shipment = new MInOut(order,docTypeId, getMovementDate());
+		shipment = new MInOut(order, 0, getMovementDate());
 		shipment.setIsSOTrx(true);
 		shipment.setM_Shipper_ID(outbound.getM_Shipper_ID());
 		shipment.setM_FreightCategory_ID(outbound.getM_FreightCategory_ID());
