@@ -375,7 +375,6 @@ public class MovementGenerate extends MovementGenerateAbstract
 				movement.setC_DocType_ID(docTypeId);
 
 			movement.saveEx();
-			addLog(movement.get_ID(), movement.getMovementDate(),BigDecimal.ZERO , movement.getDocumentInfo());
 			setCurrentMovement(movement);
 			return movement;
 		});
@@ -519,7 +518,7 @@ public class MovementGenerate extends MovementGenerateAbstract
 				if (!movement.processIt(getDocAction()))
 					log.warning("Failed: " + this.movement);
 				movement.saveEx();
-                addLog(movement.getM_Movement_ID() , movement.getMovementDate() , null , movement.getDocumentInfo());
+                addLog(movement.getM_Movement_ID(), movement.getMovementDate(), null, movement.getDocumentInfo());
                 createdCount++;
                 storage = new HashMap<SParameter,MStorage[]>();
                 lastParameter = null;
