@@ -122,6 +122,7 @@ public class GenerateShipmentOutBound extends GenerateShipmentOutBoundAbstract
 			//	Set from Storage
 			if(outboundLine.getM_LocatorTo_ID() != 0) {
 				shipmentLine.setM_Locator_ID(outboundLine.getM_LocatorTo_ID());
+			} else {
 				shipmentLine.setM_Locator_ID(qtyDelivered);
 			}
 			//	
