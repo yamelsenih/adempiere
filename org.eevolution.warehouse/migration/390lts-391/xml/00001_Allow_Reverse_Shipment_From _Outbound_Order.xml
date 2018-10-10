@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <Migrations>
-  <Migration EntityType="ECA02" Name="Allows reverse Delivered from outbound order" ReleaseNo="3.9.1" SeqNo="1">
+  <Migration EntityType="ECA02" Name="Error with Outbound order SB" ReleaseNo="3.9.1" SeqNo="1">
     <Step SeqNo="10" StepType="AD">
       <PO AD_Table_ID="53224" Action="U" Record_ID="50002" Table="AD_Browse">
-        <Data AD_Column_ID="58000" Column="WhereClause" oldValue="NOT EXISTS (SELECT 1 FROM M_InOutLine WHERE M_InOutLine.C_OrderLine_ID = iobl.C_OrderLine_ID AND iobl.PickedQty &gt;= M_InOutLine.MovementQty)  AND iob.IsSOTrx='Y' AND iobl.Processed='Y' AND ol.QtyOrdered &lt;&gt; ol.QtyDelivered">NOT EXISTS (SELECT 1 
+        <Data AD_Column_ID="58000" Column="WhereClause" oldValue="NOT EXISTS (SELECT 1  FROM M_InOut io  INNER JOIN M_InOutLine il ON(il.M_InOut_ID = io.M_InOut_ID) WHERE io.DocStatus IN('CO', 'CL') AND il.C_OrderLine_ID = iobl.C_OrderLine_ID  AND iobl.PickedQty &gt;= M_InOutLine.MovementQty)   AND iob.IsSOTrx='Y'  AND iobl.Processed='Y'  AND ol.QtyOrdered &lt;&gt; ol.QtyDelivered">NOT EXISTS (SELECT 1 
 FROM M_InOut io 
 INNER JOIN M_InOutLine il ON(il.M_InOut_ID = io.M_InOut_ID)
 WHERE io.DocStatus IN('CO', 'CL')
 AND il.C_OrderLine_ID = iobl.C_OrderLine_ID 
-AND iobl.PickedQty &gt;= M_InOutLine.MovementQty)  
+AND iobl.PickedQty &gt;= il.MovementQty)  
 AND iob.IsSOTrx='Y' 
 AND iobl.Processed='Y' 
 AND ol.QtyOrdered &lt;&gt; ol.QtyDelivered</Data>
