@@ -34,7 +34,6 @@ import java.util.Properties;
 
 import org.compiere.model.MBPartner;
 import org.compiere.model.MInvoiceLine;
-import org.compiere.model.MLocator;
 import org.compiere.model.MOrderLine;
 import org.compiere.model.MProduct;
 import org.compiere.model.Query;

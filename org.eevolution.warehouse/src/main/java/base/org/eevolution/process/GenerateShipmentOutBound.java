@@ -64,6 +64,7 @@ public class GenerateShipmentOutBound extends GenerateShipmentOutBoundAbstract
 	private Hashtable<Integer, MInOut> shipments;
 	private Hashtable<Integer, I_DD_Order>  distributionOrders;
 	private Hashtable<Integer, MPPCostCollector> manufacturingIssues;
+	private Hashtable<Integer, MWMInOutBoundLine> outboundLineFromDDOrderLine;
 	private int created = 0;
 	
 	/**
@@ -82,6 +83,7 @@ public class GenerateShipmentOutBound extends GenerateShipmentOutBoundAbstract
 		manufacturingIssues = new Hashtable<>();
 		distributionOrders = new Hashtable<Integer, I_DD_Order>();
 		shipments  = new Hashtable<Integer, MInOut>();
+		outboundLineFromDDOrderLine = new Hashtable<Integer, MWMInOutBoundLine>();
 		// Overwrite table RV_WM_InOutBoundLine by WM_InOutBoundLine
 		getProcessInfo().setTableSelectionId(MWMInOutBoundLine.Table_ID);
 		List<MWMInOutBoundLine> outBoundLines = (List<MWMInOutBoundLine>) getInstancesForSelection(get_TrxName());
@@ -105,7 +107,7 @@ public class GenerateShipmentOutBound extends GenerateShipmentOutBoundAbstract
 	 * Create Shipment to Out Bound Order
 	 * @param outboundLine
 	 */
-	public void createShipment(MWMInOutBoundLine outboundLine)
+	private void createShipment(MWMInOutBoundLine outboundLine)
 	{
 		// Generate Shipment based on Outbound Order
 		if (outboundLine.getC_OrderLine_ID() > 0) {
@@ -131,16 +133,23 @@ public class GenerateShipmentOutBound extends GenerateShipmentOutBoundAbstract
 			shipmentLine.setM_FreightCategory_ID(outboundLine.getM_FreightCategory_ID());
 			shipmentLine.setFreightAmt(outboundLine.getFreightAmt());
 			shipmentLine.saveEx();
+			//	Set reference
+			//	Set reference
+			outboundLine.setM_InOut_ID(shipment.getM_InOut_ID());
+			outboundLine.setM_InOutLine_ID(shipmentLine.getM_InOutLine_ID());
 		}
 		// Generate Delivery Movement
 		if (outboundLine.getDD_OrderLine_ID() > 0) {
 			MDDOrderLine distributionOrderLine = (MDDOrderLine) outboundLine.getDD_OrderLine();
 
-			if (distributionOrders.get(distributionOrderLine.getDD_Order_ID()) == null)
+			if (distributionOrders.get(distributionOrderLine.getDD_Order_ID()) == null) {
 				distributionOrders.put(distributionOrderLine.getDD_Order_ID() , distributionOrderLine.getDD_Order());
-
+			}
+			//	
 			distributionOrderLine.setConfirmedQty(outboundLine.getPickedQty());
 			distributionOrderLine.saveEx();
+			//	Add to table
+			outboundLineFromDDOrderLine.put(distributionOrderLine.getDD_OrderLine_ID(), outboundLine);
 		}
 
 		// Generate Delivery Manufacturing Order
@@ -181,7 +190,7 @@ public class GenerateShipmentOutBound extends GenerateShipmentOutBoundAbstract
 		return qtyDelivered;
 	}
 
-	public void processingIssues()
+	private void processingIssues()
 	{
 		manufacturingIssues.entrySet().stream().filter(entry -> entry != null)
 			.forEach(entry  -> {
@@ -214,7 +223,7 @@ public class GenerateShipmentOutBound extends GenerateShipmentOutBoundAbstract
 
 
 
-	public void processingMovements() {
+	private void processingMovements() {
 		distributionOrders.entrySet().stream().filter(entry -> entry != null).forEach(entry -> {
 			I_DD_Order distributionOrder = entry.getValue();
 			List<Integer> orderIds = new ArrayList<Integer>();
@@ -234,13 +243,34 @@ public class GenerateShipmentOutBound extends GenerateShipmentOutBoundAbstract
 			addLog(processInfo.getSummary());
 			created++;
 			if(processInfo.getIDs() != null) {
+				//	Set Reference
+				setMovementReference(processInfo.getIDs());
 				Arrays.stream(processInfo.getIDs()).forEach(recordId -> {
 					MMovement movement = new MMovement(getCtx(), recordId, get_TrxName());
-					if (movement != null && movement.get_ID() > 0)
-						printDocument(movement, "Inventory Move Hdr (Example)");
-					else
-						throw new AdempiereException("@M_Movement_ID@ @NotFound@");
+					printDocument(movement, "Inventory Move Hdr (Example)");
 				});
+			}
+		});
+	}
+	
+	/**
+	 * Set Movement reference to InOutBound Line
+	 * @param movementIds
+	 */
+	private void setMovementReference(int [] movementIds) {
+		Arrays.stream(movementIds).forEach(recordId -> {
+			MMovement movement = new MMovement(getCtx(), recordId, get_TrxName());
+			if (movement != null && movement.get_ID() > 0) {
+				Arrays.stream(movement.getLines(true)).forEach(movementLine -> {
+					MWMInOutBoundLine outboundLine = outboundLineFromDDOrderLine.get(movementLine.getDD_OrderLine_ID());
+					if(outboundLine != null) {
+						outboundLine.setM_Movement_ID(movementLine.getM_Movement_ID());
+						outboundLine.setM_MovementLine_ID(movementLine.getM_MovementLine_ID());
+						outboundLine.saveEx();
+					}
+				});
+			} else {
+				throw new AdempiereException("@M_Movement_ID@ @NotFound@");
 			}
 		});
 	}

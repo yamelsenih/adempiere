@@ -34,7 +34,7 @@ public class X_WM_InOutBound extends PO implements I_WM_InOutBound, I_Persistent
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20170731L;
+	private static final long serialVersionUID = 20181009L;
 
     /** Standard Constructor */
     public X_WM_InOutBound (Properties ctx, int WM_InOutBound_ID, String trxName)
@@ -619,6 +619,27 @@ public class X_WM_InOutBound extends PO implements I_WM_InOutBound, I_Persistent
 		return false;
 	}
 
+	/** Set Delivered.
+		@param IsDelivered Delivered	  */
+	public void setIsDelivered (boolean IsDelivered)
+	{
+		set_Value (COLUMNNAME_IsDelivered, Boolean.valueOf(IsDelivered));
+	}
+
+	/** Get Delivered.
+		@return Delivered	  */
+	public boolean isDelivered () 
+	{
+		Object oo = get_Value(COLUMNNAME_IsDelivered);
+		if (oo != null) 
+		{
+			 if (oo instanceof Boolean) 
+				 return ((Boolean)oo).booleanValue(); 
+			return "Y".equals(oo);
+		}
+		return false;
+	}
+
 	/** Set Drop Shipment.
 		@param IsDropShip 
 		Drop Shipments are sent from the Vendor directly to the Customer
@@ -827,23 +848,6 @@ public class X_WM_InOutBound extends PO implements I_WM_InOutBound, I_Persistent
 		return ii.intValue();
 	}
 
-	/** Set Order Reference.
-		@param POReference 
-		Transaction Reference Number (Sales Order, Purchase Order) of your Business Partner
-	  */
-	public void setPOReference (String POReference)
-	{
-		set_Value (COLUMNNAME_POReference, POReference);
-	}
-
-	/** Get Order Reference.
-		@return Transaction Reference Number (Sales Order, Purchase Order) of your Business Partner
-	  */
-	public String getPOReference () 
-	{
-		return (String)get_Value(COLUMNNAME_POReference);
-	}
-
 	/** Set Pick Date.
 		@param PickDate 
 		Date/Time when picked for Shipment
@@ -859,6 +863,23 @@ public class X_WM_InOutBound extends PO implements I_WM_InOutBound, I_Persistent
 	public Timestamp getPickDate () 
 	{
 		return (Timestamp)get_Value(COLUMNNAME_PickDate);
+	}
+
+	/** Set Order Reference.
+		@param POReference 
+		Transaction Reference Number (Sales Order, Purchase Order) of your Business Partner
+	  */
+	public void setPOReference (String POReference)
+	{
+		set_Value (COLUMNNAME_POReference, POReference);
+	}
+
+	/** Get Order Reference.
+		@return Transaction Reference Number (Sales Order, Purchase Order) of your Business Partner
+	  */
+	public String getPOReference () 
+	{
+		return (String)get_Value(COLUMNNAME_POReference);
 	}
 
 	/** PriorityRule AD_Reference_ID=154 */
@@ -1022,23 +1043,6 @@ public class X_WM_InOutBound extends PO implements I_WM_InOutBound, I_Persistent
 		return (String)get_Value(COLUMNNAME_TrackingNo);
 	}
 
-	/** Set Immutable Universally Unique Identifier.
-		@param UUID 
-		Immutable Universally Unique Identifier
-	  */
-	public void setUUID (String UUID)
-	{
-		set_Value (COLUMNNAME_UUID, UUID);
-	}
-
-	/** Get Immutable Universally Unique Identifier.
-		@return Immutable Universally Unique Identifier
-	  */
-	public String getUUID () 
-	{
-		return (String)get_Value(COLUMNNAME_UUID);
-	}
-
 	public org.compiere.model.I_C_ElementValue getUser1() throws RuntimeException
     {
 		return (org.compiere.model.I_C_ElementValue)MTable.get(getCtx(), org.compiere.model.I_C_ElementValue.Table_Name)
@@ -1095,6 +1099,23 @@ public class X_WM_InOutBound extends PO implements I_WM_InOutBound, I_Persistent
 		return ii.intValue();
 	}
 
+	/** Set Immutable Universally Unique Identifier.
+		@param UUID 
+		Immutable Universally Unique Identifier
+	  */
+	public void setUUID (String UUID)
+	{
+		set_Value (COLUMNNAME_UUID, UUID);
+	}
+
+	/** Get Immutable Universally Unique Identifier.
+		@return Immutable Universally Unique Identifier
+	  */
+	public String getUUID () 
+	{
+		return (String)get_Value(COLUMNNAME_UUID);
+	}
+
 	/** Set Volume.
 		@param Volume 
 		Volume of a product
@@ -1110,6 +1131,26 @@ public class X_WM_InOutBound extends PO implements I_WM_InOutBound, I_Persistent
 	public BigDecimal getVolume () 
 	{
 		BigDecimal bd = (BigDecimal)get_Value(COLUMNNAME_Volume);
+		if (bd == null)
+			 return Env.ZERO;
+		return bd;
+	}
+
+	/** Set Weight.
+		@param Weight 
+		Weight of a product
+	  */
+	public void setWeight (BigDecimal Weight)
+	{
+		set_Value (COLUMNNAME_Weight, Weight);
+	}
+
+	/** Get Weight.
+		@return Weight of a product
+	  */
+	public BigDecimal getWeight () 
+	{
+		BigDecimal bd = (BigDecimal)get_Value(COLUMNNAME_Weight);
 		if (bd == null)
 			 return Env.ZERO;
 		return bd;
@@ -1133,25 +1174,5 @@ public class X_WM_InOutBound extends PO implements I_WM_InOutBound, I_Persistent
 		if (ii == null)
 			 return 0;
 		return ii.intValue();
-	}
-
-	/** Set Weight.
-		@param Weight 
-		Weight of a product
-	  */
-	public void setWeight (BigDecimal Weight)
-	{
-		set_Value (COLUMNNAME_Weight, Weight);
-	}
-
-	/** Get Weight.
-		@return Weight of a product
-	  */
-	public BigDecimal getWeight () 
-	{
-		BigDecimal bd = (BigDecimal)get_Value(COLUMNNAME_Weight);
-		if (bd == null)
-			 return Env.ZERO;
-		return bd;
 	}
 }
