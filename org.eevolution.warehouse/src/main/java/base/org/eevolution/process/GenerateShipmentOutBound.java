@@ -61,17 +61,16 @@ import org.eevolution.service.dsl.ProcessBuilder;
  */
 public class GenerateShipmentOutBound extends GenerateShipmentOutBoundAbstract
 {
-	protected Hashtable<Integer, MInOut> shipments;
-	protected Hashtable<Integer, I_DD_Order>  distributionOrders;
-	protected Hashtable<Integer, MPPCostCollector> manufacturingIssues;
+	private Hashtable<Integer, MInOut> shipments;
+	private Hashtable<Integer, I_DD_Order>  distributionOrders;
+	private Hashtable<Integer, MPPCostCollector> manufacturingIssues;
+	private int created = 0;
 	
 	/**
 	 * 	Get Parameters
 	 */
-	protected void prepare ()
-	{
+	protected void prepare () {
 		super.prepare();
-
 	}
 
 	/**
@@ -99,7 +98,7 @@ public class GenerateShipmentOutBound extends GenerateShipmentOutBoundAbstract
 		//Processing Issues
 		processingIssues();
 
-		return "@Ok@";
+		return "@Created@ " + created;
 	}
 
 	/**
@@ -194,6 +193,7 @@ public class GenerateShipmentOutBound extends GenerateShipmentOutBoundAbstract
 				log.warning("@ProcessFailed@ :" + issue.getDocumentInfo());
 			}
 			issue.saveEx();
+			created++;
 		});
 	}
 
@@ -208,6 +208,7 @@ public class GenerateShipmentOutBound extends GenerateShipmentOutBoundAbstract
 				log.warning("@ProcessFailed@ :" + shipment.getDocumentInfo());
 			}
 			shipment.saveEx();
+			created++;
 		});
 	}
 
@@ -231,6 +232,7 @@ public class GenerateShipmentOutBound extends GenerateShipmentOutBoundAbstract
 				throw new AdempiereException(processInfo.getSummary());
 
 			addLog(processInfo.getSummary());
+			created++;
 			if(processInfo.getIDs() != null) {
 				Arrays.stream(processInfo.getIDs()).forEach(recordId -> {
 					MMovement movement = new MMovement(getCtx(), recordId, get_TrxName());
