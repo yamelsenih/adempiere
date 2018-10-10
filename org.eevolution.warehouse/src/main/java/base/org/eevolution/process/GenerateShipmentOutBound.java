@@ -118,7 +118,12 @@ public class GenerateShipmentOutBound extends GenerateShipmentOutBoundAbstract
 			MInOut shipment = getShipment(orderLine, outboundLine.getParent());
 			MInOutLine shipmentLine = new MInOutLine(outboundLine.getCtx(), 0 , outboundLine.get_TrxName());
 			shipmentLine.setM_InOut_ID(shipment.getM_InOut_ID());
-			shipmentLine.setM_Locator_ID(outboundLine.getM_LocatorTo_ID());
+			//	Set from Storage
+			if(outboundLine.getM_LocatorTo_ID() != 0) {
+				shipmentLine.setM_Locator_ID(outboundLine.getM_LocatorTo_ID());
+				shipmentLine.setM_Locator_ID(qtyDelivered);
+			}
+			//	
 			shipmentLine.setM_Product_ID(outboundLine.getM_Product_ID());
 			shipmentLine.setQtyEntered(qtyDelivered);
 			shipmentLine.setMovementQty(qtyDelivered);
