@@ -74,7 +74,6 @@ INNER JOIN WM_InOutBound iob ON (iob.WM_InOutBound_ID=iobl.WM_InOutBound_ID)
 INNER JOIN C_OrderLine ol ON (ol.C_OrderLine_ID= iobl.C_OrderLine_ID)
 INNER JOIN C_Order o ON (o.C_Order_ID = ol.C_Order_ID)
 INNER JOIN C_BPartner bp ON (bp.C_BPartner_ID=ol.C_BPartner_ID)
-WHERE NOT EXISTS (SELECT 1 FROM M_InOutLine WHERE M_InOutLine.C_OrderLine_ID = iobl.C_OrderLine_ID AND iobl.PickedQty >= M_InOutLine.MovementQty)  AND iob.IsSOTrx='Y' AND iobl.Processed='Y' AND ol.QtyOrdered <> ol.QtyDelivered
 UNION
 SELECT
   iob.ad_client_id ,
@@ -150,7 +149,6 @@ INNER JOIN WM_InOutBound iob ON (iob.WM_InOutBound_ID=iobl.WM_InOutBound_ID)
 INNER JOIN DD_OrderLine ol ON (ol.DD_OrderLine_ID= iobl.DD_OrderLine_ID)
 INNER JOIN DD_Order o ON (o.DD_Order_ID = ol.DD_Order_ID)
 INNER JOIN C_BPartner bp ON (bp.C_BPartner_ID=o.C_BPartner_ID)
-WHERE NOT EXISTS (SELECT 1 FROM M_MovementLine WHERE M_MovementLine.DD_OrderLine_ID = iobl.DD_OrderLine_ID AND iobl.PickedQty >= M_MovementLine.MovementQty)  AND iob.IsSOTrx='Y' AND iobl.Processed='Y' AND ol.QtyOrdered <> ol.QtyDelivered
 UNION
 SELECT
     iob.ad_client_id ,
