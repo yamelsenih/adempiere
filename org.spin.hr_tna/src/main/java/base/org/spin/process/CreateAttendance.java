@@ -18,6 +18,7 @@ package org.spin.process;
 import java.sql.Timestamp;
 
 import org.adempiere.exceptions.AdempiereException;
+import org.compiere.util.TimeUtil;
 import org.compiere.util.Util;
 import org.eevolution.model.MHREmployee;
 import org.eevolution.model.MHRWorkShift;
@@ -87,14 +88,14 @@ public class CreateAttendance extends CreateAttendanceAbstract {
 			int seqNo = 10;
 			//	For Shift From Time
 			MHRAttendanceRecord attendance = new MHRAttendanceRecord(attendanceBatch);
-			attendance.setAttendanceTime(shiftFromTime);
+			attendance.setAttendanceTime(TimeUtil.getDayTime(getDateDoc(), shiftFromTime));
 			attendance.setSeqNo(seqNo);
 			attendance.saveEx();
 			seqNo += 10;
 			//	For Break Start Time
 			if(breakStartTime != null) {
 				attendance = new MHRAttendanceRecord(attendanceBatch);
-				attendance.setAttendanceTime(breakStartTime);
+				attendance.setAttendanceTime(TimeUtil.getDayTime(getDateDoc(), breakStartTime));
 				attendance.setSeqNo(seqNo);
 				attendance.saveEx();
 				seqNo += 10;
@@ -102,14 +103,14 @@ public class CreateAttendance extends CreateAttendanceAbstract {
 			//	For Break End Time
 			if(breakStartTime != null) {
 				attendance = new MHRAttendanceRecord(attendanceBatch);
-				attendance.setAttendanceTime(breakEndTime);
+				attendance.setAttendanceTime(TimeUtil.getDayTime(getDateDoc(), breakEndTime));
 				attendance.setSeqNo(seqNo);
 				attendance.saveEx();
 				seqNo += 10;
 			}
 			//	For Shift To Time
 			attendance = new MHRAttendanceRecord(attendanceBatch);
-			attendance.setAttendanceTime(shiftToTime);
+			attendance.setAttendanceTime(TimeUtil.getDayTime(getDateDoc(), shiftToTime));
 			attendance.setSeqNo(seqNo);
 			attendance.saveEx();
 			//	Process It

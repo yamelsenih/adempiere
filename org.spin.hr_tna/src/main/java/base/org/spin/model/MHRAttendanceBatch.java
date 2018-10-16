@@ -235,7 +235,7 @@ public class MHRAttendanceBatch extends X_HR_AttendanceBatch implements DocActio
 				MHRIncidence incidence = new MHRIncidence(this, shiftIncidence, durationInMillis);
 				incidence.saveEx();
 				//	Set value for worked hours
-				attendanceHours = attendanceHours.add(new BigDecimal(durationInMillis));
+				attendanceHours = attendanceHours.add(new BigDecimal(MHRIncidence.getTime(MHRShiftIncidence.TIMEUNIT_Hour, durationInMillis)));
 			}
 		}
 		//	Return 
@@ -284,13 +284,18 @@ public class MHRAttendanceBatch extends X_HR_AttendanceBatch implements DocActio
 					&& attendanceHours.doubleValue() >= workShift.getNoOfHours().doubleValue()) {
 				List<MHRAttendanceRecord> attendanceList = getLines(false);
 				MHRAttendanceRecord firstAttendance = attendanceList.get(0);
-				Timestamp lastTimeForAttendance = TimeUtil.addDuration(firstAttendance.getAttendanceTime(), TimeUtil.DURATIONUNIT_Hour, workShift.getNoOfHours());
+				MHRAttendanceRecord lastAttendance = attendanceList.get(attendanceList.size() - 1);
+				//	
+				int firstHours = TimeUtil.getHoursBetween(TimeUtil.getDay(firstAttendance.getAttendanceTime()), firstAttendance.getAttendanceTime());
+				//	
+				Timestamp beginningTime = TimeUtil.addDuration(firstAttendance.getAttendanceTime(), TimeUtil.DURATIONUNIT_Hour, workShift.getNoOfHours().add(new BigDecimal(firstHours)));
 				//	Get incidence from attendance
 				MHRShiftIncidence.getShiftIncidenceList(getCtx(), workShift.getHR_WorkShift_ID(), 
 						X_HR_ShiftIncidence.EVENTTYPE_Egress, getDateDoc()).stream()
-					.filter(shiftIncidence -> shiftIncidence.evaluateTime(lastTimeForAttendance))
+					.filter(shiftIncidence -> shiftIncidence.evaluateTime(lastAttendance.getAttendanceTime()))
 						.forEach(shiftIncidence -> {
-							long durationInMillis = shiftIncidence.getDurationInMillis(lastTimeForAttendance);
+							shiftIncidence.setBeginningTime(beginningTime);
+							long durationInMillis = shiftIncidence.getDurationInMillis(lastAttendance.getAttendanceTime());
 							if(durationInMillis > 0
 									|| (durationInMillis == 0 && shiftIncidence.isFixedValue())) {
 								MHRIncidence incidence = new MHRIncidence(this, shiftIncidence, durationInMillis);
