@@ -288,7 +288,10 @@ public class MHRAttendanceBatch extends X_HR_AttendanceBatch implements DocActio
 				//	
 				int firstHours = TimeUtil.getHoursBetween(TimeUtil.getDay(firstAttendance.getAttendanceTime()), firstAttendance.getAttendanceTime());
 				//	
-				Timestamp beginningTime = TimeUtil.addDuration(firstAttendance.getAttendanceTime(), TimeUtil.DURATIONUNIT_Hour, workShift.getNoOfHours().add(new BigDecimal(firstHours)));
+				Timestamp beginningTime = TimeUtil.addDuration(firstAttendance.getAttendanceTime(), TimeUtil.DURATIONUNIT_Hour, 
+						workShift.getNoOfHours()
+						.add(workShift.getBreakHoursNo())
+						.add(new BigDecimal(firstHours)));
 				//	Get incidence from attendance
 				MHRShiftIncidence.getShiftIncidenceList(getCtx(), workShift.getHR_WorkShift_ID(), 
 						X_HR_ShiftIncidence.EVENTTYPE_Egress, getDateDoc()).stream()
@@ -336,6 +339,9 @@ public class MHRAttendanceBatch extends X_HR_AttendanceBatch implements DocActio
 		StringBuffer errorMessage = new StringBuffer();
 		//	 Validate pair
 		int attendanceQuantity = getLines(false).size();
+		if(attendanceQuantity == 0) {
+			return "@NoLines@";
+		}
 		if(attendanceQuantity % 2 != 0) {
 			errorMessage.append("@TNA.AttendanceNotPair@");
 		}
