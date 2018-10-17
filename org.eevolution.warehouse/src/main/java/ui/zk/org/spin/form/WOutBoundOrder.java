@@ -58,6 +58,7 @@ import org.compiere.model.PrintInfo;
 import org.compiere.print.MPrintFormat;
 import org.compiere.print.ReportCtl;
 import org.compiere.print.ReportEngine;
+import org.compiere.process.DocAction;
 import org.compiere.util.DisplayType;
 import org.compiere.util.Env;
 import org.compiere.util.KeyNamePair;
@@ -95,7 +96,6 @@ public class WOutBoundOrder extends OutBoundOrder
 	public WOutBoundOrder() {
 		Env.setContext(Env.getCtx(), form.getWindowNo(), "IsSOTrx", "Y");   //  defaults to no
 		try	{
-			
 			dyInit();
 			zkInit();
 			//	Load Default Values
@@ -191,6 +191,9 @@ public class WOutBoundOrder extends OutBoundOrder
 	/**	Invoice Info		*/
 	private Label 			invoiceInfo = new Label();
 	private Label			invoiceLabel = new Label();
+	/**	Document Action	*/
+	private Label			docActionLabel = new Label();
+	private WTableDirEditor docActionPick;
 	/**	Confirm Panel		*/
 	private ConfirmPanel 	confirmPanel;
 	
@@ -233,6 +236,8 @@ public class WOutBoundOrder extends OutBoundOrder
 		deliveryRuleLabel.setText(Msg.translate(Env.getCtx(), "DeliveryRule"));
 		//	Delivery Via Rule
 		deliveryViaRuleLabel.setText(Msg.translate(Env.getCtx(), "DeliveryViaRule"));
+		//	Document Action
+		docActionLabel.setText(Msg.translate(Env.getCtx(), "DocAction"));
 		//	Date
 		labelDocumentDate.setText(Msg.translate(Env.getCtx(), "DateDoc"));
 		labelShipmentDate.setText(Msg.translate(Env.getCtx(), "ShipDate"));
@@ -300,6 +305,9 @@ public class WOutBoundOrder extends OutBoundOrder
 		row.appendChild(new Space());
 		row.appendChild(searchButton);
 		searchButton.addActionListener(this);
+		//	Document Action
+		row.appendChild(docActionLabel.rightAlign());
+		row.appendChild(docActionPick.getComponent());
 		//	
 		northAdded = new North();
 		northAdded.setCollapsible(true);
@@ -501,6 +509,13 @@ public class WOutBoundOrder extends OutBoundOrder
 		shipperPick = new WTableDirEditor("M_Shipper_ID", false, false, true, lookupSP);
 		shipperPick.addValueChangeListener(this);
 		//	
+		MLookup docActionL = MLookupFactory.get(Env.getCtx(), form.getWindowNo(), 58192 /* WM_InOutBound.DocAction */,
+				DisplayType.List, Env.getLanguage(Env.getCtx()), "DocAction", 135 /* _Document Action */,
+				false, "AD_Ref_List.Value IN ('CO','PR')");
+		//	Document Action
+		docActionPick = new WTableDirEditor("DocAction", true, false, true,docActionL);
+		docActionPick.setValue(DocAction.ACTION_Prepare);
+		//	
 		documentDateField.setValue(Env.getContextAsDate(Env.getCtx(), "#Date"));
 		//	Set Date
 		shipmentDateField.setValue(Env.getContextAsDate(Env.getCtx(), "#Date"));
@@ -547,6 +562,7 @@ public class WOutBoundOrder extends OutBoundOrder
 		documentDateField.setValue(Env.getContextAsDate(Env.getCtx(), "#Date"));
 		shipmentDateField.setValue(Env.getContextAsDate(Env.getCtx(), "#Date"));
 		shipperPick.setValue(null);
+		docActionPick.setValue(DocAction.ACTION_Prepare);
 	}
 
 	/**
@@ -598,6 +614,8 @@ public class WOutBoundOrder extends OutBoundOrder
 		//	Operation Type
 		value = operationTypePick.getValue();
 		movementType = (String)value;
+		value = docActionPick.getValue();
+		documentAction = (String) value;
 		//	Document Type Target
 		value = docTypeTargetPick.getValue();
 		docTypeTargetId = Integer.parseInt(String.valueOf(value != null? value: "0"));

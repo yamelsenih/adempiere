@@ -106,6 +106,8 @@ public class OutBoundOrder {
 	protected int 				warehouseId = 0;
 	/**	Operation Type		*/
 	protected String 			movementType = null;
+	/**	Document Action		*/
+	protected String 			documentAction = null;
 	/**	Document Type 		*/
 	protected int 				docTypeId = 0;
 	/**	Document Type Target*/
@@ -942,9 +944,13 @@ public class OutBoundOrder {
 		outBoundOrder.setVolume(totalVolume);
 		//	Save Header
 		outBoundOrder.saveEx();
+		//	Validate Document Action
+		if(Util.isEmpty(documentAction)) {
+			documentAction = MWMInOutBound.DOCACTION_Complete;
+		}
 		//	Complete Order
-		outBoundOrder.setDocAction(MWMInOutBound.DOCACTION_Complete);
-		outBoundOrder.processIt(MWMInOutBound.DOCACTION_Complete);
+		outBoundOrder.setDocAction(documentAction);
+		outBoundOrder.processIt(documentAction);
 		outBoundOrder.saveEx();
 		//	Valid Error
 		errorMessage = outBoundOrder.getProcessMsg();
