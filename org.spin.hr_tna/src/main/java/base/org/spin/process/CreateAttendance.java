@@ -115,6 +115,7 @@ public class CreateAttendance extends CreateAttendanceAbstract {
 			attendance.saveEx();
 			//	Process It
 			processDocument(attendanceBatch);
+			created++;
 		}
 		return "@Created@ " + created;
 	}
