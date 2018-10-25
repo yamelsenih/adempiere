@@ -21,8 +21,6 @@ import java.math.BigDecimal;
 import java.util.Hashtable;
 import java.util.List;
 
-import org.compiere.model.MInOut;
-import org.compiere.model.MInOutLine;
 import org.compiere.model.MInvoice;
 import org.compiere.model.MInvoiceLine;
 import org.compiere.model.MOrder;
