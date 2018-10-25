@@ -197,7 +197,7 @@ public class WOutBoundOrder extends OutBoundOrder
 	/**	Confirm Panel		*/
 	private ConfirmPanel 	confirmPanel;
 	
-	private StatusBarPanel statusBar = new StatusBarPanel();
+	private StatusBarPanel 	statusBar = new StatusBarPanel();
 	/**
 	 *  Static zkInit
 	 *  @throws Exception
@@ -302,6 +302,8 @@ public class WOutBoundOrder extends OutBoundOrder
 		//	Entry Ticket
 		row = rows.newRow();
 		//	Search
+		row.appendChild(new Space());
+		row.appendChild(new Space());
 		row.appendChild(new Space());
 		row.appendChild(searchButton);
 		searchButton.addActionListener(this);
