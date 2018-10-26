@@ -122,7 +122,7 @@ public class WCollectDetail extends CollectDetail implements EventListener, POSP
 	/**	Default Font		*/
 	private final String 	FONT_SIZE = "Font-size:medium;";
 	/**	Default Width		*/
-	private final String 	HEIGHT = "height:33px;";
+	private final String 	HEIGHT = "height:40px;";
 	/**	Default Height		*/
 	private final String 	WIDTH = "width:149px;";
 	
@@ -497,6 +497,7 @@ public class WCollectDetail extends CollectDetail implements EventListener, POSP
 			setCurrencyDocumentId(v_Parent.getPOSPanel().getOrder().getC_Currency_ID());
 			setConversionTypeId(v_Parent.getM_POS().get_ValueAsInt("C_ConversionType_ID"));
 			setConvertedAmt();
+			fPayAmt.setValue(getPayAmt());
 		} else if(e.getName().equals(Events.ON_FOCUS)){
 			if(e.getTarget().equals(fCheckNo.getComponent(WPOSTextField.SECONDARY)) && !isKeyboard) {
 				isKeyboard = true;
