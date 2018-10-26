@@ -673,5 +673,13 @@ public class WCollect extends Collect implements WPOSKeyListener, EventListener,
 	public Panel getPanel() {
 		return mainPanel;
 	}
+	
+	/**
+	 * Get Current POS Panel
+	 * @return
+	 */
+	public WPOS getPOSPanel() {
+		return posPanel;
+	}
 
 }

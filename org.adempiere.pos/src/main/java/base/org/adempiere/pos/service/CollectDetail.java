@@ -20,6 +20,8 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Locale;
 
+import org.compiere.model.MConversionRate;
+import org.compiere.model.MCurrency;
 import org.compiere.model.MDocType;
 import org.compiere.model.MInvoice;
 import org.compiere.model.MLookup;
@@ -230,6 +232,15 @@ public class CollectDetail {
 	private MInvoice	m_CreditMemo;
 	/**	ID Credit Invoice				*/
 	private int			m_C_Invoice_ID;
+	/**	Conversion Type					*/
+	private int conversionTypeId;
+	/**	Currency						*/
+	private int currencyId;
+	/**	Document Currency				*/
+	private int currencyDocumentId;
+	/**	Conversion Rate					*/
+	private BigDecimal currencyRate;
+	
 	
 	/**
 	 * Get Months for Credit Card
@@ -654,7 +665,88 @@ public class CollectDetail {
 		this.m_CreditMemo = m_CreditMemo;
 	}
 
-
+	/**
+	 * Set Currency ID
+	 * @param currencyId
+	 */
+	public void setCurrencyId(int currencyId) {
+		this.currencyId = currencyId;
+	}
+	
+	/**
+	 * Set Currency Document
+	 * @param currencyDocumentId
+	 */
+	public void setCurrencyDocumentId(int currencyDocumentId) {
+		this.currencyDocumentId = currencyDocumentId;
+	}
+	
+	/**
+	 * Set Conversion Type
+	 * @param conversionTypeId
+	 */
+	public void setConversionTypeId(int conversionTypeId) {
+		this.conversionTypeId = conversionTypeId;
+	}
+	
+	/**
+	 * Get Currency from Payment
+	 * @return
+	 */
+	public int getCurrencyId() {
+		return currencyId;
+	}
+	
+	/**
+	 * Get Currency Document ID
+	 * @return
+	 */
+	public int getCurrencyDocumentId() {
+		return currencyDocumentId;
+	}
+	
+	/**
+	 * Get Conversion Type
+	 * @return
+	 */
+	public int getConversionTypeId() {
+		return conversionTypeId;
+	}
+	
+	/**
+	 * Get Conversion Rate
+	 * @return
+	 */
+	public BigDecimal getConversionRate() {
+		return currencyRate;
+	}
+	
+	/**
+	 * Set Converted Amount
+	 */
+	public void setConvertedAmt() {
+		if(getCurrencyId() <= 0
+				|| getCurrencyDocumentId() <= 0) {
+			return;
+		}
+		MCurrency currency = MCurrency.get (Env.getCtx(), getCurrencyId());
+		int clientId = Env.getContextAsInt (Env.getCtx(), 0, "AD_Client_ID");
+		int organizationId = Env.getContextAsInt (Env.getCtx(), 0, "AD_Org_ID");
+		// Get Currency Rate
+		currencyRate = Env.ONE;
+		if (getCurrencyId() != getCurrencyDocumentId()) {
+			currencyRate = MConversionRate.getRate(getCurrencyDocumentId(), getCurrencyId(), getDateTrx(), getConversionTypeId(), clientId, organizationId);
+			if (currencyRate == null || currencyRate.compareTo(Env.ZERO) == 0) {
+				return;
+			}
+			//	Set Payment Amount
+			BigDecimal payAmt = getPayAmt();
+			payAmt = payAmt.multiply(currencyRate).setScale (
+					currency.getStdPrecision (), BigDecimal.ROUND_HALF_UP);
+			setPayAmt(payAmt);
+		}
+	}
+	
 	@Override
 	public String toString() {
 		return "CollectType [m_TenderType=" + m_TenderType + ", m_PayAmt="

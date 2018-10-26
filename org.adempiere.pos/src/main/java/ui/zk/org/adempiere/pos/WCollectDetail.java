@@ -40,6 +40,7 @@ import org.adempiere.webui.component.Rows;
 import org.adempiere.webui.window.FDialog;
 import org.compiere.model.MLookup;
 import org.compiere.model.MLookupFactory;
+import org.compiere.model.MLookupInfo;
 import org.compiere.model.X_C_Payment;
 import org.compiere.util.DisplayType;
 import org.compiere.util.Env;
@@ -87,6 +88,7 @@ public class WCollectDetail extends CollectDetail implements EventListener, POSP
 	private Grid 			v_DebitPanel;
 	private Properties 		p_ctx;
 	private Listbox 		fTenderType;
+	private Listbox 		currency;
 	public POSNumberBox 	fPayAmt;
 	
 	/**	Check				*/
@@ -146,8 +148,8 @@ public class WCollectDetail extends CollectDetail implements EventListener, POSP
 		row = rows.newRow();
 		
 		// Payment type selection
-		int AD_Column_ID = 8416; //C_Payment_v.TenderType
-		MLookup lookup = MLookupFactory.get(Env.getCtx(), 0, 0, AD_Column_ID, DisplayType.List);
+		int columnId = 8416; //C_Payment_v.TenderType
+		MLookup lookup = MLookupFactory.get(Env.getCtx(), 0, 0, columnId, DisplayType.List);
 		ArrayList<Object> types = lookup.getData(true, false, true, true);
 		
 		bMinus = v_Parent.createButtonAction("Minus", KeyStroke.getKeyStroke(KeyEvent.VK_F3, Event.F3));
@@ -171,9 +173,46 @@ public class WCollectDetail extends CollectDetail implements EventListener, POSP
 		}
 
 		fTenderType.setStyle(HEIGHT+WIDTH+FONT_SIZE);
-		
 		row.appendChild(fTenderType);
-		
+		//	Currency
+		columnId = 5299;
+		int conversionTypeId = v_Parent.getM_POS().get_ValueAsInt("C_ConversionType_ID");
+		if(conversionTypeId > 0) {
+			int fromCurrencyId = v_Parent.getPOSPanel().getOrder().getC_Currency_ID();
+			MLookupInfo info = MLookupFactory.getLookupInfo(Env.getCtx(), 0, columnId, DisplayType.TableDir);
+			info.ValidationCode = "EXISTS(SELECT 1 FROM C_Conversion_Rate cr "
+					+ "WHERE cr.C_Currency_ID_To = C_Currency.C_Currency_ID "
+					+ "AND cr.C_Currency_ID = " + fromCurrencyId + " "
+					+ "AND cr.C_ConversionType_ID = " + conversionTypeId + ") "
+					+ "OR C_Currency_ID = " + v_Parent.getPOSPanel().getOrder().getC_Currency_ID();
+			info.IsValidated = false;
+			MLookup currencyLookup = new MLookup(info, 0);
+			ArrayList<Object> currencyList = currencyLookup.getData(true, true, true, true);
+			
+			row = rows.newRow();
+			currency = ListboxFactory.newDropdownListbox();
+			currency.setStyle(HEIGHT+WIDTH+FONT_SIZE);
+			currency.setValue(fromCurrencyId);
+			currency.addActionListener(this);
+			
+			/**
+			 *	Load Credit Cards
+			 */
+			int index = 0;
+			for (int i = 0; i < currencyList.size(); i++) {
+				Object obj = currencyList.get(i)	;
+				if (obj instanceof KeyNamePair)	{
+					KeyNamePair key = (KeyNamePair) obj;
+					currency.appendItem(key.getName(), key.getKey());
+					if(key.getKey() == fromCurrencyId) {
+						index = i;
+					}
+				}
+			}
+			currency.setSelectedIndex(index);
+			row.appendChild(currency);
+		}
+		//	
 		Label lPayAmt  = new Label(Msg.translate(p_ctx, "PayAmt"));
 		lPayAmt.setWidth("225px");
 		fPayAmt = new POSNumberBox(false);
@@ -198,7 +237,7 @@ public class WCollectDetail extends CollectDetail implements EventListener, POSP
 		v_CheckPanel.setHeight("95px");
 		groupPanel.appendChild(v_CheckPanel);
 		
-		Rows rows =v_CheckPanel.newRows();
+		Rows rows = v_CheckPanel.newRows();
 		Row row = rows.newRow();
 
 		fCheckRouteNo = new WPOSTextField(Msg.translate(p_ctx, "RoutingNo"), keyboard);
@@ -452,6 +491,12 @@ public class WCollectDetail extends CollectDetail implements EventListener, POSP
 			
 			setPayAmt((BigDecimal) fPayAmt.getValue());
 			v_Parent.refreshPanel();
+		} else if(currency != null 
+				&& e.getTarget().equals(currency)) {
+			setCurrencyId((Integer) currency.getValue());
+			setCurrencyDocumentId(v_Parent.getPOSPanel().getOrder().getC_Currency_ID());
+			setConversionTypeId(v_Parent.getM_POS().get_ValueAsInt("C_ConversionType_ID"));
+			setConvertedAmt();
 		} else if(e.getName().equals(Events.ON_FOCUS)){
 			if(e.getTarget().equals(fCheckNo.getComponent(WPOSTextField.SECONDARY)) && !isKeyboard) {
 				isKeyboard = true;

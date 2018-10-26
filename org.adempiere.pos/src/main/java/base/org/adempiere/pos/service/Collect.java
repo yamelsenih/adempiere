@@ -957,4 +957,12 @@ public class Collect {
 	public List<CollectDetail> getCollectDetails() {
 		return collectDetails;
 	}
+	
+	/**
+	 * Get POS definition
+	 * @return
+	 */
+	public MPOS getM_POS() {
+		return entityPOS;
+	}
 }
