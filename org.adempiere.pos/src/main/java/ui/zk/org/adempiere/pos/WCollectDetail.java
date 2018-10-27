@@ -71,7 +71,7 @@ public class WCollectDetail extends CollectDetail implements EventListener, POSP
 	 * @param m_PayAmt
 	 */
 	public WCollectDetail(WCollect p_WCollect, String p_TenderType, BigDecimal m_PayAmt) {
-		super(p_TenderType, m_PayAmt);
+		super(p_WCollect, p_TenderType, m_PayAmt);
 		m_TenderType = p_TenderType;
 		p_ctx = Env.getCtx();
 		//	Instance POS
@@ -139,7 +139,7 @@ public class WCollectDetail extends CollectDetail implements EventListener, POSP
 	public void loadStandardPanel(){
 		v_StandarPanel = GridFactory.newGridLayout();
 		v_StandarPanel.setWidth("100%");
-		v_StandarPanel.setHeight("75px");
+		v_StandarPanel.setHeight("100px");
 		groupPanel.appendChild(v_StandarPanel);
 
 		Rows rows = null;
@@ -464,7 +464,21 @@ public class WCollectDetail extends CollectDetail implements EventListener, POSP
 			field.setValue(label.getValue());
 		
 	}
-		
+	
+	/**
+	 * Set Currency from values
+	 */
+	private void setCurrency() {
+		if(currency != null) {
+			setCurrencyId((Integer) currency.getValue());
+			setCurrencyDocumentId(v_Parent.getOrder().getC_Currency_ID());
+			setConversionTypeId(v_Parent.getM_POS().get_ValueAsInt("C_ConversionType_ID"));
+			setConvertedAmt();
+		} else {
+			setPayAmt(getInitPayAmt());
+		}
+	}
+	
 	@Override
 	public void onEvent(org.zkoss.zk.ui.event.Event e) throws Exception {
 		if(e.getTarget().equals(bMinus)){
@@ -473,8 +487,8 @@ public class WCollectDetail extends CollectDetail implements EventListener, POSP
 			String m_TenderType =  ((ValueNamePair) fTenderType.getValue()).getID();
 			setTenderType(m_TenderType);
 			changeViewPanel();
-			fPayAmt.setValue(getInitPayAmt());
-			setPayAmt((BigDecimal) fPayAmt.getValue());
+			setCurrency();
+			fPayAmt.setValue(getPayAmt());
 			v_Parent.refreshPanel();
 		} else if(e.getTarget().equals(fCheckdate)){
 			//	TODO add support to controller to be define
@@ -488,15 +502,11 @@ public class WCollectDetail extends CollectDetail implements EventListener, POSP
 			setPayAmt(getInitPayAmt());
 			v_Parent.refreshPanel();
 			fPayAmt.setValue(getOpenAmtCreditMemo());
-			
 			setPayAmt((BigDecimal) fPayAmt.getValue());
 			v_Parent.refreshPanel();
 		} else if(currency != null 
 				&& e.getTarget().equals(currency)) {
-			setCurrencyId((Integer) currency.getValue());
-			setCurrencyDocumentId(v_Parent.getPOSPanel().getOrder().getC_Currency_ID());
-			setConversionTypeId(v_Parent.getM_POS().get_ValueAsInt("C_ConversionType_ID"));
-			setConvertedAmt();
+			setCurrency();
 			fPayAmt.setValue(getPayAmt());
 		} else if(e.getName().equals(Events.ON_FOCUS)){
 			if(e.getTarget().equals(fCheckNo.getComponent(WPOSTextField.SECONDARY)) && !isKeyboard) {

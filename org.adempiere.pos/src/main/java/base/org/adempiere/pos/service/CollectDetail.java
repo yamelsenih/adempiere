@@ -15,6 +15,7 @@
 package org.adempiere.pos.service;
 
 import java.math.BigDecimal;
+import java.math.MathContext;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -165,6 +166,23 @@ public class CollectDetail {
 		this.m_PayAmt = m_PayAmt;
 		setInitPayAmt(m_PayAmt);
 		m_CreditCardType = X_C_Payment.CREDITCARDTYPE_MasterCard;
+	}
+	
+	/**
+	 * Cash Constructor
+	 * *** Constructor ***
+	 * @param collect
+	 * @param m_TenderType
+	 * @param m_PayAmt
+	 */
+	protected CollectDetail(Collect collect, String m_TenderType, BigDecimal m_PayAmt) {
+		this.m_TenderType = m_TenderType;
+		this.m_PayAmt = m_PayAmt;
+		setInitPayAmt(m_PayAmt);
+		m_CreditCardType = X_C_Payment.CREDITCARDTYPE_MasterCard;
+		setCurrencyDocumentId(collect.getOrder().getC_Currency_ID());
+		setCurrencyId(getCurrencyDocumentId());
+		setConversionTypeId(collect.getM_POS().get_ValueAsInt("C_ConversionType_ID"));
 	}
 	
 	/**
@@ -722,6 +740,27 @@ public class CollectDetail {
 	}
 	
 	/**
+	 * Get converted payment amount to currency document
+	 * @return
+	 */
+	public BigDecimal getConvertedPayAmt() {
+		if(getCurrencyId() <= 0
+				|| getCurrencyDocumentId() <= 0
+				|| getConversionRate() == null
+				|| getConversionRate().compareTo(Env.ZERO) == 0) {
+			return getPayAmt();
+		}
+		//	Convert it for origin
+		BigDecimal payAmt = getPayAmt();
+		MCurrency currency = MCurrency.get (Env.getCtx(), getCurrencyDocumentId());
+		//	
+		payAmt = payAmt.divide(currencyRate, MathContext.DECIMAL128)
+				.setScale(currency.getStdPrecision (), BigDecimal.ROUND_HALF_UP);
+		//	Return 
+		return payAmt;
+	}
+	
+	/**
 	 * Set Converted Amount
 	 */
 	public void setConvertedAmt() {
@@ -737,20 +776,23 @@ public class CollectDetail {
 		if (getCurrencyId() != getCurrencyDocumentId()) {
 			currencyRate = MConversionRate.getRate(getCurrencyDocumentId(), getCurrencyId(), getDateTrx(), getConversionTypeId(), clientId, organizationId);
 			if (currencyRate == null || currencyRate.compareTo(Env.ZERO) == 0) {
-				return;
+				currencyRate = Env.ONE;
 			}
-			//	Set Payment Amount
-			BigDecimal payAmt = getPayAmt();
-			payAmt = payAmt.multiply(currencyRate).setScale (
-					currency.getStdPrecision (), BigDecimal.ROUND_HALF_UP);
-			setPayAmt(payAmt);
 		}
+		//	Set Payment Amount
+		BigDecimal payAmt = getInitPayAmt();
+		payAmt = payAmt.multiply(currencyRate).setScale (
+				currency.getStdPrecision (), BigDecimal.ROUND_HALF_UP);
+		setPayAmt(payAmt);
 	}
 	
 	@Override
 	public String toString() {
-		return "CollectType [m_TenderType=" + m_TenderType + ", m_PayAmt="
-				+ m_PayAmt + ", m_ReferenceNo=" + m_ReferenceNo
+		return "CollectType [m_TenderType=" + m_TenderType 
+				+ ", currencyId=" + currencyId
+				+ ", currencyDocumentId=" + currencyDocumentId
+				+ ", currencyRate=" + currencyRate
+				+ ", m_PayAmt=" + m_PayAmt + ", m_ReferenceNo=" + m_ReferenceNo
 				+ ", m_C_Bank_ID=" + m_C_Bank_ID + ", m_DateTrx=" + m_DateTrx
 				+ ", m_CreditCardExpMM=" + m_CreditCardExpMM
 				+ ", m_CreditCardExpYY=" + m_CreditCardExpYY
