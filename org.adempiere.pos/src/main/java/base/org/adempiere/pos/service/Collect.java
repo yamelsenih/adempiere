@@ -350,6 +350,10 @@ public class Collect {
 			payment.setC_BankAccount_ID(entityPOS.getC_BankAccount_ID());
 
 		payment.setAmount(currencyId, amount);
+		int conversionTypeId = entityPOS.get_ValueAsInt("C_ConversionType_ID");
+		if(conversionTypeId > 0) {
+			payment.setC_ConversionType_ID(conversionTypeId);
+		}
 		payment.setC_BankAccount_ID(entityPOS.getC_BankAccount_ID());
 		payment.setDateTrx(getDateTrx());
 		payment.setDateAcct(getDateTrx());
@@ -381,6 +385,10 @@ public class Collect {
 		MPayment payment = createPayment(MPayment.TENDERTYPE_Check);
 		payment.setC_CashBook_ID(entityPOS.getC_CashBook_ID());
 		payment.setAmount(currencyId, amount);
+		int conversionTypeId = entityPOS.get_ValueAsInt("C_ConversionType_ID");
+		if(conversionTypeId > 0) {
+			payment.setC_ConversionType_ID(conversionTypeId);
+		}
 		payment.setC_BankAccount_ID(entityPOS.getC_BankAccount_ID());
 		payment.setAccountNo(accountNo);
 		payment.setRoutingNo(routingNo);
@@ -412,6 +420,10 @@ public class Collect {
 		MPayment payment = createPayment(MPayment.TENDERTYPE_DirectDebit);
 		payment.setC_CashBook_ID(entityPOS.getC_CashBook_ID());
 		payment.setAmount(currencyId, amount);
+		int conversionTypeId = entityPOS.get_ValueAsInt("C_ConversionType_ID");
+		if(conversionTypeId > 0) {
+			payment.setC_ConversionType_ID(conversionTypeId);
+		}
 		payment.setC_BankAccount_ID(entityPOS.getC_BankAccount_ID());
 		payment.setRoutingNo(routingNo);
 		payment.setA_Country(accountCountry);
@@ -442,6 +454,10 @@ public class Collect {
 
 		MPayment payment = createPayment(MPayment.TENDERTYPE_CreditCard);
 		payment.setAmount(currencyId, amount);
+		int conversionTypeId = entityPOS.get_ValueAsInt("C_ConversionType_ID");
+		if(conversionTypeId > 0) {
+			payment.setC_ConversionType_ID(conversionTypeId);
+		}
 		payment.setC_BankAccount_ID(entityPOS.getC_BankAccount_ID());
 		payment.setDateTrx(getDateTrx());
 		payment.setDateAcct(getDateTrx());
