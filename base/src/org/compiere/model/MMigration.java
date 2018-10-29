@@ -263,7 +263,7 @@ public class MMigration extends X_AD_Migration {
 		}
 
 		saveEx();
-		log.log(Level.CONFIG, this.toString() + " ---> " + status + " (" + getStatusCode() + ")");
+		log.log(Level.INFO, this.toString() + " ---> " + status + " (" + getStatusCode() + ")");
 	}
 	
 	private int[] getStepIds(boolean rollback) {

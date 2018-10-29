@@ -46,7 +46,7 @@ public class MigrationLoader {
 		}
 		
 		Adempiere.startupEnvironment(false);
-		CLogMgt.setLevel(Level.CONFIG);
+		CLogMgt.setLevel(Level.INFO);
 		
 		if (! DB.isConnected()) {
 			log.info("No DB Connection");
@@ -79,7 +79,7 @@ public class MigrationLoader {
 			.withParameter("Clean", clean)
 			.execute();
 
-			log.log(Level.CONFIG, "Process=" + processInfo.getTitle() + " Error="+processInfo.isError() + " Summary=" + processInfo.getSummary());
+			log.log(Level.INFO, "Process=" + processInfo.getTitle() + " Error="+processInfo.isError() + " Summary=" + processInfo.getSummary());
 			if (failOnError && processInfo.isError())
 				throw new AdempiereException(processInfo.getSummary());
 
@@ -87,7 +87,7 @@ public class MigrationLoader {
 					.process(org.compiere.process.SequenceCheck.class)
 					.withTitle("Sequence Check")
 					.execute();
-			log.log(Level.CONFIG, "Process=" + processInfo.getTitle() + " Error="+processInfo.isError() + " Summary=" + processInfo.getSummary());
+			log.log(Level.INFO, "Process=" + processInfo.getTitle() + " Error="+processInfo.isError() + " Summary=" + processInfo.getSummary());
 
 			processInfo = ProcessBuilder.create(context)
 					.process(org.compiere.process.SynchronizeTerminology.class)
@@ -95,20 +95,20 @@ public class MigrationLoader {
 					.withParameter(SynchronizeTerminology.ISCREATEELEMENT,false)
 					.withParameter(SynchronizeTerminology.ISDELETINGUNUSEDELEMENT, false)
 					.execute();
-			log.log(Level.CONFIG, "Process=" + processInfo.getTitle() + " Error="+processInfo.isError() + " Summary=" + processInfo.getSummary());
+			log.log(Level.INFO, "Process=" + processInfo.getTitle() + " Error="+processInfo.isError() + " Summary=" + processInfo.getSummary());
 
 			processInfo = ProcessBuilder.create(context)
 					.process(org.compiere.process.RoleAccessUpdate.class)
 					.withTitle("Role Access Update")
 					.withParameter("AD_Client_ID", 0)
 					.executeUsingSystemRole();
-			log.log(Level.CONFIG, "Process=" + processInfo.getTitle() + " Error="+processInfo.isError() + " Summary=" + processInfo.getSummary());
+			log.log(Level.INFO, "Process=" + processInfo.getTitle() + " Error="+processInfo.isError() + " Summary=" + processInfo.getSummary());
 
 			processInfo = ProcessBuilder.create(context)
 					.process(org.compiere.process.GardenWorldCleanUp.class)
 					.withTitle("Updating Garden World")
 					.executeUsingSystemRole();
-			log.log(Level.CONFIG, "Process=" + processInfo.getTitle() + " Error="+processInfo.isError() + " Summary=" + processInfo.getSummary());
+			log.log(Level.INFO, "Process=" + processInfo.getTitle() + " Error="+processInfo.isError() + " Summary=" + processInfo.getSummary());
 		} catch (AdempiereException e) {
 			e.printStackTrace();
 			System.exit(1);
