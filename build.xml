@@ -48,7 +48,7 @@
   	</exec>
   	
   	<echo message="Run Migrate XML"/>
-	<exec dir="${AD_directory}" executable="/bin/bash" outputproperty = "devnull" failonerror="true">
+	<exec dir="${AD_directory}" executable="/bin/bash" failonerror="true">
     	<arg value="${RUN_MigrateXML}"/>
   	</exec>
   </target>

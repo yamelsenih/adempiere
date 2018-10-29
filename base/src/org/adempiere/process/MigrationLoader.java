@@ -46,7 +46,7 @@ public class MigrationLoader {
 		}
 		
 		Adempiere.startupEnvironment(false);
-		CLogMgt.setLevel(Level.CONFIG);
+		CLogMgt.setLevel(Level.SEVERE);
 		
 		if (! DB.isConnected()) {
 			log.info("No DB Connection");
