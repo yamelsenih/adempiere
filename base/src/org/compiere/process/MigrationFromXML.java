@@ -91,13 +91,13 @@ public class MigrationFromXML extends MigrationFromXMLAbstract {
 			}
 			else if ( file.isDirectory() )  // file exists
 			{
-				log.log(Level.INFO, "Processing migration files in directory: " + file.getAbsolutePath() );
+				log.log(Level.CONFIG, "Processing migration files in directory: " + file.getAbsolutePath() );
 				// Recursively find files
 				migrationFiles = (List<File>) FileUtils.listFiles(file, new String[]{"xml"}, true);
 				Collections.sort(migrationFiles, fileComparator);
 			}
 			else {
-				log.log(Level.INFO, "Processing migration file: " + file.getAbsolutePath() );				
+				log.log(Level.CONFIG, "Processing migration file: " + file.getAbsolutePath() );				
 				migrationFiles.add(file);
 			}
 			
@@ -144,18 +144,18 @@ public class MigrationFromXML extends MigrationFromXMLAbstract {
 				try {
 						migration = MMigration.fromXmlNode(ctx, element, trxName);
 						if (migration == null) {
-							log.log(Level.INFO, "XML file not a Migration. Skipping.");
+							log.log(Level.CONFIG, "XML file not a Migration. Skipping.");
 							return;
 						}
 
 						if (isApply()) {
                             if (MMigration.STATUSCODE_Applied.equals(migration.getStatusCode())) {
-                                log.log(Level.INFO, migration.toString() + " ---> Migration already applied - skipping.");
+                                log.log(Level.CONFIG, migration.toString() + " ---> Migration already applied - skipping.");
                                 return;
                             }
                             if (MMigration.STATUSCODE_Failed.equals(migration.getStatusCode())
                         		|| MMigration.STATUSCODE_PartiallyApplied.equals(migration.getStatusCode())) {
-                                log.log(Level.INFO, migration.toString() + " ---> Migration exists but has to be rolled back.");
+                                log.log(Level.CONFIG, migration.toString() + " ---> Migration exists but has to be rolled back.");
                                 // Rollback the migration to try and correct the error.
     							applyMigration(migration.getCtx(), migration.getAD_Migration_ID(), trxName);                                
                             }
