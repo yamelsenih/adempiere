@@ -214,14 +214,14 @@ public class MMigrationStep extends X_AD_MigrationStep {
 				setApply(MMigrationStep.APPLY_Rollback);
 				saveEx();
 			}
-			log.log(Level.CONFIG, "Migration step already applied: " + this);
+			log.log(Level.FINE, "Migration step already applied: " + this);
 			return retval + "Already applied";
 		}
 
 		// Flag that a script is in progress to shut off some validation checks
 		Env.setContext(getCtx(), "MigrationStepApplyInProgress", "Y");
 
-		log.log(Level.CONFIG, "Applying migration step: " + this.toString());
+		log.log(Level.FINE, "Applying migration step: " + this.toString());
 
 		if ( MMigrationStep.STEPTYPE_SQLStatement.equals(getStepType()) )
 			retval += applySQL(!apply);
@@ -234,7 +234,7 @@ public class MMigrationStep extends X_AD_MigrationStep {
 		// Unset flag that a script is in progress to shut off some validation checks
 		Env.setContext(getCtx(), "MigrationStepApplyInProgress", "");
 
-		log.log(Level.CONFIG, retval);
+		log.log(Level.FINE, retval);
 		getParent().updateStatus();
 		getParent().save();
 		return retval;
@@ -288,7 +288,7 @@ public class MMigrationStep extends X_AD_MigrationStep {
 		// Flag that a script is in progress to shut off some validation checks
 		Env.setContext(getCtx(), "MigrationStepRollbackInProgress", "Y");
 		
-		log.log(Level.CONFIG, "Rolling back migration step: " + this);
+		log.log(Level.FINE, "Rolling back migration step: " + this);
 
 
 		if (  MMigrationStep.STEPTYPE_SQLStatement.equals(getStepType()) )
@@ -303,7 +303,7 @@ public class MMigrationStep extends X_AD_MigrationStep {
 		// Unset the Flag that a script is in progress to shut off some validation checks
 		Env.setContext(getCtx(), "MigrationStepRollbackInProgress", "");
 
-		log.log(Level.CONFIG, retCode);
+		log.log(Level.FINE, retCode);
 		getParent().updateStatus();
 		getParent().save();
 		return retCode;
@@ -609,7 +609,7 @@ public class MMigrationStep extends X_AD_MigrationStep {
 						if(col.getAD_Table_ID() == I_AD_Table.Table_ID
 								|| col.getAD_Table_ID() == I_AD_Column.Table_ID
 								|| !isAllMigration) {
-							log.log(Level.CONFIG, "Synchronizing column: " + col.toString() 
+							log.log(Level.FINE, "Synchronizing column: " + col.toString() 
 									+ " in table: " + MTable.get(Env.getCtx(), col.getAD_Table_ID()));
 							col.syncDatabase();
 						} else {	//	BR [ 425 ]
@@ -729,7 +729,7 @@ public class MMigrationStep extends X_AD_MigrationStep {
 					MColumn col = (MColumn) po;
 					if (!col.isVirtualColumn()
 							&& syncColumn) {
-						log.log(Level.CONFIG, "Synchronizing column: " + col.toString() 
+						log.log(Level.FINE, "Synchronizing column: " + col.toString() 
 								+ " in table: " + MTable.get(Env.getCtx(), col.getAD_Table_ID()));
 						col.syncDatabase();
 					}
@@ -865,7 +865,7 @@ public class MMigrationStep extends X_AD_MigrationStep {
 		}
 		
 		mstep.saveEx();
-		log.log(Level.CONFIG, mstep.getAD_Migration().toString() + ": Step " + mstep.getSeqNo() + " loaded");
+		log.log(Level.FINE, mstep.getAD_Migration().toString() + ": Step " + mstep.getSeqNo() + " loaded");
 
 	}
 
