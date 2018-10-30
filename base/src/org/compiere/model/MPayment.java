@@ -827,7 +827,7 @@ public final class MPayment extends X_C_Payment
 		{
 			setPaymentProcessor();
 			if (getC_BankAccount_ID() == 0)
-				throw new IllegalArgumentException("Can't find Bank Account");
+				throw new IllegalArgumentException("@C_BankAccount_ID@ @NotFound@");
 		}
 		else
 			super.setC_BankAccount_ID(C_BankAccount_ID);
