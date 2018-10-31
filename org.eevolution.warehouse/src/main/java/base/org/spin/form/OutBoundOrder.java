@@ -421,7 +421,7 @@ public class OutBoundOrder {
 					"			GROUP BY l.M_Warehouse_ID, st.M_Product_ID, st.M_AttributeSetInstance_ID) s " +
 					"														ON(s.M_Product_ID = lord.M_Product_ID " +
 					"																AND s.M_Warehouse_ID = l.M_Warehouse_ID " +
-					"																AND lord.M_AttributeSetInstance_ID = s.M_AttributeSetInstance_ID) ")
+					"																AND (lord.M_AttributeSetInstance_ID = s.M_AttributeSetInstance_ID OR pro.M_AttributeSet_ID IS NULL)) ")
 					.append("WHERE ")
 					.append(sqlWhere).append(" ");
 			//	Group By
@@ -497,7 +497,7 @@ public class OutBoundOrder {
 					"			GROUP BY l.M_Warehouse_ID, st.M_Product_ID, st.M_AttributeSetInstance_ID) s " +
 					"														ON(s.M_Product_ID = lord.M_Product_ID " +
 					"																AND s.M_Warehouse_ID = lord.M_Warehouse_ID " +
-					"																AND lord.M_AttributeSetInstance_ID = s.M_AttributeSetInstance_ID) ")
+					"																AND (lord.M_AttributeSetInstance_ID = s.M_AttributeSetInstance_ID OR pro.M_AttributeSet_ID IS NULL)) ")
 					.append("WHERE ")
 					.append(sqlWhere).append(" ");
 			//	Group By
