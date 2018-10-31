@@ -93,7 +93,9 @@ public class CloseStatementPOS extends CloseStatementPOSAbstract {
     	BigDecimal payAmt = getPaidAmount();
     	BigDecimal cashLeaveAmt = getParameterAsBigDecimal("CashLeaveAmt");
     	String tenderType = getParameterAsString("TenderType");
-    	if(payAmt == null 
+    	int withdrawalChargeId = getParameterAsInt("WithdrawalCharge_ID");
+    	if(withdrawalChargeId <= 0
+    			|| payAmt == null 
     			|| cashLeaveAmt == null
     			|| cashLeaveAmt.doubleValue() == 0) {
     		return;
@@ -122,7 +124,7 @@ public class CloseStatementPOS extends CloseStatementPOSAbstract {
 		paymentBankFrom.setPayAmt(differenceAmt);
 		paymentBankFrom.setOverUnderAmt(Env.ZERO);
 		paymentBankFrom.setC_DocType_ID(false);
-		paymentBankFrom.setC_Charge_ID(getChargeId());
+		paymentBankFrom.setC_Charge_ID(withdrawalChargeId);
 		paymentBankFrom.setC_POS_ID(getPOSTerminalId());
 		paymentBankFrom.saveEx();
 		//	
@@ -137,7 +139,7 @@ public class CloseStatementPOS extends CloseStatementPOSAbstract {
 		paymentBankTo.setPayAmt(differenceAmt);
 		paymentBankTo.setOverUnderAmt(Env.ZERO);
 		paymentBankTo.setC_DocType_ID(true);
-		paymentBankTo.setC_Charge_ID(getChargeId());
+		paymentBankTo.setC_Charge_ID(withdrawalChargeId);
 		paymentBankTo.setC_POS_ID(getPOSTerminalId());
 		paymentBankTo.saveEx();
 
