@@ -21,6 +21,7 @@ import org.compiere.model.MBankAccount;
 import org.compiere.model.MBankStatement;
 import org.compiere.model.MBankStatementLine;
 import org.compiere.model.MOrg;
+import org.compiere.model.MPOS;
 import org.compiere.model.MPayment;
 import org.compiere.process.DocAction;
 import org.compiere.util.Env;
@@ -100,6 +101,7 @@ public class CloseStatementPOS extends CloseStatementPOSAbstract {
     			|| cashLeaveAmt.doubleValue() == 0) {
     		return;
     	}
+    	MPOS pos = MPOS.get(getCtx(), getPOSTerminalId());
     	MBankAccount bankAccountFrom = MBankAccount.get(getCtx(), getBankAccountId());
     	MOrg org = MOrg.get(getCtx(), bankAccountFrom.getAD_Org_ID());
 		int linkedBPartnerId = org.getLinkedC_BPartner_ID(get_TrxName());
@@ -126,6 +128,9 @@ public class CloseStatementPOS extends CloseStatementPOSAbstract {
 		paymentBankFrom.setC_DocType_ID(false);
 		paymentBankFrom.setC_Charge_ID(withdrawalChargeId);
 		paymentBankFrom.setC_POS_ID(getPOSTerminalId());
+		if(tenderType.equals(MPayment.TENDERTYPE_Cash)) {
+			paymentBankFrom.setC_CashBook_ID(pos.getC_CashBook_ID());
+		}
 		paymentBankFrom.saveEx();
 		//	
 		MPayment paymentBankTo = new MPayment(getCtx(), 0 ,  get_TrxName());
@@ -141,16 +146,21 @@ public class CloseStatementPOS extends CloseStatementPOSAbstract {
 		paymentBankTo.setC_DocType_ID(true);
 		paymentBankTo.setC_Charge_ID(withdrawalChargeId);
 		paymentBankTo.setC_POS_ID(getPOSTerminalId());
+		if(tenderType.equals(MPayment.TENDERTYPE_Cash)) {
+			paymentBankTo.setC_CashBook_ID(pos.getC_CashBook_ID());
+		}
 		paymentBankTo.saveEx();
 
 		paymentBankFrom.setRelatedPayment_ID(paymentBankTo.getC_Payment_ID());
 		paymentBankFrom.saveEx();
 		paymentBankFrom.processIt(MPayment.DOCACTION_Complete);
 		paymentBankFrom.saveEx();
+		MBankStatement.addPayment(paymentBankFrom);
 		paymentBankTo.setRelatedPayment_ID(paymentBankFrom.getC_Payment_ID());
 		paymentBankTo.saveEx();
 		paymentBankTo.processIt(MPayment.DOCACTION_Complete);
 		paymentBankTo.saveEx();
+		MBankStatement.addPayment(paymentBankFrom);
     }
 
     private LinkedHashMap<Integer, MBankStatement> getBankStatements()

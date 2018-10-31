@@ -16,7 +16,6 @@
 
 package org.adempiere.pos.process;
 
-import org.compiere.model.MBankAccount;
 import org.compiere.model.MPayment;
 import org.compiere.model.MPaymentBatch;
 import org.compiere.model.MRefList;
