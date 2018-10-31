@@ -415,13 +415,14 @@ public class OutBoundOrder {
 					"LEFT JOIN (" +
 					"				SELECT l.M_Warehouse_ID, st.M_Product_ID, " +
 					"					COALESCE(SUM(st.QtyOnHand), 0) QtyOnHand, " +
-					"					COALESCE(st.M_AttributeSetInstance_ID, 0) M_AttributeSetInstance_ID " +
+					"					(CASE WHEN p.M_AttributeSet_ID IS NOT NULL THEN COALESCE(st.M_AttributeSetInstance_ID, 0) ELSE 0 END) M_AttributeSetInstance_ID " +
 					"				FROM M_Storage st " +
+					"				INNER JOIN M_Product p ON(p.M_Product_ID = st.M_Product_ID) " +
 					"				INNER JOIN M_Locator l ON(l.M_Locator_ID = st.M_Locator_ID) " +
-					"			GROUP BY l.M_Warehouse_ID, st.M_Product_ID, st.M_AttributeSetInstance_ID) s " +
+					"			GROUP BY l.M_Warehouse_ID, st.M_Product_ID, p.M_AttributeSet_ID, 4) s " +
 					"														ON(s.M_Product_ID = lord.M_Product_ID " +
 					"																AND s.M_Warehouse_ID = l.M_Warehouse_ID " +
-					"																AND (lord.M_AttributeSetInstance_ID = s.M_AttributeSetInstance_ID OR pro.M_AttributeSet_ID IS NULL)) ")
+					"																AND lord.M_AttributeSetInstance_ID = s.M_AttributeSetInstance_ID) ")
 					.append("WHERE ")
 					.append(sqlWhere).append(" ");
 			//	Group By
@@ -491,13 +492,14 @@ public class OutBoundOrder {
 					"LEFT JOIN (" +
 					"				SELECT l.M_Warehouse_ID, st.M_Product_ID, " +
 					"					COALESCE(SUM(st.QtyOnHand), 0) QtyOnHand, " +
-					"					COALESCE(st.M_AttributeSetInstance_ID, 0) M_AttributeSetInstance_ID " +
+					"					(CASE WHEN p.M_AttributeSet_ID IS NOT NULL THEN COALESCE(st.M_AttributeSetInstance_ID, 0) ELSE 0 END) M_AttributeSetInstance_ID " +
 					"				FROM M_Storage st " +
+					"				INNER JOIN M_Product p ON(p.M_Product_ID = st.M_Product_ID) " + 
 					"				INNER JOIN M_Locator l ON(l.M_Locator_ID = st.M_Locator_ID) " +
-					"			GROUP BY l.M_Warehouse_ID, st.M_Product_ID, st.M_AttributeSetInstance_ID) s " +
+					"			GROUP BY l.M_Warehouse_ID, st.M_Product_ID, p.M_AttributeSet_ID, 4) s " +
 					"														ON(s.M_Product_ID = lord.M_Product_ID " +
 					"																AND s.M_Warehouse_ID = lord.M_Warehouse_ID " +
-					"																AND (lord.M_AttributeSetInstance_ID = s.M_AttributeSetInstance_ID OR pro.M_AttributeSet_ID IS NULL)) ")
+					"																AND lord.M_AttributeSetInstance_ID = s.M_AttributeSetInstance_ID) ")
 					.append("WHERE ")
 					.append(sqlWhere).append(" ");
 			//	Group By
