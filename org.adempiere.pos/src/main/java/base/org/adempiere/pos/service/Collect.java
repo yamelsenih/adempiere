@@ -357,11 +357,8 @@ public class Collect {
 		payment.setC_BankAccount_ID(entityPOS.getC_BankAccount_ID());
 		payment.setDateTrx(getDateTrx());
 		payment.setDateAcct(getDateTrx());
-		payment.saveEx();
-
 		payment.setOverUnderAmt(overUnderAmt);
 		payment.saveEx();
-
 		payment.setDocAction(MPayment.DOCACTION_Complete);
 		payment.setDocStatus(MPayment.DOCSTATUS_Drafted);
 		if (payment.processIt(MPayment.DOCACTION_Complete)){
