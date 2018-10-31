@@ -29,6 +29,7 @@ import org.compiere.util.Msg;
 import org.compiere.util.Util;
 
 import java.math.BigDecimal;
+import java.sql.Timestamp;
 import java.util.LinkedHashMap;
 import java.util.List;
 
@@ -92,13 +93,15 @@ public class CloseStatementPOS extends CloseStatementPOSAbstract {
      */
     private void createWithdrawal() {
     	BigDecimal payAmt = getPaidAmount();
-    	BigDecimal cashLeaveAmt = getParameterAsBigDecimal("CashLeaveAmt");
+    	BigDecimal beginningBalance = getParameterAsBigDecimal("BeginningBalance");
     	String tenderType = getParameterAsString("TenderType");
     	int withdrawalChargeId = getParameterAsInt("WithdrawalCharge_ID");
+    	String description = getParameterAsString("Description");
+    	Timestamp openingDate = getParameterAsTimestamp("OpeningDate");
     	if(withdrawalChargeId <= 0
     			|| payAmt == null 
-    			|| cashLeaveAmt == null
-    			|| cashLeaveAmt.doubleValue() == 0) {
+    			|| beginningBalance == null
+    			|| beginningBalance.doubleValue() == 0) {
     		return;
     	}
     	MPOS pos = MPOS.get(getCtx(), getPOSTerminalId());
@@ -108,22 +111,26 @@ public class CloseStatementPOS extends CloseStatementPOSAbstract {
 		if (linkedBPartnerId == 0) {
 			throw new AdempiereException("@LinkedC_BPartner_ID@ @of@ " + org.getName() + " @NotFound@");
 		}
+		if(openingDate == null) {
+			throw new AdempiereException("@OpeningDate@ @NotFound@");
+		}
     	//	
     	if(Util.isEmpty(tenderType)) {
     		tenderType = MPayment.TENDERTYPE_DirectDeposit;
     	}
+    	if(Util.isEmpty(description)) {
+    		description = Msg.parseTranslation(getCtx(), "@Withdrawal@ @POS@");
+    	}
     	//	
-    	BigDecimal differenceAmt = payAmt.subtract(cashLeaveAmt);
-    	MBankAccount bankAccountTo = MBankAccount.get(getCtx(), getParameterAsInt("C_BankAccountTo_ID"));
     	MPayment paymentBankFrom = new MPayment(getCtx(), 0 ,  get_TrxName());
 		paymentBankFrom.setC_BankAccount_ID(getBankAccountId());
 		paymentBankFrom.setDateAcct(getTransactionDateTo());
 		paymentBankFrom.setDateTrx(getTransactionDateTo());
 		paymentBankFrom.setTenderType(tenderType);
-		paymentBankFrom.setDescription(Msg.parseTranslation(getCtx(), "@Withdrawal@ @POS@"));
+		paymentBankFrom.setDescription(description);
 		paymentBankFrom.setC_BPartner_ID (linkedBPartnerId);
 		paymentBankFrom.setC_Currency_ID(bankAccountFrom.getC_Currency_ID());
-		paymentBankFrom.setPayAmt(differenceAmt);
+		paymentBankFrom.setPayAmt(beginningBalance);
 		paymentBankFrom.setOverUnderAmt(Env.ZERO);
 		paymentBankFrom.setC_DocType_ID(false);
 		paymentBankFrom.setC_Charge_ID(withdrawalChargeId);
@@ -134,14 +141,14 @@ public class CloseStatementPOS extends CloseStatementPOSAbstract {
 		paymentBankFrom.saveEx();
 		//	
 		MPayment paymentBankTo = new MPayment(getCtx(), 0 ,  get_TrxName());
-		paymentBankTo.setC_BankAccount_ID(bankAccountTo.getC_BankAccount_ID());
-		paymentBankTo.setDateAcct(getTransactionDateTo());
-		paymentBankTo.setDateTrx(getTransactionDateTo());
+		paymentBankTo.setC_BankAccount_ID(getBankAccountId());
+		paymentBankTo.setDateAcct(openingDate);
+		paymentBankTo.setDateTrx(openingDate);
 		paymentBankTo.setTenderType(tenderType);
-		paymentBankTo.setDescription(Msg.parseTranslation(getCtx(), "@Withdrawal@ @POS@"));
+		paymentBankTo.setDescription(description);
 		paymentBankTo.setC_BPartner_ID (linkedBPartnerId);
-		paymentBankTo.setC_Currency_ID(bankAccountTo.getC_Currency_ID());
-		paymentBankTo.setPayAmt(differenceAmt);
+		paymentBankTo.setC_Currency_ID(bankAccountFrom.getC_Currency_ID());
+		paymentBankTo.setPayAmt(beginningBalance);
 		paymentBankTo.setOverUnderAmt(Env.ZERO);
 		paymentBankTo.setC_DocType_ID(true);
 		paymentBankTo.setC_Charge_ID(withdrawalChargeId);
