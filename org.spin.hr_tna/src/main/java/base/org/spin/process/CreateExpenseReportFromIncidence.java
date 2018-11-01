@@ -38,6 +38,8 @@ public class CreateExpenseReportFromIncidence extends CreateExpenseReportFromInc
 	private MTimeExpense expenseReport = null;
 	/**	Current BP	*/
 	private int currentBPartnerId = 0;
+	/**	Contract Id	*/
+	private int currentContractId = 0;
 	
 	@Override
 	protected String doIt() throws Exception {
@@ -46,14 +48,17 @@ public class CreateExpenseReportFromIncidence extends CreateExpenseReportFromInc
 		for(Integer key : getSelectionKeys()) {
 			MHRIncidence incidence = new MHRIncidence(getCtx(), key, get_TrxName());
 			MHRShiftIncidence shiftIncidence = (MHRShiftIncidence) incidence.getHR_ShiftIncidence();
-			if(!incidence.getDocStatus().equals(X_HR_Incidence.DOCSTATUS_Completed)
-					|| !shiftIncidence.isInvoiced()) {
+			if(!incidence.getDocStatus().equals(X_HR_Incidence.DOCSTATUS_Completed)) {
 				continue;
 			}
 			int bPartnerId = incidence.getC_BPartner_ID();
+			int contractId = incidence.get_ValueAsInt("S_Contract_ID");
+			int contractLineId = incidence.get_ValueAsInt("S_ContractLine_ID");
 			//	Create new
 			if(expenseReport == null
-					|| currentBPartnerId != bPartnerId) {
+					|| currentBPartnerId != bPartnerId
+					|| currentContractId != contractId) {
+				currentContractId = contractId;
 				currentBPartnerId = bPartnerId;
 				processDocument();
 				createExpenseReport();
@@ -70,10 +75,13 @@ public class CreateExpenseReportFromIncidence extends CreateExpenseReportFromInc
 			expenseLine.setIsInvoiced(isInvoiced);
 			//	Validate product
 			if(shiftIncidence.getM_Product_ID() != 0) {
-				expenseLine.setM_Product_ID(shiftIncidence.get_ValueAsInt("M_Product_ID"));
+				expenseLine.setM_Product_ID(shiftIncidence.getM_Product_ID());
 			}
 			expenseLine.setQty(qty);
 			expenseLine.setC_BPartner_ID(currentBPartnerId);
+			if(contractLineId > 0) {
+				expenseLine.set_ValueOfColumn("S_ContractLine_ID", contractLineId);
+			}
 			expenseLine.saveEx();
 			//	
 			incidence.setS_TimeExpense_ID(expenseReport.getS_TimeExpense_ID());
@@ -114,6 +122,9 @@ public class CreateExpenseReportFromIncidence extends CreateExpenseReportFromInc
 		expenseReport.setDateReport(getDateReport());
 		expenseReport.setM_Warehouse_ID(getWarehouseId());
 		expenseReport.setM_PriceList_ID(getPriceListId());
+		if(currentContractId > 0) {
+			expenseReport.set_ValueOfColumn("S_Contract_ID", currentContractId);
+		}
 		expenseReport.saveEx();
 	}
 	

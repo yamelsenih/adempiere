@@ -63,6 +63,16 @@ public class CreateAttendance extends CreateAttendanceAbstract {
 			if(getDocTypeId() > 0) {
 				attendanceBatch.setC_DocType_ID(getDocTypeId());
 			}
+			//	Add support to contract
+			int contractId = getParameterAsInt("S_Contract_ID");
+			int contractLineId = getParameterAsInt("S_ContractLine_ID");
+			//	Set
+			if(contractId > 0) {
+				attendanceBatch.set_ValueOfColumn("S_Contract_ID", contractId);
+			}
+			if(contractLineId > 0) {
+				attendanceBatch.set_ValueOfColumn("S_ContractLine_ID", contractLineId);
+			}
 			//	Save
 			attendanceBatch.saveEx();
 			//	Set Defaults

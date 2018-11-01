@@ -233,6 +233,12 @@ public class MHRAttendanceBatch extends X_HR_AttendanceBatch implements DocActio
 			//	Create Incidence
 			if(durationInMillis != 0) {
 				MHRIncidence incidence = new MHRIncidence(this, shiftIncidence, durationInMillis);
+				if(get_ValueAsInt("S_Contract_ID") > 0) {
+					incidence.set_ValueOfColumn("S_Contract_ID", get_ValueAsInt("S_Contract_ID"));
+				}
+				if(get_ValueAsInt("S_ContractLine_ID") > 0) {
+					incidence.set_ValueOfColumn("S_ContractLine_ID", get_ValueAsInt("S_ContractLine_ID"));
+				}
 				incidence.saveEx();
 				//	Set value for worked hours
 				attendanceHours = attendanceHours.add(new BigDecimal(MHRIncidence.getTime(MHRShiftIncidence.TIMEUNIT_Hour, durationInMillis)));
@@ -267,6 +273,12 @@ public class MHRAttendanceBatch extends X_HR_AttendanceBatch implements DocActio
 		shiftIncidenceList.stream().forEach(shiftIncidence -> {
 			//	Create Incidence
 			MHRIncidence incidence = new MHRIncidence(this, shiftIncidence, durationInMillis);
+			if(get_ValueAsInt("S_Contract_ID") > 0) {
+				incidence.set_ValueOfColumn("S_Contract_ID", get_ValueAsInt("S_Contract_ID"));
+			}
+			if(get_ValueAsInt("S_ContractLine_ID") > 0) {
+				incidence.set_ValueOfColumn("S_ContractLine_ID", get_ValueAsInt("S_ContractLine_ID"));
+			}
 			incidence.saveEx();
 		});
 	}
@@ -302,6 +314,12 @@ public class MHRAttendanceBatch extends X_HR_AttendanceBatch implements DocActio
 							if(durationInMillis > 0
 									|| (durationInMillis == 0 && shiftIncidence.isFixedValue())) {
 								MHRIncidence incidence = new MHRIncidence(this, shiftIncidence, durationInMillis);
+								if(get_ValueAsInt("S_Contract_ID") > 0) {
+									incidence.set_ValueOfColumn("S_Contract_ID", get_ValueAsInt("S_Contract_ID"));
+								}
+								if(get_ValueAsInt("S_ContractLine_ID") > 0) {
+									incidence.set_ValueOfColumn("S_ContractLine_ID", get_ValueAsInt("S_ContractLine_ID"));
+								}
 								incidence.saveEx();
 							}
 				});
@@ -322,6 +340,12 @@ public class MHRAttendanceBatch extends X_HR_AttendanceBatch implements DocActio
 							if(durationInMillis > 0
 									|| (durationInMillis == 0 && shiftIncidence.isFixedValue())) {
 								MHRIncidence incidence = new MHRIncidence(this, shiftIncidence, durationInMillis);
+								if(get_ValueAsInt("S_Contract_ID") > 0) {
+									incidence.set_ValueOfColumn("S_Contract_ID", get_ValueAsInt("S_Contract_ID"));
+								}
+								if(get_ValueAsInt("S_ContractLine_ID") > 0) {
+									incidence.set_ValueOfColumn("S_ContractLine_ID", get_ValueAsInt("S_ContractLine_ID"));
+								}
 								incidence.saveEx();
 							}
 				});
