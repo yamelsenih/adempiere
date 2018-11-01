@@ -14,11 +14,15 @@
  * All Rights Reserved.                                                       *
  * Contributor(s): Yamel Senih www.erpya.com                                  *
  *****************************************************************************/
-package org.spin.util.support;
+package org.spin.util.support.mq;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+
+import org.spin.util.support.AppRegistrationEvent;
+import org.spin.util.support.AppRegistrationEventListener;
+import org.spin.util.support.IAppSupport;
 
 
 /**
@@ -36,7 +40,7 @@ public abstract class AbstractMessageQueue implements IAppSupport {
 	 * @param channel
 	 * @param payload
 	 */
-	public abstract void publish(String channel, byte[] payload) throws Exception;
+	public abstract void publish(String channel, IMessageQueue payload) throws Exception;
 	
 	/**
 	 * Subscribe to channel
