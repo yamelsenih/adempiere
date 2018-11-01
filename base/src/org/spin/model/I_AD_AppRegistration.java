@@ -31,7 +31,7 @@ public interface I_AD_AppRegistration
     /** TableName=AD_AppRegistration */
     public static final String Table_Name = "AD_AppRegistration";
 
-    /** AD_Table_ID=1000000 */
+    /** AD_Table_ID=54540 */
     public static final int Table_ID = MTable.getTable_ID(Table_Name);
 
     KeyNamePair Model = new KeyNamePair(Table_ID, Table_Name);
@@ -45,14 +45,10 @@ public interface I_AD_AppRegistration
     /** Column name AD_AppRegistration_ID */
     public static final String COLUMNNAME_AD_AppRegistration_ID = "AD_AppRegistration_ID";
 
-	/** Set Application Registration.
-	  * External Application Registration
-	  */
+	/** Set App Registration ID	  */
 	public void setAD_AppRegistration_ID (int AD_AppRegistration_ID);
 
-	/** Get Application Registration.
-	  * External Application Registration
-	  */
+	/** Get App Registration ID	  */
 	public int getAD_AppRegistration_ID();
 
     /** Column name AD_AppSupport_ID */
@@ -172,19 +168,6 @@ public interface I_AD_AppRegistration
 
 	/** Get Port	  */
 	public int getPort();
-
-    /** Column name SecretToken */
-    public static final String COLUMNNAME_SecretToken = "SecretToken";
-
-	/** Set Secret Token.
-	  * Secret Token used for authentication
-	  */
-	public void setSecretToken (String SecretToken);
-
-	/** Get Secret Token.
-	  * Secret Token used for authentication
-	  */
-	public String getSecretToken();
 
     /** Column name Timeout */
     public static final String COLUMNNAME_Timeout = "Timeout";

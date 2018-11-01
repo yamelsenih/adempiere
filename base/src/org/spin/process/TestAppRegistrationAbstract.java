@@ -29,7 +29,7 @@ public abstract class TestAppRegistrationAbstract extends SvrProcess {
 	/** Process Name 	*/
 	private static final String NAME_FOR_PROCESS = "Test Connection";
 	/** Process Id 	*/
-	private static final int ID_FOR_PROCESS = 1000000;
+	private static final int ID_FOR_PROCESS = 54149;
 
 	@Override
 	protected void prepare() {

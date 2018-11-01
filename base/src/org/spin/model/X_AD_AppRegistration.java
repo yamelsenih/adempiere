@@ -31,7 +31,7 @@ public class X_AD_AppRegistration extends PO implements I_AD_AppRegistration, I_
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20181029L;
+	private static final long serialVersionUID = 20181101L;
 
     /** Standard Constructor */
     public X_AD_AppRegistration (Properties ctx, int AD_AppRegistration_ID, String trxName)
@@ -78,10 +78,8 @@ public class X_AD_AppRegistration extends PO implements I_AD_AppRegistration, I_
       return sb.toString();
     }
 
-	/** Set Application Registration.
-		@param AD_AppRegistration_ID 
-		External Application Registration
-	  */
+	/** Set App Registration ID.
+		@param AD_AppRegistration_ID App Registration ID	  */
 	public void setAD_AppRegistration_ID (int AD_AppRegistration_ID)
 	{
 		if (AD_AppRegistration_ID < 1) 
@@ -90,9 +88,8 @@ public class X_AD_AppRegistration extends PO implements I_AD_AppRegistration, I_
 			set_ValueNoCheck (COLUMNNAME_AD_AppRegistration_ID, Integer.valueOf(AD_AppRegistration_ID));
 	}
 
-	/** Get Application Registration.
-		@return External Application Registration
-	  */
+	/** Get App Registration ID.
+		@return App Registration ID	  */
 	public int getAD_AppRegistration_ID () 
 	{
 		Integer ii = (Integer)get_Value(COLUMNNAME_AD_AppRegistration_ID);
@@ -126,8 +123,8 @@ public class X_AD_AppRegistration extends PO implements I_AD_AppRegistration, I_
 		return ii.intValue();
 	}
 
-	/** ApplicationType AD_Reference_ID=1000000 */
-	public static final int APPLICATIONTYPE_AD_Reference_ID=1000000;
+	/** ApplicationType AD_Reference_ID=54081 */
+	public static final int APPLICATIONTYPE_AD_Reference_ID=54081;
 	/** Message Queue = MQS */
 	public static final String APPLICATIONTYPE_MessageQueue = "MQS";
 	/** Set Application Type.
@@ -211,23 +208,6 @@ public class X_AD_AppRegistration extends PO implements I_AD_AppRegistration, I_
 		if (ii == null)
 			 return 0;
 		return ii.intValue();
-	}
-
-	/** Set Secret Token.
-		@param SecretToken 
-		Secret Token used for authentication
-	  */
-	public void setSecretToken (String SecretToken)
-	{
-		set_ValueNoCheck (COLUMNNAME_SecretToken, SecretToken);
-	}
-
-	/** Get Secret Token.
-		@return Secret Token used for authentication
-	  */
-	public String getSecretToken () 
-	{
-		return (String)get_Value(COLUMNNAME_SecretToken);
 	}
 
 	/** Set Timeout.

@@ -31,7 +31,7 @@ public class X_AD_AppSupport extends PO implements I_AD_AppSupport, I_Persistent
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20181029L;
+	private static final long serialVersionUID = 20181101L;
 
     /** Standard Constructor */
     public X_AD_AppSupport (Properties ctx, int AD_AppSupport_ID, String trxName)
@@ -75,8 +75,8 @@ public class X_AD_AppSupport extends PO implements I_AD_AppSupport, I_Persistent
       return sb.toString();
     }
 
-	/** Set App Support ID.
-		@param AD_AppSupport_ID App Support ID	  */
+	/** Set App Support.
+		@param AD_AppSupport_ID App Support	  */
 	public void setAD_AppSupport_ID (int AD_AppSupport_ID)
 	{
 		if (AD_AppSupport_ID < 1) 
@@ -85,8 +85,8 @@ public class X_AD_AppSupport extends PO implements I_AD_AppSupport, I_Persistent
 			set_ValueNoCheck (COLUMNNAME_AD_AppSupport_ID, Integer.valueOf(AD_AppSupport_ID));
 	}
 
-	/** Get App Support ID.
-		@return App Support ID	  */
+	/** Get App Support.
+		@return App Support	  */
 	public int getAD_AppSupport_ID () 
 	{
 		Integer ii = (Integer)get_Value(COLUMNNAME_AD_AppSupport_ID);
@@ -95,8 +95,8 @@ public class X_AD_AppSupport extends PO implements I_AD_AppSupport, I_Persistent
 		return ii.intValue();
 	}
 
-	/** ApplicationType AD_Reference_ID=1000000 */
-	public static final int APPLICATIONTYPE_AD_Reference_ID=1000000;
+	/** ApplicationType AD_Reference_ID=54081 */
+	public static final int APPLICATIONTYPE_AD_Reference_ID=54081;
 	/** Message Queue = MQS */
 	public static final String APPLICATIONTYPE_MessageQueue = "MQS";
 	/** Set Application Type.

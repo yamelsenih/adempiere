@@ -31,7 +31,7 @@ public interface I_AD_AppSupport
     /** TableName=AD_AppSupport */
     public static final String Table_Name = "AD_AppSupport";
 
-    /** AD_Table_ID=1000001 */
+    /** AD_Table_ID=54542 */
     public static final int Table_ID = MTable.getTable_ID(Table_Name);
 
     KeyNamePair Model = new KeyNamePair(Table_ID, Table_Name);
@@ -45,10 +45,10 @@ public interface I_AD_AppSupport
     /** Column name AD_AppSupport_ID */
     public static final String COLUMNNAME_AD_AppSupport_ID = "AD_AppSupport_ID";
 
-	/** Set App Support ID	  */
+	/** Set App Support	  */
 	public void setAD_AppSupport_ID (int AD_AppSupport_ID);
 
-	/** Get App Support ID	  */
+	/** Get App Support	  */
 	public int getAD_AppSupport_ID();
 
     /** Column name AD_Client_ID */

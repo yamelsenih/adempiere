@@ -31,7 +31,7 @@ public interface I_AD_AppRegistration_Para
     /** TableName=AD_AppRegistration_Para */
     public static final String Table_Name = "AD_AppRegistration_Para";
 
-    /** AD_Table_ID=1000002 */
+    /** AD_Table_ID=54541 */
     public static final int Table_ID = MTable.getTable_ID(Table_Name);
 
     KeyNamePair Model = new KeyNamePair(Table_ID, Table_Name);

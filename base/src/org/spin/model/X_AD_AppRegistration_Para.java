@@ -31,7 +31,7 @@ public class X_AD_AppRegistration_Para extends PO implements I_AD_AppRegistratio
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20181029L;
+	private static final long serialVersionUID = 20181101L;
 
     /** Standard Constructor */
     public X_AD_AppRegistration_Para (Properties ctx, int AD_AppRegistration_Para_ID, String trxName)
