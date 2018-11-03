@@ -55,6 +55,8 @@ public abstract class EmployeePayrollReportExternalStorageAbstract extends SvrPr
 	public static final String HR_PROCESSREPORT_ID = "HR_ProcessReport_ID";
 	/**	Parameter Name for Payroll Process Report Template	*/
 	public static final String HR_PROCESSREPORTTEMPLATE_ID = "HR_ProcessReportTemplate_ID";
+	/**	Parameter Name for Application Registration	*/
+	public static final String AD_APPREGISTRATION_ID = "AD_AppRegistration_ID";
 	/**	Parameter Value for Organization	*/
 	private int orgId;
 	/**	Parameter Value for Payroll Contract	*/
@@ -81,6 +83,8 @@ public abstract class EmployeePayrollReportExternalStorageAbstract extends SvrPr
 	private int processReportId;
 	/**	Parameter Value for Payroll Process Report Template	*/
 	private int processReportTemplateId;
+	/**	Parameter Value for Application Registration	*/
+	private int appRegistrationId;
 
 	@Override
 	protected void prepare() {
@@ -97,6 +101,7 @@ public abstract class EmployeePayrollReportExternalStorageAbstract extends SvrPr
 		docStatus = getParameterAsString(DOCSTATUS);
 		processReportId = getParameterAsInt(HR_PROCESSREPORT_ID);
 		processReportTemplateId = getParameterAsInt(HR_PROCESSREPORTTEMPLATE_ID);
+		appRegistrationId = getParameterAsInt(AD_APPREGISTRATION_ID);
 	}
 
 	/**	 Getter Parameter Value for Organization	*/
@@ -227,6 +232,16 @@ public abstract class EmployeePayrollReportExternalStorageAbstract extends SvrPr
 	/**	 Setter Parameter Value for Payroll Process Report Template	*/
 	protected void setProcessReportTemplateId(int processReportTemplateId) {
 		this.processReportTemplateId = processReportTemplateId;
+	}
+
+	/**	 Getter Parameter Value for Application Registration	*/
+	protected int getAppRegistrationId() {
+		return appRegistrationId;
+	}
+
+	/**	 Setter Parameter Value for Application Registration	*/
+	protected void setAppRegistrationId(int appRegistrationId) {
+		this.appRegistrationId = appRegistrationId;
 	}
 
 	/**	 Getter Parameter Value for Process ID	*/

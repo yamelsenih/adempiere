@@ -18,13 +18,26 @@
 package org.spin.process;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.adempiere.exceptions.AdempiereException;
+import org.compiere.model.MBPartner;
 import org.compiere.process.ProcessInfo;
 import org.compiere.util.DB;
+import org.compiere.util.DisplayType;
+import org.compiere.util.KeyNamePair;
 import org.compiere.util.Util;
+import org.eevolution.model.MHRProcess;
 import org.eevolution.service.dsl.ProcessBuilder;
+import org.spin.model.MADAppRegistration;
+import org.spin.model.MHRProcessReport;
+import org.spin.util.support.AppSupportHandler;
+import org.spin.util.support.IAppSupport;
+import org.spin.util.support.webdav.IWebDav;
 
 /** Generated Process for (Payroll Process Report)
  *  @author ADempiere (generated) 
@@ -34,7 +47,7 @@ public class EmployeePayrollReportExternalStorage extends EmployeePayrollReportE
 
 	@Override
 	protected String doIt() throws Exception {
-		StringBuffer sql = new StringBuffer("SELECT C_BPartner_ID FROM C_BPartner "
+		StringBuffer sql = new StringBuffer("SELECT C_BPartner_ID, Value FROM C_BPartner "
 				+ "WHERE EXISTS(SELECT 1 FROM RV_HR_ProcessDetail WHERE C_BPartner_ID = C_BPartner.C_BPartner_ID");
 		List<Object> params = new ArrayList<>();
 		//	Organization
@@ -43,9 +56,9 @@ public class EmployeePayrollReportExternalStorage extends EmployeePayrollReportE
 			params.add(getOrgId());
 		}
 		//	Contract
-		if(getPayrollId() > 0) {
+		if(getContractId() > 0) {
 			sql.append(" AND HR_Contract_ID = ?");
-			params.add(getPayrollId());
+			params.add(getContractId());
 		}
 		//	Payroll
 		if(getPayrollId() > 0) {
@@ -104,32 +117,109 @@ public class EmployeePayrollReportExternalStorage extends EmployeePayrollReportE
 			params.add(getBPartnerId());
 		}
 		sql.append(")");
-		int[] ids = DB.getIDsEx(get_TrxName(), sql.toString(), params);
+		KeyNamePair[] pairs = DB.getKeyNamePairs(sql.toString(), false, params);
+		//	
+		IAppSupport supportedApi = AppSupportHandler.getInstance().getAppSupport(MADAppRegistration.getById(getCtx(), getAppRegistrationId(), get_TrxName()));
+		if(supportedApi == null) {
+			throw new AdempiereException("@AD_AppSupport_ID@ @NotFound@");
+		}
+		if(!(supportedApi instanceof IWebDav)) {
+			throw new AdempiereException("@AD_AppSupport_ID@ @Unsupported@");
+		}
+		IWebDav webDavApi = (IWebDav) supportedApi;
+		//	Folder name
+		Timestamp date = new Timestamp(System.currentTimeMillis());
+		if(getHRProcessId() > 0) {
+			MHRProcess process = new MHRProcess(getCtx(), getHRProcessId(), get_TrxName());
+			date = process.getDateAcct();
+		}
+		//	Payroll Process Report
+		MHRProcessReport processReport = MHRProcessReport.get(getCtx(), getProcessReportId());
+		String yearFolder = DisplayType.getDateFormat(DisplayType.Date, null, "yyyy").format(date);
+		String monthFolder = DisplayType.getDateFormat(DisplayType.Date, null, "MM").format(date);
+		String printName = processReport.getPrintName();
+		if(Util.isEmpty(printName)) {
+			printName = processReport.getName();
+		}
+		String completeFile = printName + "-" + DisplayType.getDateFormat(DisplayType.Date, null, "yyyy-MM-dd").format(date);
 		//	IDs
-		for(int bPartnerId : ids) {
-			ProcessInfo processInfo = ProcessBuilder.create(getCtx())
+		for(KeyNamePair bPartner : pairs) {
+			ProcessBuilder builder = ProcessBuilder.create(getCtx())
 					.process(PayrollProcessReport.class)
-					.withTitle("Employee Report")
-					.withParameter(AD_ORG_ID, getOrgId())
-					.withParameter(HR_CONTRACT_ID, getContractId())
-					.withParameter(HR_PAYROLL_ID, getPayrollId())
-					.withParameter(HR_PROCESS_ID, getHRProcessId())
-					.withParameter(HR_DEPARTMENT_ID, getDepartmentId())
-					.withParameter(HR_JOB_ID, getJobId())
-					.withParameter(EMPLOYEESTATUS, getEmployeeStatus())
-					.withParameter(C_BPARTNER_ID, bPartnerId)
-					.withParameter(DATEACCT, getDateAcct())
-					.withParameter(DATEACCT + "_To", getDateAcctTo())
-					.withParameter(DOCSTATUS, getDocStatus())
-					.withParameter(HR_PROCESSREPORT_ID, getProcessReportId())
-					.withParameter(HR_PROCESSREPORTTEMPLATE_ID, getProcessReportTemplateId())
-					.execute();
+					.withTitle("Employee Report");
+			//	Key
+			builder.withParameter(C_BPARTNER_ID, bPartner.getKey());
+			//	
+			if(getOrgId() > 0) {
+				builder.withParameter(AD_ORG_ID, getOrgId());
+			}
+			if(getContractId() > 0) {
+				builder.withParameter(HR_CONTRACT_ID, getContractId());
+			}
+			if(getPayrollId() > 0) {
+				builder.withParameter(HR_PAYROLL_ID, getPayrollId());
+			}
+			if(getHRProcessId() > 0) {
+				builder.withParameter(HR_PROCESS_ID, getHRProcessId());
+			}
+			if(getDepartmentId() > 0) {
+				builder.withParameter(HR_DEPARTMENT_ID, getDepartmentId());
+			}
+			if(getJobId() > 0) {
+				builder.withParameter(HR_JOB_ID, getJobId());
+			}
+			if(!Util.isEmpty(getEmployeeStatus())) {
+				builder.withParameter(EMPLOYEESTATUS, getEmployeeStatus());
+			}
+			if(getDateAcct() != null) {
+				builder.withParameter(DATEACCT, getDateAcct());
+			}
+			if(getDateAcctTo() != null) {
+				builder.withParameter(DATEACCT + "_To", getDateAcctTo());
+			}		
+			if(!Util.isEmpty(getDocStatus())) {
+				builder.withParameter(DOCSTATUS, getDocStatus());
+			}		
+			if(getProcessReportId() > 0) {
+				builder.withParameter(HR_PROCESSREPORT_ID, getProcessReportId());
+			}
+			if(getProcessReportTemplateId() > 0) {
+				builder.withParameter(HR_PROCESSREPORT_ID, getProcessReportTemplateId());
+			}
+			//	
+			ProcessInfo processInfo = builder.execute();
 			//	Get Pdf
 			if(processInfo != null) {
 				File pdf = processInfo.getPDFReport();
-				System.err.println(pdf);
+				if(pdf != null) {
+					MBPartner bPartnerInfo = MBPartner.get(getCtx(), bPartner.getKey());
+					String employeeDirectory = bPartnerInfo.getValue() + "-" + bPartnerInfo.getName();
+					employeeDirectory = employeeDirectory.replaceAll("[+^:&áàäéèëíìïóòöúùñÁÀÄÉÈËÍÌÏÓÒÖÚÙÜÑçÇ$ ]", "-");
+					completeFile = completeFile.replaceAll("[+^:&áàäéèëíìïóòöúùñÁÀÄÉÈËÍÌÏÓÒÖÚÙÜÑçÇ$ ]", "-");
+					String employeeYearFolder = employeeDirectory + "/" + yearFolder;
+					String employeeMonthFolder = employeeYearFolder + "/" + monthFolder;
+					String employeeCompleteFile = employeeMonthFolder + "/" + completeFile + ".pdf";
+					//	Create for Employee
+					if(!webDavApi.exists(employeeDirectory)) {
+						webDavApi.createDirectory(employeeDirectory);
+					}
+					//	Create for Year
+					if(!webDavApi.exists(employeeYearFolder)) {
+						webDavApi.createDirectory(employeeYearFolder);
+					}
+					//	Create for Month
+					if(!webDavApi.exists(employeeMonthFolder)) {
+						webDavApi.createDirectory(employeeMonthFolder);
+					}
+					//	Add files
+					InputStream fileToPut = new FileInputStream(pdf);
+					//	Put File
+					webDavApi.putResource(employeeCompleteFile, fileToPut);
+					//	Add to Log
+					addLog("@HR_Employee_ID@: " + employeeDirectory);
+				}
 			}
 		}
-		return "";
+		return "Ok";
 	}
 }

@@ -154,6 +154,7 @@ public class PayrollProcessReport extends PayrollProcessReportAbstract {
 				processInfo.addParameter(ReportCtl.PARAM_PRINT_INFO, reportEngine.getPrintInfo(), null);
 				//	Execute Process
 				ProcessCtl.process(null, 0, null, processInfo, null);
+				getProcessInfo().setPDFReport(processInfo.getPDFReport());
 			}
 		}
 		//	
