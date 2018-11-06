@@ -56,6 +56,12 @@ public class MFMProductCategory extends X_FM_ProductCategory {
 	 * @return
 	 */
 	private List<MFMFunctionalApplicability> getApplicability(String eventType, int tableId, String eventModelValidator) {
+		String key = eventType + "|" + tableId + "|" + (Util.isEmpty(eventModelValidator)? "": eventModelValidator);
+		List<MFMFunctionalApplicability> applicabilityList = functionalApplicabilityCacheValues.get(key);
+		if(applicabilityList != null) {
+			return applicabilityList;
+		}
+		//	
 		StringBuffer whereClause = new StringBuffer(I_FM_FunctionalApplicability.COLUMNNAME_FM_ProductCategory_ID + " = ?");
 		ArrayList<Object> params =  new ArrayList<Object>();
 		//	
@@ -73,11 +79,15 @@ public class MFMProductCategory extends X_FM_ProductCategory {
 			params.add(eventModelValidator);
 		}
 		//	
-		return new Query(getCtx(), I_FM_FunctionalApplicability.Table_Name, whereClause.toString(), get_TrxName())
+		applicabilityList = new Query(getCtx(), I_FM_FunctionalApplicability.Table_Name, whereClause.toString(), get_TrxName())
 				.setClient_ID()
 				.setParameters(params)
 				.setOnlyActiveRecords(true)
 				.<MFMFunctionalApplicability>list();
+		//	Set
+		functionalApplicabilityCacheValues.put(key, applicabilityList);
+		//	Return 
+		return applicabilityList;
 	}
 	
 	/**
@@ -106,6 +116,8 @@ public class MFMProductCategory extends X_FM_ProductCategory {
 	
 	/** Static Cache */
 	private static CCache<Integer, MFMProductCategory> financialProductCategoryCacheIds = new CCache<Integer, MFMProductCategory>(Table_Name, 30);
+	/** Static Cache */
+	private static CCache<String, List<MFMFunctionalApplicability>> functionalApplicabilityCacheValues = new CCache<String, List<MFMFunctionalApplicability>>(Table_Name, 30);
 
 	/**
 	 * Get/Load Functional Product [CACHED]

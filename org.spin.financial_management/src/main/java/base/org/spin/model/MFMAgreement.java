@@ -26,6 +26,7 @@ import org.compiere.model.*;
 import org.compiere.process.DocAction;
 import org.compiere.process.DocOptions;
 import org.compiere.process.DocumentEngine;
+import org.compiere.util.CCache;
 import org.compiere.util.DB;
 import org.compiere.util.Env;
 import org.compiere.util.Util;
@@ -52,6 +53,45 @@ public class MFMAgreement extends X_FM_Agreement implements DocAction, DocOption
     {
       super (ctx, rs, trxName);
     }
+    
+    /** Static Cache */
+	private static CCache<Integer, MFMAgreement> agreementCacheIds = new CCache<Integer, MFMAgreement>(Table_Name, 30);
+	
+	
+	/**
+	 * Get/Load Functional Product [CACHED]
+	 * @param ctx context
+	 * @param agreementId
+	 * @return activity or null
+	 */
+	public static MFMAgreement getById(Properties ctx, int agreementId, String trxName) {
+		if (agreementId <= 0)
+			return null;
+
+		MFMAgreement agreement = agreementCacheIds.get(agreementId);
+		if (agreement != null && agreement.get_ID() > 0)
+			return agreement;
+
+		agreement = new Query(ctx , Table_Name , COLUMNNAME_FM_Agreement_ID + "=?" , trxName)
+				.setClient_ID()
+				.setParameters(agreementId)
+				.first();
+		if (agreement != null && agreement.get_ID() > 0) {
+			agreementCacheIds.put(agreement.get_ID(), agreement);
+		}
+		return agreement;
+	}
+	
+	/**
+	 * Get By ID
+	 * @param ctx
+	 * @param agreementId
+	 * @return
+	 */
+	public static MFMAgreement getById(Properties ctx, int agreementId) {
+		return getById(ctx, agreementId, null);
+	}
+	
     
     /**
      * Instance from import

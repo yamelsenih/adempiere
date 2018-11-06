@@ -45,6 +45,7 @@ public class LoanProvisionProcess extends AbstractFunctionalSetting {
 	public String run() {
 		MFMAgreement agreement = (MFMAgreement) getParameter(FinancialSetting.AGREEMENT_PO);
 		MFMBatch batch = (MFMBatch) getParameter(FinancialSetting.BATCH_PO);
+		String trxName = (String) getParameter(FinancialSetting.PARAMETER_TRX_NAME);
 		//	Nothing
 		if(agreement == null
 				|| batch == null) {
@@ -58,7 +59,7 @@ public class LoanProvisionProcess extends AbstractFunctionalSetting {
 		}
 		//	
 		HashMap<String, Object> returnValues = LoanUtil.calculateLoanProvision(getCtx(), agreement.getFM_Agreement_ID(), 
-				new Timestamp(System.currentTimeMillis()), getFunctionalSetting().get_TrxName());
+				new Timestamp(System.currentTimeMillis()), trxName);
 		//	Process it
 		if(returnValues == null
 				|| returnValues.isEmpty()) {

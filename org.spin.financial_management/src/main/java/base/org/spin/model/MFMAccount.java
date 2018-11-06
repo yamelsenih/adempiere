@@ -23,6 +23,7 @@ import java.util.Properties;
 
 import org.compiere.model.MClient;
 import org.compiere.model.Query;
+import org.compiere.util.CCache;
 /**
  * Financial Management
  *
@@ -72,17 +73,65 @@ public class MFMAccount extends X_FM_Account {
 		setC_Currency_ID(currencyId);
 	}
 	
+	/** Static Cache */
+	private static CCache<Integer, List<MFMAccount>> accountsCacheValues = new CCache<Integer, List<MFMAccount>>(Table_Name, 30);
+	/** Static Cache */
+	private static CCache<Integer, MFMAccount> financialAccountCacheIds = new CCache<Integer, MFMAccount>(Table_Name, 30);
+	
+	/**
+	 * Get/Load Functional Product [CACHED]
+	 * @param ctx context
+	 * @param financialAccountId
+	 * @return activity or null
+	 */
+	public static MFMAccount getById(Properties ctx, int financialAccountId, String trxName) {
+		if (financialAccountId <= 0)
+			return null;
+
+		MFMAccount financialAccount = financialAccountCacheIds.get(financialAccountId);
+		if (financialAccount != null && financialAccount.get_ID() > 0) {
+			return financialAccount;
+		}
+		financialAccount = new Query(ctx , Table_Name , COLUMNNAME_FM_Account_ID + "=?" , trxName)
+				.setClient_ID()
+				.setParameters(financialAccountId)
+				.first();
+		if (financialAccount != null && financialAccount.get_ID() > 0) {
+			financialAccountCacheIds.put(financialAccount.get_ID(), financialAccount);
+		}
+		return financialAccount;
+	}
+	
+	/**
+	 * Get By ID
+	 * @param ctx
+	 * @param financialAccountId
+	 * @return
+	 */
+	public static MFMAccount getById(Properties ctx, int financialAccountId) {
+		return getById(ctx, financialAccountId, null);
+	}
+	
 	/**
 	 * Get Account from Agreement
 	 * @param agreement
 	 * @return
 	 */
 	public static List<MFMAccount> getAccountFromAgreement(MFMAgreement agreement) {
-		return new Query(agreement.getCtx(), Table_Name, "FM_Agreement_ID = ?", agreement.get_TrxName())
+		List<MFMAccount> accountList = accountsCacheValues.get(agreement.getFM_Agreement_ID());
+		if(accountList != null) {
+			return accountList;
+		}
+		//	Load
+		accountList = new Query(agreement.getCtx(), Table_Name, "FM_Agreement_ID = ?", agreement.get_TrxName())
 				.setClient_ID()
 				.setParameters(agreement.getFM_Agreement_ID())
 				.setOnlyActiveRecords(true)
 				.<MFMAccount>list();
+		//	Set Value
+		accountsCacheValues.put(agreement.getFM_Agreement_ID(), accountList);
+		//	Return
+		return accountList;
 	}
 
 }

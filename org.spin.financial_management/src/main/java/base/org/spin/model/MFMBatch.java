@@ -68,6 +68,9 @@ public class MFMBatch extends X_FM_Batch implements DocAction, DocOptions {
 		MDocType dt = MDocType.get(getCtx(), getC_DocType_ID());
 		return dt.getName() + " " + getDocumentNo();
 	}	//	getDocumentInfo
+	
+	/**	Transactions	*/
+	private List<MFMTransaction> lines = null;
 
 	/**
 	 * 	Create PDF
@@ -239,7 +242,7 @@ public class MFMBatch extends X_FM_Batch implements DocAction, DocOptions {
 	private void updateHeader() {
 		//	Get
 		BigDecimal amount = Env.ZERO;
-		for(MFMTransaction transaction : getLines()) {
+		for(MFMTransaction transaction : getLines(true)) {
 			amount = amount.add(transaction.getAmount());
 		}
 		//	Set value
@@ -364,7 +367,7 @@ public class MFMBatch extends X_FM_Batch implements DocAction, DocOptions {
 	public void setProcessed(boolean processed) {
 		super.setProcessed(processed);
 		//	Change Processed in line
-		for(MFMTransaction transaction : getLines()) {
+		for(MFMTransaction transaction : getLines(true)) {
 			transaction.setProcessed(processed);
 			transaction.saveEx();
 		}
@@ -394,7 +397,7 @@ public class MFMBatch extends X_FM_Batch implements DocAction, DocOptions {
 		reversal.setProcessed(true);
 		reversal.setProcessing(false);
 		reversal.setPosted(false);
-		reversal.saveEx();
+		reversal.saveEx(get_TrxName());
 		setReversal_ID(reversal.getFM_Batch_ID());
 		setDocStatus(DOCSTATUS_Reversed);	//	may come from void
 		setDocAction(DOCACTION_None);
@@ -429,7 +432,7 @@ public class MFMBatch extends X_FM_Batch implements DocAction, DocOptions {
 		to.setC_DocType_ID(documentTypeId);
 //		to.setDateAcct (dateAcct);
 		//
-//		to.setPosted (false);
+		to.setPosted (false);
 		to.setProcessed (false);
 		to.setProcessing(false);
 		to.saveEx();
@@ -450,7 +453,7 @@ public class MFMBatch extends X_FM_Batch implements DocAction, DocOptions {
 				|| from == null)
 			return 0;
 		
-		List<MFMTransaction> fromLines = from.getLines();
+		List<MFMTransaction> fromLines = from.getLines(false);
 		for (MFMTransaction fromMovement: fromLines) {
 			MFMTransaction toMovement = new MFMTransaction (getCtx(), 0, null);
 			PO.copyValues (fromMovement, toMovement, fromMovement.getAD_Client_ID(), fromMovement.getAD_Org_ID());
@@ -465,11 +468,25 @@ public class MFMBatch extends X_FM_Batch implements DocAction, DocOptions {
 	
 	/**
 	 * Get Lines
+	 * @param requery
+	 * @return
+	 */
+	public List<MFMTransaction> getLines(boolean requery) {
+		if(requery
+				|| lines == null) {
+			lines = new Query(getCtx(), I_FM_Transaction.Table_Name, COLUMNNAME_FM_Batch_ID + "=" + getFM_Batch_ID(), get_TrxName())
+				.<MFMTransaction>list();
+		}
+		//	Default
+		return lines;
+	}
+	
+	/**
+	 * Get Lines
 	 * @return
 	 */
 	public List<MFMTransaction> getLines() {
-		return new Query(getCtx(), I_FM_Transaction.Table_Name, COLUMNNAME_FM_Batch_ID + "=" + getFM_Batch_ID(), get_TrxName())
-				.<MFMTransaction>list();
+		return getLines(false);
 	}
 	
 	/*************************************************************************

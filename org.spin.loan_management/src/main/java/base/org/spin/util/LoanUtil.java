@@ -316,7 +316,7 @@ public class LoanUtil {
 			runningDate = new Timestamp(System.currentTimeMillis());
 		}
 		//	Get agreement
-		MFMAgreement agreement = new MFMAgreement(ctx, agreementId, trxName);
+		MFMAgreement agreement = MFMAgreement.getById(ctx, agreementId, trxName);
 		//	Calculate it
 		MFMProduct financialProduct = MFMProduct.getById(ctx, agreement.getFM_Product_ID());
 		//	Get Interest Rate
@@ -373,7 +373,7 @@ public class LoanUtil {
 		//	Hash Map for Amortization
 		List<AmortizationValue> amortizationList = new ArrayList<AmortizationValue>();
 		//	
-		for(MFMAmortization amortization : MFMAmortization.getFromAccount(account.getFM_Account_ID(), trxName)) {
+		for(MFMAmortization amortization : MFMAmortization.getOpenFromAccount(account.getFM_Account_ID(), trxName)) {
 			if(amortization.isInvoiced()
 					|| amortization.isPaid()) {
 				continue;
@@ -457,7 +457,7 @@ public class LoanUtil {
 			runningDate = new Timestamp(System.currentTimeMillis());
 		}
 		//	Get agreement
-		MFMAgreement agreement = new MFMAgreement(ctx, agreementId, trxName);
+		MFMAgreement agreement = MFMAgreement.getById(ctx, agreementId, trxName);
 		//	Calculate it
 		MFMProduct financialProduct = MFMProduct.getById(ctx, agreement.getFM_Product_ID());
 		//	Get Interest Rate
@@ -543,7 +543,7 @@ public class LoanUtil {
 			runningDate = new Timestamp(System.currentTimeMillis());
 		}
 		//	Get agreement
-		MFMAgreement agreement = new MFMAgreement(ctx, agreementId, trxName);
+		MFMAgreement agreement = MFMAgreement.getById(ctx, agreementId, trxName);
 		//	Calculate it
 		MFMProduct financialProduct = MFMProduct.getById(ctx, agreement.getFM_Product_ID());
 		//	Get Interest Rate
@@ -615,7 +615,7 @@ public class LoanUtil {
 			runningDate = new Timestamp(System.currentTimeMillis());
 		}
 		//	Get agreement
-		MFMAgreement agreement = new MFMAgreement(ctx, agreementId, trxName);
+		MFMAgreement agreement = MFMAgreement.getById(ctx, agreementId, trxName);
 		//	Calculate it
 		MFMProduct financialProduct = MFMProduct.getById(ctx, agreement.getFM_Product_ID());
 		//	Get Interest Rate
@@ -661,7 +661,7 @@ public class LoanUtil {
 		//	Hash Map for Amortization
 		List<AmortizationValue> amortizationList = new ArrayList<AmortizationValue>();
 		//	
-		for(MFMAmortization amortization : MFMAmortization.getFromAccount(account.getFM_Account_ID(), trxName)) {
+		for(MFMAmortization amortization : MFMAmortization.getOpenFromAccount(account.getFM_Account_ID(), trxName)) {
 			if(amortization.isInvoiced()
 					|| amortization.isPaid()) {
 				continue;

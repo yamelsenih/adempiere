@@ -165,7 +165,8 @@ public class FinancialSetting {
 		//	
 		List<MFMAccountProduct> accountProductList = agreement.getAccountProducts();
 		for(MFMAccountProduct accountProduct : accountProductList) {
-			MFMAccount account = (MFMAccount) accountProduct.getFM_Account();
+			
+			MFMAccount account = MFMAccount.getById(accountProduct.getCtx(), accountProduct.getFM_Account_ID(), trxName);
 			HashMap<String, Object> parameters = new HashMap<String, Object>();
 			parameters.put(AGREEMENT_PO, agreement);
 			parameters.put(ACCOUNT_PO, account);

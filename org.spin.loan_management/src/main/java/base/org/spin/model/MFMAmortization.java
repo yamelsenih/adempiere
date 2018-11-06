@@ -164,6 +164,18 @@ public class MFMAmortization extends X_FM_Amortization {
 	}
 	
 	/**
+	 * Get Only Open
+	 * @param financialAccountId
+	 * @param trxName
+	 * @return
+	 */
+	public static List<MFMAmortization> getOpenFromAccount(int financialAccountId, String trxName) {
+		return new Query(Env.getCtx(), I_FM_Amortization.Table_Name, "FM_Account_ID = ? AND IsInvoiced = 'N' AND IsPaid = 'N'", trxName)
+				.setParameters(financialAccountId)
+				.<MFMAmortization>list();
+	}
+	
+	/**
 	 * Get Last Amortization from Account
 	 * @param financialAccountId
 	 * @param trxName

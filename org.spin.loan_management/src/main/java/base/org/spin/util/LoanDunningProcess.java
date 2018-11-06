@@ -48,6 +48,7 @@ public class LoanDunningProcess extends AbstractFunctionalSetting {
 	public String run() {
 		MFMAgreement agreement = (MFMAgreement) getParameter(FinancialSetting.AGREEMENT_PO);
 		MFMBatch batch = (MFMBatch) getParameter(FinancialSetting.BATCH_PO);
+		String trxName = (String) getParameter(FinancialSetting.PARAMETER_TRX_NAME);
 		//	Nothing
 		if(agreement == null
 				|| batch == null) {
@@ -62,7 +63,7 @@ public class LoanDunningProcess extends AbstractFunctionalSetting {
 		}
 		//	
 		HashMap<String, Object> returnValues = LoanUtil.calculateLoanDunning(getCtx(), agreement.getFM_Agreement_ID(), 
-				new Timestamp(System.currentTimeMillis()), getFunctionalSetting().get_TrxName());
+				new Timestamp(System.currentTimeMillis()), trxName);
 		//	Process it
 		if(returnValues == null
 				|| returnValues.isEmpty()) {
