@@ -16,8 +16,11 @@
  *****************************************************************************/
 package org.spin.util.support.mq;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.InputStream;
 
+import javax.jms.BytesMessage;
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.Destination;
@@ -55,7 +58,7 @@ public class ActiveMQ extends AbstractMessageQueue {
 			throw new AdempiereException("@Connection@ @NotFound@");
 		}
 		Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-		Destination destination = session.createTopic(channel);	
+		Destination destination = session.createQueue(channel);	
 		MessageProducer producer = session.createProducer(destination);
 		Message message = null;
 		//	Validate Type
@@ -64,8 +67,11 @@ public class ActiveMQ extends AbstractMessageQueue {
 			log.config("Message Type (Text)");
 		} else if(payload.getType() == IMessageQueue.FILE) {
 			InputStream inputStream = payload.getMessageAsInputStream();
-			message = session.createBytesMessage();
-			message.setObjectProperty("File", inputStream);
+			BytesMessage bytesMessage = session.createBytesMessage();
+			byte[] array = new byte[inputStream.available()];
+			inputStream.read(array);
+			bytesMessage.writeBytes(array);
+			message = bytesMessage;
 			log.config("Message Type (File)");
 		}
 		//	Validate
@@ -151,7 +157,7 @@ public class ActiveMQ extends AbstractMessageQueue {
 				
 				@Override
 				public int getType() {
-					return IMessageQueue.TEXT;
+					return IMessageQueue.FILE;
 				}
 				
 				@Override
@@ -161,6 +167,13 @@ public class ActiveMQ extends AbstractMessageQueue {
 				
 				@Override
 				public InputStream getMessageAsInputStream() {
+					try {
+						InputStream inputStream = new FileInputStream("/tmp/Factura_Nacional_1000158.pdf");
+						return inputStream;
+					} catch (FileNotFoundException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 					return null;
 				}
 				
