@@ -22,6 +22,20 @@
   <!-- set path to include the necessary jar files for javac -->
   <path id="project.class.path">
     <pathelement path="${classpath}"/>
+  	<pathelement path="../tools/lib/sardine-5.9-SNAPSHOT.jar" />
+
+  	<pathelement path="../tools/lib/commons-codec-1.10.jar" />
+  	<pathelement path="../tools/lib/commons-logging-1.2.jar" />
+  	<pathelement path="../tools/lib/fluent-hc-4.5.6.jar" />
+  	<pathelement path="../tools/lib/httpclient-4.5.6.jar" />
+  	<pathelement path="../tools/lib/httpclient-cache-4.5.6.jar" />
+  	<pathelement path="../tools/lib/httpclient-win-4.5.6.jar" />
+  		<pathelement path="../tools/lib/httpcore-4.4.10.jar" />
+  	<pathelement path="../tools/lib/httpmime-4.5.6.jar" />
+  	<pathelement path="../tools/lib/jna-4.4.0.jar" />
+  	<pathelement path="../tools/lib/jna-platform-4.4.0.jar" />
+  	
+  	
     <pathelement path="${jar.path}/CCTools.jar"/>
     <pathelement path="${jar.path}/oracle.jar"/>
     <pathelement path="${jar.path}/postgresql.jar"/>
