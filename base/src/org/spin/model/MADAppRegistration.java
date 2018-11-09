@@ -143,7 +143,12 @@ public class MADAppRegistration extends X_AD_AppRegistration {
 		if(parameters == null) {
 			loadParameters();
 		}
-		return parameters.get(parameterName).getParameterValue();
+		//	Get Default
+		MADAppRegistrationPara parameter = parameters.get(parameterName);
+		if(parameter != null) {
+			return parameter.getParameterValue();
+		}
+		return null;
 	}
 	
 	/**
@@ -155,7 +160,12 @@ public class MADAppRegistration extends X_AD_AppRegistration {
 		if(parameters == null) {
 			loadParameters();
 		}
-		return parameters.get(parameterName).getParameterType();
+		//	Get Default
+		MADAppRegistrationPara parameter = parameters.get(parameterName);
+		if(parameter != null) {
+			return parameter.getParameterType();
+		}
+		return null;
 	}
 	
 	/**

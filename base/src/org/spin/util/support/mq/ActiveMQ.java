@@ -105,6 +105,23 @@ public class ActiveMQ extends AbstractMessageQueue {
 	@Override
 	public void setAppRegistrationId(int registrationId) {
 		this.registrationId = registrationId;
+		MADAppRegistration registration = MADAppRegistration.getById(Env.getCtx(), getAppRegistrationId(), null);
+		String userName = registration.getParameterValue("UserName");
+		String password = registration.getParameterValue("Password");
+		String url = registration.getParameterValue("URL");
+		if(Util.isEmpty(userName)) {
+			throw new AdempiereException("@AD_User_ID@ @NotFound@");
+		}
+		if(Util.isEmpty(password)) {
+			throw new AdempiereException("@Password@ @NotFound@");
+		}
+		if(Util.isEmpty(url)) {
+			throw new AdempiereException("@URL@ @NotFound@");
+		}
+		//	Set values
+		setUserName(userName);
+		setPassword(password);
+		setUrl(url);
 	}
 
 	@Override
@@ -129,6 +146,7 @@ public class ActiveMQ extends AbstractMessageQueue {
 		}
 		//	
 		connection.close();
+		connection = null;
 	}
 	
 	@Override
@@ -187,5 +205,26 @@ public class ActiveMQ extends AbstractMessageQueue {
 			message = e.getLocalizedMessage();
 		}
 		return message;
+	}
+
+	/**
+	 * @param userName the userName to set
+	 */
+	public void setUserName(String userName) {
+		this.userName = userName;
+	}
+
+	/**
+	 * @param password the password to set
+	 */
+	public void setPassword(String password) {
+		this.password = password;
+	}
+
+	/**
+	 * @param url the url to set
+	 */
+	public void setUrl(String url) {
+		this.url = url;
 	}
 }
