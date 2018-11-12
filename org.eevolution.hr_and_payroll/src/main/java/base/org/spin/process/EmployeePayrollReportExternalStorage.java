@@ -186,6 +186,8 @@ public class EmployeePayrollReportExternalStorage extends EmployeePayrollReportE
 			if(getProcessReportTemplateId() > 0) {
 				builder.withParameter(HR_PROCESSREPORT_ID, getProcessReportTemplateId());
 			}
+			//	Set print preview to 
+			builder.withoutPrintPreview();
 			//	
 			ProcessInfo processInfo = builder.execute();
 			//	Get Pdf
