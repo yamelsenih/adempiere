@@ -119,7 +119,7 @@ public class MFMAccount extends X_FM_Account {
 	 */
 	public static List<MFMAccount> getAccountFromAgreement(MFMAgreement agreement) {
 		List<MFMAccount> accountList = accountsCacheValues.get(agreement.getFM_Agreement_ID());
-		if(accountList != null) {
+		if(accountList != null && !accountList.isEmpty()) {
 			return accountList;
 		}
 		//	Load
