@@ -458,8 +458,16 @@ public class Collect {
 		payment.setC_BankAccount_ID(entityPOS.getC_BankAccount_ID());
 		payment.setDateTrx(getDateTrx());
 		payment.setDateAcct(getDateTrx());
-		payment.setCreditCard(MPayment.TRXTYPE_Sales, cardtype,
-				cardNo, cvc, month, year);
+		payment.setTenderType(MPayment.TENDERTYPE_CreditCard);
+		payment.setTrxType(MPayment.TRXTYPE_Sales);
+		//
+		payment.setCreditCardType (cardtype);
+		payment.setCreditCardNumber (cardNo);
+		payment.setCreditCardVV (cvc);
+		payment.setCreditCardExpMM(month);
+		payment.setCreditCardExpYY (year);
+//		payment.setCreditCard(MPayment.TRXTYPE_Sales, cardtype,
+//				cardNo, cvc, month, year);
 		payment.saveEx();
 		payment.setDocAction(MPayment.DOCACTION_Complete);
 		payment.setDocStatus(MPayment.DOCSTATUS_Drafted);
@@ -635,19 +643,19 @@ public class Collect {
 			} else if(collectDetail.getTenderType().equals(X_C_Payment.TENDERTYPE_CreditCard)) {	//	For Credit
 				otherPayments = otherPayments.add(collectDetail.getPayAmt());
 				//	Valid Expedition
-				String mmyy = collectDetail.getCreditCardExpMM() + collectDetail.getCreditCardExpYY();
-				String processError = MPaymentValidate.validateCreditCardExp(mmyy);
-				//	Validate Month and Year
-				if(processError != null && !processError.isEmpty()) {
-					addErrorMsg("@" + processError + "@");
-				}
-				//	
-				processError = MPaymentValidate
-						.validateCreditCardNumber(collectDetail.getCreditCardNumber(), collectDetail.getCreditCardType());
-				//	Validate Card Number
-				if(processError != null && !processError.isEmpty()) {
-					addErrorMsg("@" + processError + "@");
-				}
+//				String mmyy = collectDetail.getCreditCardExpMM() + collectDetail.getCreditCardExpYY();
+//				String processError = MPaymentValidate.validateCreditCardExp(mmyy);
+//				//	Validate Month and Year
+//				if(processError != null && !processError.isEmpty()) {
+//					addErrorMsg("@" + processError + "@");
+//				}
+//				//	
+//				processError = MPaymentValidate
+//						.validateCreditCardNumber(collectDetail.getCreditCardNumber(), collectDetail.getCreditCardType());
+//				//	Validate Card Number
+//				if(processError != null && !processError.isEmpty()) {
+//					addErrorMsg("@" + processError + "@");
+//				}
 			} else if(collectDetail.getTenderType().equals(X_C_Payment.TENDERTYPE_CreditMemo)) {
 				if(collectDetail.getC_Invoice_ID() == 0 )
 					addErrorMsg("@POS.CreditMemoNotSelected@");
@@ -720,11 +728,11 @@ public class Collect {
 			} else if(collectDetail.getTenderType().equals(X_C_Payment.TENDERTYPE_CreditCard)) {	//	For Credit
 				otherPayment = otherPayment.add(collectDetail.getConvertedPayAmt());
 				//	Valid Expedition
-				String mmyy = collectDetail.getCreditCardExpMM() + collectDetail.getCreditCardExpYY();
-				//	Valid Month and Year
-				int month = MPaymentValidate.getCreditCardExpMM(mmyy);
-				int year = MPaymentValidate.getCreditCardExpYY(mmyy);
-				//	Pay from Credit Card
+//				String mmyy = collectDetail.getCreditCardExpMM() + collectDetail.getCreditCardExpYY();
+//				//	Valid Month and Year
+				int month = 0;//MPaymentValidate.getCreditCardExpMM(mmyy);
+				int year = 0;//MPaymentValidate.getCreditCardExpYY(mmyy);
+//				//	Pay from Credit Card
 				result = payCreditCard(collectDetail.getPayAmt(), collectDetail.getCurrencyId(), collectDetail.getA_Name(),
 						month, year, collectDetail.getCreditCardNumber(), collectDetail.getCreditCardVV(), collectDetail.getCreditCardType());
 				if (!result) {					
