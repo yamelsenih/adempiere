@@ -550,6 +550,7 @@ public class Collect {
 		payment.setC_BPartner_ID(getC_BPartner_ID());
 		payment.setDateTrx(getDateTrx());
 		payment.setDateAcct(getDateTrx());
+		payment.setCreditCardType(null);
 		int invoiceId = order.getC_Invoice_ID();
 		if(invoiceId > 0) {
 			payment.setC_Invoice_ID(invoiceId);
