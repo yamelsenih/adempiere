@@ -20,10 +20,12 @@ package org.compiere.process;
 import java.math.BigDecimal;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.logging.Level;
 
+import org.adempiere.exceptions.AdempiereException;
 import org.compiere.model.MBPartner;
 import org.compiere.model.MClient;
 import org.compiere.model.MDocType;
@@ -56,41 +58,24 @@ import org.eevolution.model.MDDOrderLine;
  *  Carlos Ruiz globalqss - integrate bug fixing from Chris Farley
  *    [ 1619517 ] Replenish report fails when no records in m_storage
  */
-public class ReplenishReport extends SvrProcess
+public class ReplenishReport extends ReplenishReportAbstract 
+//extends SvrProcess
 {
-	/** Warehouse				*/
-	private int		p_M_Warehouse_ID = 0;
-	/**	Optional BPartner		*/
-	private int		p_C_BPartner_ID = 0;
-	/** Create (POO)Purchse Order or (POR)Requisition or (MMM)Movements */
-	private String	p_ReplenishmentCreate = null;
-	/** Document Type			*/
-	private int		p_C_DocType_ID = 0;
-	/** Return Info				*/
-	private String	m_info = "";
+	
+	/** Return Info					*/
+	private String				m_info 					= "";
+	/**Process From Browse			*/
+	private boolean 			is_ProcessFromBrowse 	= false;
+	/** ResultSet Smart Browser		*/
 	
 	/**
 	 *  Prepare - e.g., get Parameters.
 	 */
+	
 	protected void prepare()
 	{
-		ProcessInfoParameter[] para = getParameter();
-		for (int i = 0; i < para.length; i++)
-		{
-			String name = para[i].getParameterName();
-			if (para[i].getParameter() == null)
-				;
-			else if (name.equals("M_Warehouse_ID"))
-				p_M_Warehouse_ID = para[i].getParameterAsInt();
-			else if (name.equals("C_BPartner_ID"))
-				p_C_BPartner_ID = para[i].getParameterAsInt();
-			else if (name.equals("ReplenishmentCreate"))
-				p_ReplenishmentCreate = (String)para[i].getParameter();
-			else if (name.equals("C_DocType_ID"))
-				p_C_DocType_ID = para[i].getParameterAsInt();
-			else
-				log.log(Level.SEVERE, "Unknown Parameter: " + name);
-		}
+		super.prepare();		
+		
 	}	//	prepare
 
 	/**
@@ -98,36 +83,48 @@ public class ReplenishReport extends SvrProcess
 	 *  @return Message 
 	 *  @throws Exception if not successful
 	 */
+	
 	protected String doIt() throws Exception
 	{
-		log.info("M_Warehouse_ID=" + p_M_Warehouse_ID 
-			+ ", C_BPartner_ID=" + p_C_BPartner_ID 
-			+ " - ReplenishmentCreate=" + p_ReplenishmentCreate
-			+ ", C_DocType_ID=" + p_C_DocType_ID);
-		if (p_ReplenishmentCreate != null && p_C_DocType_ID == 0)
+		log.info("M_Warehouse_ID=" + getWarehouseId() 
+			+ ", C_BPartner_ID=" + getBPartnerId() 
+			+ ", M_Product_Category_ID=" + getProductCategoryId() // Added By Jorge Colmenarez 2014-11-24 11:50:47 
+			+ ", M_Product_ID=" + getProductId() // End Jorge Colmenarez 
+			+ ", C_BPartner_ID=" + getBPartnerId()	 
+			+ " - ReplenishmentCreate=" + getReplenishmentCreate()
+			+ ", C_DocType_ID=" + getDocTypeId());
+		if (getReplenishmentCreate() != null && getDocTypeId() == 0)
 			throw new AdempiereUserError("@FillMandatory@ @C_DocType_ID@");
 		
-		MWarehouse wh = MWarehouse.get(getCtx(), p_M_Warehouse_ID);
-		if (wh.get_ID() == 0)  
-			throw new AdempiereSystemError("@FillMandatory@ @M_Warehouse_ID@");
-		//
 		prepareTable();
-		fillTable(wh);
+		//	2016-02-17 Dixon Martinez
+		//	Add support for generate of smart browser
+		if(!is_ProcessFromBrowse) {
+			MWarehouse wh = MWarehouse.get(getCtx(), getWarehouseId());
+			if (wh.get_ID() == 0)  
+				throw new AdempiereSystemError("@FillMandatory@ @M_Warehouse_ID@");
+			fillTable(wh);
+		}
 		//
-		if (p_ReplenishmentCreate == null)
+		
+		if(is_ProcessFromBrowse)
+			fillTableSmartBrowser();
+		//	End Dixon Martinez
+		//
+		if (getReplenishmentCreate() == null)
 			return "OK";
 		//
-		MDocType dt = MDocType.get(getCtx(), p_C_DocType_ID);
-		if (!dt.getDocBaseType().equals(p_ReplenishmentCreate))
-			throw new AdempiereSystemError("@C_DocType_ID@=" + dt.getName() + " <> " + p_ReplenishmentCreate);
+		MDocType dt = MDocType.get(getCtx(), getDocTypeId());
+		if (!dt.getDocBaseType().equals(getReplenishmentCreate()))
+			throw new AdempiereSystemError("@C_DocType_ID@=" + dt.getName() + " <> " + getReplenishmentCreate());
 		//
-		if (p_ReplenishmentCreate.equals("POO"))
+		if (getReplenishmentCreate().equals("POO"))
 			createPO();
-		else if (p_ReplenishmentCreate.equals("POR"))
+		else if (getReplenishmentCreate().equals("POR"))
 			createRequisition();
-		else if (p_ReplenishmentCreate.equals("MMM"))
+		else if (getReplenishmentCreate().equals("MMM"))
 			createMovements();
-		else if (p_ReplenishmentCreate.equals("DOO"))
+		else if (getReplenishmentCreate().equals("DOO"))
 			createDO();
 		return m_info;
 	}	//	doIt
@@ -135,13 +132,14 @@ public class ReplenishReport extends SvrProcess
 	/**
 	 * 	Prepare/Check Replenishment Table
 	 */
+	
 	private void prepareTable()
 	{
 		//	Level_Max must be >= Level_Max
 		String sql = "UPDATE M_Replenish"
 			+ " SET Level_Max = Level_Min "
 			+ "WHERE Level_Max < Level_Min";
-		int no = DB.executeUpdate(sql, get_TrxName());
+		int no = DB.executeUpdateEx(sql, get_TrxName());
 		if (no != 0)
 			log.fine("Corrected Max_Level=" + no);
 		
@@ -149,7 +147,7 @@ public class ReplenishReport extends SvrProcess
 		sql = "UPDATE M_Product_PO"
 			+ " SET Order_Min = 1 "
 			+ "WHERE Order_Min IS NULL OR Order_Min < 1";
-		no = DB.executeUpdate(sql, get_TrxName());
+		no = DB.executeUpdateEx(sql, get_TrxName());
 		if (no != 0)
 			log.fine("Corrected Order Min=" + no);
 		
@@ -157,7 +155,7 @@ public class ReplenishReport extends SvrProcess
 		sql = "UPDATE M_Product_PO"
 			+ " SET Order_Pack = 1 "
 			+ "WHERE Order_Pack IS NULL OR Order_Pack < 1";
-		no = DB.executeUpdate(sql, get_TrxName());
+		no = DB.executeUpdateEx(sql, get_TrxName());
 		if (no != 0)
 			log.fine("Corrected Order Pack=" + no);
 
@@ -169,7 +167,7 @@ public class ReplenishReport extends SvrProcess
 				+ "WHERE p.M_Product_ID=pp.M_Product_ID "
 				+ "GROUP BY pp.M_Product_ID "
 				+ "HAVING COUNT(*) = 1)";
-		no = DB.executeUpdate(sql, get_TrxName());
+		no = DB.executeUpdateEx(sql, get_TrxName());
 		if (no != 0)
 			log.fine("Corrected CurrentVendor(Y)=" + no);
 
@@ -181,13 +179,13 @@ public class ReplenishReport extends SvrProcess
 				+ "WHERE p.M_Product_ID=pp.M_Product_ID AND pp.IsCurrentVendor='Y' "
 				+ "GROUP BY pp.M_Product_ID "
 				+ "HAVING COUNT(*) > 1)";
-		no = DB.executeUpdate(sql, get_TrxName());
+		no = DB.executeUpdateEx(sql, get_TrxName());
 		if (no != 0)
 			log.fine("Corrected CurrentVendor(N)=" + no);
 		
 		//	Just to be sure
 		sql = "DELETE T_Replenish WHERE AD_PInstance_ID=" + getAD_PInstance_ID();
-		no = DB.executeUpdate(sql, get_TrxName());
+		no = DB.executeUpdateEx(sql, get_TrxName());
 		if (no != 0)
 			log.fine("Delete Existing Temp=" + no);
 	}	//	prepareTable
@@ -196,151 +194,279 @@ public class ReplenishReport extends SvrProcess
 	 * 	Fill Table
 	 * 	@param wh warehouse
 	 */
+	
 	private void fillTable (MWarehouse wh) throws Exception
 	{
 		String sql = "INSERT INTO T_Replenish "
 			+ "(AD_PInstance_ID, M_Warehouse_ID, M_Product_ID, AD_Client_ID, AD_Org_ID,"
 			+ " ReplenishType, Level_Min, Level_Max,"
-			+ " C_BPartner_ID, Order_Min, Order_Pack, QtyToOrder, ReplenishmentCreate) "
+			+ " C_BPartner_ID, Order_Min, Order_Pack, QtyToOrder, ReplenishmentCreate "
+			+ ",M_Product_Category_ID,C_UOM_ID) " // Added by Jorge Colmenarez 2014-12-05
 			+ "SELECT " + getAD_PInstance_ID() 
 				+ ", r.M_Warehouse_ID, r.M_Product_ID, r.AD_Client_ID, r.AD_Org_ID,"
 			+ " r.ReplenishType, r.Level_Min, r.Level_Max,"
-			+ " po.C_BPartner_ID, po.Order_Min, po.Order_Pack, 0, ";
-		if (p_ReplenishmentCreate == null)
-			sql += "null";
+			+ " COALESCE(po.C_BPartner_ID,0), COALESCE(po.Order_Min,1), COALESCE(po.Order_Pack,1), 0, ";
+		//	Added and Modified by Jorge Colmenarez 2014-12-05
+		if (getReplenishmentCreate() == null)
+			sql += "null,";
 		else
-			sql += "'" + p_ReplenishmentCreate + "'";
+			sql += "'" + getReplenishmentCreate() + "',";
+		if (getProductCategoryId() ==0)
+			sql += "null, COALESCE(r.C_UOM_ID,p.C_UOM_ID) ";
+		else 
+			sql += "'" + getProductCategoryId() + "', COALESCE(r.C_UOM_ID,p.C_UOM_ID) ";
+		//	End Jorge Colmenarez
 		sql += " FROM M_Replenish r"
-			+ " INNER JOIN M_Product_PO po ON (r.M_Product_ID=po.M_Product_ID) "
-			+ "WHERE po.IsCurrentVendor='Y'"	//	Only Current Vendor
-			+ " AND r.ReplenishType<>'0'"
-			+ " AND po.IsActive='Y' AND r.IsActive='Y'"
-			+ " AND r.M_Warehouse_ID=" + p_M_Warehouse_ID;
-		if (p_C_BPartner_ID != 0)
-			sql += " AND po.C_BPartner_ID=" + p_C_BPartner_ID;
-		int no = DB.executeUpdate(sql, get_TrxName());
+			//	Commented By Jorge Colmenarez 2014-11-20
+			// + " INNER JOIN M_Product_PO po ON (r.M_Product_ID=po.M_Product_ID) "  
+			// + "WHERE po.IsCurrentVendor='Y'"	//	Only Current Vendor
+			// + " AND r.ReplenishType<>'0'"
+			// + " AND po.IsActive='Y' AND r.IsActive='Y'" 
+			// End Jorge Colmenarez
+			+ " LEFT JOIN M_Product_PO po ON (r.M_Product_ID=po.M_Product_ID AND po.IsActive = 'Y' AND po.IsCurrentVendor='Y') " // Added by Jorge Colmenarez 2014-11-20
+			+ " LEFT JOIN M_Product p ON r.M_Product_ID = p.M_Product_ID " // Added by Jorge Colmenarez 2014-12-10 
+			+ " WHERE r.ReplenishType<>'0' AND r.IsActive='Y'" // End Jorge Colmenarez
+			+ " AND r.M_Warehouse_ID=" + getWarehouseId();
+		if (getBPartnerId() != 0)
+			sql += " AND po.C_BPartner_ID=" + getBPartnerId();
+		/**	Added By Jorge Colmenarez 2014-11-24 12:00:45 */
+		if (getProductCategoryId() != 0 && getProductId() ==0)
+			sql += " AND r.M_Product_ID IN (SELECT M_Product_ID FROM M_Product WHERE M_Product_Category_ID = "+getProductCategoryId()+")";
+		if (getProductId() != 0)
+			sql += " AND r.M_Product_ID = "+getProductId();
+		/** End Jorge Colmenarez */
+		int no = DB.executeUpdateEx(sql, get_TrxName());
 		log.finest(sql);
 		log.fine("Insert (1) #" + no);
 		
-		if (p_C_BPartner_ID == 0)
+		if (getBPartnerId() == 0)
 		{
 			sql = "INSERT INTO T_Replenish "
 				+ "(AD_PInstance_ID, M_Warehouse_ID, M_Product_ID, AD_Client_ID, AD_Org_ID,"
 				+ " ReplenishType, Level_Min, Level_Max,"
-				+ " C_BPartner_ID, Order_Min, Order_Pack, QtyToOrder, ReplenishmentCreate) "
+				+ " C_BPartner_ID, Order_Min, Order_Pack, QtyToOrder, ReplenishmentCreate "
+				+ "	,M_Product_Category_ID, C_UOM_ID) " // Added by Jorge Colmenarez 2014-12-05
 				+ "SELECT " + getAD_PInstance_ID()
 				+ ", r.M_Warehouse_ID, r.M_Product_ID, r.AD_Client_ID, r.AD_Org_ID,"
 				+ " r.ReplenishType, r.Level_Min, r.Level_Max,"
 			    + " 0, 1, 1, 0, ";
-			if (p_ReplenishmentCreate == null)
-				sql += "null";
+			//	Added and Modified by Jorge Colmenarez 2014-12-05
+			if (getReplenishmentCreate() == null)
+				sql += "null,";
 			else
-				sql += "'" + p_ReplenishmentCreate + "'";
+				sql += "'" + getReplenishmentCreate() + "',";
+			if (getProductCategoryId() == 0)
+				sql += "null, COALESCE(r.C_UOM_ID,p.C_UOM_ID) ";
+			else 
+				sql += "'" + getProductCategoryId() + "', COALESCE(r.C_UOM_ID,p.C_UOM_ID) ";
+			//	End Jorge Colmenarez
 			sql	+= " FROM M_Replenish r "
-				+ "WHERE r.ReplenishType<>'0' AND r.IsActive='Y'"
-				+ " AND r.M_Warehouse_ID=" + p_M_Warehouse_ID
+				+ " LEFT JOIN M_Product p ON r.M_Product_ID = p.M_Product_ID " // Added by Jorge Colmenarez 2014-12-10
+				+ " WHERE r.ReplenishType<>'0' AND r.IsActive='Y'"
+				+ " AND r.M_Warehouse_ID=" + getWarehouseId()
 				+ " AND NOT EXISTS (SELECT * FROM T_Replenish t "
 					+ "WHERE r.M_Product_ID=t.M_Product_ID"
 					+ " AND AD_PInstance_ID=" + getAD_PInstance_ID() + ")";
-			no = DB.executeUpdate(sql, get_TrxName());
+			/**	Added By Jorge Colmenarez 2014-11-28 09:44:25 */
+			if (getProductCategoryId() != 0 && getProductId() ==0)
+				sql += " AND r.M_Product_ID IN (SELECT M_Product_ID FROM M_Product WHERE M_Product_Category_ID = "+getProductCategoryId()+")";
+			if (getProductId() != 0)
+				sql += " AND r.M_Product_ID = "+getProductId();
+			/** End Jorge Colmenarez */
+			no = DB.executeUpdateEx(sql, get_TrxName());
 			log.fine("Insert (BP) #" + no);
 		}
-		
+		//	Modified by Jorge Colmenarez 2015-06-02 
+		//	Changed Case Alternative for the Qtys
 		sql = "UPDATE T_Replenish t SET "
+			+ "QtyOnHand = (SELECT COALESCE(SUM(CASE WHEN uoc.C_UOM_Conversion_ID IS NOT NULL THEN s.QtyOnHand / uoc.Dividerate ELSE s.QtyOnHand / 1 END),0) " 
+			+ "FROM M_Storage s INNER JOIN M_Locator l ON l.M_Locator_ID=s.M_Locator_ID  INNER JOIN M_Product p ON p.M_Product_ID = s.M_Product_ID " 
+			+ "LEFT JOIN C_UOM_Conversion uoc ON p.M_Product_ID = uoc.M_Product_ID AND p.C_UOM_ID = uoc.C_UOM_ID AND uoc.C_UOM_To_ID = t.C_UOM_ID " 
+			+ "WHERE p.M_Product_ID=t.M_Product_ID AND l.M_Warehouse_ID=t.M_Warehouse_ID), "
+			+ "QtyReserved = (SELECT COALESCE(SUM(CASE WHEN uoc.C_UOM_Conversion_ID IS NOT NULL THEN s.QtyReserved / uoc.Dividerate ELSE s.QtyReserved / 1 END),0) " 
+			+ "FROM M_Storage s INNER JOIN M_Locator l ON l.M_Locator_ID=s.M_Locator_ID  INNER JOIN M_Product p ON p.M_Product_ID = s.M_Product_ID " 
+			+ "LEFT JOIN C_UOM_Conversion uoc ON p.M_Product_ID = uoc.M_Product_ID AND p.C_UOM_ID = uoc.C_UOM_ID AND uoc.C_UOM_To_ID = t.C_UOM_ID " 
+			+ "WHERE p.M_Product_ID=t.M_Product_ID AND l.M_Warehouse_ID=t.M_Warehouse_ID), "
+			+ "QtyOrdered = (SELECT COALESCE(SUM(CASE WHEN uoc.C_UOM_Conversion_ID IS NOT NULL THEN s.QtyOrdered / uoc.Dividerate ELSE s.QtyOrdered / 1 END),0) " 
+			+ "FROM M_Storage s INNER JOIN M_Locator l ON l.M_Locator_ID=s.M_Locator_ID  INNER JOIN M_Product p ON p.M_Product_ID = s.M_Product_ID " 
+			+ "LEFT JOIN C_UOM_Conversion uoc ON p.M_Product_ID = uoc.M_Product_ID AND p.C_UOM_ID = uoc.C_UOM_ID AND uoc.C_UOM_To_ID = t.C_UOM_ID " 
+			+ "WHERE p.M_Product_ID=t.M_Product_ID AND l.M_Warehouse_ID=t.M_Warehouse_ID)";
+			//	Added By Jorge Colmenarez 2015-05-18 
+			//	Add Support for UOM Conversion 
+			/**
 			+ "QtyOnHand = (SELECT COALESCE(SUM(QtyOnHand),0) FROM M_Storage s, M_Locator l WHERE t.M_Product_ID=s.M_Product_ID"
 				+ " AND l.M_Locator_ID=s.M_Locator_ID AND l.M_Warehouse_ID=t.M_Warehouse_ID),"
 			+ "QtyReserved = (SELECT COALESCE(SUM(QtyReserved),0) FROM M_Storage s, M_Locator l WHERE t.M_Product_ID=s.M_Product_ID"
 				+ " AND l.M_Locator_ID=s.M_Locator_ID AND l.M_Warehouse_ID=t.M_Warehouse_ID),"
 			+ "QtyOrdered = (SELECT COALESCE(SUM(QtyOrdered),0) FROM M_Storage s, M_Locator l WHERE t.M_Product_ID=s.M_Product_ID"
 				+ " AND l.M_Locator_ID=s.M_Locator_ID AND l.M_Warehouse_ID=t.M_Warehouse_ID)";
-		if (p_C_DocType_ID != 0)
-			sql += ", C_DocType_ID=" + p_C_DocType_ID;
+			**/
+			//	End Jorge Colmenarez
+		if (getDocTypeId() != 0)
+			sql += ", C_DocType_ID=" + getDocTypeId();
 		sql += " WHERE AD_PInstance_ID=" + getAD_PInstance_ID();
-		no = DB.executeUpdate(sql, get_TrxName());
+		no = DB.executeUpdateEx(sql, get_TrxName());
 		if (no != 0)
 			log.fine("Update #" + no);
+		//	Dixon Martinez 2016-02-17
+		//	Move code
+		updateReplenish(wh);
+		//	End Dixon Martinez
+	}	//	fillTable
 
+	/**
+	 * Fill Table from Smart Browser
+	 * @author <a href="mailto:dmartinez@erpcya.com">Dixon Martinez</a> 17/2/2016, 21:38:50
+	 * @param rsTemp
+	 * @throws Exception
+	 * @return void
+	 */
+
+	private void fillTableSmartBrowser() throws Exception {
+		try {
+//			while (rsTemp.next()){
+//				BigDecimal qtyToOrdered = rsTemp.getBigDecimal("QtyToOrder");
+//				if(qtyToOrdered.compareTo(Env.ZERO) <= 0)
+//					continue;				
+
+			for(Integer key : getSelectionKeys()) { 
+				BigDecimal qtyToOrdered = getSelectionAsBigDecimal(key,"QtyToOrder");
+				int wh_ID = getSelectionAsInt(key,"SBR_M_Warehouse_ID");
+				MWarehouse wh = MWarehouse.get(getCtx(), wh_ID);
+				X_T_Replenish rp = new X_T_Replenish(getCtx(), 0, get_TrxName());
+				rp.setAD_PInstance_ID(getSelectionAsInt(key,"AD_PInstance_ID"));
+				rp.setM_Warehouse_ID(wh_ID);
+				rp.setM_Product_ID(getSelectionAsInt(key,"SBR_M_Product_ID"));
+				rp.setAD_Org_ID(getSelectionAsInt(key,"AD_Org_ID"));
+				rp.setReplenishType(getSelectionAsString(key,"SBR_ReplenishType"));
+				rp.setLevel_Min(getSelectionAsBigDecimal(key,"SBR_Level_Min"));
+				rp.setLevel_Max(getSelectionAsBigDecimal(key,"SBR_Level_Max"));
+				rp.setC_BPartner_ID(getSelectionAsInt(key,"SBR_C_BPartner_ID"));
+				rp.setOrder_Min(getSelectionAsBigDecimal(key,"SBR_Order_Min"));
+				rp.setOrder_Pack(getSelectionAsBigDecimal(key,"SBR_Order_Pack"));
+				rp.setQtyToOrder(qtyToOrdered);
+				rp.setReplenishmentCreate(getReplenishmentCreate());
+				rp.set_ValueOfColumn("SBR_M_Product_Category_ID", getProductCategoryId());
+				rp.set_ValueOfColumn("SBR_C_UOM_ID", getSelectionAsInt(key,"C_UOM_ID"));
+				rp.set_ValueOfColumn("AD_Client_ID", getSelectionAsInt(key,"AD_Client_ID"));
+				rp.setM_WarehouseSource_ID(getSelectionAsInt(key,"SBR_M_WarehouseSource_ID"));
+				rp.setC_DocType_ID(getDocTypeId());	
+				rp.saveEx();
+				updateReplenish(wh);
+			}
+			
+		} catch (SQLException ex){
+			new AdempiereException(ex.getMessage());
+		}
+//		finally{
+////			DB.close(rsTemp);
+////			DB.close(rs);
+////			rsTemp=null; rs = null;
+//		}
+	}
+	
+	/**
+	 * Move Code
+	 * @author <a href="mailto:dmartinez@erpcya.com">Dixon Martinez</a> 17/2/2016, 21:40:00
+	 * @param wh
+	 * @throws Exception
+	 * @return void
+	 */
+	
+	private void updateReplenish(MWarehouse wh) throws Exception {
+		String sql;
+		int no;
 		//	Delete inactive products and replenishments
 		sql = "DELETE T_Replenish r "
 			+ "WHERE (EXISTS (SELECT * FROM M_Product p "
 				+ "WHERE p.M_Product_ID=r.M_Product_ID AND p.IsActive='N')"
 			+ " OR EXISTS (SELECT * FROM M_Replenish rr "
 				+ " WHERE rr.M_Product_ID=r.M_Product_ID AND rr.IsActive='N'"
-				+ " AND rr.M_Warehouse_ID=" + p_M_Warehouse_ID + " ))"
+				+ " AND rr.M_Warehouse_ID=" + getWarehouseId() + " ))"
 			+ " AND AD_PInstance_ID=" + getAD_PInstance_ID();
-		no = DB.executeUpdate(sql, get_TrxName());
+		no = DB.executeUpdateEx(sql, get_TrxName());
 		if (no != 0)
 			log.fine("Delete Inactive=" + no);
 	 
 		//	Ensure Data consistency
 		sql = "UPDATE T_Replenish SET QtyOnHand = 0 WHERE QtyOnHand IS NULL";
-		no = DB.executeUpdate(sql, get_TrxName());
+		no = DB.executeUpdateEx(sql, get_TrxName());
 		sql = "UPDATE T_Replenish SET QtyReserved = 0 WHERE QtyReserved IS NULL";
-		no = DB.executeUpdate(sql, get_TrxName());
+		no = DB.executeUpdateEx(sql, get_TrxName());
 		sql = "UPDATE T_Replenish SET QtyOrdered = 0 WHERE QtyOrdered IS NULL";
-		no = DB.executeUpdate(sql, get_TrxName());
+		no = DB.executeUpdateEx(sql, get_TrxName());
 
-		//	Set Minimum / Maximum Maintain Level
-		//	X_M_Replenish.REPLENISHTYPE_ReorderBelowMinimumLevel
-		sql = "UPDATE T_Replenish"
-			+ " SET QtyToOrder = CASE WHEN QtyOnHand - QtyReserved + QtyOrdered <= Level_Min "
-			+ " THEN Level_Max - QtyOnHand + QtyReserved - QtyOrdered "
-			+ " ELSE 0 END "
-			+ "WHERE ReplenishType='1'" 
-			+ " AND AD_PInstance_ID=" + getAD_PInstance_ID();
-		no = DB.executeUpdate(sql, get_TrxName());
-		if (no != 0)
-			log.fine("Update Type-1=" + no);
-		//
-		//	X_M_Replenish.REPLENISHTYPE_MaintainMaximumLevel
-		sql = "UPDATE T_Replenish"
-			+ " SET QtyToOrder = Level_Max - QtyOnHand + QtyReserved - QtyOrdered "
-			+ "WHERE ReplenishType='2'" 
-			+ " AND AD_PInstance_ID=" + getAD_PInstance_ID();
-		no = DB.executeUpdate(sql, get_TrxName());
-		if (no != 0)
-			log.fine("Update Type-2=" + no);
-	
-
-		//	Minimum Order Quantity
-		sql = "UPDATE T_Replenish"
-			+ " SET QtyToOrder = Order_Min "
-			+ "WHERE QtyToOrder < Order_Min"
-			+ " AND QtyToOrder > 0" 
-			+ " AND AD_PInstance_ID=" + getAD_PInstance_ID();
-		no = DB.executeUpdate(sql, get_TrxName());
-		if (no != 0)
-			log.fine("Set MinOrderQty=" + no);
-
-		//	Even dividable by Pack
-		sql = "UPDATE T_Replenish"
-			+ " SET QtyToOrder = QtyToOrder - MOD(QtyToOrder, Order_Pack) + Order_Pack "
-			+ "WHERE MOD(QtyToOrder, Order_Pack) <> 0"
-			+ " AND QtyToOrder > 0"
-			+ " AND AD_PInstance_ID=" + getAD_PInstance_ID();
-		no = DB.executeUpdate(sql, get_TrxName());
-		if (no != 0)
-			log.fine("Set OrderPackQty=" + no);
-		
-		//	Source from other warehouse
-		if (wh.getM_WarehouseSource_ID() != 0)
-		{
+		if(!is_ProcessFromBrowse) {
+			//	Set Minimum / Maximum Maintain Level
+			//	X_M_Replenish.REPLENISHTYPE_ReorderBelowMinimumLevel
 			sql = "UPDATE T_Replenish"
-				+ " SET M_WarehouseSource_ID=" + wh.getM_WarehouseSource_ID() 
-				+ " WHERE AD_PInstance_ID=" + getAD_PInstance_ID();
-			no = DB.executeUpdate(sql, get_TrxName());
+				+ " SET QtyToOrder = CASE WHEN QtyOnHand - QtyReserved + QtyOrdered <= Level_Min "
+				+ " THEN Level_Max - QtyOnHand + QtyReserved - QtyOrdered "
+				+ " ELSE 0 END "
+				+ "WHERE ReplenishType='1'" 
+				+ " AND AD_PInstance_ID=" + getAD_PInstance_ID();
+			no = DB.executeUpdateEx(sql, get_TrxName());
 			if (no != 0)
-				log.fine("Set Source Warehouse=" + no);
+				log.fine("Update Type-1=" + no);
+			//
+			//	X_M_Replenish.REPLENISHTYPE_MaintainMaximumLevel
+			sql = "UPDATE T_Replenish"
+				+ " SET QtyToOrder = Level_Max - QtyOnHand + QtyReserved - QtyOrdered "
+				+ "WHERE ReplenishType='2'" 
+				+ " AND AD_PInstance_ID=" + getAD_PInstance_ID();
+			no = DB.executeUpdateEx(sql, get_TrxName());
+			if (no != 0)
+				log.fine("Update Type-2=" + no);
+			
+			//	Minimum Order Quantity
+			sql = "UPDATE T_Replenish"
+				+ " SET QtyToOrder = Order_Min "
+				+ "WHERE QtyToOrder < Order_Min"
+				+ " AND QtyToOrder > 0" 
+				+ " AND AD_PInstance_ID=" + getAD_PInstance_ID();
+			no = DB.executeUpdateEx(sql, get_TrxName());
+			if (no != 0)
+				log.fine("Set MinOrderQty=" + no);
+
+			//	Even dividable by Pack
+			sql = "UPDATE T_Replenish"
+				+ " SET QtyToOrder = QtyToOrder - MOD(QtyToOrder, Order_Pack) + Order_Pack "
+				+ "WHERE MOD(QtyToOrder, Order_Pack) <> 0"
+				+ " AND QtyToOrder > 0"
+				+ " AND AD_PInstance_ID=" + getAD_PInstance_ID();
+			no = DB.executeUpdateEx(sql, get_TrxName());
+			if (no != 0)
+				log.fine("Set OrderPackQty=" + no);
+			
+			//	Source from other warehouse
+			if (wh.getM_WarehouseSource_ID() != 0)
+			{
+				sql = "UPDATE T_Replenish"
+					+ " SET M_WarehouseSource_ID=" + wh.getM_WarehouseSource_ID() 
+					+ " WHERE AD_PInstance_ID=" + getAD_PInstance_ID();
+				no = DB.executeUpdateEx(sql, get_TrxName());
+				if (no != 0)
+					log.fine("Set Source Warehouse=" + no);
+			}else if (wh.getM_WarehouseSource_ID() == 0)
+			{
+				sql = "UPDATE T_Replenish"
+					+ " SET M_WarehouseSource_ID=(SELECT M_Replenish.M_WarehouseSource_ID FROM M_Replenish WHERE M_Replenish.M_Product_ID = T_Replenish.M_Product_ID  AND M_Replenish.M_WareHouse_ID = T_Replenish.M_WareHouse_ID) "  //+ wh.getM_WarehouseSource_ID() 
+					+ " WHERE AD_PInstance_ID=" + getAD_PInstance_ID();
+				no = DB.executeUpdateEx(sql, get_TrxName());
+				if (no != 0)
+					log.fine("Set Source Warehouse=" + no);
+			}
+			//	Check Source Warehouse
+			sql = "UPDATE T_Replenish"
+				+ " SET M_WarehouseSource_ID = NULL " 
+				+ "WHERE M_Warehouse_ID=M_WarehouseSource_ID"
+				+ " AND AD_PInstance_ID=" + getAD_PInstance_ID();
+			no = DB.executeUpdateEx(sql, get_TrxName());
+			if (no != 0)
+				log.fine("Set same Source Warehouse=" + no);
+			
 		}
-		//	Check Source Warehouse
-		sql = "UPDATE T_Replenish"
-			+ " SET M_WarehouseSource_ID = NULL " 
-			+ "WHERE M_Warehouse_ID=M_WarehouseSource_ID"
-			+ " AND AD_PInstance_ID=" + getAD_PInstance_ID();
-		no = DB.executeUpdate(sql, get_TrxName());
-		if (no != 0)
-			log.fine("Set same Source Warehouse=" + no);
-		
+
 		//	Custom Replenishment
 		String className = wh.getReplenishmentClass();
 		if (className != null && className.length() > 0)
@@ -376,7 +502,7 @@ public class ReplenishReport extends SvrProcess
 					if (qto == null)
 						qto = Env.ZERO;
 					replenish.setQtyToOrder(qto);
-					replenish.saveEx();
+					replenish.save();
 				}
 			}
 		}
@@ -384,14 +510,16 @@ public class ReplenishReport extends SvrProcess
 		sql = "DELETE T_Replenish "
 			+ "WHERE QtyToOrder < 1"
 		    + " AND AD_PInstance_ID=" + getAD_PInstance_ID();
-		no = DB.executeUpdate(sql, get_TrxName());
+		no = DB.executeUpdateEx(sql, get_TrxName());
 		if (no != 0)
 			log.fine("Delete No QtyToOrder=" + no);
-	}	//	fillTable
+		
+	}
 
 	/**
 	 * 	Create PO's
 	 */
+	
 	private void createPO()
 	{
 		int noOrders = 0;
@@ -412,7 +540,7 @@ public class ReplenishReport extends SvrProcess
 			{
 				order = new MOrder(getCtx(), 0, get_TrxName());
 				order.setIsSOTrx(false);
-				order.setC_DocTypeTarget_ID(p_C_DocType_ID);
+				order.setC_DocTypeTarget_ID(getDocTypeId());
 				MBPartner bp = new MBPartner(getCtx(), replenish.getC_BPartner_ID(), get_TrxName());
 				order.setBPartner(bp);
 				order.setSalesRep_ID(getAD_User_ID());
@@ -430,7 +558,16 @@ public class ReplenishReport extends SvrProcess
 			line.setM_Product_ID(replenish.getM_Product_ID());
 			line.setQty(replenish.getQtyToOrder());
 			line.setPrice();
-			line.saveEx();
+			//	Added by Jorge Colmenarez 2014-12-05 
+			//	Set UOM from Replenish
+			line.setC_UOM_ID(replenish.get_ValueAsInt("C_UOM_ID"));
+			//	End Jorge Colmenarez
+			line.save();
+			//	Added by Jorge Colmenarez 2014-11-20
+			//	Set document no from PO into Temporal Replenish
+			replenish.set_CustomColumn("DocumentNo", order.getDocumentNo());
+			replenish.save();
+			//	End Jorge Colmenarez
 		}
 		m_info = "#" + noOrders + info;
 		log.info(m_info);
@@ -439,6 +576,7 @@ public class ReplenishReport extends SvrProcess
 	/**
 	 * 	Create Requisition
 	 */
+	
 	private void createRequisition()
 	{
 		int noReqs = 0;
@@ -446,7 +584,8 @@ public class ReplenishReport extends SvrProcess
 		//
 		MRequisition requisition = null;
 		MWarehouse wh = null;
-		X_T_Replenish[] replenishs = getReplenish("M_WarehouseSource_ID IS NULL");
+		//	Changed by Jorge Colmenarez 2014-11-20 call method renamed from getReplenishDO to getReplenishWithoutBP
+		X_T_Replenish[] replenishs = getReplenishWithoutBP("M_WarehouseSource_ID IS NULL");
 		for (int i = 0; i < replenishs.length; i++)
 		{
 			X_T_Replenish replenish = replenishs[i];
@@ -458,7 +597,7 @@ public class ReplenishReport extends SvrProcess
 			{
 				requisition = new MRequisition (getCtx(), 0, get_TrxName());
 				requisition.setAD_User_ID (getAD_User_ID());
-				requisition.setC_DocType_ID(p_C_DocType_ID);
+				requisition.setC_DocType_ID(getDocTypeId());
 				requisition.setDescription(Msg.getMsg(getCtx(), "Replenishment"));
 				//	Set Org/WH
 				requisition.setAD_Org_ID(wh.getAD_Org_ID());
@@ -472,18 +611,29 @@ public class ReplenishReport extends SvrProcess
 			//
 			MRequisitionLine line = new MRequisitionLine(requisition);
 			line.setM_Product_ID(replenish.getM_Product_ID());
+			//	Added by Jorge Colmenarez 2014-12-05 
+			//	Set UOM from Replenish
+			line.setC_UOM_ID(replenish.get_ValueAsInt("C_UOM_ID"));
+			//	End Jorge Colmenarez
 			line.setC_BPartner_ID(replenish.getC_BPartner_ID());
 			line.setQty(replenish.getQtyToOrder());
 			line.setPrice();
-			line.saveEx();
+			line.save();
+			//	Added by Jorge Colmenarez 2014-11-20
+			//	Set document no from PO into Temporal Replenish
+			replenish.set_CustomColumn("DocumentNo", requisition.getDocumentNo());
+			replenish.save();
+			//	End Jorge Colmenarez
 		}
 		m_info = "#" + noReqs + info;
 		log.info(m_info);
 	}	//	createRequisition
 
+	
 	/**
 	 * 	Create Inventory Movements
 	 */
+	
 	private void createMovements()
 	{
 		int noMoves = 0;
@@ -514,7 +664,7 @@ public class ReplenishReport extends SvrProcess
 				M_Warehouse_ID = replenish.getM_Warehouse_ID();
 				
 				move = new MMovement (getCtx(), 0, get_TrxName());
-				move.setC_DocType_ID(p_C_DocType_ID);
+				move.setC_DocType_ID(getDocTypeId());
 				move.setDescription(Msg.getMsg(getCtx(), "Replenishment")
 					+ ": " + whSource.getName() + "->" + wh.getName());
 				//	Set Org
@@ -554,7 +704,12 @@ public class ReplenishReport extends SvrProcess
 				line.setM_AttributeSetInstance_ID(storage.getM_AttributeSetInstance_ID());
 				line.setM_LocatorTo_ID(M_LocatorTo_ID);					//	to
 				line.setM_AttributeSetInstanceTo_ID(storage.getM_AttributeSetInstance_ID());
-				line.saveEx();
+				line.save();
+				//	Added by Jorge Colmenarez 2014-11-20
+				//	Set document no from PO into Temporal Replenish
+				replenish.set_CustomColumn("DocumentNo", move.getDocumentNo());
+				replenish.save();
+				//	End Jorge Colmenarez
 				//
 				target = target.subtract(moveQty);
 				if (target.signum() == 0)
@@ -576,6 +731,7 @@ public class ReplenishReport extends SvrProcess
 	/**
 	 * 	Create Distribution Order
 	 */
+	
 	private void createDO() throws Exception
 	{
 		int noMoves = 0;
@@ -587,7 +743,8 @@ public class ReplenishReport extends SvrProcess
 		int M_WarehouseSource_ID = 0;
 		MWarehouse whSource = null;
 		MWarehouse wh = null;
-		X_T_Replenish[] replenishs = getReplenishDO("M_WarehouseSource_ID IS NOT NULL");
+		//	Changed by Jorge Colmenarez 2014-11-20 call method renamed from getReplenishDO to getReplenishWithoutBP
+		X_T_Replenish[] replenishs = getReplenishWithoutBP("M_WarehouseSource_ID IS NOT NULL");
 		for (X_T_Replenish replenish:replenishs)
 		{
 			if (whSource == null || whSource.getM_WarehouseSource_ID() != replenish.getM_WarehouseSource_ID())
@@ -605,7 +762,7 @@ public class ReplenishReport extends SvrProcess
 				M_Warehouse_ID = replenish.getM_Warehouse_ID();
 				
 				order = new MDDOrder (getCtx(), 0, get_TrxName());
-				order.setC_DocType_ID(p_C_DocType_ID);
+				order.setC_DocType_ID(getDocTypeId());
 				order.setDescription(Msg.getMsg(getCtx(), "Replenishment")
 					+ ": " + whSource.getName() + "->" + wh.getName());
 				//	Set Org
@@ -688,7 +845,7 @@ public class ReplenishReport extends SvrProcess
 				line.setM_LocatorTo_ID(M_LocatorTo_ID);					//	to
 				line.setM_AttributeSetInstanceTo_ID(storage.getM_AttributeSetInstance_ID());
 				line.setIsInvoiced(false);
-				line.saveEx();
+				line.save();
 				//
 				target = target.subtract(moveQty);
 				if (target.signum() == 0)
@@ -697,6 +854,10 @@ public class ReplenishReport extends SvrProcess
 			
 			MDDOrderLine line = new MDDOrderLine(order);
 			line.setM_Product_ID(replenish.getM_Product_ID());
+			//	Added by Jorge Colmenarez 2014-12-05 
+			//	Set UOM from Replenish
+			line.setC_UOM_ID(replenish.get_ValueAsInt("C_UOM_ID"));
+			//	End Jorge Colmenarez			
 			line.setQty(replenish.getQtyToOrder());
 			if (replenish.getQtyToOrder().compareTo(replenish.getQtyToOrder()) != 0)
 				line.setDescription("Total: " + replenish.getQtyToOrder());
@@ -705,7 +866,12 @@ public class ReplenishReport extends SvrProcess
 			line.setM_LocatorTo_ID(M_LocatorTo_ID);					//	to
 			line.setM_AttributeSetInstanceTo_ID(0);
 			line.setIsInvoiced(false);
-			line.saveEx();
+			line.save();
+			//	Added by Jorge Colmenarez 2014-11-20
+			//	Set document no from PO into Temporal Replenish
+			replenish.set_CustomColumn("DocumentNo", order.getDocumentNo());
+			replenish.save();
+			//	End Jorge Colmenarez
 			
 		}
 		if (replenishs.length == 0)
@@ -724,6 +890,7 @@ public class ReplenishReport extends SvrProcess
 	 * 	Get Replenish Records
 	 *	@return replenish
 	 */
+	
 	private X_T_Replenish[] getReplenish (String where)
 	{
 		String sql = "SELECT * FROM T_Replenish "
@@ -764,10 +931,13 @@ public class ReplenishReport extends SvrProcess
 	}	//	getReplenish
 	
 	/**
+	 * 	Changed by Jorge Colmenarez 2014-11-20
+	 * 	Rename method from getReplenishDO to getReplenishWithoutBP
 	 * 	Get Replenish Records
 	 *	@return replenish
 	 */
-	private X_T_Replenish[] getReplenishDO (String where)
+	
+	private X_T_Replenish[] getReplenishWithoutBP (String where)
 	{
 		String sql = "SELECT * FROM T_Replenish "
 			+ "WHERE AD_PInstance_ID=? ";
