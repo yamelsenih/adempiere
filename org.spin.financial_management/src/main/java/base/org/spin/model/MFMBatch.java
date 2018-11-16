@@ -366,11 +366,8 @@ public class MFMBatch extends X_FM_Batch implements DocAction, DocOptions {
 	 */
 	public void setProcessed(boolean processed) {
 		super.setProcessed(processed);
-		//	Change Processed in line
-		for(MFMTransaction transaction : getLines(true)) {
-			transaction.setProcessed(processed);
-			transaction.saveEx();
-		}
+		DB.executeUpdate("UPDATE FM_Transaction SET Processed = " + (processed? "'Y'": "'N'") 
+				+ " WHERE FM_Batch_ID = ?", getFM_Batch_ID(), get_TrxName());
 	}
 	
 	/**
@@ -405,7 +402,7 @@ public class MFMBatch extends X_FM_Batch implements DocAction, DocOptions {
 		setDocAction(DOCACTION_None);
 		saveEx();
 		//	Fact
-		reversal.processIt(ACTION_Post);
+//		reversal.processIt(ACTION_Post);
 		return reversal;
 	}
 	

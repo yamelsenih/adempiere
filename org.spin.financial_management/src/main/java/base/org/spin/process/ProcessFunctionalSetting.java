@@ -18,8 +18,9 @@
 package org.spin.process;
 
 import java.util.List;
-
 import org.compiere.model.Query;
+import org.compiere.util.Trx;
+import org.compiere.util.TrxRunnable;
 import org.compiere.util.Util;
 import org.spin.model.I_FM_Agreement;
 import org.spin.model.MFMAgreement;
@@ -49,10 +50,15 @@ public class ProcessFunctionalSetting extends ProcessFunctionalSettingAbstract {
 					.<MFMAgreement>list();
 			//	Get for all agreement
 			for(MFMAgreement agreement : agreementList) {
-				String log = FinancialSetting.get().fireProcessAgreement(getCtx(), agreement, get_TrxName());
-				if(!Util.isEmpty(log)) {
-					addLog(log);
-				}
+				Trx.run(new TrxRunnable() {
+					public void run(String trxName) {
+						agreement.set_TrxName(trxName);
+						String log = FinancialSetting.get().fireProcessAgreement(getCtx(), agreement, trxName);
+						if(!Util.isEmpty(log)) {
+							addLog(log);
+						}
+					}
+				});
 			}
 		}
 		return "Ok";
