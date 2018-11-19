@@ -64,10 +64,8 @@ public class ReplenishReport extends ReplenishReportAbstract
 	
 	/** Return Info					*/
 	private String				m_info 					= "";
-	/**Process From Browse			*/
-	private boolean 			is_ProcessFromBrowse 	= false;
 	/** ResultSet Smart Browser		*/
-	
+	ArrayList<X_T_Replenish> replenishs = new ArrayList<X_T_Replenish>();
 	/**
 	 *  Prepare - e.g., get Parameters.
 	 */
@@ -97,9 +95,8 @@ public class ReplenishReport extends ReplenishReportAbstract
 			throw new AdempiereUserError("@FillMandatory@ @C_DocType_ID@");
 		
 		prepareTable();
-		//	2016-02-17 Dixon Martinez
 		//	Add support for generate of smart browser
-		if(!is_ProcessFromBrowse) {
+		if(getSelectionKeys().isEmpty()) {
 			MWarehouse wh = MWarehouse.get(getCtx(), getWarehouseId());
 			if (wh.get_ID() == 0)  
 				throw new AdempiereSystemError("@FillMandatory@ @M_Warehouse_ID@");
@@ -107,9 +104,8 @@ public class ReplenishReport extends ReplenishReportAbstract
 		}
 		//
 		
-		if(is_ProcessFromBrowse)
+		if(!getSelectionKeys().isEmpty())
 			fillTableSmartBrowser();
-		//	End Dixon Martinez
 		//
 		if (getReplenishmentCreate() == null)
 			return "OK";
@@ -324,23 +320,18 @@ public class ReplenishReport extends ReplenishReportAbstract
 
 	private void fillTableSmartBrowser() throws Exception {
 		try {
-//			while (rsTemp.next()){
-//				BigDecimal qtyToOrdered = rsTemp.getBigDecimal("QtyToOrder");
-//				if(qtyToOrdered.compareTo(Env.ZERO) <= 0)
-//					continue;				
-
 			for(Integer key : getSelectionKeys()) { 
-				BigDecimal qtyToOrdered = getSelectionAsBigDecimal(key,"QtyToOrder");
+				BigDecimal qtyToOrdered = getSelectionAsBigDecimal(key,"SBR_QtyToOrder");
 				int wh_ID = getSelectionAsInt(key,"SBR_M_Warehouse_ID");
 				MWarehouse wh = MWarehouse.get(getCtx(), wh_ID);
 				X_T_Replenish rp = new X_T_Replenish(getCtx(), 0, get_TrxName());
-				rp.setAD_PInstance_ID(getSelectionAsInt(key,"AD_PInstance_ID"));
+				rp.setAD_PInstance_ID(getAD_PInstance_ID());
 				rp.setM_Warehouse_ID(wh_ID);
 				rp.setM_Product_ID(getSelectionAsInt(key,"SBR_M_Product_ID"));
 				rp.setAD_Org_ID(getSelectionAsInt(key,"AD_Org_ID"));
 				rp.setReplenishType(getSelectionAsString(key,"SBR_ReplenishType"));
 				rp.setLevel_Min(getSelectionAsBigDecimal(key,"SBR_Level_Min"));
-				rp.setLevel_Max(getSelectionAsBigDecimal(key,"SBR_Level_Max"));
+				rp.setLevel_Max(getSelectionAsBigDecimal(key,"SBR_Level_max"));
 				rp.setC_BPartner_ID(getSelectionAsInt(key,"SBR_C_BPartner_ID"));
 				rp.setOrder_Min(getSelectionAsBigDecimal(key,"SBR_Order_Min"));
 				rp.setOrder_Pack(getSelectionAsBigDecimal(key,"SBR_Order_Pack"));
@@ -352,17 +343,13 @@ public class ReplenishReport extends ReplenishReportAbstract
 				rp.setM_WarehouseSource_ID(getSelectionAsInt(key,"SBR_M_WarehouseSource_ID"));
 				rp.setC_DocType_ID(getDocTypeId());	
 				rp.saveEx();
+				replenishs.add(rp);
 				updateReplenish(wh);
 			}
 			
 		} catch (SQLException ex){
 			new AdempiereException(ex.getMessage());
 		}
-//		finally{
-////			DB.close(rsTemp);
-////			DB.close(rs);
-////			rsTemp=null; rs = null;
-//		}
 	}
 	
 	/**
@@ -396,7 +383,7 @@ public class ReplenishReport extends ReplenishReportAbstract
 		sql = "UPDATE T_Replenish SET QtyOrdered = 0 WHERE QtyOrdered IS NULL";
 		no = DB.executeUpdateEx(sql, get_TrxName());
 
-		if(!is_ProcessFromBrowse) {
+		if(getSelectionKeys().isEmpty()) {
 			//	Set Minimum / Maximum Maintain Level
 			//	X_M_Replenish.REPLENISHTYPE_ReorderBelowMinimumLevel
 			sql = "UPDATE T_Replenish"
@@ -483,11 +470,12 @@ public class ReplenishReport extends ReplenishReportAbstract
 				throw new AdempiereUserError("No custom Replenishment class "
 						+ className + " - " + e.toString());
 			}
-
-			X_T_Replenish[] replenishs = getReplenish("ReplenishType='9'");
-			for (int i = 0; i < replenishs.length; i++)
+			
+			if (replenishs.isEmpty())
+				replenishs = getReplenish("ReplenishType='9'");
+			
+			for(X_T_Replenish replenish: replenishs)
 			{
-				X_T_Replenish replenish = replenishs[i];
 				if (replenish.getReplenishType().equals(X_T_Replenish.REPLENISHTYPE_Custom))
 				{
 					BigDecimal qto = null;
@@ -527,10 +515,13 @@ public class ReplenishReport extends ReplenishReportAbstract
 		//
 		MOrder order = null;
 		MWarehouse wh = null;
-		X_T_Replenish[] replenishs = getReplenish("M_WarehouseSource_ID IS NULL");
-		for (int i = 0; i < replenishs.length; i++)
+		
+		if (replenishs.isEmpty())
+			replenishs = getReplenish("M_WarehouseSource_ID IS NULL");
+		
+		for (X_T_Replenish replenish: replenishs)
 		{
-			X_T_Replenish replenish = replenishs[i];
+			
 			if (wh == null || wh.getM_Warehouse_ID() != replenish.getM_Warehouse_ID())
 				wh = MWarehouse.get(getCtx(), replenish.getM_Warehouse_ID());
 			//
@@ -584,11 +575,13 @@ public class ReplenishReport extends ReplenishReportAbstract
 		//
 		MRequisition requisition = null;
 		MWarehouse wh = null;
-		//	Changed by Jorge Colmenarez 2014-11-20 call method renamed from getReplenishDO to getReplenishWithoutBP
-		X_T_Replenish[] replenishs = getReplenishWithoutBP("M_WarehouseSource_ID IS NULL");
-		for (int i = 0; i < replenishs.length; i++)
+		
+		//	call method renamed from getReplenishDO to getReplenishWithoutBP
+//		if (replenishs.isEmpty() == true)
+		 replenishs = getReplenishWithoutBP("M_WarehouseSource_ID IS NULL");
+		
+		for (X_T_Replenish replenish: replenishs)
 		{
-			X_T_Replenish replenish = replenishs[i];
 			if (wh == null || wh.getM_Warehouse_ID() != replenish.getM_Warehouse_ID())
 				wh = MWarehouse.get(getCtx(), replenish.getM_Warehouse_ID());
 			//
@@ -625,6 +618,7 @@ public class ReplenishReport extends ReplenishReportAbstract
 			replenish.save();
 			//	End Jorge Colmenarez
 		}
+		
 		m_info = "#" + noReqs + info;
 		log.info(m_info);
 	}	//	createRequisition
@@ -645,10 +639,13 @@ public class ReplenishReport extends ReplenishReportAbstract
 		int M_WarehouseSource_ID = 0;
 		MWarehouse whSource = null;
 		MWarehouse wh = null;
-		X_T_Replenish[] replenishs = getReplenish("M_WarehouseSource_ID IS NOT NULL");
-		for (int i = 0; i < replenishs.length; i++)
+		
+		if (replenishs.isEmpty() == true)
+			replenishs = getReplenish("M_WarehouseSource_ID IS NOT NULL");
+		
+		for (X_T_Replenish replenish: replenishs)
 		{
-			X_T_Replenish replenish = replenishs[i];
+			
 			if (whSource == null || whSource.getM_WarehouseSource_ID() != replenish.getM_WarehouseSource_ID())
 				whSource = MWarehouse.get(getCtx(), replenish.getM_WarehouseSource_ID());
 			if (wh == null || wh.getM_Warehouse_ID() != replenish.getM_Warehouse_ID())
@@ -716,7 +713,7 @@ public class ReplenishReport extends ReplenishReportAbstract
 					break;
 			}
 		}
-		if (replenishs.length == 0)
+		if (replenishs.size() == 0)
 		{
 			m_info = "No Source Warehouse";
 			log.warning(m_info);
@@ -744,7 +741,9 @@ public class ReplenishReport extends ReplenishReportAbstract
 		MWarehouse whSource = null;
 		MWarehouse wh = null;
 		//	Changed by Jorge Colmenarez 2014-11-20 call method renamed from getReplenishDO to getReplenishWithoutBP
-		X_T_Replenish[] replenishs = getReplenishWithoutBP("M_WarehouseSource_ID IS NOT NULL");
+		if (replenishs.isEmpty() == true)	
+			replenishs = getReplenishWithoutBP("M_WarehouseSource_ID IS NOT NULL");
+		
 		for (X_T_Replenish replenish:replenishs)
 		{
 			if (whSource == null || whSource.getM_WarehouseSource_ID() != replenish.getM_WarehouseSource_ID())
@@ -874,7 +873,7 @@ public class ReplenishReport extends ReplenishReportAbstract
 			//	End Jorge Colmenarez
 			
 		}
-		if (replenishs.length == 0)
+		if (replenishs.size() == 0)
 		{
 			m_info = "No Source Warehouse";
 			log.warning(m_info);
@@ -891,7 +890,7 @@ public class ReplenishReport extends ReplenishReportAbstract
 	 *	@return replenish
 	 */
 	
-	private X_T_Replenish[] getReplenish (String where)
+	private ArrayList<X_T_Replenish> getReplenish (String where)
 	{
 		String sql = "SELECT * FROM T_Replenish "
 			+ "WHERE AD_PInstance_ID=? AND C_BPartner_ID > 0 ";
@@ -915,6 +914,9 @@ public class ReplenishReport extends ReplenishReportAbstract
 		{
 			log.log(Level.SEVERE, sql, e);
 		}
+		finally {
+			
+		}
 		try
 		{
 			if (pstmt != null)
@@ -925,9 +927,7 @@ public class ReplenishReport extends ReplenishReportAbstract
 		{
 			pstmt = null;
 		}
-		X_T_Replenish[] retValue = new X_T_Replenish[list.size ()];
-		list.toArray (retValue);
-		return retValue;
+		return list;
 	}	//	getReplenish
 	
 	/**
@@ -936,8 +936,7 @@ public class ReplenishReport extends ReplenishReportAbstract
 	 * 	Get Replenish Records
 	 *	@return replenish
 	 */
-	
-	private X_T_Replenish[] getReplenishWithoutBP (String where)
+	private ArrayList<X_T_Replenish> getReplenishWithoutBP (String where)
 	{
 		String sql = "SELECT * FROM T_Replenish "
 			+ "WHERE AD_PInstance_ID=? ";
@@ -971,9 +970,7 @@ public class ReplenishReport extends ReplenishReportAbstract
 		{
 			pstmt = null;
 		}
-		X_T_Replenish[] retValue = new X_T_Replenish[list.size ()];
-		list.toArray (retValue);
-		return retValue;
+		return list;
 	}	//	getReplenish
 	
 }	//	Replenish
