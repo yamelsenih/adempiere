@@ -58,9 +58,7 @@ import org.eevolution.model.MDDOrderLine;
  *  Carlos Ruiz globalqss - integrate bug fixing from Chris Farley
  *    [ 1619517 ] Replenish report fails when no records in m_storage
  */
-public class ReplenishReport extends ReplenishReportAbstract 
-//extends SvrProcess
-{
+public class ReplenishReport extends ReplenishReportAbstract {
 	
 	/** Return Info					*/
 	private String				m_info 					= "";
@@ -96,7 +94,7 @@ public class ReplenishReport extends ReplenishReportAbstract
 		
 		prepareTable();
 		//	Add support for generate of smart browser
-		if(getSelectionKeys().isEmpty()) {
+		if(!isSelection()) {
 			MWarehouse wh = MWarehouse.get(getCtx(), getWarehouseId());
 			if (wh.get_ID() == 0)  
 				throw new AdempiereSystemError("@FillMandatory@ @M_Warehouse_ID@");
@@ -104,7 +102,7 @@ public class ReplenishReport extends ReplenishReportAbstract
 		}
 		//
 		
-		if(!getSelectionKeys().isEmpty())
+		if(isSelection())
 			fillTableSmartBrowser();
 		//
 		if (getReplenishmentCreate() == null)
@@ -328,7 +326,7 @@ public class ReplenishReport extends ReplenishReportAbstract
 				rp.setAD_PInstance_ID(getAD_PInstance_ID());
 				rp.setM_Warehouse_ID(wh_ID);
 				rp.setM_Product_ID(getSelectionAsInt(key,"SBR_M_Product_ID"));
-				rp.setAD_Org_ID(getSelectionAsInt(key,"AD_Org_ID"));
+				rp.setAD_Org_ID(getSelectionAsInt(key,"SBR_AD_Org_ID"));
 				rp.setReplenishType(getSelectionAsString(key,"SBR_ReplenishType"));
 				rp.setLevel_Min(getSelectionAsBigDecimal(key,"SBR_Level_Min"));
 				rp.setLevel_Max(getSelectionAsBigDecimal(key,"SBR_Level_max"));
@@ -337,9 +335,9 @@ public class ReplenishReport extends ReplenishReportAbstract
 				rp.setOrder_Pack(getSelectionAsBigDecimal(key,"SBR_Order_Pack"));
 				rp.setQtyToOrder(qtyToOrdered);
 				rp.setReplenishmentCreate(getReplenishmentCreate());
-				rp.set_ValueOfColumn("SBR_M_Product_Category_ID", getProductCategoryId());
-				rp.set_ValueOfColumn("SBR_C_UOM_ID", getSelectionAsInt(key,"C_UOM_ID"));
-				rp.set_ValueOfColumn("AD_Client_ID", getSelectionAsInt(key,"AD_Client_ID"));
+				rp.set_ValueOfColumn("M_Product_Category_ID", getProductCategoryId());
+				rp.set_ValueOfColumn("C_UOM_ID", getSelectionAsInt(key,"SBR_C_UOM_ID"));
+				rp.set_ValueOfColumn("AD_Client_ID", getSelectionAsInt(key,"SBR_AD_Client_ID"));
 				rp.setM_WarehouseSource_ID(getSelectionAsInt(key,"SBR_M_WarehouseSource_ID"));
 				rp.setC_DocType_ID(getDocTypeId());	
 				rp.saveEx();
@@ -383,7 +381,7 @@ public class ReplenishReport extends ReplenishReportAbstract
 		sql = "UPDATE T_Replenish SET QtyOrdered = 0 WHERE QtyOrdered IS NULL";
 		no = DB.executeUpdateEx(sql, get_TrxName());
 
-		if(getSelectionKeys().isEmpty()) {
+		if(!isSelection()) {
 			//	Set Minimum / Maximum Maintain Level
 			//	X_M_Replenish.REPLENISHTYPE_ReorderBelowMinimumLevel
 			sql = "UPDATE T_Replenish"
@@ -577,7 +575,7 @@ public class ReplenishReport extends ReplenishReportAbstract
 		MWarehouse wh = null;
 		
 		//	call method renamed from getReplenishDO to getReplenishWithoutBP
-//		if (replenishs.isEmpty() == true)
+		if (replenishs.isEmpty())
 		 replenishs = getReplenishWithoutBP("M_WarehouseSource_ID IS NULL");
 		
 		for (X_T_Replenish replenish: replenishs)
