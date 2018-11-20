@@ -354,6 +354,5 @@
 	<classpathentry kind="lib" path="tools/lib/jna-4.4.0.jar"/>
 	<classpathentry kind="lib" path="tools/lib/jna-platform-4.4.0.jar"/>
 	<classpathentry kind="lib" path="tools/lib/sardine-5.9-SNAPSHOT.jar"/>
-	<classpathentry kind="lib" path="tools/lib/twilio-java-sdk-6.3.0-jar-with-dependencies.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
