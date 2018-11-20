@@ -40,10 +40,13 @@ public class CreateExpenseReportFromIncidence extends CreateExpenseReportFromInc
 	private int currentBPartnerId = 0;
 	/**	Contract Id	*/
 	private int currentContractId = 0;
+	/**	Result	*/
+	private StringBuffer result = new StringBuffer();
+	/**	Counter	*/
+	private int created = 0;
 	
 	@Override
 	protected String doIt() throws Exception {
-		int created = 0;
 		//	Loop for keys
 		for(Integer key : getSelectionKeys()) {
 			MHRIncidence incidence = new MHRIncidence(getCtx(), key, get_TrxName());
@@ -87,12 +90,11 @@ public class CreateExpenseReportFromIncidence extends CreateExpenseReportFromInc
 			incidence.setS_TimeExpense_ID(expenseReport.getS_TimeExpense_ID());
 			incidence.setS_TimeExpenseLine_ID(expenseLine.getS_TimeExpenseLine_ID());
 			incidence.saveEx();
-			//	Process it
-			created++;
 		}
 		//	Last
 		processDocument();
-		return "@Created@ " + created;
+		
+		return getDocumentResult();
 	}
 	
 	/**
@@ -108,6 +110,7 @@ public class CreateExpenseReportFromIncidence extends CreateExpenseReportFromInc
 		}
 		//	
 		expenseReport.saveEx();
+		addDocumentResult(expenseReport.getDocumentNo());
 		addLog(expenseReport.getS_TimeExpense_ID(), null, null, expenseReport.toString());
 	}
 	
@@ -128,4 +131,29 @@ public class CreateExpenseReportFromIncidence extends CreateExpenseReportFromInc
 		expenseReport.saveEx();
 	}
 	
+	/**
+	 * Add document to result
+	 * @param documentNo
+	 */
+	private void addDocumentResult(String documentNo) {
+		created++;
+		//	Add message
+		if(result.length() > 0) {
+			result.append(", ");
+		}
+		result.append(documentNo);
+	}
+	
+	/**
+	 * Get Document Result
+	 * @return
+	 */
+	private String getDocumentResult() {
+		//	Add message
+		String returnMessage = "@Created@: " + created;
+		if(result.length() > 0) {
+			returnMessage = "@Created@: " + created + " [" + result + "]";
+		}
+		return returnMessage;
+	}
 }

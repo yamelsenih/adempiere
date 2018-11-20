@@ -31,9 +31,13 @@ import org.spin.model.MHRAttendanceRecord;
  */
 public class CreateAttendance extends CreateAttendanceAbstract {
 	
+	/**	Result	*/
+	private StringBuffer result = new StringBuffer();
+	/**	Counter	*/
+	private int created = 0;
+	
 	@Override
 	protected String doIt() throws Exception {
-		int created = 0;
 		//	Loop for keys
 		for(Integer key : getSelectionKeys()) {
 			int employeeId = getSelectionAsInt(key, "EE_HR_Employee_ID");
@@ -125,9 +129,36 @@ public class CreateAttendance extends CreateAttendanceAbstract {
 			attendance.saveEx();
 			//	Process It
 			processDocument(attendanceBatch);
-			created++;
+			addDocumentResult(attendanceBatch.getDocumentNo());
 		}
-		return "@Created@ " + created;
+		//	
+		return getDocumentResult();
+	}
+	
+	/**
+	 * Add document to result
+	 * @param documentNo
+	 */
+	private void addDocumentResult(String documentNo) {
+		created++;
+		//	Add message
+		if(result.length() > 0) {
+			result.append(", ");
+		}
+		result.append(documentNo);
+	}
+	
+	/**
+	 * Get Document Result
+	 * @return
+	 */
+	private String getDocumentResult() {
+		//	Add message
+		String returnMessage = "@Created@: " + created;
+		if(result.length() > 0) {
+			returnMessage = "@Created@: " + created + " [" + result + "]";
+		}
+		return returnMessage;
 	}
 	
 	/**

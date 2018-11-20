@@ -27,9 +27,13 @@ import org.spin.model.MHRIncidence;
  */
 public class ProcessIncidence extends ProcessIncidenceAbstract {
 	
+	/**	Result	*/
+	private StringBuffer result = new StringBuffer();
+	/**	Counter	*/
+	private int created = 0;
+	
 	@Override
 	protected String doIt() throws Exception {
-		int processed = 0;
 		//	Loop for keys
 		for(Integer key : getSelectionKeys()) {
 			MHRIncidence incidence = new MHRIncidence(getCtx(), key, get_TrxName());
@@ -53,8 +57,34 @@ public class ProcessIncidence extends ProcessIncidenceAbstract {
 			incidence.saveEx();
 			addLog(key, null, null, incidence.toString());
 			//	Process it
-			processed++;
+			addDocumentResult(incidence.getDocumentNo());
 		}
-		return "@Processed@ " + processed;
+		return getDocumentResult();
+	}
+	
+	/**
+	 * Add document to result
+	 * @param documentNo
+	 */
+	private void addDocumentResult(String documentNo) {
+		created++;
+		//	Add message
+		if(result.length() > 0) {
+			result.append(", ");
+		}
+		result.append(documentNo);
+	}
+	
+	/**
+	 * Get Document Result
+	 * @return
+	 */
+	private String getDocumentResult() {
+		//	Add message
+		String returnMessage = "@Created@: " + created;
+		if(result.length() > 0) {
+			returnMessage = "@Created@: " + created + " [" + result + "]";
+		}
+		return returnMessage;
 	}
 }

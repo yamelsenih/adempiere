@@ -170,6 +170,11 @@ public class MHRShiftIncidence extends X_HR_ShiftIncidence {
 		return shiftIncidenceList;
 	}
 	
+	@Override
+	public void setBeginningTime(Timestamp beginningTime) {
+		super.setBeginningTime(TimeUtil.getDayTime(getTimeFrom(), beginningTime));
+	}
+	
 	/**
 	 * Get Shift Incidence List
 	 * @param eventType
