@@ -232,7 +232,20 @@ public class MHRAttendanceBatch extends X_HR_AttendanceBatch implements DocActio
 			}
 			//	Create Incidence
 			if(durationInMillis != 0) {
-				MHRIncidence incidence = new MHRIncidence(this, shiftIncidence, durationInMillis);
+				long timeOfJournal = durationInMillis;
+				//	For Variable Entrance
+				if(workShift.isVariableEntrance()) {
+					BigDecimal hourNo = workShift.getNoOfHours();
+					if(hourNo != null
+						&& hourNo.compareTo(Env.ZERO) > 0) {
+						timeOfJournal = (long) (hourNo.doubleValue() * (1000 * 60 * 60));
+						if(durationInMillis < timeOfJournal) {
+							timeOfJournal = durationInMillis;
+						}
+					}
+				}
+				MHRIncidence incidence = new MHRIncidence(this, shiftIncidence, timeOfJournal);
+				//	Set Reference
 				if(get_ValueAsInt("S_Contract_ID") > 0) {
 					incidence.set_ValueOfColumn("S_Contract_ID", get_ValueAsInt("S_Contract_ID"));
 				}
