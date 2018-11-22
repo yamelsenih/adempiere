@@ -42,6 +42,7 @@ import org.compiere.model.MMovement;
 import org.compiere.model.MOrder;
 import org.compiere.model.MOrderLine;
 import org.compiere.model.MStorage;
+import org.compiere.model.Query;
 import org.compiere.process.ProcessInfo;
 import org.eevolution.model.I_DD_Order;
 import org.eevolution.model.MDDOrder;
@@ -84,9 +85,17 @@ public class GenerateShipmentOutBound extends GenerateShipmentOutBoundAbstract
 		distributionOrders = new Hashtable<Integer, I_DD_Order>();
 		shipments  = new Hashtable<Integer, MInOut>();
 		outboundLineFromDDOrderLine = new Hashtable<Integer, MWMInOutBoundLine>();
-		// Overwrite table RV_WM_InOutBoundLine by WM_InOutBoundLine
-		getProcessInfo().setTableSelectionId(MWMInOutBoundLine.Table_ID);
-		List<MWMInOutBoundLine> outBoundLines = (List<MWMInOutBoundLine>) getInstancesForSelection(get_TrxName());
+		List<MWMInOutBoundLine> outBoundLines = null;
+		if(getRecord_ID() > 0) {
+			outBoundLines = new Query(getCtx(), MWMInOutBoundLine.Table_Name, MWMInOutBound.COLUMNNAME_WM_InOutBound_ID + "=?", get_TrxName())
+				.setOrderBy(MWMInOutBoundLine.COLUMNNAME_C_Order_ID + ", " + MWMInOutBoundLine.COLUMNNAME_DD_Order_ID)
+				.list();
+		} else if(isSelection()) {
+			// Overwrite table RV_WM_InOutBoundLine by WM_InOutBoundLine
+			getProcessInfo().setTableSelectionId(MWMInOutBoundLine.Table_ID);
+			outBoundLines = (List<MWMInOutBoundLine>) getInstancesForSelection(get_TrxName());
+		}
+		//	Process
 		outBoundLines.stream()
 				.filter(outBoundLine -> outBoundLine.getQtyToDeliver().signum() > 0 || isIncludeNotAvailable())
 				.forEach(outBoundLine -> createShipment(outBoundLine));
