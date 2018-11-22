@@ -16,11 +16,14 @@
 
 package org.adempiere.pos.process;
 
+import org.adempiere.exceptions.AdempiereException;
+import org.compiere.model.MBankStatement;
 import org.compiere.model.MPayment;
 import org.compiere.model.MPaymentBatch;
 import org.compiere.model.MRefList;
-import org.compiere.process.DocAction;
-
+import org.compiere.util.DisplayType;
+import org.compiere.util.Msg;
+import org.compiere.util.Util;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
@@ -37,13 +40,17 @@ public class GenerateWithdrawal extends GenerateWithdrawalAbstract {
 
     @Override
     protected String doIt() throws Exception {
+    	String description = getDescription();
+    	if(Util.isEmpty(description)) {
+    		description = Msg.parseTranslation(getCtx(), "@Generated@ @from@ @C_POS_ID@") + DisplayType.getDateFormat(DisplayType.Date).format(getTransactionDate());
+    	}
         MPaymentBatch paymentBatchFrom = new MPaymentBatch(getCtx() , 0 , get_TrxName());
-        paymentBatchFrom.setName(getDescription());
+        paymentBatchFrom.setName(description);
         paymentBatchFrom.setProcessingDate(getTransactionDate());
         paymentBatchFrom.saveEx();
 
         MPaymentBatch paymentBatchTo = new MPaymentBatch(getCtx() , 0 , get_TrxName());
-        paymentBatchTo.setName(getDescription());
+        paymentBatchTo.setName(description);
         paymentBatchTo.setProcessingDate(getTransactionDate());
         paymentBatchTo.saveEx();
 
@@ -59,8 +66,8 @@ public class GenerateWithdrawal extends GenerateWithdrawalAbstract {
                         getPOSTerminalId(),
                         getBusinessPartnerId() ,
                         getDocumentNo() ,
-                        paymentBatchFrom.getDocumentNo(),
                         referenceNo,
+                        paymentBatchFrom.getName(),
                         getDocumentTypeId(),
                         getChargeId(),
                         refList.getValue(),
@@ -76,7 +83,7 @@ public class GenerateWithdrawal extends GenerateWithdrawalAbstract {
                         getBusinessPartnerId(),
                         getDocumentNo(),
                         referenceNo,
-                        paymentBatchTo.getDocumentNo(),
+                        paymentBatchTo.getName(),
                         getCounterDocumentTypeId(),
                         getChargeId(),
                         refList.getValue(),
@@ -126,9 +133,13 @@ public class GenerateWithdrawal extends GenerateWithdrawalAbstract {
             payment.setAmount(currencyId , amount);
             payment.setC_PaymentBatch_ID(paymentBatchId);
             payment.saveEx();
-
-            payment.processIt(DocAction.STATUS_Completed);
-            payment.saveEx();
+            //	Process It
+            if(payment.processIt(MPayment.DOCACTION_Complete)) {
+    			payment.saveEx();
+    			MBankStatement.addPayment(payment);
+            } else {
+            	throw new AdempiereException("@Error@ " + payment.getErrorMessage());
+            }
             addLog(payment.getDocumentInfo());
     }
 }
