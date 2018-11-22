@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<Migrations>
+  <Migration EntityType="D" Name="Validate Invoice for Sales Order / Distribution #2023" ReleaseNo="3.9.1" SeqNo="4356">
+    <Comments>See: See: https://github.com/adempiere/adempiere/issues/2023</Comments>
+    <Step SeqNo="30" StepType="AD">
+      <PO AD_Table_ID="53232" Action="I" Record_ID="65316" Table="AD_View_Column">
+        <Data AD_Column_ID="58093" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="58109" Column="AD_Column_ID">81143</Data>
+        <Data AD_Column_ID="58094" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="58100" Column="AD_View_Column_ID">65316</Data>
+        <Data AD_Column_ID="58101" Column="AD_View_Definition_ID">50007</Data>
+        <Data AD_Column_ID="58108" Column="AD_View_ID">50001</Data>
+        <Data AD_Column_ID="58107" Column="ColumnName">WM_InOutBoundLine_C_InvoiceLine_ID</Data>
+        <Data AD_Column_ID="58106" Column="ColumnSQL">iobl.C_InvoiceLine_ID</Data>
+        <Data AD_Column_ID="58096" Column="Created">2018-11-22 14:16:21.305</Data>
+        <Data AD_Column_ID="58098" Column="CreatedBy">100</Data>
+        <Data AD_Column_ID="58102" Column="Description">Sales Invoice Line</Data>
+        <Data AD_Column_ID="58103" Column="EntityType">ECA02</Data>
+        <Data AD_Column_ID="58104" Column="Help">The Sales Invoice Line is a unique identifier for a line in an invoice.</Data>
+        <Data AD_Column_ID="58095" Column="IsActive">true</Data>
+        <Data AD_Column_ID="58105" Column="Name">Sales Invoice Line</Data>
+        <Data AD_Column_ID="58097" Column="Updated">2018-11-22 14:16:21.305</Data>
+        <Data AD_Column_ID="58099" Column="UpdatedBy">100</Data>
+        <Data AD_Column_ID="84462" Column="UUID" isNewNull="true"/>
+      </PO>
+    </Step>
+    <Step SeqNo="40" StepType="AD">
+      <PO AD_Table_ID="53228" Action="I" Record_ID="0" Table="AD_View_Column_Trl">
+        <Data AD_Column_ID="58040" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="58048" Column="AD_Language">es_MX</Data>
+        <Data AD_Column_ID="58041" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="58047" Column="AD_View_Column_ID">65316</Data>
+        <Data AD_Column_ID="58043" Column="Created">2018-11-22 14:16:24.479</Data>
+        <Data AD_Column_ID="58045" Column="CreatedBy">100</Data>
+        <Data AD_Column_ID="58049" Column="Description">Sales Invoice Line</Data>
+        <Data AD_Column_ID="58050" Column="Help" isNewNull="true"/>
+        <Data AD_Column_ID="58042" Column="IsActive">true</Data>
+        <Data AD_Column_ID="58051" Column="IsTranslated">false</Data>
+        <Data AD_Column_ID="58052" Column="Name">Sales Invoice Line</Data>
+        <Data AD_Column_ID="58044" Column="Updated">2018-11-22 14:16:24.479</Data>
+        <Data AD_Column_ID="58046" Column="UpdatedBy">100</Data>
+        <Data AD_Column_ID="84463" Column="UUID" isNewNull="true"/>
+      </PO>
+    </Step>
+    <Step SeqNo="50" StepType="AD">
+      <PO AD_Table_ID="53232" Action="I" Record_ID="65317" Table="AD_View_Column">
+        <Data AD_Column_ID="58093" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="58109" Column="AD_Column_ID">81144</Data>
+        <Data AD_Column_ID="58094" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="58100" Column="AD_View_Column_ID">65317</Data>
+        <Data AD_Column_ID="58101" Column="AD_View_Definition_ID">50007</Data>
+        <Data AD_Column_ID="58108" Column="AD_View_ID">50001</Data>
+        <Data AD_Column_ID="58107" Column="ColumnName">WM_InOutBoundLine_C_Invoice_ID</Data>
+        <Data AD_Column_ID="58106" Column="ColumnSQL">iobl.C_Invoice_ID</Data>
+        <Data AD_Column_ID="58096" Column="Created">2018-11-22 14:17:20.107</Data>
+        <Data AD_Column_ID="58098" Column="CreatedBy">100</Data>
+        <Data AD_Column_ID="58102" Column="Description">Sales Invoice</Data>
+        <Data AD_Column_ID="58103" Column="EntityType">ECA02</Data>
+        <Data AD_Column_ID="58104" Column="Help">The Sales Invoice is a unique identifier for a invoice.</Data>
+        <Data AD_Column_ID="58095" Column="IsActive">true</Data>
+        <Data AD_Column_ID="58105" Column="Name">Sales Invoice</Data>
+        <Data AD_Column_ID="58097" Column="Updated">2018-11-22 14:17:20.107</Data>
+        <Data AD_Column_ID="58099" Column="UpdatedBy">100</Data>
+        <Data AD_Column_ID="84462" Column="UUID" isNewNull="true"/>
+      </PO>
+    </Step>
+    <Step SeqNo="60" StepType="AD">
+      <PO AD_Table_ID="53228" Action="I" Record_ID="0" Table="AD_View_Column_Trl">
+        <Data AD_Column_ID="58040" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="58048" Column="AD_Language">es_MX</Data>
+        <Data AD_Column_ID="58041" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="58047" Column="AD_View_Column_ID">65317</Data>
+        <Data AD_Column_ID="58043" Column="Created">2018-11-22 14:17:22.538</Data>
+        <Data AD_Column_ID="58045" Column="CreatedBy">100</Data>
+        <Data AD_Column_ID="58049" Column="Description">Sales Invoice</Data>
+        <Data AD_Column_ID="58050" Column="Help" isNewNull="true"/>
+        <Data AD_Column_ID="58042" Column="IsActive">true</Data>
+        <Data AD_Column_ID="58051" Column="IsTranslated">false</Data>
+        <Data AD_Column_ID="58052" Column="Name">Sales Invoice</Data>
+        <Data AD_Column_ID="58044" Column="Updated">2018-11-22 14:17:22.538</Data>
+        <Data AD_Column_ID="58046" Column="UpdatedBy">100</Data>
+        <Data AD_Column_ID="84463" Column="UUID" isNewNull="true"/>
+      </PO>
+    </Step>
+    <Step SeqNo="90" StepType="AD">
+      <PO AD_Table_ID="53224" Action="U" Record_ID="50147" Table="AD_Browse">
+        <Data AD_Column_ID="58000" Column="WhereClause" oldValue="iobl.C_Invoice_ID IS NULL&#10;AND iob.IsSOTrx='Y' &#10;AND iobl.Processed='Y' &#10;AND ol.QtyOrdered &lt;&gt; ol.QtyInvoiced">iobl.C_Invoice_ID IS NULL
+AND iob.IsSOTrx='Y' 
+AND iobl.Processed='Y' 
+AND ol.QtyOrdered &lt;&gt; ol.QtyInvoiced
+AND (iobl.PickedQty - ol.QtyInvoiced) &gt; 0</Data>
+      </PO>
+    </Step>
+  </Migration>
+</Migrations>

@@ -55,7 +55,9 @@ public class GenerateInvoiceInOutBound extends GenerateInvoiceInOutBoundAbstract
 		}
 		//	Create
 		if(outBoundLines != null) {
-			outBoundLines.stream().forEach(outBoundLine -> createInvoice(outBoundLine));
+			outBoundLines.stream()
+			.filter(outBoundLine -> outBoundLine.getC_Invoice_ID() <= 0)
+			.forEach(outBoundLine -> createInvoice(outBoundLine));
 		}
 		//	
 		processingInvoices();

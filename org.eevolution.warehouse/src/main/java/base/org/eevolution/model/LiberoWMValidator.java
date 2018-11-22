@@ -17,6 +17,7 @@ package org.eevolution.model;
 
 import org.compiere.model.MClient;
 import org.compiere.model.MInOut;
+import org.compiere.model.MInvoice;
 import org.compiere.model.MMovement;
 import org.compiere.model.ModelValidationEngine;
 import org.compiere.model.ModelValidator;
@@ -50,6 +51,7 @@ public class LiberoWMValidator implements ModelValidator {
 		engine.addModelChange(MDDOrderLine.Table_Name, this);
 		engine.addDocValidate(MInOut.Table_Name, this);
 		engine.addDocValidate(MMovement.Table_Name, this);
+		engine.addDocValidate(MInvoice.Table_Name, this);
 	} // initialize
 
 	public String modelChange(PO po, int type) throws Exception {
@@ -97,7 +99,8 @@ public class LiberoWMValidator implements ModelValidator {
 		} else if(timing == TIMING_BEFORE_REVERSECORRECT
 				|| timing == TIMING_BEFORE_VOID) {
 			if(po.get_TableName().equals(MInOut.Table_Name) 
-					|| po.get_TableName().equals(MMovement.Table_Name)) {
+					|| po.get_TableName().equals(MMovement.Table_Name)
+					|| po.get_TableName().equals(MInvoice.Table_Name)) {
 				if(po.get_TableName().equals(MInOut.Table_Name)) {
 					MInOut inOut = (MInOut) po;
 					if(inOut.getReversal_ID() > 0) {
@@ -109,6 +112,7 @@ public class LiberoWMValidator implements ModelValidator {
 						return null;
 					}
 				}
+				//	
 				unsetReference(po.get_TableName(), po.get_ID(), po.get_TrxName());
 			}
 		}
@@ -126,6 +130,8 @@ public class LiberoWMValidator implements ModelValidator {
 		String whereClauseForTable = "WM_InOutBoundLine.M_InOut_ID = ?";
 		if(tableName.equals(MMovement.Table_Name)) {
 			whereClauseForTable = "WM_InOutBoundLine.M_Movement_ID = ?";
+		} else if(tableName.equals(MInvoice.Table_Name)) {
+			whereClauseForTable = "WM_InOutBoundLine.C_Invoice_ID = ?";
 		}
 		StringBuffer whereClause = new StringBuffer("EXISTS(SELECT 1 FROM WM_InOutBound b WHERE WM_InOutBound_ID = WM_InOutBoundLine.WM_InOutBound_ID AND b.DocStatus = 'CO') ")
 				.append(" AND ").append(whereClauseForTable);
@@ -137,10 +143,15 @@ public class LiberoWMValidator implements ModelValidator {
 		//	Validate null
 		if(outboundLineList != null) {
 			outboundLineList.stream().forEach(outboundLine -> {
-				outboundLine.setM_Movement_ID(-1);
-				outboundLine.setM_MovementLine_ID(-1);
-				outboundLine.setM_InOut_ID(-1);
-				outboundLine.setM_InOutLine_ID(-1);
+				if(tableName.equals(MInvoice.Table_Name)) {
+					outboundLine.setC_Invoice_ID(-1);
+					outboundLine.setC_InvoiceLine_ID(-1);
+				} else {
+					outboundLine.setM_Movement_ID(-1);
+					outboundLine.setM_MovementLine_ID(-1);
+					outboundLine.setM_InOut_ID(-1);
+					outboundLine.setM_InOutLine_ID(-1);
+				}
 				outboundLine.saveEx();
 			});
 		}
@@ -159,6 +170,8 @@ public class LiberoWMValidator implements ModelValidator {
 		String whereClauseForTable = "bl.M_InOut_ID = ?";
 		if(tableName.equals(MMovement.Table_Name)) {
 			whereClauseForTable = "bl.M_Movement_ID = ?";
+		} else if(tableName.equals(MInvoice.Table_Name)) {
+			whereClauseForTable = "bl.C_Invoice_ID = ?";
 		}
 		//	
 		StringBuffer whereClause = new StringBuffer("WM_InOutBound.DocStatus = 'CO' "
