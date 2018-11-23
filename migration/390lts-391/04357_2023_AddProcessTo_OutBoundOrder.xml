@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<Migrations>
+  <Migration EntityType="D" Name="Add Process to Outbound Order #2023" ReleaseNo="3.9.1" SeqNo="4357">
+    <Comments>See: https://github.com/adempiere/adempiere/issues/2023</Comments>
+    <Step SeqNo="10" StepType="AD">
+      <PO AD_Table_ID="53660" Action="I" Record_ID="53185" Table="AD_Table_Process">
+        <Data AD_Column_ID="69641" Column="IsActive">true</Data>
+        <Data AD_Column_ID="69643" Column="Updated">2018-11-23 13:33:12.987</Data>
+        <Data AD_Column_ID="69639" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="69640" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="69647" Column="AD_Process_ID">53185</Data>
+        <Data AD_Column_ID="69648" Column="AD_Table_ID">53233</Data>
+        <Data AD_Column_ID="69642" Column="Created">2018-11-23 13:33:12.987</Data>
+        <Data AD_Column_ID="69644" Column="CreatedBy">100</Data>
+        <Data AD_Column_ID="69649" Column="EntityType">ECA02</Data>
+        <Data AD_Column_ID="69645" Column="UpdatedBy">100</Data>
+        <Data AD_Column_ID="84427" Column="UUID" isNewNull="true"/>
+      </PO>
+    </Step>
+    <Step SeqNo="20" StepType="AD">
+      <PO AD_Table_ID="53660" Action="I" Record_ID="54157" Table="AD_Table_Process">
+        <Data AD_Column_ID="69639" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="69640" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="69647" Column="AD_Process_ID">54157</Data>
+        <Data AD_Column_ID="69648" Column="AD_Table_ID">53233</Data>
+        <Data AD_Column_ID="69642" Column="Created">2018-11-23 13:33:29.208</Data>
+        <Data AD_Column_ID="69644" Column="CreatedBy">100</Data>
+        <Data AD_Column_ID="69649" Column="EntityType">ECA02</Data>
+        <Data AD_Column_ID="69641" Column="IsActive">true</Data>
+        <Data AD_Column_ID="69643" Column="Updated">2018-11-23 13:33:29.208</Data>
+        <Data AD_Column_ID="69645" Column="UpdatedBy">100</Data>
+        <Data AD_Column_ID="84427" Column="UUID" isNewNull="true"/>
+      </PO>
+    </Step>
+    <Step SeqNo="30" StepType="AD">
+      <PO AD_Table_ID="284" Action="U" Record_ID="54157" Table="AD_Process">
+        <Data AD_Column_ID="2810" Column="Description" oldValue="Generate Invoice From Outbound Order">Generate Invoice From Outbound Order Lines can be used for generate all invoices of current outbound order</Data>
+        <Data AD_Column_ID="2811" Column="Help" oldValue="Generate Invoice From Outbound Order">Use this process for generate invoices from outbound orders</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="40" StepType="AD">
+      <PO AD_Table_ID="287" Action="U" Record_ID="0" Table="AD_Process_Trl">
+        <Data AD_Column_ID="2844" Column="AD_Language" oldValue="es_MX">es_MX</Data>
+        <Data AD_Column_ID="2843" Column="AD_Process_ID" oldValue="54157">54157</Data>
+        <Data AD_Column_ID="2853" Column="Description" isOldNull="true">Generar Factura desde Orden de Salida permite generar facturas desde las líneas de la orden de salida actual</Data>
+        <Data AD_Column_ID="2854" Column="Help" isOldNull="true">Use éste proceso para generar facturas desde las líneas de la oren de salida</Data>
+      </PO>
+    </Step>
+  </Migration>
+</Migrations>
