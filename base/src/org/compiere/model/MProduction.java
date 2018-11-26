@@ -610,12 +610,11 @@ public class MProduction extends X_M_Production implements DocAction , DocumentR
 		StringBuilder msgadd = new StringBuilder("{->").append(getDocumentNo()).append(")");
 		reversal.addDescription(msgadd.toString());
 		reversal.setReversal_ID(getM_Production_ID());
-		reversal.setReversal(true);
 		reversal.saveEx(get_TrxName());
 
 		if (!reversal.processIt(DocAction.ACTION_Complete))
 		{
-			m_processMsg = "@Reversal@ @Error@: " + reversal.getProcessMsg();
+			m_processMsg = "@Reversal@ @Error@ " + reversal.getProcessMsg();
 			return null;
 		}
 
@@ -658,6 +657,7 @@ public class MProduction extends X_M_Production implements DocAction , DocumentR
 		to.setPosted(false);
 		to.setProcessing(false);
 		to.setProcessed(false);
+		to.setReversal(true);
 		to.setProductionQty(getProductionQty().negate());
 		to.saveEx();
 		for (MProductionLine fline : getLines())
@@ -871,14 +871,16 @@ public class MProduction extends X_M_Production implements DocAction , DocumentR
 		
 		//	For Production Batch
 		if(is_ValueChanged(COLUMNNAME_M_ProductionBatch_ID)) {
-			if(!isProcessed()) {
+			if(!isProcessed()
+					&& !isReversal()) {
 				setFromBatch(getParent(true));
 			}
 		}
 		//	For quantity
 		if(is_ValueChanged(COLUMNNAME_ProductionQty)) {
 			if(!isProcessed()
-					&& isCreated()) {
+					&& isCreated()
+					&& !isReversal()) {
 				setIsCreated(false);
 			}
 		}
