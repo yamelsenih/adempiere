@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<Migrations>
+  <Migration EntityType="D" Name="Add Support to Copy LDM FROM Project / Phase / Task" ReleaseNo="" SeqNo="904430">
+    <Comments>https://github.com/adempiere/adempiere/issues/1952</Comments>
+    <Step SeqNo="10" StepType="AD">
+      <PO AD_Table_ID="53660" Action="I" Record_ID="203" Table="AD_Table_Process">
+        <Data AD_Column_ID="69648" Column="AD_Table_ID">203</Data>
+        <Data AD_Column_ID="69641" Column="IsActive">true</Data>
+        <Data AD_Column_ID="69642" Column="Created">2018-11-16 06:19:17.975</Data>
+        <Data AD_Column_ID="69643" Column="Updated">2018-11-16 06:19:17.975</Data>
+        <Data AD_Column_ID="69647" Column="AD_Process_ID">54096</Data>
+        <Data AD_Column_ID="69645" Column="UpdatedBy">100</Data>
+        <Data AD_Column_ID="69644" Column="CreatedBy">100</Data>
+        <Data AD_Column_ID="69649" Column="EntityType">D</Data>
+        <Data AD_Column_ID="69640" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="69639" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="84427" Column="UUID" isNewNull="true"/>
+      </PO>
+    </Step>
+  </Migration>
+</Migrations>

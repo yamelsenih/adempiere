@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<Migrations>
+  <Migration EntityType="D" Name="Add Support to Calculate Price on Project / Phase / Tasks" ReleaseNo="" SeqNo="904400">
+    <Comments>See https://github.com/adempiere/adempiere/issues/2112</Comments>
+    <Step SeqNo="10" StepType="AD">
+      <PO AD_Table_ID="53660" Action="I" Record_ID="203" Table="AD_Table_Process">
+        <Data AD_Column_ID="69648" Column="AD_Table_ID">203</Data>
+        <Data AD_Column_ID="69641" Column="IsActive">true</Data>
+        <Data AD_Column_ID="69643" Column="Updated">2018-11-06 10:21:33.432</Data>
+        <Data AD_Column_ID="69647" Column="AD_Process_ID">230</Data>
+        <Data AD_Column_ID="69645" Column="UpdatedBy">100</Data>
+        <Data AD_Column_ID="69644" Column="CreatedBy">100</Data>
+        <Data AD_Column_ID="69642" Column="Created">2018-11-06 10:21:33.432</Data>
+        <Data AD_Column_ID="69649" Column="EntityType">D</Data>
+        <Data AD_Column_ID="69640" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="69639" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="84427" Column="UUID" isNewNull="true"/>
+      </PO>
+    </Step>
+    <Step SeqNo="20" StepType="AD">
+      <PO AD_Table_ID="53660" Action="I" Record_ID="576" Table="AD_Table_Process">
+        <Data AD_Column_ID="69648" Column="AD_Table_ID">576</Data>
+        <Data AD_Column_ID="69647" Column="AD_Process_ID">230</Data>
+        <Data AD_Column_ID="69645" Column="UpdatedBy">100</Data>
+        <Data AD_Column_ID="69644" Column="CreatedBy">100</Data>
+        <Data AD_Column_ID="69649" Column="EntityType">D</Data>
+        <Data AD_Column_ID="69640" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="69639" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="84427" Column="UUID" isNewNull="true"/>
+        <Data AD_Column_ID="69641" Column="IsActive">true</Data>
+        <Data AD_Column_ID="69642" Column="Created">2018-11-06 10:21:57.543</Data>
+        <Data AD_Column_ID="69643" Column="Updated">2018-11-06 10:21:57.543</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="30" StepType="AD">
+      <PO AD_Table_ID="53660" Action="I" Record_ID="584" Table="AD_Table_Process">
+        <Data AD_Column_ID="69648" Column="AD_Table_ID">584</Data>
+        <Data AD_Column_ID="69641" Column="IsActive">true</Data>
+        <Data AD_Column_ID="69642" Column="Created">2018-11-06 10:22:16.949</Data>
+        <Data AD_Column_ID="69643" Column="Updated">2018-11-06 10:22:16.949</Data>
+        <Data AD_Column_ID="69647" Column="AD_Process_ID">230</Data>
+        <Data AD_Column_ID="69645" Column="UpdatedBy">100</Data>
+        <Data AD_Column_ID="69644" Column="CreatedBy">100</Data>
+        <Data AD_Column_ID="69649" Column="EntityType">D</Data>
+        <Data AD_Column_ID="69640" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="69639" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="84427" Column="UUID" isNewNull="true"/>
+      </PO>
+    </Step>
+  </Migration>
+</Migrations>

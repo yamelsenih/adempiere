@@ -47,6 +47,9 @@ import org.compiere.util.Env;
  *
  * @author Victor Perez www.e-evolution.com     
  * @author Teo Sarca, www.arhipac.ro
+ * @author Carlos Parada, cparada@erpya.com, ERPCyA http://www.erpya.com
+ * 			<li>BR [ 1723 ] Don't validate product BOM line when is from process copying 
+ * 			@see https://github.com/adempiere/adempiere/issues/1723
  */
 public class MPPProductBOMLine extends X_PP_Product_BOMLine
 {
@@ -57,6 +60,7 @@ public class MPPProductBOMLine extends X_PP_Product_BOMLine
 	 */
 	private static final long serialVersionUID = -5792418944606756221L;
 	MPPProductBOM m_bom = null;
+	private boolean m_IsCopyingFromProcess = false;
 	
 	/**
 	 * Get all the Product BOM line for a Component
@@ -188,12 +192,13 @@ public class MPPProductBOMLine extends X_PP_Product_BOMLine
 	{
 		if (!success)
 			return false;
-
-		int lowlevel = getLowLevel();
-		MProduct product = new MProduct(getCtx(), getM_Product_ID(), get_TrxName());
-		product.setLowLevel(lowlevel); //update lowlevel
-		product.saveEx();
-		
+		//BR [ 1723 ]
+		if (!m_IsCopyingFromProcess) {
+			int lowlevel = getLowLevel();
+			MProduct product = new MProduct(getCtx(), getM_Product_ID(), get_TrxName());
+			product.setLowLevel(lowlevel); //update lowlevel
+			product.saveEx();
+		}
 		return true;
 	}
 	
@@ -298,6 +303,14 @@ public class MPPProductBOMLine extends X_PP_Product_BOMLine
 			}
 		}
 		return allocationPercent;
+	}
+	
+	/**
+	 * Mark as copying for don't validate on save
+	 * @param IsCopyingFromProcess
+	 */
+	public void setIsCopyingFromProcess(boolean IsCopyingFromProcess) {
+		m_IsCopyingFromProcess = IsCopyingFromProcess;
 	}
 }
 

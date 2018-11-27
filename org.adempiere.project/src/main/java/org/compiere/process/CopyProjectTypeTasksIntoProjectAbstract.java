@@ -19,35 +19,35 @@ package org.compiere.process;
 
 
 
-/** Generated Process for (Generate Order)
+/** Generated Process for (Copy Project Type Tasks into Project)
  *  @author ADempiere (generated) 
  *  @version Release 3.9.0
  */
-public abstract class ProjectGenOrderAbstract extends SvrProcess {
+public abstract class CopyProjectTypeTasksIntoProjectAbstract extends SvrProcess {
 	/** Process Value 	*/
-	private static final String VALUE_FOR_PROCESS = "C_Project_Generate";
+	private static final String VALUE_FOR_PROCESS = "CopyProjectTypeTasksIntoProject";
 	/** Process Name 	*/
-	private static final String NAME_FOR_PROCESS = "Generate Order";
+	private static final String NAME_FOR_PROCESS = "Copy Project Type Tasks into Project";
 	/** Process Id 	*/
-	private static final int ID_FOR_PROCESS = 164;
-	/**	Parameter Name for SO Sub Type	*/
-	public static final String DOCSUBTYPESO = "DocSubTypeSO";
-	/**	Parameter Value for SO Sub Type	*/
-	private String docSubTypeSO;
+	private static final int ID_FOR_PROCESS = 3000270;
+	/**	Parameter Name for Project	*/
+	public static final String C_PROJECT_ID = "C_Project_ID";
+	/**	Parameter Value for Project	*/
+	private int projectId;
 
 	@Override
 	protected void prepare() {
-		docSubTypeSO = getParameterAsString(DOCSUBTYPESO);
+		projectId = getParameterAsInt(C_PROJECT_ID);
 	}
 
-	/**	 Getter Parameter Value for SO Sub Type	*/
-	protected String getDocSubTypeSO() {
-		return docSubTypeSO;
+	/**	 Getter Parameter Value for Project	*/
+	protected int getProjectId() {
+		return projectId;
 	}
 
-	/**	 Setter Parameter Value for SO Sub Type	*/
-	protected void setDocSubTypeSO(String docSubTypeSO) {
-		this.docSubTypeSO = docSubTypeSO;
+	/**	 Setter Parameter Value for Project	*/
+	protected void setProjectId(int projectId) {
+		this.projectId = projectId;
 	}
 
 	/**	 Getter Parameter Value for Process ID	*/

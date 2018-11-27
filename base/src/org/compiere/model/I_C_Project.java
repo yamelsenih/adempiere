@@ -366,6 +366,19 @@ public interface I_C_Project
 	  */
 	public int getCreatedBy();
 
+    /** Column name CreateFrom */
+    public static final String COLUMNNAME_CreateFrom = "CreateFrom";
+
+	/** Set Create lines from.
+	  * Process which will generate a new document lines based on an existing document
+	  */
+	public void setCreateFrom (String CreateFrom);
+
+	/** Get Create lines from.
+	  * Process which will generate a new document lines based on an existing document
+	  */
+	public String getCreateFrom();
+
     /** Column name C_SalesRegion_ID */
     public static final String COLUMNNAME_C_SalesRegion_ID = "C_SalesRegion_ID";
 
@@ -423,12 +436,12 @@ public interface I_C_Project
     /** Column name DateFinishSchedule */
     public static final String COLUMNNAME_DateFinishSchedule = "DateFinishSchedule";
 
-	/** Set Date Finish Schedule.
+	/** Set Finish Schedule.
 	  * Scheduled Finish date for this Order
 	  */
 	public void setDateFinishSchedule (Timestamp DateFinishSchedule);
 
-	/** Get Date Finish Schedule.
+	/** Get Finish Schedule.
 	  * Scheduled Finish date for this Order
 	  */
 	public Timestamp getDateFinishSchedule();
@@ -449,12 +462,12 @@ public interface I_C_Project
     /** Column name DateStartSchedule */
     public static final String COLUMNNAME_DateStartSchedule = "DateStartSchedule";
 
-	/** Set Date Start Schedule.
+	/** Set Start Schedule.
 	  * Scheduled start date for this Order
 	  */
 	public void setDateStartSchedule (Timestamp DateStartSchedule);
 
-	/** Get Date Start Schedule.
+	/** Get Start Schedule.
 	  * Scheduled start date for this Order
 	  */
 	public Timestamp getDateStartSchedule();
@@ -588,6 +601,21 @@ public interface I_C_Project
 	  * This is a summary entity
 	  */
 	public boolean isSummary();
+
+    /** Column name M_PriceList_ID */
+    public static final String COLUMNNAME_M_PriceList_ID = "M_PriceList_ID";
+
+	/** Set Price List.
+	  * Unique identifier of a Price List
+	  */
+	public void setM_PriceList_ID (int M_PriceList_ID);
+
+	/** Get Price List.
+	  * Unique identifier of a Price List
+	  */
+	public int getM_PriceList_ID();
+
+	public org.compiere.model.I_M_PriceList getM_PriceList() throws RuntimeException;
 
     /** Column name M_PriceList_Version_ID */
     public static final String COLUMNNAME_M_PriceList_Version_ID = "M_PriceList_Version_ID";

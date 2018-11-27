@@ -31,6 +31,10 @@ import java.util.Optional;
  * Update the User data from Smart Browser
  *
  * @author victor.perez@e-evolution.com, http://www.e-evolution.com , http://github.com/e-Evolution
+ * 
+ * @author Carlos Parada, cparada@erpya.com, ERPCyA http://www.erpya.com
+ *   	<a href="https://github.com/adempiere/adempiere/issues/2113">
+ *		@see FR [ 2113 ] Check User as Project Member</a>
  */
 public class ProcessingUserSelection extends ProcessingUserSelectionAbstract {
     @Override
@@ -88,6 +92,10 @@ public class ProcessingUserSelection extends ProcessingUserSelectionAbstract {
                         projectMember.setAD_User_ID(user.get_ID());
                         projectMember.setNotificationType(user.getNotificationType());
                         projectMember.saveEx();
+                        
+                        //FR [ 2113 ]
+                        user.setIsProjectMember(true);
+                        user.saveEx();
                     }
                 });
     }

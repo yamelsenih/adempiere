@@ -33,7 +33,7 @@ public class X_C_Project extends PO implements I_C_Project, I_Persistent
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20171102L;
+	private static final long serialVersionUID = 20181105L;
 
     /** Standard Constructor */
     public X_C_Project (Properties ctx, int C_Project_ID, String trxName)
@@ -604,6 +604,23 @@ public class X_C_Project extends PO implements I_C_Project, I_Persistent
 		return (String)get_Value(COLUMNNAME_C_ProjectType_ID);
 	}
 
+	/** Set Create lines from.
+		@param CreateFrom 
+		Process which will generate a new document lines based on an existing document
+	  */
+	public void setCreateFrom (String CreateFrom)
+	{
+		set_Value (COLUMNNAME_CreateFrom, CreateFrom);
+	}
+
+	/** Get Create lines from.
+		@return Process which will generate a new document lines based on an existing document
+	  */
+	public String getCreateFrom () 
+	{
+		return (String)get_Value(COLUMNNAME_CreateFrom);
+	}
+
 	public org.compiere.model.I_C_SalesRegion getC_SalesRegion() throws RuntimeException
     {
 		return (org.compiere.model.I_C_SalesRegion)MTable.get(getCtx(), org.compiere.model.I_C_SalesRegion.Table_Name)
@@ -683,7 +700,7 @@ public class X_C_Project extends PO implements I_C_Project, I_Persistent
 		return (Timestamp)get_Value(COLUMNNAME_DateFinish);
 	}
 
-	/** Set Date Finish Schedule.
+	/** Set Finish Schedule.
 		@param DateFinishSchedule 
 		Scheduled Finish date for this Order
 	  */
@@ -692,7 +709,7 @@ public class X_C_Project extends PO implements I_C_Project, I_Persistent
 		set_Value (COLUMNNAME_DateFinishSchedule, DateFinishSchedule);
 	}
 
-	/** Get Date Finish Schedule.
+	/** Get Finish Schedule.
 		@return Scheduled Finish date for this Order
 	  */
 	public Timestamp getDateFinishSchedule () 
@@ -717,7 +734,7 @@ public class X_C_Project extends PO implements I_C_Project, I_Persistent
 		return (Timestamp)get_Value(COLUMNNAME_DateStart);
 	}
 
-	/** Set Date Start Schedule.
+	/** Set Start Schedule.
 		@param DateStartSchedule 
 		Scheduled start date for this Order
 	  */
@@ -726,7 +743,7 @@ public class X_C_Project extends PO implements I_C_Project, I_Persistent
 		set_Value (COLUMNNAME_DateStartSchedule, DateStartSchedule);
 	}
 
-	/** Get Date Start Schedule.
+	/** Get Start Schedule.
 		@return Scheduled start date for this Order
 	  */
 	public Timestamp getDateStartSchedule () 
@@ -934,6 +951,34 @@ public class X_C_Project extends PO implements I_C_Project, I_Persistent
 			return "Y".equals(oo);
 		}
 		return false;
+	}
+
+	public org.compiere.model.I_M_PriceList getM_PriceList() throws RuntimeException
+    {
+		return (org.compiere.model.I_M_PriceList)MTable.get(getCtx(), org.compiere.model.I_M_PriceList.Table_Name)
+			.getPO(getM_PriceList_ID(), get_TrxName());	}
+
+	/** Set Price List.
+		@param M_PriceList_ID 
+		Unique identifier of a Price List
+	  */
+	public void setM_PriceList_ID (int M_PriceList_ID)
+	{
+		if (M_PriceList_ID < 1) 
+			set_Value (COLUMNNAME_M_PriceList_ID, null);
+		else 
+			set_Value (COLUMNNAME_M_PriceList_ID, Integer.valueOf(M_PriceList_ID));
+	}
+
+	/** Get Price List.
+		@return Unique identifier of a Price List
+	  */
+	public int getM_PriceList_ID () 
+	{
+		Integer ii = (Integer)get_Value(COLUMNNAME_M_PriceList_ID);
+		if (ii == null)
+			 return 0;
+		return ii.intValue();
 	}
 
 	public org.compiere.model.I_M_PriceList_Version getM_PriceList_Version() throws RuntimeException

@@ -19,35 +19,20 @@ package org.compiere.process;
 
 
 
-/** Generated Process for (Generate Order)
+/** Generated Process for (Create From BOM Product)
  *  @author ADempiere (generated) 
  *  @version Release 3.9.0
  */
-public abstract class ProjectGenOrderAbstract extends SvrProcess {
+public abstract class ProjectTaskPhaseCopyBOMAbstract extends SvrProcess {
 	/** Process Value 	*/
-	private static final String VALUE_FOR_PROCESS = "C_Project_Generate";
+	private static final String VALUE_FOR_PROCESS = "CreateFromBOMProduct";
 	/** Process Name 	*/
-	private static final String NAME_FOR_PROCESS = "Generate Order";
+	private static final String NAME_FOR_PROCESS = "Create From BOM Product";
 	/** Process Id 	*/
-	private static final int ID_FOR_PROCESS = 164;
-	/**	Parameter Name for SO Sub Type	*/
-	public static final String DOCSUBTYPESO = "DocSubTypeSO";
-	/**	Parameter Value for SO Sub Type	*/
-	private String docSubTypeSO;
+	private static final int ID_FOR_PROCESS = 54096;
 
 	@Override
 	protected void prepare() {
-		docSubTypeSO = getParameterAsString(DOCSUBTYPESO);
-	}
-
-	/**	 Getter Parameter Value for SO Sub Type	*/
-	protected String getDocSubTypeSO() {
-		return docSubTypeSO;
-	}
-
-	/**	 Setter Parameter Value for SO Sub Type	*/
-	protected void setDocSubTypeSO(String docSubTypeSO) {
-		this.docSubTypeSO = docSubTypeSO;
 	}
 
 	/**	 Getter Parameter Value for Process ID	*/

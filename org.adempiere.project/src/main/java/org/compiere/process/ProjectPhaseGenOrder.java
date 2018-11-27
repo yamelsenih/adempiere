@@ -57,12 +57,15 @@ public class ProjectPhaseGenOrder  extends ProjectPhaseGenOrderAbstract
 		log.info("doIt - C_ProjectPhase_ID=" + getRecord_ID());
 		if (getRecord_ID() == 0)
 			throw new IllegalArgumentException("C_ProjectPhase_ID == 0");
+		if (getDocSubTypeSO()==null)
+			throw new AdempiereException("@NotFound@ @DocSubTypeSO@");
+		
 		MProjectPhase fromPhase = new MProjectPhase (getCtx(), getRecord_ID(), get_TrxName());
 		MProject fromProject = ProjectGenOrder.getProject (getCtx(), fromPhase.getC_Project_ID(), get_TrxName());
 		if (fromProject.getC_PaymentTerm_ID() <= 0)
 			throw new AdempiereException("@C_PaymentTerm_ID@ @NotFound@");
 
-		MOrder order = new MOrder (fromProject, true, MOrder.DocSubTypeSO_OnCredit);
+		MOrder order = new MOrder (fromProject, true, getDocSubTypeSO());
 		order.setDescription(order.getDescription() + " - " + fromPhase.getName());
 		order.saveEx();
 

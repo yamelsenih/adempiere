@@ -33,6 +33,9 @@ import org.eevolution.model.MPPProductBOMLine;
  *	
  *  @author Tony Snook 
  *  @version $Id: CopyFromBOM.java,v 1.0 2008/07/04 05:24:03 tspc Exp $
+ *  @author Carlos Parada, cparada@erpya.com, ERPCyA http://www.erpya.com
+ * 			<li>BR [ 1723 ] Don't validate product BOM line when is from process copying 
+ * 			@see https://github.com/adempiere/adempiere/issues/1723
  */
 public class CopyFromBOM extends SvrProcess {
 	/**					*/
@@ -81,6 +84,8 @@ public class CopyFromBOM extends SvrProcess {
 		for (MPPProductBOMLine frombomline : frombomlines)
 		{
 			MPPProductBOMLine tobomline = new MPPProductBOMLine(ctx, 0, get_TrxName());
+			//BR [ 1723 ]
+			tobomline.setIsCopyingFromProcess(true);
 			MPPProductBOMLine.copyValues(frombomline, tobomline);
 			tobomline.setPP_Product_BOM_ID(toBOM.getPP_Product_BOM_ID());
 			tobomline.save();
