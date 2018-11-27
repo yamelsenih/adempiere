@@ -21,7 +21,6 @@ import java.math.RoundingMode;
 import java.sql.ResultSet;
 import java.sql.Timestamp;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Properties;
@@ -178,21 +177,22 @@ public class MProduction extends X_M_Production implements DocAction , DocumentR
 			}
 			// Check if Production only possible when sufficient quantity in stock
 			if (isMustBeStocked() && !line.isEndProduct() && getReversal_ID()==0 
-					 && product.isStocked() && line.isActive()){
-				String whereClause = "M_Product_ID=? and M_Locator_ID=? and Movementdate<=? ";
-				ArrayList <Object> params = new ArrayList<>();
-				params.add(product.getM_Product_ID());
-				params.add(line.getM_Locator_ID());
-				params.add(getMovementDate());
-				if (line.getM_AttributeSetInstance_ID()!=0){
-					whereClause = whereClause + " and M_AttributesetInstance_ID=? ";
-					params.add(line.getM_AttributeSetInstance_ID());
+					 && product.isStocked() && line.isActive()) {
+				String MMPolicy = product.getMMPolicy();
+				MStorage[] storages = MStorage.getWarehouse (getCtx(), 0,
+						product.getM_Product_ID(), line.getM_AttributeSetInstance_ID(),
+					null, MClient.MMPOLICY_FiFo.equals(MMPolicy), true, line.getM_Locator_ID(), get_TrxName());
+				
+				//	Qty On Hand
+				BigDecimal qtyOnHand = Env.ZERO;
+				if(storages != null
+						&& storages.length > 0) {
+					for(MStorage storage : storages) {
+						qtyOnHand = qtyOnHand.add(storage.getQtyOnHand());
+					}
 				}
-				BigDecimal qtyOnHand = new Query(getCtx(), MTransaction.Table_Name, whereClause, get_TrxName())
-						.setParameters(params)
-						.aggregate(MTransaction.COLUMNNAME_MovementQty, Query.AGGREGATE_SUM);
-
-				log.config("qtyOnHand="+qtyOnHand + " movementQty="+line.getMovementQty() + " "+product);
+				//	Validate
+				log.config("qtyOnHand=" + qtyOnHand + " movementQty=" + line.getMovementQty() + " "+product);
 				if (qtyOnHand.add(line.getMovementQty()).compareTo(Env.ZERO)<0) {
 					errors.append(Msg.translate(getCtx(), "NotEnoughStocked") + " " + product.getName()
 					+ ": " + Msg.translate(getCtx(), "QtyAvailable") + " " + qtyOnHand.toString() + ".\n" );
