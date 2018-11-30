@@ -20,6 +20,8 @@ import java.math.BigDecimal;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.util.List;
 import java.util.Properties;
 import java.util.logging.Level;
 
@@ -101,7 +103,7 @@ public class CalloutBankStatement extends CalloutEngine
 		//	log.trace(log.l5_DData, "Charge (" + bd + ") = Stmt(" + stmt + ") - Trx(" + trx + ") - Interest(" + interest + ")");
 			mTab.setValue("ChargeAmt", bd);
 		}
-		return "";
+		return conversion(ctx, WindowNo, mTab, mField, value);
 	}   //  amount
 
 
@@ -155,5 +157,56 @@ public class CalloutBankStatement extends CalloutEngine
 		amount (ctx, WindowNo, mTab, mField, value);
 		return "";
 	}	//	payment
-
+	
+	public String conversion(Properties ctx, int WindowNo, GridTab mTab, GridField mField, Object value) {		
+		//	Get values
+		BigDecimal stmtAmt = (BigDecimal)mTab.getValue("StmtAmt");
+		Integer bankStatementId = (Integer)mTab.getValue("C_BankStatement_ID");
+		Integer currencyId = (Integer)mTab.getValue ("C_Currency_ID");
+		//	
+		int AD_Client_ID = 0;
+		int AD_Org_ID = 0;
+		int ConversionTypeId = 0;
+		
+		//	Get Currency POS
+		int currencyPOSId = 0;
+		//	For invoice
+		List<MPOS> poss = MPOS.getByOrganization(ctx,Env.getAD_Org_ID(ctx), null);
+		for(MPOS pos : poss) {
+			if(Env.getAD_User_ID(ctx) == pos.getSalesRep_ID()) {
+				currencyPOSId = pos.getC_BankAccount().getC_Currency_ID();
+				ConversionTypeId = pos.get_ValueAsInt("C_ConversionType_ID");
+				break;
+			}
+		}
+		if(currencyPOSId == 0)
+			return "";
+		
+		if(currencyId != currencyPOSId)
+			mTab.getField("ConvertAmt").setDisplayed(true);
+		
+			
+		//	Get Currency Info
+		MCurrency currency = MCurrency.get (ctx,currencyId);
+		MBankStatement bankStatement = new  MBankStatement(ctx, bankStatementId, null);
+		Timestamp ConvDate = bankStatement.getStatementDate();
+	
+		// Get Currency Rate
+		BigDecimal CurrencyRate = Env.ONE;
+		//	For Conversion Rate
+		if (currencyId > 0) {
+			//	Rate
+			CurrencyRate = MConversionRate.getRate (currencyId,
+				currencyPOSId, ConvDate, ConversionTypeId, AD_Client_ID,
+				AD_Org_ID);
+		}
+		
+		//	Set Open Amount
+		BigDecimal ConvertedAmt = stmtAmt.multiply(CurrencyRate).setScale(
+				currency.getStdPrecision(), BigDecimal.ROUND_HALF_UP);
+		//	Set values
+		mTab.setValue("ConvertedAmt", ConvertedAmt);
+		//	Default
+		return "";
+	}
 }	//	CalloutBankStatement
