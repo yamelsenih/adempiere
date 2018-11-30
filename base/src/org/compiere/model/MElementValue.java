@@ -208,8 +208,8 @@ public class MElementValue extends X_C_ElementValue
 	@Override
 	protected boolean beforeSave (boolean newRecord)
 	{
-		if (getAD_Org_ID() != 0)
-			setAD_Org_ID(0);
+//		if (getAD_Org_ID() != 0)
+//			setAD_Org_ID(0);
 		//
 		// Transform to summary level account
 		if (!newRecord && isSummary() && is_ValueChanged(COLUMNNAME_IsSummary))
