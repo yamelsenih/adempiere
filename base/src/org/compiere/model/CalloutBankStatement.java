@@ -179,11 +179,11 @@ public class CalloutBankStatement extends CalloutEngine
 				break;
 			}
 		}
-		if(currencyPOSId == 0)
+		if(currencyPOSId == 0 || currencyId == currencyPOSId)
 			return "";
 		
-		if(currencyId != currencyPOSId)
-			mTab.getField("ConvertAmt").setDisplayed(true);
+		
+			mTab.getField("ConvertedAmt").setDisplayed(true);
 		
 			
 		//	Get Currency Info
@@ -200,13 +200,15 @@ public class CalloutBankStatement extends CalloutEngine
 				currencyPOSId, ConvDate, ConversionTypeId, AD_Client_ID,
 				AD_Org_ID);
 		}
-		
+		if(CurrencyRate != null){
 		//	Set Open Amount
 		BigDecimal ConvertedAmt = stmtAmt.multiply(CurrencyRate).setScale(
 				currency.getStdPrecision(), BigDecimal.ROUND_HALF_UP);
+	
 		//	Set values
 		mTab.setValue("ConvertedAmt", ConvertedAmt);
-		//	Default
+		} 
+		
 		return "";
 	}
 }	//	CalloutBankStatement
