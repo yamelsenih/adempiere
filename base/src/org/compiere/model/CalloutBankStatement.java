@@ -163,8 +163,9 @@ public class CalloutBankStatement extends CalloutEngine
 		BigDecimal stmtAmt = (BigDecimal)mTab.getValue("StmtAmt");
 		Integer bankStatementId = (Integer)mTab.getValue("C_BankStatement_ID");
 		Integer currencyId = (Integer)mTab.getValue ("C_Currency_ID");
+
 		//	
-		int AD_Client_ID = 0;
+		int AD_Client_ID = Env.getAD_Client_ID(ctx);
 		int AD_Org_ID = 0;
 		int ConversionTypeId = 0;
 		
@@ -173,7 +174,8 @@ public class CalloutBankStatement extends CalloutEngine
 		//	For invoice
 		List<MPOS> poss = MPOS.getByOrganization(ctx,Env.getAD_Org_ID(ctx), null);
 		for(MPOS pos : poss) {
-			if(Env.getAD_User_ID(ctx) == pos.getSalesRep_ID()) {
+			if(Env.getAD_User_ID(ctx) == pos.getSalesRep_ID() ) {
+				
 				currencyPOSId = pos.getC_BankAccount().getC_Currency_ID();
 				ConversionTypeId = pos.get_ValueAsInt("C_ConversionType_ID");
 				break;
