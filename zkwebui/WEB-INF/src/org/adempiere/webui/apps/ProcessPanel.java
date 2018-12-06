@@ -57,13 +57,11 @@ import org.compiere.util.Env;
 import org.compiere.util.Ini;
 import org.compiere.util.Msg;
 import org.compiere.util.Util;
-import org.zkforge.keylistener.Keylistener;
 import org.zkoss.zk.au.out.AuEcho;
 import org.zkoss.zk.ui.Component;
 import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.event.EventListener;
 import org.zkoss.zk.ui.event.Events;
-import org.zkoss.zk.ui.event.KeyEvent;
 import org.zkoss.zk.ui.util.Clients;
 import org.zkoss.zkex.zul.Center;
 import org.zkoss.zkex.zul.North;
@@ -95,6 +93,9 @@ import org.zkoss.zul.Html;
  *		<li>BF [ <a href="https://github.com/adempiere/adempiere/issues/495">#495</a> ] Parameter Panel & SmartBrowser criteria do not set gridField value
  *		<li>BF [ <a href="https://github.com/adempiere/adempiere/issues/1926">#1926</a> ] ZK Exports migration XML files to 
  *       different location than what is selected in the dialogs.
+ *		<li>BF [ <a href="https://github.com/adempiere/adempiere/issues/1975">#1975</a> ] 
+ *			Key Listeners in ZK remain active when panel is not displayed. References to the Key Listener
+ *			have been removed. Instead use the bOK.setFocus() method to capture the enter key.
  * 	@version 	2006-12-01
  */
 public class ProcessPanel extends ProcessController implements SmallViewEditable, EventListener, ASyncProcess {
@@ -167,10 +168,6 @@ public class ProcessPanel extends ProcessController implements SmallViewEditable
 	private Label				lPrintFormat		= new Label(Msg.getMsg(Env.getCtx(),"PrintFormat"));
 	private Label 				lReportType = new Label(Msg.getMsg(Env.getCtx(),"ReportType"));
 
-	private Keylistener keyListener;
-	
-	private static final int KEYBOARD_KEY_RETURN = 13;
-	
 	/**	Logger			*/
 	private static CLogger log = CLogger.getCLogger(ProcessPanel.class);
 	
@@ -278,21 +275,24 @@ public class ProcessPanel extends ProcessController implements SmallViewEditable
 				fReportType.appendItem("PDF", "P");
 				if ("PDF".equals(typeSelection))
 					selectionIndex = 0;
+				fReportType.appendItem("CSV", "C");
+				if ("CSV".equals(typeSelection))
+					selectionIndex = 1;
 
 				if (m_isAllowXLSView) {
 					fReportType.appendItem("Excel", "X");
 					if ("XLS".equals(typeSelection))
-						selectionIndex = 1;
+						selectionIndex = 2;
 					fReportType.appendItem("XLSX", "XX");
 					if ("XLSX".equals(typeSelection))
-						selectionIndex = 2;
+						selectionIndex = 3;
 
 				}
 				if (m_isAllowHTMLView)
 					fReportType.appendItem("HTML", "H");
 
 				if ("HTML".equals(typeSelection))
-					selectionIndex = 3;
+					selectionIndex = 4;
 
 				fReportType.setSelectedIndex(selectionIndex);
 
@@ -329,12 +329,8 @@ public class ProcessPanel extends ProcessController implements SmallViewEditable
 		loadQuerySaved();
 		fSavedName.addEventListener(Events.ON_CHANGE, this);
 		
-		keyListener = new Keylistener();
-		
-		keyListener.setCtrlKeys("#enter");
-		keyListener.addEventListener(Events.ON_CTRL_KEY, this);
 		mainPanel.addEventListener(Events.ON_CANCEL, this);
-		mainPanel.appendChild(keyListener);
+		
 	}
 	
 	/**
@@ -559,18 +555,12 @@ public class ProcessPanel extends ProcessController implements SmallViewEditable
 	public void onEvent(Event event) throws Exception {
 		String saveName = null;
 		boolean lastRun = false;
-		int code= 0;
 		if(fSavedName.getRawText() != null) {
 			saveName = fSavedName.getRawText();
 			lastRun = ("** " + Msg.getMsg(Env.getCtx(), "LastRun") + " **").equals(saveName);
 		}
-		if (event.getName().equals(Events.ON_CTRL_KEY) && event.getTarget() == keyListener) {
-			
-			KeyEvent keyEvent = (KeyEvent) event;
-			code = keyEvent.getKeyCode();
-		}
 		//	Ok
-		if (event.getTarget().equals(bOK) || code == KEYBOARD_KEY_RETURN) {
+		if (event.getTarget().equals(bOK)) {
 			setIsOkPressed(true);
 			if(isOnlyPanel()) {
 				//	check if saving parameters is complete
@@ -609,12 +599,15 @@ public class ProcessPanel extends ProcessController implements SmallViewEditable
 				deleteInstance(selected);
 			}
 			//	
-			loadQuerySaved();
+			loadQuerySaved();  // #1975 - focus stays with the save parameters field
 		} else if(event.getTarget().equals(fSavedName)) {
 			//	Load saved parameters
 			loadParameters(saveName);
 			boolean enabled = !Util.isEmpty(saveName);
 			bDelete.setEnabled(enabled && fSavedName.getSelectedIndex() > -1 && !lastRun);
+			// #1975 - have the process run when the enter key is pressed - this creates 
+			// an onOK event which will be trapped by the bOK button if it has the focus.
+			bOK.setFocus(true);
 		}
 	}
 
@@ -652,6 +645,12 @@ public class ProcessPanel extends ProcessController implements SmallViewEditable
 		//	
 		if(!isAutoStart()) {
 			loadQuerySaved();
+			// #1975 - have the process run when the enter key is pressed - this creates 
+			// an onOK event which will be trapped by the bOK button if it has the focus.
+			// If the buttons aren't enabled - as in the smart browser - bOK could be null.
+			if (bOK != null) {
+				bOK.setFocus(true);
+			}
 		} else if(parent.getParentProcess() == null) {
 			Events.postEvent("onClick", bOK, null);
 		}
