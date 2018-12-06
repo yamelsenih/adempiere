@@ -63,7 +63,7 @@ public class FunctionalDocsForMenu extends AbstractDocumentationSource {
 		List<MMenu> menuList = new ArrayList<MMenu>();
 		int currentMenuId = menu.getAD_Menu_ID();
 		int parentId = 0;
-		int treeId = MTree.getDefaultAD_Tree_ID(menu.getAD_Client_ID(), "AD_Menu_ID");
+		int treeId = MTree.getDefaultTreeIdFromTableName(menu.getAD_Client_ID(), "AD_Menu_ID");
 		//	Add current
 		menuList.add(menu);
 		do {
