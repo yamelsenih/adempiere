@@ -207,34 +207,34 @@ public class OrderPOCreate extends OrderPOCreateAbstract {
 	/**
 	 *	Create PO for Vendor
 	 *	@param bPartnerId vendor
-	 *	@param so sales order
+	 *	@param salesOrder sales order
 	 */
-	public MOrder createPOForVendor(int bPartnerId, MOrder so) {
+	public MOrder createPOForVendor(int bPartnerId, MOrder salesOrder) {
 		MOrder purchaseOrder = new MOrder (getCtx(), 0, get_TrxName());
-		purchaseOrder.setClientOrg(so.getAD_Client_ID(), so.getAD_Org_ID());
-		purchaseOrder.setLink_Order_ID(so.getC_Order_ID());
+		purchaseOrder.setClientOrg(salesOrder.getAD_Client_ID(), salesOrder.getAD_Org_ID());
+		purchaseOrder.setLink_Order_ID(salesOrder.getC_Order_ID());
 		purchaseOrder.setIsSOTrx(false);
 		purchaseOrder.setC_DocTypeTarget_ID();
 		//
-		purchaseOrder.setDescription(so.getDescription());
-		purchaseOrder.setPOReference(so.getDocumentNo());
-		purchaseOrder.setPriorityRule(so.getPriorityRule());
-		purchaseOrder.setSalesRep_ID(so.getSalesRep_ID());
-		purchaseOrder.setM_Warehouse_ID(so.getM_Warehouse_ID());
+		purchaseOrder.setDescription(salesOrder.getDescription());
+		purchaseOrder.setPOReference(salesOrder.getDocumentNo());
+		purchaseOrder.setPriorityRule(salesOrder.getPriorityRule());
+		purchaseOrder.setSalesRep_ID(salesOrder.getSalesRep_ID());
+		purchaseOrder.setM_Warehouse_ID(salesOrder.getM_Warehouse_ID());
 		//	Set Vendor
 		MBPartner vendor = new MBPartner (getCtx(), bPartnerId, get_TrxName());
 		purchaseOrder.setBPartner(vendor);
 		//	Drop Ship
 		if (!Util.isEmpty(getIsDropShip())) {
 			purchaseOrder.setIsDropShip(getIsDropShip().equals("Y"));
-			if (so.isDropShip() && so.getDropShip_BPartner_ID() != 0 ){
-				purchaseOrder.setDropShip_BPartner_ID(so.getDropShip_BPartner_ID());
-				purchaseOrder.setDropShip_Location_ID(so.getDropShip_Location_ID());
-				purchaseOrder.setDropShip_User_ID(so.getDropShip_User_ID());
+			if (salesOrder.isDropShip() && salesOrder.getDropShip_BPartner_ID() != 0 ){
+				purchaseOrder.setDropShip_BPartner_ID(salesOrder.getDropShip_BPartner_ID());
+				purchaseOrder.setDropShip_Location_ID(salesOrder.getDropShip_Location_ID());
+				purchaseOrder.setDropShip_User_ID(salesOrder.getDropShip_User_ID());
 			} else {
-				purchaseOrder.setDropShip_BPartner_ID(so.getC_BPartner_ID());
-				purchaseOrder.setDropShip_Location_ID(so.getC_BPartner_Location_ID());
-				purchaseOrder.setDropShip_User_ID(so.getAD_User_ID());
+				purchaseOrder.setDropShip_BPartner_ID(salesOrder.getC_BPartner_ID());
+				purchaseOrder.setDropShip_Location_ID(salesOrder.getC_BPartner_Location_ID());
+				purchaseOrder.setDropShip_User_ID(salesOrder.getAD_User_ID());
 			}
 			// get default drop ship warehouse
 			MOrgInfo orginfo = MOrgInfo.get(getCtx(), purchaseOrder.getAD_Org_ID(), get_TrxName());
@@ -244,13 +244,13 @@ public class OrderPOCreate extends OrderPOCreateAbstract {
 				log.log(Level.SEVERE, "Must specify drop ship warehouse in org info.");
 		}
 		//	References
-		purchaseOrder.setC_Activity_ID(so.getC_Activity_ID());
-		purchaseOrder.setC_Campaign_ID(so.getC_Campaign_ID());
-		purchaseOrder.setC_Project_ID(so.getC_Project_ID());
-		purchaseOrder.setUser1_ID(so.getUser1_ID());
-		purchaseOrder.setUser2_ID(so.getUser2_ID());
-		purchaseOrder.setUser3_ID(so.getUser3_ID());
-		purchaseOrder.setUser4_ID(so.getUser4_ID());
+		purchaseOrder.setC_Activity_ID(salesOrder.getC_Activity_ID());
+		purchaseOrder.setC_Campaign_ID(salesOrder.getC_Campaign_ID());
+		purchaseOrder.setC_Project_ID(salesOrder.getC_Project_ID());
+		purchaseOrder.setUser1_ID(salesOrder.getUser1_ID());
+		purchaseOrder.setUser2_ID(salesOrder.getUser2_ID());
+		purchaseOrder.setUser3_ID(salesOrder.getUser3_ID());
+		purchaseOrder.setUser4_ID(salesOrder.getUser4_ID());
 		//
 		purchaseOrder.saveEx();
 		return purchaseOrder;
