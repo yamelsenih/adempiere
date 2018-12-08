@@ -15,6 +15,7 @@
  *************************************************************************************/
 package org.compiere.model;
 
+import java.sql.ResultSet;
 import java.util.List;
 import java.util.Properties;
 import java.util.stream.Collectors;
@@ -34,6 +35,10 @@ public class MCommissionType extends X_C_CommissionType {
 
 	public MCommissionType(Properties ctx, int C_CommissionType_ID, String trxName) {
 		super(ctx, C_CommissionType_ID, trxName);
+	}
+	
+	public MCommissionType(Properties ctx, ResultSet rs, String trxName) {
+		super(ctx, rs, trxName);
 	}
 	
 	/** Static Cache */
@@ -154,6 +159,38 @@ public class MCommissionType extends X_C_CommissionType {
 	 * Get Column Name for Amount
 	 * @return
 	 */
+	public String getSQLAmountColumnName() {
+		return getSQLColumnName("Amt", "Amount");
+	}
+	
+	/**
+	 * Get Column Name for Quantity
+	 * @return
+	 */
+	public String getSQLQuantityColumnName() {
+		return getSQLColumnName("Qty", "Quantity");
+	}
+	
+	/**
+	 * Get Column Name for Currency
+	 * @return
+	 */
+	public String getSQLCurrencyColumnName() {
+		return getSQLColumnName("C_Currency_ID");
+	}
+	
+	/**
+	 * Get Column Name for Date
+	 * @return
+	 */
+	public String getSQLDateDocColumnName() {
+		return getSQLColumnName("DateDoc", "DateInvoiced", "DateOrdered", "MovementDate", "DateTrx");
+	}
+	
+	/**
+	 * Get Column Name for Amount
+	 * @return
+	 */
 	public String getAmountColumnName() {
 		return getColumnName("Amt", "Amount");
 	}
@@ -175,11 +212,50 @@ public class MCommissionType extends X_C_CommissionType {
 	}
 	
 	/**
+	 * Get Column Name for Date
+	 * @return
+	 */
+	public String getDateDocColumnName() {
+		return getColumnName("DateDoc", "DateInvoiced", "DateOrdered", "MovementDate", "DateTrx");
+	}
+	
+	/**
 	 * Get Available Column Name
 	 * @param columnNames
 	 * @return
 	 */
-	private String getColumnName(String... columnNames) {
+	public String getSQLColumnName(String... columnNames) {
+		MView view = getView();
+		if(view == null) {
+			return null;
+		}
+		//	
+		for(MViewColumn viewColumn : view.getViewColumns()) {
+			if(viewColumn.getAD_Column_ID() > 0) {
+				MColumn column = MColumn.get(getCtx(), viewColumn.getAD_Column_ID());
+				for(String columnName : columnNames) {
+					if(column.getColumnName().equals(columnName)) {
+						return viewColumn.getColumnSQL();
+					}
+				}
+			} else {
+				for(String columnName : columnNames) {
+					if(viewColumn.getColumnName().contains(columnName)) {
+						return viewColumn.getColumnSQL();
+					}
+				}
+			}
+		}
+		//	Default
+		return null;
+	}
+	
+	/**
+	 * Get Available Column Name
+	 * @param columnNames
+	 * @return
+	 */
+	public String getColumnName(String... columnNames) {
 		MView view = getView();
 		if(view == null) {
 			return null;
@@ -227,5 +303,4 @@ public class MCommissionType extends X_C_CommissionType {
 		//	Default
 		return false;
 	}
-	
 }

@@ -30,7 +30,7 @@ public interface I_C_CommissionType
     /** TableName=C_CommissionType */
     public static final String Table_Name = "C_CommissionType";
 
-    /** AD_Table_ID=1000000 */
+    /** AD_Table_ID=54584 */
     public static final int Table_ID = MTable.getTable_ID(Table_Name);
 
     KeyNamePair Model = new KeyNamePair(Table_ID, Table_Name);
@@ -62,6 +62,17 @@ public interface I_C_CommissionType
 	  */
 	public int getAD_Org_ID();
 
+    /** Column name AD_Rule_ID */
+    public static final String COLUMNNAME_AD_Rule_ID = "AD_Rule_ID";
+
+	/** Set Rule	  */
+	public void setAD_Rule_ID (int AD_Rule_ID);
+
+	/** Get Rule	  */
+	public int getAD_Rule_ID();
+
+	public org.compiere.model.I_AD_Rule getAD_Rule() throws RuntimeException;
+
     /** Column name AD_View_ID */
     public static final String COLUMNNAME_AD_View_ID = "AD_View_ID";
 
@@ -80,10 +91,14 @@ public interface I_C_CommissionType
     /** Column name C_CommissionType_ID */
     public static final String COLUMNNAME_C_CommissionType_ID = "C_CommissionType_ID";
 
-	/** Set Commission Type ID	  */
+	/** Set Commission Type.
+	  * Defined for custom query on commission
+	  */
 	public void setC_CommissionType_ID (int C_CommissionType_ID);
 
-	/** Get Commission Type ID	  */
+	/** Get Commission Type.
+	  * Defined for custom query on commission
+	  */
 	public int getC_CommissionType_ID();
 
     /** Column name Created */
