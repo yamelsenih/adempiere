@@ -1014,27 +1014,23 @@ public class MCommissionRun extends X_C_CommissionRun implements DocAction, DocO
 			}
 			//	BPartner Group
 			if (commissionLine.getC_BP_Group_ID() != 0) {
-				String columnName = getSQLColumnName("C_BP_Group_ID", commissionType);
-				String bpColumnName = getSQLColumnName("C_BPartner_ID", commissionType);
-				if(!Util.isEmpty(columnName)
-						&& !Util.isEmpty(bpColumnName)) {
+				String columnName = getSQLColumnName("C_BPartner_ID", commissionType);
+				if(!Util.isEmpty(columnName)) {
 					sqlWhere.append(" AND EXISTS(SELECT 1 FROM C_BPartner "
-							+ "						WHERE C_BPartner.C_BPartner_ID = " + bpColumnName + " "
-							+ "						AND ").append(columnName).append("=").append(commissionLine.getC_BP_Group_ID()).append(")");
+							+ "						WHERE C_BPartner.C_BPartner_ID = " + columnName + " "
+							+ "						AND C_BP_Group_ID=").append(commissionLine.getC_BP_Group_ID()).append(")");
 				}
 			}
 			//	Sales Region
 			if (commissionLine.getC_SalesRegion_ID() != 0) {
-				String columnName = getSQLColumnName("bpl.C_SalesRegion_ID", commissionType);
-				String orderColumnName = getSQLColumnName("l.C_Order_ID", commissionType);
-				if(!Util.isEmpty(columnName)
-					&& !Util.isEmpty(orderColumnName)) {
+				String columnName = getSQLColumnName("l.C_Order_ID", commissionType);
+				if(!Util.isEmpty(columnName)) {
 					sqlWhere.append(" AND (h.C_BPartner_Location_ID IN "
 							+ "(SELECT C_BPartner_Location_ID FROM C_BPartner_Location WHERE C_SalesRegion_ID ").append(getSalesRegionClause(salesRegion, commissionLine.getC_SalesRegion_ID())).append(")"
 									+ " OR EXISTS(SELECT 1 FROM C_Order o "
 									+ "					INNER JOIN C_BPartner_Location bpl ON(bpl.C_BPartner_Location_ID = o.C_BPartner_Location_ID)"
-									+ "					WHERE o.C_Order_ID = " + orderColumnName + " "
-									+ "					AND ").append(columnName).append("=").append(getSalesRegionClause(salesRegion, commissionLine.getC_SalesRegion_ID()) + "))");
+									+ "					WHERE o.C_Order_ID = " + columnName + " "
+									+ "					AND bpl.C_SalesRegion_ID " + getSalesRegionClause(salesRegion, commissionLine.getC_SalesRegion_ID()) + "))");
 				}
 			}
 			//	Product
@@ -1046,46 +1042,38 @@ public class MCommissionRun extends X_C_CommissionRun implements DocAction, DocO
 			}
 			//	Product Category
 			if (commissionLine.getM_Product_Category_ID() != 0) {
-				String columnName = getSQLColumnName("M_Product_Category_ID", commissionType);
-				String productColumnName = getSQLColumnName("l.M_Product_ID", commissionType);
-				if(!Util.isEmpty(columnName)
-						&& !Util.isEmpty(productColumnName)) {
+				String columnName = getSQLColumnName("l.M_Product_ID", commissionType);
+				if(!Util.isEmpty(columnName)) {
 					sqlWhere.append(" AND EXISTS(SELECT 1 FROM M_Product "
-							+ "					WHERE M_Product.M_Product_ID = " + productColumnName + " "
-							+ "					AND ").append(columnName).append("=").append(commissionLine.getM_Product_Category_ID()).append(")");
+							+ "					WHERE M_Product.M_Product_ID = " + columnName + " "
+							+ "					AND M_Product_Category_ID=").append(commissionLine.getM_Product_Category_ID()).append(")");
 				}
 			}
 			//	Product Group
 			if (commissionLine.getM_Product_Group_ID() != 0) {
-				String columnName = getSQLColumnName("M_Product_Group_ID", commissionType);
-				String productColumnName = getSQLColumnName("l.M_Product_ID", commissionType);
-				if(!Util.isEmpty(columnName)
-						&& !Util.isEmpty(productColumnName)) {
+				String columnName = getSQLColumnName("l.M_Product_ID", commissionType);
+				if(!Util.isEmpty(columnName)) {
 					sqlWhere.append(" AND EXISTS(SELECT 1 FROM M_Product "
-							+ "					WHERE M_Product.M_Product_ID = " + productColumnName + " "
-							+ "					AND ").append(columnName).append("=").append(commissionLine.getM_Product_Group_ID()).append(")");
+							+ "					WHERE M_Product.M_Product_ID = " + columnName + " "
+							+ "					AND M_Product_Group_ID=").append(commissionLine.getM_Product_Group_ID()).append(")");
 				}
 			}
 			//	Product Class
 			if (commissionLine.getM_Product_Class_ID() != 0) {
-				String columnName = getSQLColumnName("M_Product_Class_ID", commissionType);
-				String productColumnName = getSQLColumnName("l.M_Product_ID", commissionType);
-				if(!Util.isEmpty(columnName)
-						&& !Util.isEmpty(productColumnName)) {
+				String columnName = getSQLColumnName("l.M_Product_ID", commissionType);
+				if(!Util.isEmpty(columnName)) {
 					sqlWhere.append(" AND EXISTS(SELECT 1 FROM M_Product "
-							+ "					WHERE M_Product.M_Product_ID = " + productColumnName + " "
-							+ "					AND ").append(columnName).append("=").append(commissionLine.getM_Product_Class_ID()).append(")");
+							+ "					WHERE M_Product.M_Product_ID = " + columnName + " "
+							+ "					AND M_Product_Class_ID=").append(commissionLine.getM_Product_Class_ID()).append(")");
 				}
 			}
 			//	Product Classification
 			if (commissionLine.getM_Product_Classification_ID() != 0) {
-				String columnName = getSQLColumnName("M_Product_Classification_ID", commissionType);
-				String productColumnName = getSQLColumnName("l.M_Product_ID", commissionType);
-				if(!Util.isEmpty(columnName)
-						&& !Util.isEmpty(productColumnName)) {
+				String columnName = getSQLColumnName("l.M_Product_ID", commissionType);
+				if(!Util.isEmpty(columnName)) {
 					sqlWhere.append(" AND EXISTS(SELECT 1 FROM M_Product "
-							+ "					WHERE M_Product.M_Product_ID = " + productColumnName + " "
-							+ "					AND ").append(columnName).append("=").append(commissionLine.getM_Product_Classification_ID()).append(")");
+							+ "					WHERE M_Product.M_Product_ID = " + columnName + " "
+							+ "					AND M_Product_Classification_ID =").append(commissionLine.getM_Product_Classification_ID()).append(")");
 				}
 			}
 			//	Project
@@ -1104,12 +1092,11 @@ public class MCommissionRun extends X_C_CommissionRun implements DocAction, DocO
 			}
 			//	Channel
 			if (commissionLine.getC_Channel_ID() != 0) {
-				String columnName = getSQLColumnName("C_Channel_ID", commissionType);
-				String campaignColumnName = getSQLColumnName("l.C_Campaign_ID", commissionType);
+				String columnName = getSQLColumnName("l.C_Campaign_ID", commissionType);
 				if(!Util.isEmpty(columnName)) {
 					sqlWhere.append(" AND EXISTS(SELECT 1 FROM C_Campaign "
-							+ "					WHERE C_Campaign_ID = " + campaignColumnName + " "
-							+ "					AND ").append(columnName).append("=").append(commissionLine.getC_Channel_ID()).append(")");
+							+ "					WHERE C_Campaign_ID = " + columnName + " "
+							+ "					AND C_Campaign.C_Channel_ID=").append(commissionLine.getC_Channel_ID()).append(")");
 				}
 			}
 			//	Payment Rule
@@ -1127,7 +1114,7 @@ public class MCommissionRun extends X_C_CommissionRun implements DocAction, DocO
 					sqlWhere.append(" AND ").append(columnName).append("=").append(commissionLine.getC_PaymentTerm_ID());
 				}
 			}
-			sqlWhere.append(getExclusionWhere(commission.getDocBasisType(), commissionLine, commissionLines));
+			sqlWhere.append(getExclusionWhere(commission.getDocBasisType(), commissionLine, commissionLines, commissionType));
 			if (!commission.isListDetails()) {
 				String columnName = getSQLColumnName("h.C_Currency_ID", commissionType);
 				if(!Util.isEmpty(columnName)) {				
@@ -1269,10 +1256,11 @@ public class MCommissionRun extends X_C_CommissionRun implements DocAction, DocO
 	 * @param docBasisType
 	 * @param currentLine
 	 * @param lines
+	 * @param commissionType
 	 * @return
 	 * @return String
 	 */
-	private String getExclusionWhere(String docBasisType, MCommissionLine currentLine, MCommissionLine[] lines) {
+	private String getExclusionWhere(String docBasisType, MCommissionLine currentLine, MCommissionLine[] lines, MCommissionType commissionType) {
 		//	Array of values
 		List<Integer> orgId = new ArrayList<Integer>();
 		List<Integer> bPartnerId = new ArrayList<Integer>();
@@ -1379,87 +1367,132 @@ public class MCommissionRun extends X_C_CommissionRun implements DocAction, DocO
 		StringBuffer sql = new StringBuffer();
 		//	Organization
 		if (orgId.size() != 0) {
-			sql.append(" AND h.AD_Org_ID NOT IN").append(orgId.toString().replace('[','(').replace(']',')'));
+			String columnName = getSQLColumnName("h.AD_Org_ID", commissionType);
+			if(!Util.isEmpty(columnName)) {
+				sql.append(" AND ").append(columnName).append(" NOT IN").append(orgId.toString().replace('[','(').replace(']',')'));
+			}
 		}
 		//	BPartner
 		if (bPartnerId.size() != 0) {
-			sql.append(" AND h.C_BPartner_ID NOT IN").append(bPartnerId.toString().replace('[','(').replace(']',')'));
+			String columnName = getSQLColumnName("h.C_BPartner_ID", commissionType);
+			if(!Util.isEmpty(columnName)) {
+				sql.append(" AND ").append(columnName).append(" NOT IN").append(bPartnerId.toString().replace('[','(').replace(']',')'));
+			}
 		}
 		//	BPartner Group
 		if (bPGroupId.size() != 0) {
-			sql.append(" AND EXISTS"
-				+ "(SELECT 1 FROM C_BPartner bp "
-				+ "		WHERE bp.C_BPartner_ID = h.C_BPartner_ID "
-				+ "		AND bp.C_BP_Group_ID NOT IN").append(bPGroupId.toString().replace('[','(').replace(']',')')).append(")");
+			String columnName = getSQLColumnName("h.C_BPartner_ID", commissionType);
+			if(!Util.isEmpty(columnName)) {
+				sql.append(" AND EXISTS"
+						+ "(SELECT 1 FROM C_BPartner bp "
+						+ "		WHERE bp.C_BPartner_ID = " + columnName + " "
+						+ "		AND bp.C_BP_Group_ID NOT IN").append(bPGroupId.toString().replace('[','(').replace(']',')')).append(")");
+			}
 		}
 		//	Sales Region
 		if (salesRegionId.size() != 0) {
-			sql.append(" AND EXISTS"
-				+ "(SELECT 1 FROM C_BPartner_Location l "
-				+ "		WHERE l.C_BPartner_Location_ID = h.C_BPartner_Location_ID "
-				+ "		AND C_SalesRegion_ID NOT IN").append(salesRegionId.toString().replace('[','(').replace(']',')')).append(")");
+			String columnName = getSQLColumnName("h.C_BPartner_Location_ID", commissionType);
+			if(!Util.isEmpty(columnName)) {
+				sql.append(" AND EXISTS"
+						+ "(SELECT 1 FROM C_BPartner_Location l "
+						+ "		WHERE l.C_BPartner_Location_ID = " + columnName + " "
+						+ "		AND C_SalesRegion_ID NOT IN").append(salesRegionId.toString().replace('[','(').replace(']',')')).append(")");
+			}
 		}
 		//	Product
 		if (productId.size() != 0) {
-			sql.append(" AND l.M_Product_ID NOT IN").append(productId.toString().replace('[','(').replace(']',')')).append(")");
+			String columnName = getSQLColumnName("l.M_Product_ID", commissionType);
+			if(!Util.isEmpty(columnName)) {
+				sql.append(" AND ").append(columnName).append(" NOT IN").append(productId.toString().replace('[','(').replace(']',')')).append(")");
+			}
 		}
 		//	Product Category
 		if (productCategoryId.size() != 0) {
-			sql.append(" AND EXISTS"
-				+ "(SELECT 1 FROM M_Product p "
-				+ "		WHERE p.M_Product_ID = l.M_Product_ID "
-				+ "		AND M_Product_Category_ID NOT IN").append(productCategoryId.toString().replace('[','(').replace(']',')')).append(")");
+			String columnName = getSQLColumnName("l.M_Product_ID", commissionType);
+			if(!Util.isEmpty(columnName)) {
+				sql.append(" AND EXISTS"
+						+ "(SELECT 1 FROM M_Product p "
+						+ "		WHERE p.M_Product_ID = " + columnName + " "
+						+ "		AND M_Product_Category_ID NOT IN").append(productCategoryId.toString().replace('[','(').replace(']',')')).append(")");
+			}
 		}
 		//	Product Group
 		if (productGroupId.size() != 0) {
-			sql.append(" AND EXISTS"
-				+ "(SELECT 1 FROM M_Product p "
-				+ "		WHERE p.M_Product_ID = l.M_Product_ID "
-				+ "		AND M_Product_Group_ID NOT IN").append(productGroupId.toString().replace('[','(').replace(']',')')).append(")");
+			String columnName = getSQLColumnName("l.M_Product_ID", commissionType);
+			if(!Util.isEmpty(columnName)) {
+				sql.append(" AND EXISTS"
+						+ "(SELECT 1 FROM M_Product p "
+						+ "		WHERE p.M_Product_ID = " + columnName + " "
+						+ "		AND M_Product_Group_ID NOT IN").append(productGroupId.toString().replace('[','(').replace(']',')')).append(")");
+			}
 		}
 		//	Product Class
 		if (productClassId.size() != 0) {
-			sql.append(" AND EXISTS"
-				+ "(SELECT 1 FROM M_Product p "
-				+ "		WHERE p.M_Product_ID = l.M_Product_ID "
-				+ "		AND M_Product_Class_ID NOT IN").append(productClassId.toString().replace('[','(').replace(']',')')).append(")");
+			String columnName = getSQLColumnName("l.M_Product_ID", commissionType);
+			if(!Util.isEmpty(columnName)) {
+				sql.append(" AND EXISTS"
+						+ "(SELECT 1 FROM M_Product p "
+						+ "		WHERE p.M_Product_ID = " + columnName + " "
+						+ "		AND M_Product_Class_ID NOT IN").append(productClassId.toString().replace('[','(').replace(']',')')).append(")");
+			}
 		}
 		//	Classification
 		if (productClassId.size() != 0) {
-			sql.append(" AND EXISTS"
-				+ "(SELECT 1 FROM M_Product p "
-				+ "		WHERE p.M_Product_ID = l.M_Product_ID "
-				+ "		AND M_Product_Classification_ID NOT IN").append(productClassificationId.toString().replace('[','(').replace(']',')')).append(")");
+			String columnName = getSQLColumnName("l.M_Product_ID", commissionType);
+			if(!Util.isEmpty(columnName)) {
+				sql.append(" AND EXISTS"
+						+ "(SELECT 1 FROM M_Product p "
+						+ "		WHERE p.M_Product_ID = " + columnName + " "
+						+ "		AND M_Product_Classification_ID NOT IN").append(productClassificationId.toString().replace('[','(').replace(']',')')).append(")");
+			}
 		}
 		//	Project
 		if (projectId.size() != 0) {
-			sql.append(" AND l.C_Project_ID NOT IN").append(projectId.toString().replace('[','(').replace(']',')')).append(")");
+			String columnName = getSQLColumnName("l.C_Project_ID", commissionType);
+			if(!Util.isEmpty(columnName)) {
+				sql.append(" AND ").append(columnName).append(" NOT IN").append(projectId.toString().replace('[','(').replace(']',')')).append(")");
+			}
 		}
 		//	Campaign
 		if (campaignId.size() != 0) {
-			sql.append(" AND l.C_Campaign_ID NOT IN").append(campaignId.toString().replace('[','(').replace(']',')')).append(")");
+			String columnName = getSQLColumnName("l.C_Campaign_ID", commissionType);
+			if(!Util.isEmpty(columnName)) {
+				sql.append(" AND ").append(columnName).append(" NOT IN").append(campaignId.toString().replace('[','(').replace(']',')')).append(")");
+			}
 		}
 		//	Channel
 		if (campaignId.size() != 0) {
-			sql.append(" AND EXISTS(SELECT 1 FROM C_Campaign "
-					+ "					WHERE C_Campaign.C_Campaign_ID = l.C_Campaign_ID "
-					+ "					AND C_Campaign.C_Channel_ID NOT IN").append(campaignId.toString().replace('[','(').replace(']',')')).append(")");
+			String columnName = getSQLColumnName("l.C_Campaign_ID", commissionType);
+			if(!Util.isEmpty(columnName)) {
+				sql.append(" AND EXISTS(SELECT 1 FROM C_Campaign "
+						+ "					WHERE C_Campaign.C_Campaign_ID = " + columnName + " "
+						+ "					AND C_Campaign.C_Channel_ID NOT IN").append(campaignId.toString().replace('[','(').replace(']',')')).append(")");
+			}
 		}
 		//	Payment Rule
 		if (paymentRule.size() != 0) {
-			sql.append(" AND h.PaymentRule NOT IN('").append(paymentRule.toString()
-					.replace('[', ' ').replace(']',')').replaceAll(",", ",'")).append(")");
+			String columnName = getSQLColumnName("h.PaymentRule", commissionType);
+			if(!Util.isEmpty(columnName)) {
+				sql.append(" AND ").append(columnName).append(" NOT IN('").append(paymentRule.toString()
+						.replace('[', ' ').replace(']',')').replaceAll(",", ",'")).append(")");
+			}
 		}
 		//	Only for invoice
 		if(docBasisType.equals(MCommission.DOCBASISTYPE_Invoice)) {
 			//	Dunning Level
 			if (dunningLevelId.size() != 0) {
-				sql.append(" AND h.C_DunningLevel_ID NOT IN").append(dunningLevelId.toString().replace('[','(').replace(']',')')).append(")");
+				String columnName = getSQLColumnName("h.C_DunningLevel_ID", commissionType);
+				if(!Util.isEmpty(columnName)) {
+					sql.append(" AND ").append(columnName).append(" NOT IN").append(dunningLevelId.toString().replace('[','(').replace(']',')')).append(")");
+				}
 			}
 			//	Collection Status
 			if (invoiceCollectionType.size() != 0) {
-				sql.append(" AND h.InvoiceCollectionType NOT IN('").append(invoiceCollectionType.toString()
+				String columnName = getSQLColumnName("h.InvoiceCollectionType", commissionType);
+				if(!Util.isEmpty(columnName)) {
+					sql.append(" AND ").append(columnName).append(" NOT IN('").append(invoiceCollectionType.toString()
 						.replace('[', ' ').replace(']',')').replaceAll(",", ",'")).append(")");
+				}
 			}
 		}
 		//	
