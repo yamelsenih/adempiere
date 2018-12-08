@@ -24,14 +24,14 @@ import org.compiere.util.KeyNamePair;
 
 /** Generated Model for C_Commission
  *  @author Adempiere (generated) 
- *  @version Release 3.9.0 - $Id$ */
+ *  @version Release 3.9.1 - $Id$ */
 public class X_C_Commission extends PO implements I_C_Commission, I_Persistent 
 {
 
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20180323L;
+	private static final long serialVersionUID = 20181207L;
 
     /** Standard Constructor */
     public X_C_Commission (Properties ctx, int C_Commission_ID, String trxName)
@@ -185,6 +185,34 @@ public class X_C_Commission extends PO implements I_C_Commission, I_Persistent
 		return ii.intValue();
 	}
 
+	public org.compiere.model.I_C_CommissionType getC_CommissionType() throws RuntimeException
+    {
+		return (org.compiere.model.I_C_CommissionType)MTable.get(getCtx(), org.compiere.model.I_C_CommissionType.Table_Name)
+			.getPO(getC_CommissionType_ID(), get_TrxName());	}
+
+	/** Set Commission Type.
+		@param C_CommissionType_ID 
+		Defined for custom query on commission
+	  */
+	public void setC_CommissionType_ID (int C_CommissionType_ID)
+	{
+		if (C_CommissionType_ID < 1) 
+			set_Value (COLUMNNAME_C_CommissionType_ID, null);
+		else 
+			set_Value (COLUMNNAME_C_CommissionType_ID, Integer.valueOf(C_CommissionType_ID));
+	}
+
+	/** Get Commission Type.
+		@return Defined for custom query on commission
+	  */
+	public int getC_CommissionType_ID () 
+	{
+		Integer ii = (Integer)get_Value(COLUMNNAME_C_CommissionType_ID);
+		if (ii == null)
+			 return 0;
+		return ii.intValue();
+	}
+
 	public org.compiere.model.I_C_Currency getC_Currency() throws RuntimeException
     {
 		return (org.compiere.model.I_C_Currency)MTable.get(getCtx(), org.compiere.model.I_C_Currency.Table_Name)
@@ -276,6 +304,8 @@ public class X_C_Commission extends PO implements I_C_Commission, I_Persistent
 	public static final String DOCBASISTYPE_ForecastVsInvoice = "F";
 	/** Forecast vs Order = G */
 	public static final String DOCBASISTYPE_ForecastVsOrder = "G";
+	/** Custom = C */
+	public static final String DOCBASISTYPE_Custom = "C";
 	/** Set Calculation Basis.
 		@param DocBasisType 
 		Basis for the calculation the commission
@@ -346,15 +376,15 @@ public class X_C_Commission extends PO implements I_C_Commission, I_Persistent
 		return false;
 	}
 
-	/** Set IsDaysDueFromPaymentTerm.
-		@param IsDaysDueFromPaymentTerm IsDaysDueFromPaymentTerm	  */
+	/** Set Days due from Payment Term.
+		@param IsDaysDueFromPaymentTerm Days due from Payment Term	  */
 	public void setIsDaysDueFromPaymentTerm (boolean IsDaysDueFromPaymentTerm)
 	{
 		set_Value (COLUMNNAME_IsDaysDueFromPaymentTerm, Boolean.valueOf(IsDaysDueFromPaymentTerm));
 	}
 
-	/** Get IsDaysDueFromPaymentTerm.
-		@return IsDaysDueFromPaymentTerm	  */
+	/** Get Days due from Payment Term.
+		@return Days due from Payment Term	  */
 	public boolean isDaysDueFromPaymentTerm () 
 	{
 		Object oo = get_Value(COLUMNNAME_IsDaysDueFromPaymentTerm);
