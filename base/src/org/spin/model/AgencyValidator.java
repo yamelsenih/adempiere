@@ -15,13 +15,18 @@
  *************************************************************************************/
 package org.spin.model;
 
+import org.adempiere.exceptions.AdempiereException;
 import org.compiere.model.MClient;
+import org.compiere.model.MDocType;
 import org.compiere.model.MOrder;
+import org.compiere.model.MProject;
 import org.compiere.model.ModelValidationEngine;
 import org.compiere.model.ModelValidator;
 import org.compiere.model.PO;
 import org.compiere.process.OrderPOCreateAbstract;
 import org.compiere.util.CLogger;
+import org.compiere.util.Env;
+import org.compiere.util.Msg;
 import org.eevolution.service.dsl.ProcessBuilder;
 
 
@@ -41,11 +46,21 @@ public class AgencyValidator implements ModelValidator
 		if (client != null) {	
 			clientId = client.getAD_Client_ID();
 		}
-		engine.addDocValidate(MOrder.Table_Name, this);		
+		engine.addDocValidate(MOrder.Table_Name, this);
+		engine.addModelChange(MProject.Table_Name, this);
 	}	//	initialize
 
 	public String modelChange (PO po, int type) throws Exception {
 		log.info(po.get_TableName() + " Type: "+type);
+		
+		if (po instanceof MProject && type == TYPE_BEFORE_CHANGE) {
+			MProject project = (MProject) po;
+			
+			if (!project.isAttachment("PDF") && project.get_Value("IsApprovedAttachment")=="Y") {
+				throw new AdempiereException(Msg.getMsg(Env.getCtx(), "AttachmentNotFound"));
+			}
+			
+		}		
 				//
 		return null;
 	}	//	modelChange
@@ -53,6 +68,25 @@ public class AgencyValidator implements ModelValidator
 	public String docValidate (PO po, int timing) {
 		log.info(po.get_TableName() + " Timing: "+timing);
 
+		if (po instanceof MOrder && (timing == TIMING_BEFORE_COMPLETE || timing == TIMING_BEFORE_PREPARE)) {
+			MOrder order = (MOrder) po;
+//			
+			MDocType  doctype = new MDocType(order.getCtx(),order.getC_DocTypeTarget_ID(), order.get_TrxName());
+				
+			if (doctype.get_ValueAsBoolean("IsApprovedRequired")== true && order.get_ValueAsBoolean("IsCanApproveOwnDoc")== false) {
+				throw new AdempiereException(Msg.getMsg(Env.getCtx(), "CustomerApprovedRequired"));
+			}
+//			
+		}
+		
+		if (po instanceof MOrder && (timing == TIMING_BEFORE_COMPLETE || timing == TIMING_BEFORE_PREPARE)) {
+			MOrder order = (MOrder) po;
+			if (!order.isAttachment("PDF") && order.get_Value("IsCanApproveOwnDoc")=="Y") {
+				throw new AdempiereException(Msg.getMsg(Env.getCtx(), "AttachmentNotFound"));
+			}
+		}
+		
+		
 		if (po instanceof MOrder && timing == TIMING_AFTER_COMPLETE) {
 			MOrder order = (MOrder) po;
 			if(!order.isSOTrx()) {

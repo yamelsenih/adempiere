@@ -25,16 +25,31 @@ import org.compiere.util.Env;
 
 public class CalloutDoctype extends CalloutEngine {
 
-	public String ApprovedRequired(Properties ctx, int WindowNo, GridTab mTab, GridField mField, Object value) {
-		int doctypeID =0 ;
+	/**
+	 *	DocType value IsApprovedRequired.
+	 *		
+	 *  Context:
+	 *  	- IsApprovedRequired
+	 *
+	 *  @param ctx      Context
+	 *  @param WindowNo current Window No
+	 *  @param mTab     Model Tab
+	 *  @param mField   Model Field
+	 *  @param value    The new value
+	 *  @return Error message or ""
+	 */
+	public String approvedRequired(Properties ctx, int WindowNo, GridTab mTab, GridField mField, Object value) {
+		int documentTypeId = 0;
 		String approved = "";
-		if(mField.getValue() != null)
-			doctypeID=(int)mField.getValue();
 		
-		MDocType  doctype = new MDocType(ctx,doctypeID, null);
-		approved = doctype.get_ValueAsString("IsCanApprovedRequired");
-
-		Env.setContext(ctx, WindowNo, "IsCanApprovedRequired", approved);
+		if(mField.getValue() != null)
+			documentTypeId=(int)mField.getValue();
+		
+		MDocType documentType = new MDocType(ctx, documentTypeId, null);
+		//	Get value for IsApprovedRequired
+		approved = documentType.get_ValueAsString("IsApprovedRequired");
+		//	Set value IsApprovedRequired on context
+		Env.setContext(ctx, WindowNo, "IsApprovedRequired", approved);
 		return "";
 	}
 
