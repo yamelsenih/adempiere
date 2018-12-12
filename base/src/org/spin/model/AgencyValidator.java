@@ -67,42 +67,44 @@ public class AgencyValidator implements ModelValidator
 	
 	public String docValidate (PO po, int timing) {
 		log.info(po.get_TableName() + " Timing: "+timing);
-
-		if (po instanceof MOrder && (timing == TIMING_BEFORE_COMPLETE || timing == TIMING_BEFORE_PREPARE)) {
+		//	Validate table
+		if(po instanceof MOrder) {
 			MOrder order = (MOrder) po;
-//			
-			MDocType  doctype = new MDocType(order.getCtx(),order.getC_DocTypeTarget_ID(), order.get_TrxName());
-				
-			if (doctype.get_ValueAsBoolean("IsApprovedRequired")== true && order.get_ValueAsBoolean("IsCanApproveOwnDoc")== false) {
-				throw new AdempiereException(Msg.getMsg(Env.getCtx(), "CustomerApprovedRequired"));
+			if (timing == TIMING_AFTER_COMPLETE) {
+				if(!order.isSOTrx()) {
+					return null;
+				}
+				//	For Sales Orders only
+				if(!order.isDropShip()) {
+					return null;
+				}
+				//	For drop ship only
+				ProcessBuilder.create(order.getCtx())
+					.process(OrderPOCreateAbstract.getProcessId())
+					.withParameter(OrderPOCreateAbstract.C_ORDER_ID, order.getC_Order_ID())
+					.withParameter(OrderPOCreateAbstract.VENDOR_ID, order.getDropShip_BPartner_ID())
+					.withoutTransactionClose()
+					.execute(order.get_TrxName());
+			} else if(timing == TIMING_BEFORE_COMPLETE) {
+				if(order.get_ValueAsInt("S_Contract_ID") <= 0) {
+					if(order.getC_Project_ID() > 0) {
+						MProject parentProject = MProject.getById(order.getCtx(), order.getC_Project_ID(), order.get_TrxName());
+						if(parentProject.get_ValueAsInt("S_Contract_ID") > 0) {
+							order.set_ValueOfColumn("S_Contract_ID", parentProject.get_ValueAsInt("S_Contract_ID"));
+							order.saveEx();
+						}
+					}
+				}
+			} else if(timing == TIMING_BEFORE_PREPARE) {
+				MDocType  documentType = MDocType.get(order.getCtx(), order.getC_DocTypeTarget_ID());
+				if (documentType.get_ValueAsBoolean("IsApprovedRequired")== true && order.get_ValueAsBoolean("IsCanApproveOwnDoc")== false) {
+					throw new AdempiereException(Msg.getMsg(Env.getCtx(), "CustomerApprovedRequired"));
+				}
+				//	
+				if (!order.isAttachment("PDF") && order.get_Value("IsCanApproveOwnDoc")=="Y") {
+					throw new AdempiereException(Msg.getMsg(Env.getCtx(), "AttachmentNotFound"));
+				}
 			}
-//			
-		}
-		
-		if (po instanceof MOrder && (timing == TIMING_BEFORE_COMPLETE || timing == TIMING_BEFORE_PREPARE)) {
-			MOrder order = (MOrder) po;
-			if (!order.isAttachment("PDF") && order.get_Value("IsCanApproveOwnDoc")=="Y") {
-				throw new AdempiereException(Msg.getMsg(Env.getCtx(), "AttachmentNotFound"));
-			}
-		}
-		
-		
-		if (po instanceof MOrder && timing == TIMING_AFTER_COMPLETE) {
-			MOrder order = (MOrder) po;
-			if(!order.isSOTrx()) {
-				return null;
-			}
-			//	For Sales Orders only
-			if(!order.isDropShip()) {
-				return null;
-			}
-			//	For drop ship only
-			ProcessBuilder.create(order.getCtx())
-				.process(OrderPOCreateAbstract.getProcessId())
-				.withParameter(OrderPOCreateAbstract.C_ORDER_ID, order.getC_Order_ID())
-				.withParameter(OrderPOCreateAbstract.VENDOR_ID, order.getDropShip_BPartner_ID())
-				.withoutTransactionClose()
-				.execute(order.get_TrxName());
 		}
 		return null;
 	}	//	docValidate	
