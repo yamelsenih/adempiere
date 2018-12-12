@@ -53,6 +53,10 @@ import org.eevolution.service.dsl.ProcessBuilder;
  * @author https://github.com/homebeaver
  *    @see <a href="https://github.com/adempiere/adempiere/issues/1782">
  *    [ 1782 ] check only if MovementDate is in the past</a>  
+ * @author Carlos Parada, cparada@erpya.com, ERPCyA http://www.erpya.com
+ *    	@see <a href="https://github.com/adempiere/LVE/issues/2110">
+ *    	FR [ 2110 ] Add Support to Explode BOM from Project </a>
+ *    
  */
 public class MProduction extends X_M_Production implements DocAction , DocumentReversalEnabled {
 
@@ -493,9 +497,18 @@ public class MProduction extends X_M_Production implements DocAction , DocumentR
 		if(!product.isBOM()) {
 			return "@NotBOM@ [" + product.getValue() + "-" + product.getName() + "]";	//	TODO: Translation for message (Attempt to create product line for Non Bill Of Materials)
 		}
-		//	
-		if(MPPProductBOM.getDefault(product, get_TrxName()) == null) {
-			return "@NotBOMProducts@";	//	TODO: Translation for message (Attempt to create product line for Bill Of Materials with no BOM Products)
+		// FR [ 2110 ]
+		MPPProductBOM pBOM = new Query(getCtx(), MPPProductBOM.Table_Name,
+								" EXISTS (SELECT 1 FROM C_ProjectPhase phase WHERE phase.M_ProductionBatch_ID = ? AND phase.PP_Product_BOM_ID = PP_Product_BOM.PP_Product_BOM_ID)" +
+								" OR EXISTS (SELECT 1 FROM C_ProjectTask task WHERE task.M_ProductionBatch_ID = ? AND task.PP_Product_BOM_ID = PP_Product_BOM.PP_Product_BOM_ID)" +
+								" OR EXISTS (SELECT 1 FROM C_ProjectLine line WHERE line.M_ProductionBatch_ID = ? AND line.PP_Product_BOM_ID = PP_Product_BOM.PP_Product_BOM_ID)"
+								, get_TrxName())
+								.setParameters(getM_ProductionBatch_ID(),getM_ProductionBatch_ID(),getM_ProductionBatch_ID())
+								.first();
+		if (pBOM==null) {
+			if(MPPProductBOM.getDefault(product, get_TrxName()) == null) {
+				return "NotBOMProducts";	//	TODO: Translation for message (Attempt to create product line for Bill Of Materials with no BOM Products)
+			}
 		}
 		//	
 		return null;
@@ -1089,7 +1102,16 @@ public class MProduction extends X_M_Production implements DocAction , DocumentR
 	 */
 	private String createBOM(boolean mustBeStocked, MProduct finishedProduct, BigDecimal requiredQty)  {
 		int defaultLocator = 0;		
-		MPPProductBOM bom = MPPProductBOM.getDefault(finishedProduct, get_TrxName());
+		// FR [ 2110 ]
+		MPPProductBOM bom = new Query(getCtx(), MPPProductBOM.Table_Name,
+				" EXISTS (SELECT 1 FROM C_ProjectPhase phase WHERE phase.M_ProductionBatch_ID = ? AND phase.PP_Product_BOM_ID = PP_Product_BOM.PP_Product_BOM_ID)" +
+				" OR EXISTS (SELECT 1 FROM C_ProjectTask task WHERE task.M_ProductionBatch_ID = ? AND task.PP_Product_BOM_ID = PP_Product_BOM.PP_Product_BOM_ID)" +
+				" OR EXISTS (SELECT 1 FROM C_ProjectLine line WHERE line.M_ProductionBatch_ID = ? AND line.PP_Product_BOM_ID = PP_Product_BOM.PP_Product_BOM_ID)"
+				, get_TrxName())
+				.setParameters(getM_ProductionBatch_ID(),getM_ProductionBatch_ID(),getM_ProductionBatch_ID())
+				.first();
+		if (bom==null)
+			bom = MPPProductBOM.getDefault(finishedProduct, get_TrxName());
 		for (MPPProductBOMLine bLine : bom.getLines())
 		{			
 			lineno = lineno + 10;
