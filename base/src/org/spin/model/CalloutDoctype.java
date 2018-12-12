@@ -27,14 +27,14 @@ public class CalloutDoctype extends CalloutEngine {
 
 	public String ApprovedRequired(Properties ctx, int WindowNo, GridTab mTab, GridField mField, Object value) {
 		int doctypeID =0 ;
-		String aproved = "";
+		String approved = "";
 		if(mField.getValue() != null)
 			doctypeID=(int)mField.getValue();
 		
 		MDocType  doctype = new MDocType(ctx,doctypeID, null);
-		aproved = doctype.get_ValueAsString("IsCanApprovedRequired");
+		approved = doctype.get_ValueAsString("IsCanApprovedRequired");
 
-		Env.setContext(ctx, WindowNo, "IsCanApprovedRequired", aproved);
+		Env.setContext(ctx, WindowNo, "IsCanApprovedRequired", approved);
 		return "";
 	}
 
