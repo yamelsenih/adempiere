@@ -47,6 +47,7 @@ public class AgencyValidator implements ModelValidator
 			clientId = client.getAD_Client_ID();
 		}
 		engine.addDocValidate(MOrder.Table_Name, this);
+		engine.addDocValidate(MProject.Table_Name, this);
 		engine.addModelChange(MProject.Table_Name, this);
 	}	//	initialize
 
@@ -56,7 +57,7 @@ public class AgencyValidator implements ModelValidator
 		if (po instanceof MProject && type == TYPE_BEFORE_CHANGE) {
 			MProject project = (MProject) po;
 			
-			if (!project.isAttachment("PDF") && project.get_Value("IsApprovedAttachment")=="Y") {
+			if (!project.isAttachment(".pdf") && project.get_ValueAsBoolean("IsApprovedAttachment")) {
 				throw new AdempiereException(Msg.getMsg(Env.getCtx(), "AttachmentNotFound"));
 			}
 			
@@ -96,14 +97,30 @@ public class AgencyValidator implements ModelValidator
 					}
 				}
 			} else if(timing == TIMING_BEFORE_PREPARE) {
+				
+				MProject project = new MProject(order.getCtx(), order.getC_Project_ID(), null);
 				MDocType  documentType = MDocType.get(order.getCtx(), order.getC_DocTypeTarget_ID());
-				if (documentType.get_ValueAsBoolean("IsApprovedRequired")== true && order.get_ValueAsBoolean("IsCanApproveOwnDoc")== false) {
-					throw new AdempiereException(Msg.getMsg(Env.getCtx(), "CustomerApprovedRequired"));
+				
+				// Document type IsCustomerApproved = Y and order IsCustomerApproved = N
+				if (documentType.get_ValueAsBoolean("IsApprovedRequired") 
+						&& !order.get_ValueAsBoolean("IsCustomerApproved")) {
+					throw new AdempiereException(Msg.parseTranslation(Env.getCtx(), "@CustomerApprovedRequired@ on Document Type"));
 				}
-				//	
-				if (!order.isAttachment("PDF") && order.get_Value("IsCanApproveOwnDoc")=="Y") {
+				// Document type IsCustomerApproved = Y and order IsCustomerApproved Y and order isAttachment("PDF") = N
+				if (!order.isAttachment(".pdf") 
+						&& order.get_ValueAsBoolean("IsCustomerApproved")
+						&& documentType.get_ValueAsBoolean("IsApprovedRequired")) {
 					throw new AdempiereException(Msg.getMsg(Env.getCtx(), "AttachmentNotFound"));
 				}
+				
+				//	Document type IsCustomerApproved = Y and order IsCustomerApproved Y and order isAttachment("PDF") = N and project IsCustomerApproved = N
+				if (!project.get_ValueAsBoolean("IsCustomerApproved")
+						&& documentType.get_ValueAsBoolean("IsApprovedRequired")
+						&& order.get_ValueAsBoolean("IsCustomerApproved")
+						&& order.isAttachment(".pdf")) {
+					throw new AdempiereException(Msg.parseTranslation(Env.getCtx(), "@CustomerApprovedRequired@ on Project"));
+				}
+				
 			}
 		}
 		return null;
