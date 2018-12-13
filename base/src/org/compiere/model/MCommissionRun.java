@@ -303,6 +303,7 @@ public class MCommissionRun extends X_C_CommissionRun implements DocAction, DocO
 	private void createDetail (String sql, MCommission commission, MCommissionLine line, MCommissionAmt commissionAmt, MCommissionType commissionType) {
 		String language = Env.getAD_Language(getCtx());
 		int invoiceLineId = 0;
+		int orderLineId = 0;
 		BigDecimal qtyReturned = Env.ZERO;
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
@@ -354,6 +355,11 @@ public class MCommissionRun extends X_C_CommissionRun implements DocAction, DocO
 					if(!Util.isEmpty(columnName)) {
 						info = rs.getString(columnName);
 					}
+					//	Order Line
+					columnName = getColumnName("C_OrderLine_ID", commissionType);
+					if(!Util.isEmpty(columnName)) {
+						orderLineId = rs.getInt(columnName);
+					}
 				} else {
 					currencyId = rs.getInt("C_Currency_ID");
 					amount = rs.getBigDecimal("Amt");
@@ -362,6 +368,8 @@ public class MCommissionRun extends X_C_CommissionRun implements DocAction, DocO
 					//	For not mandatory
 					reference = rs.getString("Reference");
 					info = rs.getString("Info");
+					orderLineId = rs.getInt("C_OrderLine_ID");
+					invoiceLineId = rs.getInt("C_InvoiceLine_ID");
 				}
 				
 				
@@ -370,7 +378,7 @@ public class MCommissionRun extends X_C_CommissionRun implements DocAction, DocO
 						currencyId, amount, quantity);
 				//	Set Max Percentage			
 				//	C_OrderLine_ID, C_InvoiceLine_ID,
-				commissionDetail.setLineIDs(rs.getInt("C_OrderLine_ID"), rs.getInt("C_InvoiceLine_ID"));
+				commissionDetail.setLineIDs(orderLineId, invoiceLineId);
 				
 				//	Reference, Info,
 				if (!Util.isEmpty(reference)) {
@@ -740,7 +748,9 @@ public class MCommissionRun extends X_C_CommissionRun implements DocAction, DocO
 				//	For where Clause
 				if(!Util.isEmpty(commissionType.getWhereClause())) {
 					String whereClauseView = Env.parseContext(Env.getCtx(), 0, commissionType.getWhereClause(), false, false);
-					sqlWhere.append(whereClauseView);
+					if(!Util.isEmpty(whereClauseView)) {
+						sqlWhere.append(whereClauseView);
+					}
 				}
 				//	Add Client
 				String columnName = getSQLColumnName("AD_Client_ID", commissionType);
@@ -1114,15 +1124,26 @@ public class MCommissionRun extends X_C_CommissionRun implements DocAction, DocO
 					sqlWhere.append(" AND ").append(columnName).append("=").append(commissionLine.getC_PaymentTerm_ID());
 				}
 			}
-			sqlWhere.append(getExclusionWhere(commission.getDocBasisType(), commissionLine, commissionLines, commissionType));
-			if (!commission.isListDetails()) {
-				String columnName = getSQLColumnName("h.C_Currency_ID", commissionType);
-				if(!Util.isEmpty(columnName)) {				
-					sqlWhere.append(" GROUP BY ").append(columnName);
+			//	For contract
+			if (commissionLine.get_ValueAsInt("S_Contract_ID") != 0) {
+				String columnName = getSQLColumnName("h.S_Contract_ID", commissionType);
+				if(!Util.isEmpty(columnName)) {
+					sqlWhere.append(" AND ").append(columnName).append("=").append(commissionLine.get_ValueAsInt("S_Contract_ID"));
 				}
 			}
+			sqlWhere.append(getExclusionWhere(commission.getDocBasisType(), commissionLine, commissionLines, commissionType));
+			if(commission.getDocBasisType().equals(MCommission.DOCBASISTYPE_Custom)) {
+				if (!commission.isListDetails()) {
+					String columnName = getSQLColumnName("h.C_Currency_ID", commissionType);
+					if(!Util.isEmpty(columnName)) {				
+						sqlWhere.append(" ORDER BY ").append(columnName);
+					}
+				}
+			} else {
+				sqlWhere.append(" GROUP BY ").append("h.C_Currency_ID");
+			}
 			//	Add Where Clause
-			sql.append(sqlWhere);
+			sql.append(" WHERE ").append(sqlWhere);
 			log.fine("Line=" + commissionLine.getLine() + " - " + sql);
 			//	Get Max Percentage
 			commissionAmt.setPercentage(getAmountPercentage(commission, commissionLine.isPercentageFromPrice(), sqlWhere));

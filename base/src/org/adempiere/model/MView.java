@@ -245,7 +245,7 @@ public class MView extends X_AD_View {
 				if (col.getColumnSQL() != null
 						&& col.getColumnSQL().length() > 0) {
 
-					cols.append(col.getColumnSQL() + " as " + col.getName());
+					cols.append(col.getColumnSQL() + " as " + col.getColumnName());
 					co = true;
 				} else if (col.getColumnName() != null
 						&& col.getColumnName().length() > 0) {

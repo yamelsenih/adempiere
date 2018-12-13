@@ -23,14 +23,14 @@ import org.compiere.util.KeyNamePair;
 
 /** Generated Model for C_CommissionType
  *  @author Adempiere (generated) 
- *  @version Release 3.9.1 - $Id$ */
+ *  @version Release 3.9.0 - $Id$ */
 public class X_C_CommissionType extends PO implements I_C_CommissionType, I_Persistent 
 {
 
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20181207L;
+	private static final long serialVersionUID = 20181213L;
 
     /** Standard Constructor */
     public X_C_CommissionType (Properties ctx, int C_CommissionType_ID, String trxName)
@@ -39,8 +39,12 @@ public class X_C_CommissionType extends PO implements I_C_CommissionType, I_Pers
       /** if (C_CommissionType_ID == 0)
         {
 			setAD_View_ID (0);
+			setAmountColumn_ID (0);
 			setC_CommissionType_ID (0);
+			setCurrencyColumn_ID (0);
+			setDateDocColumn_ID (0);
 			setName (null);
+			setQuantityColumn_ID (0);
 			setValue (null);
         } */
     }
@@ -126,10 +130,36 @@ public class X_C_CommissionType extends PO implements I_C_CommissionType, I_Pers
 		return ii.intValue();
 	}
 
-	/** Set Commission Type.
-		@param C_CommissionType_ID 
-		Defined for custom query on commission
+	public org.adempiere.model.I_AD_View_Column getAmountColumn() throws RuntimeException
+    {
+		return (org.adempiere.model.I_AD_View_Column)MTable.get(getCtx(), org.adempiere.model.I_AD_View_Column.Table_Name)
+			.getPO(getAmountColumn_ID(), get_TrxName());	}
+
+	/** Set Amount Column.
+		@param AmountColumn_ID 
+		Amount Column for get from View
 	  */
+	public void setAmountColumn_ID (int AmountColumn_ID)
+	{
+		if (AmountColumn_ID < 1) 
+			set_Value (COLUMNNAME_AmountColumn_ID, null);
+		else 
+			set_Value (COLUMNNAME_AmountColumn_ID, Integer.valueOf(AmountColumn_ID));
+	}
+
+	/** Get Amount Column.
+		@return Amount Column for get from View
+	  */
+	public int getAmountColumn_ID () 
+	{
+		Integer ii = (Integer)get_Value(COLUMNNAME_AmountColumn_ID);
+		if (ii == null)
+			 return 0;
+		return ii.intValue();
+	}
+
+	/** Set Commission Type ID.
+		@param C_CommissionType_ID Commission Type ID	  */
 	public void setC_CommissionType_ID (int C_CommissionType_ID)
 	{
 		if (C_CommissionType_ID < 1) 
@@ -138,12 +168,67 @@ public class X_C_CommissionType extends PO implements I_C_CommissionType, I_Pers
 			set_ValueNoCheck (COLUMNNAME_C_CommissionType_ID, Integer.valueOf(C_CommissionType_ID));
 	}
 
-	/** Get Commission Type.
-		@return Defined for custom query on commission
-	  */
+	/** Get Commission Type ID.
+		@return Commission Type ID	  */
 	public int getC_CommissionType_ID () 
 	{
 		Integer ii = (Integer)get_Value(COLUMNNAME_C_CommissionType_ID);
+		if (ii == null)
+			 return 0;
+		return ii.intValue();
+	}
+
+	public org.adempiere.model.I_AD_View_Column getCurrencyColumn() throws RuntimeException
+    {
+		return (org.adempiere.model.I_AD_View_Column)MTable.get(getCtx(), org.adempiere.model.I_AD_View_Column.Table_Name)
+			.getPO(getCurrencyColumn_ID(), get_TrxName());	}
+
+	/** Set Currency Column.
+		@param CurrencyColumn_ID 
+		Currency Column for get from View
+	  */
+	public void setCurrencyColumn_ID (int CurrencyColumn_ID)
+	{
+		if (CurrencyColumn_ID < 1) 
+			set_Value (COLUMNNAME_CurrencyColumn_ID, null);
+		else 
+			set_Value (COLUMNNAME_CurrencyColumn_ID, Integer.valueOf(CurrencyColumn_ID));
+	}
+
+	/** Get Currency Column.
+		@return Currency Column for get from View
+	  */
+	public int getCurrencyColumn_ID () 
+	{
+		Integer ii = (Integer)get_Value(COLUMNNAME_CurrencyColumn_ID);
+		if (ii == null)
+			 return 0;
+		return ii.intValue();
+	}
+
+	public org.adempiere.model.I_AD_View_Column getDateDocColumn() throws RuntimeException
+    {
+		return (org.adempiere.model.I_AD_View_Column)MTable.get(getCtx(), org.adempiere.model.I_AD_View_Column.Table_Name)
+			.getPO(getDateDocColumn_ID(), get_TrxName());	}
+
+	/** Set Date Doc Column.
+		@param DateDocColumn_ID 
+		Date Doc Column for get from View
+	  */
+	public void setDateDocColumn_ID (int DateDocColumn_ID)
+	{
+		if (DateDocColumn_ID < 1) 
+			set_Value (COLUMNNAME_DateDocColumn_ID, null);
+		else 
+			set_Value (COLUMNNAME_DateDocColumn_ID, Integer.valueOf(DateDocColumn_ID));
+	}
+
+	/** Get Date Doc Column.
+		@return Date Doc Column for get from View
+	  */
+	public int getDateDocColumn_ID () 
+	{
+		Integer ii = (Integer)get_Value(COLUMNNAME_DateDocColumn_ID);
 		if (ii == null)
 			 return 0;
 		return ii.intValue();
@@ -181,6 +266,34 @@ public class X_C_CommissionType extends PO implements I_C_CommissionType, I_Pers
 	public String getName () 
 	{
 		return (String)get_Value(COLUMNNAME_Name);
+	}
+
+	public org.adempiere.model.I_AD_View_Column getQuantityColumn() throws RuntimeException
+    {
+		return (org.adempiere.model.I_AD_View_Column)MTable.get(getCtx(), org.adempiere.model.I_AD_View_Column.Table_Name)
+			.getPO(getQuantityColumn_ID(), get_TrxName());	}
+
+	/** Set Quantity Column.
+		@param QuantityColumn_ID 
+		Quantity Column for get from View
+	  */
+	public void setQuantityColumn_ID (int QuantityColumn_ID)
+	{
+		if (QuantityColumn_ID < 1) 
+			set_Value (COLUMNNAME_QuantityColumn_ID, null);
+		else 
+			set_Value (COLUMNNAME_QuantityColumn_ID, Integer.valueOf(QuantityColumn_ID));
+	}
+
+	/** Get Quantity Column.
+		@return Quantity Column for get from View
+	  */
+	public int getQuantityColumn_ID () 
+	{
+		Integer ii = (Integer)get_Value(COLUMNNAME_QuantityColumn_ID);
+		if (ii == null)
+			 return 0;
+		return ii.intValue();
 	}
 
 	/** Set Immutable Universally Unique Identifier.

@@ -156,11 +156,47 @@ public class MCommissionType extends X_C_CommissionType {
 	}
 	
 	/**
+	 * Get Amount Column
+	 * @return
+	 */
+	private MViewColumn getAmountViewColumn() {
+		return MViewColumn.getById(getCtx(), getAmountColumn_ID(), get_TrxName());
+	}
+	
+	/**
+	 * Get Quantity Column
+	 * @return
+	 */
+	private MViewColumn getQuantityViewColumn() {
+		return MViewColumn.getById(getCtx(), getQuantityColumn_ID(), get_TrxName());
+	}
+	
+	/**
+	 * Get Currency Column
+	 * @return
+	 */
+	private MViewColumn getCurrencyViewColumn() {
+		return MViewColumn.getById(getCtx(), getCurrencyColumn_ID(), get_TrxName());
+	}
+	
+	/**
+	 * Get Document Date Column
+	 * @return
+	 */
+	private MViewColumn getDateDocViewColumn() {
+		return MViewColumn.getById(getCtx(), getDateDocColumn_ID(), get_TrxName());
+	}
+	
+	/**
 	 * Get Column Name for Amount
 	 * @return
 	 */
 	public String getSQLAmountColumnName() {
-		return getSQLColumnName("Amt", "Amount");
+		MViewColumn viewColumn = getAmountViewColumn();
+		if(viewColumn == null) {
+			return null;
+		}
+		return viewColumn.getColumnSQL();
 	}
 	
 	/**
@@ -168,7 +204,11 @@ public class MCommissionType extends X_C_CommissionType {
 	 * @return
 	 */
 	public String getSQLQuantityColumnName() {
-		return getSQLColumnName("Qty", "Quantity");
+		MViewColumn viewColumn = getQuantityViewColumn();
+		if(viewColumn == null) {
+			return null;
+		}
+		return viewColumn.getColumnSQL();
 	}
 	
 	/**
@@ -176,7 +216,11 @@ public class MCommissionType extends X_C_CommissionType {
 	 * @return
 	 */
 	public String getSQLCurrencyColumnName() {
-		return getSQLColumnName("C_Currency_ID");
+		MViewColumn viewColumn = getCurrencyViewColumn();
+		if(viewColumn == null) {
+			return null;
+		}
+		return viewColumn.getColumnSQL();
 	}
 	
 	/**
@@ -184,7 +228,11 @@ public class MCommissionType extends X_C_CommissionType {
 	 * @return
 	 */
 	public String getSQLDateDocColumnName() {
-		return getSQLColumnName("DateDoc", "DateInvoiced", "DateOrdered", "MovementDate", "DateTrx");
+		MViewColumn viewColumn = getDateDocViewColumn();
+		if(viewColumn == null) {
+			return null;
+		}
+		return viewColumn.getColumnSQL();
 	}
 	
 	/**
@@ -192,7 +240,11 @@ public class MCommissionType extends X_C_CommissionType {
 	 * @return
 	 */
 	public String getAmountColumnName() {
-		return getColumnName("Amt", "Amount");
+		MViewColumn viewColumn = getAmountViewColumn();
+		if(viewColumn == null) {
+			return null;
+		}
+		return viewColumn.getColumnName();
 	}
 	
 	/**
@@ -200,7 +252,11 @@ public class MCommissionType extends X_C_CommissionType {
 	 * @return
 	 */
 	public String getQuantityColumnName() {
-		return getColumnName("Qty", "Quantity");
+		MViewColumn viewColumn = getQuantityViewColumn();
+		if(viewColumn == null) {
+			return null;
+		}
+		return viewColumn.getColumnName();
 	}
 	
 	/**
@@ -208,7 +264,11 @@ public class MCommissionType extends X_C_CommissionType {
 	 * @return
 	 */
 	public String getCurrencyColumnName() {
-		return getColumnName("C_Currency_ID");
+		MViewColumn viewColumn = getCurrencyViewColumn();
+		if(viewColumn == null) {
+			return null;
+		}
+		return viewColumn.getColumnName();
 	}
 	
 	/**
@@ -216,7 +276,11 @@ public class MCommissionType extends X_C_CommissionType {
 	 * @return
 	 */
 	public String getDateDocColumnName() {
-		return getColumnName("DateDoc", "DateInvoiced", "DateOrdered", "MovementDate", "DateTrx");
+		MViewColumn viewColumn = getDateDocViewColumn();
+		if(viewColumn == null) {
+			return null;
+		}
+		return viewColumn.getColumnName();
 	}
 	
 	/**
