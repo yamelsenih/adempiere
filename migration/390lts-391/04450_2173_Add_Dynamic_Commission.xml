@@ -4,17 +4,14 @@
     <Comments>See: https://github.com/adempiere/adempiere/issues/2173</Comments>
     <Step SeqNo="10" StepType="AD">
       <PO AD_Table_ID="100" Action="I" Record_ID="54584" Table="AD_Table">
-        <Data AD_Column_ID="4196" Column="IsHighVolume">false</Data>
         <Data AD_Column_ID="88913" Column="AD_ContextInfo_ID" isNewNull="true"/>
         <Data AD_Column_ID="543" Column="IsActive">true</Data>
-        <Data AD_Column_ID="546" Column="Updated">2018-12-07 19:28:39.595</Data>
         <Data AD_Column_ID="544" Column="Created">2018-12-07 19:28:39.595</Data>
         <Data AD_Column_ID="6489" Column="ImportTable">N</Data>
         <Data AD_Column_ID="102" Column="Name">Commission Type</Data>
         <Data AD_Column_ID="103" Column="Description">Commission Type is used for define a custom commission</Data>
         <Data AD_Column_ID="726" Column="IsSecurityEnabled">false</Data>
         <Data AD_Column_ID="354" Column="AccessLevel">6</Data>
-        <Data AD_Column_ID="104" Column="Help">Use it for define a custom commission calculation or search</Data>
         <Data AD_Column_ID="107" Column="TableName">C_CommissionType</Data>
         <Data AD_Column_ID="727" Column="IsDeleteable">true</Data>
         <Data AD_Column_ID="6125" Column="IsView">false</Data>
@@ -36,6 +33,9 @@
         <Data AD_Column_ID="105" Column="AD_Window_ID" isNewNull="true"/>
         <Data AD_Column_ID="9342" Column="PO_Window_ID" isNewNull="true"/>
         <Data AD_Column_ID="84425" Column="UUID" isNewNull="true"/>
+        <Data AD_Column_ID="4196" Column="IsHighVolume">false</Data>
+        <Data AD_Column_ID="546" Column="Updated">2018-12-07 19:28:39.595</Data>
+        <Data AD_Column_ID="104" Column="Help">Use it for define a custom commission calculation or search</Data>
       </PO>
     </Step>
     <Step SeqNo="20" StepType="AD">
@@ -44,7 +44,6 @@
         <Data AD_Column_ID="12723" Column="Updated">2018-12-07 19:28:40.517</Data>
         <Data AD_Column_ID="12721" Column="IsActive">true</Data>
         <Data AD_Column_ID="12724" Column="IsTranslated">false</Data>
-        <Data AD_Column_ID="12716" Column="Name">Commission Type</Data>
         <Data AD_Column_ID="12715" Column="AD_Language">es_MX</Data>
         <Data AD_Column_ID="12718" Column="UpdatedBy">100</Data>
         <Data AD_Column_ID="12717" Column="CreatedBy">100</Data>
@@ -52,12 +51,12 @@
         <Data AD_Column_ID="12719" Column="AD_Client_ID">0</Data>
         <Data AD_Column_ID="12714" Column="AD_Table_ID">54584</Data>
         <Data AD_Column_ID="84429" Column="UUID" isNewNull="true"/>
+        <Data AD_Column_ID="12716" Column="Name">Commission Type</Data>
       </PO>
     </Step>
     <Step SeqNo="30" StepType="AD">
       <PO AD_Table_ID="101" Action="I" Record_ID="92095" Table="AD_Column">
         <Data AD_Column_ID="111" Column="Name">Client</Data>
-        <Data AD_Column_ID="113" Column="Help">A Client is a company or a legal entity. You cannot share data between Clients. Tenant is a synonym for Client.</Data>
         <Data AD_Column_ID="54358" Column="InfoFactoryClass" isNewNull="true"/>
         <Data AD_Column_ID="90939" Column="AD_Image_ID" isNewNull="true"/>
         <Data AD_Column_ID="548" Column="IsActive">true</Data>
@@ -81,7 +80,6 @@
         <Data AD_Column_ID="119" Column="IsKey">false</Data>
         <Data AD_Column_ID="6245" Column="ReadOnlyLogic" isNewNull="true"/>
         <Data AD_Column_ID="1692" Column="Callout" isNewNull="true"/>
-        <Data AD_Column_ID="11617" Column="IsAlwaysUpdateable">false</Data>
         <Data AD_Column_ID="128" Column="IsEncrypted">N</Data>
         <Data AD_Column_ID="50218" Column="MandatoryLogic" isNewNull="true"/>
         <Data AD_Column_ID="56187" Column="IsAllowLogging">true</Data>
@@ -94,7 +92,6 @@
         <Data AD_Column_ID="550" Column="CreatedBy">100</Data>
         <Data AD_Column_ID="552" Column="UpdatedBy">100</Data>
         <Data AD_Column_ID="6482" Column="EntityType">D</Data>
-        <Data AD_Column_ID="109" Column="AD_Column_ID">92095</Data>
         <Data AD_Column_ID="360" Column="AD_Org_ID">0</Data>
         <Data AD_Column_ID="359" Column="AD_Client_ID">0</Data>
         <Data AD_Column_ID="227" Column="AD_Reference_Value_ID" isNewNull="true"/>
@@ -105,6 +102,9 @@
         <Data AD_Column_ID="59702" Column="AD_Chart_ID" isNewNull="true"/>
         <Data AD_Column_ID="2608" Column="AD_Element_ID">102</Data>
         <Data AD_Column_ID="84306" Column="UUID" isNewNull="true"/>
+        <Data AD_Column_ID="113" Column="Help">A Client is a company or a legal entity. You cannot share data between Clients. Tenant is a synonym for Client.</Data>
+        <Data AD_Column_ID="11617" Column="IsAlwaysUpdateable">false</Data>
+        <Data AD_Column_ID="109" Column="AD_Column_ID">92095</Data>
       </PO>
     </Step>
     <Step SeqNo="40" StepType="AD">
@@ -112,7 +112,6 @@
         <Data AD_Column_ID="12957" Column="Name">Client</Data>
         <Data AD_Column_ID="12960" Column="Created">2018-12-07 19:28:41.935</Data>
         <Data AD_Column_ID="12959" Column="IsActive">true</Data>
-        <Data AD_Column_ID="12952" Column="Updated">2018-12-07 19:28:41.935</Data>
         <Data AD_Column_ID="12954" Column="IsTranslated">false</Data>
         <Data AD_Column_ID="12953" Column="AD_Language">es_MX</Data>
         <Data AD_Column_ID="12958" Column="UpdatedBy">100</Data>
@@ -121,12 +120,12 @@
         <Data AD_Column_ID="12951" Column="AD_Org_ID">0</Data>
         <Data AD_Column_ID="12955" Column="AD_Column_ID">92095</Data>
         <Data AD_Column_ID="84310" Column="UUID" isNewNull="true"/>
+        <Data AD_Column_ID="12952" Column="Updated">2018-12-07 19:28:41.935</Data>
       </PO>
     </Step>
     <Step SeqNo="50" StepType="AD">
       <PO AD_Table_ID="101" Action="I" Record_ID="92096" Table="AD_Column">
         <Data AD_Column_ID="111" Column="Name">Organization</Data>
-        <Data AD_Column_ID="113" Column="Help">An organization is a unit of your client or legal entity - examples are store, department. You can share data between organizations.</Data>
         <Data AD_Column_ID="54358" Column="InfoFactoryClass" isNewNull="true"/>
         <Data AD_Column_ID="90939" Column="AD_Image_ID" isNewNull="true"/>
         <Data AD_Column_ID="548" Column="IsActive">true</Data>
@@ -160,7 +159,6 @@
         <Data AD_Column_ID="62199" Column="IsAllowCopy">true</Data>
         <Data AD_Column_ID="127" Column="SeqNo" isNewNull="true"/>
         <Data AD_Column_ID="226" Column="AD_Reference_ID">19</Data>
-        <Data AD_Column_ID="550" Column="CreatedBy">100</Data>
         <Data AD_Column_ID="552" Column="UpdatedBy">100</Data>
         <Data AD_Column_ID="6482" Column="EntityType">D</Data>
         <Data AD_Column_ID="109" Column="AD_Column_ID">92096</Data>
@@ -174,12 +172,13 @@
         <Data AD_Column_ID="59702" Column="AD_Chart_ID" isNewNull="true"/>
         <Data AD_Column_ID="2608" Column="AD_Element_ID">113</Data>
         <Data AD_Column_ID="84306" Column="UUID" isNewNull="true"/>
+        <Data AD_Column_ID="113" Column="Help">An organization is a unit of your client or legal entity - examples are store, department. You can share data between organizations.</Data>
+        <Data AD_Column_ID="550" Column="CreatedBy">100</Data>
       </PO>
     </Step>
     <Step SeqNo="60" StepType="AD">
       <PO AD_Table_ID="752" Action="I" Record_ID="0" Table="AD_Column_Trl">
         <Data AD_Column_ID="12957" Column="Name">Organization</Data>
-        <Data AD_Column_ID="12960" Column="Created">2018-12-07 19:28:43.058</Data>
         <Data AD_Column_ID="12959" Column="IsActive">true</Data>
         <Data AD_Column_ID="12952" Column="Updated">2018-12-07 19:28:43.058</Data>
         <Data AD_Column_ID="12954" Column="IsTranslated">false</Data>
@@ -190,15 +189,12 @@
         <Data AD_Column_ID="12951" Column="AD_Org_ID">0</Data>
         <Data AD_Column_ID="12955" Column="AD_Column_ID">92096</Data>
         <Data AD_Column_ID="84310" Column="UUID" isNewNull="true"/>
+        <Data AD_Column_ID="12960" Column="Created">2018-12-07 19:28:43.058</Data>
       </PO>
     </Step>
     <Step SeqNo="70" StepType="AD">
       <PO AD_Table_ID="101" Action="I" Record_ID="92097" Table="AD_Column">
         <Data AD_Column_ID="111" Column="Name">Active</Data>
-        <Data AD_Column_ID="113" Column="Help">There are two methods of making records unavailable in the system: One is to delete the record, the other is to de-activate the record. A de-activated record is not available for selection, but available for reports.
-There are two reasons for de-activating and not deleting records:
-(1) The system requires the record for audit purposes.
-(2) The record is referenced by other records. E.g., you cannot delete a Business Partner, if there are invoices for this partner record existing. You de-activate the Business Partner and prevent that this record is used for future entries.</Data>
         <Data AD_Column_ID="54358" Column="InfoFactoryClass" isNewNull="true"/>
         <Data AD_Column_ID="90939" Column="AD_Image_ID" isNewNull="true"/>
         <Data AD_Column_ID="548" Column="IsActive">true</Data>
@@ -238,7 +234,6 @@ There are two reasons for de-activating and not deleting records:
         <Data AD_Column_ID="109" Column="AD_Column_ID">92097</Data>
         <Data AD_Column_ID="360" Column="AD_Org_ID">0</Data>
         <Data AD_Column_ID="359" Column="AD_Client_ID">0</Data>
-        <Data AD_Column_ID="227" Column="AD_Reference_Value_ID" isNewNull="true"/>
         <Data AD_Column_ID="114" Column="AD_Table_ID">54584</Data>
         <Data AD_Column_ID="115" Column="AD_Val_Rule_ID" isNewNull="true"/>
         <Data AD_Column_ID="118" Column="FieldLength">1</Data>
@@ -246,11 +241,15 @@ There are two reasons for de-activating and not deleting records:
         <Data AD_Column_ID="59702" Column="AD_Chart_ID" isNewNull="true"/>
         <Data AD_Column_ID="2608" Column="AD_Element_ID">348</Data>
         <Data AD_Column_ID="84306" Column="UUID" isNewNull="true"/>
+        <Data AD_Column_ID="113" Column="Help">There are two methods of making records unavailable in the system: One is to delete the record, the other is to de-activate the record. A de-activated record is not available for selection, but available for reports.
+There are two reasons for de-activating and not deleting records:
+(1) The system requires the record for audit purposes.
+(2) The record is referenced by other records. E.g., you cannot delete a Business Partner, if there are invoices for this partner record existing. You de-activate the Business Partner and prevent that this record is used for future entries.</Data>
+        <Data AD_Column_ID="227" Column="AD_Reference_Value_ID" isNewNull="true"/>
       </PO>
     </Step>
     <Step SeqNo="80" StepType="AD">
       <PO AD_Table_ID="752" Action="I" Record_ID="0" Table="AD_Column_Trl">
-        <Data AD_Column_ID="12957" Column="Name">Active</Data>
         <Data AD_Column_ID="12960" Column="Created">2018-12-07 19:28:44.533</Data>
         <Data AD_Column_ID="12959" Column="IsActive">true</Data>
         <Data AD_Column_ID="12952" Column="Updated">2018-12-07 19:28:44.533</Data>
@@ -260,14 +259,14 @@ There are two reasons for de-activating and not deleting records:
         <Data AD_Column_ID="12956" Column="CreatedBy">100</Data>
         <Data AD_Column_ID="12961" Column="AD_Client_ID">0</Data>
         <Data AD_Column_ID="12951" Column="AD_Org_ID">0</Data>
-        <Data AD_Column_ID="12955" Column="AD_Column_ID">92097</Data>
         <Data AD_Column_ID="84310" Column="UUID" isNewNull="true"/>
+        <Data AD_Column_ID="12957" Column="Name">Active</Data>
+        <Data AD_Column_ID="12955" Column="AD_Column_ID">92097</Data>
       </PO>
     </Step>
     <Step SeqNo="90" StepType="AD">
       <PO AD_Table_ID="101" Action="I" Record_ID="92098" Table="AD_Column">
         <Data AD_Column_ID="111" Column="Name">Created</Data>
-        <Data AD_Column_ID="113" Column="Help">The Created field indicates the date that this record was created.</Data>
         <Data AD_Column_ID="54358" Column="InfoFactoryClass" isNewNull="true"/>
         <Data AD_Column_ID="90939" Column="AD_Image_ID" isNewNull="true"/>
         <Data AD_Column_ID="548" Column="IsActive">true</Data>
@@ -314,6 +313,7 @@ There are two reasons for de-activating and not deleting records:
         <Data AD_Column_ID="3369" Column="AD_Process_ID" isNewNull="true"/>
         <Data AD_Column_ID="59702" Column="AD_Chart_ID" isNewNull="true"/>
         <Data AD_Column_ID="2608" Column="AD_Element_ID">245</Data>
+        <Data AD_Column_ID="113" Column="Help">The Created field indicates the date that this record was created.</Data>
         <Data AD_Column_ID="84306" Column="UUID" isNewNull="true"/>
       </PO>
     </Step>
@@ -322,7 +322,6 @@ There are two reasons for de-activating and not deleting records:
         <Data AD_Column_ID="12957" Column="Name">Created</Data>
         <Data AD_Column_ID="12960" Column="Created">2018-12-07 19:28:45.82</Data>
         <Data AD_Column_ID="12959" Column="IsActive">true</Data>
-        <Data AD_Column_ID="12952" Column="Updated">2018-12-07 19:28:45.82</Data>
         <Data AD_Column_ID="12954" Column="IsTranslated">false</Data>
         <Data AD_Column_ID="12953" Column="AD_Language">es_MX</Data>
         <Data AD_Column_ID="12958" Column="UpdatedBy">100</Data>
@@ -331,12 +330,12 @@ There are two reasons for de-activating and not deleting records:
         <Data AD_Column_ID="12951" Column="AD_Org_ID">0</Data>
         <Data AD_Column_ID="12955" Column="AD_Column_ID">92098</Data>
         <Data AD_Column_ID="84310" Column="UUID" isNewNull="true"/>
+        <Data AD_Column_ID="12952" Column="Updated">2018-12-07 19:28:45.82</Data>
       </PO>
     </Step>
     <Step SeqNo="110" StepType="AD">
       <PO AD_Table_ID="101" Action="I" Record_ID="92099" Table="AD_Column">
         <Data AD_Column_ID="111" Column="Name">Updated</Data>
-        <Data AD_Column_ID="113" Column="Help">The Updated field indicates the date that this record was updated.</Data>
         <Data AD_Column_ID="54358" Column="InfoFactoryClass" isNewNull="true"/>
         <Data AD_Column_ID="90939" Column="AD_Image_ID" isNewNull="true"/>
         <Data AD_Column_ID="548" Column="IsActive">true</Data>
@@ -373,7 +372,6 @@ There are two reasons for de-activating and not deleting records:
         <Data AD_Column_ID="550" Column="CreatedBy">100</Data>
         <Data AD_Column_ID="552" Column="UpdatedBy">100</Data>
         <Data AD_Column_ID="6482" Column="EntityType">D</Data>
-        <Data AD_Column_ID="109" Column="AD_Column_ID">92099</Data>
         <Data AD_Column_ID="360" Column="AD_Org_ID">0</Data>
         <Data AD_Column_ID="359" Column="AD_Client_ID">0</Data>
         <Data AD_Column_ID="227" Column="AD_Reference_Value_ID" isNewNull="true"/>
@@ -384,6 +382,8 @@ There are two reasons for de-activating and not deleting records:
         <Data AD_Column_ID="59702" Column="AD_Chart_ID" isNewNull="true"/>
         <Data AD_Column_ID="2608" Column="AD_Element_ID">607</Data>
         <Data AD_Column_ID="84306" Column="UUID" isNewNull="true"/>
+        <Data AD_Column_ID="113" Column="Help">The Updated field indicates the date that this record was updated.</Data>
+        <Data AD_Column_ID="109" Column="AD_Column_ID">92099</Data>
       </PO>
     </Step>
     <Step SeqNo="120" StepType="AD">
@@ -391,7 +391,6 @@ There are two reasons for de-activating and not deleting records:
         <Data AD_Column_ID="12957" Column="Name">Updated</Data>
         <Data AD_Column_ID="12960" Column="Created">2018-12-07 19:28:48.19</Data>
         <Data AD_Column_ID="12959" Column="IsActive">true</Data>
-        <Data AD_Column_ID="12952" Column="Updated">2018-12-07 19:28:48.19</Data>
         <Data AD_Column_ID="12954" Column="IsTranslated">false</Data>
         <Data AD_Column_ID="12953" Column="AD_Language">es_MX</Data>
         <Data AD_Column_ID="12958" Column="UpdatedBy">100</Data>
@@ -400,19 +399,18 @@ There are two reasons for de-activating and not deleting records:
         <Data AD_Column_ID="12951" Column="AD_Org_ID">0</Data>
         <Data AD_Column_ID="12955" Column="AD_Column_ID">92099</Data>
         <Data AD_Column_ID="84310" Column="UUID" isNewNull="true"/>
+        <Data AD_Column_ID="12952" Column="Updated">2018-12-07 19:28:48.19</Data>
       </PO>
     </Step>
     <Step SeqNo="130" StepType="AD">
       <PO AD_Table_ID="101" Action="I" Record_ID="92100" Table="AD_Column">
         <Data AD_Column_ID="111" Column="Name">Created By</Data>
-        <Data AD_Column_ID="113" Column="Help">The Created By field indicates the user who created this record.</Data>
         <Data AD_Column_ID="54358" Column="InfoFactoryClass" isNewNull="true"/>
         <Data AD_Column_ID="90939" Column="AD_Image_ID" isNewNull="true"/>
         <Data AD_Column_ID="548" Column="IsActive">true</Data>
         <Data AD_Column_ID="549" Column="Created">2018-12-07 19:28:48.47</Data>
         <Data AD_Column_ID="551" Column="Updated">2018-12-07 19:28:48.47</Data>
         <Data AD_Column_ID="3389" Column="ValueMax" isNewNull="true"/>
-        <Data AD_Column_ID="112" Column="Description">User who created this records</Data>
         <Data AD_Column_ID="110" Column="Version">1</Data>
         <Data AD_Column_ID="13448" Column="ColumnSQL" isNewNull="true"/>
         <Data AD_Column_ID="124" Column="IsMandatory">true</Data>
@@ -446,13 +444,15 @@ There are two reasons for de-activating and not deleting records:
         <Data AD_Column_ID="360" Column="AD_Org_ID">0</Data>
         <Data AD_Column_ID="359" Column="AD_Client_ID">0</Data>
         <Data AD_Column_ID="227" Column="AD_Reference_Value_ID">110</Data>
-        <Data AD_Column_ID="114" Column="AD_Table_ID">54584</Data>
         <Data AD_Column_ID="115" Column="AD_Val_Rule_ID" isNewNull="true"/>
         <Data AD_Column_ID="118" Column="FieldLength">10</Data>
         <Data AD_Column_ID="3369" Column="AD_Process_ID" isNewNull="true"/>
         <Data AD_Column_ID="59702" Column="AD_Chart_ID" isNewNull="true"/>
         <Data AD_Column_ID="2608" Column="AD_Element_ID">246</Data>
         <Data AD_Column_ID="84306" Column="UUID" isNewNull="true"/>
+        <Data AD_Column_ID="113" Column="Help">The Created By field indicates the user who created this record.</Data>
+        <Data AD_Column_ID="112" Column="Description">User who created this records</Data>
+        <Data AD_Column_ID="114" Column="AD_Table_ID">54584</Data>
       </PO>
     </Step>
     <Step SeqNo="140" StepType="AD">
@@ -460,7 +460,6 @@ There are two reasons for de-activating and not deleting records:
         <Data AD_Column_ID="12957" Column="Name">Created By</Data>
         <Data AD_Column_ID="12960" Column="Created">2018-12-07 19:28:49.793</Data>
         <Data AD_Column_ID="12959" Column="IsActive">true</Data>
-        <Data AD_Column_ID="12952" Column="Updated">2018-12-07 19:28:49.793</Data>
         <Data AD_Column_ID="12954" Column="IsTranslated">false</Data>
         <Data AD_Column_ID="12953" Column="AD_Language">es_MX</Data>
         <Data AD_Column_ID="12958" Column="UpdatedBy">100</Data>
@@ -469,12 +468,12 @@ There are two reasons for de-activating and not deleting records:
         <Data AD_Column_ID="12951" Column="AD_Org_ID">0</Data>
         <Data AD_Column_ID="12955" Column="AD_Column_ID">92100</Data>
         <Data AD_Column_ID="84310" Column="UUID" isNewNull="true"/>
+        <Data AD_Column_ID="12952" Column="Updated">2018-12-07 19:28:49.793</Data>
       </PO>
     </Step>
     <Step SeqNo="150" StepType="AD">
       <PO AD_Table_ID="101" Action="I" Record_ID="92101" Table="AD_Column">
         <Data AD_Column_ID="111" Column="Name">Updated By</Data>
-        <Data AD_Column_ID="113" Column="Help">The Updated By field indicates the user who updated this record.</Data>
         <Data AD_Column_ID="54358" Column="InfoFactoryClass" isNewNull="true"/>
         <Data AD_Column_ID="90939" Column="AD_Image_ID" isNewNull="true"/>
         <Data AD_Column_ID="548" Column="IsActive">true</Data>
@@ -484,7 +483,6 @@ There are two reasons for de-activating and not deleting records:
         <Data AD_Column_ID="112" Column="Description">User who updated this records</Data>
         <Data AD_Column_ID="110" Column="Version">1</Data>
         <Data AD_Column_ID="13448" Column="ColumnSQL" isNewNull="true"/>
-        <Data AD_Column_ID="124" Column="IsMandatory">true</Data>
         <Data AD_Column_ID="125" Column="IsTranslated">false</Data>
         <Data AD_Column_ID="117" Column="DefaultValue" isNewNull="true"/>
         <Data AD_Column_ID="116" Column="ColumnName">UpdatedBy</Data>
@@ -495,7 +493,6 @@ There are two reasons for de-activating and not deleting records:
         <Data AD_Column_ID="3360" Column="IsUpdateable">true</Data>
         <Data AD_Column_ID="6244" Column="IsSelectionColumn">false</Data>
         <Data AD_Column_ID="6483" Column="IsSyncDatabase" isNewNull="true"/>
-        <Data AD_Column_ID="119" Column="IsKey">false</Data>
         <Data AD_Column_ID="6245" Column="ReadOnlyLogic" isNewNull="true"/>
         <Data AD_Column_ID="1692" Column="Callout" isNewNull="true"/>
         <Data AD_Column_ID="11617" Column="IsAlwaysUpdateable">false</Data>
@@ -515,13 +512,16 @@ There are two reasons for de-activating and not deleting records:
         <Data AD_Column_ID="360" Column="AD_Org_ID">0</Data>
         <Data AD_Column_ID="359" Column="AD_Client_ID">0</Data>
         <Data AD_Column_ID="227" Column="AD_Reference_Value_ID">110</Data>
-        <Data AD_Column_ID="114" Column="AD_Table_ID">54584</Data>
         <Data AD_Column_ID="115" Column="AD_Val_Rule_ID" isNewNull="true"/>
         <Data AD_Column_ID="118" Column="FieldLength">10</Data>
         <Data AD_Column_ID="3369" Column="AD_Process_ID" isNewNull="true"/>
         <Data AD_Column_ID="59702" Column="AD_Chart_ID" isNewNull="true"/>
         <Data AD_Column_ID="2608" Column="AD_Element_ID">608</Data>
         <Data AD_Column_ID="84306" Column="UUID" isNewNull="true"/>
+        <Data AD_Column_ID="113" Column="Help">The Updated By field indicates the user who updated this record.</Data>
+        <Data AD_Column_ID="124" Column="IsMandatory">true</Data>
+        <Data AD_Column_ID="119" Column="IsKey">false</Data>
+        <Data AD_Column_ID="114" Column="AD_Table_ID">54584</Data>
       </PO>
     </Step>
     <Step SeqNo="160" StepType="AD">
@@ -531,19 +531,18 @@ There are two reasons for de-activating and not deleting records:
         <Data AD_Column_ID="12959" Column="IsActive">true</Data>
         <Data AD_Column_ID="12952" Column="Updated">2018-12-07 19:28:51.506</Data>
         <Data AD_Column_ID="12954" Column="IsTranslated">false</Data>
-        <Data AD_Column_ID="12953" Column="AD_Language">es_MX</Data>
         <Data AD_Column_ID="12958" Column="UpdatedBy">100</Data>
         <Data AD_Column_ID="12956" Column="CreatedBy">100</Data>
         <Data AD_Column_ID="12961" Column="AD_Client_ID">0</Data>
         <Data AD_Column_ID="12951" Column="AD_Org_ID">0</Data>
         <Data AD_Column_ID="12955" Column="AD_Column_ID">92101</Data>
         <Data AD_Column_ID="84310" Column="UUID" isNewNull="true"/>
+        <Data AD_Column_ID="12953" Column="AD_Language">es_MX</Data>
       </PO>
     </Step>
     <Step SeqNo="170" StepType="AD">
       <PO AD_Table_ID="101" Action="I" Record_ID="92102" Table="AD_Column">
         <Data AD_Column_ID="111" Column="Name">Immutable Universally Unique Identifier</Data>
-        <Data AD_Column_ID="113" Column="Help">"A surrogate key in a database is a unique identifier for either an entity in the modeled world or an object in the database. The surrogate key is not derived from application data, unlike a natural (or business) key which is derived from application data. " , According to Wikipedia http://en.wikipedia.org/wiki/Surrogate_key</Data>
         <Data AD_Column_ID="54358" Column="InfoFactoryClass" isNewNull="true"/>
         <Data AD_Column_ID="90939" Column="AD_Image_ID" isNewNull="true"/>
         <Data AD_Column_ID="548" Column="IsActive">true</Data>
@@ -561,7 +560,6 @@ There are two reasons for de-activating and not deleting records:
         <Data AD_Column_ID="120" Column="IsParent">false</Data>
         <Data AD_Column_ID="126" Column="IsIdentifier">false</Data>
         <Data AD_Column_ID="3388" Column="ValueMin" isNewNull="true"/>
-        <Data AD_Column_ID="3360" Column="IsUpdateable">true</Data>
         <Data AD_Column_ID="6244" Column="IsSelectionColumn">false</Data>
         <Data AD_Column_ID="6483" Column="IsSyncDatabase" isNewNull="true"/>
         <Data AD_Column_ID="119" Column="IsKey">false</Data>
@@ -570,7 +568,6 @@ There are two reasons for de-activating and not deleting records:
         <Data AD_Column_ID="11617" Column="IsAlwaysUpdateable">false</Data>
         <Data AD_Column_ID="128" Column="IsEncrypted">N</Data>
         <Data AD_Column_ID="50218" Column="MandatoryLogic" isNewNull="true"/>
-        <Data AD_Column_ID="56187" Column="IsAllowLogging">true</Data>
         <Data AD_Column_ID="56352" Column="FormatPattern" isNewNull="true"/>
         <Data AD_Column_ID="56149" Column="IsAutocomplete">false</Data>
         <Data AD_Column_ID="68024" Column="IsRange">false</Data>
@@ -591,11 +588,13 @@ There are two reasons for de-activating and not deleting records:
         <Data AD_Column_ID="59702" Column="AD_Chart_ID" isNewNull="true"/>
         <Data AD_Column_ID="2608" Column="AD_Element_ID">59595</Data>
         <Data AD_Column_ID="84306" Column="UUID" isNewNull="true"/>
+        <Data AD_Column_ID="113" Column="Help">"A surrogate key in a database is a unique identifier for either an entity in the modeled world or an object in the database. The surrogate key is not derived from application data, unlike a natural (or business) key which is derived from application data. " , According to Wikipedia http://en.wikipedia.org/wiki/Surrogate_key</Data>
+        <Data AD_Column_ID="3360" Column="IsUpdateable">true</Data>
+        <Data AD_Column_ID="56187" Column="IsAllowLogging">true</Data>
       </PO>
     </Step>
     <Step SeqNo="180" StepType="AD">
       <PO AD_Table_ID="752" Action="I" Record_ID="0" Table="AD_Column_Trl">
-        <Data AD_Column_ID="12957" Column="Name">Immutable Universally Unique Identifier</Data>
         <Data AD_Column_ID="12960" Column="Created">2018-12-07 19:28:53.042</Data>
         <Data AD_Column_ID="12959" Column="IsActive">true</Data>
         <Data AD_Column_ID="12952" Column="Updated">2018-12-07 19:28:53.042</Data>
@@ -607,12 +606,12 @@ There are two reasons for de-activating and not deleting records:
         <Data AD_Column_ID="12951" Column="AD_Org_ID">0</Data>
         <Data AD_Column_ID="12955" Column="AD_Column_ID">92102</Data>
         <Data AD_Column_ID="84310" Column="UUID" isNewNull="true"/>
+        <Data AD_Column_ID="12957" Column="Name">Immutable Universally Unique Identifier</Data>
       </PO>
     </Step>
     <Step SeqNo="190" StepType="AD">
       <PO AD_Table_ID="276" Action="I" Record_ID="60886" Table="AD_Element">
         <Data AD_Column_ID="4299" Column="PrintName">Commission Type ID</Data>
-        <Data AD_Column_ID="2598" Column="Created">2018-12-07 19:28:53.299</Data>
         <Data AD_Column_ID="2600" Column="Updated">2018-12-07 19:28:53.299</Data>
         <Data AD_Column_ID="2597" Column="IsActive">true</Data>
         <Data AD_Column_ID="6286" Column="PO_PrintName" isNewNull="true"/>
@@ -627,12 +626,13 @@ There are two reasons for de-activating and not deleting records:
         <Data AD_Column_ID="58588" Column="AD_Reference_ID" isNewNull="true"/>
         <Data AD_Column_ID="2601" Column="UpdatedBy">100</Data>
         <Data AD_Column_ID="2599" Column="CreatedBy">100</Data>
-        <Data AD_Column_ID="2594" Column="AD_Element_ID">60886</Data>
         <Data AD_Column_ID="6484" Column="EntityType">D</Data>
         <Data AD_Column_ID="2596" Column="AD_Org_ID">0</Data>
         <Data AD_Column_ID="2595" Column="AD_Client_ID">0</Data>
         <Data AD_Column_ID="58590" Column="AD_Reference_Value_ID" isNewNull="true"/>
         <Data AD_Column_ID="84316" Column="UUID" isNewNull="true"/>
+        <Data AD_Column_ID="2598" Column="Created">2018-12-07 19:28:53.299</Data>
+        <Data AD_Column_ID="2594" Column="AD_Element_ID">60886</Data>
       </PO>
     </Step>
     <Step SeqNo="200" StepType="AD">
@@ -643,9 +643,7 @@ There are two reasons for de-activating and not deleting records:
         <Data AD_Column_ID="2644" Column="Updated">2018-12-07 19:28:54.374</Data>
         <Data AD_Column_ID="2646" Column="Name">Commission Type ID</Data>
         <Data AD_Column_ID="6450" Column="PO_Name" isNewNull="true"/>
-        <Data AD_Column_ID="2647" Column="Description" isNewNull="true"/>
         <Data AD_Column_ID="2649" Column="IsTranslated">false</Data>
-        <Data AD_Column_ID="4300" Column="PrintName">Commission Type ID</Data>
         <Data AD_Column_ID="2648" Column="Help" isNewNull="true"/>
         <Data AD_Column_ID="6451" Column="PO_PrintName" isNewNull="true"/>
         <Data AD_Column_ID="6448" Column="PO_Description" isNewNull="true"/>
@@ -656,6 +654,8 @@ There are two reasons for de-activating and not deleting records:
         <Data AD_Column_ID="2638" Column="AD_Language">es_MX</Data>
         <Data AD_Column_ID="2637" Column="AD_Element_ID">60886</Data>
         <Data AD_Column_ID="84317" Column="UUID" isNewNull="true"/>
+        <Data AD_Column_ID="2647" Column="Description" isNewNull="true"/>
+        <Data AD_Column_ID="4300" Column="PrintName">Commission Type ID</Data>
       </PO>
     </Step>
     <Step SeqNo="210" StepType="AD">
@@ -665,7 +665,6 @@ There are two reasons for de-activating and not deleting records:
         <Data AD_Column_ID="54358" Column="InfoFactoryClass" isNewNull="true"/>
         <Data AD_Column_ID="90939" Column="AD_Image_ID" isNewNull="true"/>
         <Data AD_Column_ID="548" Column="IsActive">true</Data>
-        <Data AD_Column_ID="549" Column="Created">2018-12-07 19:28:54.62</Data>
         <Data AD_Column_ID="551" Column="Updated">2018-12-07 19:28:54.62</Data>
         <Data AD_Column_ID="3389" Column="ValueMax" isNewNull="true"/>
         <Data AD_Column_ID="112" Column="Description" isNewNull="true"/>
@@ -689,7 +688,6 @@ There are two reasons for de-activating and not deleting records:
         <Data AD_Column_ID="128" Column="IsEncrypted">N</Data>
         <Data AD_Column_ID="50218" Column="MandatoryLogic" isNewNull="true"/>
         <Data AD_Column_ID="56187" Column="IsAllowLogging">true</Data>
-        <Data AD_Column_ID="56352" Column="FormatPattern" isNewNull="true"/>
         <Data AD_Column_ID="56149" Column="IsAutocomplete">false</Data>
         <Data AD_Column_ID="68024" Column="IsRange">false</Data>
         <Data AD_Column_ID="62199" Column="IsAllowCopy">false</Data>
@@ -709,11 +707,12 @@ There are two reasons for de-activating and not deleting records:
         <Data AD_Column_ID="59702" Column="AD_Chart_ID" isNewNull="true"/>
         <Data AD_Column_ID="2608" Column="AD_Element_ID">60886</Data>
         <Data AD_Column_ID="84306" Column="UUID" isNewNull="true"/>
+        <Data AD_Column_ID="549" Column="Created">2018-12-07 19:28:54.62</Data>
+        <Data AD_Column_ID="56352" Column="FormatPattern" isNewNull="true"/>
       </PO>
     </Step>
     <Step SeqNo="220" StepType="AD">
       <PO AD_Table_ID="752" Action="I" Record_ID="0" Table="AD_Column_Trl">
-        <Data AD_Column_ID="12957" Column="Name">Commission Type ID</Data>
         <Data AD_Column_ID="12960" Column="Created">2018-12-07 19:28:55.849</Data>
         <Data AD_Column_ID="12959" Column="IsActive">true</Data>
         <Data AD_Column_ID="12952" Column="Updated">2018-12-07 19:28:55.849</Data>
@@ -725,12 +724,11 @@ There are two reasons for de-activating and not deleting records:
         <Data AD_Column_ID="12951" Column="AD_Org_ID">0</Data>
         <Data AD_Column_ID="12955" Column="AD_Column_ID">92103</Data>
         <Data AD_Column_ID="84310" Column="UUID" isNewNull="true"/>
+        <Data AD_Column_ID="12957" Column="Name">Commission Type ID</Data>
       </PO>
     </Step>
     <Step SeqNo="230" StepType="AD">
       <PO AD_Table_ID="115" Action="I" Record_ID="55023" Table="AD_Sequence">
-        <Data AD_Column_ID="1188" Column="IsAutoSequence">true</Data>
-        <Data AD_Column_ID="627" Column="Created">2018-12-07 19:28:56.077</Data>
         <Data AD_Column_ID="629" Column="Updated">2018-12-07 19:28:56.077</Data>
         <Data AD_Column_ID="349" Column="IsActive">true</Data>
         <Data AD_Column_ID="225" Column="StartNewYear">false</Data>
@@ -753,19 +751,21 @@ There are two reasons for de-activating and not deleting records:
         <Data AD_Column_ID="3887" Column="CurrentNextSys">50000</Data>
         <Data AD_Column_ID="220" Column="CurrentNext">1000000</Data>
         <Data AD_Column_ID="84417" Column="UUID" isNewNull="true"/>
+        <Data AD_Column_ID="1188" Column="IsAutoSequence">true</Data>
+        <Data AD_Column_ID="627" Column="Created">2018-12-07 19:28:56.077</Data>
       </PO>
     </Step>
     <Step SeqNo="240" StepType="AD">
       <PO AD_Table_ID="276" Action="U" Record_ID="60886" Table="AD_Element">
         <Data AD_Column_ID="6286" Column="PO_PrintName" isNewNull="true" isOldNull="true"/>
         <Data AD_Column_ID="2605" Column="Help" isNewNull="true" isOldNull="true"/>
-        <Data AD_Column_ID="2604" Column="Description" isNewNull="true" isOldNull="true"/>
         <Data AD_Column_ID="6283" Column="PO_Description" isNewNull="true" isOldNull="true"/>
         <Data AD_Column_ID="6284" Column="PO_Help" isNewNull="true" isOldNull="true"/>
         <Data AD_Column_ID="6285" Column="PO_Name" isNewNull="true" isOldNull="true"/>
         <Data AD_Column_ID="58588" Column="AD_Reference_ID" isNewNull="true" isOldNull="true"/>
         <Data AD_Column_ID="6484" Column="EntityType" oldValue="D">ECA02</Data>
         <Data AD_Column_ID="58590" Column="AD_Reference_Value_ID" isNewNull="true" isOldNull="true"/>
+        <Data AD_Column_ID="2604" Column="Description" isNewNull="true" isOldNull="true"/>
       </PO>
     </Step>
     <Step SeqNo="250" StepType="AD">
@@ -818,10 +818,10 @@ There are two reasons for de-activating and not deleting records:
     <Step SeqNo="320" StepType="AD">
       <PO AD_Table_ID="276" Action="U" Record_ID="245" Table="AD_Element">
         <Data AD_Column_ID="6286" Column="PO_PrintName" isNewNull="true" isOldNull="true"/>
-        <Data AD_Column_ID="6283" Column="PO_Description" isNewNull="true" isOldNull="true"/>
         <Data AD_Column_ID="6284" Column="PO_Help" isNewNull="true" isOldNull="true"/>
         <Data AD_Column_ID="6285" Column="PO_Name" isNewNull="true" isOldNull="true"/>
         <Data AD_Column_ID="58590" Column="AD_Reference_Value_ID" isNewNull="true" isOldNull="true"/>
+        <Data AD_Column_ID="6283" Column="PO_Description" isNewNull="true" isOldNull="true"/>
       </PO>
     </Step>
     <Step SeqNo="330" StepType="AD">
@@ -890,8 +890,8 @@ There are two reasons for de-activating and not deleting records:
         <Data AD_Column_ID="6286" Column="PO_PrintName" isNewNull="true" isOldNull="true"/>
         <Data AD_Column_ID="6283" Column="PO_Description" isNewNull="true" isOldNull="true"/>
         <Data AD_Column_ID="6284" Column="PO_Help" isNewNull="true" isOldNull="true"/>
-        <Data AD_Column_ID="6285" Column="PO_Name" isNewNull="true" isOldNull="true"/>
         <Data AD_Column_ID="58590" Column="AD_Reference_Value_ID" isNewNull="true" isOldNull="true"/>
+        <Data AD_Column_ID="6285" Column="PO_Name" isNewNull="true" isOldNull="true"/>
       </PO>
     </Step>
     <Step SeqNo="430" StepType="AD">
@@ -945,12 +945,12 @@ There are two reasons for de-activating and not deleting records:
     <Step SeqNo="490" StepType="AD">
       <PO AD_Table_ID="276" Action="U" Record_ID="53332" Table="AD_Element">
         <Data AD_Column_ID="6286" Column="PO_PrintName" isNewNull="true" isOldNull="true"/>
-        <Data AD_Column_ID="2605" Column="Help" isNewNull="true" isOldNull="true"/>
         <Data AD_Column_ID="2604" Column="Description" isNewNull="true" isOldNull="true"/>
         <Data AD_Column_ID="6283" Column="PO_Description" isNewNull="true" isOldNull="true"/>
         <Data AD_Column_ID="6284" Column="PO_Help" isNewNull="true" isOldNull="true"/>
         <Data AD_Column_ID="6285" Column="PO_Name" isNewNull="true" isOldNull="true"/>
         <Data AD_Column_ID="58590" Column="AD_Reference_Value_ID" isNewNull="true" isOldNull="true"/>
+        <Data AD_Column_ID="2605" Column="Help" isNewNull="true" isOldNull="true"/>
       </PO>
     </Step>
     <Step SeqNo="500" StepType="AD">
@@ -961,9 +961,7 @@ There are two reasons for de-activating and not deleting records:
         <Data AD_Column_ID="569" Column="Created">2018-12-07 19:29:04.058</Data>
         <Data AD_Column_ID="568" Column="IsActive">true</Data>
         <Data AD_Column_ID="4198" Column="Processing">false</Data>
-        <Data AD_Column_ID="156" Column="Name">Commission Type</Data>
         <Data AD_Column_ID="158" Column="Help">Use it for define a custom commission calculation or search</Data>
-        <Data AD_Column_ID="157" Column="Description">Commission Type is used for define a custom commission</Data>
         <Data AD_Column_ID="6769" Column="IsSOTrx">true</Data>
         <Data AD_Column_ID="9766" Column="IsDefault">false</Data>
         <Data AD_Column_ID="12457" Column="IsBetaFunctionality">false</Data>
@@ -978,6 +976,8 @@ There are two reasons for de-activating and not deleting records:
         <Data AD_Column_ID="6404" Column="AD_Image_ID" isNewNull="true"/>
         <Data AD_Column_ID="12129" Column="WinHeight" isNewNull="true"/>
         <Data AD_Column_ID="84478" Column="UUID" isNewNull="true"/>
+        <Data AD_Column_ID="156" Column="Name">Commission Type</Data>
+        <Data AD_Column_ID="157" Column="Description">Commission Type is used for define a custom commission</Data>
       </PO>
     </Step>
     <Step SeqNo="510" StepType="AD">
@@ -987,8 +987,6 @@ There are two reasons for de-activating and not deleting records:
         <Data AD_Column_ID="696" Column="IsActive">true</Data>
         <Data AD_Column_ID="309" Column="Help">Use it for define a custom commission calculation or search</Data>
         <Data AD_Column_ID="310" Column="Name">Commission Type</Data>
-        <Data AD_Column_ID="311" Column="IsTranslated">false</Data>
-        <Data AD_Column_ID="308" Column="Description">Commission Type is used for define a custom commission</Data>
         <Data AD_Column_ID="698" Column="CreatedBy">100</Data>
         <Data AD_Column_ID="700" Column="UpdatedBy">100</Data>
         <Data AD_Column_ID="1211" Column="AD_Client_ID">0</Data>
@@ -996,6 +994,8 @@ There are two reasons for de-activating and not deleting records:
         <Data AD_Column_ID="306" Column="AD_Window_ID">53656</Data>
         <Data AD_Column_ID="307" Column="AD_Language">es_MX</Data>
         <Data AD_Column_ID="84480" Column="UUID" isNewNull="true"/>
+        <Data AD_Column_ID="311" Column="IsTranslated">false</Data>
+        <Data AD_Column_ID="308" Column="Description">Commission Type is used for define a custom commission</Data>
       </PO>
     </Step>
     <Step SeqNo="520" StepType="AD">
@@ -1011,7 +1011,6 @@ There are two reasons for de-activating and not deleting records:
         <Data AD_Column_ID="573" Column="IsActive">true</Data>
         <Data AD_Column_ID="4207" Column="Processing">false</Data>
         <Data AD_Column_ID="2742" Column="OrderByClause" isNewNull="true"/>
-        <Data AD_Column_ID="162" Column="Description">Commission Type is used for define a custom commission</Data>
         <Data AD_Column_ID="163" Column="Help" isNewNull="true"/>
         <Data AD_Column_ID="2043" Column="IsTranslationTab">false</Data>
         <Data AD_Column_ID="2741" Column="WhereClause" isNewNull="true"/>
@@ -1040,6 +1039,7 @@ There are two reasons for de-activating and not deleting records:
         <Data AD_Column_ID="6654" Column="TabLevel">0</Data>
         <Data AD_Column_ID="57842" Column="Parent_Column_ID" isNewNull="true"/>
         <Data AD_Column_ID="84423" Column="UUID" isNewNull="true"/>
+        <Data AD_Column_ID="162" Column="Description">Commission Type is used for define a custom commission</Data>
       </PO>
     </Step>
     <Step SeqNo="530" StepType="AD">
@@ -1051,7 +1051,6 @@ There are two reasons for de-activating and not deleting records:
         <Data AD_Column_ID="266" Column="Name">Commission Type</Data>
         <Data AD_Column_ID="268" Column="Help" isNewNull="true"/>
         <Data AD_Column_ID="269" Column="IsTranslated">false</Data>
-        <Data AD_Column_ID="267" Column="Description">Commission Type is used for define a custom commission</Data>
         <Data AD_Column_ID="655" Column="UpdatedBy">100</Data>
         <Data AD_Column_ID="653" Column="CreatedBy">100</Data>
         <Data AD_Column_ID="1198" Column="AD_Client_ID">0</Data>
@@ -1059,6 +1058,7 @@ There are two reasons for de-activating and not deleting records:
         <Data AD_Column_ID="265" Column="AD_Language">es_MX</Data>
         <Data AD_Column_ID="264" Column="AD_Tab_ID">54737</Data>
         <Data AD_Column_ID="84424" Column="UUID" isNewNull="true"/>
+        <Data AD_Column_ID="267" Column="Description">Commission Type is used for define a custom commission</Data>
       </PO>
     </Step>
     <Step SeqNo="540" StepType="AD">
@@ -1070,7 +1070,6 @@ There are two reasons for de-activating and not deleting records:
         <Data AD_Column_ID="59703" Column="IsEmbedded">false</Data>
         <Data AD_Column_ID="578" Column="IsActive">true</Data>
         <Data AD_Column_ID="579" Column="Created">2018-12-07 19:29:06.832</Data>
-        <Data AD_Column_ID="581" Column="Updated">2018-12-07 19:29:06.832</Data>
         <Data AD_Column_ID="62478" Column="IsDisplayedGrid">true</Data>
         <Data AD_Column_ID="74868" Column="IsAllowCopy">false</Data>
         <Data AD_Column_ID="176" Column="IsDisplayed">false</Data>
@@ -1096,7 +1095,6 @@ There are two reasons for de-activating and not deleting records:
         <Data AD_Column_ID="167" Column="AD_Field_ID">92879</Data>
         <Data AD_Column_ID="7714" Column="EntityType">D</Data>
         <Data AD_Column_ID="384" Column="AD_Org_ID">0</Data>
-        <Data AD_Column_ID="383" Column="AD_Client_ID">0</Data>
         <Data AD_Column_ID="62479" Column="SeqNoGrid">0</Data>
         <Data AD_Column_ID="180" Column="DisplayLength">10</Data>
         <Data AD_Column_ID="172" Column="AD_Tab_ID">54737</Data>
@@ -1107,6 +1105,8 @@ There are two reasons for de-activating and not deleting records:
         <Data AD_Column_ID="84320" Column="UUID" isNewNull="true"/>
         <Data AD_Column_ID="90940" Column="AD_Image_ID" isNewNull="true"/>
         <Data AD_Column_ID="88877" Column="AD_FieldDefinition_ID" isNewNull="true"/>
+        <Data AD_Column_ID="581" Column="Updated">2018-12-07 19:29:06.832</Data>
+        <Data AD_Column_ID="383" Column="AD_Client_ID">0</Data>
       </PO>
     </Step>
     <Step SeqNo="550" StepType="AD">
@@ -1114,7 +1114,6 @@ There are two reasons for de-activating and not deleting records:
         <Data AD_Column_ID="288" Column="Help" isNewNull="true"/>
         <Data AD_Column_ID="674" Column="Updated">2018-12-07 19:29:08.67</Data>
         <Data AD_Column_ID="671" Column="IsActive">true</Data>
-        <Data AD_Column_ID="672" Column="Created">2018-12-07 19:29:08.67</Data>
         <Data AD_Column_ID="289" Column="IsTranslated">false</Data>
         <Data AD_Column_ID="286" Column="Name">Commission Type ID</Data>
         <Data AD_Column_ID="287" Column="Description" isNewNull="true"/>
@@ -1125,6 +1124,7 @@ There are two reasons for de-activating and not deleting records:
         <Data AD_Column_ID="284" Column="AD_Field_ID">92879</Data>
         <Data AD_Column_ID="285" Column="AD_Language">es_MX</Data>
         <Data AD_Column_ID="84323" Column="UUID" isNewNull="true"/>
+        <Data AD_Column_ID="672" Column="Created">2018-12-07 19:29:08.67</Data>
       </PO>
     </Step>
     <Step SeqNo="560" StepType="AD">
@@ -1135,7 +1135,6 @@ There are two reasons for de-activating and not deleting records:
         <Data AD_Column_ID="78493" Column="IsQuickEntry">false</Data>
         <Data AD_Column_ID="59703" Column="IsEmbedded">false</Data>
         <Data AD_Column_ID="578" Column="IsActive">true</Data>
-        <Data AD_Column_ID="579" Column="Created">2018-12-07 19:29:08.997</Data>
         <Data AD_Column_ID="581" Column="Updated">2018-12-07 19:29:08.997</Data>
         <Data AD_Column_ID="62478" Column="IsDisplayedGrid">true</Data>
         <Data AD_Column_ID="74868" Column="IsAllowCopy">false</Data>
@@ -1146,7 +1145,6 @@ There are two reasons for de-activating and not deleting records:
         <Data AD_Column_ID="2745" Column="IsCentrallyMaintained">true</Data>
         <Data AD_Column_ID="168" Column="Name">Immutable Universally Unique Identifier</Data>
         <Data AD_Column_ID="2007" Column="IsReadOnly">false</Data>
-        <Data AD_Column_ID="170" Column="Help">"A surrogate key in a database is a unique identifier for either an entity in the modeled world or an object in the database. The surrogate key is not derived from application data, unlike a natural (or business) key which is derived from application data. " , According to Wikipedia http://en.wikipedia.org/wiki/Surrogate_key</Data>
         <Data AD_Column_ID="9969" Column="ObscureType" isNewNull="true"/>
         <Data AD_Column_ID="177" Column="DisplayLogic" isNewNull="true"/>
         <Data AD_Column_ID="15011" Column="AD_Reference_ID" isNewNull="true"/>
@@ -1173,11 +1171,12 @@ There are two reasons for de-activating and not deleting records:
         <Data AD_Column_ID="84320" Column="UUID" isNewNull="true"/>
         <Data AD_Column_ID="90940" Column="AD_Image_ID" isNewNull="true"/>
         <Data AD_Column_ID="88877" Column="AD_FieldDefinition_ID" isNewNull="true"/>
+        <Data AD_Column_ID="579" Column="Created">2018-12-07 19:29:08.997</Data>
+        <Data AD_Column_ID="170" Column="Help">"A surrogate key in a database is a unique identifier for either an entity in the modeled world or an object in the database. The surrogate key is not derived from application data, unlike a natural (or business) key which is derived from application data. " , According to Wikipedia http://en.wikipedia.org/wiki/Surrogate_key</Data>
       </PO>
     </Step>
     <Step SeqNo="570" StepType="AD">
       <PO AD_Table_ID="127" Action="I" Record_ID="92880" Table="AD_Field_Trl">
-        <Data AD_Column_ID="288" Column="Help">"A surrogate key in a database is a unique identifier for either an entity in the modeled world or an object in the database. The surrogate key is not derived from application data, unlike a natural (or business) key which is derived from application data. " , According to Wikipedia http://en.wikipedia.org/wiki/Surrogate_key</Data>
         <Data AD_Column_ID="674" Column="Updated">2018-12-07 19:29:10.37</Data>
         <Data AD_Column_ID="671" Column="IsActive">true</Data>
         <Data AD_Column_ID="672" Column="Created">2018-12-07 19:29:10.37</Data>
@@ -1191,10 +1190,14 @@ There are two reasons for de-activating and not deleting records:
         <Data AD_Column_ID="284" Column="AD_Field_ID">92880</Data>
         <Data AD_Column_ID="285" Column="AD_Language">es_MX</Data>
         <Data AD_Column_ID="84323" Column="UUID" isNewNull="true"/>
+        <Data AD_Column_ID="288" Column="Help">"A surrogate key in a database is a unique identifier for either an entity in the modeled world or an object in the database. The surrogate key is not derived from application data, unlike a natural (or business) key which is derived from application data. " , According to Wikipedia http://en.wikipedia.org/wiki/Surrogate_key</Data>
       </PO>
     </Step>
     <Step SeqNo="580" StepType="AD">
       <PO AD_Table_ID="107" Action="I" Record_ID="92881" Table="AD_Field">
+        <Data AD_Column_ID="57957" Column="Included_Tab_ID" isNewNull="true"/>
+        <Data AD_Column_ID="59704" Column="PreferredWidth">0</Data>
+        <Data AD_Column_ID="186" Column="IsEncrypted">false</Data>
         <Data AD_Column_ID="169" Column="Description">Client/Tenant for this installation.</Data>
         <Data AD_Column_ID="185" Column="IsFieldOnly">false</Data>
         <Data AD_Column_ID="88918" Column="AD_ContextInfo_ID" isNewNull="true"/>
@@ -1219,10 +1222,6 @@ There are two reasons for de-activating and not deleting records:
         <Data AD_Column_ID="15013" Column="IsMandatory" isNewNull="true"/>
         <Data AD_Column_ID="53265" Column="DefaultValue" isNewNull="true"/>
         <Data AD_Column_ID="54359" Column="InfoFactoryClass" isNewNull="true"/>
-        <Data AD_Column_ID="57957" Column="Included_Tab_ID" isNewNull="true"/>
-        <Data AD_Column_ID="59704" Column="PreferredWidth">0</Data>
-        <Data AD_Column_ID="186" Column="IsEncrypted">false</Data>
-        <Data AD_Column_ID="54356" Column="AD_Reference_Value_ID" isNewNull="true"/>
         <Data AD_Column_ID="582" Column="UpdatedBy">100</Data>
         <Data AD_Column_ID="580" Column="CreatedBy">100</Data>
         <Data AD_Column_ID="167" Column="AD_Field_ID">92881</Data>
@@ -1239,11 +1238,11 @@ There are two reasons for de-activating and not deleting records:
         <Data AD_Column_ID="84320" Column="UUID" isNewNull="true"/>
         <Data AD_Column_ID="90940" Column="AD_Image_ID" isNewNull="true"/>
         <Data AD_Column_ID="88877" Column="AD_FieldDefinition_ID" isNewNull="true"/>
+        <Data AD_Column_ID="54356" Column="AD_Reference_Value_ID" isNewNull="true"/>
       </PO>
     </Step>
     <Step SeqNo="590" StepType="AD">
       <PO AD_Table_ID="127" Action="I" Record_ID="92881" Table="AD_Field_Trl">
-        <Data AD_Column_ID="288" Column="Help">A Client is a company or a legal entity. You cannot share data between Clients. Tenant is a synonym for Client.</Data>
         <Data AD_Column_ID="674" Column="Updated">2018-12-07 19:29:11.632</Data>
         <Data AD_Column_ID="671" Column="IsActive">true</Data>
         <Data AD_Column_ID="672" Column="Created">2018-12-07 19:29:11.632</Data>
@@ -1257,6 +1256,7 @@ There are two reasons for de-activating and not deleting records:
         <Data AD_Column_ID="284" Column="AD_Field_ID">92881</Data>
         <Data AD_Column_ID="285" Column="AD_Language">es_MX</Data>
         <Data AD_Column_ID="84323" Column="UUID" isNewNull="true"/>
+        <Data AD_Column_ID="288" Column="Help">A Client is a company or a legal entity. You cannot share data between Clients. Tenant is a synonym for Client.</Data>
       </PO>
     </Step>
     <Step SeqNo="600" StepType="AD">
@@ -1267,7 +1267,6 @@ There are two reasons for de-activating and not deleting records:
         <Data AD_Column_ID="78493" Column="IsQuickEntry">false</Data>
         <Data AD_Column_ID="59703" Column="IsEmbedded">false</Data>
         <Data AD_Column_ID="578" Column="IsActive">true</Data>
-        <Data AD_Column_ID="579" Column="Created">2018-12-07 19:29:11.96</Data>
         <Data AD_Column_ID="581" Column="Updated">2018-12-07 19:29:11.96</Data>
         <Data AD_Column_ID="62478" Column="IsDisplayedGrid">true</Data>
         <Data AD_Column_ID="74868" Column="IsAllowCopy">false</Data>
@@ -1278,7 +1277,6 @@ There are two reasons for de-activating and not deleting records:
         <Data AD_Column_ID="2745" Column="IsCentrallyMaintained">true</Data>
         <Data AD_Column_ID="168" Column="Name">Organization</Data>
         <Data AD_Column_ID="2007" Column="IsReadOnly">false</Data>
-        <Data AD_Column_ID="170" Column="Help">An organization is a unit of your client or legal entity - examples are store, department. You can share data between organizations.</Data>
         <Data AD_Column_ID="9969" Column="ObscureType" isNewNull="true"/>
         <Data AD_Column_ID="177" Column="DisplayLogic" isNewNull="true"/>
         <Data AD_Column_ID="15011" Column="AD_Reference_ID" isNewNull="true"/>
@@ -1300,16 +1298,17 @@ There are two reasons for de-activating and not deleting records:
         <Data AD_Column_ID="172" Column="AD_Tab_ID">54737</Data>
         <Data AD_Column_ID="181" Column="SeqNo">20</Data>
         <Data AD_Column_ID="5375" Column="AD_FieldGroup_ID" isNewNull="true"/>
-        <Data AD_Column_ID="54357" Column="AD_Val_Rule_ID" isNewNull="true"/>
         <Data AD_Column_ID="174" Column="AD_Column_ID">92096</Data>
         <Data AD_Column_ID="84320" Column="UUID" isNewNull="true"/>
         <Data AD_Column_ID="90940" Column="AD_Image_ID" isNewNull="true"/>
         <Data AD_Column_ID="88877" Column="AD_FieldDefinition_ID" isNewNull="true"/>
+        <Data AD_Column_ID="579" Column="Created">2018-12-07 19:29:11.96</Data>
+        <Data AD_Column_ID="170" Column="Help">An organization is a unit of your client or legal entity - examples are store, department. You can share data between organizations.</Data>
+        <Data AD_Column_ID="54357" Column="AD_Val_Rule_ID" isNewNull="true"/>
       </PO>
     </Step>
     <Step SeqNo="610" StepType="AD">
       <PO AD_Table_ID="127" Action="I" Record_ID="92882" Table="AD_Field_Trl">
-        <Data AD_Column_ID="288" Column="Help">An organization is a unit of your client or legal entity - examples are store, department. You can share data between organizations.</Data>
         <Data AD_Column_ID="674" Column="Updated">2018-12-07 19:29:13.125</Data>
         <Data AD_Column_ID="671" Column="IsActive">true</Data>
         <Data AD_Column_ID="672" Column="Created">2018-12-07 19:29:13.125</Data>
@@ -1323,6 +1322,7 @@ There are two reasons for de-activating and not deleting records:
         <Data AD_Column_ID="284" Column="AD_Field_ID">92882</Data>
         <Data AD_Column_ID="285" Column="AD_Language">es_MX</Data>
         <Data AD_Column_ID="84323" Column="UUID" isNewNull="true"/>
+        <Data AD_Column_ID="288" Column="Help">An organization is a unit of your client or legal entity - examples are store, department. You can share data between organizations.</Data>
       </PO>
     </Step>
     <Step SeqNo="620" StepType="AD">
@@ -1344,10 +1344,6 @@ There are two reasons for de-activating and not deleting records:
         <Data AD_Column_ID="2745" Column="IsCentrallyMaintained">true</Data>
         <Data AD_Column_ID="168" Column="Name">Active</Data>
         <Data AD_Column_ID="2007" Column="IsReadOnly">false</Data>
-        <Data AD_Column_ID="170" Column="Help">There are two methods of making records unavailable in the system: One is to delete the record, the other is to de-activate the record. A de-activated record is not available for selection, but available for reports.
-There are two reasons for de-activating and not deleting records:
-(1) The system requires the record for audit purposes.
-(2) The record is referenced by other records. E.g., you cannot delete a Business Partner, if there are invoices for this partner record existing. You de-activate the Business Partner and prevent that this record is used for future entries.</Data>
         <Data AD_Column_ID="9969" Column="ObscureType" isNewNull="true"/>
         <Data AD_Column_ID="177" Column="DisplayLogic" isNewNull="true"/>
         <Data AD_Column_ID="15011" Column="AD_Reference_ID" isNewNull="true"/>
@@ -1374,14 +1370,14 @@ There are two reasons for de-activating and not deleting records:
         <Data AD_Column_ID="84320" Column="UUID" isNewNull="true"/>
         <Data AD_Column_ID="90940" Column="AD_Image_ID" isNewNull="true"/>
         <Data AD_Column_ID="88877" Column="AD_FieldDefinition_ID" isNewNull="true"/>
+        <Data AD_Column_ID="170" Column="Help">There are two methods of making records unavailable in the system: One is to delete the record, the other is to de-activate the record. A de-activated record is not available for selection, but available for reports.
+There are two reasons for de-activating and not deleting records:
+(1) The system requires the record for audit purposes.
+(2) The record is referenced by other records. E.g., you cannot delete a Business Partner, if there are invoices for this partner record existing. You de-activate the Business Partner and prevent that this record is used for future entries.</Data>
       </PO>
     </Step>
     <Step SeqNo="630" StepType="AD">
       <PO AD_Table_ID="127" Action="I" Record_ID="92883" Table="AD_Field_Trl">
-        <Data AD_Column_ID="288" Column="Help">There are two methods of making records unavailable in the system: One is to delete the record, the other is to de-activate the record. A de-activated record is not available for selection, but available for reports.
-There are two reasons for de-activating and not deleting records:
-(1) The system requires the record for audit purposes.
-(2) The record is referenced by other records. E.g., you cannot delete a Business Partner, if there are invoices for this partner record existing. You de-activate the Business Partner and prevent that this record is used for future entries.</Data>
         <Data AD_Column_ID="674" Column="Updated">2018-12-07 19:29:14.293</Data>
         <Data AD_Column_ID="671" Column="IsActive">true</Data>
         <Data AD_Column_ID="672" Column="Created">2018-12-07 19:29:14.293</Data>
@@ -1395,6 +1391,10 @@ There are two reasons for de-activating and not deleting records:
         <Data AD_Column_ID="284" Column="AD_Field_ID">92883</Data>
         <Data AD_Column_ID="285" Column="AD_Language">es_MX</Data>
         <Data AD_Column_ID="84323" Column="UUID" isNewNull="true"/>
+        <Data AD_Column_ID="288" Column="Help">There are two methods of making records unavailable in the system: One is to delete the record, the other is to de-activate the record. A de-activated record is not available for selection, but available for reports.
+There are two reasons for de-activating and not deleting records:
+(1) The system requires the record for audit purposes.
+(2) The record is referenced by other records. E.g., you cannot delete a Business Partner, if there are invoices for this partner record existing. You de-activate the Business Partner and prevent that this record is used for future entries.</Data>
       </PO>
     </Step>
     <Step SeqNo="640" StepType="AD">
@@ -1461,8 +1461,6 @@ There are two reasons for de-activating and not deleting records:
     <Step SeqNo="670" StepType="AD">
       <PO AD_Table_ID="101" Action="I" Record_ID="92104" Table="AD_Column">
         <Data AD_Column_ID="111" Column="Name">Search Key</Data>
-        <Data AD_Column_ID="113" Column="Help">A search key allows you a fast method of finding a particular record.
-If you leave the search key empty, the system automatically creates a numeric number.  The document sequence used for this fallback number is defined in the "Maintain Sequence" window with the name "DocumentNo_&lt;TableName&gt;", where TableName is the actual name of the table (e.g. C_Order).</Data>
         <Data AD_Column_ID="54358" Column="InfoFactoryClass" isNewNull="true"/>
         <Data AD_Column_ID="90939" Column="AD_Image_ID" isNewNull="true"/>
         <Data AD_Column_ID="548" Column="IsActive">true</Data>
@@ -1510,12 +1508,13 @@ If you leave the search key empty, the system automatically creates a numeric nu
         <Data AD_Column_ID="59702" Column="AD_Chart_ID" isNewNull="true"/>
         <Data AD_Column_ID="2608" Column="AD_Element_ID">620</Data>
         <Data AD_Column_ID="84306" Column="UUID" isNewNull="true"/>
+        <Data AD_Column_ID="113" Column="Help">A search key allows you a fast method of finding a particular record.
+If you leave the search key empty, the system automatically creates a numeric number.  The document sequence used for this fallback number is defined in the "Maintain Sequence" window with the name "DocumentNo_&lt;TableName&gt;", where TableName is the actual name of the table (e.g. C_Order).</Data>
       </PO>
     </Step>
     <Step SeqNo="680" StepType="AD">
       <PO AD_Table_ID="752" Action="I" Record_ID="0" Table="AD_Column_Trl">
         <Data AD_Column_ID="12957" Column="Name">Search Key</Data>
-        <Data AD_Column_ID="12960" Column="Created">2018-12-07 19:29:21.312</Data>
         <Data AD_Column_ID="12959" Column="IsActive">true</Data>
         <Data AD_Column_ID="12952" Column="Updated">2018-12-07 19:29:21.312</Data>
         <Data AD_Column_ID="12954" Column="IsTranslated">false</Data>
@@ -1526,22 +1525,21 @@ If you leave the search key empty, the system automatically creates a numeric nu
         <Data AD_Column_ID="12951" Column="AD_Org_ID">0</Data>
         <Data AD_Column_ID="12955" Column="AD_Column_ID">92104</Data>
         <Data AD_Column_ID="84310" Column="UUID" isNewNull="true"/>
+        <Data AD_Column_ID="12960" Column="Created">2018-12-07 19:29:21.312</Data>
       </PO>
     </Step>
     <Step SeqNo="690" StepType="AD">
       <PO AD_Table_ID="101" Action="I" Record_ID="92105" Table="AD_Column">
+        <Data AD_Column_ID="112" Column="Description">Alphanumeric identifier of the entity</Data>
+        <Data AD_Column_ID="110" Column="Version">0</Data>
+        <Data AD_Column_ID="13448" Column="ColumnSQL" isNewNull="true"/>
         <Data AD_Column_ID="111" Column="Name">Name</Data>
-        <Data AD_Column_ID="113" Column="Help">The name of an entity (record) is used as an default search option in addition to the search key. The name is up to 60 characters in length.</Data>
         <Data AD_Column_ID="54358" Column="InfoFactoryClass" isNewNull="true"/>
         <Data AD_Column_ID="90939" Column="AD_Image_ID" isNewNull="true"/>
         <Data AD_Column_ID="548" Column="IsActive">true</Data>
         <Data AD_Column_ID="549" Column="Created">2018-12-07 19:29:21.566</Data>
         <Data AD_Column_ID="551" Column="Updated">2018-12-07 19:29:21.566</Data>
         <Data AD_Column_ID="3389" Column="ValueMax" isNewNull="true"/>
-        <Data AD_Column_ID="112" Column="Description">Alphanumeric identifier of the entity</Data>
-        <Data AD_Column_ID="110" Column="Version">0</Data>
-        <Data AD_Column_ID="13448" Column="ColumnSQL" isNewNull="true"/>
-        <Data AD_Column_ID="124" Column="IsMandatory">true</Data>
         <Data AD_Column_ID="125" Column="IsTranslated">false</Data>
         <Data AD_Column_ID="117" Column="DefaultValue" isNewNull="true"/>
         <Data AD_Column_ID="116" Column="ColumnName">Name</Data>
@@ -1560,7 +1558,6 @@ If you leave the search key empty, the system automatically creates a numeric nu
         <Data AD_Column_ID="50218" Column="MandatoryLogic" isNewNull="true"/>
         <Data AD_Column_ID="56187" Column="IsAllowLogging">true</Data>
         <Data AD_Column_ID="56352" Column="FormatPattern" isNewNull="true"/>
-        <Data AD_Column_ID="56149" Column="IsAutocomplete">false</Data>
         <Data AD_Column_ID="68024" Column="IsRange">false</Data>
         <Data AD_Column_ID="62199" Column="IsAllowCopy">true</Data>
         <Data AD_Column_ID="127" Column="SeqNo">2</Data>
@@ -1579,12 +1576,14 @@ If you leave the search key empty, the system automatically creates a numeric nu
         <Data AD_Column_ID="59702" Column="AD_Chart_ID" isNewNull="true"/>
         <Data AD_Column_ID="2608" Column="AD_Element_ID">469</Data>
         <Data AD_Column_ID="84306" Column="UUID" isNewNull="true"/>
+        <Data AD_Column_ID="113" Column="Help">The name of an entity (record) is used as an default search option in addition to the search key. The name is up to 60 characters in length.</Data>
+        <Data AD_Column_ID="124" Column="IsMandatory">true</Data>
+        <Data AD_Column_ID="56149" Column="IsAutocomplete">false</Data>
       </PO>
     </Step>
     <Step SeqNo="700" StepType="AD">
       <PO AD_Table_ID="752" Action="I" Record_ID="0" Table="AD_Column_Trl">
         <Data AD_Column_ID="12957" Column="Name">Name</Data>
-        <Data AD_Column_ID="12960" Column="Created">2018-12-07 19:29:22.761</Data>
         <Data AD_Column_ID="12959" Column="IsActive">true</Data>
         <Data AD_Column_ID="12952" Column="Updated">2018-12-07 19:29:22.761</Data>
         <Data AD_Column_ID="12954" Column="IsTranslated">false</Data>
@@ -1595,12 +1594,12 @@ If you leave the search key empty, the system automatically creates a numeric nu
         <Data AD_Column_ID="12951" Column="AD_Org_ID">0</Data>
         <Data AD_Column_ID="12955" Column="AD_Column_ID">92105</Data>
         <Data AD_Column_ID="84310" Column="UUID" isNewNull="true"/>
+        <Data AD_Column_ID="12960" Column="Created">2018-12-07 19:29:22.761</Data>
       </PO>
     </Step>
     <Step SeqNo="710" StepType="AD">
       <PO AD_Table_ID="101" Action="I" Record_ID="92106" Table="AD_Column">
         <Data AD_Column_ID="111" Column="Name">Description</Data>
-        <Data AD_Column_ID="113" Column="Help">A description is limited to 255 characters.</Data>
         <Data AD_Column_ID="54358" Column="InfoFactoryClass" isNewNull="true"/>
         <Data AD_Column_ID="90939" Column="AD_Image_ID" isNewNull="true"/>
         <Data AD_Column_ID="548" Column="IsActive">true</Data>
@@ -1621,7 +1620,6 @@ If you leave the search key empty, the system automatically creates a numeric nu
         <Data AD_Column_ID="3360" Column="IsUpdateable">true</Data>
         <Data AD_Column_ID="6244" Column="IsSelectionColumn">true</Data>
         <Data AD_Column_ID="6483" Column="IsSyncDatabase">Y</Data>
-        <Data AD_Column_ID="119" Column="IsKey">false</Data>
         <Data AD_Column_ID="6245" Column="ReadOnlyLogic" isNewNull="true"/>
         <Data AD_Column_ID="1692" Column="Callout" isNewNull="true"/>
         <Data AD_Column_ID="11617" Column="IsAlwaysUpdateable">false</Data>
@@ -1629,7 +1627,6 @@ If you leave the search key empty, the system automatically creates a numeric nu
         <Data AD_Column_ID="50218" Column="MandatoryLogic" isNewNull="true"/>
         <Data AD_Column_ID="56187" Column="IsAllowLogging">true</Data>
         <Data AD_Column_ID="56352" Column="FormatPattern" isNewNull="true"/>
-        <Data AD_Column_ID="56149" Column="IsAutocomplete">false</Data>
         <Data AD_Column_ID="68024" Column="IsRange">false</Data>
         <Data AD_Column_ID="62199" Column="IsAllowCopy">true</Data>
         <Data AD_Column_ID="127" Column="SeqNo" isNewNull="true"/>
@@ -1648,12 +1645,14 @@ If you leave the search key empty, the system automatically creates a numeric nu
         <Data AD_Column_ID="59702" Column="AD_Chart_ID" isNewNull="true"/>
         <Data AD_Column_ID="2608" Column="AD_Element_ID">275</Data>
         <Data AD_Column_ID="84306" Column="UUID" isNewNull="true"/>
+        <Data AD_Column_ID="113" Column="Help">A description is limited to 255 characters.</Data>
+        <Data AD_Column_ID="119" Column="IsKey">false</Data>
+        <Data AD_Column_ID="56149" Column="IsAutocomplete">false</Data>
       </PO>
     </Step>
     <Step SeqNo="720" StepType="AD">
       <PO AD_Table_ID="752" Action="I" Record_ID="0" Table="AD_Column_Trl">
         <Data AD_Column_ID="12957" Column="Name">Description</Data>
-        <Data AD_Column_ID="12960" Column="Created">2018-12-07 19:29:23.83</Data>
         <Data AD_Column_ID="12959" Column="IsActive">true</Data>
         <Data AD_Column_ID="12952" Column="Updated">2018-12-07 19:29:23.83</Data>
         <Data AD_Column_ID="12954" Column="IsTranslated">false</Data>
@@ -1664,12 +1663,12 @@ If you leave the search key empty, the system automatically creates a numeric nu
         <Data AD_Column_ID="12951" Column="AD_Org_ID">0</Data>
         <Data AD_Column_ID="12955" Column="AD_Column_ID">92106</Data>
         <Data AD_Column_ID="84310" Column="UUID" isNewNull="true"/>
+        <Data AD_Column_ID="12960" Column="Created">2018-12-07 19:29:23.83</Data>
       </PO>
     </Step>
     <Step SeqNo="730" StepType="AD">
       <PO AD_Table_ID="101" Action="I" Record_ID="92107" Table="AD_Column">
         <Data AD_Column_ID="111" Column="Name">Sql WHERE</Data>
-        <Data AD_Column_ID="113" Column="Help">The Where Clause indicates the SQL WHERE clause to use for record selection. The WHERE clause is added to the query. Fully qualified means "tablename.columnname".</Data>
         <Data AD_Column_ID="54358" Column="InfoFactoryClass" isNewNull="true"/>
         <Data AD_Column_ID="90939" Column="AD_Image_ID" isNewNull="true"/>
         <Data AD_Column_ID="548" Column="IsActive">true</Data>
@@ -1700,10 +1699,8 @@ If you leave the search key empty, the system automatically creates a numeric nu
         <Data AD_Column_ID="56352" Column="FormatPattern" isNewNull="true"/>
         <Data AD_Column_ID="56149" Column="IsAutocomplete">false</Data>
         <Data AD_Column_ID="68024" Column="IsRange">false</Data>
-        <Data AD_Column_ID="62199" Column="IsAllowCopy">true</Data>
         <Data AD_Column_ID="127" Column="SeqNo" isNewNull="true"/>
         <Data AD_Column_ID="226" Column="AD_Reference_ID">14</Data>
-        <Data AD_Column_ID="550" Column="CreatedBy">100</Data>
         <Data AD_Column_ID="552" Column="UpdatedBy">100</Data>
         <Data AD_Column_ID="6482" Column="EntityType">D</Data>
         <Data AD_Column_ID="109" Column="AD_Column_ID">92107</Data>
@@ -1717,12 +1714,14 @@ If you leave the search key empty, the system automatically creates a numeric nu
         <Data AD_Column_ID="59702" Column="AD_Chart_ID" isNewNull="true"/>
         <Data AD_Column_ID="2608" Column="AD_Element_ID">630</Data>
         <Data AD_Column_ID="84306" Column="UUID" isNewNull="true"/>
+        <Data AD_Column_ID="113" Column="Help">The Where Clause indicates the SQL WHERE clause to use for record selection. The WHERE clause is added to the query. Fully qualified means "tablename.columnname".</Data>
+        <Data AD_Column_ID="62199" Column="IsAllowCopy">true</Data>
+        <Data AD_Column_ID="550" Column="CreatedBy">100</Data>
       </PO>
     </Step>
     <Step SeqNo="740" StepType="AD">
       <PO AD_Table_ID="752" Action="I" Record_ID="0" Table="AD_Column_Trl">
         <Data AD_Column_ID="12957" Column="Name">Sql WHERE</Data>
-        <Data AD_Column_ID="12960" Column="Created">2018-12-07 19:29:25.231</Data>
         <Data AD_Column_ID="12959" Column="IsActive">true</Data>
         <Data AD_Column_ID="12952" Column="Updated">2018-12-07 19:29:25.231</Data>
         <Data AD_Column_ID="12954" Column="IsTranslated">false</Data>
@@ -1733,12 +1732,12 @@ If you leave the search key empty, the system automatically creates a numeric nu
         <Data AD_Column_ID="12951" Column="AD_Org_ID">0</Data>
         <Data AD_Column_ID="12955" Column="AD_Column_ID">92107</Data>
         <Data AD_Column_ID="84310" Column="UUID" isNewNull="true"/>
+        <Data AD_Column_ID="12960" Column="Created">2018-12-07 19:29:25.231</Data>
       </PO>
     </Step>
     <Step SeqNo="750" StepType="AD">
       <PO AD_Table_ID="101" Action="I" Record_ID="92108" Table="AD_Column">
         <Data AD_Column_ID="111" Column="Name">View</Data>
-        <Data AD_Column_ID="113" Column="Help">These views can be based on tables and views of the dictionary application.</Data>
         <Data AD_Column_ID="54358" Column="InfoFactoryClass" isNewNull="true"/>
         <Data AD_Column_ID="90939" Column="AD_Image_ID" isNewNull="true"/>
         <Data AD_Column_ID="548" Column="IsActive">true</Data>
@@ -1767,7 +1766,6 @@ If you leave the search key empty, the system automatically creates a numeric nu
         <Data AD_Column_ID="50218" Column="MandatoryLogic" isNewNull="true"/>
         <Data AD_Column_ID="56187" Column="IsAllowLogging">true</Data>
         <Data AD_Column_ID="56352" Column="FormatPattern" isNewNull="true"/>
-        <Data AD_Column_ID="56149" Column="IsAutocomplete">false</Data>
         <Data AD_Column_ID="68024" Column="IsRange">false</Data>
         <Data AD_Column_ID="62199" Column="IsAllowCopy">true</Data>
         <Data AD_Column_ID="127" Column="SeqNo" isNewNull="true"/>
@@ -1780,12 +1778,14 @@ If you leave the search key empty, the system automatically creates a numeric nu
         <Data AD_Column_ID="359" Column="AD_Client_ID">0</Data>
         <Data AD_Column_ID="227" Column="AD_Reference_Value_ID" isNewNull="true"/>
         <Data AD_Column_ID="114" Column="AD_Table_ID">54584</Data>
-        <Data AD_Column_ID="115" Column="AD_Val_Rule_ID" isNewNull="true"/>
         <Data AD_Column_ID="118" Column="FieldLength">10</Data>
         <Data AD_Column_ID="3369" Column="AD_Process_ID" isNewNull="true"/>
         <Data AD_Column_ID="59702" Column="AD_Chart_ID" isNewNull="true"/>
         <Data AD_Column_ID="2608" Column="AD_Element_ID">53905</Data>
         <Data AD_Column_ID="84306" Column="UUID" isNewNull="true"/>
+        <Data AD_Column_ID="113" Column="Help">These views can be based on tables and views of the dictionary application.</Data>
+        <Data AD_Column_ID="56149" Column="IsAutocomplete">false</Data>
+        <Data AD_Column_ID="115" Column="AD_Val_Rule_ID" isNewNull="true"/>
       </PO>
     </Step>
     <Step SeqNo="760" StepType="AD">
@@ -1793,7 +1793,6 @@ If you leave the search key empty, the system automatically creates a numeric nu
         <Data AD_Column_ID="12957" Column="Name">View</Data>
         <Data AD_Column_ID="12960" Column="Created">2018-12-07 19:29:26.692</Data>
         <Data AD_Column_ID="12959" Column="IsActive">true</Data>
-        <Data AD_Column_ID="12952" Column="Updated">2018-12-07 19:29:26.692</Data>
         <Data AD_Column_ID="12954" Column="IsTranslated">false</Data>
         <Data AD_Column_ID="12953" Column="AD_Language">es_MX</Data>
         <Data AD_Column_ID="12958" Column="UpdatedBy">100</Data>
@@ -1802,6 +1801,7 @@ If you leave the search key empty, the system automatically creates a numeric nu
         <Data AD_Column_ID="12951" Column="AD_Org_ID">0</Data>
         <Data AD_Column_ID="12955" Column="AD_Column_ID">92108</Data>
         <Data AD_Column_ID="84310" Column="UUID" isNewNull="true"/>
+        <Data AD_Column_ID="12952" Column="Updated">2018-12-07 19:29:26.692</Data>
       </PO>
     </Step>
     <Step SeqNo="770" StepType="AD">
@@ -1826,7 +1826,6 @@ If you leave the search key empty, the system automatically creates a numeric nu
         <Data AD_Column_ID="126" Column="IsIdentifier">false</Data>
         <Data AD_Column_ID="3388" Column="ValueMin" isNewNull="true"/>
         <Data AD_Column_ID="3360" Column="IsUpdateable">true</Data>
-        <Data AD_Column_ID="6244" Column="IsSelectionColumn">false</Data>
         <Data AD_Column_ID="6483" Column="IsSyncDatabase">Y</Data>
         <Data AD_Column_ID="119" Column="IsKey">false</Data>
         <Data AD_Column_ID="6245" Column="ReadOnlyLogic" isNewNull="true"/>
@@ -1848,13 +1847,14 @@ If you leave the search key empty, the system automatically creates a numeric nu
         <Data AD_Column_ID="360" Column="AD_Org_ID">0</Data>
         <Data AD_Column_ID="359" Column="AD_Client_ID">0</Data>
         <Data AD_Column_ID="227" Column="AD_Reference_Value_ID" isNewNull="true"/>
-        <Data AD_Column_ID="114" Column="AD_Table_ID">54584</Data>
         <Data AD_Column_ID="115" Column="AD_Val_Rule_ID" isNewNull="true"/>
         <Data AD_Column_ID="118" Column="FieldLength">10</Data>
         <Data AD_Column_ID="3369" Column="AD_Process_ID" isNewNull="true"/>
         <Data AD_Column_ID="59702" Column="AD_Chart_ID" isNewNull="true"/>
         <Data AD_Column_ID="2608" Column="AD_Element_ID">53332</Data>
         <Data AD_Column_ID="84306" Column="UUID" isNewNull="true"/>
+        <Data AD_Column_ID="6244" Column="IsSelectionColumn">false</Data>
+        <Data AD_Column_ID="114" Column="AD_Table_ID">54584</Data>
       </PO>
     </Step>
     <Step SeqNo="780" StepType="AD">
@@ -1864,18 +1864,17 @@ If you leave the search key empty, the system automatically creates a numeric nu
         <Data AD_Column_ID="12959" Column="IsActive">true</Data>
         <Data AD_Column_ID="12952" Column="Updated">2018-12-07 19:29:28.056</Data>
         <Data AD_Column_ID="12954" Column="IsTranslated">false</Data>
-        <Data AD_Column_ID="12953" Column="AD_Language">es_MX</Data>
         <Data AD_Column_ID="12958" Column="UpdatedBy">100</Data>
         <Data AD_Column_ID="12956" Column="CreatedBy">100</Data>
         <Data AD_Column_ID="12961" Column="AD_Client_ID">0</Data>
         <Data AD_Column_ID="12951" Column="AD_Org_ID">0</Data>
         <Data AD_Column_ID="12955" Column="AD_Column_ID">92109</Data>
         <Data AD_Column_ID="84310" Column="UUID" isNewNull="true"/>
+        <Data AD_Column_ID="12953" Column="AD_Language">es_MX</Data>
       </PO>
     </Step>
     <Step SeqNo="790" StepType="AD">
       <PO AD_Table_ID="107" Action="I" Record_ID="92884" Table="AD_Field">
-        <Data AD_Column_ID="169" Column="Description">Search key for the record in the format required - must be unique</Data>
         <Data AD_Column_ID="185" Column="IsFieldOnly">false</Data>
         <Data AD_Column_ID="88918" Column="AD_ContextInfo_ID" isNewNull="true"/>
         <Data AD_Column_ID="78493" Column="IsQuickEntry">false</Data>
@@ -1892,8 +1891,6 @@ If you leave the search key empty, the system automatically creates a numeric nu
         <Data AD_Column_ID="2745" Column="IsCentrallyMaintained">true</Data>
         <Data AD_Column_ID="168" Column="Name">Search Key</Data>
         <Data AD_Column_ID="2007" Column="IsReadOnly">false</Data>
-        <Data AD_Column_ID="170" Column="Help">A search key allows you a fast method of finding a particular record.
-If you leave the search key empty, the system automatically creates a numeric number.  The document sequence used for this fallback number is defined in the "Maintain Sequence" window with the name "DocumentNo_&lt;TableName&gt;", where TableName is the actual name of the table (e.g. C_Order).</Data>
         <Data AD_Column_ID="9969" Column="ObscureType" isNewNull="true"/>
         <Data AD_Column_ID="177" Column="DisplayLogic" isNewNull="true"/>
         <Data AD_Column_ID="15011" Column="AD_Reference_ID" isNewNull="true"/>
@@ -1920,12 +1917,13 @@ If you leave the search key empty, the system automatically creates a numeric nu
         <Data AD_Column_ID="84320" Column="UUID" isNewNull="true"/>
         <Data AD_Column_ID="90940" Column="AD_Image_ID" isNewNull="true"/>
         <Data AD_Column_ID="88877" Column="AD_FieldDefinition_ID" isNewNull="true"/>
+        <Data AD_Column_ID="169" Column="Description">Search key for the record in the format required - must be unique</Data>
+        <Data AD_Column_ID="170" Column="Help">A search key allows you a fast method of finding a particular record.
+If you leave the search key empty, the system automatically creates a numeric number.  The document sequence used for this fallback number is defined in the "Maintain Sequence" window with the name "DocumentNo_&lt;TableName&gt;", where TableName is the actual name of the table (e.g. C_Order).</Data>
       </PO>
     </Step>
     <Step SeqNo="800" StepType="AD">
       <PO AD_Table_ID="127" Action="I" Record_ID="92884" Table="AD_Field_Trl">
-        <Data AD_Column_ID="288" Column="Help">A search key allows you a fast method of finding a particular record.
-If you leave the search key empty, the system automatically creates a numeric number.  The document sequence used for this fallback number is defined in the "Maintain Sequence" window with the name "DocumentNo_&lt;TableName&gt;", where TableName is the actual name of the table (e.g. C_Order).</Data>
         <Data AD_Column_ID="674" Column="Updated">2018-12-07 19:29:29.811</Data>
         <Data AD_Column_ID="671" Column="IsActive">true</Data>
         <Data AD_Column_ID="672" Column="Created">2018-12-07 19:29:29.811</Data>
@@ -1939,17 +1937,17 @@ If you leave the search key empty, the system automatically creates a numeric nu
         <Data AD_Column_ID="284" Column="AD_Field_ID">92884</Data>
         <Data AD_Column_ID="285" Column="AD_Language">es_MX</Data>
         <Data AD_Column_ID="84323" Column="UUID" isNewNull="true"/>
+        <Data AD_Column_ID="288" Column="Help">A search key allows you a fast method of finding a particular record.
+If you leave the search key empty, the system automatically creates a numeric number.  The document sequence used for this fallback number is defined in the "Maintain Sequence" window with the name "DocumentNo_&lt;TableName&gt;", where TableName is the actual name of the table (e.g. C_Order).</Data>
       </PO>
     </Step>
     <Step SeqNo="810" StepType="AD">
       <PO AD_Table_ID="107" Action="I" Record_ID="92885" Table="AD_Field">
-        <Data AD_Column_ID="169" Column="Description">Alphanumeric identifier of the entity</Data>
         <Data AD_Column_ID="185" Column="IsFieldOnly">false</Data>
         <Data AD_Column_ID="88918" Column="AD_ContextInfo_ID" isNewNull="true"/>
         <Data AD_Column_ID="78493" Column="IsQuickEntry">false</Data>
         <Data AD_Column_ID="59703" Column="IsEmbedded">false</Data>
         <Data AD_Column_ID="578" Column="IsActive">true</Data>
-        <Data AD_Column_ID="579" Column="Created">2018-12-07 19:29:30.05</Data>
         <Data AD_Column_ID="581" Column="Updated">2018-12-07 19:29:30.05</Data>
         <Data AD_Column_ID="62478" Column="IsDisplayedGrid">true</Data>
         <Data AD_Column_ID="74868" Column="IsAllowCopy">true</Data>
@@ -1960,7 +1958,6 @@ If you leave the search key empty, the system automatically creates a numeric nu
         <Data AD_Column_ID="2745" Column="IsCentrallyMaintained">true</Data>
         <Data AD_Column_ID="168" Column="Name">Name</Data>
         <Data AD_Column_ID="2007" Column="IsReadOnly">false</Data>
-        <Data AD_Column_ID="170" Column="Help">The name of an entity (record) is used as an default search option in addition to the search key. The name is up to 60 characters in length.</Data>
         <Data AD_Column_ID="9969" Column="ObscureType" isNewNull="true"/>
         <Data AD_Column_ID="177" Column="DisplayLogic" isNewNull="true"/>
         <Data AD_Column_ID="15011" Column="AD_Reference_ID" isNewNull="true"/>
@@ -1987,6 +1984,9 @@ If you leave the search key empty, the system automatically creates a numeric nu
         <Data AD_Column_ID="84320" Column="UUID" isNewNull="true"/>
         <Data AD_Column_ID="90940" Column="AD_Image_ID" isNewNull="true"/>
         <Data AD_Column_ID="88877" Column="AD_FieldDefinition_ID" isNewNull="true"/>
+        <Data AD_Column_ID="169" Column="Description">Alphanumeric identifier of the entity</Data>
+        <Data AD_Column_ID="579" Column="Created">2018-12-07 19:29:30.05</Data>
+        <Data AD_Column_ID="170" Column="Help">The name of an entity (record) is used as an default search option in addition to the search key. The name is up to 60 characters in length.</Data>
       </PO>
     </Step>
     <Step SeqNo="820" StepType="AD">
@@ -1995,7 +1995,6 @@ If you leave the search key empty, the system automatically creates a numeric nu
         <Data AD_Column_ID="673" Column="CreatedBy">100</Data>
         <Data AD_Column_ID="1205" Column="AD_Org_ID">0</Data>
         <Data AD_Column_ID="1204" Column="AD_Client_ID">0</Data>
-        <Data AD_Column_ID="288" Column="Help">The name of an entity (record) is used as an default search option in addition to the search key. The name is up to 60 characters in length.</Data>
         <Data AD_Column_ID="674" Column="Updated">2018-12-07 19:29:31.17</Data>
         <Data AD_Column_ID="671" Column="IsActive">true</Data>
         <Data AD_Column_ID="672" Column="Created">2018-12-07 19:29:31.17</Data>
@@ -2005,6 +2004,7 @@ If you leave the search key empty, the system automatically creates a numeric nu
         <Data AD_Column_ID="284" Column="AD_Field_ID">92885</Data>
         <Data AD_Column_ID="285" Column="AD_Language">es_MX</Data>
         <Data AD_Column_ID="84323" Column="UUID" isNewNull="true"/>
+        <Data AD_Column_ID="288" Column="Help">The name of an entity (record) is used as an default search option in addition to the search key. The name is up to 60 characters in length.</Data>
       </PO>
     </Step>
     <Step SeqNo="830" StepType="AD">
@@ -2020,13 +2020,11 @@ If you leave the search key empty, the system automatically creates a numeric nu
         <Data AD_Column_ID="62478" Column="IsDisplayedGrid">true</Data>
         <Data AD_Column_ID="74868" Column="IsAllowCopy">true</Data>
         <Data AD_Column_ID="176" Column="IsDisplayed">true</Data>
-        <Data AD_Column_ID="183" Column="IsSameLine">false</Data>
         <Data AD_Column_ID="184" Column="IsHeading">false</Data>
         <Data AD_Column_ID="182" Column="SortNo">0</Data>
         <Data AD_Column_ID="2745" Column="IsCentrallyMaintained">true</Data>
         <Data AD_Column_ID="168" Column="Name">Description</Data>
         <Data AD_Column_ID="2007" Column="IsReadOnly">false</Data>
-        <Data AD_Column_ID="170" Column="Help">A description is limited to 255 characters.</Data>
         <Data AD_Column_ID="9969" Column="ObscureType" isNewNull="true"/>
         <Data AD_Column_ID="177" Column="DisplayLogic" isNewNull="true"/>
         <Data AD_Column_ID="15011" Column="AD_Reference_ID" isNewNull="true"/>
@@ -2053,6 +2051,8 @@ If you leave the search key empty, the system automatically creates a numeric nu
         <Data AD_Column_ID="84320" Column="UUID" isNewNull="true"/>
         <Data AD_Column_ID="90940" Column="AD_Image_ID" isNewNull="true"/>
         <Data AD_Column_ID="88877" Column="AD_FieldDefinition_ID" isNewNull="true"/>
+        <Data AD_Column_ID="183" Column="IsSameLine">false</Data>
+        <Data AD_Column_ID="170" Column="Help">A description is limited to 255 characters.</Data>
       </PO>
     </Step>
     <Step SeqNo="840" StepType="AD">
@@ -2060,7 +2060,6 @@ If you leave the search key empty, the system automatically creates a numeric nu
         <Data AD_Column_ID="288" Column="Help">A description is limited to 255 characters.</Data>
         <Data AD_Column_ID="674" Column="Updated">2018-12-07 19:29:32.507</Data>
         <Data AD_Column_ID="671" Column="IsActive">true</Data>
-        <Data AD_Column_ID="672" Column="Created">2018-12-07 19:29:32.507</Data>
         <Data AD_Column_ID="289" Column="IsTranslated">false</Data>
         <Data AD_Column_ID="286" Column="Name">Description</Data>
         <Data AD_Column_ID="287" Column="Description">Optional short description of the record</Data>
@@ -2071,11 +2070,11 @@ If you leave the search key empty, the system automatically creates a numeric nu
         <Data AD_Column_ID="284" Column="AD_Field_ID">92886</Data>
         <Data AD_Column_ID="285" Column="AD_Language">es_MX</Data>
         <Data AD_Column_ID="84323" Column="UUID" isNewNull="true"/>
+        <Data AD_Column_ID="672" Column="Created">2018-12-07 19:29:32.507</Data>
       </PO>
     </Step>
     <Step SeqNo="850" StepType="AD">
       <PO AD_Table_ID="107" Action="I" Record_ID="92887" Table="AD_Field">
-        <Data AD_Column_ID="169" Column="Description">View allows you to create dynamic views of information from the dictionary application</Data>
         <Data AD_Column_ID="185" Column="IsFieldOnly">false</Data>
         <Data AD_Column_ID="88918" Column="AD_ContextInfo_ID" isNewNull="true"/>
         <Data AD_Column_ID="78493" Column="IsQuickEntry">false</Data>
@@ -2098,10 +2097,8 @@ If you leave the search key empty, the system automatically creates a numeric nu
         <Data AD_Column_ID="15011" Column="AD_Reference_ID" isNewNull="true"/>
         <Data AD_Column_ID="15013" Column="IsMandatory" isNewNull="true"/>
         <Data AD_Column_ID="53265" Column="DefaultValue" isNewNull="true"/>
-        <Data AD_Column_ID="54359" Column="InfoFactoryClass" isNewNull="true"/>
         <Data AD_Column_ID="57957" Column="Included_Tab_ID" isNewNull="true"/>
         <Data AD_Column_ID="59704" Column="PreferredWidth">0</Data>
-        <Data AD_Column_ID="186" Column="IsEncrypted">false</Data>
         <Data AD_Column_ID="54356" Column="AD_Reference_Value_ID" isNewNull="true"/>
         <Data AD_Column_ID="582" Column="UpdatedBy">100</Data>
         <Data AD_Column_ID="580" Column="CreatedBy">100</Data>
@@ -2119,11 +2116,13 @@ If you leave the search key empty, the system automatically creates a numeric nu
         <Data AD_Column_ID="84320" Column="UUID" isNewNull="true"/>
         <Data AD_Column_ID="90940" Column="AD_Image_ID" isNewNull="true"/>
         <Data AD_Column_ID="88877" Column="AD_FieldDefinition_ID" isNewNull="true"/>
+        <Data AD_Column_ID="169" Column="Description">View allows you to create dynamic views of information from the dictionary application</Data>
+        <Data AD_Column_ID="54359" Column="InfoFactoryClass" isNewNull="true"/>
+        <Data AD_Column_ID="186" Column="IsEncrypted">false</Data>
       </PO>
     </Step>
     <Step SeqNo="860" StepType="AD">
       <PO AD_Table_ID="127" Action="I" Record_ID="92887" Table="AD_Field_Trl">
-        <Data AD_Column_ID="288" Column="Help">These views can be based on tables and views of the dictionary application.</Data>
         <Data AD_Column_ID="674" Column="Updated">2018-12-07 19:29:35.149</Data>
         <Data AD_Column_ID="671" Column="IsActive">true</Data>
         <Data AD_Column_ID="672" Column="Created">2018-12-07 19:29:35.149</Data>
@@ -2137,6 +2136,7 @@ If you leave the search key empty, the system automatically creates a numeric nu
         <Data AD_Column_ID="284" Column="AD_Field_ID">92887</Data>
         <Data AD_Column_ID="285" Column="AD_Language">es_MX</Data>
         <Data AD_Column_ID="84323" Column="UUID" isNewNull="true"/>
+        <Data AD_Column_ID="288" Column="Help">These views can be based on tables and views of the dictionary application.</Data>
       </PO>
     </Step>
     <Step SeqNo="870" StepType="AD">
@@ -2147,7 +2147,6 @@ If you leave the search key empty, the system automatically creates a numeric nu
         <Data AD_Column_ID="78493" Column="IsQuickEntry">false</Data>
         <Data AD_Column_ID="59703" Column="IsEmbedded">false</Data>
         <Data AD_Column_ID="578" Column="IsActive">true</Data>
-        <Data AD_Column_ID="579" Column="Created">2018-12-07 19:29:35.428</Data>
         <Data AD_Column_ID="581" Column="Updated">2018-12-07 19:29:35.428</Data>
         <Data AD_Column_ID="62478" Column="IsDisplayedGrid">true</Data>
         <Data AD_Column_ID="74868" Column="IsAllowCopy">true</Data>
@@ -2178,13 +2177,14 @@ If you leave the search key empty, the system automatically creates a numeric nu
         <Data AD_Column_ID="62479" Column="SeqNoGrid">0</Data>
         <Data AD_Column_ID="180" Column="DisplayLength">0</Data>
         <Data AD_Column_ID="172" Column="AD_Tab_ID">54737</Data>
-        <Data AD_Column_ID="181" Column="SeqNo">80</Data>
         <Data AD_Column_ID="5375" Column="AD_FieldGroup_ID" isNewNull="true"/>
         <Data AD_Column_ID="54357" Column="AD_Val_Rule_ID" isNewNull="true"/>
         <Data AD_Column_ID="174" Column="AD_Column_ID">92109</Data>
         <Data AD_Column_ID="84320" Column="UUID" isNewNull="true"/>
         <Data AD_Column_ID="90940" Column="AD_Image_ID" isNewNull="true"/>
         <Data AD_Column_ID="88877" Column="AD_FieldDefinition_ID" isNewNull="true"/>
+        <Data AD_Column_ID="579" Column="Created">2018-12-07 19:29:35.428</Data>
+        <Data AD_Column_ID="181" Column="SeqNo">80</Data>
       </PO>
     </Step>
     <Step SeqNo="880" StepType="AD">
@@ -2192,7 +2192,6 @@ If you leave the search key empty, the system automatically creates a numeric nu
         <Data AD_Column_ID="288" Column="Help" isNewNull="true"/>
         <Data AD_Column_ID="674" Column="Updated">2018-12-07 19:29:36.465</Data>
         <Data AD_Column_ID="671" Column="IsActive">true</Data>
-        <Data AD_Column_ID="672" Column="Created">2018-12-07 19:29:36.465</Data>
         <Data AD_Column_ID="289" Column="IsTranslated">false</Data>
         <Data AD_Column_ID="286" Column="Name">Rule</Data>
         <Data AD_Column_ID="287" Column="Description" isNewNull="true"/>
@@ -2203,6 +2202,7 @@ If you leave the search key empty, the system automatically creates a numeric nu
         <Data AD_Column_ID="284" Column="AD_Field_ID">92888</Data>
         <Data AD_Column_ID="285" Column="AD_Language">es_MX</Data>
         <Data AD_Column_ID="84323" Column="UUID" isNewNull="true"/>
+        <Data AD_Column_ID="672" Column="Created">2018-12-07 19:29:36.465</Data>
       </PO>
     </Step>
     <Step SeqNo="890" StepType="AD">
@@ -2214,7 +2214,6 @@ If you leave the search key empty, the system automatically creates a numeric nu
         <Data AD_Column_ID="59703" Column="IsEmbedded">false</Data>
         <Data AD_Column_ID="578" Column="IsActive">true</Data>
         <Data AD_Column_ID="579" Column="Created">2018-12-07 19:29:36.705</Data>
-        <Data AD_Column_ID="581" Column="Updated">2018-12-07 19:29:36.705</Data>
         <Data AD_Column_ID="62478" Column="IsDisplayedGrid">true</Data>
         <Data AD_Column_ID="74868" Column="IsAllowCopy">true</Data>
         <Data AD_Column_ID="176" Column="IsDisplayed">true</Data>
@@ -2224,7 +2223,6 @@ If you leave the search key empty, the system automatically creates a numeric nu
         <Data AD_Column_ID="2745" Column="IsCentrallyMaintained">true</Data>
         <Data AD_Column_ID="168" Column="Name">Sql WHERE</Data>
         <Data AD_Column_ID="2007" Column="IsReadOnly">false</Data>
-        <Data AD_Column_ID="170" Column="Help">The Where Clause indicates the SQL WHERE clause to use for record selection. The WHERE clause is added to the query. Fully qualified means "tablename.columnname".</Data>
         <Data AD_Column_ID="9969" Column="ObscureType" isNewNull="true"/>
         <Data AD_Column_ID="177" Column="DisplayLogic" isNewNull="true"/>
         <Data AD_Column_ID="15011" Column="AD_Reference_ID" isNewNull="true"/>
@@ -2251,16 +2249,15 @@ If you leave the search key empty, the system automatically creates a numeric nu
         <Data AD_Column_ID="84320" Column="UUID" isNewNull="true"/>
         <Data AD_Column_ID="90940" Column="AD_Image_ID" isNewNull="true"/>
         <Data AD_Column_ID="88877" Column="AD_FieldDefinition_ID" isNewNull="true"/>
+        <Data AD_Column_ID="581" Column="Updated">2018-12-07 19:29:36.705</Data>
+        <Data AD_Column_ID="170" Column="Help">The Where Clause indicates the SQL WHERE clause to use for record selection. The WHERE clause is added to the query. Fully qualified means "tablename.columnname".</Data>
       </PO>
     </Step>
     <Step SeqNo="900" StepType="AD">
       <PO AD_Table_ID="127" Action="I" Record_ID="92889" Table="AD_Field_Trl">
-        <Data AD_Column_ID="288" Column="Help">The Where Clause indicates the SQL WHERE clause to use for record selection. The WHERE clause is added to the query. Fully qualified means "tablename.columnname".</Data>
         <Data AD_Column_ID="674" Column="Updated">2018-12-07 19:29:37.644</Data>
         <Data AD_Column_ID="671" Column="IsActive">true</Data>
         <Data AD_Column_ID="672" Column="Created">2018-12-07 19:29:37.644</Data>
-        <Data AD_Column_ID="289" Column="IsTranslated">false</Data>
-        <Data AD_Column_ID="286" Column="Name">Sql WHERE</Data>
         <Data AD_Column_ID="287" Column="Description">Fully qualified SQL WHERE clause</Data>
         <Data AD_Column_ID="675" Column="UpdatedBy">100</Data>
         <Data AD_Column_ID="673" Column="CreatedBy">100</Data>
@@ -2269,6 +2266,9 @@ If you leave the search key empty, the system automatically creates a numeric nu
         <Data AD_Column_ID="284" Column="AD_Field_ID">92889</Data>
         <Data AD_Column_ID="285" Column="AD_Language">es_MX</Data>
         <Data AD_Column_ID="84323" Column="UUID" isNewNull="true"/>
+        <Data AD_Column_ID="288" Column="Help">The Where Clause indicates the SQL WHERE clause to use for record selection. The WHERE clause is added to the query. Fully qualified means "tablename.columnname".</Data>
+        <Data AD_Column_ID="289" Column="IsTranslated">false</Data>
+        <Data AD_Column_ID="286" Column="Name">Sql WHERE</Data>
       </PO>
     </Step>
     <Step SeqNo="910" StepType="AD">
@@ -2277,7 +2277,6 @@ If you leave the search key empty, the system automatically creates a numeric nu
         <Data AD_Column_ID="6651" Column="IsReadOnly">false</Data>
         <Data AD_Column_ID="598" Column="IsActive">true</Data>
         <Data AD_Column_ID="599" Column="Created">2018-12-07 19:30:36.46</Data>
-        <Data AD_Column_ID="601" Column="Updated">2018-12-07 19:30:36.46</Data>
         <Data AD_Column_ID="229" Column="Name">Commission Type</Data>
         <Data AD_Column_ID="1169" Column="IsSummary">false</Data>
         <Data AD_Column_ID="230" Column="Description" isNewNull="true"/>
@@ -2297,13 +2296,13 @@ If you leave the search key empty, the system automatically creates a numeric nu
         <Data AD_Column_ID="235" Column="AD_Task_ID" isNewNull="true"/>
         <Data AD_Column_ID="57960" Column="AD_Browse_ID" isNewNull="true"/>
         <Data AD_Column_ID="84344" Column="UUID" isNewNull="true"/>
+        <Data AD_Column_ID="601" Column="Updated">2018-12-07 19:30:36.46</Data>
       </PO>
     </Step>
     <Step SeqNo="920" StepType="AD">
       <PO AD_Table_ID="120" Action="I" Record_ID="54426" Table="AD_Menu_Trl">
         <Data AD_Column_ID="637" Column="Created">2018-12-07 19:30:37.585</Data>
         <Data AD_Column_ID="636" Column="IsActive">true</Data>
-        <Data AD_Column_ID="639" Column="Updated">2018-12-07 19:30:37.585</Data>
         <Data AD_Column_ID="247" Column="Name">Commission Type</Data>
         <Data AD_Column_ID="248" Column="Description" isNewNull="true"/>
         <Data AD_Column_ID="249" Column="IsTranslated">false</Data>
@@ -2314,6 +2313,7 @@ If you leave the search key empty, the system automatically creates a numeric nu
         <Data AD_Column_ID="245" Column="AD_Menu_ID">54426</Data>
         <Data AD_Column_ID="246" Column="AD_Language">es_MX</Data>
         <Data AD_Column_ID="84345" Column="UUID" isNewNull="true"/>
+        <Data AD_Column_ID="639" Column="Updated">2018-12-07 19:30:37.585</Data>
       </PO>
     </Step>
     <Step SeqNo="930" StepType="AD">
@@ -2363,9 +2363,9 @@ If you leave the search key empty, the system automatically creates a numeric nu
     </Step>
     <Step SeqNo="980" StepType="AD">
       <PO AD_Table_ID="452" Action="U" Record_ID="54190" Table="AD_TreeNodeMM">
-        <Data AD_Column_ID="6157" Column="SeqNo" oldValue="5">6</Data>
         <Data AD_Column_ID="6161" Column="Node_ID" oldValue="54190">54190</Data>
         <Data AD_Column_ID="6160" Column="AD_Tree_ID" oldValue="10">10</Data>
+        <Data AD_Column_ID="6157" Column="SeqNo" oldValue="5">6</Data>
       </PO>
     </Step>
     <Step SeqNo="990" StepType="AD">
@@ -2391,11 +2391,11 @@ If you leave the search key empty, the system automatically creates a numeric nu
     </Step>
     <Step SeqNo="1020" StepType="AD">
       <PO AD_Table_ID="276" Action="U" Record_ID="60886" Table="AD_Element">
-        <Data AD_Column_ID="4299" Column="PrintName" oldValue="Commission Type ID">Commission Type</Data>
         <Data AD_Column_ID="2603" Column="Name" oldValue="Commission Type ID">Commission Type</Data>
         <Data AD_Column_ID="2604" Column="Description" isOldNull="true">Defined for custom query on commission</Data>
         <Data AD_Column_ID="58589" Column="FieldLength" isOldNull="true">10</Data>
         <Data AD_Column_ID="58588" Column="AD_Reference_ID" isOldNull="true">19</Data>
+        <Data AD_Column_ID="4299" Column="PrintName" oldValue="Commission Type ID">Commission Type</Data>
       </PO>
     </Step>
     <Step SeqNo="1030" StepType="AD">
@@ -2428,7 +2428,6 @@ If you leave the search key empty, the system automatically creates a numeric nu
     </Step>
     <Step SeqNo="1070" StepType="AD">
       <PO AD_Table_ID="101" Action="I" Record_ID="92110" Table="AD_Column">
-        <Data AD_Column_ID="111" Column="Name">Commission Type</Data>
         <Data AD_Column_ID="113" Column="Help" isNewNull="true"/>
         <Data AD_Column_ID="54358" Column="InfoFactoryClass" isNewNull="true"/>
         <Data AD_Column_ID="90939" Column="AD_Image_ID" isNewNull="true"/>
@@ -2445,7 +2444,6 @@ If you leave the search key empty, the system automatically creates a numeric nu
         <Data AD_Column_ID="116" Column="ColumnName">C_CommissionType_ID</Data>
         <Data AD_Column_ID="1179" Column="VFormat" isNewNull="true"/>
         <Data AD_Column_ID="120" Column="IsParent">false</Data>
-        <Data AD_Column_ID="126" Column="IsIdentifier">false</Data>
         <Data AD_Column_ID="3388" Column="ValueMin" isNewNull="true"/>
         <Data AD_Column_ID="3360" Column="IsUpdateable">true</Data>
         <Data AD_Column_ID="6244" Column="IsSelectionColumn">true</Data>
@@ -2468,15 +2466,17 @@ If you leave the search key empty, the system automatically creates a numeric nu
         <Data AD_Column_ID="6482" Column="EntityType">D</Data>
         <Data AD_Column_ID="109" Column="AD_Column_ID">92110</Data>
         <Data AD_Column_ID="360" Column="AD_Org_ID">0</Data>
-        <Data AD_Column_ID="359" Column="AD_Client_ID">0</Data>
         <Data AD_Column_ID="227" Column="AD_Reference_Value_ID" isNewNull="true"/>
         <Data AD_Column_ID="114" Column="AD_Table_ID">429</Data>
         <Data AD_Column_ID="115" Column="AD_Val_Rule_ID" isNewNull="true"/>
-        <Data AD_Column_ID="118" Column="FieldLength">10</Data>
         <Data AD_Column_ID="3369" Column="AD_Process_ID" isNewNull="true"/>
         <Data AD_Column_ID="59702" Column="AD_Chart_ID" isNewNull="true"/>
         <Data AD_Column_ID="2608" Column="AD_Element_ID">60886</Data>
         <Data AD_Column_ID="84306" Column="UUID" isNewNull="true"/>
+        <Data AD_Column_ID="111" Column="Name">Commission Type</Data>
+        <Data AD_Column_ID="126" Column="IsIdentifier">false</Data>
+        <Data AD_Column_ID="359" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="118" Column="FieldLength">10</Data>
       </PO>
     </Step>
     <Step SeqNo="1080" StepType="AD">
@@ -2484,7 +2484,6 @@ If you leave the search key empty, the system automatically creates a numeric nu
         <Data AD_Column_ID="12957" Column="Name">Commission Type</Data>
         <Data AD_Column_ID="12960" Column="Created">2018-12-07 19:32:38.33</Data>
         <Data AD_Column_ID="12959" Column="IsActive">true</Data>
-        <Data AD_Column_ID="12952" Column="Updated">2018-12-07 19:32:38.33</Data>
         <Data AD_Column_ID="12954" Column="IsTranslated">false</Data>
         <Data AD_Column_ID="12953" Column="AD_Language">es_MX</Data>
         <Data AD_Column_ID="12958" Column="UpdatedBy">100</Data>
@@ -2493,6 +2492,7 @@ If you leave the search key empty, the system automatically creates a numeric nu
         <Data AD_Column_ID="12951" Column="AD_Org_ID">0</Data>
         <Data AD_Column_ID="12955" Column="AD_Column_ID">92110</Data>
         <Data AD_Column_ID="84310" Column="UUID" isNewNull="true"/>
+        <Data AD_Column_ID="12952" Column="Updated">2018-12-07 19:32:38.33</Data>
       </PO>
     </Step>
     <Step SeqNo="1090" StepType="AD">
@@ -2517,7 +2517,6 @@ If you leave the search key empty, the system automatically creates a numeric nu
     </Step>
     <Step SeqNo="1100" StepType="AD">
       <PO AD_Table_ID="136" Action="I" Record_ID="55291" Table="AD_Ref_List_Trl">
-        <Data AD_Column_ID="707" Column="Created">2018-12-07 19:33:18.406</Data>
         <Data AD_Column_ID="706" Column="IsActive">true</Data>
         <Data AD_Column_ID="709" Column="Updated">2018-12-07 19:33:18.406</Data>
         <Data AD_Column_ID="339" Column="Description">Custom Query</Data>
@@ -2530,13 +2529,14 @@ If you leave the search key empty, the system automatically creates a numeric nu
         <Data AD_Column_ID="336" Column="AD_Ref_List_ID">55291</Data>
         <Data AD_Column_ID="337" Column="AD_Language">es_MX</Data>
         <Data AD_Column_ID="84391" Column="UUID" isNewNull="true"/>
+        <Data AD_Column_ID="707" Column="Created">2018-12-07 19:33:18.406</Data>
       </PO>
     </Step>
     <Step SeqNo="1110" StepType="AD">
       <PO AD_Table_ID="136" Action="U" Record_ID="55291" Table="AD_Ref_List_Trl">
-        <Data AD_Column_ID="338" Column="Name" oldValue="Custom">Comisión Personalizada</Data>
         <Data AD_Column_ID="336" Column="AD_Ref_List_ID" oldValue="55291">55291</Data>
         <Data AD_Column_ID="337" Column="AD_Language" oldValue="es_MX">es_MX</Data>
+        <Data AD_Column_ID="338" Column="Name" oldValue="Custom">Comisión Personalizada</Data>
       </PO>
     </Step>
     <Step SeqNo="1120" StepType="AD">
@@ -2555,7 +2555,6 @@ If you leave the search key empty, the system automatically creates a numeric nu
         <Data AD_Column_ID="59703" Column="IsEmbedded">false</Data>
         <Data AD_Column_ID="578" Column="IsActive">true</Data>
         <Data AD_Column_ID="579" Column="Created">2018-12-07 19:34:39.803</Data>
-        <Data AD_Column_ID="581" Column="Updated">2018-12-07 19:34:39.803</Data>
         <Data AD_Column_ID="62478" Column="IsDisplayedGrid">true</Data>
         <Data AD_Column_ID="74868" Column="IsAllowCopy">true</Data>
         <Data AD_Column_ID="176" Column="IsDisplayed">true</Data>
@@ -2563,7 +2562,6 @@ If you leave the search key empty, the system automatically creates a numeric nu
         <Data AD_Column_ID="184" Column="IsHeading">false</Data>
         <Data AD_Column_ID="182" Column="SortNo">0</Data>
         <Data AD_Column_ID="2745" Column="IsCentrallyMaintained">true</Data>
-        <Data AD_Column_ID="168" Column="Name">Commission Type</Data>
         <Data AD_Column_ID="2007" Column="IsReadOnly">false</Data>
         <Data AD_Column_ID="170" Column="Help" isNewNull="true"/>
         <Data AD_Column_ID="9969" Column="ObscureType" isNewNull="true"/>
@@ -2592,12 +2590,13 @@ If you leave the search key empty, the system automatically creates a numeric nu
         <Data AD_Column_ID="84320" Column="UUID" isNewNull="true"/>
         <Data AD_Column_ID="90940" Column="AD_Image_ID" isNewNull="true"/>
         <Data AD_Column_ID="88877" Column="AD_FieldDefinition_ID" isNewNull="true"/>
+        <Data AD_Column_ID="581" Column="Updated">2018-12-07 19:34:39.803</Data>
+        <Data AD_Column_ID="168" Column="Name">Commission Type</Data>
       </PO>
     </Step>
     <Step SeqNo="1140" StepType="AD">
       <PO AD_Table_ID="127" Action="I" Record_ID="92890" Table="AD_Field_Trl">
         <Data AD_Column_ID="288" Column="Help" isNewNull="true"/>
-        <Data AD_Column_ID="674" Column="Updated">2018-12-07 19:34:40.803</Data>
         <Data AD_Column_ID="671" Column="IsActive">true</Data>
         <Data AD_Column_ID="672" Column="Created">2018-12-07 19:34:40.803</Data>
         <Data AD_Column_ID="289" Column="IsTranslated">false</Data>
@@ -2610,6 +2609,7 @@ If you leave the search key empty, the system automatically creates a numeric nu
         <Data AD_Column_ID="284" Column="AD_Field_ID">92890</Data>
         <Data AD_Column_ID="285" Column="AD_Language">es_MX</Data>
         <Data AD_Column_ID="84323" Column="UUID" isNewNull="true"/>
+        <Data AD_Column_ID="674" Column="Updated">2018-12-07 19:34:40.803</Data>
       </PO>
     </Step>
     <Step SeqNo="1150" StepType="AD">
@@ -2676,19 +2676,19 @@ If you leave the search key empty, the system automatically creates a numeric nu
     </Step>
     <Step SeqNo="1270" StepType="AD">
       <PO AD_Table_ID="132" Action="U" Record_ID="53656" Table="AD_Window_Trl">
-        <Data AD_Column_ID="309" Column="Help" oldValue="Use it for define a custom commission calculation or search">Use esta ventana para definir una comisión o búsqueda personalizada</Data>
         <Data AD_Column_ID="310" Column="Name" oldValue="Commission Type">Tipo de Comisión</Data>
         <Data AD_Column_ID="308" Column="Description" oldValue="Commission Type is used for define a custom commission">Tipo de Comisión es utilizada para definir comisiones personalizadas</Data>
         <Data AD_Column_ID="306" Column="AD_Window_ID" oldValue="53656">53656</Data>
         <Data AD_Column_ID="307" Column="AD_Language" oldValue="es_MX">es_MX</Data>
+        <Data AD_Column_ID="309" Column="Help" oldValue="Use it for define a custom commission calculation or search">Use esta ventana para definir una comisión o búsqueda personalizada</Data>
       </PO>
     </Step>
     <Step SeqNo="1280" StepType="AD">
       <PO AD_Table_ID="123" Action="U" Record_ID="0" Table="AD_Tab_Trl">
         <Data AD_Column_ID="266" Column="Name" oldValue="Commission Type">Tipo de Comisión</Data>
-        <Data AD_Column_ID="267" Column="Description" oldValue="Commission Type is used for define a custom commission">El Tipo de Comisión es usado para definir una comisión personalizada</Data>
         <Data AD_Column_ID="265" Column="AD_Language" oldValue="es_MX">es_MX</Data>
         <Data AD_Column_ID="264" Column="AD_Tab_ID" oldValue="54737">54737</Data>
+        <Data AD_Column_ID="267" Column="Description" oldValue="Commission Type is used for define a custom commission">El Tipo de Comisión es usado para definir una comisión personalizada</Data>
       </PO>
     </Step>
     <Step SeqNo="1290" StepType="AD">
@@ -2742,11 +2742,11 @@ If you leave the search key empty, the system automatically creates a numeric nu
     </Step>
     <Step SeqNo="1310" StepType="AD">
       <PO AD_Table_ID="277" Action="U" Record_ID="0" Table="AD_Element_Trl">
-        <Data AD_Column_ID="2646" Column="Name" oldValue="Currency Column">Columna para Moneda</Data>
-        <Data AD_Column_ID="2647" Column="Description" oldValue="Currency Column for get from View">Columna para Moneda desde la Vista</Data>
         <Data AD_Column_ID="4300" Column="PrintName" oldValue="Currency Column">Columna para Moneda</Data>
         <Data AD_Column_ID="2638" Column="AD_Language" oldValue="es_MX">es_MX</Data>
         <Data AD_Column_ID="2637" Column="AD_Element_ID" oldValue="60907">60907</Data>
+        <Data AD_Column_ID="2646" Column="Name" oldValue="Currency Column">Columna para Moneda</Data>
+        <Data AD_Column_ID="2647" Column="Description" oldValue="Currency Column for get from View">Columna para Moneda desde la Vista</Data>
       </PO>
     </Step>
     <Step SeqNo="1320" StepType="AD">
@@ -2800,11 +2800,11 @@ If you leave the search key empty, the system automatically creates a numeric nu
     </Step>
     <Step SeqNo="1340" StepType="AD">
       <PO AD_Table_ID="277" Action="U" Record_ID="0" Table="AD_Element_Trl">
-        <Data AD_Column_ID="2646" Column="Name" oldValue="Quantity Column">Columna para Cantidad</Data>
         <Data AD_Column_ID="2647" Column="Description" oldValue="Quantity Column for get from View">Columna para Cantidad desde la Vista</Data>
         <Data AD_Column_ID="4300" Column="PrintName" oldValue="Quantity Column">Columna para Cantidad</Data>
         <Data AD_Column_ID="2638" Column="AD_Language" oldValue="es_MX">es_MX</Data>
         <Data AD_Column_ID="2637" Column="AD_Element_ID" oldValue="60908">60908</Data>
+        <Data AD_Column_ID="2646" Column="Name" oldValue="Quantity Column">Columna para Cantidad</Data>
       </PO>
     </Step>
     <Step SeqNo="1350" StepType="AD">
@@ -2864,10 +2864,10 @@ If you leave the search key empty, the system automatically creates a numeric nu
     <Step SeqNo="1380" StepType="AD">
       <PO AD_Table_ID="277" Action="U" Record_ID="0" Table="AD_Element_Trl">
         <Data AD_Column_ID="2646" Column="Name" oldValue="Amount Column">Columna para Monto</Data>
-        <Data AD_Column_ID="2647" Column="Description" oldValue="Amount Column for get from View">Columna para Monto desde la Vista</Data>
         <Data AD_Column_ID="4300" Column="PrintName" oldValue="Amount Column">Columna para Monto</Data>
         <Data AD_Column_ID="2638" Column="AD_Language" oldValue="es_MX">es_MX</Data>
         <Data AD_Column_ID="2637" Column="AD_Element_ID" oldValue="60909">60909</Data>
+        <Data AD_Column_ID="2647" Column="Description" oldValue="Amount Column for get from View">Columna para Monto desde la Vista</Data>
       </PO>
     </Step>
     <Step SeqNo="1390" StepType="AD">
@@ -2921,11 +2921,11 @@ If you leave the search key empty, the system automatically creates a numeric nu
     </Step>
     <Step SeqNo="1410" StepType="AD">
       <PO AD_Table_ID="277" Action="U" Record_ID="0" Table="AD_Element_Trl">
-        <Data AD_Column_ID="2646" Column="Name" oldValue="Date Doc Column">Columna para Fecha</Data>
-        <Data AD_Column_ID="2647" Column="Description" oldValue="Date Doc Column for get from View">Columna para Fecha desde la Vista</Data>
         <Data AD_Column_ID="4300" Column="PrintName" oldValue="Date Doc Column">Columna para Fecha</Data>
         <Data AD_Column_ID="2638" Column="AD_Language" oldValue="es_MX">es_MX</Data>
         <Data AD_Column_ID="2637" Column="AD_Element_ID" oldValue="60910">60910</Data>
+        <Data AD_Column_ID="2646" Column="Name" oldValue="Date Doc Column">Columna para Fecha</Data>
+        <Data AD_Column_ID="2647" Column="Description" oldValue="Date Doc Column for get from View">Columna para Fecha desde la Vista</Data>
       </PO>
     </Step>
     <Step SeqNo="1420" StepType="AD">
@@ -2972,7 +2972,7 @@ If you leave the search key empty, the system automatically creates a numeric nu
         <Data AD_Column_ID="360" Column="AD_Org_ID">0</Data>
         <Data AD_Column_ID="359" Column="AD_Client_ID">0</Data>
         <Data AD_Column_ID="227" Column="AD_Reference_Value_ID">53437</Data>
-        <Data AD_Column_ID="114" Column="AD_Table_ID">1000000</Data>
+        <Data AD_Column_ID="114" Column="AD_Table_ID">54584</Data>
         <Data AD_Column_ID="115" Column="AD_Val_Rule_ID" isNewNull="true"/>
         <Data AD_Column_ID="118" Column="FieldLength">10</Data>
         <Data AD_Column_ID="3369" Column="AD_Process_ID" isNewNull="true"/>
@@ -3041,7 +3041,7 @@ If you leave the search key empty, the system automatically creates a numeric nu
         <Data AD_Column_ID="360" Column="AD_Org_ID">0</Data>
         <Data AD_Column_ID="359" Column="AD_Client_ID">0</Data>
         <Data AD_Column_ID="227" Column="AD_Reference_Value_ID">53437</Data>
-        <Data AD_Column_ID="114" Column="AD_Table_ID">1000000</Data>
+        <Data AD_Column_ID="114" Column="AD_Table_ID">54584</Data>
         <Data AD_Column_ID="115" Column="AD_Val_Rule_ID" isNewNull="true"/>
         <Data AD_Column_ID="118" Column="FieldLength">10</Data>
         <Data AD_Column_ID="3369" Column="AD_Process_ID" isNewNull="true"/>
@@ -3110,7 +3110,7 @@ If you leave the search key empty, the system automatically creates a numeric nu
         <Data AD_Column_ID="360" Column="AD_Org_ID">0</Data>
         <Data AD_Column_ID="359" Column="AD_Client_ID">0</Data>
         <Data AD_Column_ID="227" Column="AD_Reference_Value_ID">53437</Data>
-        <Data AD_Column_ID="114" Column="AD_Table_ID">1000000</Data>
+        <Data AD_Column_ID="114" Column="AD_Table_ID">54584</Data>
         <Data AD_Column_ID="115" Column="AD_Val_Rule_ID" isNewNull="true"/>
         <Data AD_Column_ID="118" Column="FieldLength">10</Data>
         <Data AD_Column_ID="3369" Column="AD_Process_ID" isNewNull="true"/>
@@ -3179,7 +3179,7 @@ If you leave the search key empty, the system automatically creates a numeric nu
         <Data AD_Column_ID="360" Column="AD_Org_ID">0</Data>
         <Data AD_Column_ID="359" Column="AD_Client_ID">0</Data>
         <Data AD_Column_ID="227" Column="AD_Reference_Value_ID">53437</Data>
-        <Data AD_Column_ID="114" Column="AD_Table_ID">1000000</Data>
+        <Data AD_Column_ID="114" Column="AD_Table_ID">54584</Data>
         <Data AD_Column_ID="115" Column="AD_Val_Rule_ID" isNewNull="true"/>
         <Data AD_Column_ID="118" Column="FieldLength">10</Data>
         <Data AD_Column_ID="3369" Column="AD_Process_ID" isNewNull="true"/>
@@ -3252,7 +3252,7 @@ If you leave the search key empty, the system automatically creates a numeric nu
         <Data AD_Column_ID="383" Column="AD_Client_ID">0</Data>
         <Data AD_Column_ID="62479" Column="SeqNoGrid">0</Data>
         <Data AD_Column_ID="180" Column="DisplayLength">10</Data>
-        <Data AD_Column_ID="172" Column="AD_Tab_ID">1000000</Data>
+        <Data AD_Column_ID="172" Column="AD_Tab_ID">54737</Data>
         <Data AD_Column_ID="181" Column="SeqNo">0</Data>
         <Data AD_Column_ID="5375" Column="AD_FieldGroup_ID" isNewNull="true"/>
         <Data AD_Column_ID="54357" Column="AD_Val_Rule_ID" isNewNull="true"/>
@@ -3318,7 +3318,7 @@ If you leave the search key empty, the system automatically creates a numeric nu
         <Data AD_Column_ID="383" Column="AD_Client_ID">0</Data>
         <Data AD_Column_ID="62479" Column="SeqNoGrid">0</Data>
         <Data AD_Column_ID="180" Column="DisplayLength">10</Data>
-        <Data AD_Column_ID="172" Column="AD_Tab_ID">1000000</Data>
+        <Data AD_Column_ID="172" Column="AD_Tab_ID">54737</Data>
         <Data AD_Column_ID="181" Column="SeqNo">0</Data>
         <Data AD_Column_ID="5375" Column="AD_FieldGroup_ID" isNewNull="true"/>
         <Data AD_Column_ID="54357" Column="AD_Val_Rule_ID" isNewNull="true"/>
@@ -3384,7 +3384,7 @@ If you leave the search key empty, the system automatically creates a numeric nu
         <Data AD_Column_ID="383" Column="AD_Client_ID">0</Data>
         <Data AD_Column_ID="62479" Column="SeqNoGrid">0</Data>
         <Data AD_Column_ID="180" Column="DisplayLength">10</Data>
-        <Data AD_Column_ID="172" Column="AD_Tab_ID">1000000</Data>
+        <Data AD_Column_ID="172" Column="AD_Tab_ID">54737</Data>
         <Data AD_Column_ID="181" Column="SeqNo">0</Data>
         <Data AD_Column_ID="5375" Column="AD_FieldGroup_ID" isNewNull="true"/>
         <Data AD_Column_ID="54357" Column="AD_Val_Rule_ID" isNewNull="true"/>
@@ -3450,7 +3450,7 @@ If you leave the search key empty, the system automatically creates a numeric nu
         <Data AD_Column_ID="383" Column="AD_Client_ID">0</Data>
         <Data AD_Column_ID="62479" Column="SeqNoGrid">0</Data>
         <Data AD_Column_ID="180" Column="DisplayLength">10</Data>
-        <Data AD_Column_ID="172" Column="AD_Tab_ID">1000000</Data>
+        <Data AD_Column_ID="172" Column="AD_Tab_ID">54737</Data>
         <Data AD_Column_ID="181" Column="SeqNo">0</Data>
         <Data AD_Column_ID="5375" Column="AD_FieldGroup_ID" isNewNull="true"/>
         <Data AD_Column_ID="54357" Column="AD_Val_Rule_ID" isNewNull="true"/>
