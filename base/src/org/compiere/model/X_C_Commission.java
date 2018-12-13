@@ -31,7 +31,7 @@ public class X_C_Commission extends PO implements I_C_Commission, I_Persistent
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20181207L;
+	private static final long serialVersionUID = 20181213L;
 
     /** Standard Constructor */
     public X_C_Commission (Properties ctx, int C_Commission_ID, String trxName)
@@ -190,10 +190,8 @@ public class X_C_Commission extends PO implements I_C_Commission, I_Persistent
 		return (org.compiere.model.I_C_CommissionType)MTable.get(getCtx(), org.compiere.model.I_C_CommissionType.Table_Name)
 			.getPO(getC_CommissionType_ID(), get_TrxName());	}
 
-	/** Set Commission Type.
-		@param C_CommissionType_ID 
-		Defined for custom query on commission
-	  */
+	/** Set Commission Type ID.
+		@param C_CommissionType_ID Commission Type ID	  */
 	public void setC_CommissionType_ID (int C_CommissionType_ID)
 	{
 		if (C_CommissionType_ID < 1) 
@@ -202,9 +200,8 @@ public class X_C_Commission extends PO implements I_C_Commission, I_Persistent
 			set_Value (COLUMNNAME_C_CommissionType_ID, Integer.valueOf(C_CommissionType_ID));
 	}
 
-	/** Get Commission Type.
-		@return Defined for custom query on commission
-	  */
+	/** Get Commission Type ID.
+		@return Commission Type ID	  */
 	public int getC_CommissionType_ID () 
 	{
 		Integer ii = (Integer)get_Value(COLUMNNAME_C_CommissionType_ID);
