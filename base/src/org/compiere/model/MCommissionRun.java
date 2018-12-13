@@ -1830,4 +1830,17 @@ public class MCommissionRun extends X_C_CommissionRun implements DocAction, DocO
         .append(getSummary()).append("]");
       return sb.toString();
     }
+    
+    /**
+     * Get commission amount
+     * @return
+     */
+    public List<MCommissionAmt> getCommissionAmtList() {
+    	return new Query(getCtx(), I_C_CommissionAmt.Table_Name, 
+    			I_C_CommissionAmt.COLUMNNAME_C_CommissionRun_ID + " = ?", 
+    			get_TrxName())
+    			.setParameters(getC_CommissionRun_ID())
+    			.setOrderBy(I_C_CommissionAmt.COLUMNNAME_C_BPartner_ID)
+    			.list();
+    }
 }

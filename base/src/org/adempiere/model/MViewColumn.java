@@ -192,7 +192,6 @@ public class MViewColumn extends X_AD_View_Column {
 			return viewColumn;
 
 		viewColumn = new Query(ctx , Table_Name , COLUMNNAME_AD_View_Column_ID + "=?" , trxName)
-				.setClient_ID()
 				.setParameters(viewColumnId)
 				.first();
 		if (viewColumn != null && viewColumn.get_ID() > 0) {
