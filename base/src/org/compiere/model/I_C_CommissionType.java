@@ -22,7 +22,7 @@ import org.compiere.util.KeyNamePair;
 
 /** Generated Interface for C_CommissionType
  *  @author Adempiere (generated) 
- *  @version Release 3.9.1
+ *  @version Release 3.9.0
  */
 public interface I_C_CommissionType 
 {
@@ -30,7 +30,7 @@ public interface I_C_CommissionType
     /** TableName=C_CommissionType */
     public static final String Table_Name = "C_CommissionType";
 
-    /** AD_Table_ID=54584 */
+    /** AD_Table_ID=1000000 */
     public static final int Table_ID = MTable.getTable_ID(Table_Name);
 
     KeyNamePair Model = new KeyNamePair(Table_ID, Table_Name);
@@ -88,17 +88,28 @@ public interface I_C_CommissionType
 
 	public org.adempiere.model.I_AD_View getAD_View() throws RuntimeException;
 
+    /** Column name AmountColumn_ID */
+    public static final String COLUMNNAME_AmountColumn_ID = "AmountColumn_ID";
+
+	/** Set Amount Column.
+	  * Amount Column for get from View
+	  */
+	public void setAmountColumn_ID (int AmountColumn_ID);
+
+	/** Get Amount Column.
+	  * Amount Column for get from View
+	  */
+	public int getAmountColumn_ID();
+
+	public org.adempiere.model.I_AD_View_Column getAmountColumn() throws RuntimeException;
+
     /** Column name C_CommissionType_ID */
     public static final String COLUMNNAME_C_CommissionType_ID = "C_CommissionType_ID";
 
-	/** Set Commission Type.
-	  * Defined for custom query on commission
-	  */
+	/** Set Commission Type ID	  */
 	public void setC_CommissionType_ID (int C_CommissionType_ID);
 
-	/** Get Commission Type.
-	  * Defined for custom query on commission
-	  */
+	/** Get Commission Type ID	  */
 	public int getC_CommissionType_ID();
 
     /** Column name Created */
@@ -116,6 +127,36 @@ public interface I_C_CommissionType
 	  * User who created this records
 	  */
 	public int getCreatedBy();
+
+    /** Column name CurrencyColumn_ID */
+    public static final String COLUMNNAME_CurrencyColumn_ID = "CurrencyColumn_ID";
+
+	/** Set Currency Column.
+	  * Currency Column for get from View
+	  */
+	public void setCurrencyColumn_ID (int CurrencyColumn_ID);
+
+	/** Get Currency Column.
+	  * Currency Column for get from View
+	  */
+	public int getCurrencyColumn_ID();
+
+	public org.adempiere.model.I_AD_View_Column getCurrencyColumn() throws RuntimeException;
+
+    /** Column name DateDocColumn_ID */
+    public static final String COLUMNNAME_DateDocColumn_ID = "DateDocColumn_ID";
+
+	/** Set Date Doc Column.
+	  * Date Doc Column for get from View
+	  */
+	public void setDateDocColumn_ID (int DateDocColumn_ID);
+
+	/** Get Date Doc Column.
+	  * Date Doc Column for get from View
+	  */
+	public int getDateDocColumn_ID();
+
+	public org.adempiere.model.I_AD_View_Column getDateDocColumn() throws RuntimeException;
 
     /** Column name Description */
     public static final String COLUMNNAME_Description = "Description";
@@ -155,6 +196,21 @@ public interface I_C_CommissionType
 	  * Alphanumeric identifier of the entity
 	  */
 	public String getName();
+
+    /** Column name QuantityColumn_ID */
+    public static final String COLUMNNAME_QuantityColumn_ID = "QuantityColumn_ID";
+
+	/** Set Quantity Column.
+	  * Quantity Column for get from View
+	  */
+	public void setQuantityColumn_ID (int QuantityColumn_ID);
+
+	/** Get Quantity Column.
+	  * Quantity Column for get from View
+	  */
+	public int getQuantityColumn_ID();
+
+	public org.adempiere.model.I_AD_View_Column getQuantityColumn() throws RuntimeException;
 
     /** Column name Updated */
     public static final String COLUMNNAME_Updated = "Updated";
