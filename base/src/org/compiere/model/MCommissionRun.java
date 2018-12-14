@@ -1131,6 +1131,16 @@ public class MCommissionRun extends X_C_CommissionRun implements DocAction, DocO
 					sqlWhere.append(" AND ").append(columnName).append("=").append(commissionLine.get_ValueAsInt("S_Contract_ID"));
 				}
 			}
+			//	for current document
+			if(!Util.isEmpty(currentColumnName)
+					&& currentDocumentId > 0
+					&& commission.getDocBasisType().equals(MCommission.DOCBASISTYPE_Custom)) {
+				String columnName = getSQLColumnName(currentColumnName, commissionType);
+				if(!Util.isEmpty(columnName)) {
+					sqlWhere.append(" AND ").append(columnName).append("=").append(currentDocumentId);
+				}
+			}
+			//		
 			sqlWhere.append(getExclusionWhere(commission.getDocBasisType(), commissionLine, commissionLines, commissionType));
 			if(commission.getDocBasisType().equals(MCommission.DOCBASISTYPE_Custom)) {
 				if (!commission.isListDetails()) {
@@ -1843,4 +1853,17 @@ public class MCommissionRun extends X_C_CommissionRun implements DocAction, DocO
     			.setOrderBy(I_C_CommissionAmt.COLUMNNAME_C_BPartner_ID)
     			.list();
     }
+    
+    /**
+     * Set current id for run commission based on current document
+     * @param columnName
+     * @param recordId
+     */
+    public void setCurrentDocumentId(String columnName, int recordId) {
+    	currentColumnName = columnName;
+    	currentDocumentId = recordId;
+    }
+    
+    private String currentColumnName;
+    private int currentDocumentId;
 }
