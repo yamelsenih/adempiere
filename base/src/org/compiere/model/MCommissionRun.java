@@ -23,7 +23,9 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+import java.util.Hashtable;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.logging.Level;
 
@@ -1132,12 +1134,13 @@ public class MCommissionRun extends X_C_CommissionRun implements DocAction, DocO
 				}
 			}
 			//	for current document
-			if(!Util.isEmpty(currentColumnName)
-					&& currentDocumentId > 0
-					&& commission.getDocBasisType().equals(MCommission.DOCBASISTYPE_Custom)) {
-				String columnName = getSQLColumnName(currentColumnName, commissionType);
-				if(!Util.isEmpty(columnName)) {
-					sqlWhere.append(" AND ").append(columnName).append("=").append(currentDocumentId);
+			if(additionalValues != null
+				&& commission.getDocBasisType().equals(MCommission.DOCBASISTYPE_Custom)) {
+				for(Entry<String, Integer> value : additionalValues.entrySet()) {
+					String columnName = getSQLColumnName(value.getKey(), commissionType);
+					if(!Util.isEmpty(columnName)) {
+						sqlWhere.append(" AND ").append(columnName).append("=").append(value.getValue());
+					}
 				}
 			}
 			//		
@@ -1859,11 +1862,12 @@ public class MCommissionRun extends X_C_CommissionRun implements DocAction, DocO
      * @param columnName
      * @param recordId
      */
-    public void setCurrentDocumentId(String columnName, int recordId) {
-    	currentColumnName = columnName;
-    	currentDocumentId = recordId;
+    public void addFilterValues(String columnName, int recordId) {
+    	if(additionalValues == null) {
+    		additionalValues = new Hashtable<>();
+    	}
+    	additionalValues.put(columnName, recordId);
     }
-    
-    private String currentColumnName;
-    private int currentDocumentId;
+    /**	Invoices	*/
+	private Hashtable<String, Integer> additionalValues;
 }

@@ -152,7 +152,7 @@ public class AgencyValidator implements ModelValidator
 				commissionRun.setDescription(Msg.parseTranslation(order.getCtx(), "@Generate@: @C_Order_ID@ - " + order.getDocumentNo()));
 				commissionRun.saveEx();
 				//	Process commission
-				commissionRun.setCurrentDocumentId("C_Order_ID", order.getC_Order_ID());
+				commissionRun.addFilterValues("C_Order_ID", order.getC_Order_ID());
 				commissionRun.setDocStatus(MCommissionRun.DOCSTATUS_Drafted);
 				//	Complete
 				if(commissionRun.processIt(MCommissionRun.DOCACTION_Complete)) {
