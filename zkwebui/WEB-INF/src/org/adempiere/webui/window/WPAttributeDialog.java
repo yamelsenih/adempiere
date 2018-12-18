@@ -25,6 +25,7 @@ import java.util.Date;
 import java.util.logging.Level;
 
 import org.adempiere.webui.apps.AEnv;
+import org.adempiere.webui.component.Borderlayout;
 import org.adempiere.webui.component.Button;
 import org.adempiere.webui.component.Checkbox;
 import org.adempiere.webui.component.ConfirmPanel;
@@ -66,11 +67,10 @@ import org.zkoss.zk.ui.HtmlBasedComponent;
 import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.event.EventListener;
 import org.zkoss.zk.ui.event.Events;
-import org.zkoss.zkex.zul.Borderlayout;
-import org.zkoss.zkex.zul.Center;
-import org.zkoss.zkex.zul.South;
+import org.zkoss.zul.Center;
 import org.zkoss.zul.Menuitem;
 import org.zkoss.zul.Menupopup;
+import org.zkoss.zul.South;
 import org.zkoss.zul.impl.InputElement;
 
 /**

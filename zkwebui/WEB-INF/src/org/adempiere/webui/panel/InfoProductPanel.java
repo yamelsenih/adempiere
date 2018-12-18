@@ -43,6 +43,7 @@ import java.util.Vector;
 import java.util.logging.Level;
 
 import org.adempiere.webui.apps.AEnv;
+import org.adempiere.webui.component.Borderlayout;
 import org.adempiere.webui.component.Button;
 import org.adempiere.webui.component.Checkbox;
 import org.adempiere.webui.component.Combobox;
@@ -62,6 +63,7 @@ import org.adempiere.webui.component.WListbox;
 import org.adempiere.webui.editor.WPAttributeEditor;
 import org.adempiere.webui.editor.WSearchEditor;
 import org.adempiere.webui.editor.WTableDirEditor;
+import org.adempiere.exceptions.ValueChangeEvent;
 import org.adempiere.exceptions.ValueChangeListener;
 import org.compiere.apps.search.Info_Column;
 import org.compiere.minigrid.ColumnInfo;
@@ -81,14 +83,15 @@ import org.compiere.util.Env;
 import org.compiere.util.Msg;
 import org.compiere.util.Util;
 import org.zkoss.web.fn.ServletFns;
+import org.compiere.util.Util;
 import org.zkoss.zk.ui.Component;
 import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.event.EventListener;
 import org.zkoss.zk.ui.event.Events;
-import org.zkoss.zul.Borderlayout;
 import org.zkoss.zul.Center;
-import org.zkoss.zul.Frozen;
+import org.zkoss.zul.Listitem;
 import org.zkoss.zul.North;
+
 
 /**
  * Search Product and return selection
@@ -102,11 +105,8 @@ import org.zkoss.zul.North;
  * @author Michael McKay, ADEMPIERE-72 VLookup and Info Window improvements
  * 	<li>https://adempiere.atlassian.net/browse/ADEMPIERE-72
  */
-public class InfoProductPanel extends InfoPanel implements EventListener<Event>, ValueChangeListener
-{
-	/**
-	 * 
-	 */
+public class InfoProductPanel extends InfoPanel implements ValueChangeListener
+{	
 	private static final long serialVersionUID = 6804975825156657866L;
 	private int fieldID = 0;
 	private Label lblBlank = new Label();
@@ -174,7 +174,7 @@ public class InfoProductPanel extends InfoPanel implements EventListener<Event>,
 	private int			m_M_Locator_ID = 0;
 
 	protected int m_ATP_M_Warehouse_ID;
-	private Frozen m_frozen;
+	
 
 	/**
 	 *	Standard Constructor
@@ -460,8 +460,7 @@ public class InfoProductPanel extends InfoPanel implements EventListener<Event>,
 		m_sqlWarehouse += " Group By M_Warehouse_ID, WarehouseName ";
 		m_sqlWarehouse += " Order By sum(QtyOnHand) DESC, WarehouseName ";
 		warehouseTbl.setMultiSelection(false);
-		warehouseTbl.setSizedByContent(false);
-        //warehouseTbl.autoSize();
+		  warehouseTbl.autoSize(); //warehouseTbl.autoSize();
         warehouseTbl.setShowTotals(true);
         //warehouseTbl.getModel().addTableModelListener(this);
         warehouseTbl.setAttribute("zk_component_ID", "Lookup_Data_Warehouse");
@@ -613,7 +612,7 @@ public class InfoProductPanel extends InfoPanel implements EventListener<Event>,
 		p_centerSouth.setTooltiptext(Msg.translate(Env.getCtx(), "WarehouseStock"));
 		super.setSizes();
 
-		warehouseTbl.addActionListener(new EventListener<Event>() {
+		warehouseTbl.addActionListener(new EventListener() {
 			public void onEvent(Event event) throws Exception {
 				if (warehouseTbl.getRowCount() > 0)
 				{
@@ -1564,7 +1563,7 @@ public class InfoProductPanel extends InfoPanel implements EventListener<Event>,
 	}	//	isUnconfirmed
 
 	
-    public void onEvent(Event e)
+    public void onEvent(Event e) throws Exception
     {
     	// Handle specific actions if possible or pass the event to the parent class
 
@@ -2089,6 +2088,10 @@ public class InfoProductPanel extends InfoPanel implements EventListener<Event>,
 		m_M_Product_ID = 0;
 		p_centerLayout.getSouth().setOpen(false);
 		return;
+	}
+	public void render(Listitem item, Object data) throws Exception {
+		// TODO Auto-generated method stub
+		
 	}
 
 }	//	InfoProduct

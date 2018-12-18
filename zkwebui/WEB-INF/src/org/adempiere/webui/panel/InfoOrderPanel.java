@@ -50,6 +50,7 @@ import org.zkoss.zk.ui.Component;
 import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.event.Events;
 import org.zkoss.zul.Hbox;
+import org.zkoss.zul.Listitem;
 
 /**
  * Search Order info and return selection
@@ -471,7 +472,7 @@ public class InfoOrderPanel extends InfoPanel implements ValueChangeListener
 		pstmt.setString(index++, fIsDelivered.isSelected() ? "Y" : "N");
     }
 
-    public void onEvent(Event e)
+    public void onEvent(Event e) throws Exception
     {
     	// Handle specific actions if possible or pass the event to the parent class
 
@@ -500,6 +501,7 @@ public class InfoOrderPanel extends InfoPanel implements ValueChangeListener
 			}
 		} 
 		//
+		
 		super.onEvent(e);
     }
 
@@ -568,6 +570,12 @@ public class InfoOrderPanel extends InfoPanel implements ValueChangeListener
 		fIsSOTrx.set_oldValue() ;
 		fPOReference.set_oldValue();
 		return;
+	}
+
+	@Override
+	public void render(Listitem item, Object data) throws Exception {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

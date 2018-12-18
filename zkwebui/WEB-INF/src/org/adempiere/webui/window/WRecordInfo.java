@@ -20,6 +20,7 @@ import java.util.logging.Level;
 
 import org.adempiere.controller.RecordInfoController;
 import org.adempiere.webui.apps.AEnv;
+import org.adempiere.webui.component.Borderlayout;
 import org.adempiere.webui.component.ConfirmPanel;
 import org.adempiere.webui.component.Listbox;
 import org.adempiere.webui.component.SimpleListModel;
@@ -35,14 +36,13 @@ import org.zkoss.zhtml.Text;
 import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.event.EventListener;
 import org.zkoss.zk.ui.event.Events;
-import org.zkoss.zkex.zul.Borderlayout;
-import org.zkoss.zkex.zul.Center;
-import org.zkoss.zkex.zul.North;
-import org.zkoss.zkex.zul.South;
+import org.zkoss.zul.Center;
 import org.zkoss.zul.Div;
 import org.zkoss.zul.Listhead;
 import org.zkoss.zul.Listheader;
 import org.zkoss.zul.Menuitem;
+import org.zkoss.zul.North;
+import org.zkoss.zul.South;
 
 /**
  * Record Info (Who) With Change History
@@ -181,7 +181,8 @@ public class WRecordInfo extends RecordInfoController implements EventListener
 		}
 		//	Instance Table
 		table.appendChild(listhead);
-		SimpleListModel model = new SimpleListModel(getData());
+		// getData()
+		SimpleListModel model = new SimpleListModel();
 		table.setItemRenderer(model);
 		table.setModel(model);
 	}	//	dynInit

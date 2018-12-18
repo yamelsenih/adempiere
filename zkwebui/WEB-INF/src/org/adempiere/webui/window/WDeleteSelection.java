@@ -18,22 +18,24 @@ import java.util.Vector;
 
 import org.adempiere.controller.DeleteSelectionController;
 import org.adempiere.webui.apps.AEnv;
+import org.adempiere.webui.component.Borderlayout;
 import org.adempiere.webui.component.ConfirmPanel;
 import org.adempiere.webui.component.Listbox;
 import org.adempiere.webui.component.Window;
 import org.compiere.model.GridTab;
 import org.compiere.util.Env;
 import org.compiere.util.Msg;
+import org.zkoss.zhtml.Center;
 import org.zkoss.zhtml.Pre;
 import org.zkoss.zhtml.Text;
+import org.zkoss.zk.ui.Component;
 import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.event.EventListener;
 import org.zkoss.zk.ui.event.Events;
-import org.zkoss.zkex.zul.Borderlayout;
-import org.zkoss.zkex.zul.Center;
-import org.zkoss.zkex.zul.North;
-import org.zkoss.zkex.zul.South;
 import org.zkoss.zul.Div;
+import org.zkoss.zul.North;
+import org.zkoss.zul.South;
+
 
 
 /**
@@ -98,18 +100,17 @@ public class WDeleteSelection extends DeleteSelectionController implements Event
 		layout.setHeight("100%");
 		
 		North north = new North();
-		north.setParent(layout);
+		north.setParent((Component) layout);
 		north.appendChild(div);
 		
 		Center center = new Center();
-		center.setParent(layout);
-		center.setFlex(true);
+		center.setParent((Component) layout);
 		center.appendChild(listbox);
 		listbox.setWidth("100%");
 		listbox.setVflex(true);
 		//
 		South south = new South();
-		south.setParent(layout);
+		south.setParent((Component) layout);
 		south.appendChild(confirmPanel);
 		//	Add Listener
 		confirmPanel.addActionListener(Events.ON_CLICK, this);
@@ -127,7 +128,7 @@ public class WDeleteSelection extends DeleteSelectionController implements Event
 	}
 
 	@Override
-	public void onEvent(Event event) throws Exception {
+	public void onEvent1(Event event) throws Exception {
 		if(event.getTarget() == confirmPanel.getButton(ConfirmPanel.A_CANCEL)) {
 			container.detach();
 		} else if(event.getTarget() == confirmPanel.getOKButton()) {
@@ -135,5 +136,11 @@ public class WDeleteSelection extends DeleteSelectionController implements Event
 			setIsOkPressed(true);
 			container.detach();
 		}
+	}
+
+	@Override
+	public void onEvent(Event event) throws Exception {
+		// TODO Auto-generated method stub
+		
 	}
 }

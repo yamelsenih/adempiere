@@ -3,36 +3,39 @@ package org.adempiere.webui.dashboard;
 import java.util.ArrayList;
 
 import org.adempiere.exceptions.AdempiereException;
+import org.adempiere.webui.component.Button;
 import org.adempiere.webui.component.Checkbox;
+import org.adempiere.webui.component.Panel;
 import org.adempiere.webui.component.SimpleFavoriteTreeModel;
+import org.adempiere.webui.component.SimpleTreeModel;
+import org.adempiere.webui.component.Textbox;
+import org.adempiere.webui.component.ToolBar;
 import org.adempiere.webui.util.TreeItemAction;
 import org.adempiere.webui.util.TreeUtils;
 import org.adempiere.webui.window.FDialog;
 import org.compiere.model.MTreeFavorite;
 import org.compiere.model.MTreeFavoriteNode;
 import org.compiere.model.MTreeNode;
+import org.compiere.swing.CCheckBox;
 import org.compiere.util.Env;
 import org.compiere.util.Msg;
+import org.compiere.util.Trace;
+import org.zkoss.zk.ui.AbstractComponent;
 import org.zkoss.zk.ui.Component;
-import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.event.EventListener;
 import org.zkoss.zk.ui.event.Events;
-import org.zkoss.zul.Box;
-import org.zkoss.zul.Button;
-import org.zkoss.zul.Panel;
 import org.zkoss.zul.Panelchildren;
-import org.zkoss.zul.SimpleTreeNode;
-import org.zkoss.zul.Textbox;
-import org.zkoss.zul.Toolbar;
 import org.zkoss.zul.Tree;
 import org.zkoss.zul.Treeitem;
 import org.zkoss.zul.Vbox;
 
-public class DPUserFavorites extends DashboardPanel implements EventListener
+
+
+public class DPUserFavorites<Event> extends DashboardPanel implements EventListener
 {
 	private static final long		serialVersionUID	= 1L;
 	public static final String		FAVOURITE_DROPPABLE	= "favourite";
-	private Box						bxFav;
+	private Vbox						bxFav;
 	private Checkbox				chkExpand;
 	private Checkbox				addAsRoot;
 	private Textbox					textbox;
@@ -55,44 +58,44 @@ public class DPUserFavorites extends DashboardPanel implements EventListener
 		AD_Org_ID = Env.getAD_Org_ID(Env.getCtx());
 
 		Panel panel = new Panel();
-		this.appendChild(panel);
+		this.appendChild((org.zkoss.zk.ui.Component) panel);
 
 		Panelchildren favContent = new Panelchildren();
-		panel.appendChild(favContent);
+		((AbstractComponent) panel).appendChild(favContent);
 
-		favContent.appendChild(createFavouritesPanel());
+		favContent.appendChild((org.zkoss.zk.ui.Component) createFavouritesPanel());
 
-		Toolbar favToolbar = new Toolbar();
+		ToolBar favToolbar = new ToolBar();
 
 		chkExpand = new Checkbox();
 		chkExpand.setText(Msg.getMsg(Env.getCtx(), "ExpandTree"));
-		chkExpand.addEventListener(Events.ON_CHECK, this);
-		chkExpand.setStyle("margin-left:10px");
-		favToolbar.appendChild(chkExpand);
+		((AbstractComponent) chkExpand).addEventListener(Events.ON_CHECK, (org.zkoss.zk.ui.event.EventListener<? extends org.zkoss.zk.ui.event.Event>) this);
+		chkExpand.getAction();
+		favToolbar.appendChild((org.zkoss.zk.ui.Component) chkExpand);
 
 		addAsRoot = new Checkbox();
 		addAsRoot.setText(Msg.getMsg(Env.getCtx(), "add.as.root"));
-		addAsRoot.setStyle("margin-left:10px");
-		favToolbar.appendChild(addAsRoot);
+		addAsRoot.getAction();
+		favToolbar.appendChild((org.zkoss.zk.ui.Component) addAsRoot);
 
 		textbox = new Textbox();
 		textbox.setName("TreeNode");
 		textbox.setStyle("margin-left:10px");
-		textbox.addEventListener(Events.ON_OK, this);
+		textbox.addEventListener(Events.ON_OK, (org.zkoss.zk.ui.event.EventListener<? extends org.zkoss.zk.ui.event.Event>) this);
 		favToolbar.appendChild(textbox);
 
 		Button btn_add = new Button(Msg.getMsg(Env.getCtx(), "add.folder"));
-		btn_add.addEventListener(Events.ON_CLICK, this);
+		btn_add.addEventListener(Events.ON_CLICK, (org.zkoss.zk.ui.event.EventListener<? extends org.zkoss.zk.ui.event.Event>) this);
 		btn_add.setStyle("margin-left:10px");
 		favToolbar.appendChild(btn_add);
 
 		this.appendChild(favToolbar);
 
 		favContent.setDroppable(FAVOURITE_DROPPABLE);
-		favContent.addEventListener(Events.ON_DROP, this);
+		favContent.addEventListener(Events.ON_DROP, (org.zkoss.zk.ui.event.EventListener<? extends org.zkoss.zk.ui.event.Event>) this);
 	}
 
-	private Box createFavouritesPanel()
+	private Vbox createFavouritesPanel()
 	{
 		bxFav = new Vbox();
 		bxFav.setWidth("100%");
@@ -131,8 +134,9 @@ public class DPUserFavorites extends DashboardPanel implements EventListener
 
 	/**
 	 * Creating Tree structure
+	 * @param <SimpleTreeNode>
 	 */
-	public void initTree()
+	public <SimpleTreeNode> void initTree()
 	{
 		tModel = SimpleFavoriteTreeModel.initADTree(tree, m_AD_FavTree_ID, 0);
 
@@ -140,15 +144,21 @@ public class DPUserFavorites extends DashboardPanel implements EventListener
 		{
 			TreeUtils.traverse(tree.getTreechildren(), new TreeItemAction() {
 
-				public void run(Treeitem treeItem)
+				public void run1(Treeitem treeItem)
 				{
 					SimpleTreeNode simpleTreeNode = (SimpleTreeNode) treeItem.getValue();
-					MTreeNode mtn = (MTreeNode) simpleTreeNode.getData();
-					if (mtn.IsCollapsible())
-						treeItem.setOpen(false);
-					else
+//					MTreeNode mtn = (MTreeNode) ((TreeNode) simpleTreeNode).getData();
+//					if (mtn.IsCollapsible())
+//						treeItem.setOpen(false);
+//					else
 						treeItem.setOpen(true);
 				} // run
+
+				@Override
+				public void run(Treeitem treeItem) {
+					// TODO Auto-generated method stub
+					
+				}
 			});
 
 		}
@@ -162,7 +172,7 @@ public class DPUserFavorites extends DashboardPanel implements EventListener
 	{
 		tree.clear();
 		if (tree.getChildren().size() > 0)
-			tree.removeChild((Component) tree.getChildren().get(0));
+			tree.removeChild((org.zkoss.zk.ui.Component) tree.getChildren().get(0));
 		initTree();
 	}
 
@@ -170,25 +180,7 @@ public class DPUserFavorites extends DashboardPanel implements EventListener
 	 * Make any Event Like open Menu Window, On Checked Expand Node, Add Node
 	 * into Tree
 	 */
-	public void onEvent(Event event)
-	{
-		Component comp = event.getTarget();
-		String eventName = event.getName();
-
-		if (eventName.equals(Events.ON_CLICK))
-		{
-			if (comp instanceof Button)
-				addNodeBtnPressed();
-		}
-		else if (eventName.equals(Events.ON_OK))
-		{
-			addNodeBtnPressed();
-		}
-		else if (eventName.equals(Events.ON_CHECK) && event.getTarget() == chkExpand)
-		{
-			expandOnCheck();
-		}
-	}
+	
 
 	/**
 	 * When Button Or Enter Key Pressed Add Node Into Tree.
@@ -224,26 +216,27 @@ public class DPUserFavorites extends DashboardPanel implements EventListener
 			throw new AdempiereException(Msg.getMsg(Env.getCtx(), "could.not.create.node"));
 		else
 		{
-			MTreeNode mtnNew = new MTreeNode(mTreeFavoriteNode.getAD_Tree_Favorite_Node_ID(),
-					mTreeFavoriteNode.getSeqNo(), mTreeFavoriteNode.getNodeName(), "",
-					mTreeFavoriteNode.getParent_ID(), mTreeFavoriteNode.isSummary(), mTreeFavoriteNode.getAD_Menu_ID(),
-					null, false);
-			SimpleTreeNode newNode = new SimpleTreeNode(mtnNew, new ArrayList());
-			SimpleTreeNode parentNode = tModel.find(null, mtnNew.getParent_ID());
-
-			try
-			{
-				tModel.addNode(parentNode, newNode, 0);
-				int[] path = tModel.getPath(tModel.getRoot(), newNode);
-				Treeitem ti = tree.renderItemByPath(path);
-				tree.setSelectedItem(ti);
-				Events.sendEvent(tree, new Event(Events.ON_SELECT, tree));
-				textbox.setText("");
-			}
-			catch (Exception e)
-			{
-				FDialog.warn(0, Msg.getMsg(Env.getCtx(), "SelectMenuItem"));
-			}
+			// todo
+//			MTreeNode mtnNew = new MTreeNode(mTreeFavoriteNode.getAD_Tree_Favorite_Node_ID(),
+//					mTreeFavoriteNode.getSeqNo(), mTreeFavoriteNode.getNodeName(), "",
+//					mTreeFavoriteNode.getParent_ID(), mTreeFavoriteNode.isSummary(), mTreeFavoriteNode.getAD_Menu_ID(),
+//					null, false);
+//			SimpleTreeModel newNode = new SimpleTreeModel(mtnNew, new ArrayList());
+//			SimpleTreeNode parentNode = tModel.find(null, mtnNew.getParent_ID());
+//
+//			try
+//			{
+//				tModel.addNode(parentNode, newNode, 0);
+//				int[] path = tModel.getPath(tModel.getRoot());
+//				Treeitem ti = tree.renderItemByPath(path);
+//				tree.setSelectedItem(ti);
+//				Events.sendEvent(tree, (org.zkoss.zk.ui.event.Event) new Event(Events.ON_SELECT, tree));
+//				textbox.setText("");
+//			}
+//			catch (Exception e)
+//			{
+//				FDialog.warn(0, Msg.getMsg(Env.getCtx(), "SelectMenuItem"));
+//			}
 		}
 	}
 
@@ -278,5 +271,27 @@ public class DPUserFavorites extends DashboardPanel implements EventListener
 			expandAll();
 		else
 			collapseAll();
+	}
+
+	@Override
+	public void onEvent(org.zkoss.zk.ui.event.Event event) throws Exception {
+		// TODO Auto-generated method stub
+		Component comp = event.getTarget();
+		String eventName = event.getName();
+
+		if (eventName.equals(Events.ON_CLICK))
+		{
+			if (comp instanceof Button)
+				addNodeBtnPressed();
+		}
+		else if (eventName.equals(Events.ON_OK))
+		{
+			addNodeBtnPressed();
+		}
+		else if (eventName.equals(Events.ON_CHECK) && event.getTarget() == chkExpand)
+		{
+			expandOnCheck();
+		}
+		
 	}
 }

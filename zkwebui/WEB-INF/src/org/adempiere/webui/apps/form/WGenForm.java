@@ -380,7 +380,7 @@ public class WGenForm extends ADForm implements EventListener, WTableModelListen
 
 				Clients.clearBusy();
 				Window win = new SimplePDFViewer(getFormName(), new FileInputStream(outFile));
-				SessionManager.getAppDesktop().showWindow(win, "center");
+				SessionManager.getAppDesktop().showWindow(win);
 			} catch (Exception e) {
 				log.log(Level.SEVERE, e.getLocalizedMessage(), e);
 			}
@@ -388,7 +388,7 @@ public class WGenForm extends ADForm implements EventListener, WTableModelListen
 			Clients.clearBusy();
 			try {
 				Window win = new SimplePDFViewer(getFormName(), new FileInputStream(pdfList.get(0)));
-				SessionManager.getAppDesktop().showWindow(win, "center");
+				SessionManager.getAppDesktop().showWindow(win);
 			} catch (Exception e)
 			{
 				log.log(Level.SEVERE, e.getLocalizedMessage(), e);

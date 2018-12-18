@@ -86,7 +86,7 @@ public class WFileDirectoryEditor extends WEditor
 		getComponent().setEnabled(readWrite);
 	}
 
-	public void onEvent(Event event)
+	public void onEvent(Event event) throws Exception
 	{
 		if (Events.ON_CHANGE.equals(event.getName()) || Events.ON_OK.equals(event.getName()))
 		{

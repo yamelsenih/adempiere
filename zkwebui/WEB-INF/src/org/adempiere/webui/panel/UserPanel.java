@@ -118,7 +118,7 @@ public class UserPanel extends Vbox  implements EventListener<Event>
     	changeRole.setLabel(Msg.getMsg(Env.getCtx(),"changeRole"));
     	changeRole.addEventListener(Events.ON_CLICK, this);
     	changeRole.setStyle("text-align:right");
-//    	LayoutUtils.addSclass("desktop-header-font", changeRole);
+    	ThemeUtils.addSclass("link", changeRole);
     	changeRole.setParent(hbox);
     	
     	sep = new Separator("vertical");
@@ -128,7 +128,7 @@ public class UserPanel extends Vbox  implements EventListener<Event>
     	logout.setLabel(Msg.getMsg(Env.getCtx(),"Logout"));
     	logout.addEventListener(Events.ON_CLICK, this);
     	logout.setStyle("text-align:right");
-//    	LayoutUtils.addSclass("desktop-header-font", logout);
+    	ThemeUtils.addSclass("link", logout);
     	logout.setParent(hbox);
 
     	this.appendChild(hbox);

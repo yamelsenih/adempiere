@@ -39,6 +39,7 @@ import org.compiere.util.KeyNamePair;
 import org.compiere.util.Msg;
 import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.event.EventListener;
+import org.zkoss.zul.Listitem;
 import org.zkoss.zul.Space;
 
 /**
@@ -222,4 +223,5 @@ public class WInvoiceGen extends InvoiceGen implements IFormController, EventLis
 	{
 		return form;
 	}
+
 }

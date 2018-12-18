@@ -49,6 +49,7 @@ import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.event.EventListener;
 import org.zkoss.zul.Borderlayout;
 import org.zkoss.zul.Center;
+import org.zkoss.zul.Listitem;
 import org.zkoss.zul.North;
 import org.zkoss.zul.South;
 import org.zkoss.zul.Checkbox;
@@ -351,4 +352,5 @@ public class WDeleteEntity extends DeleteEntityControler
 	public void valueChange(ValueChangeEvent evt) {
 		//	
 	}
+
 } 	// WDelete

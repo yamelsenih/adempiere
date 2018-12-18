@@ -487,7 +487,7 @@ public class InfoBPartnerPanel extends InfoPanel implements WTableModelListener
 		return;
 	}
 
-    public void onEvent(Event e)
+    public void onEvent(Event e) throws Exception
     {
     	// Handle panel specific actions and pass the event to the parent class
 
@@ -504,6 +504,7 @@ public class InfoBPartnerPanel extends InfoPanel implements WTableModelListener
 				return;
 			}
 		} 
+		
 		
 		super.onEvent(e);
 

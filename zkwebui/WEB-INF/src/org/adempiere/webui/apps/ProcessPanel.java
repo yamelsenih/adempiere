@@ -45,6 +45,7 @@ import org.compiere.apps.ProcessCtl;
 import org.compiere.model.GridField;
 import org.compiere.model.Lookup;
 import org.compiere.model.MPInstance;
+import org.compiere.model.MQuery;
 import org.compiere.model.MRole;
 import org.compiere.model.MSysConfig;
 import org.compiere.print.MPrintFormat;
@@ -271,20 +272,24 @@ public class ProcessPanel extends ProcessController implements SmallViewEditable
 				if ("PDF".equals(typeSelection))
 					selectionIndex = 0;
 
-				if (m_isAllowXLSView) {
+				fReportType.appendItem("CSV", "C");
+				if ("CSV".equals(typeSelection))
+					selectionIndex = 1;
+	
+				    if (m_isAllowXLSView) {
 					fReportType.appendItem("Excel", "X");
 					if ("XLS".equals(typeSelection))
-						selectionIndex = 1;
+						selectionIndex = 2;
 					fReportType.appendItem("XLSX", "XX");
 					if ("XLSX".equals(typeSelection))
-						selectionIndex = 2;
+						selectionIndex = 3;
 
 				}
 				if (m_isAllowHTMLView)
 					fReportType.appendItem("HTML", "H");
 
 				if ("HTML".equals(typeSelection))
-					selectionIndex = 3;
+					selectionIndex = 4;
 
 				fReportType.setSelectedIndex(selectionIndex);
 
@@ -303,6 +308,7 @@ public class ProcessPanel extends ProcessController implements SmallViewEditable
 			south.appendChild(southRowPanel);
 			//	Add to Main panel
 			mainLayout.appendChild(south);
+			southRowPanel.setStyle("bottom:0px");
 		}
 		//	Set Text
 		if(isShowDescription()) {
@@ -320,6 +326,9 @@ public class ProcessPanel extends ProcessController implements SmallViewEditable
 		//
 		loadQuerySaved();
 		fSavedName.addEventListener(Events.ON_CHANGE, this);
+		
+		mainPanel.addEventListener(Events.ON_CANCEL, this);
+		
 	}
 	
 	/**
@@ -522,6 +531,8 @@ public class ProcessPanel extends ProcessController implements SmallViewEditable
 		}
 		//	
 		hideBusyDialog();
+		//	Show Result
+	
 		//	Hide
 		if(isReport() && !pi.isError()) {
 			dispose();
@@ -576,7 +587,7 @@ public class ProcessPanel extends ProcessController implements SmallViewEditable
 				//	BR [ 265 ]
 				process(saveName);
 			}
-		} else if (event.getTarget().equals(bCancel)) {
+		} else if (event.getTarget().equals(bCancel) || event.getName().equals(Events.ON_CANCEL)) {
 			dispose();
 		}  else if(event.getTarget().equals(bDelete) 
 				&& fSavedName != null && !lastRun) {
@@ -592,6 +603,9 @@ public class ProcessPanel extends ProcessController implements SmallViewEditable
 			loadParameters(saveName);
 			boolean enabled = !Util.isEmpty(saveName);
 			bDelete.setEnabled(enabled && fSavedName.getSelectedIndex() > -1 && !lastRun);
+			// #1975 - have the process run when the enter key is pressed - this creates 
+			// an onOK event which will be trapped by the bOK button if it has the focus.
+			bOK.setFocus(true);
 		}
 	}
 
@@ -654,6 +668,12 @@ public class ProcessPanel extends ProcessController implements SmallViewEditable
 	 */
 	protected void runProcess() {
 		getProcessInfo().setPrintPreview(true);
+		
+		// #1926 ZK Exports migration XML files to different location 
+		// than what is selected in the dialogs. Fix is to let the process
+		// know what interface is being used so it can manage the export 
+		// process correctly.
+		
 		ProcessCtl worker = new ProcessCtl(this, getWindowNo(), getProcessInfo(),null);
 		worker.run();
 		//	Run
@@ -706,4 +726,6 @@ public class ProcessPanel extends ProcessController implements SmallViewEditable
 	public int getQtyRow() {
 		return qtyRow;
 	}
+
+	
 }	//	ProcessParameterPanel

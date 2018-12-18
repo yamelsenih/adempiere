@@ -106,6 +106,7 @@ public class LoginPanel extends Window implements EventListener<Event>
     private Combobox lstLanguage;
     private LoginWindow wndLogin;
     private Checkbox chkRememberMe;
+    private Label lblForgotPass;
 
     public LoginPanel(Properties ctx, LoginWindow loginWindow)
     {
@@ -114,7 +115,7 @@ public class LoginPanel extends Window implements EventListener<Event>
         initComponents();
         init();
         this.setId("loginPanel");
-        ThemeUtils.addSclass("ad-loginpanel", this);
+//        ThemeUtils.addSclass("ad-loginpanel", this);
 
         AuFocus auf = new AuFocus(txtUserId);
         Clients.response(auf);
@@ -125,21 +126,26 @@ public class LoginPanel extends Window implements EventListener<Event>
     private void init()
     {
     	Div div = new Div();
-    	ThemeUtils.addSclass("ad-loginpanel-header",div);
+    	ThemeUtils.addSclass(ITheme.LOGIN_BOX_HEADER_CLASS,div);
     	Label label = new Label("Login");  // TODO - localization
-    	ThemeUtils.addSclass("ad-loginpanel-header-text", label);
+    	ThemeUtils.addSclass(ITheme.LOGIN_BOX_HEADER_TXT_CLASS, label);
     	div.appendChild(label);
     	this.appendChild(div);
 
     	Table table = new Table();
     	table.setId("grdLogin");
-    	ThemeUtils.addSclass("ad-loginpanel-body", table);
+    	table.setDynamicProperty("cellpadding", "0");
+    	table.setDynamicProperty("cellspacing", "5");
+    	ThemeUtils.addSclass(ITheme.LOGIN_BOX_BODY_CLASS, table);
+    	
+    	
+    	
     	this.appendChild(table);
 
     	Tr tr = new Tr();
     	table.appendChild(tr);
     	Td td = new Td();
-    	ThemeUtils.addSclass("ad-loginpanel-header-logo", td);
+    	ThemeUtils.addSclass(ITheme.LOGIN_BOX_HEADER_LOGO_CLASS, td);
     	tr.appendChild(td);
     	td.setDynamicProperty("colspan", "2");
     	Image image = new Image();
@@ -152,10 +158,10 @@ public class LoginPanel extends Window implements EventListener<Event>
         table.appendChild(tr);
     	td = new Td();
     	tr.appendChild(td);
-    	ThemeUtils.addSclass("login-label", td);
+    	ThemeUtils.addSclass(ITheme.LOGIN_LABEL_CLASS, td);
     	td.appendChild(lblUserId);
-    	td = new Td();
-    	ThemeUtils.addSclass("login-field", td);
+    	td = new Td();   
+    	ThemeUtils.addSclass(ITheme.LOGIN_FIELD_CLASS, td);
     	tr.appendChild(td);
     	td.appendChild(txtUserId);
 
@@ -164,10 +170,10 @@ public class LoginPanel extends Window implements EventListener<Event>
         table.appendChild(tr);
     	td = new Td();
     	tr.appendChild(td);
-    	ThemeUtils.addSclass("login-label", td);
+    	ThemeUtils.addSclass(ITheme.LOGIN_LABEL_CLASS, td);
     	td.appendChild(lblPassword);
     	td = new Td();
-    	ThemeUtils.addSclass("login-field", td);
+    	ThemeUtils.addSclass(ITheme.LOGIN_FIELD_CLASS, td);
     	tr.appendChild(td);
     	td.appendChild(txtPassword);
 
@@ -176,10 +182,10 @@ public class LoginPanel extends Window implements EventListener<Event>
         table.appendChild(tr);
     	td = new Td();
     	tr.appendChild(td);
-    	ThemeUtils.addSclass("login-label", td);
+    	ThemeUtils.addSclass(ITheme.LOGIN_LABEL_CLASS, td);
     	td.appendChild(lblLanguage);
     	td = new Td();
-    	ThemeUtils.addSclass("login-field", td);
+    	ThemeUtils.addSclass(ITheme.LOGIN_FIELD_CLASS, td);
     	tr.appendChild(td);
     	td.appendChild(lstLanguage);
 
@@ -189,21 +195,34 @@ public class LoginPanel extends Window implements EventListener<Event>
             table.appendChild(tr);
         	td = new Td();
         	tr.appendChild(td);
-        	ThemeUtils.addSclass("login-label", td);
+        	ThemeUtils.addSclass(ITheme.LOGIN_LABEL_CLASS, td);
         	td.appendChild(new Label(""));
         	td = new Td();
-        	ThemeUtils.addSclass("login-field", td);
+        	ThemeUtils.addSclass(ITheme.LOGIN_FIELD_CLASS, td);
         	tr.appendChild(td);
         	td.appendChild(chkRememberMe);
     	}
+        	tr = new Tr();
+            tr.setId("rowPasswordReset");
+            table.appendChild(tr);
+        	td = new Td();
+        	tr.appendChild(td);
+        	td.setSclass(ITheme.LOGIN_LABEL_CLASS);
+        	td.appendChild(new Label(""));
+        	td = new Td();
+        	tr.appendChild(td);
+	    	td.setDynamicProperty("colspan", "2");
+        	td.setSclass(ITheme.LOGIN_FIELD_CLASS);
+        	td.appendChild(lblForgotPass);
+        	lblForgotPass.addEventListener(Events.ON_CLICK,this);
 
     	div = new Div();
-    	ThemeUtils.addSclass("ad-loginpanel-footer", div);
+    	ThemeUtils.addSclass(ITheme.LOGIN_BOX_FOOTER_CLASS, div);
         ConfirmPanel pnlButtons = new ConfirmPanel(false);
         pnlButtons.addActionListener(this);
-        
-        ThemeUtils.addSclass("ad-loginpanel-footer-pnl", pnlButtons);
-        pnlButtons.getButton(ConfirmPanel.A_OK).setSclass("login-btn");
+        pnlButtons.setWidth(null);
+        ThemeUtils.addSclass(ITheme.LOGIN_BOX_FOOTER_PANEL_CLASS, pnlButtons);
+        pnlButtons.getButton(ConfirmPanel.A_OK).setSclass(ITheme.LOGIN_BUTTON_CLASS);
         div.appendChild(pnlButtons);
         this.appendChild(div);
 
@@ -296,6 +315,8 @@ public class LoginPanel extends Window implements EventListener<Event>
         chkRememberMe = new Checkbox(Msg.getMsg(Language.getBaseAD_Language(), "RememberMe"));
         chkRememberMe.setId("chkRememberMe");
 
+        lblForgotPass = new Label(Msg.getMsg(Language.getBaseAD_Language(), "ForgotPassword"));
+    	
         // Make the default language the language of client System
         String defaultLanguage = MClient.get(ctx, 0).getAD_Language();
         for(int i = 0; i < lstLanguage.getItemCount(); i++)
@@ -313,8 +334,11 @@ public class LoginPanel extends Window implements EventListener<Event>
     public void onEvent(Event event)
     {
         Component eventComp = event.getTarget();
-
-        if (event.getTarget().getId().equals(ConfirmPanel.A_OK))
+        
+        if(event.getTarget().equals(lblForgotPass)) {
+//        	wndLogin.resetPassword();
+        }
+        else if (event.getTarget().getId().equals(ConfirmPanel.A_OK))
         {
             validateLogin();
         }
@@ -373,6 +397,8 @@ public class LoginPanel extends Window implements EventListener<Event>
     	lblPassword.setValue(res.getString("Password"));
     	lblLanguage.setValue(res.getString("Language"));
     	chkRememberMe.setLabel(Msg.getMsg(language, "RememberMe"));
+    	if(Msg.getMsg(language, "ForgotPassword") != null)
+    		lblForgotPass.setValue(Msg.getMsg(language, "ForgotPassword"));
     }
 
 	private Language findLanguage(String langName) {

@@ -109,7 +109,7 @@ public class RolePanel extends Window implements EventListener, Deferrable
         initComponents();
         init();
         this.setId("rolePanel");
-        ThemeUtils.addSclass("ad-rolepanel", this);
+//        ThemeUtils.addSclass("ad-rolepanel", this);
 
         AuFocus auf = new AuFocus(lstRole);
         Clients.response(auf);
@@ -118,22 +118,26 @@ public class RolePanel extends Window implements EventListener, Deferrable
     private void init()
     {
     	Div div = new Div();
-    	ThemeUtils.addSclass("ad-rolepanel-header",div);
+    	ThemeUtils.addSclass(ITheme.LOGIN_BOX_HEADER_CLASS,div);
     	Label label = new Label("Login");  //TODO - localization
-    	ThemeUtils.addSclass("ad-rolepanel-header-text",label);
+    	ThemeUtils.addSclass(ITheme.LOGIN_BOX_HEADER_TXT_CLASS,label);
     	div.appendChild(label);
     	this.appendChild(div);
 
         Table table = new Table();
         table.setId("grdChooseRole");
-    	ThemeUtils.addSclass("ad-rolepanel-body",table);
+        table.setDynamicProperty("cellpadding", "0");
+    	table.setDynamicProperty("cellspacing", "5");
+    	ThemeUtils.addSclass(ITheme.LOGIN_BOX_BODY_CLASS,table);
+    	
+    	
 
     	this.appendChild(table);
 
     	Tr tr = new Tr();
     	table.appendChild(tr);
     	Td td = new Td();
-    	ThemeUtils.addSclass("ad-rolepanel-header-logo",td);
+    	ThemeUtils.addSclass(ITheme.LOGIN_BOX_HEADER_LOGO_CLASS,td);
     	tr.appendChild(td);
     	td.setDynamicProperty("colspan", "2");
     	Image image = new Image();
@@ -146,10 +150,10 @@ public class RolePanel extends Window implements EventListener, Deferrable
         table.appendChild(tr);
     	td = new Td();
     	tr.appendChild(td);
-    	ThemeUtils.addSclass("login-label", td);
+    	ThemeUtils.addSclass(ITheme.LOGIN_LABEL_CLASS, td);
     	td.appendChild(lblRole.rightAlign());
     	td = new Td();
-    	ThemeUtils.addSclass("login-field", td);
+    	ThemeUtils.addSclass(ITheme.LOGIN_FIELD_CLASS, td);
     	tr.appendChild(td);
     	td.appendChild(lstRole);
 
@@ -158,10 +162,10 @@ public class RolePanel extends Window implements EventListener, Deferrable
         table.appendChild(tr);
     	td = new Td();
     	tr.appendChild(td);
-    	ThemeUtils.addSclass("login-label", td);
+    	ThemeUtils.addSclass(ITheme.LOGIN_LABEL_CLASS, td);
     	td.appendChild(lblClient.rightAlign());
     	td = new Td();
-    	ThemeUtils.addSclass("login-field", td);
+    	ThemeUtils.addSclass(ITheme.LOGIN_FIELD_CLASS, td);
     	tr.appendChild(td);
     	td.appendChild(lstClient);
 
@@ -170,10 +174,10 @@ public class RolePanel extends Window implements EventListener, Deferrable
         table.appendChild(tr);
     	td = new Td();
     	tr.appendChild(td);
-    	ThemeUtils.addSclass("login-label", td);
+    	ThemeUtils.addSclass(ITheme.LOGIN_LABEL_CLASS, td);
     	td.appendChild(lblOrganisation.rightAlign());
     	td = new Td();
-    	ThemeUtils.addSclass("login-field", td);
+    	ThemeUtils.addSclass(ITheme.LOGIN_FIELD_CLASS, td);
     	tr.appendChild(td);
     	td.appendChild(lstOrganisation);
 
@@ -182,18 +186,19 @@ public class RolePanel extends Window implements EventListener, Deferrable
         table.appendChild(tr);
     	td = new Td();
     	tr.appendChild(td);
-    	ThemeUtils.addSclass("login-label", td);
+    	ThemeUtils.addSclass(ITheme.LOGIN_LABEL_CLASS, td);
     	td.appendChild(lblWarehouse.rightAlign());
     	td = new Td();
-    	ThemeUtils.addSclass("login-field", td);
+    	ThemeUtils.addSclass(ITheme.LOGIN_FIELD_CLASS, td);
     	tr.appendChild(td);
     	td.appendChild(lstWarehouse);
 
     	div = new Div();
-    	ThemeUtils.addSclass("ad-rolepanel-footer",div);
+    	ThemeUtils.addSclass(ITheme.LOGIN_BOX_FOOTER_CLASS,div);
         ConfirmPanel pnlButtons = new ConfirmPanel(true);
         pnlButtons.addActionListener(this);
-        ThemeUtils.addSclass("ad-rolepanel-footer-pnl", pnlButtons);
+        pnlButtons.setWidth(null);
+        ThemeUtils.addSclass(ITheme.LOGIN_BOX_FOOTER_PANEL_CLASS, pnlButtons);
         pnlButtons.getButton(ConfirmPanel.A_OK).setSclass("login-btn");
         pnlButtons.getButton(ConfirmPanel.A_CANCEL).setSclass("login-btn");
         div.appendChild(pnlButtons);

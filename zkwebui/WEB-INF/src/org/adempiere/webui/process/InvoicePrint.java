@@ -363,7 +363,7 @@ public class InvoicePrint extends SvrProcess
 				Clients.clearBusy();
 				Window win = new SimplePDFViewer(this.getName(), new FileInputStream(outFile));
 				win.setAttribute(Window.MODE_KEY, Window.MODE_HIGHLIGHTED);
-				SessionManager.getAppDesktop().showWindow(win, "center");
+				SessionManager.getAppDesktop().showWindow(win);
 			} catch (Exception e) {
 				log.log(Level.SEVERE, e.getLocalizedMessage(), e);
 			}
@@ -372,7 +372,7 @@ public class InvoicePrint extends SvrProcess
 			try {
 				Window win = new SimplePDFViewer(this.getName(), new FileInputStream(pdfList.get(0)));
 				win.setAttribute(Window.MODE_KEY, Window.MODE_HIGHLIGHTED);
-				SessionManager.getAppDesktop().showWindow(win, "center");
+				SessionManager.getAppDesktop().showWindow(win);
 			} catch (Exception e)
 			{
 				log.log(Level.SEVERE, e.getLocalizedMessage(), e);

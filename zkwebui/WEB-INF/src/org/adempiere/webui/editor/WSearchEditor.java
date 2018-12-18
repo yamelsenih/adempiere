@@ -59,6 +59,7 @@ import org.eevolution.model.I_PP_Product_BOMLine;
 import org.zkoss.web.fn.ServletFns;
 import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.event.Events;
+import org.zkoss.zul.Listitem;
 
 /**
  * Search Editor for web UI.
@@ -1179,5 +1180,6 @@ public class WSearchEditor extends WEditor implements ContextMenuListener, Value
 			else
 				m_isSOTrx = true;
 	}
+
 
 }

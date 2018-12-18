@@ -99,8 +99,9 @@ public class WAccountEditor extends WEditor implements ContextMenuListener
 
 	/**
 	 *	Button - Start Dialog
+	 * @throws Exception 
 	 */
-	public void cmd_button()
+	public void cmd_button() throws Exception
 	{
 		int C_AcctSchema_ID = Env.getContextAsInt(Env.getCtx(), gridField.getWindowNo(), "C_AcctSchema_ID");
 		// Try to get C_AcctSchema_ID from global context - teo_sarca BF [ 1830531 ]
@@ -124,8 +125,9 @@ public class WAccountEditor extends WEditor implements ContextMenuListener
 
 	/**
 	 *	Text - try to find Alias or start Dialog
+	 * @throws Exception 
 	 */
-	public void cmd_text()
+	public void cmd_text() throws Exception
 	{
 		String text = getComponent().getText();
 		log.info("Text=" + text);
@@ -187,7 +189,7 @@ public class WAccountEditor extends WEditor implements ContextMenuListener
 			cmd_button();
 	}	//	actionPerformed
 
-	public void onEvent(Event event)
+	public void onEvent(Event event) throws Exception
 	{
 		if (Events.ON_CHANGE.equals(event.getName()) || Events.ON_OK.equals(event.getName()))
 		{

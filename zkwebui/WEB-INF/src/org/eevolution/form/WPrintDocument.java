@@ -59,7 +59,7 @@ public class WPrintDocument implements IPrintDocument {
                     ReportEngine re = new ReportEngine(Env.getCtx(), format, query, info);
                     if (re != null) {
                         SimplePDFViewer win = new SimplePDFViewer(printFormantName, new FileInputStream(re.getPDF()));
-                        SessionManager.getAppDesktop().showWindow(win, "center");
+                        SessionManager.getAppDesktop().showWindow(win);
                     }
 
                 } catch (Exception e) {

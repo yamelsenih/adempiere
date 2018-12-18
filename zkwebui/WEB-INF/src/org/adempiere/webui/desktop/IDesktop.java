@@ -21,6 +21,7 @@ import org.adempiere.webui.panel.CustomForm;
 import org.adempiere.webui.part.UIPart;
 import org.adempiere.webui.util.ServerPushTemplate;
 import org.adempiere.webui.window.ADWindow;
+import org.adempiere.webui.window.WAccountDialog;
 import org.compiere.model.MQuery;
 import org.compiere.util.WebDoc;
 import org.zkoss.zk.ui.Component;
@@ -101,10 +102,10 @@ public interface IDesktop extends UIPart {
 
 	/**
 	 *
-	 * @param win
+	 * @param wAccountDialog
 	 * @param position
 	 */
-	public void showWindow(Window win, String position);
+	public void showWindow(WAccountDialog wAccountDialog, String position);
 
 	/**
 	 *

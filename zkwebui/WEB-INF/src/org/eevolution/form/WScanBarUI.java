@@ -24,6 +24,7 @@ import java.util.LinkedHashMap;
 import java.util.Vector;
 import java.util.logging.Level;
 
+import org.adempiere.webui.component.Borderlayout;
 import org.adempiere.webui.component.ConfirmPanel;
 import org.adempiere.webui.component.Grid;
 import org.adempiere.webui.component.GridFactory;
@@ -56,11 +57,11 @@ import org.eevolution.service.ScanBar;
 import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.event.EventListener;
 import org.zkoss.zk.ui.event.Events;
-import org.zkoss.zkex.zul.Borderlayout;
-import org.zkoss.zkex.zul.Center;
-import org.zkoss.zkex.zul.North;
-import org.zkoss.zkex.zul.South;
+import org.zkoss.zul.Center;
+import org.zkoss.zul.Listitem;
+import org.zkoss.zul.North;
 import org.zkoss.zul.Separator;
+import org.zkoss.zul.South;
 
 /**
  * Implementation Scan Bar UI
@@ -693,6 +694,7 @@ public class WScanBarUI extends ScanBar implements IFormController, EventListene
 	{
 		return getForm().getProcessInfo();
 	}
+
 
 }
 

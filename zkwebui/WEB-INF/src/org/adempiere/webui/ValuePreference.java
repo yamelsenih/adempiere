@@ -39,13 +39,16 @@ import org.compiere.util.DB;
 import org.compiere.util.DisplayType;
 import org.compiere.util.Env;
 import org.compiere.util.Msg;
+import org.zkoss.zhtml.Div;
 import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.event.EventListener;
 import org.zkoss.zk.ui.event.Events;
-import org.zkoss.zul.Div;
 import org.zkoss.zul.Separator;
 import org.zkoss.zul.Space;
 import org.zkoss.zul.Vbox;
+
+
+
 
 /**
  *  Maintain Value Preferences.

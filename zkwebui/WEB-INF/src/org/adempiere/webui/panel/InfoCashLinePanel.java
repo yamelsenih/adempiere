@@ -51,6 +51,7 @@ import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.event.EventListener;
 import org.zkoss.zk.ui.event.Events;
 import org.zkoss.zul.Hbox;
+import org.zkoss.zul.Listitem;
 
 /**
 * Based on InfoCashLine written by Jorg Janke
@@ -713,6 +714,12 @@ public class InfoCashLinePanel extends InfoPanel implements ValueChangeListener,
 		fInvoice_ID.setValue(null);
 		fPayment_ID.setValue(null);
 		cbAbsolute.setChecked(false);
+	}
+
+	@Override
+	public void render(Listitem item, Object data) throws Exception {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

@@ -22,16 +22,15 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.adempiere.webui.AdempiereIdGenerator;
 import org.adempiere.webui.theme.ThemeUtils;
 import org.compiere.util.Env;
 import org.compiere.util.Msg;
 import org.compiere.util.Util;
 import org.zkoss.zk.ui.Component;
-import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.event.EventListener;
 import org.zkoss.zk.ui.event.Events;
 import org.zkoss.zul.Hbox;
-import org.zkoss.zul.Hlayout;
 import org.zkoss.zul.Messagebox;
 /**
  * Application Confirm Panel
@@ -115,7 +114,7 @@ public final class ConfirmPanel extends Hbox
         Button button = new Button();
         button.setName("btn"+name);
         button.setId(name);  // Might get overwritten by renderer
-        button.setAttribute("zk_component_ID", "ConfirmPanel_btn"+name);
+        button.setAttribute(AdempiereIdGenerator.ZK_COMPONENT_PREFIX_ATTRIBUTE, button.getId());
         String text = Msg.translate(Env.getCtx(), name);
         if (!name.equals(text))
         	text = text.replaceAll("[&]", "");
@@ -265,10 +264,13 @@ public final class ConfirmPanel extends Hbox
     /**
      * initialise components
      */
-    private void init()
+    @SuppressWarnings("deprecation")
+	private void init()
     {
         pnlBtnLeft = new Panel();
         pnlBtnLeft.setAlign("left");
+        
+      
 
         pnlBtnRight = new Panel();
         pnlBtnRight.setAlign("right");

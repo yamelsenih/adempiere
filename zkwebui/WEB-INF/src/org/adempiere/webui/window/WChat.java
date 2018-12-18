@@ -19,6 +19,7 @@ package org.adempiere.webui.window;
 import java.util.logging.*;
 
 import org.adempiere.webui.apps.AEnv;
+import org.adempiere.webui.component.Borderlayout;
 import org.adempiere.webui.component.ConfirmPanel;
 import org.adempiere.webui.component.Textbox;
 import org.adempiere.webui.component.Window;
@@ -26,12 +27,11 @@ import org.compiere.model.*;
 import org.compiere.util.*;
 import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.event.EventListener;
-import org.zkoss.zkex.zul.Borderlayout;
-import org.zkoss.zkex.zul.Center;
-import org.zkoss.zkex.zul.North;
-import org.zkoss.zkex.zul.South;
+import org.zkoss.zul.Center;
 import org.zkoss.zul.Div;
 import org.zkoss.zul.Html;
+import org.zkoss.zul.North;
+import org.zkoss.zul.South;
 
 /**
  * 	Application Chat

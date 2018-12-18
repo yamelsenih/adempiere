@@ -1479,7 +1479,7 @@ public abstract class InfoPanel extends Window implements EventListener<Event>, 
 		return m_SO_Window_ID;
 	}	//	getAD_Window_ID
     
-    public void onEvent(Event event)
+    public void onEvent(Event event) throws Exception
     {
     	
     	// Handle actions 
@@ -1670,6 +1670,7 @@ public abstract class InfoPanel extends Window implements EventListener<Event>, 
 	 * Capture value changes in WSearchEditor components specifically.
 	 * Copy and override as required.
 	 * @param evt
+	 * @throws Exception 
 	 */
 	public void valueChange(ValueChangeEvent evt) 
 	{
@@ -1685,7 +1686,12 @@ public abstract class InfoPanel extends Window implements EventListener<Event>, 
 
 		// Pass it off to the event handler to process.
 		Event e = new Event("onChange", (Component) c);
-		onEvent(e);
+		try {
+			onEvent(e);
+		} catch (Exception e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 
 	}  //  valueChange
 
@@ -1748,7 +1754,7 @@ public abstract class InfoPanel extends Window implements EventListener<Event>, 
 		}
 	}
     
-    private void onDoubleClick()
+    private void onDoubleClick() throws Exception
 	{
 		if (isModal())
 		{
@@ -1836,7 +1842,7 @@ public abstract class InfoPanel extends Window implements EventListener<Event>, 
 		return false;
 	}
 
-    public void zoom()
+    public void zoom() throws Exception
     {
     	if (listeners != null && listeners.size() > 0)
     	{
@@ -1871,7 +1877,7 @@ public abstract class InfoPanel extends Window implements EventListener<Event>, 
         listeners.add(listener);
     }
         
-    public void fireValueChange(ValueChangeEvent event)
+    public void fireValueChange(ValueChangeEvent event) throws Exception
     {
         for (ValueChangeListener listener : listeners)
         {
@@ -2137,6 +2143,11 @@ public abstract class InfoPanel extends Window implements EventListener<Event>, 
 	public String getSortDirection(Comparator<Object> cmpr) {
 		// TODO Auto-generated method stub - fix this to make it functional
 		return "natural";
+	}
+
+	public void render(Listitem item, Object data) throws Exception {
+		// TODO Auto-generated method stub
+		
 	}
 
 }	//	Info
