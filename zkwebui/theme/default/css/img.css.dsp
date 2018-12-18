@@ -74,7 +74,9 @@
 {
 	background-color:#eceae4; 
 	background-image:none;
-}
+	width: 272px;
+  }
+
 
 .mandatory-field-label {
 	text-decoration: none;  vertical-align: top; color:black;
@@ -373,12 +375,13 @@ tr.z-row .z-detail-outer {
 <%-- button.css.dsp - 4 --%>
 
 .z-button{
-	height:25px;
-	padding: 0px;
+	height:31px !important;
+	padding: 11px;
 
 	-moz-border-radius: 10px;
 	-webkit-border-radius: 10px;
 	border-radius:10px; 
+	   
 }
 
 .z-button .z-button-tl, .z-button .z-button-tr, .z-button .z-button-bl, .z-button .z-button-br{
@@ -486,6 +489,7 @@ tr.z-row .z-detail-outer {
 
 .z-combobox{
 	height:20px;
+	
 }
 
 .z-combobox-inp {
@@ -801,7 +805,47 @@ tr.z-list-group{
 	background-image: url(../images/zul/wnd/panel-corner.png);
 }
 .z-panel-icon {
-	background-image : url(../images/zul/wnd/ol-btn.png);
+	
+	color: #fff;
+    display: block;
+    border: 1px solid #919191;
+    -webkit-border-radius: 4px;
+    border-radius: 1px;
+    margin: auto 1px;
+    background: -webkit-linear-gradient(top, #919191 0%, #919191 100%);
+    background: linear-gradient(to bottom, #919191 0%, #919191 100%);
+    text-align: center;
+    overflow: hidden;
+    cursor: pointer;
+    float: right;
+
+	
+	}
+	
+.z-panel-head {
+    border: 1px solid #008fd3;
+    border-bottom-color: #cfcfcf;
+    -webkit-border-radius: 4px 4px 0 0;
+    border-radius: 4px 4px 0 0;
+    padding: 3px 5px;
+    background: #008fd3;
+    overflow: hidden;
+    -webkit-box-shadow: inset 0px 1px 1px #FFFFFF;
+    box-shadow: inset 0px 0px 1px #FFFFFF;
+}
+.z-panel-expand {
+    font-size: 14px;
+    width: 17px;
+    height: 16px;
+    line-height: 16px;
+}
+
+.z-panel-icon:hover {
+    color: #919191;
+    border-color: #008fd3;
+    background: 0;
+    filter: progid:DXImageTransform.Microsoft.gradient(enabled=false);
+    background: #f7f7f7;
 }
 <%-- popup.css.dsp - 7 --%>
 .z-popup .z-popup-tl {
@@ -1046,6 +1090,7 @@ span.z-vfiletree-tee, span.z-vfiletree-last {
 .z-textbox, .z-decimalbox, .z-intbox, .z-longbox, .z-doublebox {
 	background-image: url(../images/zul/misc/text-bg8.gif);
 	height:20px;
+	
 }
 .z-textbox-text-invalid,
 .z-decimalbox-text-invalid,
@@ -1098,6 +1143,32 @@ span.z-vfiletree-tee, span.z-vfiletree-last {
 /*	background-image: url(../images/zul/wnd/wnd-ol-corner.png);*/
  	background: #1F9BDE;
 }
+
+
+.z-textbox:focus{
+webkit-box-shadow: inset 1px 1px 1px #2196f3 !important;
+    box-shadow: inset 1px 1px 1px #6aacd3 !important;
+    background: #2196f3;
+    border: 1px solid #2196f3 !important;
+}
+
+
+.z-datebox-input:focus{
+    webkit-box-shadow: inset 1px 1px 1px rgb(33, 150, 243) !important;
+    box-shadow: inset 1px 1px 1px rgb(33, 150, 243) !important;
+    background: #ffffff !important;
+    border: 1px solid #2196f3 !important;
+
+}
+
+.z-decimalbox:focus{
+    -webkit-box-shadow: inset 1px 1px 1px #2196f3 !important;
+    box-shadow: inset 1px 1px 1px #2196f3 !important;
+    background: #ffffff;
+    border: 1px solid #2196f3 !important;
+
+}
+
 
 
 .z-window-embedded-hl,
@@ -1154,7 +1225,6 @@ span.z-vfiletree-tee, span.z-vfiletree-last {
 /*	background-image: url(../images/zul/wnd/wnd-ol-clr.png);*/
 	 background: #1F9BDE;
 }
-
 
 
 .z-window-embedded-bl,
