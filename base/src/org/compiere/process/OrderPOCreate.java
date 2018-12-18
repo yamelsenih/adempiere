@@ -214,7 +214,6 @@ public class OrderPOCreate extends OrderPOCreateAbstract {
 	public MOrder createPOForVendor(int bPartnerId, MOrder salesOrder) {
 		MOrder purchaseOrder = new MOrder (getCtx(), 0, get_TrxName());
 		purchaseOrder.setClientOrg(salesOrder.getAD_Client_ID(), salesOrder.getAD_Org_ID());
-		purchaseOrder.setLink_Order_ID(salesOrder.getC_Order_ID());
 		purchaseOrder.setIsSOTrx(false);
 		purchaseOrder.setC_DocTypeTarget_ID();
 		//
@@ -279,9 +278,10 @@ public class OrderPOCreate extends OrderPOCreateAbstract {
 				poLine.setDescription(line.getDescription());
 				poLine.setDatePromised(line.getDatePromised());
 				poLine.setPrice();
-				//	Set link to source
-				poLine.setLink_OrderLine_ID(line.getC_OrderLine_ID());
 				poLine.saveEx();
+				//	Set link to source
+				line.setLink_OrderLine_ID(poLine.getC_OrderLine_ID());
+				line.saveEx();
 			}
 		}
 	}

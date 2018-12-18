@@ -78,11 +78,15 @@ public class AgencyValidator implements ModelValidator
 				if(po.is_ValueChanged(I_C_OrderLine.COLUMNNAME_Link_OrderLine_ID)) {
 					MOrderLine orderLine = (MOrderLine) po;
 					if(orderLine.getLink_OrderLine_ID() > 0) {
-						MOrderLine linkSourceOrderLine = (MOrderLine) orderLine.getLink_OrderLine();
-						MOrder linkSourceOrder = linkSourceOrderLine.getParent();
-						if(!linkSourceOrder.isSOTrx()) {
-							orderLine.setPriceEntered(linkSourceOrderLine.getPriceEntered());
-							orderLine.setPriceActual(linkSourceOrderLine.getPriceActual());
+						MOrder order = orderLine.getParent();
+						if(order.isSOTrx()) {
+							MOrderLine linkSourceOrderLine = (MOrderLine) orderLine.getLink_OrderLine();
+							MOrder linkSourceOrder = linkSourceOrderLine.getParent();
+							if(!linkSourceOrder.isProcessed()) {
+								linkSourceOrderLine.setPriceEntered(orderLine.getPriceEntered());
+								linkSourceOrderLine.setPriceActual(orderLine.getPriceActual());
+								linkSourceOrderLine.saveEx();
+							}
 						}
 					}
 				}
@@ -90,10 +94,11 @@ public class AgencyValidator implements ModelValidator
 				if(po.is_ValueChanged(I_C_Order.COLUMNNAME_Link_Order_ID)) {
 					MOrder order = (MOrder) po;
 					if(order.getLink_Order_ID() > 0
-							&& !order.isSOTrx()) {
+							&& order.isSOTrx()) {
 						MOrder linkSourceOrder = (MOrder) order.getLink_Order();
-						order.setDateOrdered(linkSourceOrder.getDateOrdered());
-						order.setDatePromised(linkSourceOrder.getDatePromised());
+						linkSourceOrder.setDateOrdered(order.getDateOrdered());
+						linkSourceOrder.setDatePromised(order.getDatePromised());
+						linkSourceOrder.saveEx();
 					}
 				}
 			}
