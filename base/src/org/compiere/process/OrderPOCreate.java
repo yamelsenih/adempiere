@@ -278,7 +278,9 @@ public class OrderPOCreate extends OrderPOCreateAbstract {
 				poLine.setQtyOrdered(line.getQtyOrdered());
 				poLine.setDescription(line.getDescription());
 				poLine.setDatePromised(line.getDatePromised());
-				poLine.setPrice();
+				poLine.setPriceEntered(line.getPriceEntered());
+				poLine.setPriceActual(line.getPriceActual());
+				poLine.setPriceList(line.getPriceList());
 				poLine.saveEx();
 				//	Set link to source
 				line.setLink_OrderLine_ID(poLine.getC_OrderLine_ID());
