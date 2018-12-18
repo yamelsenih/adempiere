@@ -495,7 +495,7 @@ public class MProject extends X_C_Project
 
 	/**
 	 *	Set Project Type and Category.
-	 * 	If Service Project copy Projet Type Phase/Tasks
+	 * 	If Service Project copy Project Type Phase/Tasks
 	 *	@param type project type
 	 */
 	public void setProjectType (MProjectType type)
@@ -503,7 +503,6 @@ public class MProject extends X_C_Project
 		if (type == null)
 			return;
 		setC_ProjectType_ID(Integer.toString(type.getC_ProjectType_ID()));
-		setProjectCategory(type.getProjectCategory());
 		createRequest(type);
 		copyPhasesFrom(type);
 	}	//	setProjectType
@@ -572,6 +571,9 @@ public class MProject extends X_C_Project
 			if (pl != null && pl.get_ID() != 0)
 				setC_Currency_ID(pl.getC_Currency_ID());
 		}
+		
+		if (is_ValueChanged("C_ProjectCategory_ID"))
+			setProjectCategory(getC_ProjectCategory().getProjectCategory());
 		
 		return true;
 	}	//	beforeSave

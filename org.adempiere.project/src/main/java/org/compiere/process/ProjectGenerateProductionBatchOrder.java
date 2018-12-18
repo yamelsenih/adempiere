@@ -129,6 +129,9 @@ public class ProjectGenerateProductionBatchOrder extends ProjectGenerateProducti
         Timestamp dateOrdered = atomicDateOrdered.get()
                 .orElseThrow(() -> new AdempiereException("@DateStartSchedule@ @NotFound@"));
         
+        if (project.getM_Warehouse_ID() == 0)
+        	throw new AdempiereException("@M_Warehouse_ID@ @NotFound@");
+        
         MProductionBatch order = createOrderProductionBatch(
                 project,
                 Optional.ofNullable(atomicProjectPhase.get()),
@@ -139,24 +142,6 @@ public class ProjectGenerateProductionBatchOrder extends ProjectGenerateProducti
                 atomicQuantity.get());
 
         addLog(Msg.parseTranslation(getCtx(), "@M_ProductionBatch_ID@ ") + order.getDocumentInfo());
-
-        if (getProjectLineId() <= 0) {
-            MProjectLine projectLine = new MProjectLine(project);
-            Optional.ofNullable(atomicProjectPhase.get()).ifPresent(projectPhase -> {
-            	projectLine.setC_ProjectPhase_ID(projectPhase.getC_ProjectPhase_ID());
-            });
-            Optional.ofNullable(atomicProjectTask.get()).ifPresent(projectTask -> {
-            	projectLine.setC_ProjectPhase_ID(projectTask.getC_ProjectTask_ID());
-            });
-            projectLine.setM_Product_ID(order.getM_Product_ID());
-            projectLine.setPP_Product_BOM_ID(atomicBOMId.get());
-            projectLine.setM_ProductionBatch_ID(order.getM_ProductionBatch_ID());;
-            projectLine.setPlannedQty(order.getQtyOrdered());
-            projectLine.saveEx();
-            addLog(Msg.parseTranslation(getCtx(), "@C_ProjectLine_ID@ ") + projectLine.getM_Product().getName());
-        }
-
-        
 
         return "@Ok@";
     }

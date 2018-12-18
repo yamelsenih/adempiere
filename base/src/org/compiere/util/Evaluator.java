@@ -16,6 +16,8 @@
  *****************************************************************************/
 package org.compiere.util;
 
+import org.compiere.model.GridField;
+import org.compiere.model.GridFieldVO;
 import org.compiere.model.PO;
 
 import java.math.BigDecimal;
@@ -273,4 +275,14 @@ public class Evaluator
 			list.add(variable);
 		}
 	}   //  parseDepends
+	  public static void main(String[] args){
+		Evaluator.evaluateLogic(null, "@comp@>2");
+		 
+
+        //Aquí las instrucciones del método
+
+
+
+}
+	
 }	//	Evaluator

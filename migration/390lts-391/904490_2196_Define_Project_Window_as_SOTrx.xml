@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<Migrations>
+  <Migration EntityType="D" Name="Define Project window as &quot;SO Trx&quot; #2196" ReleaseNo="" SeqNo="904490">
+    <Comments>#2196 Define Project window as "SO Trx"
+https://github.com/adempiere/adempiere/issues/2196</Comments>
+    <Step SeqNo="10" StepType="AD">
+      <PO AD_Table_ID="105" Action="U" Record_ID="53545" Table="AD_Window">
+        <Data AD_Column_ID="6769" Column="IsSOTrx" oldValue="false">true</Data>
+      </PO>
+    </Step>
+  </Migration>
+</Migrations>
