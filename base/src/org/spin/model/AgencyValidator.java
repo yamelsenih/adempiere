@@ -95,7 +95,7 @@ public class AgencyValidator implements ModelValidator
 				// Document type IsCustomerApproved = Y and order IsCustomerApproved = N
 				if (documentType.get_ValueAsBoolean("IsApprovedRequired")) {
 					if(!order.get_ValueAsBoolean("IsCustomerApproved")) {
-						throw new AdempiereException(Msg.parseTranslation(Env.getCtx(), "@CustomerApprovedRequired@ @C_DocType_ID@"));
+						throw new AdempiereException(Msg.parseTranslation(Env.getCtx(), "@CustomerApprovedRequired@"));
 					}
 					MAttachment orderAttachment = order.getAttachment(true);
 					if(orderAttachment == null
@@ -109,7 +109,7 @@ public class AgencyValidator implements ModelValidator
 					//	Document type IsCustomerApproved = Y and order IsCustomerApproved Y and order isAttachment("PDF") = N and project IsCustomerApproved = N
 					MProject project = new MProject(order.getCtx(), order.getC_Project_ID(), null);
 					if (!project.get_ValueAsBoolean("IsCustomerApproved")) {
-						throw new AdempiereException(Msg.parseTranslation(Env.getCtx(), "@CustomerApprovedRequired@"));
+						throw new AdempiereException(Msg.parseTranslation(Env.getCtx(), "@CustomerApprovedRequired@ on @C_Project_ID@"));
 					}
 				}
 			} else if(timing == TIMING_BEFORE_COMPLETE) {
