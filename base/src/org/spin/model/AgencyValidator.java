@@ -18,6 +18,8 @@ package org.spin.model;
 import org.adempiere.exceptions.AdempiereException;
 import org.compiere.model.I_C_Commission;
 import org.compiere.model.I_C_CommissionType;
+import org.compiere.model.I_C_Order;
+import org.compiere.model.I_C_OrderLine;
 import org.compiere.model.MAttachment;
 import org.compiere.model.MClient;
 import org.compiere.model.MCommission;
@@ -55,18 +57,44 @@ public class AgencyValidator implements ModelValidator
 		}
 		engine.addDocValidate(MOrder.Table_Name, this);
 		engine.addModelChange(MProject.Table_Name, this);
+		engine.addModelChange(MOrder.Table_Name, this);
+		engine.addModelChange(MOrderLine.Table_Name, this);
 	}	//	initialize
 
 	public String modelChange (PO po, int type) throws Exception {
 		log.info(po.get_TableName() + " Type: "+type);
 		
-		if (po instanceof MProject && type == TYPE_BEFORE_CHANGE) {
-			MProject project = (MProject) po;
-			if(project.get_ValueAsBoolean("IsApprovedAttachment")) {
-				MAttachment projectAttachment = project.getAttachment(true);
-				if (projectAttachment == null 
-						|| projectAttachment.getAD_Attachment_ID() <= 0) {
-					throw new AdempiereException(Msg.getMsg(Env.getCtx(), "AttachmentNotFound"));
+		if (type == TYPE_BEFORE_CHANGE) {
+			if (po instanceof MProject) {
+				MProject project = (MProject) po;
+				if(project.get_ValueAsBoolean("IsApprovedAttachment")) {
+					MAttachment projectAttachment = project.getAttachment(true);
+					if (projectAttachment == null 
+							|| projectAttachment.getAD_Attachment_ID() <= 0) {
+						throw new AdempiereException(Msg.getMsg(Env.getCtx(), "AttachmentNotFound"));
+					}
+				}
+			} else if(po instanceof MOrderLine) {
+				if(po.is_ValueChanged(I_C_OrderLine.COLUMNNAME_Link_OrderLine_ID)) {
+					MOrderLine orderLine = (MOrderLine) po;
+					if(orderLine.getLink_OrderLine_ID() > 0) {
+						MOrderLine linkSourceOrderLine = (MOrderLine) orderLine.getLink_OrderLine();
+						MOrder linkSourceOrder = linkSourceOrderLine.getParent();
+						if(!linkSourceOrder.isSOTrx()) {
+							orderLine.setPriceEntered(linkSourceOrderLine.getPriceEntered());
+							orderLine.setPriceActual(linkSourceOrderLine.getPriceActual());
+						}
+					}
+				}
+			} else if(po instanceof MOrder) {
+				if(po.is_ValueChanged(I_C_Order.COLUMNNAME_Link_Order_ID)) {
+					MOrder order = (MOrder) po;
+					if(order.getLink_Order_ID() > 0
+							&& !order.isSOTrx()) {
+						MOrder linkSourceOrder = (MOrder) order.getLink_Order();
+						order.setDateOrdered(linkSourceOrder.getDateOrdered());
+						order.setDatePromised(linkSourceOrder.getDatePromised());
+					}
 				}
 			}
 		}		
