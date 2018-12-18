@@ -18,6 +18,7 @@ package org.spin.model;
 import org.adempiere.exceptions.AdempiereException;
 import org.compiere.model.I_C_Commission;
 import org.compiere.model.I_C_CommissionType;
+import org.compiere.model.MAttachment;
 import org.compiere.model.MClient;
 import org.compiere.model.MCommission;
 import org.compiere.model.MCommissionRun;
@@ -61,11 +62,13 @@ public class AgencyValidator implements ModelValidator
 		
 		if (po instanceof MProject && type == TYPE_BEFORE_CHANGE) {
 			MProject project = (MProject) po;
-			
-			if (!project.isAttachment(".pdf") && project.get_ValueAsBoolean("IsApprovedAttachment")) {
-				throw new AdempiereException(Msg.getMsg(Env.getCtx(), "AttachmentNotFound"));
+			if(project.get_ValueAsBoolean("IsApprovedAttachment")) {
+				MAttachment projectAttachment = project.getAttachment(true);
+				if (projectAttachment == null 
+						|| projectAttachment.getAD_Attachment_ID() <= 0) {
+					throw new AdempiereException(Msg.getMsg(Env.getCtx(), "AttachmentNotFound"));
+				}
 			}
-			
 		}		
 		//
 		return null;
@@ -87,27 +90,27 @@ public class AgencyValidator implements ModelValidator
 					}
 				}
 				//	Validate
-				MProject project = new MProject(order.getCtx(), order.getC_Project_ID(), null);
 				MDocType  documentType = MDocType.get(order.getCtx(), order.getC_DocTypeTarget_ID());
 				
 				// Document type IsCustomerApproved = Y and order IsCustomerApproved = N
-				if (documentType.get_ValueAsBoolean("IsApprovedRequired") 
-						&& !order.get_ValueAsBoolean("IsCustomerApproved")) {
-					throw new AdempiereException(Msg.parseTranslation(Env.getCtx(), "@CustomerApprovedRequired@ @C_DocType_ID@"));
-				}
-				// Document type IsCustomerApproved = Y and order IsCustomerApproved Y and order isAttachment("PDF") = N
-				if (!order.isAttachment(".pdf") 
-						&& order.get_ValueAsBoolean("IsCustomerApproved")
-						&& documentType.get_ValueAsBoolean("IsApprovedRequired")) {
-					throw new AdempiereException(Msg.getMsg(Env.getCtx(), "AttachmentNotFound"));
-				}
-				
-				//	Document type IsCustomerApproved = Y and order IsCustomerApproved Y and order isAttachment("PDF") = N and project IsCustomerApproved = N
-				if (!project.get_ValueAsBoolean("IsCustomerApproved")
-						&& documentType.get_ValueAsBoolean("IsApprovedRequired")
-						&& order.get_ValueAsBoolean("IsCustomerApproved")
-						&& order.isAttachment(".pdf")) {
-					throw new AdempiereException(Msg.parseTranslation(Env.getCtx(), "@CustomerApprovedRequired@"));
+				if (documentType.get_ValueAsBoolean("IsApprovedRequired")) {
+					if(!order.get_ValueAsBoolean("IsCustomerApproved")) {
+						throw new AdempiereException(Msg.parseTranslation(Env.getCtx(), "@CustomerApprovedRequired@ @C_DocType_ID@"));
+					}
+					MAttachment orderAttachment = order.getAttachment(true);
+					if(orderAttachment == null
+							|| orderAttachment.getAD_Attachment_ID() <= 0) {
+						throw new AdempiereException(Msg.getMsg(Env.getCtx(), "AttachmentNotFound"));
+					}
+					//	Validate project reference
+					if(order.getC_Project_ID() <= 0) {
+						throw new AdempiereException(Msg.parseTranslation(Env.getCtx(), "@C_Project_ID@ @NotFound@"));
+					}
+					//	Document type IsCustomerApproved = Y and order IsCustomerApproved Y and order isAttachment("PDF") = N and project IsCustomerApproved = N
+					MProject project = new MProject(order.getCtx(), order.getC_Project_ID(), null);
+					if (!project.get_ValueAsBoolean("IsCustomerApproved")) {
+						throw new AdempiereException(Msg.parseTranslation(Env.getCtx(), "@CustomerApprovedRequired@"));
+					}
 				}
 			} else if(timing == TIMING_BEFORE_COMPLETE) {
 				MDocType  documentType = MDocType.get(order.getCtx(), order.getC_DocTypeTarget_ID());
