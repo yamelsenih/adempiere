@@ -279,10 +279,9 @@ public class OrderPOCreate extends OrderPOCreateAbstract {
 				poLine.setDescription(line.getDescription());
 				poLine.setDatePromised(line.getDatePromised());
 				poLine.setPrice();
-				poLine.saveEx();
 				//	Set link to source
-				line.setLink_OrderLine_ID(poLine.getC_OrderLine_ID());
-				line.saveEx();
+				poLine.setLink_OrderLine_ID(line.getC_OrderLine_ID());
+				poLine.saveEx();
 			}
 		}
 	}
