@@ -23,6 +23,7 @@ import org.compiere.model.I_C_OrderLine;
 import org.compiere.model.MAttachment;
 import org.compiere.model.MClient;
 import org.compiere.model.MCommission;
+import org.compiere.model.MCommissionLine;
 import org.compiere.model.MCommissionRun;
 import org.compiere.model.MDocType;
 import org.compiere.model.MOrder;
@@ -59,6 +60,7 @@ public class AgencyValidator implements ModelValidator
 		engine.addModelChange(MProject.Table_Name, this);
 		engine.addModelChange(MOrder.Table_Name, this);
 		engine.addModelChange(MOrderLine.Table_Name, this);
+		engine.addModelChange(MCommission.Table_Name, this);
 	}	//	initialize
 
 	public String modelChange (PO po, int type) throws Exception {
@@ -102,7 +104,19 @@ public class AgencyValidator implements ModelValidator
 					}
 				}
 			}
-		}		
+		} else if(type == TYPE_AFTER_CHANGE) {
+			if (po instanceof MCommission) {
+				MCommission commission = (MCommission) po;
+				if(commission.is_ValueChanged("C_BPartner_ID")) {
+					if(commission.getC_BPartner_ID() > 0) {
+						for(MCommissionLine commissionLine : commission.getLines()) {
+							commissionLine.set_ValueOfColumn("Vendor_ID", commission.getC_BPartner_ID());
+							commissionLine.saveEx();
+						}
+					}
+				}
+			}
+		}
 		//
 		return null;
 	}	//	modelChange

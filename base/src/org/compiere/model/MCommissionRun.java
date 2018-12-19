@@ -295,6 +295,27 @@ public class MCommissionRun extends X_C_CommissionRun implements DocAction, DocO
 	}
 	
 	/**
+	 * Is custom commission
+	 * @param docBasisType
+	 * @return
+	 */
+	private boolean isCustom(String docBasisType) {
+		if(Util.isEmpty(docBasisType)) {
+			return false;
+		}
+		//	Validate with other
+		if(docBasisType.equals(MCommission.DOCBASISTYPE_Order)
+				|| docBasisType.equals(MCommission.DOCBASISTYPE_Invoice)
+				|| docBasisType.equals(MCommission.DOCBASISTYPE_Receipt)
+				|| docBasisType.equals(MCommission.DOCBASISTYPE_ForecastVsInvoice)
+				|| docBasisType.equals(MCommission.DOCBASISTYPE_ForecastVsOrder)) {
+			return false;
+		}
+		//	
+		return true;
+	}
+	
+	/**
 	 * 	Create Commission Detail
 	 *	@param sql sql statement
 	 *	@param commission parent
@@ -343,7 +364,7 @@ public class MCommissionRun extends X_C_CommissionRun implements DocAction, DocO
 				Timestamp date = null;
 				
 				//	
-				if(commission.getDocBasisType().equals(MCommission.DOCBASISTYPE_Custom)) {
+				if(isCustom(commission.getDocBasisType())) {
 					currencyId = rs.getInt(commissionType.getCurrencyColumnName());
 					amount = rs.getBigDecimal(commissionType.getAmountColumnName());
 					quantity = rs.getBigDecimal(commissionType.getQuantityColumnName());
@@ -395,7 +416,7 @@ public class MCommissionRun extends X_C_CommissionRun implements DocAction, DocO
 				commissionDetail.calculateCommission();
 				commissionDetail.saveEx();
 				//	Not Custom
-				if(!commission.getDocBasisType().equals(MCommission.DOCBASISTYPE_Custom)) {
+				if(!isCustom(commission.getDocBasisType())) {
 					// Check for RMAs
 					if (commission.isAllowRMA()) {
 						qtyReturned = returnedItemsQty(invoiceLineId);
@@ -1135,7 +1156,7 @@ public class MCommissionRun extends X_C_CommissionRun implements DocAction, DocO
 			}
 			//	for current document
 			if(additionalValues != null
-				&& commission.getDocBasisType().equals(MCommission.DOCBASISTYPE_Custom)) {
+				&& isCustom(commission.getDocBasisType())) {
 				for(Entry<String, Integer> value : additionalValues.entrySet()) {
 					String columnName = getSQLColumnName(value.getKey(), commissionType);
 					if(!Util.isEmpty(columnName)) {
@@ -1145,7 +1166,7 @@ public class MCommissionRun extends X_C_CommissionRun implements DocAction, DocO
 			}
 			//		
 			sqlWhere.append(getExclusionWhere(commission.getDocBasisType(), commissionLine, commissionLines, commissionType));
-			if(commission.getDocBasisType().equals(MCommission.DOCBASISTYPE_Custom)) {
+			if(isCustom(commission.getDocBasisType())) {
 				if (!commission.isListDetails()) {
 					String columnName = getSQLColumnName("h.C_Currency_ID", commissionType);
 					if(!Util.isEmpty(columnName)) {				
