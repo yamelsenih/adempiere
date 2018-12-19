@@ -77,8 +77,10 @@ public abstract class ADForm extends Window implements EventListener
     protected ADForm()
     {
          m_WindowNo = SessionManager.getAppDesktop().registerWindow(this);
-
-         ThemeUtils.addSclass("ad-adform", this);
+         this.setWidth("100%");
+         this.setHeight("100%");
+         this.setStyle("position:absolute");
+//         ThemeUtils.addSclass("ad-adform", this);
          this.setContentSclass("ad-adform-content");
     }
 
