@@ -124,7 +124,6 @@ public class AgencyValidator implements ModelValidator
 				}
 				//	Validate
 				MDocType  documentType = MDocType.get(order.getCtx(), order.getC_DocTypeTarget_ID());
-				
 				// Document type IsCustomerApproved = Y and order IsCustomerApproved = N
 				if (documentType.get_ValueAsBoolean("IsApprovedRequired")) {
 					if(!order.get_ValueAsBoolean("IsCustomerApproved")) {
@@ -159,13 +158,21 @@ public class AgencyValidator implements ModelValidator
 				if(!order.isDropShip()) {
 					return null;
 				}
-				//	For drop ship only
-				ProcessBuilder.create(order.getCtx())
-					.process(OrderPOCreateAbstract.getProcessId())
-					.withParameter(OrderPOCreateAbstract.C_ORDER_ID, order.getC_Order_ID())
-					.withParameter(OrderPOCreateAbstract.VENDOR_ID, order.getDropShip_BPartner_ID())
-					.withoutTransactionClose()
-					.execute(order.get_TrxName());
+				MDocType  documentType = MDocType.get(order.getCtx(), order.getC_DocTypeTarget_ID());
+				// Document type IsCustomerApproved = Y and order IsCustomerApproved = N
+				if (!documentType.get_ValueAsBoolean("IsApprovedRequired")) {
+					return null;
+				}
+				//	
+				if(order.get_ValueAsBoolean("IsCustomerApproved")) {
+					//	For drop ship only
+					ProcessBuilder.create(order.getCtx())
+						.process(OrderPOCreateAbstract.getProcessId())
+						.withParameter(OrderPOCreateAbstract.C_ORDER_ID, order.getC_Order_ID())
+						.withParameter(OrderPOCreateAbstract.VENDOR_ID, order.getDropShip_BPartner_ID())
+						.withoutTransactionClose()
+						.execute(order.get_TrxName());
+				}
 			}
 		}
 		return null;
