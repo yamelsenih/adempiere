@@ -1154,6 +1154,13 @@ public class MCommissionRun extends X_C_CommissionRun implements DocAction, DocO
 					sqlWhere.append(" AND ").append(columnName).append("=").append(commissionLine.get_ValueAsInt("S_Contract_ID"));
 				}
 			}
+			//	For vendor
+			if (commissionLine.get_ValueAsInt("Vendor_ID") != 0) {
+				String columnName = getSQLColumnName("h.Vendor_ID", commissionType);
+				if(!Util.isEmpty(columnName)) {
+					sqlWhere.append(" AND ").append(columnName).append("=").append(commissionLine.get_ValueAsInt("Vendor_ID"));
+				}
+			}
 			//	for current document
 			if(additionalValues != null
 				&& isCustom(commission.getDocBasisType())) {
