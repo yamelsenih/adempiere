@@ -3553,18 +3553,21 @@ public abstract class PO
 		if (!MTree.hasTree(tableId))
 			return false;
 		//	Get Node Table Name
-		String treeTableName = MTree.getNodeTableName(tableId);
+		String treeNodeTableName = MTree.getNodeTableName(tableId);
 		int elementId = 0;
 		if (tableId == X_C_ElementValue.Table_ID) {
 			Integer ii = (Integer)get_Value("C_Element_ID");
-			if (ii != null)
+			if (ii != null) {
 				elementId = ii.intValue();
+				MElement element = new MElement(getCtx(), elementId, get_TrxName());
+				treeNodeTableName = MTree.getNodeTableName(tableId, element.getElementType());
+			}
 		}
 		int m_AD_Tree_ID = MTree.getDefaultTreeIdFromTableId(getAD_Client_ID(), tableId, elementId);
 		//	Valid tree
 		if(m_AD_Tree_ID < 0)
 			return false;
-		PO treeNode = MTable.get(getCtx(), treeTableName).getPO(0, get_TrxName());
+		PO treeNode = MTable.get(getCtx(), treeNodeTableName).getPO(0, get_TrxName());
 		treeNode.setAD_Client_ID(getAD_Client_ID());
 		treeNode.setAD_Org_ID(0);
 		treeNode.setIsActive(true);
@@ -3589,8 +3592,8 @@ public abstract class PO
 		if (id == 0)
 			id = get_IDOld();
 		//	Valid Tree
-		int AD_Table_ID = get_Table_ID();
-		if (!MTree.hasTree(AD_Table_ID))
+		int tableId = get_Table_ID();
+		if (!MTree.hasTree(tableId))
 			return false;
 		//	Get Node Table Name
 		int treeId = MTree.getDefaultTreeIdFromTableId(getAD_Client_ID(), get_Table_ID());
@@ -3599,6 +3602,14 @@ public abstract class PO
 			return false;
 		//	
 		String treeNodeTableName = MTree.getNodeTableName(get_Table_ID());
+		if (tableId == X_C_ElementValue.Table_ID) {
+			Integer ii = (Integer)get_Value("C_Element_ID");
+			if (ii != null) {
+				int elementId = ii.intValue();
+				MElement element = new MElement(getCtx(), elementId, get_TrxName());
+				treeNodeTableName = MTree.getNodeTableName(tableId, element.getElementType());
+			}
+		}
 		String whereClause = treeNodeTableName + ".Node_ID="+id+ " AND EXISTS (SELECT 1 FROM AD_Tree t "
 				+ "WHERE t.AD_Tree_ID="+treeNodeTableName+".AD_Tree_ID AND t.AD_Table_ID=" + get_Table_ID() + ")";
 		PO treeNode = MTable.get(getCtx(), treeNodeTableName).getPO(whereClause, get_TrxName());
