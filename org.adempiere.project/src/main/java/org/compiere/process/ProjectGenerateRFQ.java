@@ -244,6 +244,9 @@ public class ProjectGenerateRFQ extends ProjectGenerateRFQAbstract
 		if (m_C_RfQ_Topic_ID == 0)
 			return "@Invalid@ @C_RfQ_Topic_ID@";
 		
+		if (m_MProject.getDateStart()==null)
+			return "@Invalid@ @DateStart@";
+		
 		m_RFQ = new MRfQ(getCtx(), 0, get_TrxName());
 		m_RFQ.setName(m_MProject.getName());
 		m_RFQ.setSalesRep_ID(m_MProject.getSalesRep_ID());
@@ -258,6 +261,9 @@ public class ProjectGenerateRFQ extends ProjectGenerateRFQAbstract
 		m_RFQ.setIsInvitedVendorsOnly(m_IsInvitedVendorsOnly);
 		m_RFQ.setIsRfQResponseAccepted(m_IsRfQResponseAccepted);
 		m_RFQ.setIsSelfService(m_IsSelfService);
+		m_RFQ.setC_BPartner_ID(m_MProject.getC_BPartner_ID());
+		m_RFQ.setC_BPartner_Location_ID(m_MProject.getC_BPartner_Location_ID());
+		m_RFQ.setAD_User_ID(m_MProject.getAD_User_ID());
 		
 		if (!m_RFQ.save())
 			return "@SaveError@ @C_RfQ_ID@";
