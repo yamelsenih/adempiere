@@ -265,6 +265,11 @@ public class ProjectGenerateRFQ extends ProjectGenerateRFQAbstract
 		m_RFQ.setC_BPartner_Location_ID(m_MProject.getC_BPartner_Location_ID());
 		m_RFQ.setAD_User_ID(m_MProject.getAD_User_ID());
 		
+		m_RFQ.setAD_Org_ID(m_MProject.getAD_Org_ID());
+		m_RFQ.set_ValueOfColumn("C_Project_ID", m_MProject.getC_Project_ID());
+		m_RFQ.set_ValueOfColumn("C_Campaign_ID", m_MProject.getC_Campaign_ID());
+		m_RFQ.set_ValueOfColumn("User1_ID", m_MProject.getUser1_ID());
+		
 		if (!m_RFQ.save())
 			return "@SaveError@ @C_RfQ_ID@";
 		
