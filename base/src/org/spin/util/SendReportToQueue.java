@@ -61,8 +61,8 @@ public class SendReportToQueue extends AbstractExportFormat {
 			return false;
 		}
 		//	Export report
-		ExportFormatPDF pdfExporter = new ExportFormatPDF(getCtx(), getReportEngine());
-		if(pdfExporter.exportToFile(file)) {
+		ExportFormatXML xmlExporter = new ExportFormatXML(getCtx(), getReportEngine());
+		if(xmlExporter.exportToFile(file)) {
 			try {
 				//	Cable
 				int appRegisteredId = Env.getContextAsInt(getCtx(), "#LocalPrinter_ID@");
