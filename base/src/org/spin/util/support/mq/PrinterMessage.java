@@ -21,12 +21,14 @@ public class PrinterMessage implements IMessageQueue {
 		//	Convert File
 		try {
 			stream = new FileInputStream(fileToPrint);
+			fileName = fileToPrint.getName();
 		} catch (FileNotFoundException e) {
 			throw new AdempiereException(e);
 		}
 	}
 	
 	private InputStream stream = null;
+	private String fileName = null;
 	
 	@Override
 	public int getType() {
@@ -46,6 +48,11 @@ public class PrinterMessage implements IMessageQueue {
 	@Override
 	public InputStream getMessageAsInputStream() {
 		return stream;
+	}
+
+	@Override
+	public String getFileName() {
+		return fileName;
 	}
 
 }
