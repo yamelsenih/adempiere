@@ -15,20 +15,28 @@
  *************************************************************************************/
 package org.spin.model;
 
+import java.math.BigDecimal;
+import java.util.Hashtable;
+
 import org.adempiere.exceptions.AdempiereException;
 import org.compiere.model.I_C_Commission;
 import org.compiere.model.I_C_CommissionType;
 import org.compiere.model.I_C_Order;
 import org.compiere.model.I_C_OrderLine;
+import org.compiere.model.I_S_TimeExpense;
 import org.compiere.model.MAttachment;
 import org.compiere.model.MClient;
 import org.compiere.model.MCommission;
 import org.compiere.model.MCommissionLine;
 import org.compiere.model.MCommissionRun;
 import org.compiere.model.MDocType;
+import org.compiere.model.MInOut;
+import org.compiere.model.MInOutLine;
 import org.compiere.model.MOrder;
 import org.compiere.model.MOrderLine;
 import org.compiere.model.MProject;
+import org.compiere.model.MTimeExpense;
+import org.compiere.model.MTimeExpenseLine;
 import org.compiere.model.ModelValidationEngine;
 import org.compiere.model.ModelValidator;
 import org.compiere.model.PO;
@@ -57,6 +65,7 @@ public class AgencyValidator implements ModelValidator
 			clientId = client.getAD_Client_ID();
 		}
 		engine.addDocValidate(MOrder.Table_Name, this);
+		engine.addDocValidate(I_S_TimeExpense.Table_Name, this);
 		engine.addModelChange(MProject.Table_Name, this);
 		engine.addModelChange(MOrder.Table_Name, this);
 		engine.addModelChange(MOrderLine.Table_Name, this);
@@ -188,9 +197,75 @@ public class AgencyValidator implements ModelValidator
 						.execute(order.get_TrxName());
 				}
 			}
+		} else if(po instanceof MTimeExpense) {
+			MTimeExpense expenseReport = (MTimeExpense) po;
+			if(timing == TIMING_AFTER_COMPLETE) {
+				Hashtable<Integer, Hashtable<Integer, BigDecimal>> orders = new Hashtable<Integer, Hashtable<Integer, BigDecimal>>();
+				for(MTimeExpenseLine line : expenseReport.getLines()) {
+					//	Validate Orders
+					int salesOrderLineId = line.getC_OrderLine_ID();
+					int linkOrderLineId = line.get_ValueAsInt("Link_OrderLine_ID");
+					if(salesOrderLineId <= 0
+							&& linkOrderLineId <= 0
+							|| line.getQty() == null
+							|| line.getQty().compareTo(Env.ZERO) <= 0) {
+						continue;
+					}
+					//	For sales
+					if(salesOrderLineId > 0) {
+						MOrderLine salesOrderLine = new MOrderLine(expenseReport.getCtx(), salesOrderLineId, expenseReport.get_TrxName());
+						Hashtable<Integer, BigDecimal> salesOrderLines = orders.get(salesOrderLine.getC_Order_ID());
+						if(salesOrderLines == null) {
+							salesOrderLines = new Hashtable<Integer, BigDecimal>();
+						}
+						//	Add
+						salesOrderLines.put(salesOrderLine.getC_OrderLine_ID(), line.getQty());
+						orders.put(salesOrderLine.getC_Order_ID(), salesOrderLines);
+					}
+					//	For purchases
+					if(linkOrderLineId > 0) {
+						MOrderLine salesOrderLine = new MOrderLine(expenseReport.getCtx(), linkOrderLineId, expenseReport.get_TrxName());
+						Hashtable<Integer, BigDecimal> purchaseOrderLines = orders.get(salesOrderLine.getC_Order_ID());
+						if(purchaseOrderLines == null) {
+							purchaseOrderLines = new Hashtable<Integer, BigDecimal>();
+						}
+						//	Add
+						purchaseOrderLines.put(salesOrderLine.getC_OrderLine_ID(), line.getQty());
+						orders.put(salesOrderLine.getC_Order_ID(), purchaseOrderLines);
+					}
+				}
+				//	Generate from orders
+				orders.entrySet().stream().forEach(orderSet -> {
+					generateInOutFromOrder(expenseReport, orderSet.getKey(), orderSet.getValue());
+				});
+			}
 		}
 		return null;
 	}	//	docValidate
+	
+	/**
+	 * Generate In/Out from Sales or Purchase Orders
+	 * @param orderId
+	 * @param lines
+	 */
+	private void generateInOutFromOrder(MTimeExpense expenseReport, int orderId, Hashtable<Integer, BigDecimal> lines) {
+		MOrder order = new MOrder(expenseReport.getCtx(), orderId, expenseReport.get_TrxName());
+		MInOut inOut = new MInOut(order, 0, expenseReport.getDateReport());
+		inOut.setM_Warehouse_ID(order.getM_Warehouse_ID());
+		inOut.saveEx();
+		lines.entrySet().stream().forEach(linesSet -> {
+			MOrderLine orderLine = new MOrderLine(expenseReport.getCtx(), linesSet.getKey(), expenseReport.get_TrxName());
+			BigDecimal toDeliver = linesSet.getValue();
+			MInOutLine inOutLine = new MInOutLine (inOut);
+			inOutLine.setOrderLine(orderLine, 0, toDeliver);
+			inOutLine.setQty(toDeliver);
+		    inOutLine.saveEx();
+		});
+		//	Complete In/Out
+		inOut.setDocStatus(MInOut.DOCSTATUS_Drafted);
+		inOut.processIt(MInOut.ACTION_Complete);
+		inOut.saveEx();
+	}
 	
 	/**
 	 * Create a commission based on rules defined and get result inside order line 

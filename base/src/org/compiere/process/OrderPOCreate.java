@@ -268,7 +268,6 @@ public class OrderPOCreate extends OrderPOCreateAbstract {
 			if (line.getM_Product_ID() == productId
 					|| productId < 0) {
 				MOrderLine poLine = new MOrderLine (purchaseOrder);
-				poLine.setLink_OrderLine_ID(line.getC_OrderLine_ID());
 				poLine.setM_Product_ID(line.getM_Product_ID());
 				poLine.setC_Charge_ID(line.getC_Charge_ID());
 				poLine.setM_AttributeSetInstance_ID(line.getM_AttributeSetInstance_ID());
