@@ -71,9 +71,10 @@ public class CreateExpenseReportFromProject extends CreateExpenseReportFromProje
 			if(linkOrderLineId > 0) {
 				MOrderLine linkOrderLine = new MOrderLine(getCtx(), linkOrderLineId, get_TrxName());
 				MOrder linkOrder = linkOrderLine.getParent();
-				if(linkOrder.getDocStatus().equals(MOrder.ACTION_Complete)) {
-					expenseLine.set_ValueOfColumn("Link_OrderLine_ID", linkOrderLineId);
+				if(!linkOrder.getDocStatus().equals(MOrder.ACTION_Complete)) {
+					throw new AdempiereException("@Link_OrderLine_ID@ @InvoiceCreateDocNotCompleted@");
 				}
+				expenseLine.set_ValueOfColumn("Link_OrderLine_ID", linkOrderLineId);
 			}
 			expenseLine.saveEx();
 		}
