@@ -284,14 +284,37 @@ public class MCommissionRun extends X_C_CommissionRun implements DocAction, DocO
 		
 		//	Iterate for each commission definition and  Sales Representative
 		for(MCommission commission : commissionList) {
-			for(MBPartner salesRep : commission.getSalesRepsOfCommission()) {
-				processCommissionLine(salesRep, commission);
-				if (commission.isAllowRMA()) {					
-					// TODO: process devolutions which are not in the invoice lines
-				}	
-			}	
+			if(get_ValueAsInt("S_Contract_ID") > 0) {
+				//	Add filters for lines
+				addFilterValues("S_Contract_ID", get_ValueAsInt("S_Contract_ID"));
+				for(X_C_CommissionSalesRep commissionSalesRep : getCommissionSalesRepList(commission)) {
+					MBPartner salesRep = MBPartner.get(getCtx(), commissionSalesRep.getC_BPartner_ID());
+					processCommissionLine(salesRep, commission, commissionSalesRep.get_ValueAsBoolean("IsPercentage"), (BigDecimal)commissionSalesRep.get_Value("AmtMultiplier"));
+					if (commission.isAllowRMA()) {					
+						// TODO: process devolutions which are not in the invoice lines
+					}
+				}
+			} else {
+				for(MBPartner salesRep : commission.getSalesRepsOfCommission()) {
+					processCommissionLine(salesRep, commission);
+					if (commission.isAllowRMA()) {					
+						// TODO: process devolutions which are not in the invoice lines
+					}
+				}
+			}
 		}
 		saveEx();
+	}
+	
+	/**
+	 * Get Sales Representative for commission run
+	 * @return
+	 */
+	private List<X_C_CommissionSalesRep> getCommissionSalesRepList(MCommission commission) {
+		return new Query(getCtx(), I_C_CommissionSalesRep.Table_Name, "C_Commission_ID = ? AND S_Contract_ID = ?", get_TrxName())
+				.setParameters(commission.getC_Commission_ID(), get_ValueAsInt("S_Contract_ID"))
+				.setOnlyActiveRecords(true)
+				.<X_C_CommissionSalesRep>list();
 	}
 	
 	/**
@@ -323,7 +346,7 @@ public class MCommissionRun extends X_C_CommissionRun implements DocAction, DocO
 	 *	@param commissionAmt
 	 *	@param commissionType
 	 */
-	private void createDetail (String sql, MCommission commission, MCommissionLine line, MCommissionAmt commissionAmt, MCommissionType commissionType) {
+	private void createDetail (String sql, MCommission commission, MCommissionLine line, MCommissionAmt commissionAmt, MCommissionType commissionType, boolean isPercentage, BigDecimal amtMultiplier) {
 		String language = Env.getAD_Language(getCtx());
 		int invoiceLineId = 0;
 		int orderLineId = 0;
@@ -413,7 +436,7 @@ public class MCommissionRun extends X_C_CommissionRun implements DocAction, DocO
 				//	Convert
 				commissionDetail.setConvertedAmt(date);
 				//	Calculate commission by line
-				commissionDetail.calculateCommission();
+				commissionDetail.calculateCommission(isPercentage, amtMultiplier);
 				commissionDetail.saveEx();
 				//	Not Custom
 				if(!isCustom(commission.getDocBasisType())) {
@@ -627,12 +650,22 @@ public class MCommissionRun extends X_C_CommissionRun implements DocAction, DocO
 	}
 	
 	/**
-	 * Process lines
+	 * Old compatibility
 	 * @param salesRep
 	 * @param commission
 	 * @return
 	 */
 	private String processCommissionLine(MBPartner salesRep, MCommission commission) {
+		return processCommissionLine(salesRep, commission, false, null);
+	}
+	
+	/**
+	 * Process lines
+	 * @param salesRep
+	 * @param commission
+	 * @return
+	 */
+	private String processCommissionLine(MBPartner salesRep, MCommission commission, boolean isPercentage, BigDecimal amtMultiplier) {
 		//	
 		MCommissionLine[] commissionLines = commission.getLines();
 		List<Integer> salesRegion;
@@ -759,7 +792,7 @@ public class MCommissionRun extends X_C_CommissionRun implements DocAction, DocO
 				if (commissionLine.getInvoiceCollectionType() != null) {
 					sqlWhere.append(" AND h.InvoiceCollectionType='").append(commissionLine.getInvoiceCollectionType()).append("'");
 				}
-			} else if(MCommission.DOCBASISTYPE_Custom.equals(commission.getDocBasisType())) {
+			} else if(isCustom(commission.getDocBasisType())) {
 				commissionType = MCommissionType.getById(getCtx(), commission.getC_CommissionType_ID(), get_TrxName());
 				if(commissionType == null) {
 					throw new AdempiereException("@C_CommissionType_ID@ @NotFound@");
@@ -1190,7 +1223,7 @@ public class MCommissionRun extends X_C_CommissionRun implements DocAction, DocO
 			commissionAmt.setPercentage(getAmountPercentage(commission, commissionLine.isPercentageFromPrice(), sqlWhere));
 			commissionAmt.setMaxPercentage(commissionLine.getMaxPercentage());
 			// Here the actual calculation is performed
-			createDetail(sql.toString(), commission, commissionLine, commissionAmt, commissionType);
+			createDetail(sql.toString(), commission, commissionLine, commissionAmt, commissionType, isPercentage, amtMultiplier);
 			if(commissionAmt.getDetails().length==0)  {				
 				commissionAmt.deleteEx(true, get_TrxName());
 			}

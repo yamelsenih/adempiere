@@ -126,9 +126,16 @@ public class MCommissionDetail extends X_C_CommissionDetail
 	}	//	setConvertedAmt
 	
 	/**
-	 * Calculate commission for line
+	 * Old compatibility
 	 */
 	public void calculateCommission() {
+		calculateCommission(false, null);
+	}
+	
+	/**
+	 * Calculate commission for line
+	 */
+	public void calculateCommission(boolean isPercentage, BigDecimal amtMultiplier) {
 		getParent();
 		if(parent.getC_CommissionAmt_ID() <= 0
 				|| parent.getC_CommissionLine_ID() <= 0) {
@@ -163,6 +170,11 @@ public class MCommissionDetail extends X_C_CommissionDetail
 			//	Go to Forecast
 			commissionAmt = commissionAmt.multiply(Env.ONE.divide(parent.getPercentage(), MathContext.DECIMAL128)).multiply(Env.ONEHUNDRED);
 			commissionAmt = commissionAmt.multiply(parent.getMaxPercentage().divide(Env.ONEHUNDRED, MathContext.DECIMAL128));
+		}
+		//	Set when is null
+		if(amtMultiplier != null) {
+			commissionLine.setIsPercentage(isPercentage);
+			commissionLine.setAmtMultiplier(amtMultiplier);
 		}
 		commissionAmt = commissionAmt.multiply(commissionLine.getAmtMultiplier());
 		//	Scale
