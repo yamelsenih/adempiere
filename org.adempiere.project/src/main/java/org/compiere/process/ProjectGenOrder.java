@@ -26,6 +26,8 @@ import org.compiere.model.MOrder;
 import org.compiere.model.MOrderLine;
 import org.compiere.model.MProject;
 import org.compiere.model.MProjectLine;
+import org.compiere.model.MProjectPhase;
+import org.compiere.model.MProjectTask;
 import org.compiere.util.Env;
 
 /**
@@ -92,6 +94,22 @@ public class ProjectGenOrder extends ProjectGenOrderAbstract
 				orderLine.setDiscount();
 				orderLine.setTax();
 				
+				int mediaType = 0;
+				
+				if(fromProjectLine.getC_ProjectTask_ID() != 0){
+					MProjectTask task = new MProjectTask(getCtx(),fromProjectLine.getC_ProjectTask_ID(),  null);
+						mediaType = task.get_ValueAsInt("CUST_MediaType_ID");	
+				}
+				else if (fromProjectLine.getC_ProjectPhase_ID() != 0 && mediaType <= 0 ){
+					MProjectPhase phase = new MProjectPhase(getCtx(),fromProjectLine.getC_ProjectPhase_ID(),  null);
+					mediaType = phase.get_ValueAsInt("CUST_MediaType_ID");
+				} 
+				else if (fromProject.get_Value("CUST_MediaType_ID")!= null && mediaType <= 0){
+					mediaType = fromProject.get_ValueAsInt("CUST_MediaType_ID");	
+				}
+				
+				orderLine.set_ValueOfColumn("CUST_MediaType_ID", mediaType);
+			
 				//BR [ 2111 ]
 				orderLine.saveEx();
 				count.getAndUpdate(no -> no + 1);
