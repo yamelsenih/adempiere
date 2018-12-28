@@ -90,6 +90,9 @@ public class RfQCreatePO extends SvrProcess
 		for (int i = 0; i < responses.length; i++)
 		{
 			MRfQResponse response = responses[i];
+			
+			
+			
 			if (!response.isSelectedWinner())
 				continue;
 			//
@@ -104,6 +107,9 @@ public class RfQCreatePO extends SvrProcess
 			order.setBPartner(bp);
 			order.setC_BPartner_Location_ID(response.getC_BPartner_Location_ID());
 			order.setSalesRep_ID(rfq.getSalesRep_ID());
+			order.set_ValueOfColumn("C_Campaign_ID", response.get_ValueAsInt("C_Campaign_ID"));
+			order.set_ValueOfColumn("User1_ID", response.get_ValueAsInt("User1_ID"));
+			order.set_ValueOfColumn("C_Project_ID", response.get_ValueAsInt("C_Project_ID"));
 			if (response.getDateWorkComplete() != null)
 				order.setDatePromised(response.getDateWorkComplete());
 			else if (rfq.getDateWorkComplete() != null)

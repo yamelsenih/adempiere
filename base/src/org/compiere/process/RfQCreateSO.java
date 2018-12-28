@@ -94,6 +94,9 @@ public class RfQCreateSO extends SvrProcess
 		order.setBPartner(bp);
 		order.setC_BPartner_Location_ID(rfq.getC_BPartner_Location_ID());
 		order.setSalesRep_ID(rfq.getSalesRep_ID());
+		order.set_ValueOfColumn("C_Campaign_ID", rfq.get_ValueAsInt("C_Campaign_ID"));
+		order.set_ValueOfColumn("User1_ID", rfq.get_ValueAsInt("User1_ID"));
+		order.set_ValueOfColumn("C_Project_ID", rfq.get_ValueAsInt("C_Project_ID"));
 		if (rfq.getDateWorkComplete() != null)
 			order.setDatePromised(rfq.getDateWorkComplete());
 		order.saveEx();

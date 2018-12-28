@@ -64,8 +64,11 @@ public class ProjectGenOrder extends ProjectGenOrderAbstract
 		MProject fromProject = getProject (getCtx(), getRecord_ID(), get_TrxName());
 		Env.setSOTrx(getCtx(), true);	//	Set SO context
 
+		if(!fromProject.get_ValueAsBoolean("IsCustomerApproved"))
+			throw new AdempiereException("@C_Project_ID@ @NotApproved@");
+		
 		/** @todo duplicate invoice prevention */
-
+		
 		MOrder order = new MOrder (fromProject, true, MOrder.DocSubTypeSO_OnCredit);
 		if (!order.save())
 			throw new AdempiereException("@Error@ @To@ @Generated@ @C_Order_ID@");
@@ -107,7 +110,7 @@ public class ProjectGenOrder extends ProjectGenOrderAbstract
 				else if (fromProject.get_Value("CUST_MediaType_ID")!= null && mediaType <= 0){
 					mediaType = fromProject.get_ValueAsInt("CUST_MediaType_ID");	
 				}
-				
+						
 				orderLine.set_ValueOfColumn("CUST_MediaType_ID", mediaType);
 			
 				//BR [ 2111 ]
