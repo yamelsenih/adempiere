@@ -59,8 +59,8 @@ public class ProjectGenerateProductionBatchOrder extends ProjectGenerateProducti
         if (getProjectLineId() > 0) {
             MProjectLine projectLine = new MProjectLine(getCtx(), getProjectLineId(), get_TrxName());
             //production batch
-            if (projectLine.getM_ProductionBatch_ID() > 0) {
-                MProductionBatch order = (MProductionBatch) projectLine.getM_ProductionBatch();
+            if (projectLine.get_ValueAsInt("M_ProductionBatch_ID") > 0) {
+                MProductionBatch order = new MProductionBatch(getCtx(), projectLine.get_ValueAsInt("M_ProductionBatch_ID"), get_TrxName());
                 throw new AdempiereException(order.getDocumentInfo() + " @AlreadyExists@ @To@ @C_ProjectLine_ID@");
             }
 
@@ -172,12 +172,12 @@ public class ProjectGenerateProductionBatchOrder extends ProjectGenerateProducti
     	order.saveEx();
     	
     	projectPhaseOptional.ifPresent(projectPhase -> {
-    		projectPhase.setM_ProductionBatch_ID(order.getM_ProductionBatch_ID());
+    		projectPhase.set_ValueOfColumn("M_ProductionBatch_ID", order.getM_ProductionBatch_ID());
     		projectPhase.saveEx();
         });
     	
     	projectTaskOptional.ifPresent(projectTask -> {
-    		projectTask.setM_ProductionBatch_ID(order.getM_ProductionBatch_ID());
+    		projectTask.set_ValueOfColumn("M_ProductionBatch_ID", order.getM_ProductionBatch_ID());
     		projectTask.saveEx();
         });
     	

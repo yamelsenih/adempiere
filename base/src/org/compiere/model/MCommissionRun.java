@@ -793,7 +793,7 @@ public class MCommissionRun extends X_C_CommissionRun implements DocAction, DocO
 					sqlWhere.append(" AND h.InvoiceCollectionType='").append(commissionLine.getInvoiceCollectionType()).append("'");
 				}
 			} else if(isCustom(commission.getDocBasisType())) {
-				commissionType = MCommissionType.getById(getCtx(), commission.getC_CommissionType_ID(), get_TrxName());
+				commissionType = MCommissionType.getById(getCtx(), commission.get_ValueAsInt("C_CommissionType_ID"), get_TrxName());
 				if(commissionType == null) {
 					throw new AdempiereException("@C_CommissionType_ID@ @NotFound@");
 				}

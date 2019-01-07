@@ -337,11 +337,12 @@ public class MProject extends X_C_Project
 	public int getM_PriceList_ID()
 	{
 		//FR [ 2117 ]
-		if (super.getM_PriceList_ID()==0 && getM_PriceList_Version_ID() == 0)
+		if (super.get_ValueAsInt("M_PriceList_ID") == 0 
+				&& getM_PriceList_Version_ID() == 0)
 			return 0;
 		
-		if (super.getM_PriceList_ID()!=0)
-			m_M_PriceList_ID = super.getM_PriceList_ID();
+		if (super.get_ValueAsInt("M_PriceList_ID") != 0)
+			m_M_PriceList_ID = super.get_ValueAsInt("M_PriceList_ID");
 		
 		if (m_M_PriceList_ID > 0)
 			return m_M_PriceList_ID;
