@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<Migrations>
+  <Migration EntityType="D" Name="Add vendor product code indentifier #1721" ReleaseNo="" SeqNo="903930">
+    <Comments>https://github.com/adempiere/adempiere/issues/1721</Comments>
+    <Step SeqNo="10" StepType="AD">
+      <PO AD_Table_ID="50009" Action="I" Record_ID="50148" Table="AD_SysConfig">
+        <Data AD_Column_ID="50187" Column="AD_SysConfig_ID">50148</Data>
+        <Data AD_Column_ID="50188" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="50189" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="50191" Column="Updated">2018-08-03 10:51:41.504</Data>
+        <Data AD_Column_ID="50190" Column="Created">2018-08-03 10:51:41.504</Data>
+        <Data AD_Column_ID="50194" Column="IsActive">true</Data>
+        <Data AD_Column_ID="50192" Column="CreatedBy">100</Data>
+        <Data AD_Column_ID="53271" Column="ConfigurationLevel">S</Data>
+        <Data AD_Column_ID="50195" Column="Name">VENDOR_PRODUCT_CODE_TO_IDENTIFY_PRODUCT</Data>
+        <Data AD_Column_ID="50193" Column="UpdatedBy">100</Data>
+        <Data AD_Column_ID="50196" Column="Value">Y</Data>
+        <Data AD_Column_ID="50197" Column="Description">Use vendor product code / barcode to identify product</Data>
+        <Data AD_Column_ID="53270" Column="EntityType">D</Data>
+        <Data AD_Column_ID="84421" Column="UUID" isNewNull="true"/>
+      </PO>
+    </Step>
+  </Migration>
+</Migrations>

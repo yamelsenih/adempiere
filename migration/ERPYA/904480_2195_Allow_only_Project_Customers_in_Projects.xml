@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<Migrations>
+  <Migration EntityType="D" Name="Project window: allow only BPs defined as &quot;Customer&quot; #2195" ReleaseNo="" SeqNo="904480">
+    <Comments>#2195 Project window: allow only as "Customer" defined Business Partners
+https://github.com/adempiere/adempiere/issues/2195</Comments>
+    <Step SeqNo="10" StepType="AD">
+      <PO AD_Table_ID="108" Action="I" Record_ID="52656" Table="AD_Val_Rule">
+        <Data AD_Column_ID="192" Column="Type">S</Data>
+        <Data AD_Column_ID="586" Column="Updated">2018-12-10 19:54:29.064</Data>
+        <Data AD_Column_ID="583" Column="IsActive">true</Data>
+        <Data AD_Column_ID="584" Column="Created">2018-12-10 19:54:29.064</Data>
+        <Data AD_Column_ID="193" Column="Code">C_BPartner_ID IN (SELECT C_BPartner_ID FROM C_BPartner bp WHERE bp.isactive='Y' AND bp.IsCustomer='Y' AND bp.IsSummary='N' AND M_PriceList_ID  IS NOT NULL)</Data>
+        <Data AD_Column_ID="188" Column="Name">C_BPartner - Project Customer</Data>
+        <Data AD_Column_ID="189" Column="Description">Customer BPs with Price List set</Data>
+        <Data AD_Column_ID="387" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="388" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="187" Column="AD_Val_Rule_ID">52656</Data>
+        <Data AD_Column_ID="7715" Column="EntityType">D</Data>
+        <Data AD_Column_ID="587" Column="UpdatedBy">100</Data>
+        <Data AD_Column_ID="585" Column="CreatedBy">100</Data>
+        <Data AD_Column_ID="84460" Column="UUID" isNewNull="true"/>
+      </PO>
+    </Step>
+    <Step SeqNo="20" StepType="AD">
+      <PO AD_Table_ID="101" Action="U" Record_ID="3902" Table="AD_Column">
+        <Data AD_Column_ID="115" Column="AD_Val_Rule_ID" isOldNull="true">52656</Data>
+      </PO>
+    </Step>
+  </Migration>
+</Migrations>

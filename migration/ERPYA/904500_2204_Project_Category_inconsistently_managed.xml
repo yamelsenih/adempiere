@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<Migrations>
+  <Migration EntityType="D" Name="Project Category inconsistently managed" ReleaseNo="" SeqNo="904500">
+    <Comments>Project Category inconsistently managed #2204
+https://github.com/adempiere/adempiere/issues/2204</Comments>
+    <Step SeqNo="10" StepType="AD">
+      <PO AD_Table_ID="101" Action="U" Record_ID="85435" Table="AD_Column">
+        <Data AD_Column_ID="124" Column="IsMandatory" oldValue="false">true</Data>
+      </PO>
+    </Step>
+  </Migration>
+</Migrations>
