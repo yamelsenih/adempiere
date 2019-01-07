@@ -35,7 +35,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
-import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
@@ -2309,13 +2308,6 @@ public abstract class PO
 			try
 			{
 				success = afterSave (newRecord, success);
-				//Generate UUID
-				//TODO : Is necessary Generate UUIDs for all records
-				/*if (get_ColumnIndex("UUID") > 0 && get_ValueAsString("UUID") == null)
-				{
-					UUID uuid = UUID.randomUUID();
-					set_CustomColumn("UUID", uuid.toString());
-				}*/
 				//	Yamel Senih [ 9223372036854775807 ]
 				//	Insert Tree Node
 				if (success && newRecord)
@@ -2487,14 +2479,19 @@ public abstract class PO
 		int size = get_ColumnCount();
 		for (int i = 0; i < size; i++)
 		{
+			String columnName = p_info.getColumnName(i);
 			Object value = m_newValues[i];
+			if (columnName.equals("UUID") && get_Value(columnName) == null)
+			{
+				value = generateUUID();
+			}
+
 			if (value == null
 				|| p_info.isVirtualColumn(i))
 				continue;
 			//  we have a change
 			Class<?> c = p_info.getColumnClass(i);
 			int dt = p_info.getColumnDisplayType(i);
-			String columnName = p_info.getColumnName(i);
 			//
 			//	updated/by
 			if (columnName.equals("UpdatedBy"))
@@ -2757,6 +2754,10 @@ public abstract class PO
 		for (int i = 0; i < size; i++)
 		{
 			Object value = get_Value(i);
+			if (p_info.getColumnName(i).equals("UUID") && value == null) {
+				value = generateUUID();
+			}
+
 			//	Don't insert NULL values (allows Database defaults)
 			if (value == null
 				|| p_info.isVirtualColumn(i))
@@ -3553,21 +3554,18 @@ public abstract class PO
 		if (!MTree.hasTree(tableId))
 			return false;
 		//	Get Node Table Name
-		String treeNodeTableName = MTree.getNodeTableName(tableId);
+		String treeTableName = MTree.getNodeTableName(tableId);
 		int elementId = 0;
 		if (tableId == X_C_ElementValue.Table_ID) {
 			Integer ii = (Integer)get_Value("C_Element_ID");
-			if (ii != null) {
+			if (ii != null)
 				elementId = ii.intValue();
-				MElement element = new MElement(getCtx(), elementId, get_TrxName());
-				treeNodeTableName = MTree.getNodeTableName(tableId, element.getElementType());
-			}
 		}
 		int m_AD_Tree_ID = MTree.getDefaultTreeIdFromTableId(getAD_Client_ID(), tableId, elementId);
 		//	Valid tree
 		if(m_AD_Tree_ID < 0)
 			return false;
-		PO treeNode = MTable.get(getCtx(), treeNodeTableName).getPO(0, get_TrxName());
+		PO treeNode = MTable.get(getCtx(), treeTableName).getPO(0, get_TrxName());
 		treeNode.setAD_Client_ID(getAD_Client_ID());
 		treeNode.setAD_Org_ID(0);
 		treeNode.setIsActive(true);
@@ -3592,8 +3590,8 @@ public abstract class PO
 		if (id == 0)
 			id = get_IDOld();
 		//	Valid Tree
-		int tableId = get_Table_ID();
-		if (!MTree.hasTree(tableId))
+		int AD_Table_ID = get_Table_ID();
+		if (!MTree.hasTree(AD_Table_ID))
 			return false;
 		//	Get Node Table Name
 		int treeId = MTree.getDefaultTreeIdFromTableId(getAD_Client_ID(), get_Table_ID());
@@ -3602,14 +3600,6 @@ public abstract class PO
 			return false;
 		//	
 		String treeNodeTableName = MTree.getNodeTableName(get_Table_ID());
-		if (tableId == X_C_ElementValue.Table_ID) {
-			Integer ii = (Integer)get_Value("C_Element_ID");
-			if (ii != null) {
-				int elementId = ii.intValue();
-				MElement element = new MElement(getCtx(), elementId, get_TrxName());
-				treeNodeTableName = MTree.getNodeTableName(tableId, element.getElementType());
-			}
-		}
 		String whereClause = treeNodeTableName + ".Node_ID="+id+ " AND EXISTS (SELECT 1 FROM AD_Tree t "
 				+ "WHERE t.AD_Tree_ID="+treeNodeTableName+".AD_Tree_ID AND t.AD_Table_ID=" + get_Table_ID() + ")";
 		PO treeNode = MTable.get(getCtx(), treeNodeTableName).getPO(whereClause, get_TrxName());
@@ -4236,5 +4226,14 @@ public abstract class PO
 		clone.m_attachment = null;
 		clone.m_isReplication = false;
 		return clone;
+	}
+
+	public String generateUUID() {
+		String uuid;
+		if (DB.isOracle())
+		 	uuid = DB.getSQLValueString(get_TrxName(), "SELECT getUUID() FROM DUAL");
+		else
+			uuid = DB.getSQLValueString(get_TrxName(), "SELECT getUUID()");
+		return uuid;
 	}
 }   //  PO
