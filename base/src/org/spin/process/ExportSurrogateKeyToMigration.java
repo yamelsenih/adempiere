@@ -58,6 +58,7 @@ public class ExportSurrogateKeyToMigration extends ExportSurrogateKeyToMigration
 			.filter(table -> table.getColumn(table.getTableName() + "_ID") != null)
 			.filter(table -> table.getColumn(I_AD_Table.COLUMNNAME_UUID) != null)
 			.filter(table -> !table.isIgnoreMigration())
+			.filter(table -> table.getColumn("EntityType") != null)
 			.forEach(table -> {
 			addTableToUpdate(table.getTableName());
 		});
@@ -148,7 +149,7 @@ public class ExportSurrogateKeyToMigration extends ExportSurrogateKeyToMigration
 	private void addTableToUpdate(String tableName) {
 		String keyId = tableName + "_ID";
 		String uuidKey = I_AD_Table.COLUMNNAME_UUID;
-		KeyNamePair[] uuidValues = DB.getKeyNamePairs(get_TrxName(), "SELECT " + keyId + ", " + uuidKey + " FROM " + tableName + " WHERE AD_Client_ID = ? AND " + uuidKey + " IS NOT NULL" , false, getAD_Client_ID());
+		KeyNamePair[] uuidValues = DB.getKeyNamePairs(get_TrxName(), "SELECT " + keyId + ", " + uuidKey + " FROM " + tableName + " WHERE AD_Client_ID = ? AND EntityType = ? AND " + uuidKey + " IS NOT NULL" , false, getAD_Client_ID(), "ECA03");
 		//	Get all UUID
 		for(KeyNamePair value : uuidValues) {
 			updateList.add("UPDATE " + tableName + " SET " + uuidKey + "= '" + value.getName() + "' WHERE " + keyId + " = " + value.getKey() + ";");

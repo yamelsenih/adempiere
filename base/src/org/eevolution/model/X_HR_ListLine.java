@@ -33,7 +33,7 @@ public class X_HR_ListLine extends PO implements I_HR_ListLine, I_Persistent
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20181220L;
+	private static final long serialVersionUID = 20190107L;
 
     /** Standard Constructor */
     public X_HR_ListLine (Properties ctx, int HR_ListLine_ID, String trxName)
