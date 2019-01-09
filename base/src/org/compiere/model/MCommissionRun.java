@@ -1205,7 +1205,6 @@ public class MCommissionRun extends X_C_CommissionRun implements DocAction, DocO
 				}
 			}
 			//		
-			sqlWhere.append(getExclusionWhere(commission.getDocBasisType(), commissionLine, commissionLines, commissionType));
 			if(isCustom(commission.getDocBasisType())) {
 				if (!commission.isListDetails()) {
 					String columnName = getSQLColumnName("h.C_Currency_ID", commissionType);
@@ -1214,6 +1213,7 @@ public class MCommissionRun extends X_C_CommissionRun implements DocAction, DocO
 					}
 				}
 			} else {
+				sqlWhere.append(getExclusionWhere(commission.getDocBasisType(), commissionLine, commissionLines, commissionType));
 				sqlWhere.append(" GROUP BY ").append("h.C_Currency_ID");
 			}
 			//	Add Where Clause
