@@ -16,7 +16,10 @@
 package org.spin.model;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.Map;
 
 import org.adempiere.exceptions.AdempiereException;
 import org.compiere.model.I_C_Commission;
@@ -30,11 +33,16 @@ import org.compiere.model.MCommission;
 import org.compiere.model.MCommissionLine;
 import org.compiere.model.MCommissionRun;
 import org.compiere.model.MDocType;
+import org.compiere.model.MExpenseType;
 import org.compiere.model.MInOut;
 import org.compiere.model.MInOutLine;
 import org.compiere.model.MOrder;
 import org.compiere.model.MOrderLine;
 import org.compiere.model.MProject;
+import org.compiere.model.MProjectTask;
+import org.compiere.model.MRfQ;
+import org.compiere.model.MRfQLine;
+import org.compiere.model.MTask;
 import org.compiere.model.MTimeExpense;
 import org.compiere.model.MTimeExpenseLine;
 import org.compiere.model.ModelValidationEngine;
@@ -46,6 +54,7 @@ import org.compiere.util.CLogger;
 import org.compiere.util.Env;
 import org.compiere.util.Msg;
 import org.eevolution.service.dsl.ProcessBuilder;
+
 
 
 /**
@@ -70,12 +79,15 @@ public class AgencyValidator implements ModelValidator
 		engine.addModelChange(MOrder.Table_Name, this);
 		engine.addModelChange(MOrderLine.Table_Name, this);
 		engine.addModelChange(MCommission.Table_Name, this);
+		engine.addModelChange(MProjectTask.Table_Name, this);
+		engine.addDocValidate(MTimeExpense.Table_Name, this);
 	}	//	initialize
 
 	public String modelChange (PO po, int type) throws Exception {
 		log.info(po.get_TableName() + " Type: "+type);
 		
 		if (type == TYPE_BEFORE_CHANGE) {
+			
 			if (po instanceof MProject) {
 				MProject project = (MProject) po;
 				if(project.get_ValueAsBoolean("IsApprovedAttachment")) {
@@ -112,7 +124,19 @@ public class AgencyValidator implements ModelValidator
 						linkSourceOrder.saveEx();
 					}
 				}
+			} else if(po instanceof MProjectTask) {
+				MProjectTask projectTask = (MProjectTask) po;
+				if(projectTask.get_ValueAsBoolean("IsCustomerApproved")){
+					if(projectTask.get_ValueAsBoolean("IsApprovedAttachment")) {
+						MAttachment projectTaskAttachment = projectTask.getAttachment(true);
+						if (projectTaskAttachment == null 
+								|| projectTaskAttachment.getAD_Attachment_ID() <= 0) {
+							throw new AdempiereException(Msg.getMsg(Env.getCtx(), "AttachmentNotFound"));
+						}
+					}
+				}
 			}
+			
 		} else if(type == TYPE_AFTER_CHANGE) {
 			if (po instanceof MCommission) {
 				MCommission commission = (MCommission) po;
@@ -130,6 +154,9 @@ public class AgencyValidator implements ModelValidator
 		return null;
 	}	//	modelChange
 	
+	
+	
+
 	public String docValidate (PO po, int timing) {
 		log.info(po.get_TableName() + " Timing: "+timing);
 		//	Validate table
@@ -171,6 +198,7 @@ public class AgencyValidator implements ModelValidator
 				if(documentType.get_ValueAsInt("C_CommissionType_ID") > 0) {
 					createCommissionForOrder(order, documentType.get_ValueAsInt("C_CommissionType_ID"));
 				}
+				
 			} else if (timing == TIMING_AFTER_COMPLETE) {
 				if(!order.isSOTrx()) {
 					return null;
@@ -318,6 +346,9 @@ public class AgencyValidator implements ModelValidator
 		}
 	}
 
+
+	
+	
 	@Override
 	public int getAD_Client_ID() {
 		return clientId;
