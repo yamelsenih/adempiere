@@ -16,10 +16,7 @@
 package org.spin.model;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Hashtable;
-import java.util.Map;
 
 import org.adempiere.exceptions.AdempiereException;
 import org.compiere.model.I_C_Commission;
@@ -33,16 +30,12 @@ import org.compiere.model.MCommission;
 import org.compiere.model.MCommissionLine;
 import org.compiere.model.MCommissionRun;
 import org.compiere.model.MDocType;
-import org.compiere.model.MExpenseType;
 import org.compiere.model.MInOut;
 import org.compiere.model.MInOutLine;
 import org.compiere.model.MOrder;
 import org.compiere.model.MOrderLine;
 import org.compiere.model.MProject;
 import org.compiere.model.MProjectTask;
-import org.compiere.model.MRfQ;
-import org.compiere.model.MRfQLine;
-import org.compiere.model.MTask;
 import org.compiere.model.MTimeExpense;
 import org.compiere.model.MTimeExpenseLine;
 import org.compiere.model.ModelValidationEngine;
@@ -221,10 +214,6 @@ public class AgencyValidator implements ModelValidator
 						.withoutTransactionClose()
 						.execute(order.get_TrxName());
 				}
-			} else if(timing == TIMING_AFTER_REACTIVATE) {
-				if(documentType.get_ValueAsInt("C_CommissionType_ID") > 0) {
-					removeLineFromCommission(order, documentType.get_ValueAsInt("C_CommissionType_ID"));
-				}
 			}
 		} else if(po instanceof MTimeExpense) {
 			MTimeExpense expenseReport = (MTimeExpense) po;
@@ -303,6 +292,7 @@ public class AgencyValidator implements ModelValidator
 	 * @param
 	 */
 	private void createCommissionForOrder(MOrder order, int commissionTypeId) {
+		removeLineFromCommission(order, commissionTypeId);
 		new Query(order.getCtx(), I_C_Commission.Table_Name, I_C_CommissionType.COLUMNNAME_C_CommissionType_ID + " = ? ", order.get_TrxName())
 			.setParameters(commissionTypeId)
 			.<MCommission>list().forEach(commissionDefinition -> {
