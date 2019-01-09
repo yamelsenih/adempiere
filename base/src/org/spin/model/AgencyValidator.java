@@ -135,6 +135,8 @@ public class AgencyValidator implements ModelValidator
 		//	Validate table
 		if(po instanceof MOrder) {
 			MOrder order = (MOrder) po;
+			//	Validate
+			MDocType  documentType = MDocType.get(order.getCtx(), order.getC_DocTypeTarget_ID());
 			if(timing == TIMING_BEFORE_PREPARE) {
 				if(order.get_ValueAsInt("S_Contract_ID") <= 0) {
 					if(order.getC_Project_ID() > 0) {
@@ -145,8 +147,6 @@ public class AgencyValidator implements ModelValidator
 						}
 					}
 				}
-				//	Validate
-				MDocType  documentType = MDocType.get(order.getCtx(), order.getC_DocTypeTarget_ID());
 				// Document type IsCustomerApproved = Y and order IsCustomerApproved = N
 				if (documentType.get_ValueAsBoolean("IsApprovedRequired")) {
 					if(!order.get_ValueAsBoolean("IsCustomerApproved")) {
@@ -167,8 +167,6 @@ public class AgencyValidator implements ModelValidator
 						throw new AdempiereException(Msg.parseTranslation(Env.getCtx(), "@CustomerApprovedRequired@ on @C_Project_ID@"));
 					}
 				}
-			} else if(timing == TIMING_BEFORE_COMPLETE) {
-				MDocType  documentType = MDocType.get(order.getCtx(), order.getC_DocTypeTarget_ID());
 				//	Validate Document Type for commission
 				if(documentType.get_ValueAsInt("C_CommissionType_ID") > 0) {
 					createCommissionForOrder(order, documentType.get_ValueAsInt("C_CommissionType_ID"));
@@ -181,7 +179,6 @@ public class AgencyValidator implements ModelValidator
 				if(!order.isDropShip()) {
 					return null;
 				}
-				MDocType  documentType = MDocType.get(order.getCtx(), order.getC_DocTypeTarget_ID());
 				// Document type IsCustomerApproved = Y and order IsCustomerApproved = N
 				if (!documentType.get_ValueAsBoolean("IsApprovedRequired")) {
 					return null;
@@ -195,6 +192,10 @@ public class AgencyValidator implements ModelValidator
 						.withParameter(OrderPOCreateAbstract.VENDOR_ID, order.getDropShip_BPartner_ID())
 						.withoutTransactionClose()
 						.execute(order.get_TrxName());
+				}
+			} else if(timing == TIMING_AFTER_REACTIVATE) {
+				if(documentType.get_ValueAsInt("C_CommissionType_ID") > 0) {
+					removeLineFromCommission(order, documentType.get_ValueAsInt("C_CommissionType_ID"));
 				}
 			}
 		} else if(po instanceof MTimeExpense) {
@@ -282,6 +283,7 @@ public class AgencyValidator implements ModelValidator
 				commissionRun.setDateDoc(order.getDateOrdered());
 				commissionRun.setC_DocType_ID(documentTypeId);
 				commissionRun.setDescription(Msg.parseTranslation(order.getCtx(), "@Generate@: @C_Order_ID@ - " + order.getDocumentNo()));
+				commissionRun.set_ValueOfColumn("C_Order_ID", order.getC_Order_ID());
 				commissionRun.saveEx();
 				//	Process commission
 				commissionRun.addFilterValues("C_Order_ID", order.getC_Order_ID());
@@ -296,10 +298,24 @@ public class AgencyValidator implements ModelValidator
 								orderLine.setQty(Env.ONE);
 								orderLine.setPrice(commissionAmt.getCommissionAmt());
 								orderLine.setTax();
-								orderLine.saveEx();
+								orderLine.saveEx(order.get_TrxName());
 						});
+				} else {
+					throw new AdempiereException(commissionRun.getProcessMsg());
 				}
 			});
+	}
+	
+	/**
+	 * Remove Line From Commission
+	 * @param order
+	 */
+	private void removeLineFromCommission(MOrder order, int commissionTypeId) {
+		String whereClause = " AND EXISTS(SELECT 1 FROM C_Commission c WHERE c.C_CommissionType_ID = " + commissionTypeId 
+				+ " AND c.C_Charge_ID = C_OrderLine.C_Charge_ID)";
+		for(MOrderLine line : order.getLines(whereClause, "")) {
+			line.deleteEx(true);
+		}
 	}
 
 	@Override
