@@ -107,9 +107,20 @@ public class RfQCreatePO extends SvrProcess
 			order.setBPartner(bp);
 			order.setC_BPartner_Location_ID(response.getC_BPartner_Location_ID());
 			order.setSalesRep_ID(rfq.getSalesRep_ID());
-			order.set_ValueOfColumn("C_Campaign_ID", response.get_ValueAsInt("C_Campaign_ID"));
-			order.set_ValueOfColumn("User1_ID", response.get_ValueAsInt("User1_ID"));
-			order.set_ValueOfColumn("C_Project_ID", response.get_ValueAsInt("C_Project_ID"));
+			int campaign = rfq.get_ValueAsInt("C_Campaign_ID");
+			int user1 = rfq.get_ValueAsInt("User1_ID");
+			int projectId = rfq.get_ValueAsInt("C_Project_ID");
+			if(campaign > 0){
+				order.set_ValueOfColumn("C_Campaign_ID", campaign);
+				}
+			if(user1 > 0){
+				order.set_ValueOfColumn("User1_ID", user1);
+				}
+			if(projectId > 0){
+				order.set_ValueOfColumn("C_Project_ID", projectId);
+				}
+			
+			
 			if (response.getDateWorkComplete() != null)
 				order.setDatePromised(response.getDateWorkComplete());
 			else if (rfq.getDateWorkComplete() != null)
