@@ -49,6 +49,9 @@ public class ProjectGenerateRFQ extends ProjectGenerateRFQAbstract
 	/**Lines for RFQ*/
 	private int 		m_Lines 			= 0;
 	
+	/**Media type*/
+//	private int 		mediaType 			= 0;
+	
 	/**Project*/
 	private MProject m_MProject 			= null;
 	
@@ -184,7 +187,7 @@ public class ProjectGenerateRFQ extends ProjectGenerateRFQAbstract
 						retValue+=processProjectLines(mProjectLine);
 				}
 				else {
-					MProduct product = (MProduct) mProjectPhase.getM_Product();
+					MProduct product = (MProduct) mProjectPhase.getM_Product();					
 					retValue = createRFQLine(product, mProjectPhase.getQty(), mProjectPhase);
 				}
 			}else if (project.getProjectLineLevel().equals(MProject.PROJECTLINELEVEL_Task)) {
@@ -231,6 +234,7 @@ public class ProjectGenerateRFQ extends ProjectGenerateRFQAbstract
 		if (projectLine.getM_Product_ID() == 0)
 			return "@NotFound@ @M_Product_ID@";
 		
+				
 		MProduct product = (MProduct) projectLine.getM_Product();
 		return createRFQLine(product, projectLine.getPlannedQty(), projectLine);
 		
@@ -283,17 +287,25 @@ public class ProjectGenerateRFQ extends ProjectGenerateRFQAbstract
 	 * @param entity
 	 * @return
 	 */
+	
 	private String createRFQLine(MProduct product, BigDecimal Qty, PO entity) {
 		if (m_RFQ == null
 				|| m_RFQ.getC_RfQ_ID()==0)
 			return "@Invalid@ @C_RfQ_ID@";
-		
+		int mediaType = 0;
 		MRfQLine line = new MRfQLine(m_RFQ);
 		line.setM_Product_ID(product.getM_Product_ID());
 		
+		if(entity instanceof MProjectTask)
+			mediaType = ((MProjectTask)entity).get_ValueAsInt("CUST_MediaType_ID");
+		else if(entity instanceof MProjectPhase)
+			mediaType = ((MProjectPhase)entity).get_ValueAsInt("CUST_MediaType_ID");
+						
+		line.set_ValueOfColumn("CUST_MediaType_ID", mediaType);
+	
 		if (!line.save())
 			return "@SaveError@ @C_RfQLine_ID@";
-		
+			
 		entity.set_ValueOfColumn("C_RfQLine_ID", line.getC_RfQLine_ID());
 		entity.save();
 		
