@@ -20,6 +20,7 @@ import java.util.Hashtable;
 
 import org.adempiere.exceptions.AdempiereException;
 import org.compiere.model.I_C_Commission;
+import org.compiere.model.I_C_CommissionRun;
 import org.compiere.model.I_C_CommissionType;
 import org.compiere.model.I_C_Order;
 import org.compiere.model.I_C_OrderLine;
@@ -42,11 +43,13 @@ import org.compiere.model.ModelValidationEngine;
 import org.compiere.model.ModelValidator;
 import org.compiere.model.PO;
 import org.compiere.model.Query;
+import org.compiere.process.DocAction;
 import org.compiere.process.OrderPOCreateAbstract;
 import org.compiere.util.CLogger;
 import org.compiere.util.Env;
 import org.compiere.util.Msg;
 import org.eevolution.service.dsl.ProcessBuilder;
+import org.spin.process.CommissionPOCreateAbstract;
 
 
 
@@ -308,16 +311,34 @@ public class AgencyValidator implements ModelValidator
 				commissionRun.setDocStatus(MCommissionRun.DOCSTATUS_Drafted);
 				//	Complete
 				if(commissionRun.processIt(MCommissionRun.DOCACTION_Complete)) {
-					commissionRun.getCommissionAmtList().stream()
-						.filter(commissionAmt -> commissionAmt.getCommissionAmt() != null 
-							&& commissionAmt.getCommissionAmt().compareTo(Env.ZERO) > 0).forEach(commissionAmt -> {
-								MOrderLine orderLine = new MOrderLine(order);
-								orderLine.setC_Charge_ID(commissionDefinition.getC_Charge_ID());
-								orderLine.setQty(Env.ONE);
-								orderLine.setPrice(commissionAmt.getCommissionAmt());
-								orderLine.setTax();
-								orderLine.saveEx(order.get_TrxName());
-						});
+					commissionRun.updateFromAmt();
+					commissionRun.saveEx();
+					if(commissionRun.getGrandTotal() != null
+							&& commissionRun.getGrandTotal().compareTo(Env.ZERO) > 0) {
+						if(order.isSOTrx()) {
+							commissionRun.getCommissionAmtList().stream()
+							.filter(commissionAmt -> commissionAmt.getCommissionAmt() != null 
+								&& commissionAmt.getCommissionAmt().compareTo(Env.ZERO) > 0).forEach(commissionAmt -> {
+									MOrderLine orderLine = new MOrderLine(order);
+									orderLine.setC_Charge_ID(commissionDefinition.getC_Charge_ID());
+									orderLine.setQty(Env.ONE);
+									orderLine.setPrice(commissionAmt.getCommissionAmt());
+									orderLine.setTax();
+									orderLine.saveEx(order.get_TrxName());
+							});
+						} else {
+							ProcessBuilder.create(order.getCtx())
+								.process(CommissionPOCreateAbstract.getProcessId())
+								.withRecordId(I_C_CommissionRun.Table_ID, commissionRun.getC_CommissionRun_ID())
+								.withParameter(CommissionPOCreateAbstract.ISSOTRX, true)
+								.withParameter(CommissionPOCreateAbstract.DATEORDERED, order.getDateOrdered())
+								.withParameter(CommissionPOCreateAbstract.DOCACTION, DocAction.STATUS_Drafted)
+								.withParameter(CommissionPOCreateAbstract.C_BPARTNER_ID, order.getC_BPartner_ID())
+								.withParameter(CommissionPOCreateAbstract.C_DOCTYPE_ID, commissionDefinition.get_ValueAsInt("C_DocTypeOrder_ID"))
+								.withoutTransactionClose()
+								.execute(order.get_TrxName());
+						}
+					}
 				} else {
 					throw new AdempiereException(commissionRun.getProcessMsg());
 				}

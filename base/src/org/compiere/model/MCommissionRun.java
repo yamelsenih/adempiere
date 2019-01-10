@@ -287,13 +287,25 @@ public class MCommissionRun extends X_C_CommissionRun implements DocAction, DocO
 			if(get_ValueAsInt("S_Contract_ID") > 0) {
 				//	Add filters for lines
 				addFilterValues("S_Contract_ID", get_ValueAsInt("S_Contract_ID"));
-				for(X_C_CommissionSalesRep commissionSalesRep : getCommissionSalesRepList(commission)) {
-					MBPartner salesRep = MBPartner.get(getCtx(), commissionSalesRep.getC_BPartner_ID());
-					processCommissionLine(salesRep, commission, commissionSalesRep.get_ValueAsBoolean("IsPercentage"), (BigDecimal)commissionSalesRep.get_Value("AmtMultiplier"));
-					if (commission.isAllowRMA()) {					
-						// TODO: process devolutions which are not in the invoice lines
+				List<X_C_CommissionSalesRep> commissionSalesRepList = getCommissionSalesRepList(commission);
+				if(commissionSalesRepList != null
+						&& commissionSalesRepList.size() > 0) {
+					for(X_C_CommissionSalesRep commissionSalesRep : commissionSalesRepList) {
+						MBPartner salesRep = MBPartner.get(getCtx(), commissionSalesRep.getC_BPartner_ID());
+						processCommissionLine(salesRep, commission, commissionSalesRep.get_ValueAsBoolean("IsPercentage"), (BigDecimal)commissionSalesRep.get_Value("AmtMultiplier"));
+					}
+				} else {
+					List<MBPartner> partiesList = getCommissionSplitFromSalesRepList(commission);
+					if(partiesList != null
+							&& partiesList.size() > 0) {
+						for(MBPartner party: partiesList) {
+							processCommissionLine(party, commission);
+						}
 					}
 				}
+			} else if(get_ValueAsInt("C_Order_ID") > 0) {
+				MOrder order = new MOrder(getCtx(), get_ValueAsInt("C_Order_ID"), get_TrxName());
+				processCommissionLine(MBPartner.get(getCtx(), order.getC_BPartner_ID()), commission);
 			} else {
 				for(MBPartner salesRep : commission.getSalesRepsOfCommission()) {
 					processCommissionLine(salesRep, commission);
@@ -307,7 +319,7 @@ public class MCommissionRun extends X_C_CommissionRun implements DocAction, DocO
 	}
 	
 	/**
-	 * Get Sales Representative for commission run
+	 * Get Sales Representative for commission run based on Contract
 	 * @return
 	 */
 	private List<X_C_CommissionSalesRep> getCommissionSalesRepList(MCommission commission) {
@@ -315,6 +327,20 @@ public class MCommissionRun extends X_C_CommissionRun implements DocAction, DocO
 				.setParameters(commission.getC_Commission_ID(), get_ValueAsInt("S_Contract_ID"))
 				.setOnlyActiveRecords(true)
 				.<X_C_CommissionSalesRep>list();
+	}
+	
+	/**
+	 * Get Sales Representative for commission run
+	 * @return
+	 */
+	private List<MBPartner> getCommissionSplitFromSalesRepList(MCommission commission) {
+		return new Query(getCtx(), I_C_BPartner.Table_Name, "EXISTS(SELECT 1 FROM C_CommissionLine cl "
+				+ "WHERE cl.SplitBPartner_ID = C_BPartner.C_BPartner_ID "
+				+ "AND cl.C_Commission_ID = ? "
+				+ "AND cl.S_Contract_ID = ?)", get_TrxName())
+				.setParameters(commission.getC_Commission_ID(), get_ValueAsInt("S_Contract_ID"))
+				.setOnlyActiveRecords(true)
+				.<MBPartner>list();
 	}
 	
 	/**
@@ -670,6 +696,12 @@ public class MCommissionRun extends X_C_CommissionRun implements DocAction, DocO
 		MCommissionLine[] commissionLines = commission.getLines();
 		List<Integer> salesRegion;
 		for (MCommissionLine commissionLine : commissionLines) {
+			if(get_ValueAsInt("S_Contract_ID") > 0
+					&& amtMultiplier == null) {
+				if(commissionLine.get_ValueAsInt("S_Contract_ID") != get_ValueAsInt("S_Contract_ID")) {
+					continue;
+				}
+			}
 			salesRegion = new ArrayList<Integer>();
 			MCommissionAmt commissionAmt = new MCommissionAmt (this, commissionLine.getC_CommissionLine_ID());
 			commissionAmt.setC_BPartner_ID(salesRep.getC_BPartner_ID());
@@ -801,16 +833,16 @@ public class MCommissionRun extends X_C_CommissionRun implements DocAction, DocO
 				String sqlView = MView.getSQLFromView(commissionType.getAD_View_ID(), get_TrxName());
 				sqlView = Env.parseContext(Env.getCtx(), 0, sqlView, false, false);
 				sql.append(sqlView);
+				//	Add Client
+				String columnName = getSQLColumnName("AD_Client_ID", commissionType);
+				sqlWhere.append(columnName).append("=?");
 				//	For where Clause
 				if(!Util.isEmpty(commissionType.getWhereClause())) {
 					String whereClauseView = Env.parseContext(Env.getCtx(), 0, commissionType.getWhereClause(), false, false);
 					if(!Util.isEmpty(whereClauseView)) {
-						sqlWhere.append(whereClauseView);
+						sqlWhere.append(" AND ").append(whereClauseView);
 					}
 				}
-				//	Add Client
-				String columnName = getSQLColumnName("AD_Client_ID", commissionType);
-				sqlWhere.append(" AND ").append(columnName).append("=?");
 				//	For Currency
 				columnName = commissionType.getSQLCurrencyColumnName();
 				if(Util.isEmpty(columnName)) {
@@ -1192,6 +1224,13 @@ public class MCommissionRun extends X_C_CommissionRun implements DocAction, DocO
 				String columnName = getSQLColumnName("h.Vendor_ID", commissionType);
 				if(!Util.isEmpty(columnName)) {
 					sqlWhere.append(" AND ").append(columnName).append("=").append(commissionLine.get_ValueAsInt("Vendor_ID"));
+				}
+			}
+			//	For charge
+			if (commissionLine.get_ValueAsInt("C_Charge_ID") != 0) {
+				String columnName = getSQLColumnName("l.C_Charge_ID", commissionType);
+				if(!Util.isEmpty(columnName)) {
+					sqlWhere.append(" AND ").append(columnName).append("=").append(commissionLine.get_ValueAsInt("C_Charge_ID"));
 				}
 			}
 			//	for current document

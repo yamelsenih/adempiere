@@ -64,6 +64,8 @@ public class CreateCommissionFromContract extends CreateCommissionFromContractAb
 				//	Complete
 				if(commissionRun.processIt(MCommissionRun.DOCACTION_Complete)) {
 					addDocumentResult(commissionRun.getDocumentNo());
+				} else {
+					throw new AdempiereException(commissionRun.getProcessMsg());
 				}
 		});
 		return getDocumentResult();

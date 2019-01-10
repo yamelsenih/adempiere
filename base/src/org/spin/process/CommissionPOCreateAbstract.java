@@ -31,24 +31,44 @@ public abstract class CommissionPOCreateAbstract extends SvrProcess {
 	private static final String NAME_FOR_PROCESS = "Create Purchase Order";
 	/** Process Id 	*/
 	private static final int ID_FOR_PROCESS = 2000043;
+	/**	Parameter Name for Sales Transaction	*/
+	public static final String ISSOTRX = "IsSOTrx";
 	/**	Parameter Name for Document Type	*/
 	public static final String C_DOCTYPE_ID = "C_DocType_ID";
 	/**	Parameter Name for Date Ordered	*/
 	public static final String DATEORDERED = "DateOrdered";
 	/**	Parameter Name for Document Action	*/
 	public static final String DOCACTION = "DocAction";
+	/**	Parameter Name for Business Partner 	*/
+	public static final String C_BPARTNER_ID = "C_BPartner_ID";
+	/**	Parameter Value for Sales Transaction	*/
+	private boolean isSOTrx;
 	/**	Parameter Value for Document Type	*/
 	private int docTypeId;
 	/**	Parameter Value for Date Ordered	*/
 	private Timestamp dateOrdered;
 	/**	Parameter Value for Document Action	*/
 	private String docAction;
+	/**	Parameter Value for Business Partner 	*/
+	private int bPartnerId;
 
 	@Override
 	protected void prepare() {
+		isSOTrx = getParameterAsBoolean(ISSOTRX);
 		docTypeId = getParameterAsInt(C_DOCTYPE_ID);
 		dateOrdered = getParameterAsTimestamp(DATEORDERED);
 		docAction = getParameterAsString(DOCACTION);
+		bPartnerId = getParameterAsInt(C_BPARTNER_ID);
+	}
+
+	/**	 Getter Parameter Value for Sales Transaction	*/
+	protected boolean isSOTrx() {
+		return isSOTrx;
+	}
+
+	/**	 Setter Parameter Value for Sales Transaction	*/
+	protected void setIsSOTrx(boolean isSOTrx) {
+		this.isSOTrx = isSOTrx;
 	}
 
 	/**	 Getter Parameter Value for Document Type	*/
@@ -79,6 +99,16 @@ public abstract class CommissionPOCreateAbstract extends SvrProcess {
 	/**	 Setter Parameter Value for Document Action	*/
 	protected void setDocAction(String docAction) {
 		this.docAction = docAction;
+	}
+
+	/**	 Getter Parameter Value for Business Partner 	*/
+	protected int getBPartnerId() {
+		return bPartnerId;
+	}
+
+	/**	 Setter Parameter Value for Business Partner 	*/
+	protected void setBPartnerId(int bPartnerId) {
+		this.bPartnerId = bPartnerId;
 	}
 
 	/**	 Getter Parameter Value for Process ID	*/

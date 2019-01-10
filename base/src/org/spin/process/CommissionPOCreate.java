@@ -23,10 +23,10 @@ import org.compiere.model.MBPartner;
 import org.compiere.model.MCommission;
 import org.compiere.model.MCommissionAmt;
 import org.compiere.model.MCommissionRun;
-import org.compiere.model.MDocType;
 import org.compiere.model.MOrder;
 import org.compiere.model.MOrderLine;
 import org.compiere.util.Env;
+import org.compiere.util.Msg;
 
 /** Generated Process for (Create Purchase Order)
  *  @author ADempiere (generated) 
@@ -87,20 +87,24 @@ public class CommissionPOCreate extends CommissionPOCreateAbstract {
 	 * Create Invoice header
 	 */
 	private MOrder getOrder(MCommission commissionDefinition, MCommissionRun commissionRun, MCommissionAmt commissionAmt) {
-		MOrder order = orders.get(commissionAmt.getC_BPartner_ID());
+		int bPartnerId = getBPartnerId();
+		if(bPartnerId <= 0) {
+			bPartnerId = commissionAmt.getC_BPartner_ID();
+		}
+		MOrder order = orders.get(bPartnerId);
 		if(order != null) {
 			return order;
 		}
 		//	Create Invoice
-		order = new MOrder (getCtx(), 0, null);
+		order = new MOrder (getCtx(), 0, get_TrxName());
 		order.setClientOrg(commissionAmt.getAD_Client_ID(), commissionAmt.getAD_Org_ID());
-		order.setIsSOTrx(false);
+		order.setIsSOTrx(isSOTrx());
 		if(getDocTypeId() > 0) {
 			order.setC_DocTypeTarget_ID(getDocTypeId());
 		} else {
 			order.setC_DocTypeTarget_ID();	//	POO
 		}
-		MBPartner businessPartner = MBPartner.get(getCtx(), commissionAmt.getC_BPartner_ID());
+		MBPartner businessPartner = MBPartner.get(getCtx(), bPartnerId);
 		order.setBPartner(businessPartner);
 		order.setSalesRep_ID(getAD_User_ID());	//	caller
 		order.setDateOrdered(getDateOrdered());
@@ -109,9 +113,22 @@ public class CommissionPOCreate extends CommissionPOCreateAbstract {
 		if (commissionDefinition.getC_Currency_ID() != order.getC_Currency_ID()) {
 			throw new IllegalArgumentException("@CommissionAPInvoiceCurrency@");	//	TODO Translate it: CommissionAPInvoice - Currency of PO Price List not Commission Currency
 		}
+		order.setDescription(Msg.parseTranslation(getCtx(), "@Generate@: @C_CommissionRun_ID@ " + commissionRun.getDocumentNo()));
+		//	
+		if(commissionRun.get_ValueAsInt("C_Order_ID") > 0) {
+			MOrder sourceOrder = new MOrder(getCtx(), commissionRun.get_ValueAsInt("C_Order_ID"), get_TrxName());
+			//	Set Project
+			if(sourceOrder.getC_Project_ID() > 0) {
+				order.setC_Project_ID(sourceOrder.getC_Project_ID());
+			}
+			//	Set Contract
+			if(sourceOrder.get_ValueAsInt("S_Contract_ID") > 0) {
+				order.set_ValueOfColumn("S_Contract_ID", sourceOrder.get_ValueAsInt("S_Contract_ID"));
+			}
+		}
 		//		
 		order.saveEx();
-		orders.put(commissionAmt.getC_BPartner_ID(), order);
+		orders.put(bPartnerId, order);
 		//	Add to message
 		created++;
 		addToMessage(order.getDocumentNo());
