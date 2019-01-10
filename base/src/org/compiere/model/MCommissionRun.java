@@ -698,7 +698,7 @@ public class MCommissionRun extends X_C_CommissionRun implements DocAction, DocO
 		for (MCommissionLine commissionLine : commissionLines) {
 			if(get_ValueAsInt("S_Contract_ID") > 0
 					&& amtMultiplier == null) {
-				if(commissionLine.get_ValueAsInt("S_Contract_ID") != get_ValueAsInt("S_Contract_ID")) {
+				if(commissionLine.get_ValueAsInt("SplitBPartner_ID") != salesRep.getC_BPartner_ID()) {
 					continue;
 				}
 			}
