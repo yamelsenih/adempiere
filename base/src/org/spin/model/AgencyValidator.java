@@ -332,6 +332,7 @@ public class AgencyValidator implements ModelValidator
 	private void createCommissionForOrder(MOrder order, int commissionTypeId) {
 		removeLineFromCommission(order, commissionTypeId);
 		new Query(order.getCtx(), I_C_Commission.Table_Name, I_C_CommissionType.COLUMNNAME_C_CommissionType_ID + " = ? ", order.get_TrxName())
+			.setOnlyActiveRecords(true)
 			.setParameters(commissionTypeId)
 			.<MCommission>list().forEach(commissionDefinition -> {
 				int documentTypeId = MDocType.getDocType(MDocType.DOCBASETYPE_SalesCommission, order.getAD_Org_ID());
