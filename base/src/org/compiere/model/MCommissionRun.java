@@ -21,6 +21,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.Hashtable;
@@ -686,6 +687,592 @@ public class MCommissionRun extends X_C_CommissionRun implements DocAction, DocO
 	}
 	
 	/**
+	 * Process line based on commission lines
+	 * @param salesRep
+	 * @param commission
+	 * @param commissionLineList
+	 * @param commissionLine
+	 * @param isPercentage
+	 * @param amtMultiplier
+	 */
+	private void processLine(MBPartner salesRep, MCommission commission, List<MCommissionLine>commissionLineList, MCommissionLine commissionLine, boolean isPercentage, BigDecimal amtMultiplier) {
+		if(get_ValueAsInt("S_Contract_ID") > 0
+				&& amtMultiplier == null) {
+			if(commissionLine.get_ValueAsInt("SplitBPartner_ID") != salesRep.getC_BPartner_ID()) {
+				return;
+			}
+		}
+		List<Integer> salesRegion = new ArrayList<Integer>();
+		MCommissionAmt commissionAmt = new MCommissionAmt (this, commissionLine.getC_CommissionLine_ID());
+		commissionAmt.setC_BPartner_ID(salesRep.getC_BPartner_ID());
+		commissionAmt.saveEx();
+		//
+		StringBuffer sql = new StringBuffer();
+		StringBuffer sqlWhere = new StringBuffer();
+		MCommissionType commissionType = null;
+		if (MCommission.DOCBASISTYPE_Receipt.equals(commission.getDocBasisType()))
+		{		
+			String sqlAppend = "";
+			if (commission.isTotallyPaid()) 
+	        	// Last payment must be within commission period 
+				sqlAppend = " AND (p.DateTrx <? or  p.DateTrx <?) AND maxPayDate(h.c_Invoice_ID) between ? AND ? ";
+			else 
+				sqlAppend = " AND p.DateTrx BETWEEN ? AND ? ";
+			
+			if (commission.isListDetails())
+			{
+				//	the view must be change
+				sql.append("SELECT h.C_Currency_ID,"
+					+ " (linenetamtrealinvoiceline(l.c_Invoiceline_ID) * (al.Amount/h.GrandTotal)) AS Amt,"
+					+ " (l.QtyInvoiced*al.Amount/h.GrandTotal) AS Qty,"
+					+ " NULL, l.C_InvoiceLine_ID, (p.DocumentNo || '_' || h.DocumentNo) AS Reference,"
+					+ " COALESCE(prd.Value,l.Description) AS Info, h.DateInvoiced AS DateDoc"
+					+ "FROM C_Payment p"
+					+ " INNER JOIN C_AllocationLine al ON (p.C_Payment_ID=al.C_Payment_ID)"
+					+ " INNER JOIN C_Invoice h ON (al.C_Invoice_ID = h.C_Invoice_ID)"
+					+ " INNER JOIN C_InvoiceLine l ON (h.C_Invoice_ID = l.C_Invoice_ID) "
+					+ " LEFT OUTER JOIN M_Product prd ON (l.M_Product_ID = prd.M_Product_ID) "
+					+ "WHERE p.DocStatus IN ('CL','CO')"
+					+ " AND h.IsSOTrx='Y'"
+					+ " AND p.AD_Client_ID = ? "
+					+ " AND al.C_Charge_ID IS NULL "
+					+ sqlAppend);
+			}
+			else
+			{
+				sql.append("SELECT h.C_Currency_ID, "
+						+ "SUM(linenetamtrealinvoiceline(l.c_Invoiceline_ID) *(al.Amount/h.GrandTotal)) AS Amt,"
+						+ " SUM(l.QtyInvoiced*al.Amount/h.GrandTotal) AS Qty,"
+						+ " NULL, NULL, NULL AS Reference, NULL AS Info, MAX(h.DateInvoiced) AS DateDoc "
+						+ "FROM C_Payment p"
+						+ " INNER JOIN C_AllocationLine al ON (p.C_Payment_ID=al.C_Payment_ID)"
+						+ " INNER JOIN C_Invoice h ON (al.C_Invoice_ID = h.C_Invoice_ID)"
+						+ " INNER JOIN C_InvoiceLine l ON (h.C_Invoice_ID = l.C_Invoice_ID) "
+						+ "WHERE p.DocStatus IN ('CL','CO')"
+						+ " AND h.IsSOTrx='Y'"
+						+ " AND p.AD_Client_ID = ? "
+						+ " AND al.C_Charge_ID IS NULL "
+						+ sqlAppend);
+			}
+			//	Days Due: obtain days due either from payment term or from invoice date
+			if (commissionLine.getDaysFrom() != 0) {
+				if(commission.isDaysDueFromPaymentTerm())
+					sqlWhere.append(" AND paymenttermduedays(h.C_PaymentTerm_ID, h.DateInvoiced, p.DateTrx) >= ").append(commissionLine.get_ValueAsInt(MCommissionLine.COLUMNNAME_DaysFrom));
+				else
+					sqlWhere.append(" AND daysbetween(p.DateTrx, h.DateInvoiced) >= ").append(commissionLine.get_ValueAsInt(MCommissionLine.COLUMNNAME_DaysFrom));
+			}
+			if (commissionLine.getDaysTo() != 0) {
+				if(commission.isDaysDueFromPaymentTerm())
+					sqlWhere.append(" AND paymenttermduedays(h.C_PaymentTerm_ID, h.DateInvoiced, p.DateTrx) <= ").append(commissionLine.get_ValueAsInt(MCommissionLine.COLUMNNAME_DaysTo));
+				else
+					sqlWhere.append(" AND daysbetween(p.DateTrx, h.DateInvoiced) <= ").append(commissionLine.get_ValueAsInt(MCommissionLine.COLUMNNAME_DaysTo));
+			}
+		}
+		else if (MCommission.DOCBASISTYPE_Order.equals(commission.getDocBasisType())
+				|| MCommission.DOCBASISTYPE_ForecastVsOrder.equals(commission.getDocBasisType())) {
+			if (commission.isListDetails()) {
+				sql.append("SELECT h.C_Currency_ID, linenetamtrealorderline(l.c_OrderLine_ID) AS Amt, l.QtyOrdered AS Qty, "
+					+ "l.C_OrderLine_ID, NULL, h.DocumentNo AS Reference,"
+					+ " COALESCE(prd.Value,l.Description) AS Info,h.DateOrdered AS DateDoc"
+					+ "FROM C_Order h"
+					+ " INNER JOIN C_OrderLine l ON (h.C_Order_ID = l.C_Order_ID)"
+					+ " LEFT OUTER JOIN M_Product prd ON (l.M_Product_ID = prd.M_Product_ID) "
+					+ "WHERE h.DocStatus IN ('CL','CO')"
+					+ " AND h.IsSOTrx='Y'"
+					+ " AND h.AD_Client_ID = ?"
+					+ " AND h.DateOrdered BETWEEN ? AND ?");
+			} else {
+				sql.append("SELECT h.C_Currency_ID, SUM(linenetamtrealorderline(l.c_OrderLine_ID)) AS Amt,"
+					+ " SUM(l.QtyOrdered) AS Qty, "
+					+ "NULL, NULL, NULL AS Reference, NULL AS Info, MAX(h.DateOrdered) AS DateDoc "
+					+ "FROM C_Order h"
+					+ " INNER JOIN C_OrderLine l ON (h.C_Order_ID = l.C_Order_ID) "
+					+ "WHERE h.DocStatus IN ('CL','CO')"
+					+ " AND h.IsSOTrx='Y'"
+					+ " AND h.AD_Client_ID = ?"
+					+ " AND h.DateOrdered BETWEEN ? AND ?");
+			}
+		} else if (MCommission.DOCBASISTYPE_Invoice.equals(commission.getDocBasisType())
+				|| MCommission.DOCBASISTYPE_ForecastVsInvoice.equals(commission.getDocBasisType())) {	//	Invoice Basis
+			if (commission.isListDetails()) {
+				sql.append("SELECT h.C_Currency_ID, linenetamtrealinvoiceline(l.c_Invoiceline_ID) AS Amt, l.QtyInvoiced AS Qty, "
+					+ "NULL, l.C_InvoiceLine_ID, h.DocumentNo AS Reference,"
+					+ " COALESCE(prd.Value,l.Description) AS Info,h.DateInvoiced AS DateDoc "
+					+ "FROM C_Invoice h"
+					+ " INNER JOIN C_InvoiceLine l ON (h.C_Invoice_ID = l.C_Invoice_ID)"
+					+ " LEFT OUTER JOIN M_Product prd ON (l.M_Product_ID = prd.M_Product_ID) "
+					+ "WHERE h.DocStatus IN ('CL','CO')"
+					+ " AND h.IsSOTrx='Y'"
+					+ " AND h.AD_Client_ID = ?"
+					+ " AND h.DateInvoiced BETWEEN ? AND ?");
+			} else {
+				sql.append("SELECT h.C_Currency_ID, SUM(linenetamtrealinvoiceline(l.c_Invoiceline_ID)) AS Amt,"
+					+ " SUM(l.QtyInvoiced) AS Qty, "
+					+ "NULL, NULL, NULL AS Reference, NULL AS Info, MAX(h.DateInvoiced) AS DateDoc "
+					+ "FROM C_Invoice h"
+					+ " INNER JOIN C_InvoiceLine l ON (h.C_Invoice_ID = l.C_Invoice_ID) "
+					+ "WHERE h.DocStatus IN ('CL','CO')"
+					+ " AND h.IsSOTrx='Y'"
+					+ " AND h.AD_Client_ID = ?"
+					+ " AND h.DateInvoiced BETWEEN ? AND ?");
+			}
+			//	Dunning Level
+			if (commissionLine.getC_DunningLevel_ID() != 0) {
+				sqlWhere.append(" AND h.C_DunningLevel_ID=").append(commissionLine.getC_DunningLevel_ID());
+			}
+			//	Collection Status
+			if (commissionLine.getInvoiceCollectionType() != null) {
+				sqlWhere.append(" AND h.InvoiceCollectionType='").append(commissionLine.getInvoiceCollectionType()).append("'");
+			}
+		} else if(isCustom(commission.getDocBasisType())) {
+			commissionType = MCommissionType.getById(getCtx(), commission.get_ValueAsInt("C_CommissionType_ID"), get_TrxName());
+			if(commissionType == null) {
+				throw new AdempiereException("@C_CommissionType_ID@ @NotFound@");
+			}
+			//	Muhahahaha
+			String sqlView = MView.getSQLFromView(commissionType.getAD_View_ID(), get_TrxName());
+			sqlView = Env.parseContext(Env.getCtx(), 0, sqlView, false, false);
+			sql.append(sqlView);
+			//	Add Client
+			String columnName = getSQLColumnName("AD_Client_ID", commissionType);
+			sqlWhere.append(columnName).append("=?");
+			//	For where Clause
+			if(!Util.isEmpty(commissionType.getWhereClause())) {
+				String whereClauseView = Env.parseContext(Env.getCtx(), 0, commissionType.getWhereClause(), false, false);
+				if(!Util.isEmpty(whereClauseView)) {
+					sqlWhere.append(" AND ").append(whereClauseView);
+				}
+			}
+			//	For Currency
+			columnName = commissionType.getSQLCurrencyColumnName();
+			if(Util.isEmpty(columnName)) {
+				throw new AdempiereException("@C_CommissionType_ID@ @C_Currency_ID@ @AD_Column_ID@ @NotFound@");
+			}
+			//	For Quantity
+			columnName = commissionType.getSQLQuantityColumnName();
+			if(Util.isEmpty(columnName)) {
+				throw new AdempiereException("@C_CommissionType_ID@ @Qty@ @AD_Column_ID@ @NotFound@");
+			}
+			//	For Amount
+			columnName = commissionType.getSQLAmountColumnName();
+			if(Util.isEmpty(columnName)) {
+				throw new AdempiereException("@C_CommissionType_ID@ @Amount@ @AD_Column_ID@ @NotFound@");
+			}				
+			//	For Date Doc
+			columnName = commissionType.getSQLDateDocColumnName();
+			if(Util.isEmpty(columnName)) {
+				throw new AdempiereException("@C_CommissionType_ID@ @DateDoc@ @AD_Column_ID@ @NotFound@");
+			}
+			sqlWhere.append(" AND ").append(columnName).append(">=?");
+			sqlWhere.append(" AND ").append(columnName).append("<=?");
+		}
+		//	For Forecast
+		if(MCommission.DOCBASISTYPE_ForecastVsInvoice.equals(commission.getDocBasisType())) {	//	For Invoices
+			if(!commissionLine.isPercentageFromPrice()) {	//	Based in variation from Quantity on forecast [SUM(QtyInvoiced) / ForecastQty]
+				if(commissionLine.getMinCompliance() != null
+						&& commissionLine.getMinCompliance().compareTo(Env.ZERO) > 0) {
+					sql.append(" AND EXISTS(SELECT 1 "
+						+ "FROM C_Invoice i "
+						+ "INNER JOIN C_InvoiceLine il ON(il.C_Invoice_ID = i.C_Invoice_ID)	"
+						+ "INNER JOIN (SELECT fl.M_Product_ID, fl.SalesRep_ID, pd.PP_Period_ID, " 
+						+ "	            pd.Name, pd.StartDate, pd.EndDate, SUM(fl.Qty) ForecastQty " 
+						+ "		FROM M_Forecast f "
+						+ "		INNER JOIN M_ForecastLine fl ON(fl.M_Forecast_ID = f.M_Forecast_ID) "
+						+ "		INNER JOIN PP_Period pd ON(pd.PP_Period_ID = fl.PP_Period_ID) "
+						+ "		WHERE f.IsActive = 'Y' "
+						+ "		AND fl.IsActive = 'Y' "
+						+ "	    GROUP BY fl.M_Product_ID, fl.SalesRep_ID, pd.PP_Period_ID, pd.Name, pd.StartDate, pd.EndDate "
+						+ "	) fl ON(fl.M_Product_ID = il.M_Product_ID AND fl.SalesRep_ID = i.SalesRep_ID "
+						+ "	        AND i.DateInvoiced BETWEEN fl.StartDate AND fl.EndDate"
+						+ "			AND h.DateInvoiced BETWEEN fl.StartDate AND fl.EndDate) "
+						+ "WHERE il.M_Product_ID = l.M_Product_ID "
+						+ "AND i.DocStatus IN('CL','CO') "
+						+ "AND i.SalesRep_ID = h.SalesRep_ID "
+						+ "GROUP BY l.M_Product_ID, fl.ForecastQty "
+						+ "HAVING(((SUM(il.QtyInvoiced) / fl.ForecastQty) * 100) >= " + DB.TO_NUMBER(commissionLine.getMinCompliance(), DisplayType.Amount));
+						//	For Max Compliance
+					if(commissionLine.getMaxCompliance() != null
+							&& commissionLine.getMaxCompliance().compareTo(Env.ZERO) > 0) {
+						sql.append(" AND ((SUM(il.QtyInvoiced) / fl.ForecastQty) * 100) <= " + DB.TO_NUMBER(commissionLine.getMaxCompliance(), DisplayType.Amount) + ")");
+					} else {
+						sql.append(")");
+					}
+					//	Last
+					sql.append(")");
+				} else if(commissionLine.getMaxCompliance() != null
+						&& commissionLine.getMaxCompliance().compareTo(Env.ZERO) > 0) {
+					sql.append(" AND EXISTS(SELECT 1 "
+							+ "FROM C_Invoice i "
+							+ "INNER JOIN C_InvoiceLine il ON(il.C_Invoice_ID = i.C_Invoice_ID)	"
+							+ "	INNER JOIN (SELECT fl.M_Product_ID, fl.SalesRep_ID, pd.PP_Period_ID, " 
+							+ "	            pd.Name, pd.StartDate, pd.EndDate, SUM(fl.Qty) ForecastQty " 
+							+ "		FROM M_Forecast f "
+							+ "		INNER JOIN M_ForecastLine fl ON(fl.M_Forecast_ID = f.M_Forecast_ID) "
+							+ "		INNER JOIN PP_Period pd ON(pd.PP_Period_ID = fl.PP_Period_ID) "
+							+ "		WHERE f.IsActive = 'Y' "
+							+ "		AND fl.IsActive = 'Y' "
+							+ "	    GROUP BY fl.M_Product_ID, fl.SalesRep_ID, pd.PP_Period_ID, pd.Name, pd.StartDate, pd.EndDate "
+							+ "	) fl ON(fl.M_Product_ID = il.M_Product_ID AND fl.SalesRep_ID = i.SalesRep_ID "
+							+ "	        AND i.DateInvoiced BETWEEN fl.StartDate AND fl.EndDate"
+							+ "			AND h.DateInvoiced BETWEEN fl.StartDate AND fl.EndDate) "
+							+ "WHERE il.M_Product_ID = l.M_Product_ID "
+							+ "AND i.DocStatus IN('CL','CO') "
+							+ "AND i.SalesRep_ID = h.SalesRep_ID "
+							+ "GROUP BY l.M_Product_ID, fl.ForecastQty "
+							+ "HAVING(((SUM(il.QtyInvoiced) / fl.ForecastQty) * 100) <= " + DB.TO_NUMBER(commissionLine.getMaxCompliance(), DisplayType.Amount) + ")"
+							+ ")");
+				}
+			} else {	//	Based in variation from Price on forecast [SUM(lineNetAmt) / (ForecastQty * PriceList)]
+				if(commissionLine.getMinCompliance() != null
+						&& commissionLine.getMinCompliance().compareTo(Env.ZERO) > 0) {
+					sql.append(" AND EXISTS(SELECT 1 "
+						+ "FROM C_Invoice i "
+						+ "INNER JOIN C_InvoiceLine il ON(il.C_Invoice_ID = i.C_Invoice_ID)	"
+						+ "INNER JOIN (SELECT f.M_Product_ID, f.SalesRep_ID, pd.PP_Period_ID, " 
+						+ "	            pd.Name, pd.StartDate, pd.EndDate, SUM(f.Qty * f.PriceList) ForecastAmt " 
+						+ "		FROM RV_M_Forecast f "
+						+ "		INNER JOIN PP_Period pd ON(pd.PP_Period_ID = f.PP_Period_ID) "
+						+ "	    GROUP BY f.M_Product_ID, f.SalesRep_ID, pd.PP_Period_ID, pd.Name, pd.StartDate, pd.EndDate "
+						+ "	) fl ON(fl.M_Product_ID = il.M_Product_ID AND fl.SalesRep_ID = i.SalesRep_ID "
+						+ "	        AND i.DateInvoiced BETWEEN fl.StartDate AND fl.EndDate"
+						+ "			AND h.DateInvoiced BETWEEN fl.StartDate AND fl.EndDate) "
+						+ "WHERE il.M_Product_ID = l.M_Product_ID "
+						+ "AND i.DocStatus IN('CL','CO') "
+						+ "AND i.SalesRep_ID = h.SalesRep_ID "
+						+ "GROUP BY l.M_Product_ID, fl.ForecastAmt "
+						+ "HAVING(((SUM(linenetamtrealinvoiceline(il.c_Invoiceline_ID)) / fl.ForecastAmt) * 100) >= " + DB.TO_NUMBER(commissionLine.getMinCompliance(), DisplayType.Amount));
+						//	For Max Compliance
+					if(commissionLine.getMaxCompliance() != null
+							&& commissionLine.getMaxCompliance().compareTo(Env.ZERO) > 0) {
+						sql.append(" AND ((SUM(linenetamtrealinvoiceline(il.c_Invoiceline_ID)) / fl.ForecastAmt) * 100) <= " + DB.TO_NUMBER(commissionLine.getMaxCompliance(), DisplayType.Amount) + ")");
+					} else {
+						sql.append(")");
+					}
+					//	Last
+					sql.append(")");
+				} else if(commissionLine.getMaxCompliance() != null
+						&& commissionLine.getMaxCompliance().compareTo(Env.ZERO) > 0) {
+					sql.append(" AND EXISTS(SELECT 1 "
+							+ "FROM C_Invoice i "
+							+ "INNER JOIN C_InvoiceLine il ON(il.C_Invoice_ID = i.C_Invoice_ID)	"
+							+ "	INNER JOIN (SELECT fl.M_Product_ID, fl.SalesRep_ID, pd.PP_Period_ID, " 
+							+ "	            pd.Name, pd.StartDate, pd.EndDate, SUM(f.Qty * f.PriceList) ForecastAmt " 
+							+ "		FROM RV_M_Forecast f "
+							+ "		INNER JOIN PP_Period pd ON(pd.PP_Period_ID = fl.PP_Period_ID) "
+							+ "	    GROUP BY fl.M_Product_ID, fl.SalesRep_ID, pd.PP_Period_ID, pd.Name, pd.StartDate, pd.EndDate "
+							+ "	) fl ON(fl.M_Product_ID = il.M_Product_ID AND fl.SalesRep_ID = i.SalesRep_ID "
+							+ "	        AND i.DateInvoiced BETWEEN fl.StartDate AND fl.EndDate"
+							+ "			AND h.DateInvoiced BETWEEN fl.StartDate AND fl.EndDate) "
+							+ "WHERE il.M_Product_ID = l.M_Product_ID "
+							+ "AND i.DocStatus IN('CL','CO') "
+							+ "AND i.SalesRep_ID = h.SalesRep_ID "
+							+ "GROUP BY l.M_Product_ID, fl.ForecastAmt "
+							+ "HAVING(((SUM(linenetamtrealinvoiceline(il.c_Invoiceline_ID)) / fl.ForecastAmt) * 100) <= " + DB.TO_NUMBER(commissionLine.getMaxCompliance(), DisplayType.Amount) + ")"
+							+ ")");
+				}
+			}
+		} else if(MCommission.DOCBASISTYPE_ForecastVsOrder.equals(commission.getDocBasisType())) {	//	For Orders
+			if(!commissionLine.isPercentageFromPrice()) {	//	Based in variation from Quantity on forecast [SUM(QtyInvoiced) / ForecastQty]
+				if(commissionLine.getMinCompliance() != null
+						&& commissionLine.getMinCompliance().compareTo(Env.ZERO) > 0) {
+					sql.append(" AND EXISTS(SELECT 1 "
+						+ "FROM C_Order i "
+						+ "INNER JOIN C_OrderLine il ON(il.C_Order_ID = i.C_Order_ID)	"
+						+ "INNER JOIN (SELECT fl.M_Product_ID, fl.SalesRep_ID, pd.PP_Period_ID, " 
+						+ "	            pd.Name, pd.StartDate, pd.EndDate, SUM(fl.Qty) ForecastQty " 
+						+ "		FROM M_Forecast f "
+						+ "		INNER JOIN M_ForecastLine fl ON(fl.M_Forecast_ID = f.M_Forecast_ID) "
+						+ "		INNER JOIN PP_Period pd ON(pd.PP_Period_ID = fl.PP_Period_ID) "
+						+ "		WHERE f.IsActive = 'Y' "
+						+ "		AND fl.IsActive = 'Y' "
+						+ "	    GROUP BY fl.M_Product_ID, fl.SalesRep_ID, pd.PP_Period_ID, pd.Name, pd.StartDate, pd.EndDate "
+						+ "	) fl ON(fl.M_Product_ID = il.M_Product_ID AND fl.SalesRep_ID = i.SalesRep_ID "
+						+ "	        AND i.DateOrdered BETWEEN fl.StartDate AND fl.EndDate"
+						+ "			AND h.DateOrdered BETWEEN fl.StartDate AND fl.EndDate) "
+						+ "WHERE il.M_Product_ID = l.M_Product_ID "
+						+ "AND i.DocStatus IN('CL','CO') "
+						+ "AND i.SalesRep_ID = h.SalesRep_ID "
+						+ "GROUP BY l.M_Product_ID, fl.ForecastQty "
+						+ "HAVING(((SUM(il.QtyOrdered) / fl.ForecastQty) * 100) >= " + DB.TO_NUMBER(commissionLine.getMinCompliance(), DisplayType.Amount));
+						//	For Max Compliance
+					if(commissionLine.getMaxCompliance() != null
+							&& commissionLine.getMaxCompliance().compareTo(Env.ZERO) > 0) {
+						sql.append(" AND ((SUM(il.QtyOrdered) / fl.ForecastQty) * 100) <= " + DB.TO_NUMBER(commissionLine.getMaxCompliance(), DisplayType.Amount) + ")");
+					} else {
+						sql.append(")");
+					}
+					//	Last
+					sql.append(")");
+				} else if(commissionLine.getMaxCompliance() != null
+						&& commissionLine.getMaxCompliance().compareTo(Env.ZERO) > 0) {
+					sql.append(" AND EXISTS(SELECT 1 "
+							+ "FROM C_Order i "
+							+ "INNER JOIN C_OrderLine il ON(il.C_Order_ID = i.C_Order_ID)	"
+							+ "	INNER JOIN (SELECT fl.M_Product_ID, fl.SalesRep_ID, pd.PP_Period_ID, " 
+							+ "	            pd.Name, pd.StartDate, pd.EndDate, SUM(fl.Qty) ForecastQty " 
+							+ "		FROM M_Forecast f "
+							+ "		INNER JOIN M_ForecastLine fl ON(fl.M_Forecast_ID = f.M_Forecast_ID) "
+							+ "		INNER JOIN PP_Period pd ON(pd.PP_Period_ID = fl.PP_Period_ID) "
+							+ "		WHERE f.IsActive = 'Y' "
+							+ "		AND fl.IsActive = 'Y' "
+							+ "	    GROUP BY fl.M_Product_ID, fl.SalesRep_ID, pd.PP_Period_ID, pd.Name, pd.StartDate, pd.EndDate "
+							+ "	) fl ON(fl.M_Product_ID = il.M_Product_ID AND fl.SalesRep_ID = i.SalesRep_ID "
+							+ "	        AND i.DateOrdered BETWEEN fl.StartDate AND fl.EndDate"
+							+ "			AND h.DateOrdered BETWEEN fl.StartDate AND fl.EndDate) "
+							+ "WHERE il.M_Product_ID = l.M_Product_ID "
+							+ "AND i.DocStatus IN('CL','CO') "
+							+ "AND i.SalesRep_ID = h.SalesRep_ID "
+							+ "GROUP BY l.M_Product_ID, fl.ForecastQty "
+							+ "HAVING(((SUM(il.QtyOrdered) / fl.ForecastQty) * 100) <= " + DB.TO_NUMBER(commissionLine.getMaxCompliance(), DisplayType.Amount) + ")"
+							+ ")");
+				}
+			} else {	//	Based in variation from Price on forecast [SUM(lineNetAmt) / (ForecastQty * PriceList)]
+				if(commissionLine.getMinCompliance() != null
+						&& commissionLine.getMinCompliance().compareTo(Env.ZERO) > 0) {
+					sql.append(" AND EXISTS(SELECT 1 "
+						+ "FROM C_Order i "
+						+ "INNER JOIN C_OrderLine il ON(il.C_Order_ID = i.C_Order_ID)	"
+						+ "INNER JOIN (SELECT f.M_Product_ID, f.SalesRep_ID, pd.PP_Period_ID, " 
+						+ "	            pd.Name, pd.StartDate, pd.EndDate, SUM(f.Qty * f.PriceList) ForecastAmt " 
+						+ "		FROM RV_M_Forecast f "
+						+ "		INNER JOIN PP_Period pd ON(pd.PP_Period_ID = f.PP_Period_ID) "
+						+ "	    GROUP BY f.M_Product_ID, f.SalesRep_ID, pd.PP_Period_ID, pd.Name, pd.StartDate, pd.EndDate "
+						+ "	) fl ON(fl.M_Product_ID = il.M_Product_ID AND fl.SalesRep_ID = i.SalesRep_ID "
+						+ "	        AND i.DateOrdered BETWEEN fl.StartDate AND fl.EndDate"
+						+ "			AND h.DateOrdered BETWEEN fl.StartDate AND fl.EndDate) "
+						+ "WHERE il.M_Product_ID = l.M_Product_ID "
+						+ "AND i.DocStatus IN('CL','CO') "
+						+ "AND i.SalesRep_ID = h.SalesRep_ID "
+						+ "GROUP BY l.M_Product_ID, fl.ForecastAmt "
+						+ "HAVING(((SUM(linenetamtrealorderline(il.C_Orderline_ID)) / fl.ForecastAmt) * 100) >= " + DB.TO_NUMBER(commissionLine.getMinCompliance(), DisplayType.Amount));
+						//	For Max Compliance
+					if(commissionLine.getMaxCompliance() != null
+							&& commissionLine.getMaxCompliance().compareTo(Env.ZERO) > 0) {
+						sql.append(" AND ((SUM(linenetamtrealorderline(il.C_Orderline_ID)) / fl.ForecastAmt) * 100) <= " + DB.TO_NUMBER(commissionLine.getMaxCompliance(), DisplayType.Amount) + ")");
+					} else {
+						sql.append(")");
+					}
+					//	Last
+					sql.append(")");
+				} else if(commissionLine.getMaxCompliance() != null
+						&& commissionLine.getMaxCompliance().compareTo(Env.ZERO) > 0) {
+					sql.append(" AND EXISTS(SELECT 1 "
+							+ "FROM C_Order i "
+							+ "INNER JOIN C_OrderLine il ON(il.C_Order_ID = i.C_Order_ID)	"
+							+ "	INNER JOIN (SELECT fl.M_Product_ID, fl.SalesRep_ID, pd.PP_Period_ID, " 
+							+ "	            pd.Name, pd.StartDate, pd.EndDate, SUM(f.Qty * f.PriceList) ForecastAmt " 
+							+ "		FROM RV_M_Forecast f "
+							+ "		INNER JOIN PP_Period pd ON(pd.PP_Period_ID = fl.PP_Period_ID) "
+							+ "	    GROUP BY fl.M_Product_ID, fl.SalesRep_ID, pd.PP_Period_ID, pd.Name, pd.StartDate, pd.EndDate "
+							+ "	) fl ON(fl.M_Product_ID = il.M_Product_ID AND fl.SalesRep_ID = i.SalesRep_ID "
+							+ "	        AND i.DateOrdered BETWEEN fl.StartDate AND fl.EndDate"
+							+ "			AND h.DateOrdered BETWEEN fl.StartDate AND fl.EndDate) "
+							+ "WHERE il.M_Product_ID = l.M_Product_ID "
+							+ "AND i.DocStatus IN('CL','CO') "
+							+ "AND i.SalesRep_ID = h.SalesRep_ID "
+							+ "GROUP BY l.M_Product_ID, fl.ForecastAmt "
+							+ "HAVING(((SUM(linenetamtrealorderline(il.C_Orderline_ID)) / fl.ForecastAmt) * 100) <= " + DB.TO_NUMBER(commissionLine.getMaxCompliance(), DisplayType.Amount) + ")"
+							+ ")");
+				}
+			}
+		}
+		//	CommissionOrders/Invoices
+		if (commissionLine.isCommissionOrders()) {
+			MUser[] users = MUser.getOfBPartner(getCtx(), salesRep.getC_BPartner_ID(), get_TrxName());
+			if (users == null || users.length == 0) {
+				return;
+			}
+			//	
+			String columnName = getSQLColumnName("h.SalesRep_ID", commissionType);
+			if(!Util.isEmpty(columnName)) {
+				if (users.length == 1) {
+					int SalesRep_ID = users[0].getAD_User_ID();
+					sqlWhere.append(" AND ").append(columnName).append("=").append(SalesRep_ID);
+				} else {
+					log.warning("Not 1 User/Contact for C_BPartner_ID=" 
+						+ salesRep.getC_BPartner_ID() + " but " + users.length);
+					sqlWhere.append(" AND EXISTS(SELECT 1 FROM AD_User u WHERE u.AD_User_ID = " + columnName + " AND u.C_BPartner_ID=")
+						.append(salesRep.getC_BPartner_ID()).append(")");
+				}
+			}
+		}
+		//	Organization
+		if (commissionLine.getOrg_ID() != 0) {
+			String columnName = getSQLColumnName("h.AD_Org_ID", commissionType);
+			if(!Util.isEmpty(columnName)) {
+				sqlWhere.append(" AND ").append(columnName).append("=").append(commissionLine.getOrg_ID());
+			}
+		}
+		//	BPartner
+		if (commissionLine.getC_BPartner_ID() != 0) {
+			String columnName = getSQLColumnName("h.C_BPartner_ID", commissionType);
+			if(!Util.isEmpty(columnName)) {
+				sqlWhere.append(" AND ").append(columnName).append("=").append(commissionLine.getC_BPartner_ID());
+			}
+		}
+		//	BPartner Group
+		if (commissionLine.getC_BP_Group_ID() != 0) {
+			String columnName = getSQLColumnName("C_BPartner_ID", commissionType);
+			if(!Util.isEmpty(columnName)) {
+				sqlWhere.append(" AND EXISTS(SELECT 1 FROM C_BPartner "
+						+ "						WHERE C_BPartner.C_BPartner_ID = " + columnName + " "
+						+ "						AND C_BP_Group_ID=").append(commissionLine.getC_BP_Group_ID()).append(")");
+			}
+		}
+		//	Sales Region
+		if (commissionLine.getC_SalesRegion_ID() != 0) {
+			String columnName = getSQLColumnName("l.C_Order_ID", commissionType);
+			if(!Util.isEmpty(columnName)) {
+				sqlWhere.append(" AND (h.C_BPartner_Location_ID IN "
+						+ "(SELECT C_BPartner_Location_ID FROM C_BPartner_Location WHERE C_SalesRegion_ID ").append(getSalesRegionClause(salesRegion, commissionLine.getC_SalesRegion_ID())).append(")"
+								+ " OR EXISTS(SELECT 1 FROM C_Order o "
+								+ "					INNER JOIN C_BPartner_Location bpl ON(bpl.C_BPartner_Location_ID = o.C_BPartner_Location_ID)"
+								+ "					WHERE o.C_Order_ID = " + columnName + " "
+								+ "					AND bpl.C_SalesRegion_ID " + getSalesRegionClause(salesRegion, commissionLine.getC_SalesRegion_ID()) + "))");
+			}
+		}
+		//	Product
+		if (commissionLine.getM_Product_ID() != 0) {
+			String columnName = getSQLColumnName("l.M_Product_ID", commissionType);
+			if(!Util.isEmpty(columnName)) {
+				sqlWhere.append(" AND ").append(columnName).append("=").append(commissionLine.getM_Product_ID());
+			}
+		}
+		//	Product Category
+		if (commissionLine.getM_Product_Category_ID() != 0) {
+			String columnName = getSQLColumnName("l.M_Product_ID", commissionType);
+			if(!Util.isEmpty(columnName)) {
+				sqlWhere.append(" AND EXISTS(SELECT 1 FROM M_Product "
+						+ "					WHERE M_Product.M_Product_ID = " + columnName + " "
+						+ "					AND M_Product_Category_ID=").append(commissionLine.getM_Product_Category_ID()).append(")");
+			}
+		}
+		//	Product Group
+		if (commissionLine.getM_Product_Group_ID() != 0) {
+			String columnName = getSQLColumnName("l.M_Product_ID", commissionType);
+			if(!Util.isEmpty(columnName)) {
+				sqlWhere.append(" AND EXISTS(SELECT 1 FROM M_Product "
+						+ "					WHERE M_Product.M_Product_ID = " + columnName + " "
+						+ "					AND M_Product_Group_ID=").append(commissionLine.getM_Product_Group_ID()).append(")");
+			}
+		}
+		//	Product Class
+		if (commissionLine.getM_Product_Class_ID() != 0) {
+			String columnName = getSQLColumnName("l.M_Product_ID", commissionType);
+			if(!Util.isEmpty(columnName)) {
+				sqlWhere.append(" AND EXISTS(SELECT 1 FROM M_Product "
+						+ "					WHERE M_Product.M_Product_ID = " + columnName + " "
+						+ "					AND M_Product_Class_ID=").append(commissionLine.getM_Product_Class_ID()).append(")");
+			}
+		}
+		//	Product Classification
+		if (commissionLine.getM_Product_Classification_ID() != 0) {
+			String columnName = getSQLColumnName("l.M_Product_ID", commissionType);
+			if(!Util.isEmpty(columnName)) {
+				sqlWhere.append(" AND EXISTS(SELECT 1 FROM M_Product "
+						+ "					WHERE M_Product.M_Product_ID = " + columnName + " "
+						+ "					AND M_Product_Classification_ID =").append(commissionLine.getM_Product_Classification_ID()).append(")");
+			}
+		}
+		//	Project
+		if (commissionLine.getC_Project_ID() != 0) {
+			String columnName = getSQLColumnName("l.C_Project_ID", commissionType);
+			if(!Util.isEmpty(columnName)) {
+				sqlWhere.append(" AND ").append(columnName).append("=").append(commissionLine.getC_Project_ID());
+			}
+		}
+		//	Campaign
+		if (commissionLine.getC_Campaign_ID() != 0) {
+			String columnName = getSQLColumnName("l.C_Campaign_ID", commissionType);
+			if(!Util.isEmpty(columnName)) {
+				sqlWhere.append(" AND ").append(columnName).append("=").append(commissionLine.getC_Campaign_ID());
+			}
+		}
+		//	Channel
+		if (commissionLine.getC_Channel_ID() != 0) {
+			String columnName = getSQLColumnName("l.C_Campaign_ID", commissionType);
+			if(!Util.isEmpty(columnName)) {
+				sqlWhere.append(" AND EXISTS(SELECT 1 FROM C_Campaign "
+						+ "					WHERE C_Campaign_ID = " + columnName + " "
+						+ "					AND C_Campaign.C_Channel_ID=").append(commissionLine.getC_Channel_ID()).append(")");
+			}
+		}
+		//	Payment Rule
+		if (commissionLine.getPaymentRule() != null) {
+			String columnName = getSQLColumnName("h.PaymentRule", commissionType);
+			if(!Util.isEmpty(columnName)) {
+				sqlWhere.append(" AND ").append(columnName).append("=").append(commissionLine.getPaymentRule()).append("'");
+			}
+		}
+
+		//	Payment Term
+		if (commissionLine.getC_PaymentTerm_ID() != 0) {
+			String columnName = getSQLColumnName("h.C_PaymentTerm_ID", commissionType);
+			if(!Util.isEmpty(columnName)) {
+				sqlWhere.append(" AND ").append(columnName).append("=").append(commissionLine.getC_PaymentTerm_ID());
+			}
+		}
+		//	For contract
+		if (commissionLine.get_ValueAsInt("S_Contract_ID") != 0) {
+			String columnName = getSQLColumnName("h.S_Contract_ID", commissionType);
+			if(!Util.isEmpty(columnName)) {
+				sqlWhere.append(" AND ").append(columnName).append("=").append(commissionLine.get_ValueAsInt("S_Contract_ID"));
+			}
+		}
+		//	For vendor
+		if (commissionLine.get_ValueAsInt("Vendor_ID") != 0) {
+			String columnName = getSQLColumnName("h.Vendor_ID", commissionType);
+			if(!Util.isEmpty(columnName)) {
+				sqlWhere.append(" AND ").append(columnName).append("=").append(commissionLine.get_ValueAsInt("Vendor_ID"));
+			}
+		}
+		//	For charge
+		if (commissionLine.get_ValueAsInt("C_Charge_ID") != 0) {
+			String columnName = getSQLColumnName("l.C_Charge_ID", commissionType);
+			if(!Util.isEmpty(columnName)) {
+				sqlWhere.append(" AND ").append(columnName).append("=").append(commissionLine.get_ValueAsInt("C_Charge_ID"));
+			}
+		}
+		//	for current document
+		if(additionalValues != null
+			&& isCustom(commission.getDocBasisType())) {
+			for(Entry<String, Integer> value : additionalValues.entrySet()) {
+				String columnName = getSQLColumnName(value.getKey(), commissionType);
+				if(!Util.isEmpty(columnName)) {
+					sqlWhere.append(" AND ").append(columnName).append("=").append(value.getValue());
+				}
+			}
+		}
+		//		
+		if(isCustom(commission.getDocBasisType())) {
+			if (!commission.isListDetails()) {
+				String columnName = getSQLColumnName("h.C_Currency_ID", commissionType);
+				if(!Util.isEmpty(columnName)) {				
+					sqlWhere.append(" ORDER BY ").append(columnName);
+				}
+			}
+		} else {
+			sqlWhere.append(getExclusionWhere(commission.getDocBasisType(), commissionLine, commissionLineList, commissionType));
+			sqlWhere.append(" GROUP BY ").append("h.C_Currency_ID");
+		}
+		//	Add Where Clause
+		sql.append(" WHERE ").append(sqlWhere);
+		log.fine("Line=" + commissionLine.getLine() + " - " + sql);
+		//	Get Max Percentage
+		commissionAmt.setPercentage(getAmountPercentage(commission, commissionLine.isPercentageFromPrice(), sqlWhere));
+		commissionAmt.setMaxPercentage(commissionLine.getMaxPercentage());
+		// Here the actual calculation is performed
+		createDetail(sql.toString(), commission, commissionLine, commissionAmt, commissionType, isPercentage, amtMultiplier);
+		if(commissionAmt.getDetails().length==0)  {				
+			commissionAmt.deleteEx(true, get_TrxName());
+		}
+		else  {		
+			commissionAmt.updateCommissionAmount();
+			commissionAmt.saveEx();
+		}
+	}
+	
+	/**
 	 * Process lines
 	 * @param salesRep
 	 * @param commission
@@ -693,585 +1280,31 @@ public class MCommissionRun extends X_C_CommissionRun implements DocAction, DocO
 	 */
 	private String processCommissionLine(MBPartner salesRep, MCommission commission, boolean isPercentage, BigDecimal amtMultiplier) {
 		//	
-		MCommissionLine[] commissionLines = commission.getLines();
-		List<Integer> salesRegion;
-		for (MCommissionLine commissionLine : commissionLines) {
-			if(get_ValueAsInt("S_Contract_ID") > 0
-					&& amtMultiplier == null) {
-				if(commissionLine.get_ValueAsInt("SplitBPartner_ID") != salesRep.getC_BPartner_ID()) {
-					continue;
-				}
+		List<MCommissionLine>commissionLineList = Arrays.asList(commission.getLines());
+		long count = 0;
+		//	Validate for orders
+		if(get_ValueAsInt("C_Order_ID") > 0) {
+			MOrder order = new MOrder(getCtx(), get_ValueAsInt("C_Order_ID"), get_TrxName());
+			if(!order.isSOTrx()) {
+				count = commissionLineList.stream()
+					.filter(commissionLine -> commissionLine.get_ValueAsInt("C_Order_ID") == get_ValueAsInt("C_Order_ID"))
+					.count();
+				//	Validate
 			}
-			salesRegion = new ArrayList<Integer>();
-			MCommissionAmt commissionAmt = new MCommissionAmt (this, commissionLine.getC_CommissionLine_ID());
-			commissionAmt.setC_BPartner_ID(salesRep.getC_BPartner_ID());
-			commissionAmt.saveEx();
-			//
-			StringBuffer sql = new StringBuffer();
-			StringBuffer sqlWhere = new StringBuffer();
-			MCommissionType commissionType = null;
-			if (MCommission.DOCBASISTYPE_Receipt.equals(commission.getDocBasisType()))
-			{		
-				String sqlAppend = "";
-				if (commission.isTotallyPaid()) 
-		        	// Last payment must be within commission period 
-					sqlAppend = " AND (p.DateTrx <? or  p.DateTrx <?) AND maxPayDate(h.c_Invoice_ID) between ? AND ? ";
-				else 
-					sqlAppend = " AND p.DateTrx BETWEEN ? AND ? ";
-				
-				if (commission.isListDetails())
-				{
-					//	the view must be change
-					sql.append("SELECT h.C_Currency_ID,"
-						+ " (linenetamtrealinvoiceline(l.c_Invoiceline_ID) * (al.Amount/h.GrandTotal)) AS Amt,"
-						+ " (l.QtyInvoiced*al.Amount/h.GrandTotal) AS Qty,"
-						+ " NULL, l.C_InvoiceLine_ID, (p.DocumentNo || '_' || h.DocumentNo) AS Reference,"
-						+ " COALESCE(prd.Value,l.Description) AS Info, h.DateInvoiced AS DateDoc"
-						+ "FROM C_Payment p"
-						+ " INNER JOIN C_AllocationLine al ON (p.C_Payment_ID=al.C_Payment_ID)"
-						+ " INNER JOIN C_Invoice h ON (al.C_Invoice_ID = h.C_Invoice_ID)"
-						+ " INNER JOIN C_InvoiceLine l ON (h.C_Invoice_ID = l.C_Invoice_ID) "
-						+ " LEFT OUTER JOIN M_Product prd ON (l.M_Product_ID = prd.M_Product_ID) "
-						+ "WHERE p.DocStatus IN ('CL','CO')"
-						+ " AND h.IsSOTrx='Y'"
-						+ " AND p.AD_Client_ID = ? "
-						+ " AND al.C_Charge_ID IS NULL "
-						+ sqlAppend);
-				}
-				else
-				{
-					sql.append("SELECT h.C_Currency_ID, "
-							+ "SUM(linenetamtrealinvoiceline(l.c_Invoiceline_ID) *(al.Amount/h.GrandTotal)) AS Amt,"
-							+ " SUM(l.QtyInvoiced*al.Amount/h.GrandTotal) AS Qty,"
-							+ " NULL, NULL, NULL AS Reference, NULL AS Info, MAX(h.DateInvoiced) AS DateDoc "
-							+ "FROM C_Payment p"
-							+ " INNER JOIN C_AllocationLine al ON (p.C_Payment_ID=al.C_Payment_ID)"
-							+ " INNER JOIN C_Invoice h ON (al.C_Invoice_ID = h.C_Invoice_ID)"
-							+ " INNER JOIN C_InvoiceLine l ON (h.C_Invoice_ID = l.C_Invoice_ID) "
-							+ "WHERE p.DocStatus IN ('CL','CO')"
-							+ " AND h.IsSOTrx='Y'"
-							+ " AND p.AD_Client_ID = ? "
-							+ " AND al.C_Charge_ID IS NULL "
-							+ sqlAppend);
-				}
-				//	Days Due: obtain days due either from payment term or from invoice date
-				if (commissionLine.getDaysFrom() != 0) {
-					if(commission.isDaysDueFromPaymentTerm())
-						sqlWhere.append(" AND paymenttermduedays(h.C_PaymentTerm_ID, h.DateInvoiced, p.DateTrx) >= ").append(commissionLine.get_ValueAsInt(MCommissionLine.COLUMNNAME_DaysFrom));
-					else
-						sqlWhere.append(" AND daysbetween(p.DateTrx, h.DateInvoiced) >= ").append(commissionLine.get_ValueAsInt(MCommissionLine.COLUMNNAME_DaysFrom));
-				}
-				if (commissionLine.getDaysTo() != 0) {
-					if(commission.isDaysDueFromPaymentTerm())
-						sqlWhere.append(" AND paymenttermduedays(h.C_PaymentTerm_ID, h.DateInvoiced, p.DateTrx) <= ").append(commissionLine.get_ValueAsInt(MCommissionLine.COLUMNNAME_DaysTo));
-					else
-						sqlWhere.append(" AND daysbetween(p.DateTrx, h.DateInvoiced) <= ").append(commissionLine.get_ValueAsInt(MCommissionLine.COLUMNNAME_DaysTo));
-				}
-			}
-			else if (MCommission.DOCBASISTYPE_Order.equals(commission.getDocBasisType())
-					|| MCommission.DOCBASISTYPE_ForecastVsOrder.equals(commission.getDocBasisType())) {
-				if (commission.isListDetails()) {
-					sql.append("SELECT h.C_Currency_ID, linenetamtrealorderline(l.c_OrderLine_ID) AS Amt, l.QtyOrdered AS Qty, "
-						+ "l.C_OrderLine_ID, NULL, h.DocumentNo AS Reference,"
-						+ " COALESCE(prd.Value,l.Description) AS Info,h.DateOrdered AS DateDoc"
-						+ "FROM C_Order h"
-						+ " INNER JOIN C_OrderLine l ON (h.C_Order_ID = l.C_Order_ID)"
-						+ " LEFT OUTER JOIN M_Product prd ON (l.M_Product_ID = prd.M_Product_ID) "
-						+ "WHERE h.DocStatus IN ('CL','CO')"
-						+ " AND h.IsSOTrx='Y'"
-						+ " AND h.AD_Client_ID = ?"
-						+ " AND h.DateOrdered BETWEEN ? AND ?");
-				} else {
-					sql.append("SELECT h.C_Currency_ID, SUM(linenetamtrealorderline(l.c_OrderLine_ID)) AS Amt,"
-						+ " SUM(l.QtyOrdered) AS Qty, "
-						+ "NULL, NULL, NULL AS Reference, NULL AS Info, MAX(h.DateOrdered) AS DateDoc "
-						+ "FROM C_Order h"
-						+ " INNER JOIN C_OrderLine l ON (h.C_Order_ID = l.C_Order_ID) "
-						+ "WHERE h.DocStatus IN ('CL','CO')"
-						+ " AND h.IsSOTrx='Y'"
-						+ " AND h.AD_Client_ID = ?"
-						+ " AND h.DateOrdered BETWEEN ? AND ?");
-				}
-			} else if (MCommission.DOCBASISTYPE_Invoice.equals(commission.getDocBasisType())
-					|| MCommission.DOCBASISTYPE_ForecastVsInvoice.equals(commission.getDocBasisType())) {	//	Invoice Basis
-				if (commission.isListDetails()) {
-					sql.append("SELECT h.C_Currency_ID, linenetamtrealinvoiceline(l.c_Invoiceline_ID) AS Amt, l.QtyInvoiced AS Qty, "
-						+ "NULL, l.C_InvoiceLine_ID, h.DocumentNo AS Reference,"
-						+ " COALESCE(prd.Value,l.Description) AS Info,h.DateInvoiced AS DateDoc "
-						+ "FROM C_Invoice h"
-						+ " INNER JOIN C_InvoiceLine l ON (h.C_Invoice_ID = l.C_Invoice_ID)"
-						+ " LEFT OUTER JOIN M_Product prd ON (l.M_Product_ID = prd.M_Product_ID) "
-						+ "WHERE h.DocStatus IN ('CL','CO')"
-						+ " AND h.IsSOTrx='Y'"
-						+ " AND h.AD_Client_ID = ?"
-						+ " AND h.DateInvoiced BETWEEN ? AND ?");
-				} else {
-					sql.append("SELECT h.C_Currency_ID, SUM(linenetamtrealinvoiceline(l.c_Invoiceline_ID)) AS Amt,"
-						+ " SUM(l.QtyInvoiced) AS Qty, "
-						+ "NULL, NULL, NULL AS Reference, NULL AS Info, MAX(h.DateInvoiced) AS DateDoc "
-						+ "FROM C_Invoice h"
-						+ " INNER JOIN C_InvoiceLine l ON (h.C_Invoice_ID = l.C_Invoice_ID) "
-						+ "WHERE h.DocStatus IN ('CL','CO')"
-						+ " AND h.IsSOTrx='Y'"
-						+ " AND h.AD_Client_ID = ?"
-						+ " AND h.DateInvoiced BETWEEN ? AND ?");
-				}
-				//	Dunning Level
-				if (commissionLine.getC_DunningLevel_ID() != 0) {
-					sqlWhere.append(" AND h.C_DunningLevel_ID=").append(commissionLine.getC_DunningLevel_ID());
-				}
-				//	Collection Status
-				if (commissionLine.getInvoiceCollectionType() != null) {
-					sqlWhere.append(" AND h.InvoiceCollectionType='").append(commissionLine.getInvoiceCollectionType()).append("'");
-				}
-			} else if(isCustom(commission.getDocBasisType())) {
-				commissionType = MCommissionType.getById(getCtx(), commission.get_ValueAsInt("C_CommissionType_ID"), get_TrxName());
-				if(commissionType == null) {
-					throw new AdempiereException("@C_CommissionType_ID@ @NotFound@");
-				}
-				//	Muhahahaha
-				String sqlView = MView.getSQLFromView(commissionType.getAD_View_ID(), get_TrxName());
-				sqlView = Env.parseContext(Env.getCtx(), 0, sqlView, false, false);
-				sql.append(sqlView);
-				//	Add Client
-				String columnName = getSQLColumnName("AD_Client_ID", commissionType);
-				sqlWhere.append(columnName).append("=?");
-				//	For where Clause
-				if(!Util.isEmpty(commissionType.getWhereClause())) {
-					String whereClauseView = Env.parseContext(Env.getCtx(), 0, commissionType.getWhereClause(), false, false);
-					if(!Util.isEmpty(whereClauseView)) {
-						sqlWhere.append(" AND ").append(whereClauseView);
-					}
-				}
-				//	For Currency
-				columnName = commissionType.getSQLCurrencyColumnName();
-				if(Util.isEmpty(columnName)) {
-					throw new AdempiereException("@C_CommissionType_ID@ @C_Currency_ID@ @AD_Column_ID@ @NotFound@");
-				}
-				//	For Quantity
-				columnName = commissionType.getSQLQuantityColumnName();
-				if(Util.isEmpty(columnName)) {
-					throw new AdempiereException("@C_CommissionType_ID@ @Qty@ @AD_Column_ID@ @NotFound@");
-				}
-				//	For Amount
-				columnName = commissionType.getSQLAmountColumnName();
-				if(Util.isEmpty(columnName)) {
-					throw new AdempiereException("@C_CommissionType_ID@ @Amount@ @AD_Column_ID@ @NotFound@");
-				}				
-				//	For Date Doc
-				columnName = commissionType.getSQLDateDocColumnName();
-				if(Util.isEmpty(columnName)) {
-					throw new AdempiereException("@C_CommissionType_ID@ @DateDoc@ @AD_Column_ID@ @NotFound@");
-				}
-				sqlWhere.append(" AND ").append(columnName).append(">=?");
-				sqlWhere.append(" AND ").append(columnName).append("<=?");
-			}
-			//	For Forecast
-			if(MCommission.DOCBASISTYPE_ForecastVsInvoice.equals(commission.getDocBasisType())) {	//	For Invoices
-				if(!commissionLine.isPercentageFromPrice()) {	//	Based in variation from Quantity on forecast [SUM(QtyInvoiced) / ForecastQty]
-					if(commissionLine.getMinCompliance() != null
-							&& commissionLine.getMinCompliance().compareTo(Env.ZERO) > 0) {
-						sql.append(" AND EXISTS(SELECT 1 "
-							+ "FROM C_Invoice i "
-							+ "INNER JOIN C_InvoiceLine il ON(il.C_Invoice_ID = i.C_Invoice_ID)	"
-							+ "INNER JOIN (SELECT fl.M_Product_ID, fl.SalesRep_ID, pd.PP_Period_ID, " 
-							+ "	            pd.Name, pd.StartDate, pd.EndDate, SUM(fl.Qty) ForecastQty " 
-							+ "		FROM M_Forecast f "
-							+ "		INNER JOIN M_ForecastLine fl ON(fl.M_Forecast_ID = f.M_Forecast_ID) "
-							+ "		INNER JOIN PP_Period pd ON(pd.PP_Period_ID = fl.PP_Period_ID) "
-							+ "		WHERE f.IsActive = 'Y' "
-							+ "		AND fl.IsActive = 'Y' "
-							+ "	    GROUP BY fl.M_Product_ID, fl.SalesRep_ID, pd.PP_Period_ID, pd.Name, pd.StartDate, pd.EndDate "
-							+ "	) fl ON(fl.M_Product_ID = il.M_Product_ID AND fl.SalesRep_ID = i.SalesRep_ID "
-							+ "	        AND i.DateInvoiced BETWEEN fl.StartDate AND fl.EndDate"
-							+ "			AND h.DateInvoiced BETWEEN fl.StartDate AND fl.EndDate) "
-							+ "WHERE il.M_Product_ID = l.M_Product_ID "
-							+ "AND i.DocStatus IN('CL','CO') "
-							+ "AND i.SalesRep_ID = h.SalesRep_ID "
-							+ "GROUP BY l.M_Product_ID, fl.ForecastQty "
-							+ "HAVING(((SUM(il.QtyInvoiced) / fl.ForecastQty) * 100) >= " + DB.TO_NUMBER(commissionLine.getMinCompliance(), DisplayType.Amount));
-							//	For Max Compliance
-						if(commissionLine.getMaxCompliance() != null
-								&& commissionLine.getMaxCompliance().compareTo(Env.ZERO) > 0) {
-							sql.append(" AND ((SUM(il.QtyInvoiced) / fl.ForecastQty) * 100) <= " + DB.TO_NUMBER(commissionLine.getMaxCompliance(), DisplayType.Amount) + ")");
-						} else {
-							sql.append(")");
-						}
-						//	Last
-						sql.append(")");
-					} else if(commissionLine.getMaxCompliance() != null
-							&& commissionLine.getMaxCompliance().compareTo(Env.ZERO) > 0) {
-						sql.append(" AND EXISTS(SELECT 1 "
-								+ "FROM C_Invoice i "
-								+ "INNER JOIN C_InvoiceLine il ON(il.C_Invoice_ID = i.C_Invoice_ID)	"
-								+ "	INNER JOIN (SELECT fl.M_Product_ID, fl.SalesRep_ID, pd.PP_Period_ID, " 
-								+ "	            pd.Name, pd.StartDate, pd.EndDate, SUM(fl.Qty) ForecastQty " 
-								+ "		FROM M_Forecast f "
-								+ "		INNER JOIN M_ForecastLine fl ON(fl.M_Forecast_ID = f.M_Forecast_ID) "
-								+ "		INNER JOIN PP_Period pd ON(pd.PP_Period_ID = fl.PP_Period_ID) "
-								+ "		WHERE f.IsActive = 'Y' "
-								+ "		AND fl.IsActive = 'Y' "
-								+ "	    GROUP BY fl.M_Product_ID, fl.SalesRep_ID, pd.PP_Period_ID, pd.Name, pd.StartDate, pd.EndDate "
-								+ "	) fl ON(fl.M_Product_ID = il.M_Product_ID AND fl.SalesRep_ID = i.SalesRep_ID "
-								+ "	        AND i.DateInvoiced BETWEEN fl.StartDate AND fl.EndDate"
-								+ "			AND h.DateInvoiced BETWEEN fl.StartDate AND fl.EndDate) "
-								+ "WHERE il.M_Product_ID = l.M_Product_ID "
-								+ "AND i.DocStatus IN('CL','CO') "
-								+ "AND i.SalesRep_ID = h.SalesRep_ID "
-								+ "GROUP BY l.M_Product_ID, fl.ForecastQty "
-								+ "HAVING(((SUM(il.QtyInvoiced) / fl.ForecastQty) * 100) <= " + DB.TO_NUMBER(commissionLine.getMaxCompliance(), DisplayType.Amount) + ")"
-								+ ")");
-					}
-				} else {	//	Based in variation from Price on forecast [SUM(lineNetAmt) / (ForecastQty * PriceList)]
-					if(commissionLine.getMinCompliance() != null
-							&& commissionLine.getMinCompliance().compareTo(Env.ZERO) > 0) {
-						sql.append(" AND EXISTS(SELECT 1 "
-							+ "FROM C_Invoice i "
-							+ "INNER JOIN C_InvoiceLine il ON(il.C_Invoice_ID = i.C_Invoice_ID)	"
-							+ "INNER JOIN (SELECT f.M_Product_ID, f.SalesRep_ID, pd.PP_Period_ID, " 
-							+ "	            pd.Name, pd.StartDate, pd.EndDate, SUM(f.Qty * f.PriceList) ForecastAmt " 
-							+ "		FROM RV_M_Forecast f "
-							+ "		INNER JOIN PP_Period pd ON(pd.PP_Period_ID = f.PP_Period_ID) "
-							+ "	    GROUP BY f.M_Product_ID, f.SalesRep_ID, pd.PP_Period_ID, pd.Name, pd.StartDate, pd.EndDate "
-							+ "	) fl ON(fl.M_Product_ID = il.M_Product_ID AND fl.SalesRep_ID = i.SalesRep_ID "
-							+ "	        AND i.DateInvoiced BETWEEN fl.StartDate AND fl.EndDate"
-							+ "			AND h.DateInvoiced BETWEEN fl.StartDate AND fl.EndDate) "
-							+ "WHERE il.M_Product_ID = l.M_Product_ID "
-							+ "AND i.DocStatus IN('CL','CO') "
-							+ "AND i.SalesRep_ID = h.SalesRep_ID "
-							+ "GROUP BY l.M_Product_ID, fl.ForecastAmt "
-							+ "HAVING(((SUM(linenetamtrealinvoiceline(il.c_Invoiceline_ID)) / fl.ForecastAmt) * 100) >= " + DB.TO_NUMBER(commissionLine.getMinCompliance(), DisplayType.Amount));
-							//	For Max Compliance
-						if(commissionLine.getMaxCompliance() != null
-								&& commissionLine.getMaxCompliance().compareTo(Env.ZERO) > 0) {
-							sql.append(" AND ((SUM(linenetamtrealinvoiceline(il.c_Invoiceline_ID)) / fl.ForecastAmt) * 100) <= " + DB.TO_NUMBER(commissionLine.getMaxCompliance(), DisplayType.Amount) + ")");
-						} else {
-							sql.append(")");
-						}
-						//	Last
-						sql.append(")");
-					} else if(commissionLine.getMaxCompliance() != null
-							&& commissionLine.getMaxCompliance().compareTo(Env.ZERO) > 0) {
-						sql.append(" AND EXISTS(SELECT 1 "
-								+ "FROM C_Invoice i "
-								+ "INNER JOIN C_InvoiceLine il ON(il.C_Invoice_ID = i.C_Invoice_ID)	"
-								+ "	INNER JOIN (SELECT fl.M_Product_ID, fl.SalesRep_ID, pd.PP_Period_ID, " 
-								+ "	            pd.Name, pd.StartDate, pd.EndDate, SUM(f.Qty * f.PriceList) ForecastAmt " 
-								+ "		FROM RV_M_Forecast f "
-								+ "		INNER JOIN PP_Period pd ON(pd.PP_Period_ID = fl.PP_Period_ID) "
-								+ "	    GROUP BY fl.M_Product_ID, fl.SalesRep_ID, pd.PP_Period_ID, pd.Name, pd.StartDate, pd.EndDate "
-								+ "	) fl ON(fl.M_Product_ID = il.M_Product_ID AND fl.SalesRep_ID = i.SalesRep_ID "
-								+ "	        AND i.DateInvoiced BETWEEN fl.StartDate AND fl.EndDate"
-								+ "			AND h.DateInvoiced BETWEEN fl.StartDate AND fl.EndDate) "
-								+ "WHERE il.M_Product_ID = l.M_Product_ID "
-								+ "AND i.DocStatus IN('CL','CO') "
-								+ "AND i.SalesRep_ID = h.SalesRep_ID "
-								+ "GROUP BY l.M_Product_ID, fl.ForecastAmt "
-								+ "HAVING(((SUM(linenetamtrealinvoiceline(il.c_Invoiceline_ID)) / fl.ForecastAmt) * 100) <= " + DB.TO_NUMBER(commissionLine.getMaxCompliance(), DisplayType.Amount) + ")"
-								+ ")");
-					}
-				}
-			} else if(MCommission.DOCBASISTYPE_ForecastVsOrder.equals(commission.getDocBasisType())) {	//	For Orders
-				if(!commissionLine.isPercentageFromPrice()) {	//	Based in variation from Quantity on forecast [SUM(QtyInvoiced) / ForecastQty]
-					if(commissionLine.getMinCompliance() != null
-							&& commissionLine.getMinCompliance().compareTo(Env.ZERO) > 0) {
-						sql.append(" AND EXISTS(SELECT 1 "
-							+ "FROM C_Order i "
-							+ "INNER JOIN C_OrderLine il ON(il.C_Order_ID = i.C_Order_ID)	"
-							+ "INNER JOIN (SELECT fl.M_Product_ID, fl.SalesRep_ID, pd.PP_Period_ID, " 
-							+ "	            pd.Name, pd.StartDate, pd.EndDate, SUM(fl.Qty) ForecastQty " 
-							+ "		FROM M_Forecast f "
-							+ "		INNER JOIN M_ForecastLine fl ON(fl.M_Forecast_ID = f.M_Forecast_ID) "
-							+ "		INNER JOIN PP_Period pd ON(pd.PP_Period_ID = fl.PP_Period_ID) "
-							+ "		WHERE f.IsActive = 'Y' "
-							+ "		AND fl.IsActive = 'Y' "
-							+ "	    GROUP BY fl.M_Product_ID, fl.SalesRep_ID, pd.PP_Period_ID, pd.Name, pd.StartDate, pd.EndDate "
-							+ "	) fl ON(fl.M_Product_ID = il.M_Product_ID AND fl.SalesRep_ID = i.SalesRep_ID "
-							+ "	        AND i.DateOrdered BETWEEN fl.StartDate AND fl.EndDate"
-							+ "			AND h.DateOrdered BETWEEN fl.StartDate AND fl.EndDate) "
-							+ "WHERE il.M_Product_ID = l.M_Product_ID "
-							+ "AND i.DocStatus IN('CL','CO') "
-							+ "AND i.SalesRep_ID = h.SalesRep_ID "
-							+ "GROUP BY l.M_Product_ID, fl.ForecastQty "
-							+ "HAVING(((SUM(il.QtyOrdered) / fl.ForecastQty) * 100) >= " + DB.TO_NUMBER(commissionLine.getMinCompliance(), DisplayType.Amount));
-							//	For Max Compliance
-						if(commissionLine.getMaxCompliance() != null
-								&& commissionLine.getMaxCompliance().compareTo(Env.ZERO) > 0) {
-							sql.append(" AND ((SUM(il.QtyOrdered) / fl.ForecastQty) * 100) <= " + DB.TO_NUMBER(commissionLine.getMaxCompliance(), DisplayType.Amount) + ")");
-						} else {
-							sql.append(")");
-						}
-						//	Last
-						sql.append(")");
-					} else if(commissionLine.getMaxCompliance() != null
-							&& commissionLine.getMaxCompliance().compareTo(Env.ZERO) > 0) {
-						sql.append(" AND EXISTS(SELECT 1 "
-								+ "FROM C_Order i "
-								+ "INNER JOIN C_OrderLine il ON(il.C_Order_ID = i.C_Order_ID)	"
-								+ "	INNER JOIN (SELECT fl.M_Product_ID, fl.SalesRep_ID, pd.PP_Period_ID, " 
-								+ "	            pd.Name, pd.StartDate, pd.EndDate, SUM(fl.Qty) ForecastQty " 
-								+ "		FROM M_Forecast f "
-								+ "		INNER JOIN M_ForecastLine fl ON(fl.M_Forecast_ID = f.M_Forecast_ID) "
-								+ "		INNER JOIN PP_Period pd ON(pd.PP_Period_ID = fl.PP_Period_ID) "
-								+ "		WHERE f.IsActive = 'Y' "
-								+ "		AND fl.IsActive = 'Y' "
-								+ "	    GROUP BY fl.M_Product_ID, fl.SalesRep_ID, pd.PP_Period_ID, pd.Name, pd.StartDate, pd.EndDate "
-								+ "	) fl ON(fl.M_Product_ID = il.M_Product_ID AND fl.SalesRep_ID = i.SalesRep_ID "
-								+ "	        AND i.DateOrdered BETWEEN fl.StartDate AND fl.EndDate"
-								+ "			AND h.DateOrdered BETWEEN fl.StartDate AND fl.EndDate) "
-								+ "WHERE il.M_Product_ID = l.M_Product_ID "
-								+ "AND i.DocStatus IN('CL','CO') "
-								+ "AND i.SalesRep_ID = h.SalesRep_ID "
-								+ "GROUP BY l.M_Product_ID, fl.ForecastQty "
-								+ "HAVING(((SUM(il.QtyOrdered) / fl.ForecastQty) * 100) <= " + DB.TO_NUMBER(commissionLine.getMaxCompliance(), DisplayType.Amount) + ")"
-								+ ")");
-					}
-				} else {	//	Based in variation from Price on forecast [SUM(lineNetAmt) / (ForecastQty * PriceList)]
-					if(commissionLine.getMinCompliance() != null
-							&& commissionLine.getMinCompliance().compareTo(Env.ZERO) > 0) {
-						sql.append(" AND EXISTS(SELECT 1 "
-							+ "FROM C_Order i "
-							+ "INNER JOIN C_OrderLine il ON(il.C_Order_ID = i.C_Order_ID)	"
-							+ "INNER JOIN (SELECT f.M_Product_ID, f.SalesRep_ID, pd.PP_Period_ID, " 
-							+ "	            pd.Name, pd.StartDate, pd.EndDate, SUM(f.Qty * f.PriceList) ForecastAmt " 
-							+ "		FROM RV_M_Forecast f "
-							+ "		INNER JOIN PP_Period pd ON(pd.PP_Period_ID = f.PP_Period_ID) "
-							+ "	    GROUP BY f.M_Product_ID, f.SalesRep_ID, pd.PP_Period_ID, pd.Name, pd.StartDate, pd.EndDate "
-							+ "	) fl ON(fl.M_Product_ID = il.M_Product_ID AND fl.SalesRep_ID = i.SalesRep_ID "
-							+ "	        AND i.DateOrdered BETWEEN fl.StartDate AND fl.EndDate"
-							+ "			AND h.DateOrdered BETWEEN fl.StartDate AND fl.EndDate) "
-							+ "WHERE il.M_Product_ID = l.M_Product_ID "
-							+ "AND i.DocStatus IN('CL','CO') "
-							+ "AND i.SalesRep_ID = h.SalesRep_ID "
-							+ "GROUP BY l.M_Product_ID, fl.ForecastAmt "
-							+ "HAVING(((SUM(linenetamtrealorderline(il.C_Orderline_ID)) / fl.ForecastAmt) * 100) >= " + DB.TO_NUMBER(commissionLine.getMinCompliance(), DisplayType.Amount));
-							//	For Max Compliance
-						if(commissionLine.getMaxCompliance() != null
-								&& commissionLine.getMaxCompliance().compareTo(Env.ZERO) > 0) {
-							sql.append(" AND ((SUM(linenetamtrealorderline(il.C_Orderline_ID)) / fl.ForecastAmt) * 100) <= " + DB.TO_NUMBER(commissionLine.getMaxCompliance(), DisplayType.Amount) + ")");
-						} else {
-							sql.append(")");
-						}
-						//	Last
-						sql.append(")");
-					} else if(commissionLine.getMaxCompliance() != null
-							&& commissionLine.getMaxCompliance().compareTo(Env.ZERO) > 0) {
-						sql.append(" AND EXISTS(SELECT 1 "
-								+ "FROM C_Order i "
-								+ "INNER JOIN C_OrderLine il ON(il.C_Order_ID = i.C_Order_ID)	"
-								+ "	INNER JOIN (SELECT fl.M_Product_ID, fl.SalesRep_ID, pd.PP_Period_ID, " 
-								+ "	            pd.Name, pd.StartDate, pd.EndDate, SUM(f.Qty * f.PriceList) ForecastAmt " 
-								+ "		FROM RV_M_Forecast f "
-								+ "		INNER JOIN PP_Period pd ON(pd.PP_Period_ID = fl.PP_Period_ID) "
-								+ "	    GROUP BY fl.M_Product_ID, fl.SalesRep_ID, pd.PP_Period_ID, pd.Name, pd.StartDate, pd.EndDate "
-								+ "	) fl ON(fl.M_Product_ID = il.M_Product_ID AND fl.SalesRep_ID = i.SalesRep_ID "
-								+ "	        AND i.DateOrdered BETWEEN fl.StartDate AND fl.EndDate"
-								+ "			AND h.DateOrdered BETWEEN fl.StartDate AND fl.EndDate) "
-								+ "WHERE il.M_Product_ID = l.M_Product_ID "
-								+ "AND i.DocStatus IN('CL','CO') "
-								+ "AND i.SalesRep_ID = h.SalesRep_ID "
-								+ "GROUP BY l.M_Product_ID, fl.ForecastAmt "
-								+ "HAVING(((SUM(linenetamtrealorderline(il.C_Orderline_ID)) / fl.ForecastAmt) * 100) <= " + DB.TO_NUMBER(commissionLine.getMaxCompliance(), DisplayType.Amount) + ")"
-								+ ")");
-					}
-				}
-			}
-			//	CommissionOrders/Invoices
-			if (commissionLine.isCommissionOrders()) {
-				MUser[] users = MUser.getOfBPartner(getCtx(), salesRep.getC_BPartner_ID(), get_TrxName());
-				if (users == null || users.length == 0) {
-					continue;
-				}
-				//	
-				String columnName = getSQLColumnName("h.SalesRep_ID", commissionType);
-				if(!Util.isEmpty(columnName)) {
-					if (users.length == 1) {
-						int SalesRep_ID = users[0].getAD_User_ID();
-						sqlWhere.append(" AND ").append(columnName).append("=").append(SalesRep_ID);
-					} else {
-						log.warning("Not 1 User/Contact for C_BPartner_ID=" 
-							+ salesRep.getC_BPartner_ID() + " but " + users.length);
-						sqlWhere.append(" AND EXISTS(SELECT 1 FROM AD_User u WHERE u.AD_User_ID = " + columnName + " AND u.C_BPartner_ID=")
-							.append(salesRep.getC_BPartner_ID()).append(")");
-					}
-				}
-			}
-			//	Organization
-			if (commissionLine.getOrg_ID() != 0) {
-				String columnName = getSQLColumnName("h.AD_Org_ID", commissionType);
-				if(!Util.isEmpty(columnName)) {
-					sqlWhere.append(" AND ").append(columnName).append("=").append(commissionLine.getOrg_ID());
-				}
-			}
-			//	BPartner
-			if (commissionLine.getC_BPartner_ID() != 0) {
-				String columnName = getSQLColumnName("h.C_BPartner_ID", commissionType);
-				if(!Util.isEmpty(columnName)) {
-					sqlWhere.append(" AND ").append(columnName).append("=").append(commissionLine.getC_BPartner_ID());
-				}
-			}
-			//	BPartner Group
-			if (commissionLine.getC_BP_Group_ID() != 0) {
-				String columnName = getSQLColumnName("C_BPartner_ID", commissionType);
-				if(!Util.isEmpty(columnName)) {
-					sqlWhere.append(" AND EXISTS(SELECT 1 FROM C_BPartner "
-							+ "						WHERE C_BPartner.C_BPartner_ID = " + columnName + " "
-							+ "						AND C_BP_Group_ID=").append(commissionLine.getC_BP_Group_ID()).append(")");
-				}
-			}
-			//	Sales Region
-			if (commissionLine.getC_SalesRegion_ID() != 0) {
-				String columnName = getSQLColumnName("l.C_Order_ID", commissionType);
-				if(!Util.isEmpty(columnName)) {
-					sqlWhere.append(" AND (h.C_BPartner_Location_ID IN "
-							+ "(SELECT C_BPartner_Location_ID FROM C_BPartner_Location WHERE C_SalesRegion_ID ").append(getSalesRegionClause(salesRegion, commissionLine.getC_SalesRegion_ID())).append(")"
-									+ " OR EXISTS(SELECT 1 FROM C_Order o "
-									+ "					INNER JOIN C_BPartner_Location bpl ON(bpl.C_BPartner_Location_ID = o.C_BPartner_Location_ID)"
-									+ "					WHERE o.C_Order_ID = " + columnName + " "
-									+ "					AND bpl.C_SalesRegion_ID " + getSalesRegionClause(salesRegion, commissionLine.getC_SalesRegion_ID()) + "))");
-				}
-			}
-			//	Product
-			if (commissionLine.getM_Product_ID() != 0) {
-				String columnName = getSQLColumnName("l.M_Product_ID", commissionType);
-				if(!Util.isEmpty(columnName)) {
-					sqlWhere.append(" AND ").append(columnName).append("=").append(commissionLine.getM_Product_ID());
-				}
-			}
-			//	Product Category
-			if (commissionLine.getM_Product_Category_ID() != 0) {
-				String columnName = getSQLColumnName("l.M_Product_ID", commissionType);
-				if(!Util.isEmpty(columnName)) {
-					sqlWhere.append(" AND EXISTS(SELECT 1 FROM M_Product "
-							+ "					WHERE M_Product.M_Product_ID = " + columnName + " "
-							+ "					AND M_Product_Category_ID=").append(commissionLine.getM_Product_Category_ID()).append(")");
-				}
-			}
-			//	Product Group
-			if (commissionLine.getM_Product_Group_ID() != 0) {
-				String columnName = getSQLColumnName("l.M_Product_ID", commissionType);
-				if(!Util.isEmpty(columnName)) {
-					sqlWhere.append(" AND EXISTS(SELECT 1 FROM M_Product "
-							+ "					WHERE M_Product.M_Product_ID = " + columnName + " "
-							+ "					AND M_Product_Group_ID=").append(commissionLine.getM_Product_Group_ID()).append(")");
-				}
-			}
-			//	Product Class
-			if (commissionLine.getM_Product_Class_ID() != 0) {
-				String columnName = getSQLColumnName("l.M_Product_ID", commissionType);
-				if(!Util.isEmpty(columnName)) {
-					sqlWhere.append(" AND EXISTS(SELECT 1 FROM M_Product "
-							+ "					WHERE M_Product.M_Product_ID = " + columnName + " "
-							+ "					AND M_Product_Class_ID=").append(commissionLine.getM_Product_Class_ID()).append(")");
-				}
-			}
-			//	Product Classification
-			if (commissionLine.getM_Product_Classification_ID() != 0) {
-				String columnName = getSQLColumnName("l.M_Product_ID", commissionType);
-				if(!Util.isEmpty(columnName)) {
-					sqlWhere.append(" AND EXISTS(SELECT 1 FROM M_Product "
-							+ "					WHERE M_Product.M_Product_ID = " + columnName + " "
-							+ "					AND M_Product_Classification_ID =").append(commissionLine.getM_Product_Classification_ID()).append(")");
-				}
-			}
-			//	Project
-			if (commissionLine.getC_Project_ID() != 0) {
-				String columnName = getSQLColumnName("l.C_Project_ID", commissionType);
-				if(!Util.isEmpty(columnName)) {
-					sqlWhere.append(" AND ").append(columnName).append("=").append(commissionLine.getC_Project_ID());
-				}
-			}
-			//	Campaign
-			if (commissionLine.getC_Campaign_ID() != 0) {
-				String columnName = getSQLColumnName("l.C_Campaign_ID", commissionType);
-				if(!Util.isEmpty(columnName)) {
-					sqlWhere.append(" AND ").append(columnName).append("=").append(commissionLine.getC_Campaign_ID());
-				}
-			}
-			//	Channel
-			if (commissionLine.getC_Channel_ID() != 0) {
-				String columnName = getSQLColumnName("l.C_Campaign_ID", commissionType);
-				if(!Util.isEmpty(columnName)) {
-					sqlWhere.append(" AND EXISTS(SELECT 1 FROM C_Campaign "
-							+ "					WHERE C_Campaign_ID = " + columnName + " "
-							+ "					AND C_Campaign.C_Channel_ID=").append(commissionLine.getC_Channel_ID()).append(")");
-				}
-			}
-			//	Payment Rule
-			if (commissionLine.getPaymentRule() != null) {
-				String columnName = getSQLColumnName("h.PaymentRule", commissionType);
-				if(!Util.isEmpty(columnName)) {
-					sqlWhere.append(" AND ").append(columnName).append("=").append(commissionLine.getPaymentRule()).append("'");
-				}
-			}
-
-			//	Payment Term
-			if (commissionLine.getC_PaymentTerm_ID() != 0) {
-				String columnName = getSQLColumnName("h.C_PaymentTerm_ID", commissionType);
-				if(!Util.isEmpty(columnName)) {
-					sqlWhere.append(" AND ").append(columnName).append("=").append(commissionLine.getC_PaymentTerm_ID());
-				}
-			}
-			//	For contract
-			if (commissionLine.get_ValueAsInt("S_Contract_ID") != 0) {
-				String columnName = getSQLColumnName("h.S_Contract_ID", commissionType);
-				if(!Util.isEmpty(columnName)) {
-					sqlWhere.append(" AND ").append(columnName).append("=").append(commissionLine.get_ValueAsInt("S_Contract_ID"));
-				}
-			}
-			//	For vendor
-			if (commissionLine.get_ValueAsInt("Vendor_ID") != 0) {
-				String columnName = getSQLColumnName("h.Vendor_ID", commissionType);
-				if(!Util.isEmpty(columnName)) {
-					sqlWhere.append(" AND ").append(columnName).append("=").append(commissionLine.get_ValueAsInt("Vendor_ID"));
-				}
-			}
-			//	For charge
-			if (commissionLine.get_ValueAsInt("C_Charge_ID") != 0) {
-				String columnName = getSQLColumnName("l.C_Charge_ID", commissionType);
-				if(!Util.isEmpty(columnName)) {
-					sqlWhere.append(" AND ").append(columnName).append("=").append(commissionLine.get_ValueAsInt("C_Charge_ID"));
-				}
-			}
-			//	for current document
-			if(additionalValues != null
-				&& isCustom(commission.getDocBasisType())) {
-				for(Entry<String, Integer> value : additionalValues.entrySet()) {
-					String columnName = getSQLColumnName(value.getKey(), commissionType);
-					if(!Util.isEmpty(columnName)) {
-						sqlWhere.append(" AND ").append(columnName).append("=").append(value.getValue());
-					}
-				}
-			}
-			//		
-			if(isCustom(commission.getDocBasisType())) {
-				if (!commission.isListDetails()) {
-					String columnName = getSQLColumnName("h.C_Currency_ID", commissionType);
-					if(!Util.isEmpty(columnName)) {				
-						sqlWhere.append(" ORDER BY ").append(columnName);
-					}
-				}
-			} else {
-				sqlWhere.append(getExclusionWhere(commission.getDocBasisType(), commissionLine, commissionLines, commissionType));
-				sqlWhere.append(" GROUP BY ").append("h.C_Currency_ID");
-			}
-			//	Add Where Clause
-			sql.append(" WHERE ").append(sqlWhere);
-			log.fine("Line=" + commissionLine.getLine() + " - " + sql);
-			//	Get Max Percentage
-			commissionAmt.setPercentage(getAmountPercentage(commission, commissionLine.isPercentageFromPrice(), sqlWhere));
-			commissionAmt.setMaxPercentage(commissionLine.getMaxPercentage());
-			// Here the actual calculation is performed
-			createDetail(sql.toString(), commission, commissionLine, commissionAmt, commissionType, isPercentage, amtMultiplier);
-			if(commissionAmt.getDetails().length==0)  {				
-				commissionAmt.deleteEx(true, get_TrxName());
-			}
-			else  {		
-				commissionAmt.updateCommissionAmount();
-				commissionAmt.saveEx();
-			}
-		}	//	for all commission lines
-		
+		}
+		//	Run
+		if(count > 0) {
+			commissionLineList.stream()
+				.filter(commissionLine -> commissionLine.get_ValueAsInt("C_Order_ID") == get_ValueAsInt("C_Order_ID"))
+				.forEach(commissionLine -> {
+					processLine(salesRep, commission, commissionLineList, commissionLine, isPercentage, amtMultiplier);
+			});
+		} else {
+			commissionLineList.stream()
+				.forEach(commissionLine -> {
+					processLine(salesRep, commission, commissionLineList, commissionLine, isPercentage, amtMultiplier);
+			});
+		}
 		//	Save Last Run
 		commission.setDateLastRun(getDateDoc());
 		commission.saveEx();
@@ -1394,7 +1427,7 @@ public class MCommissionRun extends X_C_CommissionRun implements DocAction, DocO
 	 * @return
 	 * @return String
 	 */
-	private String getExclusionWhere(String docBasisType, MCommissionLine currentLine, MCommissionLine[] lines, MCommissionType commissionType) {
+	private String getExclusionWhere(String docBasisType, MCommissionLine currentLine, List<MCommissionLine> lines, MCommissionType commissionType) {
 		//	Array of values
 		List<Integer> orgId = new ArrayList<Integer>();
 		List<Integer> bPartnerId = new ArrayList<Integer>();

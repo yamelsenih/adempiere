@@ -190,7 +190,7 @@ public class AgencyValidator implements ModelValidator
 					//	Document type IsCustomerApproved = Y and order IsCustomerApproved Y and order isAttachment("PDF") = N and project IsCustomerApproved = N
 					MProject project = new MProject(order.getCtx(), order.getC_Project_ID(), null);
 					if (!project.get_ValueAsBoolean("IsCustomerApproved")) {
-						throw new AdempiereException(Msg.parseTranslation(Env.getCtx(), "@CustomerApprovedRequired@ on @C_Project_ID@"));
+						throw new AdempiereException(Msg.parseTranslation(Env.getCtx(), "@CustomerApprovedRequired@ @C_Project_ID@"));
 					}
 				}
 				//	Validate Document Type for commission
@@ -232,25 +232,25 @@ public class AgencyValidator implements ModelValidator
 							
 							whereClause.append(" EXISTS(SELECT 1 FROm S_TimeExpense te")
 									   .append(" WHERE S_TimeExpenseLine.S_TimeExpense_ID=te.S_TimeExpense_ID and te.DocStatus=?)");
-					BigDecimal value = new Query(po.getCtx(), I_S_TimeExpenseLine.Table_Name, whereClause.toString(), po.get_TrxName())
-							.setClient_ID()
-							.setParameters(MTimeExpense.DOCSTATUS_Completed)
-							.sum(MTimeExpenseLine.COLUMNNAME_ExpenseAmt);
+							BigDecimal value = new Query(po.getCtx(), I_S_TimeExpenseLine.Table_Name, whereClause.toString(), po.get_TrxName())
+									.setClient_ID()
+									.setParameters(MTimeExpense.DOCSTATUS_Completed)
+									.sum(MTimeExpenseLine.COLUMNNAME_ExpenseAmt);
 
 							int projectId=expenseReportLine[i].getC_Project_ID();
-						if(projectId>0){
-							projectList.put(projectId, value);
+							if(projectId > 0){
+								projectList.put(projectId, value);
+							}
 						}
-						}	
 		
 				projectList.forEach((projectId, value)-> {
 					MProject project = MProject.getById(po.getCtx(), projectId, null);
 					if( project != null){
-					BigDecimal plannedAmt = (BigDecimal) project.get_Value("PlannedAmt");
-					
-					if(plannedAmt.compareTo(value) < 0){
-						throw new AdempiereException(Msg.parseTranslation(Env.getCtx(), "Project Planned Amount < Expense Report Lines"));
-					}
+						BigDecimal plannedAmt = project.getPlannedAmt();
+						if(plannedAmt != null
+								&& plannedAmt.compareTo(value) < 0){
+							throw new AdempiereException(Msg.parseTranslation(Env.getCtx(), "@PlannedAmt@ < @S_TimeExpenseLine_ID@"));
+						}
 					}
 				});				
 			}
@@ -351,7 +351,18 @@ public class AgencyValidator implements ModelValidator
 					commissionRun.saveEx();
 					if(commissionRun.getGrandTotal() != null
 							&& commissionRun.getGrandTotal().compareTo(Env.ZERO) > 0) {
-						if(order.isSOTrx()) {
+						if(commissionDefinition.get_ValueAsBoolean("IsSplitDocuments")) {
+							ProcessBuilder.create(order.getCtx())
+								.process(CommissionPOCreateAbstract.getProcessId())
+								.withRecordId(I_C_CommissionRun.Table_ID, commissionRun.getC_CommissionRun_ID())
+								.withParameter(CommissionPOCreateAbstract.ISSOTRX, true)
+								.withParameter(CommissionPOCreateAbstract.DATEORDERED, order.getDateOrdered())
+								.withParameter(CommissionPOCreateAbstract.DOCACTION, DocAction.STATUS_Drafted)
+								.withParameter(CommissionPOCreateAbstract.C_BPARTNER_ID, order.getC_BPartner_ID())
+								.withParameter(CommissionPOCreateAbstract.C_DOCTYPE_ID, commissionDefinition.get_ValueAsInt("C_DocTypeOrder_ID"))
+								.withoutTransactionClose()
+							.execute(order.get_TrxName());
+						} else {
 							commissionRun.getCommissionAmtList().stream()
 							.filter(commissionAmt -> commissionAmt.getCommissionAmt() != null 
 								&& commissionAmt.getCommissionAmt().compareTo(Env.ZERO) > 0).forEach(commissionAmt -> {
@@ -362,17 +373,6 @@ public class AgencyValidator implements ModelValidator
 									orderLine.setTax();
 									orderLine.saveEx(order.get_TrxName());
 							});
-						} else {
-							ProcessBuilder.create(order.getCtx())
-								.process(CommissionPOCreateAbstract.getProcessId())
-								.withRecordId(I_C_CommissionRun.Table_ID, commissionRun.getC_CommissionRun_ID())
-								.withParameter(CommissionPOCreateAbstract.ISSOTRX, true)
-								.withParameter(CommissionPOCreateAbstract.DATEORDERED, order.getDateOrdered())
-								.withParameter(CommissionPOCreateAbstract.DOCACTION, DocAction.STATUS_Drafted)
-								.withParameter(CommissionPOCreateAbstract.C_BPARTNER_ID, order.getC_BPartner_ID())
-								.withParameter(CommissionPOCreateAbstract.C_DOCTYPE_ID, commissionDefinition.get_ValueAsInt("C_DocTypeOrder_ID"))
-								.withoutTransactionClose()
-								.execute(order.get_TrxName());
 						}
 					}
 				} else {

@@ -117,6 +117,7 @@ public class CommissionPOCreate extends CommissionPOCreateAbstract {
 		//	
 		if(commissionRun.get_ValueAsInt("C_Order_ID") > 0) {
 			MOrder sourceOrder = new MOrder(getCtx(), commissionRun.get_ValueAsInt("C_Order_ID"), get_TrxName());
+			order.addDescription(Msg.parseTranslation(getCtx(), "@C_Order_ID@ " + sourceOrder.getDocumentNo()));
 			//	Set Project
 			if(sourceOrder.getC_Project_ID() > 0) {
 				order.setC_Project_ID(sourceOrder.getC_Project_ID());
