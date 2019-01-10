@@ -48,6 +48,7 @@ public class CreateCommissionFromContract extends CreateCommissionFromContractAb
 		X_S_Contract contract = new X_S_Contract(getCtx(), contractId, get_TrxName());
 		//	Generate
 		new Query(getCtx(), I_C_Commission.Table_Name, I_C_CommissionType.COLUMNNAME_C_CommissionType_ID + " = ? ", get_TrxName())
+			.setOnlyActiveRecords(true)
 			.setParameters(getCommissionTypeId())
 			.<MCommission>list().forEach(commissionDefinition -> {
 				if(getDocTypeId() <= 0) {
