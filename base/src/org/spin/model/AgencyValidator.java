@@ -357,7 +357,7 @@ public class AgencyValidator implements ModelValidator
 								.withRecordId(I_C_CommissionRun.Table_ID, commissionRun.getC_CommissionRun_ID())
 								.withParameter(CommissionPOCreateAbstract.ISSOTRX, true)
 								.withParameter(CommissionPOCreateAbstract.DATEORDERED, order.getDateOrdered())
-								.withParameter(CommissionPOCreateAbstract.DOCACTION, DocAction.STATUS_Drafted)
+								.withParameter(CommissionPOCreateAbstract.DOCACTION, DocAction.ACTION_Complete)
 								.withParameter(CommissionPOCreateAbstract.C_BPARTNER_ID, order.getC_BPartner_ID())
 								.withParameter(CommissionPOCreateAbstract.C_DOCTYPE_ID, commissionDefinition.get_ValueAsInt("C_DocTypeOrder_ID"))
 								.withoutTransactionClose()
