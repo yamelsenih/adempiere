@@ -16,7 +16,9 @@
 package org.spin.model;
 
 import java.math.BigDecimal;
+import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.Map;
 
 import org.adempiere.exceptions.AdempiereException;
 import org.compiere.model.I_C_Commission;
@@ -25,6 +27,7 @@ import org.compiere.model.I_C_CommissionType;
 import org.compiere.model.I_C_Order;
 import org.compiere.model.I_C_OrderLine;
 import org.compiere.model.I_S_TimeExpense;
+import org.compiere.model.I_S_TimeExpenseLine;
 import org.compiere.model.MAttachment;
 import org.compiere.model.MClient;
 import org.compiere.model.MCommission;
@@ -220,6 +223,38 @@ public class AgencyValidator implements ModelValidator
 			}
 		} else if(po instanceof MTimeExpense) {
 			MTimeExpense expenseReport = (MTimeExpense) po;
+			
+			if(timing == TIMING_BEFORE_COMPLETE) {
+				Map<Integer,BigDecimal> projectList = new HashMap<>();
+					MTimeExpenseLine[] expenseReportLine = expenseReport.getLines();
+						for(int i=0; i<expenseReportLine.length; i++) {
+							StringBuffer whereClause = new StringBuffer();
+							
+							whereClause.append(" EXISTS(SELECT 1 FROm S_TimeExpense te")
+									   .append(" WHERE S_TimeExpenseLine.S_TimeExpense_ID=te.S_TimeExpense_ID and te.DocStatus=?)");
+					BigDecimal value = new Query(po.getCtx(), I_S_TimeExpenseLine.Table_Name, whereClause.toString(), po.get_TrxName())
+							.setClient_ID()
+							.setParameters(MTimeExpense.DOCSTATUS_Completed)
+							.sum(MTimeExpenseLine.COLUMNNAME_ExpenseAmt);
+
+							int projectId=expenseReportLine[i].getC_Project_ID();
+						if(projectId>0){
+							projectList.put(projectId, value);
+						}
+						}	
+		
+				projectList.forEach((projectId, value)-> {
+					MProject project = MProject.getById(po.getCtx(), projectId, null);
+					if( project != null){
+					BigDecimal plannedAmt = (BigDecimal) project.get_Value("PlannedAmt");
+					
+					if(plannedAmt.compareTo(value) < 0){
+						throw new AdempiereException(Msg.parseTranslation(Env.getCtx(), "Project Planned Amount < Expense Report Lines"));
+					}
+					}
+				});				
+			}
+			
 			if(timing == TIMING_AFTER_COMPLETE) {
 				Hashtable<Integer, Hashtable<Integer, BigDecimal>> orders = new Hashtable<Integer, Hashtable<Integer, BigDecimal>>();
 				for(MTimeExpenseLine line : expenseReport.getLines()) {
