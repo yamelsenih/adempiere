@@ -77,7 +77,6 @@ public class AgencyValidator implements ModelValidator
 		engine.addModelChange(MProject.Table_Name, this);
 		engine.addModelChange(MOrder.Table_Name, this);
 		engine.addModelChange(MOrderLine.Table_Name, this);
-		engine.addModelChange(MCommission.Table_Name, this);
 		engine.addModelChange(MCommissionLine.Table_Name, this);
 		engine.addModelChange(MProjectTask.Table_Name, this);
 		engine.addDocValidate(MTimeExpense.Table_Name, this);
@@ -135,28 +134,15 @@ public class AgencyValidator implements ModelValidator
 					}
 				}
 			}
-		} else if(type == TYPE_AFTER_CHANGE) {
-			if (po instanceof MCommission) {
-				MCommission commission = (MCommission) po;
-				if(commission.is_ValueChanged("C_BPartner_ID")) {
-					for(MCommissionLine commissionLine : commission.getLines()) {
-						if(commission.getC_BPartner_ID() > 0) {
-							commissionLine.set_ValueOfColumn("Vendor_ID", commission.getC_BPartner_ID());
-						} else {
-							commissionLine.set_ValueOfColumn("Vendor_ID", -1);
-						}
-						commissionLine.saveEx();
-					}
-				}
-			}
 		} else if(type == TYPE_BEFORE_NEW) {
 			 if (po instanceof MCommissionLine) {
 				 MCommissionLine commissionLine = (MCommissionLine) po;
 				 MCommission commission = (MCommission) commissionLine.getC_Commission();
 				 if(commission != null
 						 && commissionLine.get_ValueAsInt("Vendor_ID") <= 0) {
-					 if(commission.getC_BPartner_ID() > 0) {
-						 commissionLine.set_ValueOfColumn("Vendor_ID", commission.getC_BPartner_ID());
+					 if(commissionLine.get_ValueAsInt("C_Order_ID") > 0) {
+						 MOrder order = new MOrder(commission.getCtx(), commissionLine.get_ValueAsInt("C_Order_ID"), commission.get_TrxName());
+						 commissionLine.set_ValueOfColumn("Vendor_ID", order.getC_BPartner_ID());
 					 }
 				 }
 			 }
