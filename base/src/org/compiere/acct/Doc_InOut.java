@@ -252,7 +252,7 @@ public class Doc_InOut extends Doc
 				for (int i = 0; i < p_lines.length; i++)
 				{
 					DocLine line = p_lines[i];
-					BigDecimal multiplier = Env.ONE.negate();
+					BigDecimal multiplier = Env.ONE;
 					if (m_Reversal_ID != 0 && m_Reversal_ID < get_ID())
 						multiplier = multiplier.negate();
 					Fact factcomm = Doc_Order.getCommitmentSalesRelease(as, this, 
