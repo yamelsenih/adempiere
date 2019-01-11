@@ -78,6 +78,7 @@ public class AgencyValidator implements ModelValidator
 		engine.addModelChange(MOrder.Table_Name, this);
 		engine.addModelChange(MOrderLine.Table_Name, this);
 		engine.addModelChange(MCommission.Table_Name, this);
+		engine.addModelChange(MCommissionLine.Table_Name, this);
 		engine.addModelChange(MProjectTask.Table_Name, this);
 		engine.addDocValidate(MTimeExpense.Table_Name, this);
 	}	//	initialize
@@ -86,7 +87,6 @@ public class AgencyValidator implements ModelValidator
 		log.info(po.get_TableName() + " Type: "+type);
 		
 		if (type == TYPE_BEFORE_CHANGE) {
-			
 			if (po instanceof MProject) {
 				MProject project = (MProject) po;
 				if(project.get_ValueAsBoolean("IsApprovedAttachment")) {
@@ -135,19 +135,31 @@ public class AgencyValidator implements ModelValidator
 					}
 				}
 			}
-			
 		} else if(type == TYPE_AFTER_CHANGE) {
 			if (po instanceof MCommission) {
 				MCommission commission = (MCommission) po;
 				if(commission.is_ValueChanged("C_BPartner_ID")) {
-					if(commission.getC_BPartner_ID() > 0) {
-						for(MCommissionLine commissionLine : commission.getLines()) {
+					for(MCommissionLine commissionLine : commission.getLines()) {
+						if(commission.getC_BPartner_ID() > 0) {
 							commissionLine.set_ValueOfColumn("Vendor_ID", commission.getC_BPartner_ID());
-							commissionLine.saveEx();
+						} else {
+							commissionLine.set_ValueOfColumn("Vendor_ID", -1);
 						}
+						commissionLine.saveEx();
 					}
 				}
 			}
+		} else if(type == TYPE_BEFORE_NEW) {
+			 if (po instanceof MCommissionLine) {
+				 MCommissionLine commissionLine = (MCommissionLine) po;
+				 MCommission commission = (MCommission) commissionLine.getC_Commission();
+				 if(commission != null
+						 && commissionLine.get_ValueAsInt("Vendor_ID") <= 0) {
+					 if(commission.getC_BPartner_ID() > 0) {
+						 commissionLine.set_ValueOfColumn("Vendor_ID", commission.getC_BPartner_ID());
+					 }
+				 }
+			 }
 		}
 		//
 		return null;
