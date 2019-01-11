@@ -701,6 +701,13 @@ public class MCommissionRun extends X_C_CommissionRun implements DocAction, DocO
 			if(commissionLine.get_ValueAsInt("SplitBPartner_ID") != salesRep.getC_BPartner_ID()) {
 				return;
 			}
+		} else if(get_ValueAsInt("C_Order_ID") > 0) {
+			MOrder order = new MOrder(getCtx(), get_ValueAsInt("C_Order_ID"), get_TrxName());
+			if(!order.isSOTrx()) {
+				if(commissionLine.get_ValueAsInt("Vendor_ID") != order.getC_BPartner_ID()) {
+					return;
+				}
+			}
 		}
 		List<Integer> salesRegion = new ArrayList<Integer>();
 		MCommissionAmt commissionAmt = new MCommissionAmt (this, commissionLine.getC_CommissionLine_ID());

@@ -23,15 +23,14 @@ import java.sql.Timestamp;
 import java.util.Properties;
 import org.compiere.model.*;
 import org.compiere.process.DocAction;
+import org.compiere.process.DocOptions;
 import org.compiere.process.DocumentEngine;
 import org.compiere.util.DB;
-import org.compiere.util.Env;
-import org.compiere.util.KeyNamePair;
 
 /** Generated Model for S_Contract
  *  @author Adempiere (generated) 
  *  @version Release 3.9.1 - $Id$ */
-public class MSContract extends X_S_Contract implements DocAction {
+public class MSContract extends X_S_Contract implements DocAction, DocOptions {
 
 	/**
 	 *
@@ -295,9 +294,7 @@ public class MSContract extends X_S_Contract implements DocAction {
 	{
 		log.info("reActivateIt - " + toString());
 		setProcessed(false);
-		if (reverseCorrectIt())
-			return true;
-		return false;
+		return true;
 	}	//	reActivateIt
 	
 	
@@ -357,6 +354,21 @@ public class MSContract extends X_S_Contract implements DocAction {
 		return 0;
 	}	//	getC_Currency_ID
 
+	@Override
+	public int customizeValidActions(String docStatus, Object processing,
+			String orderType, String isSOTrx, int AD_Table_ID,
+			String[] docAction, String[] options, int index) {
+		//	Valid Document Action
+		if (AD_Table_ID == Table_ID){
+			if (docStatus.equals(DocumentEngine.STATUS_Completed)) {
+				options[index++] = DocumentEngine.ACTION_ReActivate;
+				options[index++] = DocumentEngine.ACTION_Void;
+			}
+		}
+		//	Default
+		return index;
+	}
+	
     @Override
     public String toString()
     {
