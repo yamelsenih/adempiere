@@ -36,6 +36,7 @@ import org.compiere.model.MCommissionRun;
 import org.compiere.model.MDocType;
 import org.compiere.model.MInOut;
 import org.compiere.model.MInOutLine;
+import org.compiere.model.MInvoice;
 import org.compiere.model.MOrder;
 import org.compiere.model.MOrderLine;
 import org.compiere.model.MProject;
@@ -76,6 +77,7 @@ public class AgencyValidator implements ModelValidator
 		engine.addDocValidate(I_S_TimeExpense.Table_Name, this);
 		engine.addModelChange(MProject.Table_Name, this);
 		engine.addModelChange(MOrder.Table_Name, this);
+		engine.addModelChange(MInvoice.Table_Name, this);
 		engine.addModelChange(MOrderLine.Table_Name, this);
 		engine.addModelChange(MCommissionLine.Table_Name, this);
 		engine.addModelChange(MProjectTask.Table_Name, this);
@@ -151,9 +153,7 @@ public class AgencyValidator implements ModelValidator
 		return null;
 	}	//	modelChange
 	
-	
-	
-
+	@Override
 	public String docValidate (PO po, int timing) {
 		log.info(po.get_TableName() + " Timing: "+timing);
 		//	Validate table
@@ -249,9 +249,7 @@ public class AgencyValidator implements ModelValidator
 						}
 					}
 				});				
-			}
-			
-			if(timing == TIMING_AFTER_COMPLETE) {
+			} else if(timing == TIMING_AFTER_COMPLETE) {
 				Hashtable<Integer, Hashtable<Integer, BigDecimal>> orders = new Hashtable<Integer, Hashtable<Integer, BigDecimal>>();
 				for(MTimeExpenseLine line : expenseReport.getLines()) {
 					//	Validate Orders
@@ -290,6 +288,19 @@ public class AgencyValidator implements ModelValidator
 				orders.entrySet().stream().forEach(orderSet -> {
 					generateInOutFromOrder(expenseReport, orderSet.getKey(), orderSet.getValue());
 				});
+			}
+		} else if(po instanceof MInvoice) {
+			if(timing == TIMING_BEFORE_PREPARE) {
+				MInvoice invoice = (MInvoice) po;
+				if(invoice.get_ValueAsInt("S_Contract_ID") <= 0) {
+					if(invoice.getC_Project_ID() > 0) {
+						MProject parentProject = MProject.getById(invoice.getCtx(), invoice.getC_Project_ID(), invoice.get_TrxName());
+						if(parentProject.get_ValueAsInt("S_Contract_ID") > 0) {
+							invoice.set_ValueOfColumn("S_Contract_ID", parentProject.get_ValueAsInt("S_Contract_ID"));
+							invoice.saveEx();
+						}
+					}
+				}
 			}
 		}
 		return null;
