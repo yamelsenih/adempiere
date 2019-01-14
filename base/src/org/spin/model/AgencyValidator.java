@@ -193,30 +193,28 @@ public class AgencyValidator implements ModelValidator
 				}
 				//	Validate Document Type for commission
 				if(documentType.get_ValueAsInt("C_CommissionType_ID") > 0) {
-					createCommissionForOrder(order, documentType.get_ValueAsInt("C_CommissionType_ID"));
+					createCommissionForOrder(order, documentType.get_ValueAsInt("C_CommissionType_ID"), false);
 				}
-				
 			} else if (timing == TIMING_AFTER_COMPLETE) {
-				if(!order.isSOTrx()) {
-					return null;
-				}
-				//	For Sales Orders only
-				if(!order.isDropShip()) {
-					return null;
-				}
 				// Document type IsCustomerApproved = Y and order IsCustomerApproved = N
 				if (!documentType.get_ValueAsBoolean("IsApprovedRequired")) {
-					return null;
+					throw new AdempiereException(Msg.parseTranslation(Env.getCtx(), "@CustomerApprovedRequired@"));
 				}
-				//	
-				if(order.get_ValueAsBoolean("IsCustomerApproved")) {
-					//	For drop ship only
-					ProcessBuilder.create(order.getCtx())
-						.process(OrderPOCreateAbstract.getProcessId())
-						.withParameter(OrderPOCreateAbstract.C_ORDER_ID, order.getC_Order_ID())
-						.withParameter(OrderPOCreateAbstract.VENDOR_ID, order.getDropShip_BPartner_ID())
-						.withoutTransactionClose()
-						.execute(order.get_TrxName());
+				if(order.isSOTrx()) {
+					//	For Sales Orders only
+					if(order.isDropShip()) {
+						//	For drop ship only
+						ProcessBuilder.create(order.getCtx())
+							.process(OrderPOCreateAbstract.getProcessId())
+							.withParameter(OrderPOCreateAbstract.C_ORDER_ID, order.getC_Order_ID())
+							.withParameter(OrderPOCreateAbstract.VENDOR_ID, order.getDropShip_BPartner_ID())
+							.withoutTransactionClose()
+							.execute(order.get_TrxName());
+					}
+				}
+				//	Validate Document Type for commission
+				if(documentType.get_ValueAsInt("C_CommissionType_ID") > 0) {
+					createCommissionForOrder(order, documentType.get_ValueAsInt("C_CommissionType_ID"), true);
 				}
 			}
 		} else if(po instanceof MTimeExpense) {
@@ -327,11 +325,12 @@ public class AgencyValidator implements ModelValidator
 	 * @param order
 	 * @param
 	 */
-	private void createCommissionForOrder(MOrder order, int commissionTypeId) {
+	private void createCommissionForOrder(MOrder order, int commissionTypeId, boolean splitDocuments) {
 		removeLineFromCommission(order, commissionTypeId);
-		new Query(order.getCtx(), I_C_Commission.Table_Name, I_C_CommissionType.COLUMNNAME_C_CommissionType_ID + " = ? ", order.get_TrxName())
+		new Query(order.getCtx(), I_C_Commission.Table_Name, I_C_CommissionType.COLUMNNAME_C_CommissionType_ID + " = ? "
+				+ "AND IsSplitDocuments = ?", order.get_TrxName())
 			.setOnlyActiveRecords(true)
-			.setParameters(commissionTypeId)
+			.setParameters(commissionTypeId, (splitDocuments? "Y": "N"))
 			.<MCommission>list().forEach(commissionDefinition -> {
 				int documentTypeId = MDocType.getDocType(MDocType.DOCBASETYPE_SalesCommission, order.getAD_Org_ID());
 				MCommissionRun commissionRun = new MCommissionRun(commissionDefinition);
