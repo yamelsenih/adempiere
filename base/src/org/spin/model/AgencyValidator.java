@@ -40,6 +40,7 @@ import org.compiere.model.MInvoice;
 import org.compiere.model.MOrder;
 import org.compiere.model.MOrderLine;
 import org.compiere.model.MProject;
+import org.compiere.model.MProjectPhase;
 import org.compiere.model.MProjectTask;
 import org.compiere.model.MTimeExpense;
 import org.compiere.model.MTimeExpenseLine;
@@ -148,6 +149,28 @@ public class AgencyValidator implements ModelValidator
 					 }
 				 }
 			 }
+		}else if(type == TYPE_AFTER_NEW) {						 
+			if(po instanceof MOrderLine) {
+				MOrderLine orderLine = (MOrderLine) po;
+					int projectPhaseID =orderLine.getC_ProjectPhase_ID();
+					int projectTaskID =orderLine.getC_ProjectTask_ID();
+					if(projectPhaseID > 0) {
+						MProjectPhase projectPhase = new MProjectPhase(orderLine.getCtx(), projectPhaseID,orderLine.get_TrxName());						
+						orderLine.set_ValueOfColumn("C_Campaign_ID", projectPhase.getC_Campaign_ID());
+						orderLine.set_ValueOfColumn("User1_ID", projectPhase.getUser1_ID());
+						orderLine.set_ValueOfColumn("C_Project_ID", projectPhase.getC_Project_ID());
+						orderLine.set_ValueOfColumn("CUST_MediaType_ID", projectPhase.get_ValueAsInt("CUST_MediaType_ID"));
+					}
+					else if(projectTaskID > 0) {
+						MProjectTask projectTask = new MProjectTask(orderLine.getCtx(), projectTaskID,orderLine.get_TrxName());
+						orderLine.set_ValueOfColumn("C_Campaign_ID", projectTask.getC_Campaign_ID());
+						orderLine.set_ValueOfColumn("User1_ID", projectTask.getUser1_ID());						
+						orderLine.set_ValueOfColumn("CUST_MediaType_ID", projectTask.get_ValueAsInt("CUST_MediaType_ID"));
+						MProjectPhase projectPhasefromTask = new MProjectPhase(orderLine.getCtx(), projectTask.getC_ProjectPhase_ID(),orderLine.get_TrxName());
+						orderLine.set_ValueOfColumn("C_Project_ID", projectPhasefromTask.getC_Project_ID());						
+					}
+					orderLine.saveEx();
+			}
 		}
 		//
 		return null;
