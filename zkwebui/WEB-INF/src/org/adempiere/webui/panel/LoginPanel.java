@@ -456,9 +456,9 @@ public class LoginPanel extends Window implements EventListener<Event>
             Locales.setThreadLocal(language.getLocale());
 
 //            Clients.response("zkLocaleJavaScript", new AuScript(null, ZkFns.outLocaleJavaScript()));
-            String timeoutText = getUpdateTimeoutTextScript();
-            if (!Strings.isEmpty(timeoutText))
-            	Clients.response("zkLocaleJavaScript2", new AuScript(null, timeoutText));
+//            String timeoutText = getUpdateTimeoutTextScript();
+//            if (!Strings.isEmpty(timeoutText))
+//            	Clients.response("zkLocaleJavaScript2", new AuScript(null, timeoutText));
         }
 
 		// This temporary validation code is added to check the reported bug

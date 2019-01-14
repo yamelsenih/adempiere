@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.adempiere.webui.AdempiereIdGenerator;
+import org.adempiere.webui.panel.LoginPanel;
 import org.adempiere.webui.theme.ThemeUtils;
 import org.compiere.util.Env;
 import org.compiere.util.Msg;
@@ -264,7 +265,7 @@ public final class ConfirmPanel extends Hbox
     /**
      * initialise components
      */
-    @SuppressWarnings("deprecation")
+   
 	private void init()
     {
         pnlBtnLeft = new Panel();

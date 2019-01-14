@@ -18,6 +18,8 @@
 package org.adempiere.webui.panel;
 
 import java.net.URI;
+
+import org.adempiere.webui.LayoutUtils;
 import org.adempiere.webui.theme.ThemeUtils;
 import org.adempiere.webui.apps.AEnv;
 import org.adempiere.webui.component.Borderlayout;
@@ -54,7 +56,7 @@ import org.zkoss.zul.Vbox;
  * @date    Mar 12, 2007
  * @version $Revision: 0.10 $
  */
-public class StatusBarPanel extends Panel implements EventListener<Event>, IStatusBar
+public class StatusBarPanel extends Panel implements EventListener, IStatusBar
 {
 	/**
 	 * 
@@ -129,11 +131,11 @@ public class StatusBarPanel extends Panel implements EventListener<Event>, IStat
         
         west = new Div();
         west.setStyle("text-align: left; ");
-//        LayoutUtils.addSclass("status-db", statusLine);
+        LayoutUtils.addSclass("status-db", statusLine);
         west.appendChild(statusLine);
         Vbox vbox = new Vbox();
         vbox.setPack("center");
-        ThemeUtils.addSclass("ad-statusbarpanel", vbox);
+        LayoutUtils.addSclass("status", vbox);
         vbox.appendChild(west);
         hbox.appendChild(vbox);
 
@@ -147,13 +149,12 @@ public class StatusBarPanel extends Panel implements EventListener<Event>, IStat
         	infoLine.setVisible(false);
         }
         east.appendChild(statusDB);
-
-          ThemeUtils.addSclass("ad-statusbarpanel-db", statusDB);
+        LayoutUtils.addSclass("status-db", statusDB);
       if (!embedded)
-          ThemeUtils.addSclass("ad-statusbarpanel-info", infoLine);
- 
-        vbox.setPack("center");        
-        ThemeUtils.addSclass("ad-statusbarpanel", vbox);
+    	  LayoutUtils.addSclass("status-info", infoLine);
+      vbox = new Vbox();
+      vbox.setPack("center");
+      LayoutUtils.addSclass("status", vbox);
 
         vbox.appendChild(east);
         hbox.appendChild(vbox);

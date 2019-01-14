@@ -52,9 +52,9 @@ import org.compiere.util.Msg;
 import org.compiere.util.Trx;
 import org.compiere.util.TrxRunnable;
 import org.zkoss.util.media.AMedia;
+import org.zkoss.zhtml.Center;
 import org.zkoss.zk.ui.event.EventListener;
-import org.zkoss.zkex.zul.Center;
-import org.zkoss.zkex.zul.North;
+import org.zkoss.zul.North;
 import org.zkoss.zul.Space;
 
 /**

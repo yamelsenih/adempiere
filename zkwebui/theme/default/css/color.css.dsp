@@ -82,29 +82,79 @@
   color: #686868 !important;
   
 }
-    
 
+
+.z-comboitem {
+    display: block;
+    padding: 3px 2px;
+    position: relative;
+    text-shadow: 0 0px #ffffff21;
+}   
+
+.z-comboitem-selected:hover .z-comboitem-text {
+    color: #fefefe;
+}
+
+
+.z-comboitem-selected {
+    background: -webkit-linear-gradient(top, #1f9bde 0%, #1f9bde 100%);
+    background: linear-gradient(to bottom, #1f9bde 0%, #1f9bde 100%);
+}
+
+.z-comboitem:hover {
+    background: -webkit-linear-gradient(top, #1f9bde 0%, #1f9bde 100%); 
+    background: linear-gradient(to bottom, #1f9bde 0%, #1f9bde 100%);
+    color: #fefefe;
+    
+}
+.z-comboitem-selected .z-comboitem-text {
+    color: #fefefe;
+}
 .z-button{
  
     background: -webkit-linear-gradient(top, #336b9b  0%, #336b9b  100%);
     color: #fefefe;
- 
+    
      }
      
-     
-
+.ad-button .ad-editorbox-button .z-button{
+       
+       width: 66px;
  
+} 
 
 
+.form-button{
+ 
+    
+	}
+
+ .z-listitem.z-listitem-selected .z-listcell
+{
+     border-color: #1f9bde;
+    background: -webkit-linear-gradient(top, #1f9bde 0%, #1f9bde 100%);
+    background: linear-gradient(to bottom, #1f9bde 0%, #1f9bde 100%);
+    background-clip: padding-box;
+    position: relative;
 }
-.z-button:focus {
-    color: #000;
-    border-color: ##0a3a5e;
-    background: linear-gradient(to bottom, #0a3a5e 0%, #0a3a5e 100%);
+.z-listitem:hover>.z-listcell {
+    background: -webkit-linear-gradient(top, #1f9bde 0%, #1f9bde 100%);
+    background: linear-gradient(to bottom, #1f9bde 0%, #1f9bde 100%);
+    background-clip: padding-box;
+    position: relative;
+    
 }
-.z-button:hover {
-    background: -webkit-linear-gradient(top, #0a3a5e 0%, #0a3a5e 100%);
 
+input[type="checkbox"] {
+
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05), inset 0px -15px 10px -12px rgba(0,0,0,0.05);
+	padding: 9px;
+    border: 1px solid #f0f0f0 !important;
+	display: inline-block;
+	position: relative;
+	   width: 20px; 
+     height: 20px;
+ 
 }
 
 .ad-textbox ad-weditor
@@ -135,6 +185,8 @@
 
  display: flex;
  width: 100%;
+
+ 
 }
 .z-image{
 
@@ -170,21 +222,22 @@
     height: 50px;
   
     }
-    
+ 
 .ad-combobox, ad-weditor{
 
-     min-inline-size: -webkit-fill-available;
+     min-inline-size: auto;
      
 } 
     
 .ad-editorbox-input {
 
+  width: 100%;
 }
 
 
 .ad-editorbox-cell-input    
 {
-        width: 60px;
+        width: 100% !important;
 
 }
 
@@ -230,6 +283,8 @@
     color: #FEFEFE;   
     height: 28px !important;
     border-radius: 3px !important;
+        
+       
 }
 
 .ad-button:hover{
@@ -247,15 +302,15 @@
 
 
 
-
 .z-button:active {
-       background: -webkit-linear-gradient(top, #336b9b 0%, #336b9b 100%);;
+    border-color: #336b9b;
+    background: -webkit-linear-gradient(top, #336b9b 0%, #336b9b 100%);
+    background: linear-gradient(to bottom, #336b9b 0%, #336b9b 100%);
+
 }
-
-.ad-button, action-button, z-button
+.action-button
 {
-
-             
+     WIDTH: 99%;
 }
 .desktop-header-font {
   color: #FFFFFF !important;
@@ -427,7 +482,13 @@ color: #FFF!important;
     cursor: default;
 }
 
+.z-window-noborder>.z-window-content {
+    border: 0;
+    margin: 0px 0px;
+    border-radius: 5px;
+   
 
+}
 
 
 .z-textbox
@@ -439,7 +500,7 @@ color: #FFF!important;
   font-size: 11px;
   font-weight: normal;
   font-style: normal;
-  min-height: 26px;
+  min-height: 23px;
   min-width: 99 %;
   
 }
@@ -469,7 +530,16 @@ color: #FFF!important;
   padding-bottom: 0px !important;
 }
 .z-tabpanels {
-  border-top: solid 1px #1f9bde !important;
+ 
+    border-top: solid 1px #1f9bde !important;
+    overflow: auto;
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    visibility: inherit;
+  
+  
+   
 }
 <%-- Skyblue underline tabs - End --%>
 
@@ -507,8 +577,7 @@ color: #FFF!important;
     padding: 4px 5px;
     line-height: 14px;
     background: #fefefe;
-    width: 43% !important;
-
+      
 }
 
 .z-column:not(.z-column-over) {
@@ -703,6 +772,7 @@ div.z-tree, div.z-dottree, div.z-filetree, div.z-vfiletree {
 div.z-tree-body{
 	background-color : ${ColorBGTree};
 	border:none;
+	overflow: hidden;
 }
 
 
@@ -777,18 +847,34 @@ div.z-grid {
 	box-shadow: 1px 1px 4px #ffffff !important;
 	border-left: 3px solid rgb(0, 155, 222); width: 99.1% !important;
     height: 500px !important;
+    
+    
 	
 }
 .z-grid-body {
    color:#FEFEFE;
-
+   
+   
+   
 }
+
+.z-grid-body table {
+    border-spacing: 0;
+    table-layout: inherit !important;
+   
+}
+
+.z-grid-body .z-cell {
+
+   color: #000;
+}
+
 div.z-grid-body {
-	-moz-box-shadow: 0 0 5px #888;
-	-webkit-box-shadow: 0 0 5px #888;
-	box-shadow: 0 0 5px #888;
-	background-color:${ColorGray};
-	border:none;
+	-webkit-box-shadow: 0 0 5px #f7f7f7;
+    box-shadow: 0 0 5px #fff;
+    background-color: #FFFFFF;
+    border: none;
+    
 }
 
 tr.z-grid-odd td.z-row-inner, tr.z-grid-odd {
@@ -796,7 +882,7 @@ tr.z-grid-odd td.z-row-inner, tr.z-grid-odd {
 }
 
 tr.z-grid-odd .z-cell{
-	background-color : ${ColorLightGray};
+	background-color : #fefefe;
 }
 
 
@@ -811,8 +897,20 @@ tr.z-row td.z-row-inner{
 
 div.z-row-cnt{
 	margin-left:4px;
-	margin-right:4px;
+	margin-right:20px;
 }
+
+.z-row-inner{
+
+ 
+}
+    
+   
+.z-row td:first-child {
+    border-left: none;
+   
+    
+}   
 
 <%--
 tr.z-rows{
@@ -880,10 +978,18 @@ td.z-group-inner {
 
 .z-north, .z-south, .z-west, .z-center, .z-east {
     background: #f7f7f7;
+    overflow: inherit;
 }
- .z-center{
+.z-south{
+  
+           
+}
+
+
+.z-center{
     border: none;
-     
+     height: 100%!important;
+    
 }
 
 .z-borderlayout {
@@ -898,7 +1004,10 @@ td.z-group-inner {
 }
 .z-north-body{
     background-color: #fefefe;
-    overflow: hidden;
+    overflow: auto !important;
+        line-height: 21px;
+
+    
 
 }
 
@@ -935,8 +1044,7 @@ td.z-group-inner {
 
 .z-west, .z-center, .z-east, .z-north, .z-south {
 	border:none;
-	
-
+	 
 }	
 desktop-header-right, z-center {
 
@@ -952,14 +1060,14 @@ desktop-header-right, z-center {
 
 .z-hbox, .z-vbox {
     border-spacing: 0;
-    width: 100% !important;
+    
     height: 100% !important;
     
  }   
 .z-hbox td{
 
-
-width: 100%;
+   width: 100%;
+  visibility: inherit;
 } 
  
 .z-toolbar-content z-toolbar-start{
@@ -1180,7 +1288,11 @@ width: 100%;
     
 }
 
+.z-panel-body {
 
+    overflow: hidden !important;
+
+}
 
 
 toolbar-button disableFilter z-toolbarbutton
@@ -1192,7 +1304,6 @@ toolbar-button disableFilter z-toolbarbutton
 	background-color:${ColorBGTree};
 	border-color:${ColorBorder};
 }
-
 
 
 .z-panel-hl,

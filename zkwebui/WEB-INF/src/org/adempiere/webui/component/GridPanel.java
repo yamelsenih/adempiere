@@ -569,7 +569,7 @@ private void init_components() {
 					break;
 				}
 			}
-			if (cmp != null)
+//			if (cmp != null)
 				Clients.response(new AuScript(null, "scrollToRow('" + cmp.getUuid() + "');"));
 
 			if (columnOnClick != null && columnOnClick.trim().length() > 0) {
@@ -579,7 +579,7 @@ private void init_components() {
 						Div div = (Div) element;
 						if (columnOnClick.equals(div.getAttribute("columnName"))) {
 							cmp = div.getFirstChild().getNextSibling();
-							Clients.response(new AuScript(null, "scrollToRow('" + cmp.getUuid() + "');"));
+//							Clients.response(new AuScript(null, "scrollToRow('" + cmp.getUuid() + "');"));
 							break;
 						}
 					}

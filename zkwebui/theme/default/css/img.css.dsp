@@ -74,7 +74,7 @@
 {
 	background-color:#eceae4; 
 	background-image:none;
-	width: 272px;
+
   }
 
 
@@ -375,14 +375,48 @@ tr.z-row .z-detail-outer {
 <%-- button.css.dsp - 4 --%>
 
 .z-button{
-	height:31px !important;
-	padding: 11px;
-
-	-moz-border-radius: 10px;
+	height:24px !important;
+	padding: 5px;
+	
+   -moz-border-radius: 10px;
 	-webkit-border-radius: 10px;
-	border-radius:10px; 
-	   
+	border-radius:3px; 
+	font-weight: inherit !important;
+    
+
 }
+
+
+
+
+
+
+}
+ 
+.z-button:hover {
+    border-color: #0a3a5e !important;
+    background: -webkit-linear-gradient(top, #0a3a5e 0%, #0a3a5e 100%)!important;
+    background: linear-gradient(to bottom, #0a3a5e 0%, #0a3a5e 100%)!important;
+}
+.z-button:focus {
+    color: #fefefe;
+    border-color: #0a3a5e !important;
+    background: -webkit-linear-gradient(top, #0a3a5e 0%, #0a3a5e 100%)!important;
+    background: linear-gradient(to bottom, #0a3a5e 0%, #0a3a5e 100%)!important;
+    -webkit-box-shadow: inset 0 0 2px #0a3a5e !important;
+    box-shadow: inset 0 0 2px #0a3a5e !important;
+    
+ }   
+ .z-button[disabled] {
+    border-color: #a9a9a9;
+    background: -webkit-linear-gradient(top, #346c9b 0%, #346c9b 100%);
+    background: linear-gradient(to bottom, #346c9b 0%, #346c9b 100%);
+    opacity: .6;
+    filter: alpha(opacity=60);
+    -webkit-box-shadow: none;
+    box-shadow: none;
+    cursor: default;
+} 
 
 .z-button .z-button-tl, .z-button .z-button-tr, .z-button .z-button-bl, .z-button .z-button-br{
 	background-image:url(../images/zul/button/btn-corner8.png);
@@ -548,6 +582,27 @@ tr.z-row .z-detail-outer {
 .z-datebox{
 	height:20px;
 }
+
+
+
+
+
+.z-datebox-button {
+    text-align: center;
+    background: -webkit-linear-gradient(top, #346c9b 0%, #346c9b 100%)!important;
+    color: #FEFEFE;
+}
+
+.z-datebox-button:hover{
+
+    border-color: #0a3a5e;
+    background: -webkit-linear-gradient(top, #0a3a5e 0%, #0a3a5e 100%)!important;
+    background: linear-gradient(to bottom, #0a3a5e 0%, #0a3a5e 100%)!important;
+    color: #fefefe;
+}
+
+
+
 .z-datebox-inp {
 	background-image: url(../images/zul/misc/text-bg8.gif);
 	height:20px;
@@ -1089,7 +1144,9 @@ span.z-vfiletree-tee, span.z-vfiletree-last {
 <%-- widget.css.dsp - 2 --%>
 .z-textbox, .z-decimalbox, .z-intbox, .z-longbox, .z-doublebox {
 	background-image: url(../images/zul/misc/text-bg8.gif);
-	height:20px;
+	height:24px;
+	
+	
 	
 }
 .z-textbox-text-invalid,

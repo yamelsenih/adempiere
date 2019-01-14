@@ -88,6 +88,7 @@ import org.zkoss.zk.ui.Component;
 import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.event.EventListener;
 import org.zkoss.zk.ui.event.Events;
+
 import org.zkoss.zul.Center;
 import org.zkoss.zul.Listitem;
 import org.zkoss.zul.North;
@@ -292,7 +293,7 @@ public class InfoProductPanel extends InfoPanel implements ValueChangeListener
 		checkAND.setSelected(true);
 		checkAND.addActionListener(this);
 		
-		m_InfoPAttributeButton.setImage(ServletFns.resolveThemeURL("~./images/PAttribute16.png"));
+		m_InfoPAttributeButton.setImage("/images/PAttribute16.png");
 		m_InfoPAttributeButton.setTooltiptext(Msg.getMsg(Env.getCtx(), "PAttribute"));
 		m_InfoPAttributeButton.addEventListener(Events.ON_CLICK,this);
 
@@ -416,6 +417,7 @@ public class InfoProductPanel extends InfoPanel implements ValueChangeListener
 
 		row = new Row();
 		rows.appendChild(row);
+
 		row.appendCellChild(lblName.rightAlign());
 		row.appendCellChild(fieldName);
 		row.appendCellChild(lblPriceList.rightAlign());
@@ -435,6 +437,7 @@ public class InfoProductPanel extends InfoPanel implements ValueChangeListener
 		
 		row = new Row();
 		rows.appendChild(row);
+	
 		row.appendCellChild(lblSKU.rightAlign());
 		row.appendCellChild(fieldSKU);
 		row.appendCellChild(lblVendor.rightAlign());
@@ -2088,10 +2091,6 @@ public class InfoProductPanel extends InfoPanel implements ValueChangeListener
 		m_M_Product_ID = 0;
 		p_centerLayout.getSouth().setOpen(false);
 		return;
-	}
-	public void render(Listitem item, Object data) throws Exception {
-		// TODO Auto-generated method stub
-		
 	}
 
 }	//	InfoProduct

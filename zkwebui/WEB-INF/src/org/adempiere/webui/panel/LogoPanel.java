@@ -35,7 +35,7 @@ public class LogoPanel extends Panel
 	private Image imgLogo;
     
     public LogoPanel()
-    {
+    { 
         super();
         init();
     }

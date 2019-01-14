@@ -30,10 +30,10 @@ import org.compiere.util.Env;
 import org.compiere.util.Msg;
 import org.zkoss.image.AImage;
 import org.zkoss.zk.ui.event.Event;
-import org.zkoss.zkex.zul.North;
 import org.zkoss.zul.Caption;
 import org.zkoss.zul.Groupbox;
 import org.zkoss.zul.Image;
+import org.zkoss.zul.North;
 
 import java.math.BigDecimal;
 

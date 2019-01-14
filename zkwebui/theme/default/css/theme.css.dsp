@@ -16,13 +16,13 @@ html,body {
 }
 
 .login-box-body {
-	width: 500px;
+	
     height: 300px;
     background-image: url(../images/login-box-bg.png);
     background-repeat: repeat-y;
     background-color: transparent;
     z-index: 1;
-    padding: 15px;
+    padding: 0px;
     margin: 0px;
     text-align: center;
     padding-bottom: 5px;
@@ -33,8 +33,8 @@ html,body {
 	background-image: url(../images/login-box-header.png);
     background-color: transparent;
     z-index: 2;
-    height: 54px;
-    width: 524px;
+    height: 30px;
+    width: 500px;
 	
 }
 
@@ -42,24 +42,26 @@ html,body {
 	color: black;
 	font-weight: bold;
 	position: relative;
-	top: 30px;
+	top: 50px !important;
 }
 
 .login-box-header-logo {
 	
 	text-align: -webkit-center !important;
     position: inherit !important;
+    height: 104px;
 }
 
 .login-box-footer {
-	    background-image: url(../images/login-box-footer.png);
-    background-position: top right;
+	background-image: url(../images/login-box-footer.png);
+    background-position: bottom;
     background-attachment: scroll;
     background-repeat: repeat-y;
     z-index: 2;
-    height: 54px;
-    width: 1px;
-    margin-left: 62px;
+    text-align: -webkit-right;
+    margin-right: 41px;
+    height: 40px;
+    
 }
 
 .login-box-footer-pnl {
@@ -69,7 +71,7 @@ html,body {
 .login-label {
 	color: black;
 	text-align: -webkit-right;
-	width: 20%;
+	width: 18%;
 }
 
 .login-field {
@@ -77,15 +79,28 @@ html,body {
 	width: 40%;
 }
 
+.login-field .ad-combobox .z-combobox-input{
+
+ width: 100%;
+
+}
+ 
+.login-field .ad-textbox{
+
+width: 66%;
+}
+
+
+
+}
 .login-btn {
 	height: 36px;
-	width: 72px;
-	background: -webkit-linear-gradient(top, #003764 0%, #003764 100%);
-    }
-
+	width: 66px;
+	background: -webkit-linear-gradient(top, #336b9b 0%, #336b9b 100%);
+}
 .login-btn, z-button
 {
-
+           width: 66px;
 
 }
 .login-east-panel, .login-west-panel {
@@ -181,7 +196,7 @@ position: fixed !important;
 <%-- button --%>
 .action-button {
 	height: 15px;
-	width: 48px;
+	width: 49px;
 	padding: 0px;
 }
 
@@ -531,9 +546,6 @@ wlogin-layout-center{
 
 
 
-.form-button{
-	width: 99%;
-}
 
 <%-- Combobox --%>
 .z-combobox-disd {
@@ -548,18 +560,13 @@ wlogin-layout-center{
 .z-combobox-text-disd {
 	background-color: #ECEAE4 !important;
 }
-.z-listitem.z-listitem-selected .z-listcell
-{
-      background: -webkit-linear-gradient(top, #2196f3 0%, #2196f3 100%);
-    background: linear-gradient(to bottom, #2196f3 0%, #2196f3 100%)!important;
-    background-clip: padding-box;
-    position: relative;  
-}
+
 
 <%-- Button --%>
 .z-button-disd {
 	color: black; cursor: default; opacity: .6; -moz-opacity: .6; -khtml-opacity: .6; filter: alpha(opacity=60);
 }
+
 
 <%-- highlight focus form element --%>
 input:focus, textarea:focus, .z-combobox-inp:focus, z-datebox-inp:focus {
@@ -642,17 +649,7 @@ tr.z-row td.z-row-inner{
 }
 
 
-input[type="checkbox"]  {
 
-	border: 1px solid #bbbbbb;
-	box-shadow: 0 1px 2px rgba(0,0,0,0.05), inset 0px -15px 10px -12px rgba(0,0,0,0.05);
-	padding: 9px;
-	display: inline-block;
-	position: relative;
-	appearance: none;
-	-webkit-appearance: initial !important;
-
-}
 
 input[type="checkbox"] :active, input[type="checkbox"]:checked :active {
 	box-shadow: 0 1px 2px rgba(0,0,0,0.05), inset 0px 1px 3px rgba(0,0,0,0.1);
@@ -666,6 +663,8 @@ input[type="checkbox"]:checked  {
 	background   : url('../images/zul/input/check.png')
 
 }
+ 
+
 input[type="checkbox"]:disabled {
     border: 1px solid #f0f0f0 !important;
     background: f0f0f0;

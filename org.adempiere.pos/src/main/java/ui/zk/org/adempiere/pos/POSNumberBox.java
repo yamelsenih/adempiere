@@ -66,6 +66,8 @@ public class POSNumberBox extends Div
 	 * 
 	 */
 	private static final long serialVersionUID = 7089099079981906933L;
+
+	private static final BigDecimal BigDecimal = null;
 	
 	/**	Field Calc					*/
 	private Textbox 		txtCalc = new Textbox();
@@ -154,7 +156,7 @@ public class POSNumberBox extends Div
     public void setValue(Object value)
     {
     	if (value == null)
-    		decimalBox.setValue(null);
+    		decimalBox.setValue(BigDecimal);
     	else if (value instanceof BigDecimal)
     		decimalBox.setValue((BigDecimal) value);
     	else if (value instanceof Number)

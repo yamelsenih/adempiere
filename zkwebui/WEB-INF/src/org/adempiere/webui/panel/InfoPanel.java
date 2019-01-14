@@ -53,6 +53,7 @@ import org.adempiere.webui.component.Window;
 import org.adempiere.webui.editor.WPAttributeEditor;
 import org.adempiere.webui.editor.WSearchEditor;
 import org.adempiere.webui.editor.WTableDirEditor;
+
 import org.adempiere.webui.event.WTableModelEvent;
 import org.adempiere.webui.event.WTableModelListener;
 import org.adempiere.webui.part.ITabOnSelectHandler;
@@ -69,23 +70,26 @@ import org.compiere.util.Env;
 import org.compiere.util.KeyNamePair;
 import org.compiere.util.Msg;
 import org.compiere.util.Util;
+import org.zkforge.keylistener.Keylistener;
 import org.zkoss.zk.au.out.AuEcho;
 import org.zkoss.zk.ui.Component;
 import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.event.EventListener;
 import org.zkoss.zk.ui.event.Events;
+import org.zkoss.zk.ui.event.KeyEvent;
 import org.zkoss.zk.ui.event.SelectEvent;
 import org.zkoss.zk.ui.util.Clients;
 import org.zkoss.zul.Borderlayout;
 import org.zkoss.zul.Center;
+import org.zkoss.zul.North;
+import org.zkoss.zul.South;
+import org.zkoss.zul.West;
 import org.zkoss.zul.Div;
 import org.zkoss.zul.ListModelExt;
 import org.zkoss.zul.Listitem;
-import org.zkoss.zul.North;
 import org.zkoss.zul.Paging;
 import org.zkoss.zul.Separator;
-import org.zkoss.zul.South;
-import org.zkoss.zul.West;
+
 import org.zkoss.zul.event.ZulEvents;
 import org.zkoss.zul.ext.Sortable;
 
@@ -347,7 +351,7 @@ public abstract class InfoPanel extends Window implements EventListener<Event>, 
 				
 				if (event.getName().equals("onSelect"))
 				{
-					SelectEvent<?, ?> se = ((SelectEvent<?, ?>) event);
+					SelectEvent se = ((SelectEvent) event);
 					setNumRecordsSelected(se.getSelectedItems().size());
 					recordSelected(p_table.getLeadRowKey());
 					p_selectedRecordKey = p_table.getLeadRowKey();
@@ -370,11 +374,11 @@ public abstract class InfoPanel extends Window implements EventListener<Event>, 
 		//  the p_centerCenter which should fill the remaining space.
 		// Have to set the criteriaGrid height specifically.  58 is the height of the reset button and label.
 		// p_criteriaGrid is assumed to hold a Rows component that is non null and has children.
-		//int rowHeight = (25*((Rows) p_criteriaGrid.getFirstChild()).getChildren().size());
-		//rowHeight = rowHeight > 58 ? rowHeight : 58;
-		//p_northLayout.setHeight(rowHeight + "px");
+		int rowHeight = (30*((Rows) p_criteriaGrid.getFirstChild()).getChildren().size());
+		rowHeight = rowHeight > 58 ? rowHeight : 58;
+		p_northLayout.setHeight(rowHeight + "px");
 		p_northLayout.resize();
-		//p_southLayout.setHeight("70px");
+		p_southLayout.setHeight("70px");
 		//p_southLayout.setVflex("min");
 		
 		if (p_centerNorth.getChildren().size() == 0)
@@ -389,9 +393,9 @@ public abstract class InfoPanel extends Window implements EventListener<Event>, 
 		if (p_centerSouth.getChildren().size() > 0)
 		{
 			//p_centerSouth.setVflex("min");  //  Since ZK 5+
-			//int detailHeight = (p_height * 25 / 100);
-			//p_centerSouth.setHeight(detailHeight + "px");
-			p_centerSouth.setSize("25%");
+		    int detailHeight = (p_height * 25 / 100);
+			p_centerSouth.setHeight(detailHeight + "px");
+			//p_centerSouth.setSize("25%");
 		}
 		else
 		{
@@ -418,10 +422,10 @@ public abstract class InfoPanel extends Window implements EventListener<Event>, 
 		else
 		{
 			setAttribute(Window.MODE_KEY, Window.MODE_EMBEDDED);
-//			setBorder("none");
-//			setWidth("100%");
-//			setHeight("100%");
-//			setStyle("position: absolute");
+		    setBorder("none");
+			setWidth("100%");
+			setHeight("100%");
+			setStyle("position: absolute");
     		ThemeUtils.addSclass("ad-infopanel-embedded", this);
 		}
 		
@@ -557,6 +561,8 @@ public abstract class InfoPanel extends Window implements EventListener<Event>, 
         this.addEventListener(Events.ON_OK, this);
         this.setVisible(true);
         
+     
+        
 	}  //  init
 	
 	private static String SYSCONFIG_INFO_AUTO_WILDCARD = "INFO_AUTO_WILDCARD";
@@ -658,7 +664,8 @@ public abstract class InfoPanel extends Window implements EventListener<Event>, 
 	private boolean m_busy = false;
 
 	private static final String[] lISTENER_EVENTS = {};
-
+	
+	private static final int KEYBOARD_KEY_RETURN = 13;
 	/**
 	 *  Loaded correctly
 	 *  @return true if loaded OK
@@ -1492,7 +1499,8 @@ public abstract class InfoPanel extends Window implements EventListener<Event>, 
 
         if  (event!=null)
         {
-    		if (event.getName().equals("onOK"))
+    		if (event.getName().equals("onOK") ) //&& event.getTarget() != keyListener
+    		
     		{
     			//  The enter key was pressed in a criteria field.  Ignore it.  The key click will trigger
     			//  other events that will be trapped.
@@ -1556,7 +1564,7 @@ public abstract class InfoPanel extends Window implements EventListener<Event>, 
 				}
     			
     			//  Buttons
-	        	if (component.equals(confirmPanel.getButton(ConfirmPanel.A_OK)))
+	        	if (component.equals(confirmPanel.getButton(ConfirmPanel.A_OK)) || event.getName().equals(Events.ON_CTRL_KEY) )
 	            {
 					//  The enter key is mapped to the Ok button which will close the dialog.
 					//  Don't let this happen if there are outstanding changes to any of the 
