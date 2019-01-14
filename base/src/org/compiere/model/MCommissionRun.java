@@ -1308,6 +1308,7 @@ public class MCommissionRun extends X_C_CommissionRun implements DocAction, DocO
 			});
 		} else {
 			commissionLineList.stream()
+				.filter(commissionLine -> commissionLine.get_ValueAsInt("C_Order_ID") <= 0)
 				.forEach(commissionLine -> {
 					processLine(salesRep, commission, commissionLineList, commissionLine, isPercentage, amtMultiplier);
 			});
