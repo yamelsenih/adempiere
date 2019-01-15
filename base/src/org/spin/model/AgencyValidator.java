@@ -21,6 +21,7 @@ import java.util.Hashtable;
 import java.util.Map;
 
 import org.adempiere.exceptions.AdempiereException;
+import org.compiere.model.I_C_BPartner;
 import org.compiere.model.I_C_Commission;
 import org.compiere.model.I_C_CommissionRun;
 import org.compiere.model.I_C_CommissionType;
@@ -29,6 +30,7 @@ import org.compiere.model.I_C_OrderLine;
 import org.compiere.model.I_S_TimeExpense;
 import org.compiere.model.I_S_TimeExpenseLine;
 import org.compiere.model.MAttachment;
+import org.compiere.model.MBPartner;
 import org.compiere.model.MClient;
 import org.compiere.model.MCommission;
 import org.compiere.model.MCommissionLine;
@@ -43,6 +45,8 @@ import org.compiere.model.MProject;
 import org.compiere.model.MProjectTask;
 import org.compiere.model.MTimeExpense;
 import org.compiere.model.MTimeExpenseLine;
+import org.compiere.model.MTree;
+import org.compiere.model.MTree_NodeBP;
 import org.compiere.model.ModelValidationEngine;
 import org.compiere.model.ModelValidator;
 import org.compiere.model.PO;
@@ -81,6 +85,7 @@ public class AgencyValidator implements ModelValidator
 		engine.addModelChange(MOrderLine.Table_Name, this);
 		engine.addModelChange(MCommissionLine.Table_Name, this);
 		engine.addModelChange(MProjectTask.Table_Name, this);
+		engine.addModelChange(MBPartner.Table_Name, this);
 		engine.addDocValidate(MTimeExpense.Table_Name, this);
 	}	//	initialize
 
@@ -148,6 +153,24 @@ public class AgencyValidator implements ModelValidator
 					 }
 				 }
 			 }
+		} else if(type == TYPE_AFTER_CHANGE) {
+			if (po instanceof MBPartner
+					&& po.is_ValueChanged(I_C_BPartner.COLUMNNAME_BPartner_Parent_ID)) {
+				MBPartner bPartner = (MBPartner) po;
+				int treeId = MTree.getDefaultTreeIdFromTableId(bPartner.getAD_Client_ID(), I_C_BPartner.Table_ID);
+				if(treeId > 0) {
+					MTree tree = MTree.get(bPartner.getCtx(), treeId, null);
+					MTree_NodeBP node = MTree_NodeBP.get(tree, bPartner.getC_BPartner_ID());
+					if(node != null) {
+						int parentId = bPartner.getBPartner_Parent_ID();
+						if(parentId < 0) {
+							parentId = 0;
+						}
+						node.setParent_ID(parentId);
+						node.saveEx();
+					}
+				}
+			}
 		}
 		//
 		return null;
