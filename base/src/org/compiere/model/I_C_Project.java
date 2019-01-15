@@ -604,6 +604,21 @@ public interface I_C_Project
 	  */
 	public boolean isSummary();
 
+    /** Column name M_PriceList_ID */
+    public static final String COLUMNNAME_M_PriceList_ID = "M_PriceList_ID";
+
+	/** Set Price List.
+	  * Unique identifier of a Price List
+	  */
+	public void setM_PriceList_ID (int M_PriceList_ID);
+
+	/** Get Price List.
+	  * Unique identifier of a Price List
+	  */
+	public int getM_PriceList_ID();
+
+	public org.compiere.model.I_M_PriceList getM_PriceList() throws RuntimeException;
+
     /** Column name M_PriceList_Version_ID */
     public static final String COLUMNNAME_M_PriceList_Version_ID = "M_PriceList_Version_ID";
 

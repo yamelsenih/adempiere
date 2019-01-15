@@ -41,9 +41,9 @@ public class X_C_ProjectPhase extends PO implements I_C_ProjectPhase, I_Persiste
       super (ctx, C_ProjectPhase_ID, trxName);
       /** if (C_ProjectPhase_ID == 0)
         {
-			setC_ProjectPhase_ID (0);
-			setC_Project_ID (0);
 			setCommittedAmt (Env.ZERO);
+			setC_Project_ID (0);
+			setC_ProjectPhase_ID (0);
 			setIsCommitCeiling (false);
 			setIsComplete (false);
 // N
@@ -83,6 +83,26 @@ public class X_C_ProjectPhase extends PO implements I_C_ProjectPhase, I_Persiste
         .append(get_ID()).append("]");
       return sb.toString();
     }
+
+	/** Set Actual Amount.
+		@param ActualAmt 
+		The actual amount
+	  */
+	public void setActualAmt (BigDecimal ActualAmt)
+	{
+		set_Value (COLUMNNAME_ActualAmt, ActualAmt);
+	}
+
+	/** Get Actual Amount.
+		@return The actual amount
+	  */
+	public BigDecimal getActualAmt () 
+	{
+		BigDecimal bd = (BigDecimal)get_Value(COLUMNNAME_ActualAmt);
+		if (bd == null)
+			 return Env.ZERO;
+		return bd;
+	}
 
 	public org.compiere.model.I_AD_Org getAD_OrgTrx() throws RuntimeException
     {
@@ -196,32 +216,41 @@ public class X_C_ProjectPhase extends PO implements I_C_ProjectPhase, I_Persiste
 		return ii.intValue();
 	}
 
-	public org.compiere.model.I_C_Order getC_OrderPO() throws RuntimeException
-    {
-		return (org.compiere.model.I_C_Order)MTable.get(getCtx(), org.compiere.model.I_C_Order.Table_Name)
-			.getPO(getC_OrderPO_ID(), get_TrxName());	}
-
-	/** Set Purchase Order.
-		@param C_OrderPO_ID 
-		Purchase Order
+	/** Set Committed Amount.
+		@param CommittedAmt 
+		The (legal) commitment amount
 	  */
-	public void setC_OrderPO_ID (int C_OrderPO_ID)
+	public void setCommittedAmt (BigDecimal CommittedAmt)
 	{
-		if (C_OrderPO_ID < 1) 
-			set_ValueNoCheck (COLUMNNAME_C_OrderPO_ID, null);
-		else 
-			set_ValueNoCheck (COLUMNNAME_C_OrderPO_ID, Integer.valueOf(C_OrderPO_ID));
+		set_Value (COLUMNNAME_CommittedAmt, CommittedAmt);
 	}
 
-	/** Get Purchase Order.
-		@return Purchase Order
+	/** Get Committed Amount.
+		@return The (legal) commitment amount
 	  */
-	public int getC_OrderPO_ID () 
+	public BigDecimal getCommittedAmt () 
 	{
-		Integer ii = (Integer)get_Value(COLUMNNAME_C_OrderPO_ID);
-		if (ii == null)
-			 return 0;
-		return ii.intValue();
+		BigDecimal bd = (BigDecimal)get_Value(COLUMNNAME_CommittedAmt);
+		if (bd == null)
+			 return Env.ZERO;
+		return bd;
+	}
+
+	/** Set Copy From.
+		@param CopyFrom 
+		Copy From Record
+	  */
+	public void setCopyFrom (String CopyFrom)
+	{
+		set_Value (COLUMNNAME_CopyFrom, CopyFrom);
+	}
+
+	/** Get Copy From.
+		@return Copy From Record
+	  */
+	public String getCopyFrom () 
+	{
+		return (String)get_Value(COLUMNNAME_CopyFrom);
 	}
 
 	public org.compiere.model.I_C_Order getC_Order() throws RuntimeException
@@ -252,6 +281,34 @@ public class X_C_ProjectPhase extends PO implements I_C_ProjectPhase, I_Persiste
 		return ii.intValue();
 	}
 
+	public org.compiere.model.I_C_Order getC_OrderPO() throws RuntimeException
+    {
+		return (org.compiere.model.I_C_Order)MTable.get(getCtx(), org.compiere.model.I_C_Order.Table_Name)
+			.getPO(getC_OrderPO_ID(), get_TrxName());	}
+
+	/** Set Purchase Order.
+		@param C_OrderPO_ID 
+		Purchase Order
+	  */
+	public void setC_OrderPO_ID (int C_OrderPO_ID)
+	{
+		if (C_OrderPO_ID < 1) 
+			set_ValueNoCheck (COLUMNNAME_C_OrderPO_ID, null);
+		else 
+			set_ValueNoCheck (COLUMNNAME_C_OrderPO_ID, Integer.valueOf(C_OrderPO_ID));
+	}
+
+	/** Get Purchase Order.
+		@return Purchase Order
+	  */
+	public int getC_OrderPO_ID () 
+	{
+		Integer ii = (Integer)get_Value(COLUMNNAME_C_OrderPO_ID);
+		if (ii == null)
+			 return 0;
+		return ii.intValue();
+	}
+
 	public org.compiere.model.I_C_Phase getC_Phase() throws RuntimeException
     {
 		return (org.compiere.model.I_C_Phase)MTable.get(getCtx(), org.compiere.model.I_C_Phase.Table_Name)
@@ -275,6 +332,34 @@ public class X_C_ProjectPhase extends PO implements I_C_ProjectPhase, I_Persiste
 	public int getC_Phase_ID () 
 	{
 		Integer ii = (Integer)get_Value(COLUMNNAME_C_Phase_ID);
+		if (ii == null)
+			 return 0;
+		return ii.intValue();
+	}
+
+	public org.compiere.model.I_C_Project getC_Project() throws RuntimeException
+    {
+		return (org.compiere.model.I_C_Project)MTable.get(getCtx(), org.compiere.model.I_C_Project.Table_Name)
+			.getPO(getC_Project_ID(), get_TrxName());	}
+
+	/** Set Project.
+		@param C_Project_ID 
+		Financial Project
+	  */
+	public void setC_Project_ID (int C_Project_ID)
+	{
+		if (C_Project_ID < 1) 
+			set_ValueNoCheck (COLUMNNAME_C_Project_ID, null);
+		else 
+			set_ValueNoCheck (COLUMNNAME_C_Project_ID, Integer.valueOf(C_Project_ID));
+	}
+
+	/** Get Project.
+		@return Financial Project
+	  */
+	public int getC_Project_ID () 
+	{
+		Integer ii = (Integer)get_Value(COLUMNNAME_C_Project_ID);
 		if (ii == null)
 			 return 0;
 		return ii.intValue();
@@ -331,29 +416,29 @@ public class X_C_ProjectPhase extends PO implements I_C_ProjectPhase, I_Persiste
 		return ii.intValue();
 	}
 
-	public org.compiere.model.I_C_Project getC_Project() throws RuntimeException
+	public org.compiere.model.I_C_RfQLine getC_RfQLine() throws RuntimeException
     {
-		return (org.compiere.model.I_C_Project)MTable.get(getCtx(), org.compiere.model.I_C_Project.Table_Name)
-			.getPO(getC_Project_ID(), get_TrxName());	}
+		return (org.compiere.model.I_C_RfQLine)MTable.get(getCtx(), org.compiere.model.I_C_RfQLine.Table_Name)
+			.getPO(getC_RfQLine_ID(), get_TrxName());	}
 
-	/** Set Project.
-		@param C_Project_ID 
-		Financial Project
+	/** Set RfQ Line.
+		@param C_RfQLine_ID 
+		Request for Quotation Line
 	  */
-	public void setC_Project_ID (int C_Project_ID)
+	public void setC_RfQLine_ID (int C_RfQLine_ID)
 	{
-		if (C_Project_ID < 1) 
-			set_ValueNoCheck (COLUMNNAME_C_Project_ID, null);
+		if (C_RfQLine_ID < 1) 
+			set_Value (COLUMNNAME_C_RfQLine_ID, null);
 		else 
-			set_ValueNoCheck (COLUMNNAME_C_Project_ID, Integer.valueOf(C_Project_ID));
+			set_Value (COLUMNNAME_C_RfQLine_ID, Integer.valueOf(C_RfQLine_ID));
 	}
 
-	/** Get Project.
-		@return Financial Project
+	/** Get RfQ Line.
+		@return Request for Quotation Line
 	  */
-	public int getC_Project_ID () 
+	public int getC_RfQLine_ID () 
 	{
-		Integer ii = (Integer)get_Value(COLUMNNAME_C_Project_ID);
+		Integer ii = (Integer)get_Value(COLUMNNAME_C_RfQLine_ID);
 		if (ii == null)
 			 return 0;
 		return ii.intValue();
@@ -385,26 +470,6 @@ public class X_C_ProjectPhase extends PO implements I_C_ProjectPhase, I_Persiste
 		if (ii == null)
 			 return 0;
 		return ii.intValue();
-	}
-
-	/** Set Committed Amount.
-		@param CommittedAmt 
-		The (legal) commitment amount
-	  */
-	public void setCommittedAmt (BigDecimal CommittedAmt)
-	{
-		set_Value (COLUMNNAME_CommittedAmt, CommittedAmt);
-	}
-
-	/** Get Committed Amount.
-		@return The (legal) commitment amount
-	  */
-	public BigDecimal getCommittedAmt () 
-	{
-		BigDecimal bd = (BigDecimal)get_Value(COLUMNNAME_CommittedAmt);
-		if (bd == null)
-			 return Env.ZERO;
-		return bd;
 	}
 
 	/** Set Deadline.
@@ -840,6 +905,66 @@ public class X_C_ProjectPhase extends PO implements I_C_ProjectPhase, I_Persiste
 		return false;
 	}
 
+	/** Set Line Amount.
+		@param LineNetAmt 
+		Line Extended Amount (Quantity * Actual Price) without Freight and Charges
+	  */
+	public void setLineNetAmt (BigDecimal LineNetAmt)
+	{
+		set_Value (COLUMNNAME_LineNetAmt, LineNetAmt);
+	}
+
+	/** Get Line Amount.
+		@return Line Extended Amount (Quantity * Actual Price) without Freight and Charges
+	  */
+	public BigDecimal getLineNetAmt () 
+	{
+		BigDecimal bd = (BigDecimal)get_Value(COLUMNNAME_LineNetAmt);
+		if (bd == null)
+			 return Env.ZERO;
+		return bd;
+	}
+
+	/** Set Margin %.
+		@param Margin 
+		Margin for a product as a percentage
+	  */
+	public void setMargin (BigDecimal Margin)
+	{
+		set_Value (COLUMNNAME_Margin, Margin);
+	}
+
+	/** Get Margin %.
+		@return Margin for a product as a percentage
+	  */
+	public BigDecimal getMargin () 
+	{
+		BigDecimal bd = (BigDecimal)get_Value(COLUMNNAME_Margin);
+		if (bd == null)
+			 return Env.ZERO;
+		return bd;
+	}
+
+	/** Set Margin Amount.
+		@param MarginAmt 
+		Difference between actual and limit price multiplied by the quantity
+	  */
+	public void setMarginAmt (BigDecimal MarginAmt)
+	{
+		set_Value (COLUMNNAME_MarginAmt, MarginAmt);
+	}
+
+	/** Get Margin Amount.
+		@return Difference between actual and limit price multiplied by the quantity
+	  */
+	public BigDecimal getMarginAmt () 
+	{
+		BigDecimal bd = (BigDecimal)get_Value(COLUMNNAME_MarginAmt);
+		if (bd == null)
+			 return Env.ZERO;
+		return bd;
+	}
+
 	public org.compiere.model.I_M_Product getM_Product() throws RuntimeException
     {
 		return (org.compiere.model.I_M_Product)MTable.get(getCtx(), org.compiere.model.I_M_Product.Table_Name)
@@ -868,6 +993,31 @@ public class X_C_ProjectPhase extends PO implements I_C_ProjectPhase, I_Persiste
 		return ii.intValue();
 	}
 
+	public org.compiere.model.I_M_ProductionBatch getM_ProductionBatch() throws RuntimeException
+    {
+		return (org.compiere.model.I_M_ProductionBatch)MTable.get(getCtx(), org.compiere.model.I_M_ProductionBatch.Table_Name)
+			.getPO(getM_ProductionBatch_ID(), get_TrxName());	}
+
+	/** Set Production Batch.
+		@param M_ProductionBatch_ID Production Batch	  */
+	public void setM_ProductionBatch_ID (int M_ProductionBatch_ID)
+	{
+		if (M_ProductionBatch_ID < 1) 
+			set_Value (COLUMNNAME_M_ProductionBatch_ID, null);
+		else 
+			set_Value (COLUMNNAME_M_ProductionBatch_ID, Integer.valueOf(M_ProductionBatch_ID));
+	}
+
+	/** Get Production Batch.
+		@return Production Batch	  */
+	public int getM_ProductionBatch_ID () 
+	{
+		Integer ii = (Integer)get_Value(COLUMNNAME_M_ProductionBatch_ID);
+		if (ii == null)
+			 return 0;
+		return ii.intValue();
+	}
+
 	/** Set Name.
 		@param Name 
 		Alphanumeric identifier of the entity
@@ -883,6 +1033,46 @@ public class X_C_ProjectPhase extends PO implements I_C_ProjectPhase, I_Persiste
 	public String getName () 
 	{
 		return (String)get_Value(COLUMNNAME_Name);
+	}
+
+	/** Set Percentage completed.
+		@param PercentageCompleted 
+		Percentage completed
+	  */
+	public void setPercentageCompleted (BigDecimal PercentageCompleted)
+	{
+		set_Value (COLUMNNAME_PercentageCompleted, PercentageCompleted);
+	}
+
+	/** Get Percentage completed.
+		@return Percentage completed
+	  */
+	public BigDecimal getPercentageCompleted () 
+	{
+		BigDecimal bd = (BigDecimal)get_Value(COLUMNNAME_PercentageCompleted);
+		if (bd == null)
+			 return Env.ZERO;
+		return bd;
+	}
+
+	/** Set Planned Amount.
+		@param PlannedAmt 
+		Planned amount for this project
+	  */
+	public void setPlannedAmt (BigDecimal PlannedAmt)
+	{
+		set_Value (COLUMNNAME_PlannedAmt, PlannedAmt);
+	}
+
+	/** Get Planned Amount.
+		@return Planned amount for this project
+	  */
+	public BigDecimal getPlannedAmt () 
+	{
+		BigDecimal bd = (BigDecimal)get_Value(COLUMNNAME_PlannedAmt);
+		if (bd == null)
+			 return Env.ZERO;
+		return bd;
 	}
 
 	public org.eevolution.model.I_PP_Order getPP_Order() throws RuntimeException
@@ -941,46 +1131,6 @@ public class X_C_ProjectPhase extends PO implements I_C_ProjectPhase, I_Persiste
 		return ii.intValue();
 	}
 
-	/** Set Percentage completed.
-		@param PercentageCompleted 
-		Percentage completed
-	  */
-	public void setPercentageCompleted (BigDecimal PercentageCompleted)
-	{
-		set_Value (COLUMNNAME_PercentageCompleted, PercentageCompleted);
-	}
-
-	/** Get Percentage completed.
-		@return Percentage completed
-	  */
-	public BigDecimal getPercentageCompleted () 
-	{
-		BigDecimal bd = (BigDecimal)get_Value(COLUMNNAME_PercentageCompleted);
-		if (bd == null)
-			 return Env.ZERO;
-		return bd;
-	}
-
-	/** Set Planned Amount.
-		@param PlannedAmt 
-		Planned amount for this project
-	  */
-	public void setPlannedAmt (BigDecimal PlannedAmt)
-	{
-		set_Value (COLUMNNAME_PlannedAmt, PlannedAmt);
-	}
-
-	/** Get Planned Amount.
-		@return Planned amount for this project
-	  */
-	public BigDecimal getPlannedAmt () 
-	{
-		BigDecimal bd = (BigDecimal)get_Value(COLUMNNAME_PlannedAmt);
-		if (bd == null)
-			 return Env.ZERO;
-		return bd;
-	}
-
 	/** Set Unit Price.
 		@param PriceActual 
 		Actual Price 
@@ -996,6 +1146,46 @@ public class X_C_ProjectPhase extends PO implements I_C_ProjectPhase, I_Persiste
 	public BigDecimal getPriceActual () 
 	{
 		BigDecimal bd = (BigDecimal)get_Value(COLUMNNAME_PriceActual);
+		if (bd == null)
+			 return Env.ZERO;
+		return bd;
+	}
+
+	/** Set Price.
+		@param PriceEntered 
+		Price Entered - the price based on the selected/base UoM
+	  */
+	public void setPriceEntered (BigDecimal PriceEntered)
+	{
+		set_Value (COLUMNNAME_PriceEntered, PriceEntered);
+	}
+
+	/** Get Price.
+		@return Price Entered - the price based on the selected/base UoM
+	  */
+	public BigDecimal getPriceEntered () 
+	{
+		BigDecimal bd = (BigDecimal)get_Value(COLUMNNAME_PriceEntered);
+		if (bd == null)
+			 return Env.ZERO;
+		return bd;
+	}
+
+	/** Set List Price.
+		@param PriceList 
+		List Price
+	  */
+	public void setPriceList (BigDecimal PriceList)
+	{
+		set_Value (COLUMNNAME_PriceList, PriceList);
+	}
+
+	/** Get List Price.
+		@return List Price
+	  */
+	public BigDecimal getPriceList () 
+	{
+		BigDecimal bd = (BigDecimal)get_Value(COLUMNNAME_PriceList);
 		if (bd == null)
 			 return Env.ZERO;
 		return bd;
@@ -1194,23 +1384,6 @@ public class X_C_ProjectPhase extends PO implements I_C_ProjectPhase, I_Persiste
 		return (Timestamp)get_Value(COLUMNNAME_StartDate);
 	}
 
-	/** Set Immutable Universally Unique Identifier.
-		@param UUID 
-		Immutable Universally Unique Identifier
-	  */
-	public void setUUID (String UUID)
-	{
-		set_Value (COLUMNNAME_UUID, UUID);
-	}
-
-	/** Get Immutable Universally Unique Identifier.
-		@return Immutable Universally Unique Identifier
-	  */
-	public String getUUID () 
-	{
-		return (String)get_Value(COLUMNNAME_UUID);
-	}
-
 	public org.compiere.model.I_C_ElementValue getUser1() throws RuntimeException
     {
 		return (org.compiere.model.I_C_ElementValue)MTable.get(getCtx(), org.compiere.model.I_C_ElementValue.Table_Name)
@@ -1321,6 +1494,23 @@ public class X_C_ProjectPhase extends PO implements I_C_ProjectPhase, I_Persiste
 		if (ii == null)
 			 return 0;
 		return ii.intValue();
+	}
+
+	/** Set Immutable Universally Unique Identifier.
+		@param UUID 
+		Immutable Universally Unique Identifier
+	  */
+	public void setUUID (String UUID)
+	{
+		set_Value (COLUMNNAME_UUID, UUID);
+	}
+
+	/** Get Immutable Universally Unique Identifier.
+		@return Immutable Universally Unique Identifier
+	  */
+	public String getUUID () 
+	{
+		return (String)get_Value(COLUMNNAME_UUID);
 	}
 
 	public org.compiere.model.I_C_BPartner getVendor() throws RuntimeException
