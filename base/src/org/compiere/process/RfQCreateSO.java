@@ -19,6 +19,12 @@ package org.compiere.process;
 import java.math.BigDecimal;
 import java.util.logging.Level;
 
+import org.compiere.model.I_C_Campaign;
+import org.compiere.model.I_C_Invoice;
+import org.compiere.model.I_C_Project;
+import org.compiere.model.I_C_ProjectPhase;
+import org.compiere.model.I_C_ProjectTask;
+import org.compiere.model.I_C_RfQ;
 import org.compiere.model.MBPartner;
 import org.compiere.model.MOrder;
 import org.compiere.model.MOrderLine;
@@ -94,53 +100,45 @@ public class RfQCreateSO extends SvrProcess
 		order.setBPartner(bp);
 		order.setC_BPartner_Location_ID(rfq.getC_BPartner_Location_ID());
 		order.setSalesRep_ID(rfq.getSalesRep_ID());
-		
-		int campaign = rfq.get_ValueAsInt("C_Campaign_ID");
-		int user1 = rfq.get_ValueAsInt("User1_ID");
-		int projectId = rfq.get_ValueAsInt("C_Project_ID");
-		
-		if(campaign > 0){
-			order.set_ValueOfColumn("C_Campaign_ID", campaign);
-			}
-		if(user1 > 0){
-			order.set_ValueOfColumn("User1_ID", user1);
-			}
+		//	Set default values
+		order.set_ValueOfColumn(I_C_RfQ.COLUMNNAME_C_RfQ_ID, rfq.getC_RfQ_ID());
+		//	
+		int campaignId = rfq.get_ValueAsInt(I_C_Campaign.COLUMNNAME_C_Campaign_ID);
+		int user1Id = rfq.get_ValueAsInt(I_C_Invoice.COLUMNNAME_User1_ID);
+		int projectId = rfq.get_ValueAsInt(I_C_Project.COLUMNNAME_C_Project_ID);
+		if(campaignId > 0){
+			order.set_ValueOfColumn(I_C_Campaign.COLUMNNAME_C_Campaign_ID, campaignId);
+		}
+		if(user1Id > 0){
+			order.set_ValueOfColumn(I_C_Invoice.COLUMNNAME_User1_ID, user1Id);
+		}
 		if(projectId > 0){
-			order.set_ValueOfColumn("C_Project_ID", projectId);
-			}
-		
+			order.set_ValueOfColumn(I_C_Project.COLUMNNAME_C_Project_ID, projectId);
+		}
 		if (rfq.getDateWorkComplete() != null)
 			order.setDatePromised(rfq.getDateWorkComplete());
 		order.saveEx();
 
-		MRfQLine[] lines = rfq.getLines();
-		for (int i = 0; i < lines.length; i++)
-		{
-			MRfQLine line = lines[i];
-			MRfQLineQty[] qtys = line.getQtys();
-			for (int j = 0; j < qtys.length; j++)
-			{
-				MRfQLineQty qty = qtys[j];
-				if (qty.isActive() && qty.isOfferQty())
-				{
-					MOrderLine ol = new MOrderLine (order);
-					ol.setM_Product_ID(line.getM_Product_ID(),
-						qty.getC_UOM_ID());
-					ol.setDescription(line.getDescription());
-					ol.setQty(qty.getQty());
+		for (MRfQLine line : rfq.getLines()) {
+			for (MRfQLineQty lineQty : line.getQtys()) {
+				if (lineQty.isActive() && lineQty.isOfferQty()) {
+					MOrderLine orderLine = new MOrderLine (order);
+					orderLine.setM_Product_ID(line.getM_Product_ID(), lineQty.getC_UOM_ID());
+					orderLine.setDescription(line.getDescription());
+					orderLine.setQty(lineQty.getQty());
 					//
-					BigDecimal price = qty.getOfferAmt();
+					BigDecimal price = lineQty.getOfferAmt();
 					if (price == null || price.signum() == 0)
 					{
-						price = qty.getBestResponseAmt();
+						price = lineQty.getBestResponseAmt();
 						if (price == null || price.signum() == 0)
 						{
 							price = Env.ZERO;
-							log.warning(" - BestResponse=0 - " + qty);
+							log.warning(" - BestResponse=0 - " + lineQty);
 						}
 						else
 						{
-							BigDecimal margin = qty.getMargin();
+							BigDecimal margin = lineQty.getMargin();
 							if (margin == null || margin.signum() == 0)
 								margin = rfq.getMargin();
 							if (margin != null && margin.signum() != 0)
@@ -151,8 +149,17 @@ public class RfQCreateSO extends SvrProcess
 							}
 						}
 					}	//	price
-					ol.setPrice(price);
-					ol.saveEx();
+					orderLine.setPrice(price);
+					int projectTaskId = line.get_ValueAsInt(I_C_ProjectTask.COLUMNNAME_C_ProjectTask_ID);
+					int projectPhaseId = line.get_ValueAsInt(I_C_ProjectTask.COLUMNNAME_C_ProjectPhase_ID);
+					//	Validate
+					if(projectPhaseId > 0) {
+						orderLine.set_ValueOfColumn(I_C_ProjectPhase.COLUMNNAME_C_ProjectPhase_ID, projectPhaseId);
+					}
+					if(projectTaskId > 0) {
+						orderLine.set_ValueOfColumn(I_C_ProjectTask.COLUMNNAME_C_ProjectTask_ID, projectTaskId);
+					}
+					orderLine.saveEx();
 				}	//	Offer Qty
 			}	//	All Qtys
 		}	//	All Lines

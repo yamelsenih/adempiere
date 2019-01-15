@@ -20,6 +20,9 @@ package org.compiere.process;
 import java.math.BigDecimal;
 import java.util.List;
 
+import org.compiere.model.I_C_Project;
+import org.compiere.model.I_C_ProjectPhase;
+import org.compiere.model.I_C_ProjectTask;
 import org.compiere.model.MProduct;
 import org.compiere.model.MProject;
 import org.compiere.model.MProjectLine;
@@ -41,16 +44,8 @@ public class ProjectGenerateRFQ extends ProjectGenerateRFQAbstract
 	/**Request For Quotation*/
 	private MRfQ 		m_RFQ 				= null;
 	
-	/**RFQ Topic*/
-	private int			m_C_RfQ_Topic_ID 	=0;
-	
-	/**RFQ Type*/
-	private String		m_QuoteType			= "";
 	/**Lines for RFQ*/
-	private int 		m_Lines 			= 0;
-	
-	/**Media type*/
-//	private int 		mediaType 			= 0;
+	private int 		lines 			= 0;
 	
 	/**Project*/
 	private MProject m_MProject 			= null;
@@ -63,18 +58,6 @@ public class ProjectGenerateRFQ extends ProjectGenerateRFQAbstract
 	
 	/**Project Line*/
 	private MProjectLine m_MProjectLine 	= null;
-	
-	/**Quote All Qty*/
-	private boolean m_IsQuoteAllQty			= false;
-	
-	/**Invited Vendors Only*/
-	private boolean m_IsInvitedVendorsOnly 	= false;
-	
-	/**RFQ Response Accepted*/
-	private boolean m_IsRfQResponseAccepted	= false;
-	
-	/**Is Self Service*/
-	private boolean m_IsSelfService			= false;
 	
 	/**
 	 *  Prepare - e.g., get Parameters.
@@ -106,13 +89,6 @@ public class ProjectGenerateRFQ extends ProjectGenerateRFQAbstract
 			if (m_MProjectLine.getC_Project_ID()!=0)
 				m_MProject = new MProject(getCtx(), m_MProjectLine.getC_Project_ID(), get_TrxName());
 		}
-			
-		m_C_RfQ_Topic_ID = getRfQTopicId();
-		m_QuoteType = getQuoteType();
-		m_IsQuoteAllQty = isQuoteAllQty();
-		m_IsInvitedVendorsOnly =isInvitedVendorsOnly();
-		m_IsRfQResponseAccepted = isRfQResponseAccepted();
-		m_IsSelfService	= isSelfService();
 		
 	}	//	prepare
 
@@ -136,7 +112,7 @@ public class ProjectGenerateRFQ extends ProjectGenerateRFQAbstract
 			else if (m_MProject!=null) 
 				retValue =processProject(m_MProject);
 			
-			if (m_Lines==0) 
+			if (lines==0) 
 				this.rollback();
 			else
 				retValue = "@Generated@ @C_RfQ_ID@ " + m_RFQ.getDocumentNo();
@@ -234,7 +210,6 @@ public class ProjectGenerateRFQ extends ProjectGenerateRFQAbstract
 		if (projectLine.getM_Product_ID() == 0)
 			return "@NotFound@ @M_Product_ID@";
 		
-				
 		MProduct product = (MProduct) projectLine.getM_Product();
 		return createRFQLine(product, projectLine.getPlannedQty(), projectLine);
 		
@@ -245,7 +220,7 @@ public class ProjectGenerateRFQ extends ProjectGenerateRFQAbstract
 	 * @return
 	 */
 	private String createRFQHeader() {
-		if (m_C_RfQ_Topic_ID == 0)
+		if (getRfQTopicId() == 0)
 			return "@Invalid@ @C_RfQ_Topic_ID@";
 		
 		if (m_MProject.getDateStart()==null)
@@ -255,16 +230,16 @@ public class ProjectGenerateRFQ extends ProjectGenerateRFQAbstract
 		m_RFQ.setName(m_MProject.getName());
 		m_RFQ.setSalesRep_ID(m_MProject.getSalesRep_ID());
 		m_RFQ.setC_Currency_ID(m_MProject.getC_Currency_ID());
-		m_RFQ.setC_RfQ_Topic_ID(m_C_RfQ_Topic_ID);
-		m_RFQ.setQuoteType(m_QuoteType);
+		m_RFQ.setC_RfQ_Topic_ID(getRfQTopicId());
+		m_RFQ.setQuoteType(getQuoteType());
 		m_RFQ.setDateResponse(m_MProject.getDateStart());
 		m_RFQ.setDateWorkStart(m_MProject.getDateStart());
-		m_RFQ.setIsQuoteAllQty(m_IsQuoteAllQty);
-		m_RFQ.setIsInvitedVendorsOnly(m_IsInvitedVendorsOnly);
-		m_RFQ.setIsRfQResponseAccepted(m_IsRfQResponseAccepted);
-		m_RFQ.setIsInvitedVendorsOnly(m_IsInvitedVendorsOnly);
-		m_RFQ.setIsRfQResponseAccepted(m_IsRfQResponseAccepted);
-		m_RFQ.setIsSelfService(m_IsSelfService);
+		m_RFQ.setIsQuoteAllQty(isQuoteAllQty());
+		m_RFQ.setIsInvitedVendorsOnly(isInvitedVendorsOnly());
+		m_RFQ.setIsRfQResponseAccepted(isRfQResponseAccepted());
+		m_RFQ.setIsInvitedVendorsOnly(isInvitedVendorsOnly());
+		m_RFQ.setIsRfQResponseAccepted(isRfQResponseAccepted());
+		m_RFQ.setIsSelfService(isSelfService());
 		m_RFQ.setC_BPartner_ID(m_MProject.getC_BPartner_ID());
 		m_RFQ.setC_BPartner_Location_ID(m_MProject.getC_BPartner_Location_ID());
 		m_RFQ.setAD_User_ID(m_MProject.getAD_User_ID());
@@ -273,9 +248,7 @@ public class ProjectGenerateRFQ extends ProjectGenerateRFQAbstract
 		m_RFQ.set_ValueOfColumn("C_Project_ID", m_MProject.getC_Project_ID());
 		m_RFQ.set_ValueOfColumn("C_Campaign_ID", m_MProject.getC_Campaign_ID());
 		m_RFQ.set_ValueOfColumn("User1_ID", m_MProject.getUser1_ID());
-		
-		if (!m_RFQ.save())
-			return "@SaveError@ @C_RfQ_ID@";
+		m_RFQ.saveEx();
 		
 		return "";
 	}
@@ -287,37 +260,40 @@ public class ProjectGenerateRFQ extends ProjectGenerateRFQAbstract
 	 * @param entity
 	 * @return
 	 */
-	
 	private String createRFQLine(MProduct product, BigDecimal Qty, PO entity) {
 		if (m_RFQ == null
 				|| m_RFQ.getC_RfQ_ID()==0)
 			return "@Invalid@ @C_RfQ_ID@";
-		int mediaType = 0;
 		MRfQLine line = new MRfQLine(m_RFQ);
 		line.setM_Product_ID(product.getM_Product_ID());
-		
-		if(entity instanceof MProjectTask)
-			mediaType = ((MProjectTask)entity).get_ValueAsInt("CUST_MediaType_ID");
-		else if(entity instanceof MProjectPhase)
-			mediaType = ((MProjectPhase)entity).get_ValueAsInt("CUST_MediaType_ID");
-						
-		line.set_ValueOfColumn("CUST_MediaType_ID", mediaType);
-	
-		if (!line.save())
-			return "@SaveError@ @C_RfQLine_ID@";
-			
-		entity.set_ValueOfColumn("C_RfQLine_ID", line.getC_RfQLine_ID());
-		entity.save();
+		//	for Project Task
+		int projectPhaseId = 0;
+		int projectTaskId = 0;
+		if(entity instanceof MProjectTask) {
+			projectTaskId = entity.get_ValueAsInt(I_C_ProjectTask.COLUMNNAME_C_ProjectTask_ID);
+			projectPhaseId = entity.get_ValueAsInt(I_C_ProjectTask.COLUMNNAME_C_ProjectPhase_ID);
+		} else if(entity instanceof MProjectPhase) {
+			projectPhaseId = entity.get_ValueAsInt(I_C_ProjectPhase.COLUMNNAME_C_ProjectPhase_ID);
+		}
+		//	Validate
+		if(projectPhaseId > 0) {
+			line.set_ValueOfColumn(I_C_ProjectPhase.COLUMNNAME_C_ProjectPhase_ID, projectPhaseId);
+		}
+		if(projectTaskId > 0) {
+			line.set_ValueOfColumn(I_C_ProjectTask.COLUMNNAME_C_ProjectTask_ID, projectTaskId);
+		}
+		//	Project reference
+		line.set_ValueOfColumn(I_C_Project.COLUMNNAME_C_Project_ID, entity.get_Value(I_C_Project.COLUMNNAME_C_Project_ID));
+		//	Save line with reference
+		line.saveEx();
 		
 		MRfQLineQty lineQty = new MRfQLineQty(line);
 		lineQty.setC_UOM_ID(product.getC_UOM_ID());
 		lineQty.setQty(Qty);
 		lineQty.setIsRfQQty(true);
-		
-		if (!lineQty.save())
-			return "@SaveError@ @C_RfQLineQty_ID@";
-
-		m_Lines = m_Lines +1;
+		//	
+		lineQty.saveEx();
+		lines++;
 		return "";
 	}
 
