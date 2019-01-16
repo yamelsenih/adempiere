@@ -24,6 +24,7 @@ import org.adempiere.exceptions.AdempiereException;
 import org.compiere.model.I_C_BPartner;
 import org.compiere.model.I_C_Commission;
 import org.compiere.model.I_C_CommissionRun;
+import org.compiere.model.I_C_CommissionSalesRep;
 import org.compiere.model.I_C_CommissionType;
 import org.compiere.model.I_C_Order;
 import org.compiere.model.I_C_OrderLine;
@@ -60,6 +61,8 @@ import org.compiere.util.Msg;
 import org.eevolution.service.dsl.ProcessBuilder;
 import org.spin.process.CommissionPOCreateAbstract;
 
+import com.eevolution.model.MSContract;
+
 
 
 /**
@@ -88,6 +91,7 @@ public class AgencyValidator implements ModelValidator
 		engine.addModelChange(MProjectTask.Table_Name, this);
 		engine.addModelChange(MBPartner.Table_Name, this);
 		engine.addDocValidate(MTimeExpense.Table_Name, this);
+		engine.addDocValidate(MSContract.Table_Name, this);
 	}	//	initialize
 
 	public String modelChange (PO po, int type) throws Exception {
@@ -343,6 +347,19 @@ public class AgencyValidator implements ModelValidator
 						}
 					}
 				}
+			}
+		} else if(po instanceof MSContract) {
+			if(timing == TIMING_BEFORE_COMPLETE) {
+				MSContract serviceContract = (MSContract) po;
+				String whereClause =(" S_Contract_ID = ?");				
+				BigDecimal sumPercent = new Query(po.getCtx(), I_C_CommissionSalesRep.Table_Name, whereClause.toString(), po.get_TrxName())
+						.setParameters(serviceContract.getS_Contract_ID())
+						.sum("AmtMultiplier");
+
+				BigDecimal comparepercent = new BigDecimal("100.0");
+				if(sumPercent.compareTo(comparepercent) != 0){					
+					throw new AdempiereException(Msg.getMsg(Env.getCtx(), "TotalPercentageIsNot100"));
+				}								
 			}
 		}
 		return null;
