@@ -110,6 +110,8 @@ public class AgencyValidator implements ModelValidator
 			} else if(po instanceof MOrderLine) {
 				if(po.is_ValueChanged(I_C_OrderLine.COLUMNNAME_Link_OrderLine_ID)) {
 					MOrderLine orderLine = (MOrderLine) po;
+					int projectPhaseId = orderLine.getC_ProjectPhase_ID();
+					int projectTaskId = orderLine.getC_ProjectTask_ID();
 					if(orderLine.getLink_OrderLine_ID() > 0) {
 						MOrder order = orderLine.getParent();
 						if(order.isSOTrx()) {
@@ -118,6 +120,15 @@ public class AgencyValidator implements ModelValidator
 							if(!linkSourceOrder.isProcessed()) {
 								linkSourceOrderLine.setPriceEntered(orderLine.getPriceEntered());
 								linkSourceOrderLine.setPriceActual(orderLine.getPriceActual());
+								if(projectPhaseId > 0) {
+									linkSourceOrderLine.setC_ProjectPhase_ID(projectPhaseId);
+								} else if(projectTaskId > 0) {
+									linkSourceOrderLine.setC_ProjectTask_ID(projectTaskId);
+								}
+								linkSourceOrderLine.set_ValueOfColumn("C_Campaign_ID", orderLine.getC_Campaign_ID());
+								linkSourceOrderLine.set_ValueOfColumn("User1_ID", orderLine.getUser1_ID());
+								linkSourceOrderLine.set_ValueOfColumn("C_Project_ID", orderLine.getC_Project_ID());
+								linkSourceOrderLine.set_ValueOfColumn("CUST_MediaType_ID", orderLine.get_ValueAsInt("CUST_MediaType_ID"));
 								linkSourceOrderLine.saveEx();
 							}
 						}
@@ -463,9 +474,7 @@ public class AgencyValidator implements ModelValidator
 			line.deleteEx(true);
 		}
 	}
-
-
-	
+        
 	
 	@Override
 	public int getAD_Client_ID() {
