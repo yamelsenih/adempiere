@@ -175,7 +175,6 @@ public class AgencyValidator implements ModelValidator
 						MProjectPhase projectPhasefromTask = new MProjectPhase(orderLine.getCtx(), projectTask.getC_ProjectPhase_ID(),orderLine.get_TrxName());
 						orderLine.set_ValueOfColumn("C_Project_ID", projectPhasefromTask.getC_Project_ID());						
 					}
-					orderLine.saveEx();
 				}
 		} else if(type == TYPE_AFTER_CHANGE) {
 			if (po instanceof MBPartner
@@ -256,7 +255,12 @@ public class AgencyValidator implements ModelValidator
 								.withoutTransactionClose()
 								.execute(order.get_TrxName());
 						}
+						//	Validate Document Type for commission
+						if(documentType.get_ValueAsInt("C_CommissionType_ID") > 0) {
+							createCommissionForOrder(order, documentType.get_ValueAsInt("C_CommissionType_ID"), true);
+						}
 					}
+				} else if(!order.isSOTrx()) {
 					//	Validate Document Type for commission
 					if(documentType.get_ValueAsInt("C_CommissionType_ID") > 0) {
 						createCommissionForOrder(order, documentType.get_ValueAsInt("C_CommissionType_ID"), true);
