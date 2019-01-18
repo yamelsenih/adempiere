@@ -423,6 +423,7 @@ public class AgencyValidator implements ModelValidator
 				commissionRun.setC_DocType_ID(documentTypeId);
 				commissionRun.setDescription(Msg.parseTranslation(order.getCtx(), "@Generate@: @C_Order_ID@ - " + order.getDocumentNo()));
 				commissionRun.set_ValueOfColumn("C_Order_ID", order.getC_Order_ID());
+				commissionRun.setAD_Org_ID(order.getAD_Org_ID());
 				commissionRun.saveEx();
 				//	Process commission
 				commissionRun.addFilterValues("C_Order_ID", order.getC_Order_ID());
