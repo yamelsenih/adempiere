@@ -122,10 +122,10 @@ public class CommissionPOCreate extends CommissionPOCreateAbstract {
 			if(sourceOrder.getC_Project_ID() > 0) {
 				order.setC_Project_ID(sourceOrder.getC_Project_ID());
 			}
-			//	Set Contract
-			if(sourceOrder.get_ValueAsInt("S_Contract_ID") > 0) {
-				order.set_ValueOfColumn("S_Contract_ID", sourceOrder.get_ValueAsInt("S_Contract_ID"));
-			}
+		}
+		//	Set Contract
+		if(commissionRun.get_ValueAsInt("S_Contract_ID") > 0) {
+			order.set_ValueOfColumn("S_Contract_ID", commissionRun.get_ValueAsInt("S_Contract_ID"));
 		}
 		//		
 		order.saveEx();
