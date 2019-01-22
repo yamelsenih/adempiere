@@ -56,7 +56,8 @@ public class ProjectGenOrder extends ProjectGenOrderAbstract {
 
 		/** @todo duplicate invoice prevention */
 
-		MOrder order = new MOrder (fromProject, true, MOrder.DocSubTypeSO_OnCredit);
+		MOrder order = new MOrder (fromProject, true, MOrder.DocSubTypeSO_OnCredit);		
+		order.setC_DocTypeTarget_ID(getDocTypeId());
 		order.saveEx();
 
 		//	***	Lines ***
