@@ -28,6 +28,7 @@ import org.compiere.model.I_C_CommissionSalesRep;
 import org.compiere.model.I_C_CommissionType;
 import org.compiere.model.I_C_Order;
 import org.compiere.model.I_C_OrderLine;
+import org.compiere.model.I_C_Project;
 import org.compiere.model.I_S_TimeExpense;
 import org.compiere.model.I_S_TimeExpenseLine;
 import org.compiere.model.MAttachment;
@@ -188,14 +189,20 @@ public class AgencyValidator implements ModelValidator
 				}
 			}else if(po instanceof MOrder) {
 				MOrder order = (MOrder) po;
-				int serviceContractID = order.get_ValueAsInt("S_Contract_ID");
-				if(serviceContractID > 0) {
-					MSContract serviceContract = new MSContract(order.getCtx(), serviceContractID, order.get_TrxName());
-					int projectID = serviceContract.getC_Project_ID();
-					MProject project = new MProject(order.getCtx(), projectID, order.get_TrxName());
-					int user1 =  project.getUser1_ID();					
-					order.set_ValueOfColumn("User1_ID", user1);
-					order.set_ValueOfColumn("C_Project_ID", projectID);
+				int serviceContractId = order.get_ValueAsInt("S_Contract_ID");
+				if(serviceContractId > 0) {
+					MSContract serviceContract = new MSContract(order.getCtx(), serviceContractId, order.get_TrxName());
+					//	Get first contract
+					int projectId = new Query(order.getCtx(), I_C_Project.Table_Name, "S_Contract_ID = ?", po.get_TrxName())
+						.setParameters(serviceContract.getS_Contract_ID())
+						.setOnlyActiveRecords(true)
+						.firstId();
+					if(serviceContract.getUser1_ID() > 0) {
+						order.setUser1_ID(serviceContract.getUser1_ID());
+					}
+					if(projectId > 0) {
+						order.setC_Project_ID(projectId);
+					}
 				}
 			}
 		} else if(type == TYPE_AFTER_CHANGE) {
