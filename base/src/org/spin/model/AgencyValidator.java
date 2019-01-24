@@ -125,7 +125,7 @@ public class AgencyValidator implements ModelValidator
 									linkSourceOrderLine.setC_ProjectPhase_ID(projectPhaseId);
 								} else if(projectTaskId > 0) {
 									linkSourceOrderLine.setC_ProjectTask_ID(projectTaskId);
-								}
+								}								
 								if(orderLine.getC_Campaign_ID() != 0)
 									linkSourceOrderLine.set_ValueOfColumn("C_Campaign_ID", orderLine.getC_Campaign_ID());
 								if(orderLine.getUser1_ID() != 0)
@@ -147,6 +147,9 @@ public class AgencyValidator implements ModelValidator
 						MOrder linkSourceOrder = (MOrder) order.getLink_Order();
 						linkSourceOrder.setDateOrdered(order.getDateOrdered());
 						linkSourceOrder.setDatePromised(order.getDatePromised());
+						if(order.isDropShip()) {
+							linkSourceOrder.set_ValueOfColumn("IsDirectInvoice", order.get_ValueAsBoolean("IsDirectInvoice"));
+						}
 						linkSourceOrder.saveEx();
 					}
 				}
