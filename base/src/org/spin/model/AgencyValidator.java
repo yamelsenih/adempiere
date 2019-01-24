@@ -126,10 +126,14 @@ public class AgencyValidator implements ModelValidator
 								} else if(projectTaskId > 0) {
 									linkSourceOrderLine.setC_ProjectTask_ID(projectTaskId);
 								}
-								linkSourceOrderLine.set_ValueOfColumn("C_Campaign_ID", orderLine.getC_Campaign_ID());
-								linkSourceOrderLine.set_ValueOfColumn("User1_ID", orderLine.getUser1_ID());
-								linkSourceOrderLine.set_ValueOfColumn("C_Project_ID", orderLine.getC_Project_ID());
-								linkSourceOrderLine.set_ValueOfColumn("CUST_MediaType_ID", orderLine.get_ValueAsInt("CUST_MediaType_ID"));
+								if(orderLine.getC_Campaign_ID() != 0)
+									linkSourceOrderLine.set_ValueOfColumn("C_Campaign_ID", orderLine.getC_Campaign_ID());
+								if(orderLine.getUser1_ID() != 0)
+									linkSourceOrderLine.set_ValueOfColumn("User1_ID", orderLine.getUser1_ID());
+								if(orderLine.getC_Project_ID() != 0)
+									linkSourceOrderLine.set_ValueOfColumn("C_Project_ID", orderLine.getC_Project_ID());
+								if(orderLine.get_ValueAsInt("CUST_MediaType_ID") != 0)
+									linkSourceOrderLine.set_ValueOfColumn("CUST_MediaType_ID", orderLine.get_ValueAsInt("CUST_MediaType_ID"));
 								linkSourceOrderLine.saveEx();
 							}
 						}
@@ -175,16 +179,24 @@ public class AgencyValidator implements ModelValidator
 				int projectTaskId = orderLine.getC_ProjectTask_ID();
 				if(projectPhaseId > 0) {
 					MProjectPhase projectPhase = new MProjectPhase(orderLine.getCtx(), projectPhaseId, orderLine.get_TrxName());						
-					orderLine.set_ValueOfColumn("C_Campaign_ID", projectPhase.getC_Campaign_ID());
-					orderLine.set_ValueOfColumn("User1_ID", projectPhase.getUser1_ID());
-					orderLine.set_ValueOfColumn("C_Project_ID", projectPhase.getC_Project_ID());
-					orderLine.set_ValueOfColumn("CUST_MediaType_ID", projectPhase.get_ValueAsInt("CUST_MediaType_ID"));
+					if(projectPhase.getC_Campaign_ID() != 0)
+						orderLine.set_ValueOfColumn("C_Campaign_ID", projectPhase.getC_Campaign_ID());
+					if(projectPhase.getUser1_ID() != 0)
+						orderLine.set_ValueOfColumn("User1_ID", projectPhase.getUser1_ID());
+					if(projectPhase.getC_Project_ID() != 0)
+						orderLine.set_ValueOfColumn("C_Project_ID", projectPhase.getC_Project_ID());
+					if(projectPhase.get_ValueAsInt("CUST_MediaType_ID") != 0)
+						orderLine.set_ValueOfColumn("CUST_MediaType_ID", projectPhase.get_ValueAsInt("CUST_MediaType_ID"));
 				} else if(projectTaskId > 0) {
 					MProjectTask projectTask = new MProjectTask(orderLine.getCtx(), projectTaskId,orderLine.get_TrxName());
-					orderLine.set_ValueOfColumn("C_Campaign_ID", projectTask.getC_Campaign_ID());
-					orderLine.set_ValueOfColumn("User1_ID", projectTask.getUser1_ID());						
-					orderLine.set_ValueOfColumn("CUST_MediaType_ID", projectTask.get_ValueAsInt("CUST_MediaType_ID"));
+					if(projectTask.getC_Campaign_ID() != 0)
+						orderLine.set_ValueOfColumn("C_Campaign_ID", projectTask.getC_Campaign_ID());
+					if(projectTask.getUser1_ID() != 0)
+						orderLine.set_ValueOfColumn("User1_ID", projectTask.getUser1_ID());
+					if(projectTask.get_ValueAsInt("CUST_MediaType_ID") != 0)
+						orderLine.set_ValueOfColumn("CUST_MediaType_ID", projectTask.get_ValueAsInt("CUST_MediaType_ID"));
 					MProjectPhase projectPhasefromTask = new MProjectPhase(orderLine.getCtx(), projectTask.getC_ProjectPhase_ID(),orderLine.get_TrxName());
+					if(projectPhasefromTask.getC_Project_ID() != 0)
 					orderLine.set_ValueOfColumn("C_Project_ID", projectPhasefromTask.getC_Project_ID());						
 				}
 			}else if(po instanceof MOrder) {
