@@ -84,7 +84,7 @@ public class OrderLineCreateShipment extends OrderLineCreateShipmentAbstract {
 		sline.setOrderLine(line, 0, line.getQtyReserved());
 		sline.setQtyEntered(line.getQtyReserved());
 		sline.setC_UOM_ID(line.getC_UOM_ID());
-		sline.setQty(line.getQtyReserved());
+		sline.setQty(line.getQtyOrdered().subtract(line.getQtyReserved()));
 		sline.setM_Warehouse_ID(line.getM_Warehouse_ID());
 		sline.saveEx();
 		//	Process It

@@ -55,6 +55,7 @@ import org.compiere.model.ModelValidator;
 import org.compiere.model.PO;
 import org.compiere.model.Query;
 import org.compiere.process.DocAction;
+import org.compiere.process.OrderLineCreateShipmentAbstract;
 import org.compiere.process.OrderPOCreateAbstract;
 import org.compiere.util.CLogger;
 import org.compiere.util.Env;
@@ -116,25 +117,28 @@ public class AgencyValidator implements ModelValidator
 					if(orderLine.getLink_OrderLine_ID() > 0) {
 						MOrder order = orderLine.getParent();
 						if(order.isSOTrx()) {
-							MOrderLine linkSourceOrderLine = (MOrderLine) orderLine.getLink_OrderLine();
-							MOrder linkSourceOrder = linkSourceOrderLine.getParent();
-							if(!linkSourceOrder.isProcessed()) {
-								linkSourceOrderLine.setPriceEntered(orderLine.getPriceEntered());
-								linkSourceOrderLine.setPriceActual(orderLine.getPriceActual());
+							MOrderLine generatedOrderLine = (MOrderLine) orderLine.getLink_OrderLine();
+							MOrder generatedOrder = generatedOrderLine.getParent();
+							if(!generatedOrder.isProcessed()) {
+								MDocType sourceDocumentType = MDocType.get(order.getCtx(), order.getC_DocTypeTarget_ID());
+								if(sourceDocumentType.get_ValueAsBoolean("IsSetPOPriceFromSO")) {
+									generatedOrderLine.setPriceEntered(orderLine.getPriceEntered());
+									generatedOrderLine.setPriceActual(orderLine.getPriceActual());
+								}
 								if(projectPhaseId > 0) {
-									linkSourceOrderLine.setC_ProjectPhase_ID(projectPhaseId);
+									generatedOrderLine.setC_ProjectPhase_ID(projectPhaseId);
 								} else if(projectTaskId > 0) {
-									linkSourceOrderLine.setC_ProjectTask_ID(projectTaskId);
+									generatedOrderLine.setC_ProjectTask_ID(projectTaskId);
 								}								
 								if(orderLine.getC_Campaign_ID() != 0)
-									linkSourceOrderLine.set_ValueOfColumn("C_Campaign_ID", orderLine.getC_Campaign_ID());
+									generatedOrderLine.set_ValueOfColumn("C_Campaign_ID", orderLine.getC_Campaign_ID());
 								if(orderLine.getUser1_ID() != 0)
-									linkSourceOrderLine.set_ValueOfColumn("User1_ID", orderLine.getUser1_ID());
+									generatedOrderLine.set_ValueOfColumn("User1_ID", orderLine.getUser1_ID());
 								if(orderLine.getC_Project_ID() != 0)
-									linkSourceOrderLine.set_ValueOfColumn("C_Project_ID", orderLine.getC_Project_ID());
+									generatedOrderLine.set_ValueOfColumn("C_Project_ID", orderLine.getC_Project_ID());
 								if(orderLine.get_ValueAsInt("CUST_MediaType_ID") != 0)
-									linkSourceOrderLine.set_ValueOfColumn("CUST_MediaType_ID", orderLine.get_ValueAsInt("CUST_MediaType_ID"));
-								linkSourceOrderLine.saveEx();
+									generatedOrderLine.set_ValueOfColumn("CUST_MediaType_ID", orderLine.get_ValueAsInt("CUST_MediaType_ID"));
+								generatedOrderLine.saveEx();
 							}
 						}
 					}
@@ -436,6 +440,32 @@ public class AgencyValidator implements ModelValidator
 		inOut.setDocStatus(MInOut.DOCSTATUS_Drafted);
 		inOut.processIt(MInOut.ACTION_Complete);
 		inOut.saveEx();
+		//	Generate Delivery for Commission
+		getrateInOutFromCommissionOrder(order);
+	}
+	
+	/**
+	 * Generate Delivery from commission Order that are generated from order
+	 * @param order
+	 */
+	private void getrateInOutFromCommissionOrder(MOrder order) {
+		new Query(order.getCtx(), I_C_Order.Table_Name, 
+				"EXISTS(SELECT 1 FROM C_CommissionRun cr "
+				+ "WHERE cr.C_CommissionRun_ID = C_Order.C_CommissionRun_ID "
+				+ "AND cr.C_Order_ID = ?)", order.get_TrxName())
+			.setOnlyActiveRecords(true)
+			.setParameters(order.getC_Order_ID())
+			.<MOrder>list()
+			.stream().forEach(commissionOrder -> {
+				for(MOrderLine line : commissionOrder.getLines()) {
+					ProcessBuilder.create(order.getCtx())
+						.process(OrderLineCreateShipmentAbstract.getProcessId())
+						.withRecordId(I_C_OrderLine.Table_ID, line.getC_OrderLine_ID())
+						.withParameter(OrderLineCreateShipmentAbstract.DOCACTION, DocAction.ACTION_Complete)
+						.withoutTransactionClose()
+					.execute(order.get_TrxName());
+				}
+			});
 	}
 	
 	/**
