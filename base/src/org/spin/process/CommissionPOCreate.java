@@ -127,6 +127,8 @@ public class CommissionPOCreate extends CommissionPOCreateAbstract {
 		if(commissionRun.get_ValueAsInt("S_Contract_ID") > 0) {
 			order.set_ValueOfColumn("S_Contract_ID", commissionRun.get_ValueAsInt("S_Contract_ID"));
 		}
+		//	Set commission Run
+		order.set_ValueOfColumn("C_CommissionRun_ID", commissionRun.getC_CommissionRun_ID());
 		//		
 		order.saveEx();
 		orders.put(bPartnerId, order);

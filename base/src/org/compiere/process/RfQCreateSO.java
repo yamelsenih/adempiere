@@ -17,7 +17,6 @@
 package org.compiere.process;
 
 import java.math.BigDecimal;
-import java.util.logging.Level;
 
 import org.compiere.model.I_C_Campaign;
 import org.compiere.model.I_C_Invoice;
@@ -40,33 +39,13 @@ import org.compiere.util.Env;
  *  @author Jorg Janke
  *  @version $Id: RfQCreateSO.java,v 1.2 2006/07/30 00:51:02 jjanke Exp $
  */
-public class RfQCreateSO extends SvrProcess
-{
+public class RfQCreateSO extends RfQCreateSOAbstract {
 	/**	RfQ 			*/
 	private int		p_C_RfQ_ID = 0;
 	private int		p_C_DocType_ID = 0;
 
 	/**	100						*/
 	private static BigDecimal 	ONEHUNDRED = new BigDecimal (100);
-
-	/**
-	 * 	Prepare
-	 */
-	protected void prepare ()
-	{
-		ProcessInfoParameter[] para = getParameter();
-		for (int i = 0; i < para.length; i++)
-		{
-			String name = para[i].getParameterName();
-			if (para[i].getParameter() == null)
-				;
-			else if (name.equals("C_DocType_ID"))
-				p_C_DocType_ID = para[i].getParameterAsInt();
-			else
-				log.log(Level.SEVERE, "prepare - Unknown Parameter: " + name);
-		}
-		p_C_RfQ_ID = getRecord_ID();
-	}	//	prepare
 
 	/**
 	 * 	Process.
@@ -126,6 +105,8 @@ public class RfQCreateSO extends SvrProcess
 					orderLine.setM_Product_ID(line.getM_Product_ID(), lineQty.getC_UOM_ID());
 					orderLine.setDescription(line.getDescription());
 					orderLine.setQty(lineQty.getQty());
+					//	Calculate from price list
+					orderLine.setPrice();
 					//
 					BigDecimal price = lineQty.getOfferAmt();
 					if (price == null || price.signum() == 0)
