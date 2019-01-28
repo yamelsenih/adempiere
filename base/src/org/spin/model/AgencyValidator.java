@@ -208,6 +208,15 @@ public class AgencyValidator implements ModelValidator
 				}
 			}else if(po instanceof MOrder) {
 				MOrder order = (MOrder) po;
+				int orderprojectId = order.getC_Project_ID();
+				if(orderprojectId > 0) {					
+					MProject project = new MProject(order.getCtx(), orderprojectId,order.get_TrxName());
+					// Validates Customer Approved
+					if(!project.get_ValueAsBoolean("IsCustomerApproved")) {
+						throw new AdempiereException(Msg.parseTranslation(Env.getCtx(), "@CustomerApprovedRequired@"));
+					}
+				}
+				// Validates Order Has ProjectPorcentaje 
 				int serviceContractId = order.get_ValueAsInt("S_Contract_ID");
 				if(serviceContractId > 0) {
 					MSContract serviceContract = new MSContract(order.getCtx(), serviceContractId, order.get_TrxName());
