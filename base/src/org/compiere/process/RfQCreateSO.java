@@ -40,10 +40,6 @@ import org.compiere.util.Env;
  *  @version $Id: RfQCreateSO.java,v 1.2 2006/07/30 00:51:02 jjanke Exp $
  */
 public class RfQCreateSO extends RfQCreateSOAbstract {
-	/**	RfQ 			*/
-	private int		p_C_RfQ_ID = 0;
-	private int		p_C_DocType_ID = 0;
-
 	/**	100						*/
 	private static BigDecimal 	ONEHUNDRED = new BigDecimal (100);
 
@@ -61,7 +57,7 @@ public class RfQCreateSO extends RfQCreateSOAbstract {
 	 */
 	protected String doIt () throws Exception
 	{
-		MRfQ rfq = new MRfQ (getCtx(), p_C_RfQ_ID, get_TrxName());
+		MRfQ rfq = new MRfQ (getCtx(), getRecord_ID(), get_TrxName());
 		if (rfq.get_ID() == 0)
 			throw new IllegalArgumentException("No RfQ found");
 		log.info("doIt - " + rfq);
@@ -72,8 +68,8 @@ public class RfQCreateSO extends RfQCreateSOAbstract {
 		
 		MOrder order = new MOrder (getCtx(), 0, get_TrxName());
 		order.setIsSOTrx(true);
-		if (p_C_DocType_ID != 0)
-			order.setC_DocTypeTarget_ID(p_C_DocType_ID);
+		if (getDocTypeId() != 0)
+			order.setC_DocTypeTarget_ID(getDocTypeId());
 		else
 			order.setC_DocTypeTarget_ID();
 		order.setBPartner(bp);
