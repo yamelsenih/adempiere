@@ -450,18 +450,22 @@ public class AgencyValidator implements ModelValidator
 		inOut.processIt(MInOut.ACTION_Complete);
 		inOut.saveEx();
 		//	Generate Delivery for Commission
-		getrateInOutFromCommissionOrder(order);
+		generateInOutFromCommissionOrder(order);
 	}
 	
 	/**
 	 * Generate Delivery from commission Order that are generated from order
 	 * @param order
 	 */
-	private void getrateInOutFromCommissionOrder(MOrder order) {
+	private void generateInOutFromCommissionOrder(MOrder order) {
 		new Query(order.getCtx(), I_C_Order.Table_Name, 
-				"EXISTS(SELECT 1 FROM C_CommissionRun cr "
+				"DocStatus = 'CO' "
+				+ "AND EXISTS(SELECT 1 FROM C_CommissionRun cr "
 				+ "WHERE cr.C_CommissionRun_ID = C_Order.C_CommissionRun_ID "
-				+ "AND cr.C_Order_ID = ?)", order.get_TrxName())
+				+ "AND cr.C_Order_ID = ?) "
+				+ "AND EXISTS(SELECT 1 FROM C_OrderLine ol "
+				+ "WHERE ol.C_Order_ID = C_Order.C_Order_ID "
+				+ "AND ol.QtyOrdered > COALESCE(QtyDelivered, 0))", order.get_TrxName())
 			.setOnlyActiveRecords(true)
 			.setParameters(order.getC_Order_ID())
 			.<MOrder>list()
