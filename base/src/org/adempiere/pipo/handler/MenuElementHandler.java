@@ -55,7 +55,7 @@ public class MenuElementHandler extends AbstractElementHandler {
 		int backupId = -1;
 		String Object_Status = null;
 		Attributes atts = element.attributes;
-		String uuid = atts.getValue(AttributeFiller.getUUIDAttribute(I_AD_Menu.Table_Name));
+		String uuid = getUUIDValue(atts, I_AD_Menu.Table_Name);
 		log.info(elementValue + " " + uuid);
 		int menuId = getIdWithFromUUID(ctx, I_AD_Menu.Table_Name, uuid);
 		X_AD_Menu menu = new X_AD_Menu(ctx, menuId, getTrxName(ctx));

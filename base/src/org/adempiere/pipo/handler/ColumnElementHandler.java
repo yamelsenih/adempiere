@@ -68,7 +68,7 @@ public class ColumnElementHandler extends AbstractElementHandler {
 				element.parent.recordId > 0) {
 				tableid = element.parent.recordId;
 			} else {
-				tableid = packIn.getTableId(tableName);
+				tableid = packIn.getTableUUID(tableName);
 			}
 			if (tableid <= 0) {
 				tableid = get_IDWithColumn(ctx, "AD_Table", "TableName", tableName);

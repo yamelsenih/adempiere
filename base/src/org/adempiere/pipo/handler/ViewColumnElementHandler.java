@@ -60,7 +60,7 @@ public class ViewColumnElementHandler extends AbstractElementHandler {
 			String colname = atts.getValue("ADColumnNameID");
 			String viewColumnName = atts.getValue("ADViewColumnNameID");
 			String tableName = atts.getValue("ADTableNameID");
-			int tableid = packIn.getTableId(tableName);
+			int tableid = packIn.getTableUUID(tableName);
 			if (tableid <= 0) {
 				tableid = get_IDWithColumn(ctx, "AD_Table", "TableName",
 						tableName);

@@ -17,43 +17,52 @@
  *****************************************************************************/
 package org.adempiere.pipo.handler;
 
-import java.math.BigDecimal;
 import java.util.Properties;
 
 import javax.xml.transform.sax.TransformerHandler;
 
 import org.adempiere.pipo.AbstractElementHandler;
+import org.adempiere.pipo.AttributeFiller;
 import org.adempiere.pipo.Element;
 import org.adempiere.pipo.PackIn;
 import org.adempiere.pipo.PackOut;
 import org.adempiere.pipo.exception.POSaveFailedException;
-import org.compiere.model.MField;
+import org.compiere.model.I_AD_Column;
+import org.compiere.model.I_AD_Field;
+import org.compiere.model.I_AD_FieldGroup;
+import org.compiere.model.I_AD_Reference;
+import org.compiere.model.I_AD_Tab;
+import org.compiere.model.I_AD_Table;
+import org.compiere.model.I_AD_Val_Rule;
+import org.compiere.model.I_AD_Window;
+import org.compiere.model.MTable;
 import org.compiere.model.X_AD_Field;
-import org.compiere.util.DB;
 import org.compiere.util.Env;
+import org.compiere.util.Util;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.AttributesImpl;
 
 public class FieldElementHandler extends AbstractElementHandler
 {
-	public void startElement(Properties ctx, Element element) throws SAXException
-	{
-		final String include_tabname = element.attributes.getValue("ADIncludeTabNameID");
-		
-		// Set Included Tab ID if this task was previously postponed 
-		if (element.defer && element.recordId > 0 && include_tabname != null)
-		{
-			MField field = new MField(ctx, element.recordId, getTrxName(ctx));
-			setIncluded_Tab_ID(ctx, field, include_tabname);
-			field.saveEx();
-			return;
-		}
-		
+	public void startElement(Properties ctx, Element element) throws SAXException {
 		PackIn packIn = (PackIn)ctx.get("PackInProcess");
 		String elementValue = element.getElementValue();
 		Attributes atts = element.attributes;
-		log.info(elementValue + " " + atts.getValue("Name"));
+		String includeTabUuid = getUUIDValue(atts, I_AD_Field.COLUMNNAME_Included_Tab_ID);
+		// Set Included Tab ID if this task was previously postponed 
+		if (element.defer && element.recordId > 0 && includeTabUuid != null) {
+			X_AD_Field field = new X_AD_Field(ctx, element.recordId, getTrxName(ctx));
+			int tabId = getIdWithFromUUID(ctx, I_AD_Tab.Table_Name, includeTabUuid);
+			if(tabId > 0) {
+				field.setIncluded_Tab_ID(tabId);
+			}
+			field.saveEx();
+			return;
+		}
+		//	
+		String uuid = getUUIDValue(atts, I_AD_Field.Table_Name);
+		log.info(elementValue + " " + uuid);
 		String entitytype = atts.getValue("EntityType");
 		if (isProcessElement(ctx, entitytype)) {
 			if (element.parent != null && element.parent.getElementValue().equals("tab") &&
@@ -61,147 +70,175 @@ public class FieldElementHandler extends AbstractElementHandler
 				element.defer = true;
 				return;
 			}
-			String name = atts.getValue("Name");
-			String tabname = atts.getValue("ADTabNameID");
-			String colname = atts.getValue("ADColumnNameID");
-			String tableName = atts.getValue("ADTableNameID");
-			int tableid = packIn.getTableId(tableName);
-			if (tableid <= 0) {
-				tableid = get_IDWithColumn(ctx, "AD_Table", "TableName", tableName);
-				if (tableid > 0)
-					packIn.addTable(tableName, tableid);
+			String windowUuid = getUUIDValue(atts, I_AD_Window.COLUMNNAME_AD_Window_ID);
+			String tabUuid = getUUIDValue(atts, I_AD_Tab.COLUMNNAME_AD_Tab_ID);
+			String tableUuid = getUUIDValue(atts, I_AD_Table.COLUMNNAME_AD_Table_ID);
+			String columnUuid = getUUIDValue(atts, I_AD_Column.COLUMNNAME_AD_Column_ID);
+			int tableId = packIn.getTableUUID(tableUuid);
+			if (tableId <= 0) {
+				tableId = getIdWithFromUUID(ctx, I_AD_Table.Table_Name, tableUuid);
+				if (tableId > 0)
+					packIn.addTable(tableUuid, tableId);
 			}
-			if (tableid <= 0) {
+			if (tableId <= 0) {
 				element.defer = true;
 				return;
 			}
-			int windowid = get_ID(ctx, "AD_Window", atts
-					.getValue("ADWindowNameID"));
-			if (windowid <= 0) {
+			int windowId = getIdWithFromUUID(ctx, I_AD_Window.Table_Name, windowUuid);
+			if (windowId <= 0) {
 				element.defer = true;
 				return;
 			}
-			int columnid = packIn.getColumnId(tableName, colname);
-			if (columnid <= 0) {
-				columnid = get_IDWithMasterAndColumn(ctx, "AD_Column",
-					"ColumnName", colname, "AD_Table", tableid);
-				if (columnid > 0)
-					packIn.addColumn(tableName, colname, columnid);
+			int columnId = packIn.getColumnId(tableUuid, columnUuid);
+			if (columnId <= 0) {
+				columnId = getIdWithFromUUID(ctx, I_AD_Column.Table_Name, columnUuid);
+				if (columnId > 0)
+					packIn.addColumn(tableUuid, columnUuid, columnId);
 			}
-			if (columnid <= 0) {
+			if (columnId <= 0) {
 				element.defer = true;
 				return;
 			}
-			int tabid = 0;
+			int tabId = 0;
 			if (element.parent != null && element.parent.getElementValue().equals("tab") &&
 					element.parent.recordId > 0) {
-				tabid = element.parent.recordId;
+				tabId = element.parent.recordId;
 			} else {
-				StringBuffer sqlB = new StringBuffer(
-						"select AD_Tab_ID from AD_Tab where AD_Window_ID = "
-								+ windowid).append(" and Name = '" + tabname + "'")
-						.append(" and AD_Table_ID = ?");
-				tabid = DB.getSQLValue(getTrxName(ctx), sqlB.toString(),
-						tableid);
-				if (element.parent != null && element.parent.getElementValue().equals("tab") && tabid > 0) {
-					element.parent.recordId = tabid;
+				tabId = getIdWithFromUUID(ctx, I_AD_Tab.Table_Name, tabUuid);
+				if (element.parent != null && element.parent.getElementValue().equals("tab") && tabId > 0) {
+					element.parent.recordId = tabId;
 				}
 			}
-			if (tabid > 0) {
-				StringBuffer sqlB = new StringBuffer(
-						"select AD_Field_ID from AD_Field where AD_Column_ID = ")
-						.append(columnid)
-						.append(" and AD_Tab_ID = ?");
-				int id = DB.getSQLValue(getTrxName(ctx), sqlB.toString(), tabid);
-				final MField m_Field = new MField(ctx, id, getTrxName(ctx));
-				if (id <= 0 && atts.getValue("AD_Field_ID") != null && Integer.parseInt(atts.getValue("AD_Field_ID")) <= PackOut.MAX_OFFICIAL_ID) {
-					m_Field.setAD_Field_ID(Integer.parseInt(atts.getValue("AD_Field_ID")));
-					m_Field.setIsDirectLoad(true);
+			if (tabId > 0) {
+				int id = 0;
+				X_AD_Field field = new X_AD_Field(ctx, id, getTrxName(ctx));
+				if (id <= 0 && getIntValue(atts, I_AD_Field.COLUMNNAME_AD_Field_ID) > 0 && getIntValue(atts, I_AD_Field.COLUMNNAME_AD_Field_ID) <= PackOut.MAX_OFFICIAL_ID) {
+					field.setAD_Field_ID(getIntValue(atts, I_AD_Field.COLUMNNAME_AD_Field_ID));
+					field.setIsDirectLoad(true);
 				}
-				int AD_Backup_ID = -1;
+				int backupId = -1;
 				String Object_Status = null;
 				if (id > 0) {
-					AD_Backup_ID = copyRecord(ctx, "AD_Field", m_Field);
+					backupId = copyRecord(ctx, "AD_Field", field);
 					Object_Status = "Update";
 				} else {
 					Object_Status = "New";
-					AD_Backup_ID = 0;
+					backupId = 0;
 				}
-			
-				m_Field.setName(atts.getValue("Name"));
-				m_Field.setAD_Column_ID(columnid);
-				name = atts.getValue("ADFieldGroupNameID");
-				id = get_IDWithColumn(ctx, "AD_FieldGroup", "Name", name);
-				m_Field.setAD_FieldGroup_ID(id);
-				m_Field.setAD_Tab_ID(tabid);
-				m_Field.setEntityType(atts.getValue("EntityType"));
-				m_Field.setIsSameLine(Boolean
-						.valueOf(atts.getValue("SameLine")).booleanValue());
-				m_Field.setIsCentrallyMaintained(Boolean.valueOf(
-						atts.getValue("isCentrallyMaintained")).booleanValue());
-				m_Field.setIsDisplayed(Boolean.valueOf(
-						atts.getValue("Displayed")).booleanValue());
-				// m_Field.setIsEncrypted(Boolean.valueOf(atts.getValue("isEncrypted")).booleanValue());
-				m_Field.setIsFieldOnly(Boolean.valueOf(
-						atts.getValue("isFieldOnly")).booleanValue());
-				m_Field.setIsHeading(Boolean
-						.valueOf(atts.getValue("isHeading")).booleanValue());
-				m_Field.setIsReadOnly(Boolean.valueOf(
-						atts.getValue("isReadOnly")).booleanValue());
-				m_Field.setSeqNo(Integer.parseInt(atts.getValue("SeqNo")));
-				m_Field.setDisplayLength(Integer.parseInt(atts
-						.getValue("DisplayLength")));
-				m_Field.setDescription(getStringValue(atts, "Description"));
-				m_Field.setHelp(getStringValue(atts, "Help"));
-				m_Field.setIsActive(atts.getValue("isActive") != null ? Boolean
-						.valueOf(atts.getValue("isActive")).booleanValue()
-						: true);
-				String sortNo = getStringValue(atts, "SortNo");
-				if (sortNo != null)
-					m_Field.setSortNo(new BigDecimal(sortNo));
-				m_Field.setDisplayLogic(getStringValue(atts, "DisplayLogic"));
-				
-				String Name = atts.getValue("ADReferenceNameID");
-				id = get_IDWithColumn(ctx, "AD_Reference", "Name", Name);
-				m_Field.setAD_Reference_ID(id);
-				
-				Name = atts.getValue("ADValRuleNameID");
-				id = get_IDWithColumn(ctx, "AD_Val_Rule", "Name", Name);
-				m_Field.setAD_Val_Rule_ID(id);
-				Name = atts.getValue("ADReferenceNameValueID");
-				id = get_IDWithColumn(ctx, "AD_Reference", "Name", Name);
-				m_Field.setAD_Reference_Value_ID(id);
-				m_Field.setInfoFactoryClass(getStringValue(atts, "InfoFactoryClass"));
-				
-				if ("Y".equals(atts.getValue("isMandatory")))
-					m_Field.setIsMandatory(atts.getValue("isMandatory"));
-				else if ("N".equals(atts.getValue("isMandatory")))
-					m_Field.setIsMandatory(atts.getValue("isMandatory"));
-				
-				m_Field.setDefaultValue(atts.getValue("DefaultValue"));
-				if(atts.getValue("IsDisplayedGrid") != null)
-					m_Field.setIsDisplayedGrid(Boolean.valueOf(atts.getValue("IsDisplayedGrid")).booleanValue());
-				if(atts.getValue("PreferredWidth") != null)
-					m_Field.setPreferredWidth(Integer.parseInt(atts.getValue("PreferredWidth")));
-				
-				setIncluded_Tab_ID(ctx, m_Field, include_tabname);
-				
-				if (m_Field.save(getTrxName(ctx)) == true) {
-					record_log(ctx, 1, m_Field.getName(), "Field", m_Field
-							.get_ID(), AD_Backup_ID, Object_Status, "AD_Field",
+				field.setUUID(uuid);
+				//	Tab
+				uuid = getUUIDValue(atts, I_AD_Field.COLUMNNAME_AD_Tab_ID);
+				if (!Util.isEmpty(uuid)) {
+					id = getIdWithFromUUID(ctx, I_AD_Tab.Table_Name, uuid);
+					if (id <= 0) {
+						element.defer = true;
+						return;
+					}
+					field.setAD_Tab_ID(id);
+				}
+				//	Column
+				uuid = getUUIDValue(atts, I_AD_Field.COLUMNNAME_AD_Column_ID);
+				if (!Util.isEmpty(uuid)) {
+					id = getIdWithFromUUID(ctx, I_AD_Column.Table_Name, uuid);
+					if (id <= 0) {
+						element.defer = true;
+						return;
+					}
+					field.setAD_Column_ID(id);
+				}
+				//	Field Group
+				uuid = getUUIDValue(atts, I_AD_Field.COLUMNNAME_AD_FieldGroup_ID);
+				if (!Util.isEmpty(uuid)) {
+					id = getIdWithFromUUID(ctx, I_AD_FieldGroup.Table_Name, uuid);
+					if (id <= 0) {
+						element.defer = true;
+						return;
+					}
+					field.setAD_FieldGroup_ID(id);
+				}
+				//	Included Tab
+				uuid = getUUIDValue(atts, I_AD_Field.COLUMNNAME_Included_Tab_ID);
+				if (!Util.isEmpty(uuid)) {
+					id = getIdWithFromUUID(ctx, I_AD_Tab.Table_Name, uuid);
+					if (id <= 0) {
+						element.defer = true;
+						return;
+					}
+					field.setIncluded_Tab_ID(id);
+				}
+				//	Reference
+				uuid = getUUIDValue(atts, I_AD_Field.COLUMNNAME_AD_Reference_ID);
+				if (!Util.isEmpty(uuid)) {
+					id = getIdWithFromUUID(ctx, I_AD_Reference.Table_Name, uuid);
+					if (id <= 0) {
+						element.defer = true;
+						return;
+					}
+					field.setAD_Reference_ID(id);
+				}
+				//	Reference Value
+				uuid = getUUIDValue(atts, I_AD_Field.COLUMNNAME_AD_Reference_Value_ID);
+				if (!Util.isEmpty(uuid)) {
+					id = getIdWithFromUUID(ctx, I_AD_Reference.Table_Name, uuid);
+					if (id <= 0) {
+						element.defer = true;
+						return;
+					}
+					field.setAD_Reference_Value_ID(id);
+				}
+				//	Validation Rule
+				uuid = getUUIDValue(atts, I_AD_Field.COLUMNNAME_AD_Val_Rule_ID);
+				if (!Util.isEmpty(uuid)) {
+					id = getIdWithFromUUID(ctx, I_AD_Val_Rule.Table_Name, uuid);
+					if (id <= 0) {
+						element.defer = true;
+						return;
+					}
+					field.setAD_Val_Rule_ID(id);
+				}
+				//	Standard Attributes
+				field.setName(getStringValue(atts, I_AD_Field.COLUMNNAME_Name));
+				field.setDescription(getStringValue(atts, I_AD_Field.COLUMNNAME_Description));
+				field.setHelp(getStringValue(atts, I_AD_Field.COLUMNNAME_Help));
+				field.setEntityType(getStringValue(atts, I_AD_Field.COLUMNNAME_EntityType));
+				field.setIsSameLine(getBooleanValue(atts, I_AD_Field.COLUMNNAME_IsSameLine));
+				field.setIsCentrallyMaintained(getBooleanValue(atts, I_AD_Field.COLUMNNAME_IsCentrallyMaintained));
+				field.setIsDisplayed(getBooleanValue(atts, I_AD_Field.COLUMNNAME_IsDisplayed));
+				field.setIsActive(getBooleanValue(atts, I_AD_Field.COLUMNNAME_IsActive));
+				field.setIsEncrypted(getBooleanValue(atts, I_AD_Field.COLUMNNAME_IsEncrypted));
+				field.setIsFieldOnly(getBooleanValue(atts, I_AD_Field.COLUMNNAME_IsFieldOnly));
+				field.setIsHeading(getBooleanValue(atts, I_AD_Field.COLUMNNAME_IsHeading));
+				field.setIsQuickEntry(getBooleanValue(atts, I_AD_Field.COLUMNNAME_IsQuickEntry));
+				field.setIsReadOnly(getBooleanValue(atts, I_AD_Field.COLUMNNAME_IsReadOnly));
+				field.setSeqNo(getIntValue(atts, I_AD_Field.COLUMNNAME_SeqNo));
+				field.setSeqNoGrid(getIntValue(atts, I_AD_Field.COLUMNNAME_SeqNoGrid));
+				field.setSortNo(getBigDecimalValue(atts, I_AD_Field.COLUMNNAME_SortNo));
+				field.setDisplayLength(getIntValue(atts, I_AD_Field.COLUMNNAME_DisplayLength));
+				field.setDisplayLogic(getStringValue(atts, I_AD_Field.COLUMNNAME_DisplayLogic));
+				field.setObscureType(getStringValue(atts, I_AD_Field.COLUMNNAME_ObscureType));
+				field.setInfoFactoryClass(getStringValue(atts, I_AD_Field.COLUMNNAME_InfoFactoryClass));
+				field.setIsMandatory(getStringValue(atts, I_AD_Field.COLUMNNAME_IsMandatory));
+				field.setDefaultValue(getStringValue(atts, I_AD_Field.COLUMNNAME_DefaultValue));
+				field.setPreferredWidth(getIntValue(atts, I_AD_Field.COLUMNNAME_PreferredWidth));
+				field.setIsDisplayedGrid(getBooleanValue(atts, I_AD_Field.COLUMNNAME_IsDisplayedGrid));
+				field.setIsAllowCopy(getBooleanValue(atts, I_AD_Field.COLUMNNAME_IsAllowCopy));				
+				//	Save
+				try {
+					field.saveEx(getTrxName(ctx));
+					record_log(ctx, 1, field.getName(), "Field", field
+							.get_ID(), backupId, Object_Status, "AD_Field",
 							get_IDWithColumn(ctx, "AD_Table", "TableName",
 									"AD_Field"));
-					element.recordId = m_Field.getAD_Field_ID();
-				} else {
-					record_log(ctx, 0, m_Field.getName(), "Field", m_Field
-							.get_ID(), AD_Backup_ID, Object_Status, "AD_Field",
+					element.recordId = field.getAD_Field_ID();
+				} catch (Exception e) {
+					record_log(ctx, 0, field.getName(), "Field", field
+							.get_ID(), backupId, Object_Status, "AD_Field",
 							get_IDWithColumn(ctx, "AD_Table", "TableName",
 									"AD_Field"));
-					throw new POSaveFailedException("Failed to save field definition.");
+					throw new POSaveFailedException("Failed to save field definition.");	
 				}
-				
 				// If Included Tab not found, then postpone this task for later processing 
-				if (m_Field.getAD_Field_ID() > 0 && include_tabname != null && m_Field.getIncluded_Tab_ID() <= 0)
+				if (field.getAD_Field_ID() > 0 && includeTabUuid != null && field.getIncluded_Tab_ID() <= 0)
 				{
 					element.defer = true;
 				}
@@ -215,6 +252,7 @@ public class FieldElementHandler extends AbstractElementHandler
 	}
 
 	public void endElement(Properties ctx, Element element) throws SAXException {
+		
 	}
 
 	public void create(Properties ctx, TransformerHandler document)
@@ -240,170 +278,83 @@ public class FieldElementHandler extends AbstractElementHandler
 		if (field.getAD_Val_Rule_ID() > 0) {
 			packOut.createDynamicRuleValidation(field.getAD_Val_Rule_ID(), document);
 		}
-		
+		//	
 		document.startElement("", "", "field", atts);
 		document.endElement("", "", "field");
 	}
 
-	private AttributesImpl createFieldBinding(AttributesImpl atts,
-			X_AD_Field m_Field) {
-		String sql = null;
-		String name = null;
+	private AttributesImpl createFieldBinding(AttributesImpl atts, X_AD_Field field) {
 		atts.clear();
-		if (m_Field.getAD_Field_ID() <= PackOut.MAX_OFFICIAL_ID)
-			atts.addAttribute("", "", "AD_Field_ID", "CDATA", Integer.toString(m_Field.getAD_Field_ID()));
-		if (m_Field.getAD_Column_ID() > 0) {
-			sql = "SELECT ColumnName FROM AD_Column WHERE AD_Column_ID=?";
-			name = DB.getSQLValueString(null, sql, m_Field.getAD_Column_ID());
-			atts.addAttribute("", "", "ADColumnNameID", "CDATA", name);
-		} else
-			atts.addAttribute("", "", "ADColumnNameID", "CDATA", "");
-
-		if (m_Field.getAD_Column_ID() > 0) {
-			sql = "SELECT AD_Table_ID FROM AD_Column WHERE AD_Column_ID=?";
-			int idTable = DB.getSQLValue(null, sql, m_Field.getAD_Column_ID());
-			sql = "SELECT TableName FROM AD_Table WHERE AD_Table_ID=?";
-			name = DB.getSQLValueString(null, sql, idTable);
-			atts.addAttribute("", "", "ADTableNameID", "CDATA", name);
-		} else
-			atts.addAttribute("", "", "ADTableNameID", "CDATA", "");
-		if (m_Field.getAD_FieldGroup_ID() > 0) {
-			sql = "SELECT Name FROM AD_FieldGroup WHERE AD_FieldGroup_ID=?";
-			name = DB.getSQLValueString(null, sql, m_Field
-					.getAD_FieldGroup_ID());
-			atts.addAttribute("", "", "ADFieldGroupNameID", "CDATA", name);
-		} else
-			atts.addAttribute("", "", "ADFieldGroupNameID", "CDATA", "");
-
-		if (m_Field.getAD_Field_ID() > 0) {
-			sql = "SELECT Name FROM AD_Field WHERE AD_Field_ID=?";
-			name = DB.getSQLValueString(null, sql, m_Field.getAD_Field_ID());
-			atts.addAttribute("", "", "ADFieldNameID", "CDATA", name);
-		} else
-			atts.addAttribute("", "", "ADFieldNameID", "CDATA", "");
-
-		if (m_Field.getAD_Tab_ID() > 0) {
-			sql = "SELECT Name FROM AD_Tab WHERE AD_Tab_ID=?";
-			name = DB.getSQLValueString(null, sql, m_Field.getAD_Tab_ID());
-			atts.addAttribute("", "", "ADTabNameID", "CDATA", name);
-			sql = "SELECT AD_Window_ID FROM AD_Tab WHERE AD_Tab_ID=?";
-			int windowid = DB.getSQLValue(null, sql, m_Field.getAD_Tab_ID());
-			sql = "SELECT Name FROM AD_Window WHERE AD_Window_ID=?";
-			name = DB.getSQLValueString(null, sql, windowid);
-			atts.addAttribute("", "", "ADWindowNameID", "CDATA", name);
-		} else
-			atts.addAttribute("", "", "ADTabNameID", "CDATA", "");
-		
-		if (m_Field.getIncluded_Tab_ID() > 0) {
-			sql = "SELECT Name FROM AD_Tab WHERE AD_Tab_ID=?";
-			name = DB.getSQLValueString(null, sql, m_Field.getIncluded_Tab_ID());
-			atts.addAttribute("", "", "ADIncludeTabNameID", "CDATA", name);
+		AttributeFiller filler = new AttributeFiller(atts, field);
+		if (field.getAD_Field_ID() <= PackOut.MAX_OFFICIAL_ID) {
+			filler.add(I_AD_Field.COLUMNNAME_AD_Field_ID);
 		}
-
-		atts.addAttribute("", "", "EntityType", "CDATA", (m_Field
-				.getEntityType() != null ? m_Field.getEntityType() : ""));
-		atts.addAttribute("", "", "Name", "CDATA",
-				(m_Field.getName() != null ? m_Field.getName() : ""));
-		atts.addAttribute("", "", "SameLine", "CDATA",
-				(m_Field.isSameLine() == true ? "true" : "false"));
-		atts.addAttribute("", "", "isCentrallyMaintained", "CDATA", (m_Field
-				.isCentrallyMaintained() == true ? "true" : "false"));
-		atts.addAttribute("", "", "Displayed", "CDATA",
-				(m_Field.isDisplayed() == true ? "true" : "false"));
-		atts.addAttribute("", "", "isActive", "CDATA",
-				(m_Field.isActive() == true ? "true" : "false"));
-		atts.addAttribute("", "", "isEncrypted", "CDATA", (m_Field
-				.isEncrypted() == true ? "true" : "false"));
-		atts.addAttribute("", "", "isFieldOnly", "CDATA", (m_Field
-				.isFieldOnly() == true ? "true" : "false"));
-		atts.addAttribute("", "", "isHeading", "CDATA",
-				(m_Field.isHeading() == true ? "true" : "false"));
-		atts.addAttribute("", "", "isReadOnly", "CDATA",
-				(m_Field.isReadOnly() == true ? "true" : "false"));
-		atts.addAttribute("", "", "SeqNo", "CDATA", "" + (m_Field.getSeqNo()));
-		atts.addAttribute("", "", "DisplayLength", "CDATA",
-				(m_Field.getDisplayLength() > 0 ? ""
-						+ m_Field.getDisplayLength() : "0"));
-		atts.addAttribute("", "", "Description", "CDATA", (m_Field
-				.getDescription() != null ? m_Field.getDescription() : ""));
-		atts.addAttribute("", "", "Help", "CDATA",
-				(m_Field.getHelp() != null ? m_Field.getHelp() : ""));
-		atts.addAttribute("", "", "SortNo", "CDATA",
-				(m_Field.getSortNo() != null ? m_Field.getSortNo().toString()
-						: ""));
-		atts.addAttribute("", "", "DisplayLogic", "CDATA", (m_Field
-				.getDisplayLogic() != null ? m_Field.getDisplayLogic() : ""));
-		atts.addAttribute("", "", "ObscureType", "CDATA", (m_Field
-				.getObscureType() != null ? m_Field.getObscureType() : ""));
-		
-		atts.addAttribute("", "", "InfoFactoryClass", "CDATA", (m_Field.getInfoFactoryClass() != null 
-				? m_Field.getInfoFactoryClass() : ""));
-
-		atts.addAttribute("", "", "isMandatory", "CDATA", "Y".equals(m_Field.getIsMandatory()) ? "Y" 
-				: "N".equals(m_Field.getIsMandatory()) ? "N" : "");
-		atts.addAttribute("", "", "DefaultValue", "CDATA", (m_Field
-				.getDefaultValue() != null ? m_Field.getDefaultValue() : ""));
-		
-		atts.addAttribute("", "", "PreferredWidth", "CDATA",
-				(m_Field.getPreferredWidth() > 0 ? ""
-						+ m_Field.getPreferredWidth() : "0"));
-		
-		atts.addAttribute("", "", "IsDisplayedGrid", "CDATA", m_Field.isDisplayedGrid() == true ? "true" : "false");
-		
-		
-		if (m_Field.getAD_Reference_ID() > 0) {
-			sql = "SELECT Name FROM AD_Reference WHERE AD_Reference_ID=?";
-			name = DB.getSQLValueString(null, sql, m_Field
-					.getAD_Reference_ID());
-			atts.addAttribute("", "", "ADReferenceNameID", "CDATA", name);
-		} else
-			atts.addAttribute("", "", "ADReferenceNameID", "CDATA", "");
-		if (m_Field.getAD_Reference_Value_ID() > 0) {
-			sql = "SELECT Name FROM AD_Reference WHERE AD_Reference_ID=?";
-			name = DB.getSQLValueString(null, sql, m_Field
-					.getAD_Reference_Value_ID());
-			atts.addAttribute("", "", "ADReferenceNameValueID", "CDATA", name);
-		} else
-			atts.addAttribute("", "", "ADReferenceNameValueID", "CDATA", "");
-		if (m_Field.getAD_Val_Rule_ID() > 0) {
-			sql = "SELECT Name FROM AD_Val_Rule WHERE AD_Val_Rule_ID=?";
-			name = DB
-					.getSQLValueString(null, sql, m_Field.getAD_Val_Rule_ID());
-			atts.addAttribute("", "", "ADValRuleNameID", "CDATA", name);
-		} else			
-			atts.addAttribute("", "", "ADValRuleNameID", "CDATA", "");
-		
+		filler.addUUID();
+		//	Column
+		if (field.getAD_Column_ID() > 0) {
+			filler.add(I_AD_Field.COLUMNNAME_AD_Column_ID, true);
+			filler.addUUID(I_AD_Field.COLUMNNAME_AD_Column_ID, getUUIDFromId(field.getCtx(), I_AD_Column.Table_Name, field.getAD_Column_ID()));
+			//	For table
+			MTable table = MTable.get(Env.getCtx(), field.getAD_Column().getAD_Table_ID());
+			filler.addUUID(I_AD_Table.COLUMNNAME_AD_Table_ID, table.getUUID());
+		}
+		//	For Field Group
+		if (field.getAD_FieldGroup_ID() > 0) {
+			filler.add(I_AD_Field.COLUMNNAME_AD_FieldGroup_ID, true);
+			filler.addUUID(I_AD_Field.COLUMNNAME_AD_FieldGroup_ID, getUUIDFromId(field.getCtx(), I_AD_FieldGroup.Table_Name, field.getAD_FieldGroup_ID()));
+		}
+		//	For Tab
+		if (field.getAD_Tab_ID() > 0) {
+			filler.add(I_AD_Field.COLUMNNAME_AD_Tab_ID, true);
+			filler.addUUID(I_AD_Field.COLUMNNAME_AD_Tab_ID, getUUIDFromId(field.getCtx(), I_AD_Tab.Table_Name, field.getAD_Tab_ID()));
+			filler.addUUID(I_AD_Window.COLUMNNAME_AD_Window_ID, field.getAD_Tab().getAD_Window().getUUID());
+		}
+		//	For include Tab
+		if (field.getIncluded_Tab_ID() > 0) {
+			filler.add(I_AD_Field.COLUMNNAME_Included_Tab_ID, true);
+			filler.addUUID(I_AD_Field.COLUMNNAME_Included_Tab_ID, getUUIDFromId(field.getCtx(), I_AD_Tab.Table_Name, field.getIncluded_Tab_ID()));
+		}
+		//	Reference
+		if (field.getAD_Reference_ID() > 0) {
+			filler.add(I_AD_Field.COLUMNNAME_AD_Reference_ID, true);
+			filler.addUUID(I_AD_Field.COLUMNNAME_AD_Reference_ID, getUUIDFromId(field.getCtx(), I_AD_Reference.Table_Name, field.getAD_Reference_ID()));
+		}
+		//	Reference Value
+		if (field.getAD_Reference_Value_ID() > 0) {
+			filler.add(I_AD_Field.COLUMNNAME_AD_Reference_Value_ID, true);
+			filler.addUUID(I_AD_Field.COLUMNNAME_AD_Reference_Value_ID, getUUIDFromId(field.getCtx(), I_AD_Reference.Table_Name, field.getAD_Reference_Value_ID()));
+		}
+		//	Validation Rule
+		if (field.getAD_Val_Rule_ID() > 0) {
+			filler.add(I_AD_Field.COLUMNNAME_AD_Val_Rule_ID, true);
+			filler.addUUID(I_AD_Field.COLUMNNAME_AD_Val_Rule_ID, getUUIDFromId(field.getCtx(), I_AD_Val_Rule.Table_Name, field.getAD_Val_Rule_ID()));
+		}
+		//	Attributes
+		filler.add(I_AD_Field.COLUMNNAME_Name);
+		filler.add(I_AD_Field.COLUMNNAME_Description);
+		filler.add(I_AD_Field.COLUMNNAME_Help);
+		filler.add(I_AD_Field.COLUMNNAME_EntityType);
+		filler.add(I_AD_Field.COLUMNNAME_IsSameLine);
+		filler.add(I_AD_Field.COLUMNNAME_IsCentrallyMaintained);
+		filler.add(I_AD_Field.COLUMNNAME_IsDisplayed);
+		filler.add(I_AD_Field.COLUMNNAME_IsActive);
+		filler.add(I_AD_Field.COLUMNNAME_IsEncrypted);
+		filler.add(I_AD_Field.COLUMNNAME_IsFieldOnly);
+		filler.add(I_AD_Field.COLUMNNAME_IsHeading);
+		filler.add(I_AD_Field.COLUMNNAME_IsQuickEntry);
+		filler.add(I_AD_Field.COLUMNNAME_IsReadOnly);
+		filler.add(I_AD_Field.COLUMNNAME_SeqNo);
+		filler.add(I_AD_Field.COLUMNNAME_SeqNoGrid);
+		filler.add(I_AD_Field.COLUMNNAME_SortNo);
+		filler.add(I_AD_Field.COLUMNNAME_DisplayLength);
+		filler.add(I_AD_Field.COLUMNNAME_DisplayLogic);
+		filler.add(I_AD_Field.COLUMNNAME_ObscureType);
+		filler.add(I_AD_Field.COLUMNNAME_InfoFactoryClass);
+		filler.add(I_AD_Field.COLUMNNAME_IsMandatory);
+		filler.add(I_AD_Field.COLUMNNAME_DefaultValue);
+		filler.add(I_AD_Field.COLUMNNAME_PreferredWidth);
+		filler.add(I_AD_Field.COLUMNNAME_IsDisplayedGrid);
+		filler.add(I_AD_Field.COLUMNNAME_IsAllowCopy);
 		return atts;
-	}
-	
-	/**
-	 * Set Included_Tab_ID (if needed)
-	 * @param ctx
-	 * @param field
-	 * @param includedTabName
-	 */
-	private void setIncluded_Tab_ID(Properties ctx, MField field, String includedTabName)
-	{
-		if (includedTabName == null)
-			return;
-		//
-		final String trxName = getTrxName(ctx);
-		final int AD_Tab_ID = field.getAD_Tab_ID();
-		if (AD_Tab_ID <= 0)
-		{
-			log.warning("AD_Tab_ID=0 ("+field+")");
-			return;
-		}
-		final int AD_Window_ID = DB.getSQLValueEx(trxName,
-				"SELECT AD_Window_ID FROM AD_Tab WHERE AD_Tab_ID=?",
-				AD_Tab_ID); 
-		final int included_Tab_ID = DB.getSQLValueEx(trxName,
-				"SELECT AD_Tab_ID FROM AD_Tab WHERE Name=? AND AD_Window_ID=? AND AD_Tab_ID<>?",
-				includedTabName, AD_Window_ID, AD_Tab_ID);
-		if(included_Tab_ID > 0)
-		{
-			field.setIncluded_Tab_ID(included_Tab_ID);
-		}
-
 	}
 }

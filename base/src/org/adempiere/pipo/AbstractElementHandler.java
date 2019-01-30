@@ -21,6 +21,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.math.BigDecimal;
 import java.util.Properties;
 import java.util.logging.Level;
 
@@ -461,6 +462,16 @@ public abstract class AbstractElementHandler implements ElementHandler {
      */
 	protected int getIntValue(Attributes atts, String name) {
 		return getIntValue(atts, name, 0);
+	}
+	
+	/**
+	 * get Big decimal Value
+	 * @param atts
+	 * @param name
+	 * @return
+	 */
+	protected BigDecimal getBigDecimalValue(Attributes atts, String name) {
+		return new BigDecimal(getIntValue(atts, name, 0));
 	}
     
 }

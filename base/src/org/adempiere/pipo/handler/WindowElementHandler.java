@@ -51,7 +51,7 @@ public class WindowElementHandler extends AbstractElementHandler {
 		// Check namespace.
 		String elementValue = element.getElementValue();
 		Attributes atts = element.attributes;
-		String uuid = atts.getValue(AttributeFiller.getUUIDAttribute(I_AD_Window.Table_Name));
+		String uuid = getUUIDValue(atts, I_AD_Window.Table_Name);
 		log.info(elementValue + " " + uuid);
 		String entitytype = atts.getValue("EntityType");
 		if (isProcessElement(ctx, entitytype)) {

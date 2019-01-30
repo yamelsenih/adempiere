@@ -49,7 +49,7 @@ public class TabElementHandler extends AbstractElementHandler
 	public void startElement(Properties ctx, Element element) throws SAXException {
 		String elementValue = element.getElementValue();
 		Attributes atts = element.attributes;
-		String uuid = atts.getValue(AttributeFiller.getUUIDAttribute(I_AD_Tab.Table_Name));
+		String uuid = getUUIDValue(atts, I_AD_Tab.Table_Name);
 		log.info(elementValue + " " + uuid);
 		String entitytype = atts.getValue("EntityType");
 		if (isProcessElement(ctx, entitytype)) {
@@ -64,19 +64,19 @@ public class TabElementHandler extends AbstractElementHandler
 				element.defer = true;
 				return;
 			}
-			int windowid = 0;
+			int windowId = 0;
 			if (element.parent != null && element.parent.getElementValue().equals("window")
 					&& element.parent.recordId > 0) {
-				windowid = element.parent.recordId;
+				windowId = element.parent.recordId;
 			} else {
 				uuid = getUUIDValue(atts, I_AD_Tab.COLUMNNAME_AD_Window_ID);
-				windowid = getIdWithFromUUID(ctx, I_AD_Window.Table_Name, uuid);
+				windowId = getIdWithFromUUID(ctx, I_AD_Window.Table_Name, uuid);
 				if (element.parent != null && element.parent.getElementValue().equals("window")
-						&& windowid > 0) {
-					element.parent.recordId = windowid;
+						&& windowId > 0) {
+					element.parent.recordId = windowId;
 				}
 			}
-			if (windowid <= 0) {
+			if (windowId <= 0) {
 				element.defer = true;
 				return;
 			}

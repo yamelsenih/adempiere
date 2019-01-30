@@ -71,7 +71,7 @@ public class PackIn extends SvrProcess {
 	 * @param tableName
 	 * @return tableId
 	 */
-	public int getTableId(String tableName) {
+	public int getTableUUID(String tableName) {
 		if (tableCache.containsKey(tableName))
 			return tableCache.get(tableName).intValue();
 		else
