@@ -26,12 +26,14 @@ import java.util.logging.Level;
 
 import javax.xml.transform.sax.TransformerHandler;
 
+import org.compiere.model.I_AD_Element;
 import org.compiere.model.PO;
 import org.compiere.model.POInfo;
 import org.compiere.model.X_AD_Package_Imp_Detail;
 import org.compiere.util.CLogger;
 import org.compiere.util.DB;
 import org.compiere.util.Env;
+import org.compiere.util.Util;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.AttributesImpl;
@@ -52,6 +54,28 @@ public abstract class AbstractElementHandler implements ElementHandler {
 		return IDFinder.get_ID(tableName, name, getClientId(ctx), getTrxName(ctx));
 	}
 
+	/**
+	 * Get ID from UUID for a table.
+	 *
+	 * @param tableName
+	 * @param columName
+	 * @param name
+	 */
+	public int getIdWithFromUUID(Properties ctx, String tableName, String uuid) {
+		return IDFinder.get_IDWithColumn(tableName, I_AD_Element.COLUMNNAME_UUID, uuid, getClientId(ctx), getTrxName(ctx));
+	}
+	
+	/**
+	 * Get UUID from id
+	 * @param ctx
+	 * @param tableName
+	 * @param value
+	 * @return
+	 */
+	public String getUUIDFromId(Properties ctx, String tableName, int value) {
+		return IDFinder.getUUIDFromId(tableName, value, getClientId(ctx), getTrxName(ctx));
+	}
+	
 	/**
 	 * Get ID from column value for a table.
 	 *
@@ -388,5 +412,55 @@ public abstract class AbstractElementHandler implements ElementHandler {
     	String s = atts.getValue(qName);
     	return ("".equals(s) ? null : s);
     }
+    
+    /**
+     * Get Boolean value from attributes
+     * @param atts
+     * @param columnName
+     * @return
+     */
+    protected boolean getBooleanValue(Attributes atts, String columnName) {
+    	String value = atts.getValue(columnName);
+    	if(!Util.isEmpty(value)) {
+    		return Boolean.valueOf(value).booleanValue();
+    	}
+    	//	Default
+    	return false;
+    }
+    
+    /**
+     * get UUID value from attributes
+     * @param atts
+     * @param columnName
+     * @return
+     */
+    protected String getUUIDValue(Attributes atts, String columnName) {
+    	return getStringValue(atts, AttributeFiller.getUUIDAttribute(columnName));
+    }
+    
+    /**
+     * Get Integer Value with default value
+     * @param atts
+     * @param name
+     * @param defaultValue
+     * @return
+     */
+    protected int getIntValue(Attributes atts, String name, int defaultValue) {
+		String value = atts.getValue(name);
+		if (Util.isEmpty(value, true))
+			return defaultValue;
+		 int i = Integer.parseInt(value.trim());
+		 return i;
+	}
+	
+    /**
+     * get Integer value with 0 as default
+     * @param atts
+     * @param name
+     * @return
+     */
+	protected int getIntValue(Attributes atts, String name) {
+		return getIntValue(atts, name, 0);
+	}
     
 }

@@ -219,28 +219,26 @@ public class FieldElementHandler extends AbstractElementHandler
 
 	public void create(Properties ctx, TransformerHandler document)
 			throws SAXException {
-		int AD_Field_ID = Env.getContextAsInt(ctx,
-				X_AD_Field.COLUMNNAME_AD_Field_ID);
-		X_AD_Field m_Field = new X_AD_Field(ctx, AD_Field_ID, null);
+		int fieldId = Env.getContextAsInt(ctx, X_AD_Field.COLUMNNAME_AD_Field_ID);
+		X_AD_Field field = new X_AD_Field(ctx, fieldId, null);
 		AttributesImpl atts = new AttributesImpl();
-		createFieldBinding(atts, m_Field);
-		
+		createFieldBinding(atts, field);
 		PackOut packOut = (PackOut)ctx.get("PackOutProcess");
-				
-		if(m_Field.getAD_FieldGroup_ID() > 0){
-			packOut.createFieldGroupElement(m_Field.getAD_FieldGroup_ID(), document);
+		//	Field Group
+		if(field.getAD_FieldGroup_ID() > 0){
+			packOut.createFieldGroupElement(field.getAD_FieldGroup_ID(), document);
 		}
-		
-		if(m_Field.getAD_Reference_ID() > 0) {
-			packOut.createReference(m_Field.getAD_Reference_ID(), document);
+		//	 Reference
+		if(field.getAD_Reference_ID() > 0) {
+			packOut.createReference(field.getAD_Reference_ID(), document);
 		}
-		
-		if (m_Field.getAD_Reference_Value_ID() > 0) {
-			packOut.createReference(m_Field.getAD_Reference_Value_ID(), document);
+		//	Reference Value
+		if (field.getAD_Reference_Value_ID() > 0) {
+			packOut.createReference(field.getAD_Reference_Value_ID(), document);
 		}
-		
-		if (m_Field.getAD_Val_Rule_ID() > 0) {
-			packOut.createDynamicRuleValidation(m_Field.getAD_Val_Rule_ID(), document);
+		//	Validation Rule
+		if (field.getAD_Val_Rule_ID() > 0) {
+			packOut.createDynamicRuleValidation(field.getAD_Val_Rule_ID(), document);
 		}
 		
 		document.startElement("", "", "field", atts);
