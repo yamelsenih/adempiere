@@ -55,7 +55,7 @@ public class TableElementHandler extends AbstractElementHandler {
 		String uuid = getUUIDValue(atts, I_AD_Table.Table_Name);
 		String tableUuid = uuid;
 		log.info(elementValue + " " + uuid);
-		final String entitytype = atts.getValue("EntityType");
+		String entitytype = getStringValue(atts, I_AD_Table.COLUMNNAME_EntityType);
 		if (isProcessElement(ctx, entitytype)) {
 			int id = packIn.getTableUUID(uuid);
 			if (id <= 0) {
@@ -67,18 +67,18 @@ public class TableElementHandler extends AbstractElementHandler {
 				return;
 			}
 			
-			MTable table = new MTable(ctx, id, getTrxName(ctx));
+			X_AD_Table table = new X_AD_Table(ctx, id, getTrxName(ctx));
 			if (id <= 0 && getIntValue(atts, I_AD_Table.COLUMNNAME_AD_Table_ID) > 0 && getIntValue(atts, I_AD_Table.COLUMNNAME_AD_Table_ID) <= PackOut.MAX_OFFICIAL_ID) {
 				table.setAD_Table_ID(getIntValue(atts, I_AD_Table.COLUMNNAME_AD_Table_ID));
 				table.setIsDirectLoad(true);
 			}
 			int backupId = -1;
-			String Object_Status = null;
+			String objectStatus = null;
 			if (id > 0) {		
 				backupId = copyRecord(ctx, "AD_Table",table);
-				Object_Status = "Update";			
+				objectStatus = "Update";			
 			} else {
-				Object_Status = "New";
+				objectStatus = "New";
 				backupId =0;
 			}
 			table.setUUID(uuid);
@@ -124,12 +124,12 @@ public class TableElementHandler extends AbstractElementHandler {
 			//	Save
 			try {
 				table.save(getTrxName(ctx));
-				record_log (ctx, 1, table.getName(),"Table", table.get_ID(),backupId, Object_Status,"AD_Table",get_IDWithColumn(ctx, "AD_Table", "TableName", "AD_Table"));
+				recordLog (ctx, 1, table.getName(),"Table", table.get_ID(),backupId, objectStatus,"AD_Table",get_IDWithColumn(ctx, "AD_Table", "TableName", "AD_Table"));
 				tables.add(table.getAD_Table_ID());
 				packIn.addTable(tableUuid, table.getAD_Table_ID());
 				element.recordId = table.getAD_Table_ID();
 			} catch (Exception e) {
-				record_log (ctx, 0, table.getName(),"Table", table.get_ID(),backupId, Object_Status,"AD_Table",get_IDWithColumn(ctx, "AD_Table", "TableName", "AD_Table"));
+				recordLog (ctx, 0, table.getName(),"Table", table.get_ID(),backupId, objectStatus,"AD_Table",get_IDWithColumn(ctx, "AD_Table", "TableName", "AD_Table"));
 				throw new POSaveFailedException(e);
 			}
 		} else {
@@ -150,16 +150,17 @@ public class TableElementHandler extends AbstractElementHandler {
 			AttributesImpl atts = new AttributesImpl();
 			MTable table = MTable.get(ctx, tableId);
 			createTableBinding(atts, table);
+			document.startElement("","","table",atts);
 			for(MColumn colunm : table.getColumns(true)) {
 				packOut.createAdElement(colunm.getAD_Element_ID(), document);
 				if (colunm.getAD_Reference_ID() > 0) {
-					packOut.createReference (colunm.getAD_Reference_ID(), document);
+					packOut.createReference(colunm.getAD_Reference_ID(), document);
 				}
 				if (colunm.getAD_Reference_Value_ID() > 0) {
-					packOut.createReference (colunm.getAD_Reference_Value_ID(), document);
+					packOut.createReference(colunm.getAD_Reference_Value_ID(), document);
 				}						
 				if (colunm.getAD_Process_ID() > 0) {
-					packOut.createProcess (colunm.getAD_Process_ID(), document);
+					packOut.createProcess(colunm.getAD_Process_ID(), document);
 				}	
 				if (colunm.getAD_Val_Rule_ID() > 0) {
 					packOut.createDynamicRuleValidation(colunm.getAD_Val_Rule_ID(), document);

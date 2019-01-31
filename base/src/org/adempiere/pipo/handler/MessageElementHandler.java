@@ -71,10 +71,10 @@ public class MessageElementHandler extends AbstractElementHandler {
 			m_Message.setValue(value);
 			m_Message.setMsgType(atts.getValue("MsgType"));		        
 			if (m_Message.save(getTrxName(ctx)) == true){		    	
-				record_log (ctx, 1, m_Message.getValue(),"Message", m_Message.get_ID(),AD_Backup_ID, Object_Status,"AD_Message",get_IDWithColumn(ctx, "AD_Table", "TableName", "AD_Message"));           		        		
+				recordLog (ctx, 1, m_Message.getValue(),"Message", m_Message.get_ID(),AD_Backup_ID, Object_Status,"AD_Message",get_IDWithColumn(ctx, "AD_Table", "TableName", "AD_Message"));           		        		
 			}
 			else{
-				record_log (ctx, 0, m_Message.getValue(),"Message", m_Message.get_ID(),AD_Backup_ID, Object_Status,"AD_Message",get_IDWithColumn(ctx, "AD_Table", "TableName", "AD_Message"));
+				recordLog (ctx, 0, m_Message.getValue(),"Message", m_Message.get_ID(),AD_Backup_ID, Object_Status,"AD_Message",get_IDWithColumn(ctx, "AD_Table", "TableName", "AD_Message"));
 				throw new POSaveFailedException("Failed to save message.");
 			}
 		} else {

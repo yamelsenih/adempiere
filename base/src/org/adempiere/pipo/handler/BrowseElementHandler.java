@@ -141,7 +141,7 @@ public class BrowseElementHandler extends AbstractElementHandler {
 			m_Browse.setAccessLevel(atts.getValue("AccessLevel"));
 
 			if (m_Browse.save(getTrxName(ctx)) == true) {
-				record_log(
+				recordLog(
 						ctx,
 						1,
 						m_Browse.getName(),
@@ -155,7 +155,7 @@ public class BrowseElementHandler extends AbstractElementHandler {
 				element.recordId = m_Browse.getAD_Browse_ID();
 				browses.add(m_Browse.getAD_Browse_ID());
 			} else {
-				record_log(
+				recordLog(
 						ctx,
 						0,
 						m_Browse.getName(),

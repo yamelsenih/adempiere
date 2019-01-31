@@ -70,12 +70,12 @@ public class TaskElementHandler extends AbstractElementHandler {
 			m_Task.setName(name);
 			m_Task.setOS_Command(getStringValue(atts,"OS_Command"));
 			if (m_Task.save(getTrxName(ctx)) == true) {
-				record_log(ctx, 1, m_Task.getName(), "Task", m_Task.get_ID(),
+				recordLog(ctx, 1, m_Task.getName(), "Task", m_Task.get_ID(),
 						AD_Backup_ID, Object_Status, "AD_Task",
 						get_IDWithColumn(ctx, "AD_Table", "TableName",
 								"AD_Task"));
 			} else {
-				record_log(ctx, 0, m_Task.getName(), "Task", m_Task.get_ID(),
+				recordLog(ctx, 0, m_Task.getName(), "Task", m_Task.get_ID(),
 						AD_Backup_ID, Object_Status, "AD_Task",
 						get_IDWithColumn(ctx, "AD_Table", "TableName",
 								"AD_Task"));

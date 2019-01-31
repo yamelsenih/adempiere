@@ -28,9 +28,11 @@ import org.adempiere.pipo.Element;
 import org.adempiere.pipo.PackOut;
 import org.adempiere.pipo.PoFiller;
 import org.adempiere.pipo.exception.POSaveFailedException;
+import org.compiere.model.I_AD_Element;
+import org.compiere.model.I_AD_Reference;
 import org.compiere.model.X_AD_Element;
-import org.compiere.util.DB;
 import org.compiere.util.Env;
+import org.compiere.util.Util;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.AttributesImpl;
@@ -41,44 +43,38 @@ public class AdElementHandler extends AbstractElementHandler {
 	
 	private final String AD_ELEMENT = "AD_Element";
 	
-
 	public void startElement(Properties ctx, Element element)
 			throws SAXException {
 		String elementValue = element.getElementValue();
-		int AD_Backup_ID = -1;
-		String Object_Status = null;
-
+		int backupId = -1;
+		String objectStatus = null;
 		Attributes atts = element.attributes;
-		log.info(elementValue + " " + atts.getValue("ColumnName"));
-
-		String entitytype = atts.getValue("EntityType");
-		String ColumnName = atts.getValue("ColumnName");
-
+		String uuid = getUUIDValue(atts, I_AD_Element.Table_Name);
+		log.info(elementValue + " " + uuid);
+		String entitytype = getStringValue(atts, I_AD_Element.COLUMNNAME_EntityType);
+		//	
 		if (isProcessElement(ctx, entitytype)) {
-			
-			int id = get_IDWithColumn(ctx, X_AD_Element.Table_Name, X_AD_Element.COLUMNNAME_ColumnName, ColumnName);
-
-			X_AD_Element m_AdElement = new X_AD_Element(ctx, id,
-					getTrxName(ctx));
-			if (id <= 0 && atts.getValue("AD_Element_ID") != null && Integer.parseInt(atts.getValue("AD_Element_ID")) <= PackOut.MAX_OFFICIAL_ID) {
-				m_AdElement.setAD_Element_ID(Integer.parseInt(atts.getValue("AD_Element_ID")));
-				m_AdElement.setIsDirectLoad(true);
+			int id = getIdWithFromUUID(ctx, I_AD_Element.Table_Name, uuid);
+			X_AD_Element importElement = new X_AD_Element(ctx, id, getTrxName(ctx));
+			if (id <= 0 && getIntValue(atts, I_AD_Element.COLUMNNAME_AD_Element_ID) > 0 && getIntValue(atts, I_AD_Element.COLUMNNAME_AD_Element_ID) <= PackOut.MAX_OFFICIAL_ID) {
+				importElement.setAD_Element_ID(getIntValue(atts, I_AD_Element.COLUMNNAME_AD_Element_ID));
+				importElement.setIsDirectLoad(true);
 			}
 			if (id > 0) {
-				AD_Backup_ID = copyRecord(ctx, AD_ELEMENT, m_AdElement);
-				Object_Status = "Update";
+				backupId = copyRecord(ctx, AD_ELEMENT, importElement);
+				objectStatus = "Update";
 				if (processedElements.contains(id)) {
 					element.skip = true;
 					return;
 				}
 			} else {
-				Object_Status = "New";
-				AD_Backup_ID = 0;
+				objectStatus = "New";
+				backupId = 0;
 			}
-
-			PoFiller pf = new PoFiller(m_AdElement, atts);
+			importElement.setUUID(uuid);
+			PoFiller pf = new PoFiller(importElement, atts);
 			
-			pf.setBoolean("IsActive");
+			pf.setBoolean(I_AD_Element.COLUMNNAME_IsActive);
 			
 			pf.setString(X_AD_Element.COLUMNNAME_ColumnName);
 			pf.setString(X_AD_Element.COLUMNNAME_Description);
@@ -91,32 +87,42 @@ public class AdElementHandler extends AbstractElementHandler {
 			pf.setString(X_AD_Element.COLUMNNAME_PO_Name);
 			pf.setString(X_AD_Element.COLUMNNAME_PO_Help);
 			pf.setString(X_AD_Element.COLUMNNAME_PO_PrintName);
-
-            String Name = atts.getValue("ADReferenceNameID");
-            id = get_IDWithColumn(ctx, "AD_Reference", "Name", Name);
-            m_AdElement.setAD_Reference_ID(id);
-
-            Name = atts.getValue("ADReferenceNameValueID");
-            id = get_IDWithColumn(ctx, "AD_Reference", "Name", Name);
-            m_AdElement.setAD_Reference_Value_ID(id);
-			
-			
-			if (m_AdElement.save(getTrxName(ctx)) == true) {
-				record_log(ctx, 1, m_AdElement.getName(), "Element",
-						m_AdElement.get_ID(), AD_Backup_ID, Object_Status,
+			// Reference
+			uuid = getUUIDValue(atts, I_AD_Element.COLUMNNAME_AD_Reference_ID);
+			if (!Util.isEmpty(uuid)) {
+				id = getIdWithFromUUID(ctx, I_AD_Reference.Table_Name, uuid);
+				if (id <= 0) {
+					element.defer = true;
+					return;
+				}
+				importElement.setAD_Reference_ID(id);
+			}
+			// Reference
+			uuid = getUUIDValue(atts, I_AD_Element.COLUMNNAME_AD_Reference_Value_ID);
+			if (!Util.isEmpty(uuid)) {
+				id = getIdWithFromUUID(ctx, I_AD_Reference.Table_Name, uuid);
+				if (id <= 0) {
+					element.defer = true;
+					return;
+				}
+				importElement.setAD_Reference_ID(id);
+			}			
+            //	Save
+			try {
+				importElement.saveEx(getTrxName(ctx));
+				recordLog(ctx, 1, importElement.getName(), "Element",
+						importElement.get_ID(), backupId, objectStatus,
 						AD_ELEMENT, get_IDWithColumn(ctx, "AD_Table",
 								"TableName", AD_ELEMENT));
-				
-				element.recordId = m_AdElement.getAD_Element_ID();
-				
-				processedElements.add(m_AdElement.getAD_Element_ID());
-				
-			} else {
-				record_log(ctx, 0, m_AdElement.getName(), "Element",
-						m_AdElement.get_ID(), AD_Backup_ID, Object_Status,
+				//	
+				element.recordId = importElement.getAD_Element_ID();
+				processedElements.add(importElement.getAD_Element_ID());
+			} catch (Exception e) {
+				recordLog(ctx, 0, importElement.getName(), "Element",
+						importElement.get_ID(), backupId, objectStatus,
 						AD_ELEMENT, get_IDWithColumn(ctx, "AD_Table",
 								"TableName", AD_ELEMENT));
-				throw new POSaveFailedException("Reference");
+				throw new POSaveFailedException(e);
 			}
 		} else {
 			element.skip = true;
@@ -124,47 +130,44 @@ public class AdElementHandler extends AbstractElementHandler {
 	}
 
 	public void endElement(Properties ctx, Element element) throws SAXException {
+		
 	}
 
-	public void create(Properties ctx, TransformerHandler document)
-			throws SAXException {
-		
-		
-		int adElement_id = Env.getContextAsInt(ctx,
-				X_AD_Element.COLUMNNAME_AD_Element_ID);
-		
-		if (processedElements.contains(adElement_id))
+	public void create(Properties ctx, TransformerHandler document) throws SAXException {
+		int elementId = Env.getContextAsInt(ctx, X_AD_Element.COLUMNNAME_AD_Element_ID);
+		//	
+		if (processedElements.contains(elementId)) {
 			return;
-		
-		processedElements.add(adElement_id);
-		
-		X_AD_Element m_AdElement = new X_AD_Element(ctx, adElement_id, null);
+		}
+		//	
+		processedElements.add(elementId);
+		//	
+		X_AD_Element element = new X_AD_Element(ctx, elementId, null);
 		AttributesImpl atts = new AttributesImpl();
-		createAdElementBinding(atts, m_AdElement);
-		
+		createAdElementBinding(atts, element);
 		document.startElement("", "", "element", atts);
-		
 		PackOut packOut = (PackOut)ctx.get("PackOutProcess");
-
-		packOut.createTranslations(X_AD_Element.Table_Name,
-					m_AdElement.get_ID(), document);
-		
+		packOut.createTranslations(X_AD_Element.Table_Name, element.get_ID(), document);		
 		document.endElement("", "", "element");
 	}
-
 	
-	private AttributesImpl createAdElementBinding(AttributesImpl atts,
-			X_AD_Element m_AdElement) {
-
-        String sql = null;
-        String name = null;
-
-		AttributeFiller filler = new AttributeFiller(atts, m_AdElement);
-		if (m_AdElement.getAD_Element_ID() <= PackOut.MAX_OFFICIAL_ID)
+	private AttributesImpl createAdElementBinding(AttributesImpl atts, X_AD_Element element) {
+		AttributeFiller filler = new AttributeFiller(atts, element);
+		if (element.getAD_Element_ID() <= PackOut.MAX_OFFICIAL_ID) {
 			filler.add(X_AD_Element.COLUMNNAME_AD_Element_ID);
-		
-		filler.add("IsActive");
-		
+		}
+		filler.addUUID();
+		//	Reference
+		if (element.getAD_Reference_ID() > 0) {
+			filler.add(I_AD_Element.COLUMNNAME_AD_Reference_ID, true);
+			filler.addUUID(I_AD_Element.COLUMNNAME_AD_Reference_ID, getUUIDFromId(element.getCtx(), I_AD_Reference.Table_Name, element.getAD_Reference_ID()));
+        }
+		//	Reference value
+		if (element.getAD_Reference_Value_ID() > 0) {
+			filler.add(I_AD_Element.COLUMNNAME_AD_Reference_Value_ID, true);
+			filler.addUUID(I_AD_Element.COLUMNNAME_AD_Reference_Value_ID, getUUIDFromId(element.getCtx(), I_AD_Reference.Table_Name, element.getAD_Reference_Value_ID()));
+        }
+		//	
 		filler.add(X_AD_Element.COLUMNNAME_ColumnName);
 		filler.add(X_AD_Element.COLUMNNAME_Description);
 		filler.add(X_AD_Element.COLUMNNAME_EntityType);
@@ -172,27 +175,11 @@ public class AdElementHandler extends AbstractElementHandler {
 		filler.add(X_AD_Element.COLUMNNAME_Name);
 		filler.add(X_AD_Element.COLUMNNAME_PrintName);
         filler.add(X_AD_Element.COLUMNNAME_FieldLength);
-		
+        filler.add(X_AD_Element.COLUMNNAME_IsActive);
 		filler.add(X_AD_Element.COLUMNNAME_PO_Description);
 		filler.add(X_AD_Element.COLUMNNAME_PO_Name);
 		filler.add(X_AD_Element.COLUMNNAME_PO_Help);
 		filler.add(X_AD_Element.COLUMNNAME_PO_PrintName);
-
-        if (m_AdElement.getAD_Reference_ID() > 0) {
-            sql = "SELECT Name FROM AD_Reference WHERE AD_Reference_ID=?";
-            name = DB.getSQLValueString(null, sql, m_AdElement
-                    .getAD_Reference_ID());
-            atts.addAttribute("", "", "ADReferenceNameID", "CDATA", name);
-        } else
-            atts.addAttribute("", "", "ADReferenceNameID", "CDATA", "");
-        if (m_AdElement.getAD_Reference_Value_ID() > 0) {
-            sql = "SELECT Name FROM AD_Reference WHERE AD_Reference_ID=?";
-            name = DB.getSQLValueString(null, sql, m_AdElement
-                    .getAD_Reference_Value_ID());
-            atts.addAttribute("", "", "ADReferenceNameValueID", "CDATA", name);
-        } else
-            atts.addAttribute("", "", "ADReferenceNameValueID", "CDATA", "");
-		
 		return atts;
 	}
 }

@@ -153,7 +153,7 @@ public class ViewColumnElementHandler extends AbstractElementHandler {
 								.booleanValue() : true);
 
 				if (m_ColumnView.save(getTrxName(ctx)) == true) {
-					record_log(
+					recordLog(
 							ctx,
 							1,
 							m_ColumnView.getName(),
@@ -166,7 +166,7 @@ public class ViewColumnElementHandler extends AbstractElementHandler {
 									"AD_View_Column"));
 					element.recordId = m_ColumnView.getAD_View_Column_ID();
 				} else {
-					record_log(
+					recordLog(
 							ctx,
 							0,
 							m_ColumnView.getName(),

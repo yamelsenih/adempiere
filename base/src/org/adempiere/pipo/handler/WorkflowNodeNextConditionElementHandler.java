@@ -136,7 +136,7 @@ public class WorkflowNodeNextConditionElementHandler extends
 			log.info("about to execute m_WFNodeNextCondition.save");
 			if (m_WFNodeNextCondition.save(getTrxName(ctx)) == true) {
 				log.info("m_WFNodeNextCondition save success");
-				record_log(
+				recordLog(
 						ctx,
 						1,
 						String.valueOf(m_WFNodeNextCondition.get_ID()),
@@ -149,7 +149,7 @@ public class WorkflowNodeNextConditionElementHandler extends
 								"TableName", "AD_WF_NextCondition"));
 			} else {
 				log.info("m_WFNodeNextCondition save failure");
-				record_log(
+				recordLog(
 						ctx,
 						0,
 						String.valueOf(m_WFNodeNextCondition.get_ID()),

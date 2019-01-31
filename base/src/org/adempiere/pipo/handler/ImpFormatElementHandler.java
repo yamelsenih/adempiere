@@ -89,12 +89,12 @@ public class ImpFormatElementHandler extends AbstractElementHandler {
 		m_ImpFormat.setDescription(getStringValue(atts,"Description"));
 		m_ImpFormat.setFormatType(atts.getValue("FormatType"));
 		if (m_ImpFormat.save(getTrxName(ctx)) == true) {
-			record_log(ctx, 1, m_ImpFormat.getName(), "ImpFormat", m_ImpFormat
+			recordLog(ctx, 1, m_ImpFormat.getName(), "ImpFormat", m_ImpFormat
 					.get_ID(), AD_Backup_ID, Object_Status, "AD_ImpFormat",
 					get_IDWithColumn(ctx, "AD_Table", "TableName",
 							"AD_ImpFormat"));
 		} else {
-			record_log(ctx, 0, m_ImpFormat.getName(), "ImpFormat", m_ImpFormat
+			recordLog(ctx, 0, m_ImpFormat.getName(), "ImpFormat", m_ImpFormat
 					.get_ID(), AD_Backup_ID, Object_Status, "AD_ImpFormat",
 					get_IDWithColumn(ctx, "AD_Table", "TableName",
 							"AD_ImpFormat"));

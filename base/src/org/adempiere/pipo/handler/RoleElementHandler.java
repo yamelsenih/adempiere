@@ -194,12 +194,12 @@ public class RoleElementHandler extends AbstractElementHandler {
 
 		if (m_Role.save(getTrxName(ctx)) == true) {
 
-			record_log(ctx, 1, m_Role.getName(), "Role", m_Role.get_ID(),
+			recordLog(ctx, 1, m_Role.getName(), "Role", m_Role.get_ID(),
 					AD_Backup_ID, Object_Status, "AD_Role", get_IDWithColumn(
 							ctx, "AD_Table", "TableName", "AD_Role"));
 		} else {
 
-			record_log(ctx, 0, m_Role.getName(), "Role", m_Role.get_ID(),
+			recordLog(ctx, 0, m_Role.getName(), "Role", m_Role.get_ID(),
 					AD_Backup_ID, Object_Status, "AD_Role", get_IDWithColumn(
 							ctx, "AD_Table", "TableName", "AD_Role"));
 			throw new POSaveFailedException("Role");

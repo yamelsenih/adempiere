@@ -51,7 +51,7 @@ public class TabElementHandler extends AbstractElementHandler
 		Attributes atts = element.attributes;
 		String uuid = getUUIDValue(atts, I_AD_Tab.Table_Name);
 		log.info(elementValue + " " + uuid);
-		String entitytype = atts.getValue("EntityType");
+		String entitytype = getStringValue(atts, I_AD_Tab.COLUMNNAME_EntityType);
 		if (isProcessElement(ctx, entitytype)) {
 			if (element.parent != null && element.parent.getElementValue().equals("window")
 				&& element.parent.defer) {
@@ -216,10 +216,10 @@ public class TabElementHandler extends AbstractElementHandler
 			//	Save
 			try {
 				tab.saveEx(getTrxName(ctx));
-				record_log (ctx, 1, tab.getName(),"Tab", tab.get_ID(),backupId, Object_Status,"AD_Tab",get_IDWithColumn(ctx, "AD_Table", "TableName", "AD_Tab"));
+				recordLog (ctx, 1, tab.getName(),"Tab", tab.get_ID(),backupId, Object_Status,"AD_Tab",get_IDWithColumn(ctx, "AD_Table", "TableName", "AD_Tab"));
 				element.recordId = tab.getAD_Tab_ID();
 			} catch (Exception e) {
-				record_log (ctx, 0, tab.getName(),"Tab", tab.get_ID(),backupId, Object_Status,"AD_Tab",get_IDWithColumn(ctx, "AD_Table", "TableName", "AD_Tab"));
+				recordLog (ctx, 0, tab.getName(),"Tab", tab.get_ID(),backupId, Object_Status,"AD_Tab",get_IDWithColumn(ctx, "AD_Table", "TableName", "AD_Tab"));
 				throw new POSaveFailedException(e);
 			}
 		} else {

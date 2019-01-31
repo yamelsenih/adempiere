@@ -22,11 +22,11 @@ import java.util.Properties;
 import javax.xml.transform.sax.TransformerHandler;
 
 import org.adempiere.pipo.AbstractElementHandler;
+import org.adempiere.pipo.AttributeFiller;
 import org.adempiere.pipo.Element;
 import org.adempiere.pipo.PackOut;
 import org.adempiere.pipo.exception.POSaveFailedException;
 import org.compiere.model.I_AD_ModelValidator;
-import org.compiere.model.PO;
 import org.compiere.model.X_AD_ModelValidator;
 import org.compiere.model.X_AD_Package_Exp_Detail;
 import org.compiere.util.Env;
@@ -45,128 +45,84 @@ public class ModelValidatorElementHandler extends AbstractElementHandler
 	
 	private final List<Integer> validators = new ArrayList<Integer>();
 
-	public void startElement(Properties ctx, Element element) throws SAXException
-	{
+	public void startElement(Properties ctx, Element element) throws SAXException {
 		String elementValue = element.getElementValue();
 		Attributes atts = element.attributes;
-		log.info(elementValue+" "+atts.getValue(I_AD_ModelValidator.COLUMNNAME_Name));
-		String entitytype = atts.getValue(I_AD_ModelValidator.COLUMNNAME_EntityType);
-		if (isProcessElement(ctx, entitytype))
-		{
-			String name = atts.getValue(I_AD_ModelValidator.COLUMNNAME_Name);
-			int id = get_IDWithColumn(ctx, I_AD_ModelValidator.Table_Name, I_AD_ModelValidator.COLUMNNAME_Name, name);
-
-			final X_AD_ModelValidator validator = new X_AD_ModelValidator(ctx, id, getTrxName(ctx));
-			final int AD_Backup_ID;
-			final String Object_Status;
-			if (id <= 0 && getIntValue(atts, I_AD_ModelValidator.COLUMNNAME_AD_ModelValidator_ID, 0) <= PackOut.MAX_OFFICIAL_ID)
-			{
-				validator.setAD_ModelValidator_ID(getIntValue(atts, I_AD_ModelValidator.COLUMNNAME_AD_ModelValidator_ID, 0));
+		String uuid = getUUIDValue(atts, I_AD_ModelValidator.Table_Name);
+		log.info(elementValue + " " + uuid);
+		String entitytype = getStringValue(atts, I_AD_ModelValidator.COLUMNNAME_EntityType);
+		if (isProcessElement(ctx, entitytype)) {
+			int id = getIdWithFromUUID(ctx, I_AD_ModelValidator.Table_Name, uuid);
+			X_AD_ModelValidator validator = new X_AD_ModelValidator(ctx, id, getTrxName(ctx));
+			int backupId;
+			String objectStatus;
+			if (id <= 0 && getIntValue(atts, I_AD_ModelValidator.COLUMNNAME_AD_ModelValidator_ID) > 0 && getIntValue(atts, I_AD_ModelValidator.COLUMNNAME_AD_ModelValidator_ID) <= PackOut.MAX_OFFICIAL_ID) {
+				validator.setAD_ModelValidator_ID(getIntValue(atts, I_AD_ModelValidator.COLUMNNAME_AD_ModelValidator_ID));
 				validator.setIsDirectLoad(true);
 			}
-			if (id > 0)
-			{		
-				AD_Backup_ID = copyRecord(ctx, I_AD_ModelValidator.Table_Name, validator);
-				Object_Status = "Update";			
+			if (id > 0) {		
+				backupId = copyRecord(ctx, I_AD_ModelValidator.Table_Name, validator);
+				objectStatus = "Update";			
+			} else {
+				objectStatus = "New";
+				backupId = 0;
 			}
-			else
-			{
-				Object_Status = "New";
-				AD_Backup_ID = 0;
-			}
-
-			validator.setName(name);
-			validator.setDescription(getStringValue(atts, I_AD_ModelValidator.COLUMNNAME_Description));
-			validator.setHelp(getStringValue(atts, I_AD_ModelValidator.COLUMNNAME_Help));
-			validator.setEntityType(atts.getValue(I_AD_ModelValidator.COLUMNNAME_EntityType));
-			validator.setModelValidationClass(atts.getValue(I_AD_ModelValidator.COLUMNNAME_ModelValidationClass));
-			validator.setIsActive(getBooleanValue(atts, I_AD_ModelValidator.COLUMNNAME_IsActive, true));
-			validator.setSeqNo(getIntValue(atts, I_AD_ModelValidator.COLUMNNAME_SeqNo, 0));
-
-			if (validator.save(getTrxName(ctx)) == true)
-			{		    	
-				record_log (ctx, 1, validator.getName(),TAG_Name, validator.get_ID(),
-						AD_Backup_ID, Object_Status,
+			validator.setUUID(uuid);
+			validator.setName(getStringValue(atts, I_AD_ModelValidator.COLUMNNAME_Name));
+			validator.setName(getStringValue(atts, I_AD_ModelValidator.COLUMNNAME_Description));
+			validator.setName(getStringValue(atts, I_AD_ModelValidator.COLUMNNAME_Help));
+			validator.setName(getStringValue(atts, I_AD_ModelValidator.COLUMNNAME_ModelValidationClass));
+			validator.setName(getStringValue(atts, I_AD_ModelValidator.COLUMNNAME_EntityType));
+			validator.setName(getStringValue(atts, I_AD_ModelValidator.COLUMNNAME_IsActive));
+			validator.setName(getStringValue(atts, I_AD_ModelValidator.COLUMNNAME_SeqNo));
+			//	Save
+			try {
+				validator.saveEx(getTrxName(ctx));
+				recordLog (ctx, 1, validator.getName(),TAG_Name, validator.get_ID(),
+						backupId, objectStatus,
 						I_AD_ModelValidator.Table_Name, I_AD_ModelValidator.Table_ID);
-			}
-			else
-			{
-				record_log (ctx, 0, validator.getName(),TAG_Name, validator.get_ID(),
-						AD_Backup_ID, Object_Status,
+			} catch (Exception e) {
+				recordLog (ctx, 0, validator.getName(),TAG_Name, validator.get_ID(),
+						backupId, objectStatus,
 						I_AD_ModelValidator.Table_Name, I_AD_ModelValidator.Table_ID);
-				throw new POSaveFailedException("Failed to save message.");
+				throw new POSaveFailedException(e);
 			}
-		}
-		else
-		{
+		} else {
 			element.skip = true;
 		}
 	}
 
-	public void endElement(Properties ctx, Element element) throws SAXException
-	{
+	public void endElement(Properties ctx, Element element) throws SAXException {
+		
 	}
 
-	public void create(Properties ctx, TransformerHandler document) throws SAXException
-	{
-		final int AD_ModelValidator_ID = Env.getContextAsInt(ctx, X_AD_Package_Exp_Detail.COLUMNNAME_AD_ModelValidator_ID);
-		if (validators.contains(AD_ModelValidator_ID))
+	public void create(Properties ctx, TransformerHandler document) throws SAXException {
+		final int modelValidatorId = Env.getContextAsInt(ctx, X_AD_Package_Exp_Detail.COLUMNNAME_AD_ModelValidator_ID);
+		if (validators.contains(modelValidatorId))
 			return;
-		validators.add(AD_ModelValidator_ID);
-
-
-		final X_AD_ModelValidator validator = new X_AD_ModelValidator(ctx, AD_ModelValidator_ID, null);
+		validators.add(modelValidatorId);
+		final X_AD_ModelValidator validator = new X_AD_ModelValidator(ctx, modelValidatorId, null);
 		AttributesImpl atts = new AttributesImpl();
 		createMessageBinding(atts, validator);	
 		document.startElement("", "", TAG_Name, atts);
 		document.endElement("", "", TAG_Name);
 	}
 
-	private AttributesImpl createMessageBinding(AttributesImpl atts, X_AD_ModelValidator validator) 
-	{
+	private AttributesImpl createMessageBinding(AttributesImpl atts, X_AD_ModelValidator validator) {
 		atts.clear();
-		if (validator.getAD_ModelValidator_ID() <= PackOut.MAX_OFFICIAL_ID)
-		{
-			addAttribute(atts, X_AD_ModelValidator.COLUMNNAME_AD_ModelValidator_ID, validator);
+		AttributeFiller filler = new AttributeFiller(atts, validator);
+		if (validator.getAD_ModelValidator_ID() <= PackOut.MAX_OFFICIAL_ID) {
+			filler.add(I_AD_ModelValidator.COLUMNNAME_AD_ModelValidator_ID);
 		}
-		addAttribute(atts, X_AD_ModelValidator.COLUMNNAME_Name, validator);
-		addAttribute(atts, X_AD_ModelValidator.COLUMNNAME_Description, validator);
-		addAttribute(atts, X_AD_ModelValidator.COLUMNNAME_Help, validator);
-		addAttribute(atts, X_AD_ModelValidator.COLUMNNAME_ModelValidationClass, validator);
-		addAttribute(atts, X_AD_ModelValidator.COLUMNNAME_EntityType, validator);
-		addAttribute(atts, X_AD_ModelValidator.COLUMNNAME_IsActive, validator);
-		addAttribute(atts, X_AD_ModelValidator.COLUMNNAME_SeqNo, validator);
+		filler.addUUID();
+		//	
+		filler.add(I_AD_ModelValidator.COLUMNNAME_Name);
+		filler.add(I_AD_ModelValidator.COLUMNNAME_Description);
+		filler.add(I_AD_ModelValidator.COLUMNNAME_Help);
+		filler.add(I_AD_ModelValidator.COLUMNNAME_ModelValidationClass);
+		filler.add(I_AD_ModelValidator.COLUMNNAME_EntityType);
+		filler.add(I_AD_ModelValidator.COLUMNNAME_IsActive);
+		filler.add(I_AD_ModelValidator.COLUMNNAME_SeqNo);
 		return atts;
-	}
-
-	protected boolean getBooleanValue(Attributes atts, String qName, boolean defaultValue)
-	{
-		String s = atts.getValue(qName);
-		return s != null ? Boolean.valueOf(s) : defaultValue;
-	}
-	
-	protected int getIntValue(Attributes atts, String qName, int defaultValue)
-	{
-		Object o = atts.getValue(qName);
-		if (o == null)
-			return defaultValue;
-		if (o instanceof Number)
-			return ((Number)o).intValue();
-		return Integer.parseInt(o.toString());
-	}
-	
-	private final void addAttribute(AttributesImpl atts, String name, PO po)
-	{
-		Object value = po.get_Value(name);
-		atts.addAttribute("", "", name, "CDATA", toStringAttribute(value));
-	}
-	
-	private final String toStringAttribute(Object value)
-	{
-		if (value == null)
-			return "";
-		if (value instanceof Boolean)
-			return ((Boolean)value).booleanValue() == true ? "true" : "false";
-		return value.toString();
 	}
 }

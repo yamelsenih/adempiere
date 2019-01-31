@@ -94,12 +94,12 @@ public class PrintFormatElementHandler extends AbstractElementHandler {
 			m_Table.setName(name);
 			m_Table.setTableName(name);
 			if (m_Table.save(getTrxName(ctx)) == true) {
-				record_log(ctx, 1, m_Table.getName(), "Table",
+				recordLog(ctx, 1, m_Table.getName(), "Table",
 						m_Table.get_ID(), 0, "New", "AD_Table",
 						get_IDWithColumn(ctx, "AD_Table", "TableName",
 								"AD_Table"));
 			} else {
-				record_log(ctx, 0, m_Table.getName(), "Table",
+				recordLog(ctx, 0, m_Table.getName(), "Table",
 						m_Table.get_ID(), 0, "New", "AD_Table",
 						get_IDWithColumn(ctx, "AD_Table", "TableName",
 								"AD_Table"));
@@ -170,13 +170,13 @@ public class PrintFormatElementHandler extends AbstractElementHandler {
 		m_PrintFormat.setIsDefault(Boolean.valueOf(atts.getValue("isDefault"))
 				.booleanValue());
 		if (m_PrintFormat.save(getTrxName(ctx)) == true) {
-			record_log(ctx, 1, m_PrintFormat.getName(), "PrintFormat",
+			recordLog(ctx, 1, m_PrintFormat.getName(), "PrintFormat",
 					m_PrintFormat.get_ID(), AD_Backup_ID, Object_Status,
 					"AD_PrintFormat", get_IDWithColumn(ctx, "AD_Table",
 							"TableName", "AD_PrintFormat"));
 			element.recordId = m_PrintFormat.getAD_PrintFormat_ID();
 		} else {
-			record_log(ctx, 0, m_PrintFormat.getName(), "PrintFormat",
+			recordLog(ctx, 0, m_PrintFormat.getName(), "PrintFormat",
 					m_PrintFormat.get_ID(), AD_Backup_ID, Object_Status,
 					"AD_PrintFormat", get_IDWithColumn(ctx, "AD_Table",
 							"TableName", "AD_PrintFormat"));

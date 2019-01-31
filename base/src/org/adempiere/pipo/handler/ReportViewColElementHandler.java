@@ -110,13 +110,13 @@ public class ReportViewColElementHandler extends AbstractElementHandler {
 							: true);
 			m_Reportview_Col.setIsGroupFunction(isGroupFunction);
 			if (m_Reportview_Col.save(getTrxName(ctx)) == true) {
-				record_log(ctx, 1, "" + m_Reportview_Col.getAD_ReportView_ID(),
+				recordLog(ctx, 1, "" + m_Reportview_Col.getAD_ReportView_ID(),
 						"Reportview_Col", m_Reportview_Col.get_ID(),
 						AD_Backup_ID, Object_Status, "AD_Reportview_Col",
 						get_IDWithColumn(ctx, "AD_Table", "TableName",
 								"AD_Reportview_Col"));
 			} else {
-				record_log(ctx, 0, "" + m_Reportview_Col.getAD_ReportView_ID(),
+				recordLog(ctx, 0, "" + m_Reportview_Col.getAD_ReportView_ID(),
 						"Reportview_Col", m_Reportview_Col.get_ID(),
 						AD_Backup_ID, Object_Status, "AD_Reportview_Col",
 						get_IDWithColumn(ctx, "AD_Table", "TableName",

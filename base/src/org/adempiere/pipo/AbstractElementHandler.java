@@ -99,7 +99,7 @@ public abstract class AbstractElementHandler implements ElementHandler {
      * 		@throws SAXException
      *       	
      */
-    public int record_log (Properties ctx, int success, String objectName,String objectType, int objectID,
+    public int recordLog (Properties ctx, int success, String objectName,String objectType, int objectID,
     		int objectIDBackup, String objectStatus, String tableName, int AD_Table_ID) throws SAXException{    	
     	StringBuffer recordLayout = new StringBuffer();
     	int id = 0;

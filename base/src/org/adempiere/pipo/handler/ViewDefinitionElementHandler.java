@@ -133,7 +133,7 @@ public class ViewDefinitionElementHandler extends AbstractElementHandler {
 			}
 
 			if (m_View_Definition.save(getTrxName(ctx)) == true) {
-				record_log(
+				recordLog(
 						ctx,
 						1,
 						m_View_Definition.getTableAlias(),
@@ -146,7 +146,7 @@ public class ViewDefinitionElementHandler extends AbstractElementHandler {
 								"AD_View_Definition"));
 				element.recordId = m_View_Definition.getAD_View_Definition_ID();
 			} else {
-				record_log(
+				recordLog(
 						ctx,
 						0,
 						m_View_Definition.getTableAlias(),

@@ -53,7 +53,7 @@ public class WindowElementHandler extends AbstractElementHandler {
 		Attributes atts = element.attributes;
 		String uuid = getUUIDValue(atts, I_AD_Window.Table_Name);
 		log.info(elementValue + " " + uuid);
-		String entitytype = atts.getValue("EntityType");
+		String entitytype = getStringValue(atts, I_AD_Window.COLUMNNAME_EntityType);
 		if (isProcessElement(ctx, entitytype)) {
 			int windowId = getIdWithFromUUID(ctx, I_AD_Window.Table_Name, uuid);
 			if (windowId > 0 && windows.contains(windowId)) {
@@ -111,14 +111,14 @@ public class WindowElementHandler extends AbstractElementHandler {
 			//	Save
 			try {
 				window.saveEx(getTrxName(ctx));
-				record_log(ctx, 1, window.getName(), "Window", window
+				recordLog(ctx, 1, window.getName(), "Window", window
 						.get_ID(), backupId, Object_Status, "AD_Window",
 						get_IDWithColumn(ctx, "AD_Table", "TableName",
 								"AD_Window"));
 				element.recordId = window.getAD_Window_ID();
 				windows.add(window.getAD_Window_ID());
 			} catch (Exception e) {
-				record_log(ctx, 0, window.getName(), "Window", window
+				recordLog(ctx, 0, window.getName(), "Window", window
 						.get_ID(), backupId, Object_Status, "AD_Window",
 						get_IDWithColumn(ctx, "AD_Table", "TableName",
 								"AD_Window"));

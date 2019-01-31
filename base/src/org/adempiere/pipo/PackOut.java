@@ -99,7 +99,7 @@ import org.xml.sax.helpers.AttributesImpl;
 public class PackOut extends SvrProcess
 {
 	/** Record ID				*/
-	private int p_PackOut_ID = 0;
+	private int packOutId = 0;
 	private String PackOutVer = "005";
     private String packagedir = null;
     private String packagename = null;
@@ -141,7 +141,7 @@ public class PackOut extends SvrProcess
 	 */
 	protected void prepare()
 	{
-		p_PackOut_ID = getRecord_ID();
+		packOutId = getRecord_ID();
 		ProcessInfoParameter[] para = getParameter();
 		for (int i = 0; i < para.length; i++)
 		{
@@ -160,10 +160,10 @@ public class PackOut extends SvrProcess
 		
 		OutputStream  packageDocStream = null;
 		OutputStream  packOutDocStream = null;
-		log.info("doIt - AD_PACKAGE_EXP_ID=" + p_PackOut_ID);
-		if (p_PackOut_ID == 0)
+		log.info("doIt - AD_PACKAGE_EXP_ID=" + packOutId);
+		if (packOutId == 0)
 			throw new IllegalArgumentException("No Record");
-		String sql1 = "SELECT * FROM AD_Package_Exp WHERE AD_Package_Exp_ID = "+p_PackOut_ID;		
+		String sql1 = "SELECT * FROM AD_Package_Exp WHERE AD_Package_Exp_ID = "+packOutId;		
 		PreparedStatement pstmt1 = null;		
 		pstmt1 = DB.prepareStatement (sql1, get_TrxName());		
 		
@@ -276,7 +276,7 @@ public class PackOut extends SvrProcess
 				packOutDocument.startElement("","","adempiereAD",atts);		
 				atts.clear();
 				
-				final String sql = "SELECT * FROM AD_Package_Exp_Detail WHERE AD_Package_Exp_ID = "+p_PackOut_ID+" AND IsActive='Y' ORDER BY Line ASC";
+				final String sql = "SELECT * FROM AD_Package_Exp_Detail WHERE AD_Package_Exp_ID = "+packOutId+" AND IsActive='Y' ORDER BY Line ASC";
 				PreparedStatement pstmt = null;		
 				ResultSet rs = null;
 				try
@@ -510,13 +510,12 @@ public class PackOut extends SvrProcess
 
 	/**
 	 * 
-	 * @param AD_PrintFormat_ID
+	 * @param printFormatId
 	 * @param packOutDocument
 	 * @throws Exception
 	 */
-	public void createPrintFormat (int AD_PrintFormat_ID, TransformerHandler packOutDocument) throws Exception
-	{
-		Env.setContext(getCtx(), X_AD_Package_Exp_Detail.COLUMNNAME_AD_PrintFormat_ID, AD_PrintFormat_ID);
+	public void createPrintFormat (int printFormatId, TransformerHandler packOutDocument) throws SAXException {
+		Env.setContext(getCtx(), X_AD_Package_Exp_Detail.COLUMNNAME_AD_PrintFormat_ID, printFormatId);
 		printFormatHandler.create(getCtx(), packOutDocument);
 		getCtx().remove(X_AD_Package_Exp_Detail.COLUMNNAME_AD_PrintFormat_ID);
 	}
@@ -536,14 +535,14 @@ public class PackOut extends SvrProcess
 	
 	/**
 	 * 
-	 * @param AD_Val_Rule_ID
+	 * @param valRuleId
 	 * @param packOutDocument
 	 * @throws Exception
 	 */
-	public void createDynamicRuleValidation (int AD_Val_Rule_ID,  
+	public void createDynamicRuleValidation (int valRuleId,  
 			TransformerHandler packOutDocument) throws SAXException
 	{
-		Env.setContext(getCtx(), X_AD_Package_Exp_Detail.COLUMNNAME_AD_Val_Rule_ID, AD_Val_Rule_ID);
+		Env.setContext(getCtx(), X_AD_Package_Exp_Detail.COLUMNNAME_AD_Val_Rule_ID, valRuleId);
 		dynValRuleHandler.create(getCtx(), packOutDocument);
 		getCtx().remove(X_AD_Package_Exp_Detail.COLUMNNAME_AD_Val_Rule_ID);
 	}
@@ -554,8 +553,7 @@ public class PackOut extends SvrProcess
 	 * @param packOutDocument
 	 * @throws SAXException
 	 */
-	public void createWorkflow (int AD_Workflow_ID, TransformerHandler packOutDocument) 
-		throws SAXException
+	public void createWorkflow (int AD_Workflow_ID, TransformerHandler packOutDocument)  throws SAXException
 	{
 		Env.setContext(getCtx(), X_AD_Package_Exp_Detail.COLUMNNAME_AD_Workflow_ID, AD_Workflow_ID);
 		workflowHandler.create(getCtx(), packOutDocument);
@@ -613,13 +611,13 @@ public class PackOut extends SvrProcess
 
 	/**
 	 * 
-	 * @param AD_Process_ID
+	 * @param processId
 	 * @param packOutDocument
 	 * @throws SAXException
 	 */
-	public void createProcess (int AD_Process_ID, TransformerHandler packOutDocument) throws SAXException
+	public void createProcess (int processId, TransformerHandler packOutDocument) throws SAXException
 	{
-		Env.setContext(getCtx(), "AD_Process_ID", AD_Process_ID);
+		Env.setContext(getCtx(), "AD_Process_ID", processId);
 		processHandler.create(getCtx(), packOutDocument);
 		getCtx().remove("AD_Process_ID");
 	}
@@ -805,9 +803,8 @@ public class PackOut extends SvrProcess
 	 * @param packOutDocument
 	 * @throws SAXException
 	 */
-	public void createAdElement (int Ad_Element_id, TransformerHandler packOutDocument) throws SAXException
-	{
-		Env.setContext(getCtx(), X_AD_Element.COLUMNNAME_AD_Element_ID, Ad_Element_id);
+	public void createAdElement (int elementId, TransformerHandler packOutDocument) throws SAXException {
+		Env.setContext(getCtx(), X_AD_Element.COLUMNNAME_AD_Element_ID, elementId);
 		adElementHandler.create(getCtx(), packOutDocument);
 		getCtx().remove(X_AD_Element.COLUMNNAME_AD_Element_ID);
 	}

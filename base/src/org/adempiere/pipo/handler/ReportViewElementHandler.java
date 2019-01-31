@@ -51,7 +51,7 @@ public class ReportViewElementHandler extends AbstractElementHandler {
 			throws SAXException {
 		String elementValue = element.getElementValue();
 		int AD_Backup_ID = -1;
-		String Object_Status = null;
+		String objectStatus = null;
 		Attributes atts = element.attributes;
 		log.info(elementValue + " " + atts.getValue("ADReportviewnameID"));
 		//String entitytype = atts.getValue("EntityType");
@@ -66,9 +66,9 @@ public class ReportViewElementHandler extends AbstractElementHandler {
 		}
 		if (id > 0) {
 			AD_Backup_ID = copyRecord(ctx, "AD_Reportview", m_Reportview);
-			Object_Status = "Update";
+			objectStatus = "Update";
 		} else {
-			Object_Status = "New";
+			objectStatus = "New";
 			AD_Backup_ID = 0;
 		}
 		String Name = atts.getValue("ADTableNameID");
@@ -80,12 +80,12 @@ public class ReportViewElementHandler extends AbstractElementHandler {
 			m_Table.setName(Name);
 			m_Table.setTableName(Name);
 			if (m_Table.save(getTrxName(ctx)) == true) {
-				record_log(ctx, 1, m_Table.getName(), "Table",
+				recordLog(ctx, 1, m_Table.getName(), "Table",
 						m_Table.get_ID(), 0, "New", "AD_Table",
 						get_IDWithColumn(ctx, "AD_Table", "TableName",
 								"AD_Table"));
 			} else {
-				record_log(ctx, 0, m_Table.getName(), "Table",
+				recordLog(ctx, 0, m_Table.getName(), "Table",
 						m_Table.get_ID(), 0, "New", "AD_Table",
 						get_IDWithColumn(ctx, "AD_Table", "TableName",
 								"AD_Table"));
@@ -101,14 +101,14 @@ public class ReportViewElementHandler extends AbstractElementHandler {
 		m_Reportview.setOrderByClause(getStringValue(atts,"OrderByClause"));
 		m_Reportview.setWhereClause(getStringValue(atts,"WhereClause"));
 		if (m_Reportview.save(getTrxName(ctx)) == true) {
-			record_log(ctx, 1, m_Reportview.getName(), "Reportview",
-					m_Reportview.get_ID(), AD_Backup_ID, Object_Status,
+			recordLog(ctx, 1, m_Reportview.getName(), "Reportview",
+					m_Reportview.get_ID(), AD_Backup_ID, objectStatus,
 					"AD_Reportview", get_IDWithColumn(ctx, "AD_Table",
 							"TableName", "AD_Reportview"));
 			element.recordId = m_Reportview.getAD_ReportView_ID();
 		} else {
-			record_log(ctx, 0, m_Reportview.getName(), "Reportview",
-					m_Reportview.get_ID(), AD_Backup_ID, Object_Status,
+			recordLog(ctx, 0, m_Reportview.getName(), "Reportview",
+					m_Reportview.get_ID(), AD_Backup_ID, objectStatus,
 					"AD_Reportview", get_IDWithColumn(ctx, "AD_Table",
 							"TableName", "AD_Reportview"));
 			throw new POSaveFailedException("ReportView");

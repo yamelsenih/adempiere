@@ -233,12 +233,12 @@ public class PrintFormatItemElementHandler extends AbstractElementHandler {
 		m_PrintFormatItem.setBarcodeType(barCodeType);
 
 		if (m_PrintFormatItem.save(getTrxName(ctx)) == true) {
-			record_log(ctx, 1, m_PrintFormatItem.getName(), "PrintFormatItem",
+			recordLog(ctx, 1, m_PrintFormatItem.getName(), "PrintFormatItem",
 					m_PrintFormatItem.get_ID(), AD_Backup_ID, Object_Status,
 					"AD_PrintFormatItem", get_IDWithColumn(ctx, "AD_Table",
 							"TableName", "AD_PrintFormatItem"));
 		} else {
-			record_log(ctx, 0, m_PrintFormatItem.getName(), "PrintFormatItem",
+			recordLog(ctx, 0, m_PrintFormatItem.getName(), "PrintFormatItem",
 					m_PrintFormatItem.get_ID(), AD_Backup_ID, Object_Status,
 					"AD_PrintFormatItem", get_IDWithColumn(ctx, "AD_Table",
 							"TableName", "AD_PrintFormatItem"));

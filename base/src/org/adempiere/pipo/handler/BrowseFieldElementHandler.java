@@ -225,7 +225,7 @@ public class BrowseFieldElementHandler extends AbstractElementHandler {
 
 					adElement.setName(m_BrowseField.getName());
 					if (adElement.save(getTrxName(ctx)) == true) {
-						record_log(
+						recordLog(
 								ctx,
 								1,
 								m_BrowseField.getName(),
@@ -237,7 +237,7 @@ public class BrowseFieldElementHandler extends AbstractElementHandler {
 								get_IDWithColumn(ctx, "AD_Table", "TableName",
 										"AD_Element"));
 					} else {
-						record_log(
+						recordLog(
 								ctx,
 								0,
 								m_BrowseField.getName(),
@@ -255,7 +255,7 @@ public class BrowseFieldElementHandler extends AbstractElementHandler {
 				m_BrowseField.setAD_Element_ID(adElement.getAD_Element_ID());
 
 				if (m_BrowseField.save(getTrxName(ctx)) == true) {
-					record_log(
+					recordLog(
 							ctx,
 							1,
 							m_BrowseField.getName(),
@@ -268,7 +268,7 @@ public class BrowseFieldElementHandler extends AbstractElementHandler {
 									"AD_Browse_Field"));
 					element.recordId = m_BrowseField.getAD_Browse_Field_ID();
 				} else {
-					record_log(
+					recordLog(
 							ctx,
 							0,
 							m_BrowseField.getName(),

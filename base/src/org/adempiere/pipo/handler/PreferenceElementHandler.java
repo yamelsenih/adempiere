@@ -71,12 +71,12 @@ public class PreferenceElementHandler extends AbstractElementHandler {
 		m_Preference.setAttribute(atts.getValue("Attribute"));
 		m_Preference.setValue(atts.getValue("Value"));
 		if (m_Preference.save(getTrxName(ctx)) == true) {
-			record_log(ctx, 1, m_Preference.getAttribute(), "Preference",
+			recordLog(ctx, 1, m_Preference.getAttribute(), "Preference",
 					m_Preference.get_ID(), AD_Backup_ID, Object_Status,
 					"AD_Preference", get_IDWithColumn(ctx, "AD_Table",
 							"TableName", "AD_Preference"));
 		} else {
-			record_log(ctx, 0, m_Preference.getAttribute(), "Preference",
+			recordLog(ctx, 0, m_Preference.getAttribute(), "Preference",
 					m_Preference.get_ID(), AD_Backup_ID, Object_Status,
 					"AD_Preference", get_IDWithColumn(ctx, "AD_Table",
 							"TableName", "AD_Preference"));

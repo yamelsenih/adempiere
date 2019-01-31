@@ -63,7 +63,7 @@ public class FieldElementHandler extends AbstractElementHandler
 		//	
 		String uuid = getUUIDValue(atts, I_AD_Field.Table_Name);
 		log.info(elementValue + " " + uuid);
-		String entitytype = atts.getValue("EntityType");
+		String entitytype = getStringValue(atts, I_AD_Field.COLUMNNAME_EntityType);
 		if (isProcessElement(ctx, entitytype)) {
 			if (element.parent != null && element.parent.getElementValue().equals("tab") &&
 				element.parent.defer) {
@@ -225,13 +225,13 @@ public class FieldElementHandler extends AbstractElementHandler
 				//	Save
 				try {
 					field.saveEx(getTrxName(ctx));
-					record_log(ctx, 1, field.getName(), "Field", field
+					recordLog(ctx, 1, field.getName(), "Field", field
 							.get_ID(), backupId, Object_Status, "AD_Field",
 							get_IDWithColumn(ctx, "AD_Table", "TableName",
 									"AD_Field"));
 					element.recordId = field.getAD_Field_ID();
 				} catch (Exception e) {
-					record_log(ctx, 0, field.getName(), "Field", field
+					recordLog(ctx, 0, field.getName(), "Field", field
 							.get_ID(), backupId, Object_Status, "AD_Field",
 							get_IDWithColumn(ctx, "AD_Table", "TableName",
 									"AD_Field"));

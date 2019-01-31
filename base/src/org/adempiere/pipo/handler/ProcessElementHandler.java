@@ -16,9 +16,6 @@
  *****************************************************************************/
 package org.adempiere.pipo.handler;
 
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -26,15 +23,23 @@ import java.util.logging.Level;
 
 import javax.xml.transform.sax.TransformerHandler;
 
+import org.adempiere.model.I_AD_Browse;
 import org.adempiere.pipo.AbstractElementHandler;
+import org.adempiere.pipo.AttributeFiller;
 import org.adempiere.pipo.Element;
 import org.adempiere.pipo.PackOut;
-import org.adempiere.pipo.exception.DatabaseAccessException;
 import org.adempiere.pipo.exception.POSaveFailedException;
+import org.compiere.model.I_AD_Form;
+import org.compiere.model.I_AD_PrintFormat;
+import org.compiere.model.I_AD_Process;
+import org.compiere.model.I_AD_ReportView;
+import org.compiere.model.I_AD_Workflow;
+import org.compiere.model.MProcess;
+import org.compiere.model.MProcessPara;
 import org.compiere.model.X_AD_Process;
 import org.compiere.model.X_AD_Process_Para;
-import org.compiere.util.DB;
 import org.compiere.util.Env;
+import org.compiere.util.Util;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.AttributesImpl;
@@ -45,142 +50,116 @@ public class ProcessElementHandler extends AbstractElementHandler {
 	
 	private List<Integer> processes = new ArrayList<Integer>();
 
-	public void startElement(Properties ctx, Element element)
-			throws SAXException {
+	public void startElement(Properties ctx, Element element) throws SAXException {
 		String elementValue = element.getElementValue();
 		Attributes atts = element.attributes;
-		log.info(elementValue + " " + atts.getValue("Name"));
+		String uuid = getUUIDValue(atts, I_AD_Process.Table_Name);
+		log.info(elementValue + " " + uuid);
+		String entitytype = getStringValue(atts, I_AD_Process.COLUMNNAME_EntityType);
 		int id = 0;
-		String entitytype = atts.getValue("EntityType");
 		if (isProcessElement(ctx, entitytype)) {
-			String value = atts.getValue("Value");
-
 			// Get New process.
-			id = get_IDWithColumn(ctx, "AD_Process", "Value", value);
-
-			X_AD_Process m_Process = null;
-			int AD_Backup_ID = -1;
-			String Object_Status = null;
+			id = getIdWithFromUUID(ctx, I_AD_Process.Table_Name, uuid);
+			X_AD_Process process = null;
+			int backupId = -1;
+			String objectStatus = null;
 			if (id > 0) {
-				m_Process = new X_AD_Process(ctx, id, getTrxName(ctx));
-				AD_Backup_ID = copyRecord(ctx, "AD_Process", m_Process);
-				Object_Status = "Update";
+				process = new X_AD_Process(ctx, id, getTrxName(ctx));
+				backupId = copyRecord(ctx, "AD_Process", process);
+				objectStatus = "Update";
 			} else {
-				m_Process = new X_AD_Process(ctx, id, getTrxName(ctx));
-				if (id <= 0 && atts.getValue("AD_Process_ID") != null && Integer.parseInt(atts.getValue("AD_Process_ID")) <= PackOut.MAX_OFFICIAL_ID) {
-					m_Process.setAD_Process_ID(Integer.parseInt(atts.getValue("AD_Process_ID")));
-					m_Process.setIsDirectLoad(true);
+				process = new X_AD_Process(ctx, id, getTrxName(ctx));
+				if (id <= 0 && getIntValue(atts, I_AD_Process.COLUMNNAME_AD_Process_ID) > 0 && getIntValue(atts, I_AD_Process.COLUMNNAME_AD_Process_ID) <= PackOut.MAX_OFFICIAL_ID) {
+					process.setAD_Process_ID(getIntValue(atts, I_AD_Process.COLUMNNAME_AD_Process_ID));
+					process.setIsDirectLoad(true);
 				}
-				Object_Status = "New";
-				AD_Backup_ID = 0;
+				objectStatus = "New";
+				backupId = 0;
 			}
-
-			String name = atts.getValue("Name");
-			m_Process.setName(name);
-			name = atts.getValue("ADWorkflowNameID");
-			if (name != null && name.trim().length() > 0) {
-				    id = get_IDWithColumn(ctx, "AD_Workflow", "Name", name);
-                    if (id <= 0) {
-                        if (element.pass == 1) {
-                        element.defer = true;
-                        element.unresolved = "AD_Workflow: " + name;
-                        return;
-                    } else {
-                        log.warning("AD_Workflow: " + name + " not found for Workflow: " + name);
-                    }
-                }
-                if (id > 0)
-				m_Process.setAD_Workflow_ID(id);
-			}
-
-			name = atts.getValue("ADPrintFormatNameID");
-			if (name != null && name.trim().length() > 0) {
-				id = get_IDWithColumn(ctx, "AD_PrintFormat", "Name", name);
-				if (id <= 0) {
-					if (element.pass == 1) {
-						element.defer = true;
-						element.unresolved = "AD_PrintFormat: " + name;
-						return;
-					} else {
-						log.warning("AD_PrintFormat: " + name + " not found for Process: " + m_Process.getName());
-					}
-				}
-				if (id > 0)
-					m_Process.setAD_PrintFormat_ID(id);
-			}
-
-			name = atts.getValue("ADReportViewNameID");
-			if (name != null && name.trim().length() > 0) {
-				id = get_IDWithColumn(ctx, "AD_ReportView", "Name", name);
-				if (id <= 0) {
-					if (element.pass == 1) {
-						element.defer = true;
-						element.unresolved = "AD_ReportView: " + name;
-						return;
-					} else {
-						log.warning("AD_ReportView: " + name + " not found for Process: " + m_Process.getName());
-					}
-				}
-				if (id > 0)
-					m_Process.setAD_ReportView_ID(id);
-			}
-			
-			name = atts.getValue("ADFormNameID");
-			if (name != null && name.trim().length() > 0) {
-				id = get_IDWithColumn(ctx, "AD_Form", "Name", name);
+			process.setUUID(uuid);
+			// Workflow
+			uuid = getUUIDValue(atts, I_AD_Process.COLUMNNAME_AD_Workflow_ID);
+			if (!Util.isEmpty(uuid)) {
+				id = getIdWithFromUUID(ctx, I_AD_Workflow.Table_Name, uuid);
 				if (id <= 0) {
 					element.defer = true;
-					element.unresolved = "AD_Form: " + name;
 					return;
 				}
-				m_Process.setAD_Form_ID(id);
+				process.setAD_Workflow_ID(id);
 			}
-			
-			name = atts.getValue("ADBrowseNameID");
-			if (name != null && name.trim().length() > 0) {
-				id = get_IDWithColumn(ctx, "AD_Browse", "Name", name);
+			// Print Format
+			uuid = getUUIDValue(atts, I_AD_Process.COLUMNNAME_AD_PrintFormat_ID);
+			if (!Util.isEmpty(uuid)) {
+				id = getIdWithFromUUID(ctx, I_AD_PrintFormat.Table_Name, uuid);
 				if (id <= 0) {
 					element.defer = true;
-					element.unresolved = "AD_Browse: " + name;
 					return;
 				}
-				m_Process.setAD_Browse_ID(id);
+				process.setAD_PrintFormat_ID(id);
 			}
-
-			m_Process.setAccessLevel(atts.getValue("AccessLevel"));
-			m_Process.setClassname(getStringValue(atts, "Classname"));
-			m_Process.setDescription(getStringValue(atts, "Description"));
-			m_Process.setEntityType(atts.getValue("EntityType"));
-			m_Process.setHelp(getStringValue(atts, "Help"));
-			m_Process.setIsBetaFunctionality(Boolean.valueOf(
-					atts.getValue("isBetaFunctionality")).booleanValue());
-			m_Process.setIsDirectPrint(Boolean.valueOf(
-					atts.getValue("isDirectPrint")).booleanValue());
-			m_Process.setIsReport(Boolean.valueOf(atts.getValue("isReport"))
-					.booleanValue());
-			m_Process.setName(atts.getValue("Name"));
-
-			m_Process.setProcedureName(getStringValue(atts, "ProcedureName"));
-			m_Process.setStatistic_Count(0);
-			m_Process.setIsActive(atts.getValue("isActive") != null ? Boolean
-					.valueOf(atts.getValue("isActive")).booleanValue() : true);
-			m_Process.setStatistic_Seconds(0);
-			m_Process.setValue(atts.getValue("Value"));
-			m_Process.setWorkflowValue(atts.getValue("WorkflowValue"));
-			m_Process.setShowHelp((getStringValue(atts, "ShowHelp")));
-			m_Process.setJasperReport(getStringValue(atts, "JasperReport"));
-			if (m_Process.save(getTrxName(ctx)) == true) {
-				record_log(ctx, 1, m_Process.getName(), "Process", m_Process
-						.get_ID(), AD_Backup_ID, Object_Status, "AD_Process",
+			// Report View
+			uuid = getUUIDValue(atts, I_AD_Process.COLUMNNAME_AD_ReportView_ID);
+			if (!Util.isEmpty(uuid)) {
+				id = getIdWithFromUUID(ctx, I_AD_ReportView.Table_Name, uuid);
+				if (id <= 0) {
+					element.defer = true;
+					return;
+				}
+				process.setAD_ReportView_ID(id);
+			}
+			// Form
+			uuid = getUUIDValue(atts, I_AD_Process.COLUMNNAME_AD_Form_ID);
+			if (!Util.isEmpty(uuid)) {
+				id = getIdWithFromUUID(ctx, I_AD_Form.Table_Name, uuid);
+				if (id <= 0) {
+					element.defer = true;
+					return;
+				}
+				process.setAD_Form_ID(id);
+			}
+			// Browse
+			uuid = getUUIDValue(atts, I_AD_Process.COLUMNNAME_AD_Browse_ID);
+			if (!Util.isEmpty(uuid)) {
+				id = getIdWithFromUUID(ctx, I_AD_Browse.Table_Name, uuid);
+				if (id <= 0) {
+					element.defer = true;
+					return;
+				}
+				process.setAD_Browse_ID(id);
+			}
+			//	Attributes
+			process.setValue(getStringValue(atts, I_AD_Process.COLUMNNAME_Value));
+			process.setName(getStringValue(atts, I_AD_Process.COLUMNNAME_Name));
+			process.setDescription(getStringValue(atts, I_AD_Process.COLUMNNAME_Description));
+			process.setHelp(getStringValue(atts, I_AD_Process.COLUMNNAME_Help));
+			process.setAccessLevel(getStringValue(atts, I_AD_Process.COLUMNNAME_AccessLevel));
+			process.setClassname(getStringValue(atts, I_AD_Process.COLUMNNAME_Classname));
+			process.setEntityType(getStringValue(atts, I_AD_Process.COLUMNNAME_EntityType));
+			process.setIsActive(getBooleanValue(atts, I_AD_Process.COLUMNNAME_IsActive));
+			process.setIsBetaFunctionality(getBooleanValue(atts, I_AD_Process.COLUMNNAME_IsBetaFunctionality));
+			process.setIsDirectPrint(getBooleanValue(atts, I_AD_Process.COLUMNNAME_IsDirectPrint));
+			process.setIsReport(getBooleanValue(atts, I_AD_Process.COLUMNNAME_IsReport));
+			process.setIsServerProcess(getBooleanValue(atts, I_AD_Process.COLUMNNAME_IsServerProcess));
+			process.setJasperReport(getStringValue(atts, I_AD_Process.COLUMNNAME_JasperReport));
+			process.setProcedureName(getStringValue(atts, I_AD_Process.COLUMNNAME_ProcedureName));
+			process.setShowHelp(getStringValue(atts, I_AD_Process.COLUMNNAME_ShowHelp));
+			process.setStatistic_Count(getIntValue(atts, I_AD_Process.COLUMNNAME_Statistic_Count));
+			process.setStatistic_Seconds(getIntValue(atts, I_AD_Process.COLUMNNAME_Statistic_Seconds));
+			process.setWorkflowValue(getStringValue(atts, I_AD_Process.COLUMNNAME_WorkflowValue));
+			//	Save
+			try {
+				process.saveEx(getTrxName(ctx));
+				recordLog(ctx, 1, process.getName(), "Process", process
+						.get_ID(), backupId, objectStatus, "AD_Process",
 						get_IDWithColumn(ctx, "AD_Table", "TableName",
 								"AD_Process"));
-				element.recordId = m_Process.getAD_Process_ID();
-			} else {
-				record_log(ctx, 0, m_Process.getName(), "Process", m_Process
-						.get_ID(), AD_Backup_ID, Object_Status, "AD_Process",
+				element.recordId = process.getAD_Process_ID();
+			} catch (Exception e) {
+				recordLog(ctx, 0, process.getName(), "Process", process
+						.get_ID(), backupId, objectStatus, "AD_Process",
 						get_IDWithColumn(ctx, "AD_Table", "TableName",
 								"AD_Process"));
-				throw new POSaveFailedException("Process");
+				throw new POSaveFailedException(e);
 			}
 		} else {
 			element.skip = true;
@@ -190,211 +169,100 @@ public class ProcessElementHandler extends AbstractElementHandler {
 	public void endElement(Properties ctx, Element element) throws SAXException {
 	}
 
-	public void create(Properties ctx, TransformerHandler document)
-			throws SAXException {
-		int AD_Process_ID = Env.getContextAsInt(ctx, "AD_Process_ID");
-		if (processes.contains(AD_Process_ID))
+	public void create(Properties ctx, TransformerHandler document) throws SAXException {
+		int processId = Env.getContextAsInt(ctx, "AD_Process_ID");
+		if (processes.contains(processId)) {
 			return;
-		processes.add(AD_Process_ID);
-		PackOut packOut = (PackOut) ctx.get("PackOutProcess");
-		String sqlW = "SELECT AD_Process_ID FROM AD_PROCESS WHERE AD_PROCESS_ID = "
-				+ AD_Process_ID;
-
-		AttributesImpl atts = new AttributesImpl();
-		PreparedStatement pstmt1 = null;
-		pstmt1 = DB.prepareStatement(sqlW, getTrxName(ctx));
-		try {
-			ResultSet rs1 = pstmt1.executeQuery();
-			while (rs1.next()) {
-				X_AD_Process m_Process = new X_AD_Process(ctx, rs1
-						.getInt("AD_Process_ID"), null);
-				log.log(Level.INFO, "AD_ReportView_ID: "
-						+ m_Process.getAD_Process_ID());
-
-				if (m_Process.isReport() && m_Process.getAD_ReportView_ID() > 0) {
-					packOut.createReportview(m_Process.getAD_ReportView_ID(),
-							document);
-				}
-				if (m_Process.isReport() && m_Process.getAD_PrintFormat_ID() > 0) {
-
-					packOut.createPrintFormat(m_Process.getAD_PrintFormat_ID(),
-							document);
-				}
-				if (m_Process.getAD_Workflow_ID() > 0) {
-
-					packOut.createWorkflow(m_Process.getAD_Workflow_ID(), 
-							document);
-				}
-				if (m_Process.getAD_Form_ID() > 0) {
-
-					packOut.createForm(m_Process.getAD_Form_ID(), 
-							document);
-				}
-				if (m_Process.getAD_Browse_ID() > 0) {
-
-					packOut.createBrowse(m_Process.getAD_Browse_ID(), 
-							document);
-				}
-				
-				createProcessBinding(atts, m_Process);
-				document.startElement("", "", "process", atts);
-				// processpara tags
-				String sqlP = "SELECT * FROM AD_PROCESS_PARA WHERE AD_PROCESS_ID = "+ AD_Process_ID
-				+" ORDER BY "+X_AD_Process_Para.COLUMNNAME_SeqNo+","+X_AD_Process_Para.COLUMNNAME_AD_Process_Para_ID;
-				PreparedStatement pstmtP = null;
-				pstmtP = DB.prepareStatement(sqlP, getTrxName(ctx));
-				try {
-					ResultSet rsP = pstmtP.executeQuery();
-					while (rsP.next()) {
-						if (rsP.getInt("AD_Reference_ID") > 0)
-							packOut.createReference(rsP
-									.getInt("AD_Reference_ID"), document);
-						if (rsP.getInt("AD_Reference_Value_ID") > 0)
-							packOut.createReference(rsP
-									.getInt("AD_Reference_Value_ID"), 
-									document);
-						if (rsP.getInt("AD_Val_Rule_ID") > 0)
-							packOut.createDynamicRuleValidation (rsP.getInt("AD_Val_Rule_ID"), document);
-						
-						createProcessPara(ctx, document, rsP
-								.getInt("AD_Process_Para_ID"));
-					}
-					rsP.close();
-					pstmtP.close();
-					pstmtP = null;
-				} catch (Exception e) {
-					log.log(Level.SEVERE, "getProcess_Para", e);
-					if (e instanceof SAXException)
-						throw (SAXException) e;
-					else if (e instanceof SQLException)
-						throw new DatabaseAccessException("Failed to export process.", e);
-					else if (e instanceof RuntimeException)
-						throw (RuntimeException) e;
-					else
-						throw new RuntimeException("Failed to export process.", e);
-				} finally {
-					try {
-						if (pstmtP != null)
-							pstmtP.close();
-					} catch (Exception e) {
-					}
-					pstmtP = null;
-				}
-				document.endElement("", "", "process");
-			}
-			rs1.close();
-			pstmt1.close();
-			pstmt1 = null;
-		} catch (Exception e) {
-			log.log(Level.SEVERE, "getProcess", e);
-		} finally {
-			try {
-				if (pstmt1 != null)
-					pstmt1.close();
-			} catch (Exception e) {
-			}
-			pstmt1 = null;
 		}
-
+		processes.add(processId);
+		PackOut packOut = (PackOut) ctx.get("PackOutProcess");
+		//	
+		AttributesImpl atts = new AttributesImpl();
+		MProcess process = new MProcess(ctx, processId, null);
+		log.log(Level.INFO, "AD_ReportView_ID: " + process.getAD_Process_ID());
+		if (process.isReport() && process.getAD_ReportView_ID() > 0) {
+			packOut.createReportview(process.getAD_ReportView_ID(), document);
+		}
+		if (process.isReport() && process.getAD_PrintFormat_ID() > 0) {
+			packOut.createPrintFormat(process.getAD_PrintFormat_ID(), document);
+		}
+		if (process.getAD_Workflow_ID() > 0) {
+			packOut.createWorkflow(process.getAD_Workflow_ID(), document);
+		}
+		if (process.getAD_Form_ID() > 0) {
+			packOut.createForm(process.getAD_Form_ID(), document);
+		}
+		if (process.getAD_Browse_ID() > 0) {
+			packOut.createBrowse(process.getAD_Browse_ID(), document);
+		}
+		createProcessBinding(atts, process);
+		document.startElement("", "", "process", atts);
+		for(MProcessPara parameter : process.getParameters()) {
+			packOut.createAdElement(parameter.getAD_Element_ID(), document);
+			createProcessPara(ctx, document, parameter.getAD_Process_Para_ID());
+		}
+		document.endElement("", "", "process");
 	}
 
-	private void createProcessPara(Properties ctx, TransformerHandler document,
-			int AD_Process_Para_ID) throws SAXException {
-		Env.setContext(ctx, X_AD_Process_Para.COLUMNNAME_AD_Process_Para_ID,
-				AD_Process_Para_ID);
+	private void createProcessPara(Properties ctx, TransformerHandler document, int processParaId) throws SAXException {
+		Env.setContext(ctx, X_AD_Process_Para.COLUMNNAME_AD_Process_Para_ID, processParaId);
 		paraHandler.create(ctx, document);
 		ctx.remove(X_AD_Process_Para.COLUMNNAME_AD_Process_Para_ID);
 	}
 
-	private AttributesImpl createProcessBinding(AttributesImpl atts,
-			X_AD_Process m_Process) {
-		String sql = null;
-		String name = null;
+	private AttributesImpl createProcessBinding(AttributesImpl atts, X_AD_Process process) {
 		atts.clear();
-
-		if (m_Process.getAD_Process_ID() <= PackOut.MAX_OFFICIAL_ID)
-	        atts.addAttribute("","","AD_Process_ID","CDATA",Integer.toString(m_Process.getAD_Process_ID()));
-
-		atts.addAttribute("", "", "Name", "CDATA",
-				(m_Process.getName() != null ? m_Process.getName() : ""));
-
-		if (m_Process.getAD_Workflow_ID() > 0) {
-			sql = "SELECT Name FROM AD_Workflow WHERE AD_Workflow_ID=?";
-			name = DB.getSQLValueString(null, sql, m_Process
-					.getAD_Workflow_ID());
-			atts.addAttribute("", "", "ADWorkflowNameID", "CDATA", name);
-		} else
-			atts.addAttribute("", "", "ADWorkflowNameID", "CDATA", "");
-		if (m_Process.getAD_Process_ID() > 0) {
-			sql = "SELECT Name FROM AD_Process WHERE AD_Process_ID=?";
-			name = DB
-					.getSQLValueString(null, sql, m_Process.getAD_Process_ID());
-			atts.addAttribute("", "", "ADProcessNameID", "CDATA", name);
-		} else
-			atts.addAttribute("", "", "ADProcessNameID", "CDATA", "");
-		if (m_Process.getAD_PrintFormat_ID() > 0) {
-			sql = "SELECT Name FROM AD_PrintFormat WHERE AD_PrintFormat_ID=?";
-			name = DB.getSQLValueString(null, sql, m_Process
-					.getAD_PrintFormat_ID());
-			atts.addAttribute("", "", "ADPrintFormatNameID", "CDATA", name);
-		} else
-			atts.addAttribute("", "", "ADPrintFormatNameID", "CDATA", "");
-		if (m_Process.getAD_ReportView_ID() > 0) {
-			sql = "SELECT Name FROM AD_ReportView WHERE AD_ReportView_ID=?";
-			name = DB.getSQLValueString(null, sql, m_Process
-					.getAD_ReportView_ID());
-			atts.addAttribute("", "", "ADReportViewNameID", "CDATA", name);
-		} else
-			atts.addAttribute("", "", "ADReportViewNameID", "CDATA", "");
-		
-		if (m_Process.getAD_Form_ID() > 0) {
-			sql = "SELECT Name FROM AD_Form WHERE AD_Form_ID=?";
-			name = DB.getSQLValueString(null, sql, m_Process
-					.getAD_Form_ID());
-			atts.addAttribute("", "", "ADFormNameID", "CDATA", name);
-		} else
-			atts.addAttribute("", "", "ADFormNameID", "CDATA", "");
-		
-		if (m_Process.getAD_Browse_ID() > 0) {
-			sql = "SELECT Name FROM AD_Browse WHERE AD_Browse_ID=?";
-			name = DB.getSQLValueString(null, sql, m_Process
-					.getAD_Browse_ID());
-			atts.addAttribute("", "", "ADBrowseNameID", "CDATA", name);
-		} else
-			atts.addAttribute("", "", "ADBrowseNameID", "CDATA", "");
-		
-		atts.addAttribute("", "", "AccessLevel", "CDATA", (m_Process
-				.getAccessLevel() != null ? m_Process.getAccessLevel() : ""));
-		atts.addAttribute("", "", "Classname", "CDATA", (m_Process
-				.getClassname() != null ? m_Process.getClassname() : ""));
-		atts.addAttribute("", "", "Description", "CDATA", (m_Process
-				.getDescription() != null ? m_Process.getDescription() : ""));
-		atts.addAttribute("", "", "EntityType", "CDATA", (m_Process
-				.getEntityType() != null ? m_Process.getEntityType() : ""));
-		atts.addAttribute("", "", "Help", "CDATA",
-				(m_Process.getHelp() != null ? m_Process.getHelp() : ""));
-		atts.addAttribute("", "", "isBetaFunctionality", "CDATA", (m_Process
-				.isBetaFunctionality() == true ? "true" : "false"));
-		atts.addAttribute("", "", "isDirectPrint", "CDATA", (m_Process
-				.isDirectPrint() == true ? "true" : "false"));
-		atts.addAttribute("", "", "isReport", "CDATA",
-				(m_Process.isReport() == true ? "true" : "false"));
-		atts.addAttribute("", "", "isActive", "CDATA",
-				(m_Process.isActive() == true ? "true" : "false"));
-		atts.addAttribute("", "", "ProcedureName", "CDATA",
-				(m_Process.getProcedureName() != null ? m_Process
-						.getProcedureName() : ""));
-		atts.addAttribute("", "", "StatisticCount", "CDATA", "0");
-		atts.addAttribute("", "", "StatisticSeconds", "CDATA", "0");
-		atts.addAttribute("", "", "Value", "CDATA",
-				(m_Process.getValue() != null ? m_Process.getValue() : ""));
-		atts.addAttribute("", "", "WorkflowValue", "CDATA",
-				(m_Process.getWorkflowValue() != null ? m_Process
-						.getWorkflowValue() : ""));
-		atts.addAttribute("", "", "ShowHelp", "CDATA", 
-				(m_Process.getShowHelp() != null ? m_Process.getShowHelp() : ""));
-		atts.addAttribute("", "", "JasperReport", "CDATA", 
-				(m_Process.getJasperReport() != null ? m_Process.getJasperReport() : ""));
+		AttributeFiller filler = new AttributeFiller(atts, process);
+		if (process.getAD_Process_ID() <= PackOut.MAX_OFFICIAL_ID) {
+			filler.add(I_AD_Process.COLUMNNAME_AD_Process_ID);
+		}
+		filler.addUUID();
+		//	
+		filler.add(I_AD_Process.COLUMNNAME_Name);
+		//	Workflow
+		if (process.getAD_Workflow_ID() > 0) {
+			filler.add(I_AD_Process.COLUMNNAME_AD_Workflow_ID, true);
+			filler.addUUID(I_AD_Process.COLUMNNAME_AD_Workflow_ID, getUUIDFromId(process.getCtx(), I_AD_Workflow.Table_Name, process.getAD_Workflow_ID()));
+		}
+		//	Print Format
+		if (process.getAD_PrintFormat_ID() > 0) {
+			filler.add(I_AD_Process.COLUMNNAME_AD_PrintFormat_ID, true);
+			filler.addUUID(I_AD_Process.COLUMNNAME_AD_PrintFormat_ID, getUUIDFromId(process.getCtx(), I_AD_PrintFormat.Table_Name, process.getAD_PrintFormat_ID()));
+		}
+		//	Report View
+		if (process.getAD_ReportView_ID() > 0) {
+			filler.add(I_AD_Process.COLUMNNAME_AD_ReportView_ID, true);
+			filler.addUUID(I_AD_Process.COLUMNNAME_AD_ReportView_ID, getUUIDFromId(process.getCtx(), I_AD_ReportView.Table_Name, process.getAD_ReportView_ID()));
+		}
+		//	Form
+		if (process.getAD_Form_ID() > 0) {
+			filler.add(I_AD_Process.COLUMNNAME_AD_Form_ID, true);
+			filler.addUUID(I_AD_Process.COLUMNNAME_AD_Form_ID, getUUIDFromId(process.getCtx(), I_AD_Form.Table_Name, process.getAD_Form_ID()));
+		}
+		//	Browse
+		if (process.getAD_Browse_ID() > 0) {
+			filler.add(I_AD_Process.COLUMNNAME_AD_Browse_ID, true);
+			filler.addUUID(I_AD_Process.COLUMNNAME_AD_Browse_ID, getUUIDFromId(process.getCtx(), I_AD_Browse.Table_Name, process.getAD_Browse_ID()));
+		}
+		//	
+		filler.add(I_AD_Process.COLUMNNAME_Value);
+		filler.add(I_AD_Process.COLUMNNAME_Name);
+		filler.add(I_AD_Process.COLUMNNAME_Description);
+		filler.add(I_AD_Process.COLUMNNAME_Help);
+		filler.add(I_AD_Process.COLUMNNAME_AccessLevel);
+		filler.add(I_AD_Process.COLUMNNAME_Classname);
+		filler.add(I_AD_Process.COLUMNNAME_EntityType);
+		filler.add(I_AD_Process.COLUMNNAME_IsActive);
+		filler.add(I_AD_Process.COLUMNNAME_IsBetaFunctionality);
+		filler.add(I_AD_Process.COLUMNNAME_IsDirectPrint);
+		filler.add(I_AD_Process.COLUMNNAME_IsReport);
+		filler.add(I_AD_Process.COLUMNNAME_IsServerProcess);
+		filler.add(I_AD_Process.COLUMNNAME_JasperReport);
+		filler.add(I_AD_Process.COLUMNNAME_ProcedureName);
+		filler.add(I_AD_Process.COLUMNNAME_ShowHelp);
+		filler.add(I_AD_Process.COLUMNNAME_Statistic_Count);
+		filler.add(I_AD_Process.COLUMNNAME_Statistic_Seconds);
+		filler.add(I_AD_Process.COLUMNNAME_WorkflowValue);
 		return atts;
 	}
 }

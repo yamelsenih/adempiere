@@ -92,7 +92,7 @@ public class ViewElementHandler extends AbstractElementHandler {
 			m_View.setEntityType(atts.getValue("EntityType"));
 
 			if (m_View.save(getTrxName(ctx)) == true) {
-				record_log(
+				recordLog(
 						ctx,
 						1,
 						m_View.getName(),
@@ -106,7 +106,7 @@ public class ViewElementHandler extends AbstractElementHandler {
 				element.recordId = m_View.getAD_View_ID();
 				views.add(m_View.getAD_View_ID());
 			} else {
-				record_log(
+				recordLog(
 						ctx,
 						0,
 						m_View.getName(),

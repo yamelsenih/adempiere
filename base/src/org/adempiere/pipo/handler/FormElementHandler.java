@@ -23,12 +23,12 @@ import java.util.Properties;
 import javax.xml.transform.sax.TransformerHandler;
 
 import org.adempiere.pipo.AbstractElementHandler;
+import org.adempiere.pipo.AttributeFiller;
 import org.adempiere.pipo.Element;
 import org.adempiere.pipo.PackOut;
 import org.adempiere.pipo.exception.POSaveFailedException;
-import org.compiere.model.MForm;
+import org.compiere.model.I_AD_Form;
 import org.compiere.model.X_AD_Form;
-import org.compiere.util.DB;
 import org.compiere.util.Env;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
@@ -41,42 +41,42 @@ public class FormElementHandler extends AbstractElementHandler {
 	public void startElement(Properties ctx, Element element) throws SAXException {
 		String elementValue = element.getElementValue();
 		Attributes atts = element.attributes;
-		log.info(elementValue+" "+atts.getValue("ADFormNameID"));
-		
-		String entitytype = atts.getValue("EntityType");		
+		String uuid = getUUIDValue(atts, I_AD_Form.Table_Name);
+		log.info(elementValue + " " + uuid);
+		String entitytype = getStringValue(atts, I_AD_Form.COLUMNNAME_EntityType);		
 		if (isProcessElement(ctx, entitytype)) {
-			String name = atts.getValue("ADFormNameID");
-			int id = get_ID(ctx, "AD_Form", name);
-			MForm m_Form = new MForm(ctx, id, getTrxName(ctx));
-			int AD_Backup_ID = -1;
-			String Object_Status = null;
-			if (id <= 0 && atts.getValue("AD_Form_ID") != null && Integer.parseInt(atts.getValue("AD_Form_ID")) <= PackOut.MAX_OFFICIAL_ID) {
-				m_Form.setAD_Form_ID(Integer.parseInt(atts.getValue("AD_Form_ID")));
-				m_Form.setIsDirectLoad(true);
+			int id = getIdWithFromUUID(ctx, I_AD_Form.Table_Name, uuid);
+			X_AD_Form form = new X_AD_Form(ctx, id, getTrxName(ctx));
+			int backupId = -1;
+			String objectStatus = null;
+			if (id <= 0 && getIntValue(atts, I_AD_Form.COLUMNNAME_AD_Form_ID) > 0 && getIntValue(atts, I_AD_Form.COLUMNNAME_AD_Form_ID) <= PackOut.MAX_OFFICIAL_ID) {
+				form.setAD_Form_ID(getIntValue(atts, I_AD_Form.COLUMNNAME_AD_Form_ID));
+				form.setIsDirectLoad(true);
 			}
 			if (id > 0){
-				AD_Backup_ID = copyRecord(ctx, "AD_Form",m_Form);
-				Object_Status = "Update";
+				backupId = copyRecord(ctx, "AD_Form",form);
+				objectStatus = "Update";
 			}
 			else{
-				Object_Status = "New";
-				AD_Backup_ID =0;
-			}	    
-			m_Form.setClassname (atts.getValue("Classname"));
-			m_Form.setIsBetaFunctionality (Boolean.valueOf(atts.getValue("isBetaFunctionality")).booleanValue());
-			m_Form.setAccessLevel(atts.getValue("AccessLevel"));
-			m_Form.setDescription(getStringValue(atts, "Description"));
-			m_Form.setEntityType(atts.getValue("EntityType"));
-			m_Form.setHelp(getStringValue(atts, "Help"));
-			m_Form.setIsActive(atts.getValue("isActive") != null ? Boolean.valueOf(atts.getValue("isActive")).booleanValue():true);
-			m_Form.setName(atts.getValue("Name")); 
-			
-			if (m_Form.save(getTrxName(ctx)) == true){		    	
-				record_log (ctx, 1, m_Form.getName(),"Form", m_Form.get_ID(),AD_Backup_ID, Object_Status,"AD_Form",get_IDWithColumn(ctx, "AD_Table", "TableName", "AD_Form"));           		        		
+				objectStatus = "New";
+				backupId =0;
 			}
-			else{
-				record_log (ctx, 0, m_Form.getName(),"Form", m_Form.get_ID(),AD_Backup_ID, Object_Status,"AD_Form",get_IDWithColumn(ctx, "AD_Table", "TableName", "AD_Form"));
-				throw new POSaveFailedException("Failed to save form definition");
+			form.setUUID(uuid);
+			form.setName(getStringValue(atts, I_AD_Form.COLUMNNAME_Name));
+			form.setDescription(getStringValue(atts, I_AD_Form.COLUMNNAME_Description));
+			form.setHelp(getStringValue(atts, I_AD_Form.COLUMNNAME_Help));
+			form.setEntityType(getStringValue(atts, I_AD_Form.COLUMNNAME_EntityType));
+			form.setAccessLevel(getStringValue(atts, I_AD_Form.COLUMNNAME_AccessLevel));
+			form.setClassname(getStringValue(atts, I_AD_Form.COLUMNNAME_Classname));
+			form.setIsBetaFunctionality(getBooleanValue(atts, I_AD_Form.COLUMNNAME_IsBetaFunctionality));
+			form.setIsActive(getBooleanValue(atts, I_AD_Form.COLUMNNAME_IsActive));
+			//	Save
+			try {
+				form.saveEx(getTrxName(ctx));
+				recordLog (ctx, 1, form.getName(),"Form", form.get_ID(),backupId, objectStatus,"AD_Form",get_IDWithColumn(ctx, "AD_Table", "TableName", "AD_Form"));
+			} catch (Exception e) {
+				recordLog (ctx, 0, form.getName(),"Form", form.get_ID(),backupId, objectStatus,"AD_Form",get_IDWithColumn(ctx, "AD_Table", "TableName", "AD_Form"));
+				throw new POSaveFailedException(e);
 			}
 		} else {
 			element.skip = true;
@@ -84,13 +84,13 @@ public class FormElementHandler extends AbstractElementHandler {
 	}
 
 	public void endElement(Properties ctx, Element element) throws SAXException {
+		
 	}
 
 	public void create(Properties ctx, TransformerHandler document)
 			throws SAXException {
 		int AD_Form_ID = Env.getContextAsInt(ctx, "AD_Form_ID");
 		if (forms.contains(AD_Form_ID)) return;
-		
 		forms.add(AD_Form_ID);
 		X_AD_Form m_Form = new X_AD_Form (ctx, AD_Form_ID, null);
 		AttributesImpl atts = new AttributesImpl();
@@ -99,32 +99,22 @@ public class FormElementHandler extends AbstractElementHandler {
 		document.endElement("","","form");		
 	}
 	
-	private AttributesImpl createFormBinding( AttributesImpl atts, X_AD_Form m_Form) 
-	{
-		String sql = null;
-        String name = null;
-        atts.clear();
-        if (m_Form.getAD_Form_ID()> 0 ){
-            sql = "SELECT Name FROM AD_Form WHERE AD_Form_ID=?";
-            name = DB.getSQLValueString(null,sql,m_Form.getAD_Form_ID());
-            if (name != null )
-                atts.addAttribute("","","ADFormNameID","CDATA",name);
-            else
-            	atts.addAttribute("","","ADFormNameID","CDATA","");
-        } else {
-        	atts.addAttribute("","","ADFormNameID","CDATA","");
-        }
-		if (m_Form.getAD_Form_ID() <= PackOut.MAX_OFFICIAL_ID)
-	        atts.addAttribute("","","AD_Form_ID","CDATA",Integer.toString(m_Form.getAD_Form_ID()));
-        	
-        atts.addAttribute("","","Classname","CDATA",(m_Form.getClassname () != null ? m_Form.getClassname ():""));
-        atts.addAttribute("","","isBetaFunctionality","CDATA",(m_Form.isBetaFunctionality()== true ? "true":"false"));
-        atts.addAttribute("","","AccessLevel","CDATA",(m_Form.getAccessLevel () != null ? m_Form.getAccessLevel ():""));
-        atts.addAttribute("","","Description","CDATA",(m_Form.getDescription () != null ? m_Form.getDescription ():""));
-        atts.addAttribute("","","isActive","CDATA",(m_Form.isActive()== true ? "true":"false"));
-        atts.addAttribute("","","EntityType","CDATA",(m_Form.getEntityType () != null ? m_Form.getEntityType ():""));
-        atts.addAttribute("","","Help","CDATA",(m_Form.getHelp() != null ? m_Form.getHelp():""));
-        atts.addAttribute("","","Name","CDATA",(m_Form.getName() != null ? m_Form.getName():""));
+	private AttributesImpl createFormBinding( AttributesImpl atts, X_AD_Form form) {
+		atts.clear();
+		AttributeFiller filler = new AttributeFiller(atts, form);
+		if (form.getAD_Form_ID() <= PackOut.MAX_OFFICIAL_ID) {
+			filler.add(I_AD_Form.COLUMNNAME_AD_Form_ID);
+		}
+		filler.addUUID();
+		//	
+		filler.add(I_AD_Form.COLUMNNAME_Name);
+		filler.add(I_AD_Form.COLUMNNAME_Description);
+		filler.add(I_AD_Form.COLUMNNAME_Help);
+		filler.add(I_AD_Form.COLUMNNAME_EntityType);
+		filler.add(I_AD_Form.COLUMNNAME_AccessLevel);
+		filler.add(I_AD_Form.COLUMNNAME_Classname);
+		filler.add(I_AD_Form.COLUMNNAME_IsBetaFunctionality);
+		filler.add(I_AD_Form.COLUMNNAME_IsActive);
         return atts;
 	}
 

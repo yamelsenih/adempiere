@@ -157,11 +157,11 @@ public class MenuElementHandler extends AbstractElementHandler {
 		int detailId;
 		try {
 			menu.saveEx(getTrxName(ctx));
-			detailId = record_log(ctx, 1, menu.getName(), "Menu", menu
+			detailId = recordLog(ctx, 1, menu.getName(), "Menu", menu
 					.get_ID(), backupId, Object_Status, "AD_Menu",
 					get_IDWithColumn(ctx, "AD_Table", "TableName", "AD_Menu"));
 		} catch (Exception e) {
-			detailId = record_log(ctx, 0, menu.getName(), "Menu", menu
+			detailId = recordLog(ctx, 0, menu.getName(), "Menu", menu
 					.get_ID(), backupId, Object_Status, "AD_Menu",
 					get_IDWithColumn(ctx, "AD_Table", "TableName",
 							"AD_Menu"));

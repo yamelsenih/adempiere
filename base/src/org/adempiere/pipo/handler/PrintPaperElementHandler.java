@@ -130,13 +130,13 @@ public class PrintPaperElementHandler extends AbstractElementHandler
 
 		if (po.save(getTrxName(ctx)) == true)
 		{		    	
-			record_log (ctx, 1, strIdentifier, getTagName(), po.get_ID(),
+			recordLog (ctx, 1, strIdentifier, getTagName(), po.get_ID(),
 					AD_Backup_ID, Object_Status,
 					getTableName(), getTable_ID());
 		}
 		else
 		{
-			record_log (ctx, 0, strIdentifier, getTagName(), po.get_ID(),
+			recordLog (ctx, 0, strIdentifier, getTagName(), po.get_ID(),
 					AD_Backup_ID, Object_Status,
 					getTableName(), getTable_ID());
 			throw new POSaveFailedException("Failed to save message.");

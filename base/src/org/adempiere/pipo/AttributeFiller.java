@@ -1,5 +1,7 @@
 package org.adempiere.pipo;
 
+import java.math.BigDecimal;
+
 import org.compiere.model.I_AD_Element;
 import org.compiere.model.PO;
 import org.xml.sax.helpers.AttributesImpl;
@@ -126,6 +128,8 @@ public class AttributeFiller {
 			} else {
 				atts.addAttribute("", "", columnName, "CDATA",  value.toString());
 			}
+		} else if(value instanceof BigDecimal) { 
+			atts.addAttribute("", "", columnName, "CDATA",  value.toString());
 		} else {
 			throw new IllegalArgumentException("Add your own type implementation here.");
 		}

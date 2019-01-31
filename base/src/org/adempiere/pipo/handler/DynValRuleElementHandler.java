@@ -16,22 +16,21 @@
  *****************************************************************************/
 package org.adempiere.pipo.handler;
 
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
-import java.util.logging.Level;
 
 import javax.xml.transform.sax.TransformerHandler;
 
 import org.adempiere.pipo.AbstractElementHandler;
+import org.adempiere.pipo.AttributeFiller;
 import org.adempiere.pipo.Element;
 import org.adempiere.pipo.PackOut;
 import org.adempiere.pipo.exception.POSaveFailedException;
+import org.compiere.model.I_AD_Ref_List;
+import org.compiere.model.I_AD_Val_Rule;
 import org.compiere.model.X_AD_Package_Exp_Detail;
 import org.compiere.model.X_AD_Val_Rule;
-import org.compiere.util.DB;
 import org.compiere.util.Env;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
@@ -44,39 +43,40 @@ public class DynValRuleElementHandler extends AbstractElementHandler {
 	public void startElement(Properties ctx, Element element) throws SAXException {
 		String elementValue = element.getElementValue();
 		Attributes atts = element.attributes;
-		log.info(elementValue+" "+atts.getValue("Name"));
-		String entitytype = atts.getValue("EntityType");
+		String uuid = getUUIDValue(atts, I_AD_Ref_List.Table_Name);
+		log.info(elementValue + " " + uuid);
+		String entitytype = getStringValue(atts, I_AD_Val_Rule.COLUMNNAME_EntityType);
 		if (isProcessElement(ctx, entitytype)) {
-			String name = atts.getValue("Name");
-			int id = get_IDWithColumn(ctx, "AD_Val_Rule", "name", name);
-			
-			X_AD_Val_Rule m_ValRule = new X_AD_Val_Rule(ctx, id, getTrxName(ctx));
-			if (id <= 0 && atts.getValue("AD_Val_Rule_ID") != null && Integer.parseInt(atts.getValue("AD_Val_Rule_ID")) <= PackOut.MAX_OFFICIAL_ID) {
-				m_ValRule.setAD_Val_Rule_ID(Integer.parseInt(atts.getValue("AD_Val_Rule_ID")));
-				m_ValRule.setIsDirectLoad(true);
+			int id = getIdWithFromUUID(ctx, I_AD_Val_Rule.Table_Name, uuid);
+			X_AD_Val_Rule valRule = new X_AD_Val_Rule(ctx, id, getTrxName(ctx));
+			if (id <= 0 && getIntValue(atts, I_AD_Val_Rule.COLUMNNAME_AD_Val_Rule_ID) > 0 && getIntValue(atts, I_AD_Val_Rule.COLUMNNAME_AD_Val_Rule_ID) <= PackOut.MAX_OFFICIAL_ID) {
+				valRule.setAD_Val_Rule_ID(getIntValue(atts, I_AD_Val_Rule.COLUMNNAME_AD_Val_Rule_ID));
+				valRule.setIsDirectLoad(true);
 			}
-			int AD_Backup_ID = -1;
+			int backupId = -1;
 			String Object_Status = null;
 			if (id > 0){		
-				AD_Backup_ID = copyRecord(ctx, "AD_Val_Rule",m_ValRule);
+				backupId = copyRecord(ctx, "AD_Val_Rule",valRule);
 				Object_Status = "Update";			
 			}
 			else{
 				Object_Status = "New";
-				AD_Backup_ID =0;
-			}    	    
-			m_ValRule.setDescription(getStringValue(atts, "Description"));
-			m_ValRule.setEntityType(atts.getValue("EntityType"));
-			m_ValRule.setIsActive(atts.getValue("isActive") != null ? Boolean.valueOf(atts.getValue("isActive")).booleanValue():true);
-			m_ValRule.setName(name);
-			m_ValRule.setType(atts.getValue("Type"));		        
-			m_ValRule.setCode(atts.getValue("Code"));		        
-			if (m_ValRule.save(getTrxName(ctx)) == true){		    	
-				record_log (ctx, 1, m_ValRule.getName(),"ValRule", m_ValRule.get_ID(),AD_Backup_ID, Object_Status,"AD_Val_Rule",get_IDWithColumn(ctx, "AD_Table", "TableName", "AD_Val_Rule"));           		        		
+				backupId =0;
 			}
-			else{
-				record_log (ctx, 0, m_ValRule.getName(),"ValRule", m_ValRule.get_ID(),AD_Backup_ID, Object_Status,"AD_Val_Rule",get_IDWithColumn(ctx, "AD_Table", "TableName", "AD_Val_Rule"));
-				throw new POSaveFailedException("Failed to save dynamic validation rule.");
+			valRule.setUUID(uuid);
+			valRule.setName(getStringValue(atts, I_AD_Val_Rule.COLUMNNAME_Name));
+			valRule.setDescription(getStringValue(atts, I_AD_Val_Rule.COLUMNNAME_Description));
+			valRule.setCode(getStringValue(atts, I_AD_Val_Rule.COLUMNNAME_Code));
+			valRule.setEntityType(getStringValue(atts, I_AD_Val_Rule.COLUMNNAME_EntityType));
+			valRule.setIsActive(getBooleanValue(atts, I_AD_Val_Rule.COLUMNNAME_IsActive));
+			valRule.setType(getStringValue(atts, I_AD_Val_Rule.COLUMNNAME_Type));			
+			//	Save
+			try {
+				valRule.saveEx(getTrxName(ctx));
+				recordLog (ctx, 1, valRule.getName(),"ValRule", valRule.get_ID(),backupId, Object_Status,"AD_Val_Rule",get_IDWithColumn(ctx, "AD_Table", "TableName", "AD_Val_Rule"));
+			} catch (Exception e) {
+				recordLog (ctx, 0, valRule.getName(),"ValRule", valRule.get_ID(),backupId, Object_Status,"AD_Val_Rule",get_IDWithColumn(ctx, "AD_Table", "TableName", "AD_Val_Rule"));
+				throw new POSaveFailedException(e);
 			}
 		} else {
 			element.skip = true;
@@ -85,57 +85,36 @@ public class DynValRuleElementHandler extends AbstractElementHandler {
 	}
 
 	public void endElement(Properties ctx, Element element) throws SAXException {
+		
 	}
 
 	public void create(Properties ctx, TransformerHandler document)
 			throws SAXException {
-		int AD_Val_Rule_ID = Env.getContextAsInt(ctx, X_AD_Package_Exp_Detail.COLUMNNAME_AD_Val_Rule_ID);
-		if (rules.contains(AD_Val_Rule_ID))
+		int valRuleId = Env.getContextAsInt(ctx, X_AD_Package_Exp_Detail.COLUMNNAME_AD_Val_Rule_ID);
+		if (rules.contains(valRuleId)) {
 			return;
-		rules.add(AD_Val_Rule_ID);
-		String sql = "SELECT Name FROM AD_Val_Rule WHERE  AD_Val_Rule_ID= " + AD_Val_Rule_ID;
+		}
+		rules.add(valRuleId);
 		AttributesImpl atts = new AttributesImpl();
-		PreparedStatement pstmt = null;
-		ResultSet rs = null;
-		pstmt = DB.prepareStatement (sql, getTrxName(ctx));		
-
-		try {
-
-			rs = pstmt.executeQuery();		
-
-			while (rs.next())
-			{
-				X_AD_Val_Rule m_ValRule = new X_AD_Val_Rule (ctx, AD_Val_Rule_ID, null);										
-				createDynamicValidationRuleBinding(atts,m_ValRule);	
-				document.startElement("","","dynvalrule",atts);
-				document.endElement("","","dynvalrule");
-			}
- 		}
-
-		catch (Exception e){
-			log.log(Level.SEVERE,"getProcess", e);
-		}
-		finally
-		{
-			DB.close(rs, pstmt);
-			rs = null; pstmt = null;
-		}
-		
+		X_AD_Val_Rule m_ValRule = new X_AD_Val_Rule (ctx, valRuleId, null);										
+		createDynamicValidationRuleBinding(atts,m_ValRule);	
+		document.startElement("","","dynvalrule",atts);
+		document.endElement("","","dynvalrule");
 	}
 
-	private AttributesImpl createDynamicValidationRuleBinding( AttributesImpl atts, X_AD_Val_Rule m_ValRule) 
-	{
+	private AttributesImpl createDynamicValidationRuleBinding( AttributesImpl atts, X_AD_Val_Rule valRule) {
 		atts.clear();
-		if (m_ValRule.getAD_Val_Rule_ID() <= PackOut.MAX_OFFICIAL_ID)
-			atts.addAttribute("","","AD_Val_Rule_ID","CDATA",Integer.toString(m_ValRule.getAD_Val_Rule_ID()));        
-		atts.addAttribute("","","Name","CDATA",(m_ValRule.getName () != null ? m_ValRule.getName ():""));        
-		//FIXME:  may not need this I guess
-		//atts.addAttribute("","","AccessLevel","CDATA",(m_ValRule.getAccessLevel () != null ? m_ValRule.getAccessLevel ():""));
-		atts.addAttribute("","","Code","CDATA",(m_ValRule.getCode() != null ? m_ValRule.getCode ():""));
-		atts.addAttribute("","","Description","CDATA",(m_ValRule.getDescription () != null ? m_ValRule.getDescription ():""));
-		atts.addAttribute("","","EntityType","CDATA",(m_ValRule.getEntityType () != null ? m_ValRule.getEntityType ():""));
-		atts.addAttribute("","","Type","CDATA",(m_ValRule.getType () != null ? m_ValRule.getType ():""));
-		atts.addAttribute("","","isActive","CDATA",(m_ValRule.isActive()== true ? "true":"false"));
+		AttributeFiller filler = new AttributeFiller(atts, valRule);
+		if (valRule.getAD_Val_Rule_ID() <= PackOut.MAX_OFFICIAL_ID) {
+			filler.add(I_AD_Val_Rule.COLUMNNAME_AD_Val_Rule_ID);
+		}
+		filler.addUUID();
+		//	Attributes
+		filler.add(I_AD_Val_Rule.COLUMNNAME_Name);
+		filler.add(I_AD_Val_Rule.COLUMNNAME_Code);
+		filler.add(I_AD_Val_Rule.COLUMNNAME_EntityType);
+		filler.add(I_AD_Val_Rule.COLUMNNAME_IsActive);
+		filler.add(I_AD_Val_Rule.COLUMNNAME_Type);
 		return atts;
 	}
 }

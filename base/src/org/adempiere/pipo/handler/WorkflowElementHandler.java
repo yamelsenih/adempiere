@@ -154,7 +154,7 @@ public class WorkflowElementHandler extends AbstractElementHandler {
 			log.info("about to execute m_Workflow.save");
 			if (m_Workflow.save(getTrxName(ctx)) == true) {
 				log.info("m_Workflow save success");
-				record_log(ctx, 1, m_Workflow.getName(), "Workflow", m_Workflow
+				recordLog(ctx, 1, m_Workflow.getName(), "Workflow", m_Workflow
 						.get_ID(), AD_Backup_ID, Object_Status, "AD_Workflow",
 						get_IDWithColumn(ctx, "AD_Table", "TableName",
 								"AD_Workflow"));
@@ -162,7 +162,7 @@ public class WorkflowElementHandler extends AbstractElementHandler {
 				element.recordId = m_Workflow.getAD_Workflow_ID();
 			} else {
 				log.info("m_Workflow save failure");
-				record_log(ctx, 0, m_Workflow.getName(), "Workflow", m_Workflow
+				recordLog(ctx, 0, m_Workflow.getName(), "Workflow", m_Workflow
 						.get_ID(), AD_Backup_ID, Object_Status, "AD_Workflow",
 						get_IDWithColumn(ctx, "AD_Table", "TableName",
 								"AD_Workflow"));
@@ -193,7 +193,7 @@ public class WorkflowElementHandler extends AbstractElementHandler {
 				m_Workflow.setAD_WF_Node_ID(id);
 				if (m_Workflow.save(getTrxName(ctx)) == true) {
 					log.info("m_Workflow update success");
-					record_log(ctx, 1, m_Workflow.getName(), "Workflow", m_Workflow
+					recordLog(ctx, 1, m_Workflow.getName(), "Workflow", m_Workflow
 							.get_ID(), 0, "Update", "AD_Workflow",
 							get_IDWithColumn(ctx, "AD_Table", "TableName",
 									"AD_Workflow"));
@@ -201,7 +201,7 @@ public class WorkflowElementHandler extends AbstractElementHandler {
 					element.recordId = m_Workflow.getAD_Workflow_ID();
 				} else {
 					log.info("m_Workflow update fail");
-					record_log(ctx, 0, m_Workflow.getName(), "Workflow", m_Workflow
+					recordLog(ctx, 0, m_Workflow.getName(), "Workflow", m_Workflow
 							.get_ID(), 0, "Update", "AD_Workflow",
 							get_IDWithColumn(ctx, "AD_Table", "TableName",
 									"AD_Workflow"));
