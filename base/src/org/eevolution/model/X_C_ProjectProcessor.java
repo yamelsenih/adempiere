@@ -25,14 +25,14 @@ import org.compiere.util.KeyNamePair;
 
 /** Generated Model for C_ProjectProcessor
  *  @author Adempiere (generated) 
- *  @version Release 3.9.0 - $Id$ */
+ *  @version Release 3.9.1 - $Id$ */
 public class X_C_ProjectProcessor extends PO implements I_C_ProjectProcessor, I_Persistent 
 {
 
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20180118L;
+	private static final long serialVersionUID = 20190109L;
 
     /** Standard Constructor */
     public X_C_ProjectProcessor (Properties ctx, int C_ProjectProcessor_ID, String trxName)
@@ -87,8 +87,10 @@ public class X_C_ProjectProcessor extends PO implements I_C_ProjectProcessor, I_
       return sb.toString();
     }
 
-	/** Set Project Processor ID.
-		@param C_ProjectProcessor_ID Project Processor ID	  */
+	/** Set Project Processor.
+		@param C_ProjectProcessor_ID 
+		Processor for Project
+	  */
 	public void setC_ProjectProcessor_ID (int C_ProjectProcessor_ID)
 	{
 		if (C_ProjectProcessor_ID < 1) 
@@ -97,8 +99,9 @@ public class X_C_ProjectProcessor extends PO implements I_C_ProjectProcessor, I_
 			set_ValueNoCheck (COLUMNNAME_C_ProjectProcessor_ID, Integer.valueOf(C_ProjectProcessor_ID));
 	}
 
-	/** Get Project Processor ID.
-		@return Project Processor ID	  */
+	/** Get Project Processor.
+		@return Processor for Project
+	  */
 	public int getC_ProjectProcessor_ID () 
 	{
 		Integer ii = (Integer)get_Value(COLUMNNAME_C_ProjectProcessor_ID);
@@ -401,6 +404,34 @@ public class X_C_ProjectProcessor extends PO implements I_C_ProjectProcessor, I_
 	public int getRemindDays () 
 	{
 		Integer ii = (Integer)get_Value(COLUMNNAME_RemindDays);
+		if (ii == null)
+			 return 0;
+		return ii.intValue();
+	}
+
+	public org.compiere.model.I_R_MailText getR_MailText() throws RuntimeException
+    {
+		return (org.compiere.model.I_R_MailText)MTable.get(getCtx(), org.compiere.model.I_R_MailText.Table_Name)
+			.getPO(getR_MailText_ID(), get_TrxName());	}
+
+	/** Set Mail Template.
+		@param R_MailText_ID 
+		Text templates for mailings
+	  */
+	public void setR_MailText_ID (int R_MailText_ID)
+	{
+		if (R_MailText_ID < 1) 
+			set_Value (COLUMNNAME_R_MailText_ID, null);
+		else 
+			set_Value (COLUMNNAME_R_MailText_ID, Integer.valueOf(R_MailText_ID));
+	}
+
+	/** Get Mail Template.
+		@return Text templates for mailings
+	  */
+	public int getR_MailText_ID () 
+	{
+		Integer ii = (Integer)get_Value(COLUMNNAME_R_MailText_ID);
 		if (ii == null)
 			 return 0;
 		return ii.intValue();

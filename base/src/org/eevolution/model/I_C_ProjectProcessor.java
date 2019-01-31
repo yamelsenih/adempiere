@@ -23,7 +23,7 @@ import org.compiere.util.KeyNamePair;
 
 /** Generated Interface for C_ProjectProcessor
  *  @author Adempiere (generated) 
- *  @version Release 3.9.0
+ *  @version Release 3.9.1
  */
 public interface I_C_ProjectProcessor 
 {
@@ -66,10 +66,14 @@ public interface I_C_ProjectProcessor
     /** Column name C_ProjectProcessor_ID */
     public static final String COLUMNNAME_C_ProjectProcessor_ID = "C_ProjectProcessor_ID";
 
-	/** Set Project Processor ID	  */
+	/** Set Project Processor.
+	  * Processor for Project
+	  */
 	public void setC_ProjectProcessor_ID (int C_ProjectProcessor_ID);
 
-	/** Get Project Processor ID	  */
+	/** Get Project Processor.
+	  * Processor for Project
+	  */
 	public int getC_ProjectProcessor_ID();
 
     /** Column name C_ProjectTaskCategory_ID */
@@ -282,6 +286,21 @@ public interface I_C_ProjectProcessor
 	  * Days between sending Reminder Emails for a due or inactive Document
 	  */
 	public int getRemindDays();
+
+    /** Column name R_MailText_ID */
+    public static final String COLUMNNAME_R_MailText_ID = "R_MailText_ID";
+
+	/** Set Mail Template.
+	  * Text templates for mailings
+	  */
+	public void setR_MailText_ID (int R_MailText_ID);
+
+	/** Get Mail Template.
+	  * Text templates for mailings
+	  */
+	public int getR_MailText_ID();
+
+	public org.compiere.model.I_R_MailText getR_MailText() throws RuntimeException;
 
     /** Column name Supervisor_ID */
     public static final String COLUMNNAME_Supervisor_ID = "Supervisor_ID";

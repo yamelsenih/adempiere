@@ -14,31 +14,30 @@
  * For the text or an alternative of this public license, you may reach us    *
  * or via info@adempiere.net or http://www.adempiere.net/license.html         *
  *****************************************************************************/
-package org.eevolution.model;
+package org.compiere.model;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
-import org.compiere.model.*;
 import org.compiere.util.KeyNamePair;
 
-/** Generated Interface for C_ProjectProcessorLog
+/** Generated Interface for C_ProjectProcessorChanges
  *  @author Adempiere (generated) 
  *  @version Release 3.9.1
  */
-public interface I_C_ProjectProcessorLog 
+public interface I_C_ProjectProcessorChanges 
 {
 
-    /** TableName=C_ProjectProcessorLog */
-    public static final String Table_Name = "C_ProjectProcessorLog";
+    /** TableName=C_ProjectProcessorChanges */
+    public static final String Table_Name = "C_ProjectProcessorChanges";
 
-    /** AD_Table_ID=54316 */
+    /** AD_Table_ID=1000001 */
     public static final int Table_ID = MTable.getTable_ID(Table_Name);
 
     KeyNamePair Model = new KeyNamePair(Table_ID, Table_Name);
 
-    /** AccessLevel = 2 - Client 
+    /** AccessLevel = 3 - Client - Org 
      */
-    BigDecimal accessLevel = BigDecimal.valueOf(2);
+    BigDecimal accessLevel = BigDecimal.valueOf(3);
 
     /** Load Meta Data */
 
@@ -49,6 +48,21 @@ public interface I_C_ProjectProcessorLog
 	  * Client/Tenant for this installation.
 	  */
 	public int getAD_Client_ID();
+
+    /** Column name AD_Column_ID */
+    public static final String COLUMNNAME_AD_Column_ID = "AD_Column_ID";
+
+	/** Set Column.
+	  * Column in the table
+	  */
+	public void setAD_Column_ID (int AD_Column_ID);
+
+	/** Get Column.
+	  * Column in the table
+	  */
+	public int getAD_Column_ID();
+
+	public org.compiere.model.I_AD_Column getAD_Column() throws RuntimeException;
 
     /** Column name AD_Org_ID */
     public static final String COLUMNNAME_AD_Org_ID = "AD_Org_ID";
@@ -63,42 +77,40 @@ public interface I_C_ProjectProcessorLog
 	  */
 	public int getAD_Org_ID();
 
-    /** Column name BinaryData */
-    public static final String COLUMNNAME_BinaryData = "BinaryData";
+    /** Column name AD_Table_ID */
+    public static final String COLUMNNAME_AD_Table_ID = "AD_Table_ID";
 
-	/** Set Binary Data.
-	  * Binary Data
+	/** Set Table.
+	  * Database Table information
 	  */
-	public void setBinaryData (byte[] BinaryData);
+	public void setAD_Table_ID (int AD_Table_ID);
 
-	/** Get Binary Data.
-	  * Binary Data
+	/** Get Table.
+	  * Database Table information
 	  */
-	public byte[] getBinaryData();
+	public int getAD_Table_ID();
 
-    /** Column name C_ProjectProcessor_ID */
-    public static final String COLUMNNAME_C_ProjectProcessor_ID = "C_ProjectProcessor_ID";
+	public org.compiere.model.I_AD_Table getAD_Table() throws RuntimeException;
 
-	/** Set Project Processor.
-	  * Processor for Project
-	  */
-	public void setC_ProjectProcessor_ID (int C_ProjectProcessor_ID);
+    /** Column name C_ProjectProcessorChanges_ID */
+    public static final String COLUMNNAME_C_ProjectProcessorChanges_ID = "C_ProjectProcessorChanges_ID";
 
-	/** Get Project Processor.
-	  * Processor for Project
-	  */
-	public int getC_ProjectProcessor_ID();
+	/** Set Project Processor Changes ID	  */
+	public void setC_ProjectProcessorChanges_ID (int C_ProjectProcessorChanges_ID);
 
-	public org.eevolution.model.I_C_ProjectProcessor getC_ProjectProcessor() throws RuntimeException;
+	/** Get Project Processor Changes ID	  */
+	public int getC_ProjectProcessorChanges_ID();
 
-    /** Column name C_ProjectProcessorLog_ID */
-    public static final String COLUMNNAME_C_ProjectProcessorLog_ID = "C_ProjectProcessorLog_ID";
+    /** Column name C_ProjectProcessorQueued_ID */
+    public static final String COLUMNNAME_C_ProjectProcessorQueued_ID = "C_ProjectProcessorQueued_ID";
 
-	/** Set Project Processor Log ID	  */
-	public void setC_ProjectProcessorLog_ID (int C_ProjectProcessorLog_ID);
+	/** Set Project Processor Queued ID	  */
+	public void setC_ProjectProcessorQueued_ID (int C_ProjectProcessorQueued_ID);
 
-	/** Get Project Processor Log ID	  */
-	public int getC_ProjectProcessorLog_ID();
+	/** Get Project Processor Queued ID	  */
+	public int getC_ProjectProcessorQueued_ID();
+
+	public org.compiere.model.I_C_ProjectProcessorQueued getC_ProjectProcessorQueued() throws RuntimeException;
 
     /** Column name Created */
     public static final String COLUMNNAME_Created = "Created";
@@ -116,32 +128,6 @@ public interface I_C_ProjectProcessorLog
 	  */
 	public int getCreatedBy();
 
-    /** Column name Description */
-    public static final String COLUMNNAME_Description = "Description";
-
-	/** Set Description.
-	  * Optional short description of the record
-	  */
-	public void setDescription (String Description);
-
-	/** Get Description.
-	  * Optional short description of the record
-	  */
-	public String getDescription();
-
-    /** Column name EventChangeLog */
-    public static final String COLUMNNAME_EventChangeLog = "EventChangeLog";
-
-	/** Set Event Change Log.
-	  * Type of Event in Change Log
-	  */
-	public void setEventChangeLog (String EventChangeLog);
-
-	/** Get Event Change Log.
-	  * Type of Event in Change Log
-	  */
-	public String getEventChangeLog();
-
     /** Column name IsActive */
     public static final String COLUMNNAME_IsActive = "IsActive";
 
@@ -155,57 +141,18 @@ public interface I_C_ProjectProcessorLog
 	  */
 	public boolean isActive();
 
-    /** Column name IsError */
-    public static final String COLUMNNAME_IsError = "IsError";
+    /** Column name Record_ID */
+    public static final String COLUMNNAME_Record_ID = "Record_ID";
 
-	/** Set Error.
-	  * An Error occurred in the execution
+	/** Set Record ID.
+	  * Direct internal record ID
 	  */
-	public void setIsError (boolean IsError);
+	public void setRecord_ID (int Record_ID);
 
-	/** Get Error.
-	  * An Error occurred in the execution
+	/** Get Record ID.
+	  * Direct internal record ID
 	  */
-	public boolean isError();
-
-    /** Column name Reference */
-    public static final String COLUMNNAME_Reference = "Reference";
-
-	/** Set Reference.
-	  * Reference for this record
-	  */
-	public void setReference (String Reference);
-
-	/** Get Reference.
-	  * Reference for this record
-	  */
-	public String getReference();
-
-    /** Column name Summary */
-    public static final String COLUMNNAME_Summary = "Summary";
-
-	/** Set Summary.
-	  * Textual summary of this request
-	  */
-	public void setSummary (String Summary);
-
-	/** Get Summary.
-	  * Textual summary of this request
-	  */
-	public String getSummary();
-
-    /** Column name TextMsg */
-    public static final String COLUMNNAME_TextMsg = "TextMsg";
-
-	/** Set Text Message.
-	  * Text Message
-	  */
-	public void setTextMsg (String TextMsg);
-
-	/** Get Text Message.
-	  * Text Message
-	  */
-	public String getTextMsg();
+	public int getRecord_ID();
 
     /** Column name Updated */
     public static final String COLUMNNAME_Updated = "Updated";
