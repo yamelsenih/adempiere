@@ -162,6 +162,7 @@ public class PrintFormatElementHandler extends AbstractElementHandler {
 					"AD_PrintFormat", get_IDWithColumn(ctx, "AD_Table",
 							"TableName", "AD_PrintFormat"));
 			element.recordId = printFormat.getAD_PrintFormat_ID();
+			deleteItems(printFormat.getAD_PrintFormat_ID());
 		} catch (Exception e) {
 			recordLog(ctx, 0, printFormat.getUUID(), "PrintFormat",
 					printFormat.get_ID(), backupId, objectStatus,
@@ -169,6 +170,20 @@ public class PrintFormatElementHandler extends AbstractElementHandler {
 							"TableName", "AD_PrintFormat"));
 			throw new POSaveFailedException(e);
 		}
+	}
+	
+	/**
+	 * Delete Items before import
+	 * @param printFormatId
+	 */
+	private void deleteItems(int printFormatId) {
+		List<MPrintFormatItem> printFormatItemList = new Query(Env.getCtx(), I_AD_PrintFormatItem.Table_Name, I_AD_PrintFormatItem.COLUMNNAME_AD_PrintFormat_ID + " = ? ", null)
+				.setParameters(printFormatId)
+				.<MPrintFormatItem>list();
+			//	For
+			for(MPrintFormatItem printFormatItem : printFormatItemList) {
+				printFormatItem.deleteEx(true);
+			}
 	}
 
 	public void endElement(Properties ctx, Element element) throws SAXException {
