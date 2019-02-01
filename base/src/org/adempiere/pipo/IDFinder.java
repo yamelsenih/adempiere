@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 import org.adempiere.exceptions.DBException;
 import org.adempiere.pipo.exception.NonUniqueIDLookupException;
@@ -83,6 +84,20 @@ public final class IDFinder
 		
 		return getID(sqlB.toString(), params, key.toString(), true, trxName);
 	}
+	
+	/**
+	 * Get ID from UUID for a table
+	 * @param ctx
+	 * @param tableName
+	 * @param uuid
+	 * @param clientId
+	 * @param trxName
+	 * @return
+	 */
+	public static int getIdFromUUID(Properties ctx, String tableName, String uuid, int clientId, String trxName) {
+		return get_IDWithColumn(tableName, I_AD_Element.COLUMNNAME_UUID, uuid, clientId, trxName);
+	}
+	
 	
 	/**
 	 * Get ID from column value for a table.

@@ -64,7 +64,7 @@ public abstract class AbstractElementHandler implements ElementHandler {
 	 * @param name
 	 */
 	public int getIdFromUUID(Properties ctx, String tableName, String uuid) {
-		return IDFinder.get_IDWithColumn(tableName, I_AD_Element.COLUMNNAME_UUID, uuid, getClientId(ctx), getTrxName(ctx));
+		return IDFinder.getIdFromUUID(ctx, tableName, uuid, getClientId(ctx), getTrxName(ctx));
 	}
 	
 	/**

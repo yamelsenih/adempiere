@@ -94,11 +94,14 @@ import org.adempiere.pipo.handler.WorkflowElementHandler;
 import org.adempiere.pipo.handler.WorkflowNodeElementHandler;
 import org.adempiere.pipo.handler.WorkflowNodeNextConditionElementHandler;
 import org.adempiere.pipo.handler.WorkflowNodeNextElementHandler;
+import org.compiere.model.I_AD_WF_Node;
+import org.compiere.model.I_AD_Workflow;
 import org.compiere.model.MSequence;
 import org.compiere.util.CLogger;
 import org.compiere.util.DB;
 import org.compiere.util.Env;
 import org.compiere.util.Trx;
+import org.compiere.util.Util;
 import org.compiere.wf.MWFNode;
 import org.compiere.wf.MWorkflow;
 import org.spin.util.XMLUtils;
@@ -128,7 +131,7 @@ public class PackInHandler extends DefaultHandler {
     private String m_UpdateMode = "true";
     private String packageDirectory = null;
     private String m_DatabaseType = "Oracle";
-    private int m_AD_Client_ID = 0;
+    private int clientId = 0;
     private int AD_Package_Imp_ID=0;
 	private int AD_Package_Imp_Inst_ID=0;
     private CLogger log = CLogger.getCLogger(PackInHandler.class);
@@ -141,7 +144,7 @@ public class PackInHandler extends DefaultHandler {
 	private String logDate = null;
 	private String PK_Status = "Installing";
 	// transaction name 
-	private	String 		m_trxName = null;
+	private	String 		trxName = null;
 	private Properties  m_ctx = null;
 
 	private Map<String, ElementHandler>handlers = null;
@@ -192,10 +195,10 @@ public class PackInHandler extends DefaultHandler {
 		else
 			tmp.putAll(Env.getCtx());
 		m_ctx = tmp;
-		if (m_trxName == null)
-			m_trxName = Trx.createTrxName("PackIn");
+		if (trxName == null)
+			trxName = Trx.createTrxName("PackIn");
 		
-		m_AD_Client_ID = Env.getContextAsInt(m_ctx, "AD_Client_ID");
+		clientId = Env.getContextAsInt(m_ctx, "AD_Client_ID");
 		
 		Start_Doc=1;
 	}
@@ -330,7 +333,7 @@ public class PackInHandler extends DefaultHandler {
 			String sql2 = "SELECT AD_PACKAGE_IMP_INST_ID FROM AD_PACKAGE_IMP_INST WHERE NAME ="
 				+	"'" +  atts.getValue("Name")
 				+	"' AND PK_VERSION ='" +  atts.getValue("Version") + "'";		
-			int PK_preInstalled = DB.getSQLValue(m_trxName,sql2); 
+			int PK_preInstalled = DB.getSQLValue(trxName,sql2); 
 			
 			AD_Package_Imp_ID = DB.getNextID (Env.getAD_Client_ID(m_ctx), "AD_Package_Imp", null);
 			
@@ -357,7 +360,7 @@ public class PackInHandler extends DefaultHandler {
 					.append( "', '" + PK_Status )
 					.append( "')" );
 			Env.getAD_User_ID(m_ctx);
-			int no = DB.executeUpdate (sqlB.toString(), m_trxName);		
+			int no = DB.executeUpdate (sqlB.toString(), trxName);		
 			if (no == -1)
 				log.info("Insert to Package import failed");
 			
@@ -389,7 +392,7 @@ public class PackInHandler extends DefaultHandler {
 						.append( "')" );
 				
 				Env.getAD_User_ID(m_ctx);
-				no = DB.executeUpdate (sqlB.toString(), m_trxName);		
+				no = DB.executeUpdate (sqlB.toString(), trxName);		
 				if (no == -1)
 					log.info("Insert to Package List import failed");
 			}
@@ -399,13 +402,13 @@ public class PackInHandler extends DefaultHandler {
 				sqlB = new StringBuffer ("UPDATE AD_Package_Imp_Inst "
 						+ "SET PK_Status = '" + PK_Status 
 						+ "' WHERE AD_Package_Imp_Inst_ID = "+AD_Package_Imp_Inst_ID);		
-				no = DB.executeUpdate (sqlB.toString(), m_trxName);
+				no = DB.executeUpdate (sqlB.toString(), trxName);
 				if (no == -1)
 					log.info("Update to package summary failed");
 			}
 			Env.setContext(m_ctx, "AD_Package_Imp_ID", AD_Package_Imp_ID);
 			Env.setContext(m_ctx, "UpdateMode", m_UpdateMode);
-			Env.setContext(m_ctx, "TrxName", m_trxName);
+			Env.setContext(m_ctx, "TrxName", trxName);
 			Env.setContext(m_ctx, "PackageDirectory", packageDirectory);
 			m_ctx.put("LogDocument", logDocument);
 			m_ctx.put("PackInProcess", packIn);
@@ -496,7 +499,7 @@ public class PackInHandler extends DefaultHandler {
     					PreparedStatement pstmt = DB.prepareStatement(sqlB.toString(),ResultSet.TYPE_FORWARD_ONLY,
     							ResultSet.CONCUR_UPDATABLE, null);
     					pstmt.executeUpdate();
-    					MSequence.createTableSequence (m_ctx, "AD_Package_Imp", m_trxName);
+    					MSequence.createTableSequence (m_ctx, "AD_Package_Imp", trxName);
     					pstmt.close();
     					pstmt = null;
     				}
@@ -533,7 +536,7 @@ public class PackInHandler extends DefaultHandler {
     					PreparedStatement pstmt = DB.prepareStatement(sqlB.toString(),ResultSet.TYPE_FORWARD_ONLY,
     							ResultSet.CONCUR_UPDATABLE, null);
     					pstmt.executeUpdate();
-    					MSequence.createTableSequence (m_ctx, "AD_Package_Imp_Inst", m_trxName);
+    					MSequence.createTableSequence (m_ctx, "AD_Package_Imp_Inst", trxName);
     					pstmt.close();
     					pstmt = null;
     				}
@@ -567,7 +570,7 @@ public class PackInHandler extends DefaultHandler {
     					PreparedStatement pstmt = DB.prepareStatement(sqlB.toString(),ResultSet.TYPE_FORWARD_ONLY,
     							ResultSet.CONCUR_UPDATABLE, null);
     					pstmt.executeUpdate();
-    					MSequence.createTableSequence (m_ctx, "AD_Package_Imp_Detail", m_trxName);
+    					MSequence.createTableSequence (m_ctx, "AD_Package_Imp_Detail", trxName);
     					pstmt.close();
     					pstmt = null;
     				}
@@ -600,7 +603,7 @@ public class PackInHandler extends DefaultHandler {
     					PreparedStatement pstmt = DB.prepareStatement(sqlB.toString(),ResultSet.TYPE_FORWARD_ONLY,
     							ResultSet.CONCUR_UPDATABLE, null);
     					pstmt.executeUpdate();
-    					MSequence.createTableSequence (m_ctx, "AD_Package_Imp_Backup", m_trxName);
+    					MSequence.createTableSequence (m_ctx, "AD_Package_Imp_Backup", trxName);
     					pstmt.close();
     					pstmt = null;
     				}	
@@ -655,7 +658,7 @@ public class PackInHandler extends DefaultHandler {
     		StringBuffer sqlB = new StringBuffer ("UPDATE AD_Package_Imp "
     				+ "SET PK_Status = '" + PK_Status
     				+ "' WHERE AD_Package_Imp_ID = " + AD_Package_Imp_ID);		
-    		int no = DB.executeUpdate (sqlB.toString(), m_trxName);
+    		int no = DB.executeUpdate (sqlB.toString(), trxName);
     		if (no == -1)
     			log.info("Update to package summary failed");
     		
@@ -663,7 +666,7 @@ public class PackInHandler extends DefaultHandler {
     		sqlB = new StringBuffer ("UPDATE AD_Package_Imp_Inst "
     				+ "SET PK_Status = '" + PK_Status
     				+ "' WHERE AD_Package_Imp_Inst_ID = " + AD_Package_Imp_Inst_ID);		
-    		no = DB.executeUpdate (sqlB.toString(), m_trxName);
+    		no = DB.executeUpdate (sqlB.toString(), trxName);
     		if (no == -1)
     			log.info("Update to package list failed");
     		
@@ -671,35 +674,30 @@ public class PackInHandler extends DefaultHandler {
         	{
         		for (Element e : workflow)
         		{	
-        		Attributes atts = e.attributes;
-        		String workflowName = atts.getValue("Name");
-        		MWorkflow wf = null;
-
-    				int workflow_id =  IDFinder.get_IDWithColumn("AD_Workflow", "Name", workflowName, m_AD_Client_ID, m_trxName);
-    				if(workflow_id > 0)
-    				{
-    					wf = new MWorkflow(m_ctx, workflow_id , m_trxName);
+        			Attributes atts = e.attributes;
+        			String workflowUuid = atts.getValue(AttributeFiller.getUUIDAttribute(I_AD_Workflow.Table_Name));
+        			MWorkflow workflow = null;
+    				int workflowId = IDFinder.getIdFromUUID(Env.getCtx(), I_AD_Workflow.Table_Name, workflowUuid, clientId, trxName);
+    				if(workflowId > 0) {
+    					workflow = new MWorkflow(m_ctx, workflowId , trxName);
     					int node_id = 0;
     					
-    					String name = atts.getValue("ADWorkflowNodeNameID");
-    					if (name != null && name.trim().length() > 0) 
-    					{
-    						MWFNode[] nodes = wf.getNodes(false, m_AD_Client_ID);
-    						
-    						for (MWFNode node : nodes)
-    						{	
-    							if (node.getName().trim().equals(name.trim()))
-    							{
+    					String workFlowNodeName = AttributeFiller.getUUIDAttribute(I_AD_Workflow.COLUMNNAME_AD_WF_Node_ID);
+    					if (workFlowNodeName != null && workFlowNodeName.trim().length() > 0)  {
+    						MWFNode[] nodes = workflow.getNodes(false, clientId);
+    						for (MWFNode node : nodes) {
+    							if (node.getName().trim().equals(workFlowNodeName.trim())) {
     								node_id = node.getAD_WF_Node_ID();
-    								wf.setAD_WF_Node_ID(node_id);
-    								if (!wf.save())
-    									System.out.println("Can not save Start Node "+ name +"to Workflow " + workflowName +  " do not exist ");
+    								workflow.setAD_WF_Node_ID(node_id);
+    								if (!workflow.save())
+    									System.out.println("Can not save Start Node "+ workFlowNodeName +"to Workflow " + workflowUuid +  " do not exist ");
     							    break;
     							}	
     						}
     						
-    						if(node_id == 0)
-    						System.out.println("Unresolved: Start Node to Workflow " + workflowName +  " do not exist ");	
+    						if(node_id == 0) {
+    							System.out.println("Unresolved: Start Node to Workflow " + workflowUuid +  " do not exist ");	
+    						}
     						else
     						break;	
     					}
@@ -707,32 +705,26 @@ public class PackInHandler extends DefaultHandler {
     				}
         		}
         	}
-        	
-        	if(nodes.size() > 0)
-        	{
-        		for (Element e : nodes)
-        		{
+        	//	
+        	if(nodes.size() > 0) {
+        		for (Element e : nodes) {
     	    		Attributes atts = e.attributes;
-    	    		String nodeName = atts.getValue("Name");
+    	    		String nodeUuid = atts.getValue(AttributeFiller.getUUIDAttribute(I_AD_WF_Node.Table_Name));
     	    		MWFNode node = null;
-    	    		int id =  IDFinder.get_IDWithColumn("AD_WF_Node", "Name", nodeName, m_AD_Client_ID, false, m_trxName);
-    				if(id > 0)
-    				{
-    					node = new MWFNode(m_ctx, id , m_trxName);
-    					String workflowNodeName = atts.getValue("WorkflowNameID").trim();
-    					if (workflowNodeName != null && workflowNodeName.trim().length() > 0) 
-    					{
-    						int workflow_id = IDFinder.get_IDWithColumn("AD_Workflow", "Name",workflowNodeName, m_AD_Client_ID, m_trxName);	
-    						if (workflow_id > 0)
-    						{
-    							node.setWorkflow_ID(workflow_id);
-    							if(!node.save())
-    							{
-    								System.out.println("can not save Workflow " + workflowNodeName );
+    	    		int id = IDFinder.getIdFromUUID(Env.getCtx(), I_AD_WF_Node.Table_Name, nodeUuid, clientId, trxName);
+    				if(id > 0) {
+    					node = new MWFNode(m_ctx, id , trxName);
+    					String workflowNodeUuid = atts.getValue(AttributeFiller.getUUIDAttribute(I_AD_WF_Node.COLUMNNAME_Workflow_ID));
+    					if (!Util.isEmpty(workflowNodeUuid))  {
+    						int workflowId = IDFinder.getIdFromUUID(Env.getCtx(), I_AD_Workflow.Table_Name, workflowNodeUuid, clientId, trxName);	
+    						if (workflowId > 0) {
+    							node.setWorkflow_ID(workflowId);
+    							if(!node.save()) {
+    								System.out.println("can not save Workflow " + workflowNodeUuid );
     							}
+    						} else {
+    							System.out.println("Unresolved: Workflow " + workflowNodeUuid +  " do not exist ");
     						}
-    						else
-    							System.out.println("Unresolved: Workflow " + workflowNodeName +  " do not exist ");
     					}
     						
     				}
@@ -841,7 +833,7 @@ public class PackInHandler extends DefaultHandler {
 
 	// globalqss - add support for trx in 3.1.2
 	public void set_TrxName(String trxName) {
-		m_trxName = trxName;
+		this.trxName = trxName;
 	}
     
     // globalqss - add support for trx in 3.1.2
