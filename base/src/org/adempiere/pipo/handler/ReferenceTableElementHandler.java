@@ -63,14 +63,14 @@ public class ReferenceTableElementHandler extends AbstractElementHandler {
 				element.parent.recordId > 0) {
 				referenceId = element.parent.recordId;
 			} else {
-				referenceId = getIdWithFromUUID(ctx, I_AD_Reference.Table_Name, referenceUuid);
+				referenceId = getIdFromUUID(ctx, I_AD_Reference.Table_Name, referenceUuid);
 			}
 			if (referenceId <= 0 && getIntValue(atts, I_AD_Ref_Table.COLUMNNAME_AD_Reference_ID) > 0 && getIntValue(atts, I_AD_Ref_Table.COLUMNNAME_AD_Reference_ID) <= PackOut.MAX_OFFICIAL_ID) {
 				referenceId = getIntValue(atts, I_AD_Ref_Table.COLUMNNAME_AD_Reference_ID);
 			}
 			//	 table
 			uuid = getUUIDValue(atts, I_AD_Ref_Table.COLUMNNAME_AD_Table_ID);
-			int tableId = getIdWithFromUUID(ctx, I_AD_Table.Table_Name, uuid);
+			int tableId = getIdFromUUID(ctx, I_AD_Table.Table_Name, uuid);
 			if (tableId == 0) {
 				X_AD_Table table = new X_AD_Table(ctx, 0, getTrxName(ctx));
 				table.setAccessLevel(X_AD_Table.ACCESSLEVEL_ClientPlusOrganization);
@@ -88,7 +88,7 @@ public class ReferenceTableElementHandler extends AbstractElementHandler {
 							.get_ID(), 0, "New", "AD_Table", get_IDWithColumn(
 							ctx, "AD_Table", "TableName", "AD_Table"));
 				}
-				tableId = getIdWithFromUUID(ctx, I_AD_Table.Table_Name, uuid);
+				tableId = getIdFromUUID(ctx, I_AD_Table.Table_Name, uuid);
 			}
 			//	Instance from DB
 	        MRefTable refTable = new Query(ctx, I_AD_Ref_Table.Table_Name,
@@ -103,7 +103,7 @@ public class ReferenceTableElementHandler extends AbstractElementHandler {
 			//	For Key Column
 			uuid = getUUIDValue(atts, I_AD_Ref_Table.COLUMNNAME_AD_Key);
 			if (!Util.isEmpty(uuid)) {
-				int id = getIdWithFromUUID(ctx, I_AD_Column.Table_Name, uuid);
+				int id = getIdFromUUID(ctx, I_AD_Column.Table_Name, uuid);
 				if (id <= 0) {
 					element.defer = true;
 					return;
@@ -113,7 +113,7 @@ public class ReferenceTableElementHandler extends AbstractElementHandler {
 			//	For Display
 			uuid = getUUIDValue(atts, I_AD_Ref_Table.COLUMNNAME_AD_Display);
 			if (!Util.isEmpty(uuid)) {
-				int id = getIdWithFromUUID(ctx, I_AD_Column.Table_Name, uuid);
+				int id = getIdFromUUID(ctx, I_AD_Column.Table_Name, uuid);
 				if (id <= 0) {
 					element.defer = true;
 					return;
@@ -123,7 +123,7 @@ public class ReferenceTableElementHandler extends AbstractElementHandler {
 			//	For Table
 			uuid = getUUIDValue(atts, I_AD_Ref_Table.COLUMNNAME_AD_Table_ID);
 			if (!Util.isEmpty(uuid)) {
-				int id = getIdWithFromUUID(ctx, I_AD_Table.Table_Name, uuid);
+				int id = getIdFromUUID(ctx, I_AD_Table.Table_Name, uuid);
 				if (id <= 0) {
 					element.defer = true;
 					return;
@@ -133,7 +133,7 @@ public class ReferenceTableElementHandler extends AbstractElementHandler {
 			//	For Window
 			uuid = getUUIDValue(atts, I_AD_Ref_Table.COLUMNNAME_AD_Window_ID);
 			if (!Util.isEmpty(uuid)) {
-				int id = getIdWithFromUUID(ctx, I_AD_Window.Table_Name, uuid);
+				int id = getIdFromUUID(ctx, I_AD_Window.Table_Name, uuid);
 				if (id <= 0) {
 					element.defer = true;
 					return;

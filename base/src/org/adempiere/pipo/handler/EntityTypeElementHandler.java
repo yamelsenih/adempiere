@@ -71,13 +71,13 @@ public class EntityTypeElementHandler extends AbstractElementHandler
 			entity.setClasspath(getStringValue(atts, I_AD_EntityType.COLUMNNAME_Classpath));
 			if (entity.save(getTrxName(ctx)) == true)
 			{		    	
-				recordLog (ctx, 1, entity.getEntityType(), TAG_Name, entity.get_ID(),
+				recordLog (ctx, 1, entity.getUUID(), TAG_Name, entity.get_ID(),
 						AD_Backup_ID, Object_Status,
 						I_AD_EntityType.Table_Name, I_AD_EntityType.Table_ID);
 			}
 			else
 			{
-				recordLog (ctx, 0, entity.getEntityType(), TAG_Name, entity.get_ID(),
+				recordLog (ctx, 0, entity.getUUID(), TAG_Name, entity.get_ID(),
 						AD_Backup_ID, Object_Status,
 						I_AD_EntityType.Table_Name, I_AD_EntityType.Table_ID);
 				throw new POSaveFailedException("Failed to save message.");

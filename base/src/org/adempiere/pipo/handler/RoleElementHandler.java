@@ -50,7 +50,7 @@ import org.compiere.util.Env;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.AttributesImpl;
-
+@Deprecated
 public class RoleElementHandler extends AbstractElementHandler {
 
 	private List<Integer> roles = new ArrayList<Integer>();

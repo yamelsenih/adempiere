@@ -27,7 +27,6 @@ import org.adempiere.pipo.AttributeFiller;
 import org.adempiere.pipo.Element;
 import org.adempiere.pipo.PackOut;
 import org.adempiere.pipo.exception.POSaveFailedException;
-import org.compiere.model.I_AD_Ref_List;
 import org.compiere.model.I_AD_Val_Rule;
 import org.compiere.model.X_AD_Package_Exp_Detail;
 import org.compiere.model.X_AD_Val_Rule;
@@ -43,11 +42,11 @@ public class DynValRuleElementHandler extends AbstractElementHandler {
 	public void startElement(Properties ctx, Element element) throws SAXException {
 		String elementValue = element.getElementValue();
 		Attributes atts = element.attributes;
-		String uuid = getUUIDValue(atts, I_AD_Ref_List.Table_Name);
+		String uuid = getUUIDValue(atts, I_AD_Val_Rule.Table_Name);
 		log.info(elementValue + " " + uuid);
 		String entitytype = getStringValue(atts, I_AD_Val_Rule.COLUMNNAME_EntityType);
 		if (isProcessElement(ctx, entitytype)) {
-			int id = getIdWithFromUUID(ctx, I_AD_Val_Rule.Table_Name, uuid);
+			int id = getIdFromUUID(ctx, I_AD_Val_Rule.Table_Name, uuid);
 			X_AD_Val_Rule valRule = new X_AD_Val_Rule(ctx, id, getTrxName(ctx));
 			if (id <= 0 && getIntValue(atts, I_AD_Val_Rule.COLUMNNAME_AD_Val_Rule_ID) > 0 && getIntValue(atts, I_AD_Val_Rule.COLUMNNAME_AD_Val_Rule_ID) <= PackOut.MAX_OFFICIAL_ID) {
 				valRule.setAD_Val_Rule_ID(getIntValue(atts, I_AD_Val_Rule.COLUMNNAME_AD_Val_Rule_ID));
@@ -73,9 +72,9 @@ public class DynValRuleElementHandler extends AbstractElementHandler {
 			//	Save
 			try {
 				valRule.saveEx(getTrxName(ctx));
-				recordLog (ctx, 1, valRule.getName(),"ValRule", valRule.get_ID(),backupId, Object_Status,"AD_Val_Rule",get_IDWithColumn(ctx, "AD_Table", "TableName", "AD_Val_Rule"));
+				recordLog (ctx, 1, valRule.getUUID(),"ValRule", valRule.get_ID(),backupId, Object_Status,"AD_Val_Rule",get_IDWithColumn(ctx, "AD_Table", "TableName", "AD_Val_Rule"));
 			} catch (Exception e) {
-				recordLog (ctx, 0, valRule.getName(),"ValRule", valRule.get_ID(),backupId, Object_Status,"AD_Val_Rule",get_IDWithColumn(ctx, "AD_Table", "TableName", "AD_Val_Rule"));
+				recordLog (ctx, 0, valRule.getUUID(),"ValRule", valRule.get_ID(),backupId, Object_Status,"AD_Val_Rule",get_IDWithColumn(ctx, "AD_Table", "TableName", "AD_Val_Rule"));
 				throw new POSaveFailedException(e);
 			}
 		} else {

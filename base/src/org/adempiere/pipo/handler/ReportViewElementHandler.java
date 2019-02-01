@@ -16,27 +16,28 @@
  *****************************************************************************/
 package org.adempiere.pipo.handler;
 
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
-import java.util.logging.Level;
 
 import javax.xml.transform.sax.TransformerHandler;
 
 import org.adempiere.pipo.AbstractElementHandler;
+import org.adempiere.pipo.AttributeFiller;
 import org.adempiere.pipo.Element;
 import org.adempiere.pipo.PackOut;
-import org.adempiere.pipo.exception.DatabaseAccessException;
 import org.adempiere.pipo.exception.POSaveFailedException;
-import org.compiere.model.MTable;
-import org.compiere.model.X_AD_PrintFormat;
+import org.compiere.model.I_AD_PrintFormat;
+import org.compiere.model.I_AD_ReportView;
+import org.compiere.model.I_AD_ReportView_Col;
+import org.compiere.model.I_AD_Table;
+import org.compiere.model.MReportView;
+import org.compiere.model.Query;
 import org.compiere.model.X_AD_ReportView;
 import org.compiere.model.X_AD_ReportView_Col;
-import org.compiere.util.DB;
+import org.compiere.print.MPrintFormat;
 import org.compiere.util.Env;
+import org.compiere.util.Util;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.AttributesImpl;
@@ -50,221 +51,126 @@ public class ReportViewElementHandler extends AbstractElementHandler {
 	public void startElement(Properties ctx, Element element)
 			throws SAXException {
 		String elementValue = element.getElementValue();
-		int AD_Backup_ID = -1;
+		int backupId = -1;
 		String objectStatus = null;
 		Attributes atts = element.attributes;
-		log.info(elementValue + " " + atts.getValue("ADReportviewnameID"));
-		//String entitytype = atts.getValue("EntityType");
-		String name = atts.getValue("ADReportviewnameID");
-
-		int id = get_ID(ctx, "AD_ReportView", name);
-		X_AD_ReportView m_Reportview = new X_AD_ReportView(ctx, id,
-				getTrxName(ctx));
-		if (id <= 0 && atts.getValue("AD_ReportView_ID") != null && Integer.parseInt(atts.getValue("AD_ReportView_ID")) <= PackOut.MAX_OFFICIAL_ID) {
-			m_Reportview.setAD_ReportView_ID(Integer.parseInt(atts.getValue("AD_ReportView_ID")));
-			m_Reportview.setIsDirectLoad(true);
+		String uuid = getUUIDValue(atts, I_AD_ReportView.Table_Name);
+		log.info(elementValue + " " + uuid);
+		int id = getIdFromUUID(ctx, I_AD_ReportView.Table_Name, uuid);
+		X_AD_ReportView reportView = new X_AD_ReportView(ctx, id, getTrxName(ctx));
+		if (id <= 0 && getIntValue(atts, I_AD_ReportView.COLUMNNAME_AD_ReportView_ID) > 0 && getIntValue(atts, I_AD_ReportView.COLUMNNAME_AD_ReportView_ID) <= PackOut.MAX_OFFICIAL_ID) {
+			reportView.setAD_ReportView_ID(getIntValue(atts, I_AD_ReportView.COLUMNNAME_AD_ReportView_ID));
+			reportView.setIsDirectLoad(true);
 		}
 		if (id > 0) {
-			AD_Backup_ID = copyRecord(ctx, "AD_Reportview", m_Reportview);
+			backupId = copyRecord(ctx, "AD_Reportview", reportView);
 			objectStatus = "Update";
 		} else {
 			objectStatus = "New";
-			AD_Backup_ID = 0;
+			backupId = 0;
 		}
-		String Name = atts.getValue("ADTableNameID");
-		id = get_IDWithColumn(ctx, "AD_Table", "TableName", Name);
-		MTable m_Table = null;
-		if (id == 0) {
-			m_Table = new MTable(ctx, 0, getTrxName(ctx));
-			m_Table.setAccessLevel("3");
-			m_Table.setName(Name);
-			m_Table.setTableName(Name);
-			if (m_Table.save(getTrxName(ctx)) == true) {
-				recordLog(ctx, 1, m_Table.getName(), "Table",
-						m_Table.get_ID(), 0, "New", "AD_Table",
-						get_IDWithColumn(ctx, "AD_Table", "TableName",
-								"AD_Table"));
-			} else {
-				recordLog(ctx, 0, m_Table.getName(), "Table",
-						m_Table.get_ID(), 0, "New", "AD_Table",
-						get_IDWithColumn(ctx, "AD_Table", "TableName",
-								"AD_Table"));
+		reportView.setUUID(uuid);
+		// Table
+		uuid = getUUIDValue(atts, I_AD_ReportView.COLUMNNAME_AD_Table_ID);
+		if (!Util.isEmpty(uuid)) {
+			id = getIdFromUUID(ctx, I_AD_Table.Table_Name, uuid);
+			if (id <= 0) {
+				element.defer = true;
+				return;
 			}
-			id = get_IDWithColumn(ctx, "AD_Table", "TableName", Name);
+			reportView.setAD_Table_ID(id);
 		}
-		m_Reportview.setAD_Table_ID(id);
-		m_Reportview.setDescription(getStringValue(atts,"Description"));
-		m_Reportview.setEntityType(atts.getValue("EntityType"));
-		m_Reportview.setName(atts.getValue("Name"));
-		m_Reportview.setIsActive(atts.getValue("isActive") != null ? Boolean
-				.valueOf(atts.getValue("isActive")).booleanValue() : true);
-		m_Reportview.setOrderByClause(getStringValue(atts,"OrderByClause"));
-		m_Reportview.setWhereClause(getStringValue(atts,"WhereClause"));
-		if (m_Reportview.save(getTrxName(ctx)) == true) {
-			recordLog(ctx, 1, m_Reportview.getName(), "Reportview",
-					m_Reportview.get_ID(), AD_Backup_ID, objectStatus,
+		//	Standard Attributes
+		reportView.setName(getStringValue(atts, I_AD_ReportView.COLUMNNAME_Name));
+		reportView.setPrintName(getStringValue(atts, I_AD_ReportView.COLUMNNAME_PrintName));
+		reportView.setDescription(getStringValue(atts, I_AD_ReportView.COLUMNNAME_Description));
+		reportView.setClassname(getStringValue(atts, I_AD_ReportView.COLUMNNAME_Classname));
+		reportView.setEntityType(getStringValue(atts, I_AD_ReportView.COLUMNNAME_EntityType));
+		reportView.setIsActive(getBooleanValue(atts, I_AD_ReportView.COLUMNNAME_IsActive));
+		reportView.setIsCentrallyMaintained(getBooleanValue(atts, I_AD_ReportView.COLUMNNAME_IsCentrallyMaintained));
+		reportView.setOrderByClause(getStringValue(atts, I_AD_ReportView.COLUMNNAME_OrderByClause));
+		reportView.setWhereClause(getStringValue(atts, I_AD_ReportView.COLUMNNAME_WhereClause));
+		//	Save
+		try {
+			reportView.saveEx(getTrxName(ctx));
+			recordLog(ctx, 1, reportView.getUUID(), "Reportview",
+					reportView.get_ID(), backupId, objectStatus,
 					"AD_Reportview", get_IDWithColumn(ctx, "AD_Table",
 							"TableName", "AD_Reportview"));
-			element.recordId = m_Reportview.getAD_ReportView_ID();
-		} else {
-			recordLog(ctx, 0, m_Reportview.getName(), "Reportview",
-					m_Reportview.get_ID(), AD_Backup_ID, objectStatus,
+			element.recordId = reportView.getAD_ReportView_ID();
+		} catch (Exception e) {
+			recordLog(ctx, 0, reportView.getUUID(), "Reportview",
+					reportView.get_ID(), backupId, objectStatus,
 					"AD_Reportview", get_IDWithColumn(ctx, "AD_Table",
 							"TableName", "AD_Reportview"));
-			throw new POSaveFailedException("ReportView");
+			throw new POSaveFailedException(e);
 		}
 	}
 
 	public void endElement(Properties ctx, Element element) throws SAXException {
-	}
-
-	public void create(Properties ctx, TransformerHandler document)
-			throws SAXException {
-		PackOut packOut = (PackOut) ctx.get("PackOutProcess");
-		int AD_ReportView_ID = Env.getContextAsInt(ctx, "AD_ReportView_ID");
-		if (views.contains(AD_ReportView_ID))
-			return;
 		
-		views.add(AD_ReportView_ID);
-		String sql = "SELECT * FROM AD_ReportView WHERE AD_ReportView_ID= " + AD_ReportView_ID;
-		PreparedStatement pstmt = null;
-		pstmt = DB.prepareStatement(sql, getTrxName(ctx));
-		AttributesImpl atts = new AttributesImpl();
-		try {
-			ResultSet rs = pstmt.executeQuery();
-			while (rs.next()) {
-				X_AD_ReportView m_Reportview = new X_AD_ReportView(ctx, rs
-						.getInt("AD_Reportview_ID"), null);
-				atts = createReportViewBinding(atts, m_Reportview);
-				document.startElement("", "", "reportview", atts);
-				document.endElement("", "", "reportview");
-				
-				String sql1 = "SELECT * FROM AD_Printformat WHERE AD_Reportview_ID="+AD_ReportView_ID
-						+" AND AD_Client_ID="+Env.getAD_Client_ID(ctx)
-						+" ORDER BY "+X_AD_PrintFormat.COLUMNNAME_AD_PrintFormat_ID
-						;
-				PreparedStatement pstmt1 = null;
-				pstmt1 = DB.prepareStatement(sql1, getTrxName(ctx));
-				try {
-					ResultSet rs1 = pstmt1.executeQuery();
-					while (rs1.next()) {
-						// Export Table if neccessary
-						packOut.createTable(rs1.getInt("AD_Table_ID"), 
-								document);
-						packOut.createPrintFormat(rs1
-								.getInt("AD_Printformat_ID"), document);
-					}
-					rs1.close();
-					pstmt1.close();
-					pstmt1 = null;
-				} finally {
-					try {
-						if (pstmt1 != null)
-							pstmt1.close();
-					} catch (Exception e) {
-					}
-					pstmt1 = null;
-				}
-				atts.clear();
-				sql1 = "SELECT * FROM AD_ReportView_Col WHERE AD_Reportview_ID= "
-						+ AD_ReportView_ID;
-				pstmt1 = null;
-				pstmt1 = DB.prepareStatement(sql1, getTrxName(ctx));
-				try {
-					ResultSet rs1 = pstmt1.executeQuery();
-					while (rs1.next()) {
-						createReportViewCol(ctx, document, rs1
-								.getInt("AD_ReportView_Col_ID"));
-					}
-					rs1.close();
-					pstmt1.close();
-					pstmt1 = null;
-				} finally {
-					try {
-						if (pstmt1 != null)
-							pstmt1.close();
-					} catch (Exception e) {
-					}
-					pstmt1 = null;
-				}
-			}
+	}
 
-			rs.close();
-			pstmt.close();
-			pstmt = null;
+	public void create(Properties ctx, TransformerHandler document) throws SAXException {
+		PackOut packOut = (PackOut) ctx.get("PackOutProcess");
+		int reportViewId = Env.getContextAsInt(ctx, "AD_ReportView_ID");
+		if (views.contains(reportViewId)) {
+			return;
 		}
-
-		catch (Exception e) {
-			log.log(Level.SEVERE, "reportview", e);
-			if (e instanceof SAXException)
-				throw (SAXException) e;
-			else if (e instanceof SQLException)
-				throw new DatabaseAccessException("Failed to export report view.", e);
-			else if (e instanceof RuntimeException)
-				throw (RuntimeException) e;
-			else
-				throw new RuntimeException("Failed to export report view.", e);
-		} finally {
-			try {
-				if (pstmt != null)
-					pstmt.close();
-			} catch (Exception e) {
-			}
-			pstmt = null;
+		views.add(reportViewId);
+		MReportView eportView = new MReportView(ctx, reportViewId, null);
+		AttributesImpl atts = new AttributesImpl();
+		atts = createReportViewBinding(atts, eportView);
+		document.startElement("", "", "reportview", atts);
+		document.endElement("", "", "reportview");
+		// Export Table if necessary
+		packOut.createTable(eportView.getAD_Table_ID(), document);
+		//	Get all columns
+		List<MPrintFormat> printFormatList = new Query(ctx, I_AD_PrintFormat.Table_Name, I_AD_PrintFormat.COLUMNNAME_AD_ReportView_ID + " = ?", null)
+			.setParameters(reportViewId)
+			.setClient_ID()
+			.<MPrintFormat>list();
+		//	All
+		for(MPrintFormat printFormat : printFormatList) {
+			packOut.createPrintFormat(printFormat.getAD_PrintFormat_ID(), document);
+		}
+		//	Get all columns
+		List<X_AD_ReportView_Col> reportViewColumnList = new Query(ctx, I_AD_ReportView_Col.Table_Name, I_AD_ReportView_Col.COLUMNNAME_AD_ReportView_ID + " = ?", null)
+			.setParameters(reportViewId)
+			.setClient_ID()
+			.<X_AD_ReportView_Col>list();
+		for(X_AD_ReportView_Col reportViewColumn : reportViewColumnList) {
+			createReportViewCol(ctx, document, reportViewColumn.getAD_ReportView_Col_ID());
 		}
 	}
 
-	private void createReportViewCol(Properties ctx,
-			TransformerHandler document, int AD_ReportView_Col_ID)
-			throws SAXException {
-		Env.setContext(ctx,
-				X_AD_ReportView_Col.COLUMNNAME_AD_ReportView_Col_ID,
-				AD_ReportView_Col_ID);
+	private void createReportViewCol(Properties ctx, TransformerHandler document, int reportViewColId) throws SAXException {
+		Env.setContext(ctx, X_AD_ReportView_Col.COLUMNNAME_AD_ReportView_Col_ID, reportViewColId);
 		columnHandler.create(ctx, document);
 		ctx.remove(X_AD_ReportView_Col.COLUMNNAME_AD_ReportView_Col_ID);
 	}
 
-	private AttributesImpl createReportViewBinding(AttributesImpl atts,
-			X_AD_ReportView m_Reportview) {
-		String sql = null;
-		String name = null;
+	private AttributesImpl createReportViewBinding(AttributesImpl atts, X_AD_ReportView reportView) {
 		atts.clear();
-		if (m_Reportview.getAD_ReportView_ID() <= PackOut.MAX_OFFICIAL_ID)
-	        atts.addAttribute("","","AD_ReportView_ID","CDATA",Integer.toString(m_Reportview.getAD_ReportView_ID()));
-
-		if (m_Reportview.getAD_ReportView_ID() > 0) {
-			sql = "SELECT Name FROM AD_ReportView WHERE AD_ReportView_ID=?";
-			name = DB.getSQLValueString(null, sql, m_Reportview
-					.getAD_ReportView_ID());
-			atts.addAttribute("", "", "ADReportviewnameID", "CDATA", name);
-		} else
-			atts.addAttribute("", "", "ADReportviewnameID", "CDATA", "");
-
-		if (m_Reportview.getAD_Table_ID() > 0) {
-			sql = "SELECT TableName FROM AD_Table WHERE AD_Table_ID=?";
-			name = DB.getSQLValueString(null, sql, m_Reportview
-					.getAD_Table_ID());
-			atts.addAttribute("", "", "ADTableNameID", "CDATA", name);
-		} else
-			atts.addAttribute("", "", "ADTableNameID", "CDATA", "");
-
-		atts
-				.addAttribute("", "", "Description", "CDATA", (m_Reportview
-						.getDescription() != null ? m_Reportview
-						.getDescription() : ""));
-		atts.addAttribute("", "", "EntityType", "CDATA", (m_Reportview
-				.getEntityType() != null ? m_Reportview.getEntityType() : ""));
-		atts.addAttribute("", "", "Name", "CDATA",
-				(m_Reportview.getName() != null ? m_Reportview.getName() : ""));
-		atts.addAttribute("", "", "isActive", "CDATA",
-				(m_Reportview.isActive() == true ? "true" : "false"));
-		atts.addAttribute("", "", "OrderByClause", "CDATA", (m_Reportview
-				.getOrderByClause() != null ? m_Reportview.getOrderByClause()
-				: ""));
-		atts
-				.addAttribute("", "", "WhereClause", "CDATA", (m_Reportview
-						.getWhereClause() != null ? m_Reportview
-						.getWhereClause() : ""));
+		AttributeFiller filler = new AttributeFiller(atts, reportView);
+		if (reportView.getAD_ReportView_ID() <= PackOut.MAX_OFFICIAL_ID) {
+			filler.add(I_AD_ReportView.COLUMNNAME_AD_ReportView_ID);
+		}
+		filler.addUUID();
+		if (reportView.getAD_Table_ID() > 0) {
+			filler.add(I_AD_ReportView.COLUMNNAME_AD_Table_ID, true);
+			filler.addUUID(I_AD_ReportView.COLUMNNAME_AD_Table_ID, getUUIDFromId(reportView.getCtx(), I_AD_Table.Table_Name, reportView.getAD_Table_ID()));
+		}
+		//	Standard Attributes
+		filler.add(I_AD_ReportView.COLUMNNAME_Name);
+		filler.add(I_AD_ReportView.COLUMNNAME_PrintName);
+		filler.add(I_AD_ReportView.COLUMNNAME_Description);
+		filler.add(I_AD_ReportView.COLUMNNAME_Classname);
+		filler.add(I_AD_ReportView.COLUMNNAME_EntityType);
+		filler.add(I_AD_ReportView.COLUMNNAME_IsActive);
+		filler.add(I_AD_ReportView.COLUMNNAME_IsCentrallyMaintained);
+		filler.add(I_AD_ReportView.COLUMNNAME_OrderByClause);
+		filler.add(I_AD_ReportView.COLUMNNAME_WhereClause);
 		return atts;
 	}
 }

@@ -22,12 +22,19 @@ import java.util.Properties;
 import javax.xml.transform.sax.TransformerHandler;
 
 import org.adempiere.pipo.AbstractElementHandler;
+import org.adempiere.pipo.AttributeFiller;
 import org.adempiere.pipo.Element;
 import org.adempiere.pipo.PackOut;
 import org.adempiere.pipo.exception.POSaveFailedException;
+import org.compiere.model.I_AD_Column;
+import org.compiere.model.I_AD_PrintColor;
+import org.compiere.model.I_AD_PrintFont;
+import org.compiere.model.I_AD_PrintFormat;
+import org.compiere.model.I_AD_PrintFormatItem;
+import org.compiere.model.I_AD_PrintGraph;
 import org.compiere.model.X_AD_PrintFormatItem;
-import org.compiere.util.DB;
 import org.compiere.util.Env;
+import org.compiere.util.Util;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.AttributesImpl;
@@ -37,420 +44,262 @@ public class PrintFormatItemElementHandler extends AbstractElementHandler {
 	public void startElement(Properties ctx, Element element)
 			throws SAXException {
 		String elementValue = element.getElementValue();
-		int AD_Backup_ID = -1;
-		String Object_Status = null;
+		int backupId = -1;
+		String objectStatus = null;
 		Attributes atts = element.attributes;
-		log.info(elementValue + " " + atts.getValue("Name"));
+		String uuid = getUUIDValue(atts, I_AD_PrintFormatItem.Table_Name);
+		log.info(elementValue + " " + uuid);
 		if (element.parent != null && element.parent.getElementValue().equals("printformat") &&
 			element.parent.defer) {
 			element.defer = true;
 			return;
 		}
-
-		String name = atts.getValue("Name");
-		int id = get_IDWithMaster(ctx, "AD_PrintFormatItem", name,
-				"AD_PrintFormat", atts.getValue("ADPrintFormatNameID"));
-
-		X_AD_PrintFormatItem m_PrintFormatItem = new X_AD_PrintFormatItem(ctx,
-				id, getTrxName(ctx));
-		if (id <= 0 && atts.getValue("AD_PrintFormatItem_ID") != null && Integer.parseInt(atts.getValue("AD_PrintFormatItem_ID")) <= PackOut.MAX_OFFICIAL_ID) {
-			m_PrintFormatItem.setAD_PrintFormatItem_ID(Integer.parseInt(atts.getValue("AD_PrintFormatItem_ID")));
-			m_PrintFormatItem.setIsDirectLoad(true);
+		//	
+		int id = getIdFromUUID(ctx, I_AD_PrintFormatItem.Table_Name, uuid);
+		X_AD_PrintFormatItem printFormatItem = new X_AD_PrintFormatItem(ctx, id, getTrxName(ctx));
+		if (id <= 0 && getIntValue(atts, I_AD_PrintFormatItem.COLUMNNAME_AD_PrintFormatItem_ID) > 0 && getIntValue(atts, I_AD_PrintFormatItem.COLUMNNAME_AD_PrintFormatItem_ID) <= PackOut.MAX_OFFICIAL_ID) {
+			printFormatItem.setAD_PrintFormatItem_ID(getIntValue(atts, I_AD_PrintFormatItem.COLUMNNAME_AD_PrintFormatItem_ID));
+			printFormatItem.setIsDirectLoad(true);
 		}
 		if (id > 0) {
-			AD_Backup_ID = copyRecord(ctx, "AD_PrintFormatItem",
-					m_PrintFormatItem);
-			Object_Status = "Update";
+			backupId = copyRecord(ctx, "AD_PrintFormatItem",
+					printFormatItem);
+			objectStatus = "Update";
 		} else {
-			Object_Status = "New";
-			AD_Backup_ID = 0;
+			objectStatus = "New";
+			backupId = 0;
 		}
-		m_PrintFormatItem.setName(name);
-		name = atts.getValue("ADPrintFormatNameID");
-		if (element.parent != null && element.parent.getElementValue().equals("printformat") &&
-			element.parent.recordId != 0) {
-			id = element.parent.recordId;
-		} else {
-			id = get_IDWithColumn(ctx, "AD_PrintFormat", "Name", name);
-			if (element.parent != null && element.parent.getElementValue().equals("printformat") &&
-				id > 0) {
-				element.parent.recordId = id;
-			}
-		}
-		if (id <= 0) {
-			element.defer = true;
-			return;
-		}
-		m_PrintFormatItem.setAD_PrintFormat_ID(id);
-				
-		name = atts.getValue("ADTableNameID");
-		int tableid = get_IDWithColumn(ctx, "AD_Table", "TableName", name);
-		name = atts.getValue("ADColumnNameID");
-		id = get_IDWithMasterAndColumn(ctx, "AD_Column", "ColumnName", name,
-				"AD_Table", tableid);
-		if (id > 0)
-			m_PrintFormatItem.setAD_Column_ID(id);
-		
-		name = atts.getValue("ADPrintFormatChildNameID");
-		if (name != null && name.trim().length() > 0) {
-			id = get_IDWithColumn(ctx, "AD_PrintFormat", "Name", name);			
+		printFormatItem.setUUID(uuid);
+		// Print Format
+		uuid = getUUIDValue(atts, I_AD_PrintFormatItem.COLUMNNAME_AD_PrintFormat_ID);
+		if (!Util.isEmpty(uuid)) {
+			id = getIdFromUUID(ctx, I_AD_PrintFormat.Table_Name, uuid);
 			if (id <= 0) {
 				element.defer = true;
-				element.unresolved = "AD_PrintFormat: " + name;
 				return;
 			}
-			m_PrintFormatItem.setAD_PrintFormatChild_ID(id);
+			printFormatItem.setAD_PrintFormat_ID(id);
 		}
-
-		name = atts.getValue("ADPrintGraphID");
-		if (name != null && name.trim().length() > 0) {
-			id = get_IDWithColumn(ctx, "AD_PrintGraph", "Name", name);
-			//TODO: export and import of ad_printgraph
-			/*
+		// Print Format Child
+		uuid = getUUIDValue(atts, I_AD_PrintFormatItem.COLUMNNAME_AD_PrintFormatChild_ID);
+		if (!Util.isEmpty(uuid)) {
+			id = getIdFromUUID(ctx, I_AD_PrintFormat.Table_Name, uuid);
 			if (id <= 0) {
 				element.defer = true;
 				return;
-			}*/
-			if (id > 0)
-				m_PrintFormatItem.setAD_PrintGraph_ID(id);
+			}
+			printFormatItem.setAD_PrintFormatChild_ID(id);
 		}
-
-		name = atts.getValue("ADPrintColorID");
-		if (name != null && name.trim().length() > 0) {
-			id = get_IDWithColumn(ctx, "AD_PrintColor", "Name", name);
-			//TODO: export and import of ad_printcolor
-			/*
+		// Column
+		uuid = getUUIDValue(atts, I_AD_PrintFormatItem.COLUMNNAME_AD_Column_ID);
+		if (!Util.isEmpty(uuid)) {
+			id = getIdFromUUID(ctx, I_AD_Column.Table_Name, uuid);
 			if (id <= 0) {
 				element.defer = true;
 				return;
-			}*/
-			if (id > 0)
-				m_PrintFormatItem.setAD_PrintColor_ID(id);
+			}
+			printFormatItem.setAD_Column_ID(id);
 		}
-
-		name = atts.getValue("ADPrintFontID");
-		if (name != null && name.trim().length() > 0) {
-			id = get_IDWithColumn(ctx, "AD_PrintFont", "Name", name);
-			//TODO: export and import of print font
-			/*
+		// Print Color
+		uuid = getUUIDValue(atts, I_AD_PrintFormatItem.COLUMNNAME_AD_PrintColor_ID);
+		if (!Util.isEmpty(uuid)) {
+			id = getIdFromUUID(ctx, I_AD_PrintColor.Table_Name, uuid);
 			if (id <= 0) {
 				element.defer = true;
 				return;
-			}*/
-			if (id > 0)
-				m_PrintFormatItem.setAD_PrintFont_ID(id);
+			}
+			printFormatItem.setAD_PrintColor_ID(id);
 		}
-
-		m_PrintFormatItem.setPrintName(getStringValue(atts, "PrintName"));
-		m_PrintFormatItem.setName(atts.getValue("Name"));
-		m_PrintFormatItem.setPrintAreaType(getStringValue(atts,"PrintAreaType"));
-
-		m_PrintFormatItem.setSeqNo(Integer.parseInt(atts.getValue("SeqNo")));
-		m_PrintFormatItem.setPrintFormatType(getStringValue(atts,"PrintFormatType"));
-		m_PrintFormatItem.setXSpace(Integer.parseInt(atts.getValue("XSpace")));
-
-		m_PrintFormatItem.setYSpace(Integer.parseInt(atts.getValue("YSpace")));
-		m_PrintFormatItem.setXPosition(Integer.parseInt(atts
-				.getValue("Xposition")));
-		m_PrintFormatItem.setYPosition(Integer.parseInt(atts
-				.getValue("Yposition")));
-
-		m_PrintFormatItem.setMaxWidth(Integer.parseInt(atts
-				.getValue("MaxWidth")));
-		m_PrintFormatItem.setMaxHeight(Integer.parseInt(atts
-				.getValue("MaxHieght")));
-		m_PrintFormatItem.setSortNo(Integer.parseInt(atts.getValue("SortNo")));
-
-		m_PrintFormatItem.setFieldAlignmentType(getStringValue(atts
-				,"FieldAlignmentType"));
-		m_PrintFormatItem.setLineAlignmentType(getStringValue(atts
-				,"LineAlignmentType"));
-		m_PrintFormatItem.setImageURL(getStringValue(atts,"ImageURL"));
-		m_PrintFormatItem.setArcDiameter(Integer.parseInt(atts
-				.getValue("ArcDiameter")));
-		m_PrintFormatItem.setLineWidth(Integer.parseInt(atts
-				.getValue("LineWidth")));
-		m_PrintFormatItem.setShapeType(getStringValue(atts,"ShapeType"));
-
-		m_PrintFormatItem.setBelowColumn(Integer.parseInt(atts
-				.getValue("BelowColumn")));
-		m_PrintFormatItem.setPrintNameSuffix(getStringValue(atts,"PrintNameSuffix"));
-		m_PrintFormatItem.setRunningTotalLines(Integer.parseInt(atts
-				.getValue("RunningTotalLines")));
-
-		m_PrintFormatItem
-				.setIsActive(atts.getValue("isActive") != null ? Boolean
-						.valueOf(atts.getValue("isActive")).booleanValue()
-						: true);
-		m_PrintFormatItem.setIsPrinted(Boolean.valueOf(
-				atts.getValue("isPrinted")).booleanValue());
-		m_PrintFormatItem.setIsRelativePosition(Boolean.valueOf(
-				atts.getValue("isRelativePosition")).booleanValue());
-		m_PrintFormatItem.setIsNextLine(Boolean.valueOf(
-				atts.getValue("isNextLine")).booleanValue());
-
-		m_PrintFormatItem.setIsHeightOneLine(Boolean.valueOf(
-				atts.getValue("isHeightOneLine")).booleanValue());
-		m_PrintFormatItem.setIsOrderBy(Boolean.valueOf(
-				atts.getValue("isOrderBy")).booleanValue());
-		m_PrintFormatItem.setIsGroupBy(Boolean.valueOf(
-				atts.getValue("isGroupBy")).booleanValue());
-
-		m_PrintFormatItem.setIsPageBreak(Boolean.valueOf(
-				atts.getValue("isPageBreak")).booleanValue());
-		m_PrintFormatItem.setIsSummarized(Boolean.valueOf(
-				atts.getValue("isSummarized")).booleanValue());
-		m_PrintFormatItem.setImageIsAttached(Boolean.valueOf(
-				atts.getValue("isImageIsAttached")).booleanValue());
-
-		m_PrintFormatItem.setIsAveraged(Boolean.valueOf(
-				atts.getValue("isAveraged")).booleanValue());
-		m_PrintFormatItem.setIsCounted(Boolean.valueOf(
-				atts.getValue("isCounted")).booleanValue());
-		m_PrintFormatItem.setIsSetNLPosition(Boolean.valueOf(
-				atts.getValue("isSetNLPosition")).booleanValue());
-		m_PrintFormatItem.setIsSuppressNull(Boolean.valueOf(
-				atts.getValue("isSuppressNull")).booleanValue());
-
-		m_PrintFormatItem.setIsFixedWidth(Boolean.valueOf(
-				atts.getValue("isFixedWidth")).booleanValue());
-		m_PrintFormatItem.setIsNextPage(Boolean.valueOf(
-				atts.getValue("isNextPage")).booleanValue());
-		m_PrintFormatItem.setIsMaxCalc(Boolean.valueOf(
-				atts.getValue("isMaxCalc")).booleanValue());
-		m_PrintFormatItem.setIsMinCalc(Boolean.valueOf(
-				atts.getValue("isMinCalc")).booleanValue());
-
-		m_PrintFormatItem.setIsRunningTotal(Boolean.valueOf(
-				atts.getValue("isRunningTotal")).booleanValue());
-		m_PrintFormatItem.setIsVarianceCalc(Boolean.valueOf(
-				atts.getValue("isVarianceCalc")).booleanValue());
-		m_PrintFormatItem.setIsDeviationCalc(Boolean.valueOf(
-				atts.getValue("isDeviationCalc")).booleanValue());
-		
-		// BarCode Type
-		String barCodeType = atts.getValue(X_AD_PrintFormatItem.COLUMNNAME_BarcodeType);
-		m_PrintFormatItem.setBarcodeType(barCodeType);
-
-		if (m_PrintFormatItem.save(getTrxName(ctx)) == true) {
-			recordLog(ctx, 1, m_PrintFormatItem.getName(), "PrintFormatItem",
-					m_PrintFormatItem.get_ID(), AD_Backup_ID, Object_Status,
+		// Print Font
+		uuid = getUUIDValue(atts, I_AD_PrintFormatItem.COLUMNNAME_AD_PrintFont_ID);
+		if (!Util.isEmpty(uuid)) {
+			id = getIdFromUUID(ctx, I_AD_PrintFont.Table_Name, uuid);
+			if (id <= 0) {
+				element.defer = true;
+				return;
+			}
+			printFormatItem.setAD_PrintFont_ID(id);
+		}
+		// Print Graph
+		uuid = getUUIDValue(atts, I_AD_PrintFormatItem.COLUMNNAME_AD_PrintGraph_ID);
+		if (!Util.isEmpty(uuid)) {
+			id = getIdFromUUID(ctx, I_AD_PrintGraph.Table_Name, uuid);
+			if (id <= 0) {
+				element.defer = true;
+				return;
+			}
+			printFormatItem.setAD_PrintGraph_ID(id);
+		}
+		//	Standard Attributes
+		printFormatItem.setArcDiameter(getIntValue(atts, I_AD_PrintFormatItem.COLUMNNAME_ArcDiameter));
+		printFormatItem.setBarcodeType(getStringValue(atts, I_AD_PrintFormatItem.COLUMNNAME_BarcodeType));
+		printFormatItem.setBelowColumn(getIntValue(atts, I_AD_PrintFormatItem.COLUMNNAME_BelowColumn));
+		printFormatItem.setDisplayLogic(getStringValue(atts, I_AD_PrintFormatItem.COLUMNNAME_DisplayLogic));
+		printFormatItem.setFieldAlignmentType(getStringValue(atts, I_AD_PrintFormatItem.COLUMNNAME_FieldAlignmentType));
+		printFormatItem.setFormatPattern(getStringValue(atts, I_AD_PrintFormatItem.COLUMNNAME_FormatPattern));
+		printFormatItem.setImageIsAttached(getBooleanValue(atts, I_AD_PrintFormatItem.COLUMNNAME_ImageIsAttached));
+		printFormatItem.setImageURL(getStringValue(atts, I_AD_PrintFormatItem.COLUMNNAME_ImageURL));
+		printFormatItem.setIsActive(getBooleanValue(atts, I_AD_PrintFormatItem.COLUMNNAME_IsActive));
+		printFormatItem.setIsAveraged(getBooleanValue(atts, I_AD_PrintFormatItem.COLUMNNAME_IsAveraged));
+		printFormatItem.setIsCentrallyMaintained(getBooleanValue(atts, I_AD_PrintFormatItem.COLUMNNAME_IsCentrallyMaintained));
+		printFormatItem.setIsCounted(getBooleanValue(atts, I_AD_PrintFormatItem.COLUMNNAME_IsCounted));
+		printFormatItem.setIsDesc(getBooleanValue(atts, I_AD_PrintFormatItem.COLUMNNAME_IsDesc));
+		printFormatItem.setIsDeviationCalc(getBooleanValue(atts, I_AD_PrintFormatItem.COLUMNNAME_IsDeviationCalc));
+		printFormatItem.setIsFilledRectangle(getBooleanValue(atts, I_AD_PrintFormatItem.COLUMNNAME_IsFilledRectangle));
+		printFormatItem.setIsFixedWidth(getBooleanValue(atts, I_AD_PrintFormatItem.COLUMNNAME_IsFixedWidth));
+		printFormatItem.setIsGroupBy(getBooleanValue(atts, I_AD_PrintFormatItem.COLUMNNAME_IsGroupBy));
+		printFormatItem.setIsHeightOneLine(getBooleanValue(atts, I_AD_PrintFormatItem.COLUMNNAME_IsHeightOneLine));
+		printFormatItem.setIsImageField(getBooleanValue(atts, I_AD_PrintFormatItem.COLUMNNAME_IsImageField));
+		printFormatItem.setIsMaxCalc(getBooleanValue(atts, I_AD_PrintFormatItem.COLUMNNAME_IsMaxCalc));
+		printFormatItem.setIsMinCalc(getBooleanValue(atts, I_AD_PrintFormatItem.COLUMNNAME_IsMinCalc));
+		printFormatItem.setIsNextLine(getBooleanValue(atts, I_AD_PrintFormatItem.COLUMNNAME_IsNextLine));
+		printFormatItem.setIsNextPage(getBooleanValue(atts, I_AD_PrintFormatItem.COLUMNNAME_IsNextPage));
+		printFormatItem.setIsOrderBy(getBooleanValue(atts, I_AD_PrintFormatItem.COLUMNNAME_IsOrderBy));
+		printFormatItem.setIsPageBreak(getBooleanValue(atts, I_AD_PrintFormatItem.COLUMNNAME_IsPageBreak));
+		printFormatItem.setIsPrintBarcodeText(getBooleanValue(atts, I_AD_PrintFormatItem.COLUMNNAME_IsPrintBarcodeText));
+		printFormatItem.setIsPrinted(getBooleanValue(atts, I_AD_PrintFormatItem.COLUMNNAME_IsPrinted));
+		printFormatItem.setIsRelativePosition(getBooleanValue(atts, I_AD_PrintFormatItem.COLUMNNAME_IsRelativePosition));
+		printFormatItem.setIsRunningTotal(getBooleanValue(atts, I_AD_PrintFormatItem.COLUMNNAME_IsRunningTotal));
+		printFormatItem.setIsSetNLPosition(getBooleanValue(atts, I_AD_PrintFormatItem.COLUMNNAME_IsSetNLPosition));
+		printFormatItem.setIsSummarized(getBooleanValue(atts, I_AD_PrintFormatItem.COLUMNNAME_IsSummarized));
+		printFormatItem.setIsSuppressNull(getBooleanValue(atts, I_AD_PrintFormatItem.COLUMNNAME_IsSuppressNull));
+		printFormatItem.setIsSuppressRepeats(getBooleanValue(atts, I_AD_PrintFormatItem.COLUMNNAME_IsSuppressRepeats));
+		printFormatItem.setIsVarianceCalc(getBooleanValue(atts, I_AD_PrintFormatItem.COLUMNNAME_IsVarianceCalc));
+		printFormatItem.setImageIsAttached(getBooleanValue(atts, I_AD_PrintFormatItem.COLUMNNAME_ImageIsAttached));
+		printFormatItem.setLineAlignmentType(getStringValue(atts, I_AD_PrintFormatItem.COLUMNNAME_LineAlignmentType));
+		printFormatItem.setLineWidth(getIntValue(atts, I_AD_PrintFormatItem.COLUMNNAME_LineWidth));
+		printFormatItem.setMaxHeight(getIntValue(atts, I_AD_PrintFormatItem.COLUMNNAME_MaxHeight));
+		printFormatItem.setMaxWidth(getIntValue(atts, I_AD_PrintFormatItem.COLUMNNAME_MaxWidth));
+		printFormatItem.setName(getStringValue(atts, I_AD_PrintFormatItem.COLUMNNAME_Name));
+		printFormatItem.setPrintAreaType(getStringValue(atts, I_AD_PrintFormatItem.COLUMNNAME_PrintAreaType));
+		printFormatItem.setPrintFormatType(getStringValue(atts, I_AD_PrintFormatItem.COLUMNNAME_PrintFormatType));
+		printFormatItem.setPrintName(getStringValue(atts, I_AD_PrintFormatItem.COLUMNNAME_PrintName));
+		printFormatItem.setPrintNameSuffix(getStringValue(atts, I_AD_PrintFormatItem.COLUMNNAME_PrintNameSuffix));
+		printFormatItem.setSeqNo(getIntValue(atts, I_AD_PrintFormatItem.COLUMNNAME_SeqNo));
+		printFormatItem.setShapeType(getStringValue(atts, I_AD_PrintFormatItem.COLUMNNAME_ShapeType));
+		printFormatItem.setSortNo(getIntValue(atts, I_AD_PrintFormatItem.COLUMNNAME_SortNo));
+		printFormatItem.setXPosition(getIntValue(atts, I_AD_PrintFormatItem.COLUMNNAME_XPosition));
+		printFormatItem.setXSpace(getIntValue(atts, I_AD_PrintFormatItem.COLUMNNAME_XSpace));
+		printFormatItem.setYPosition(getIntValue(atts, I_AD_PrintFormatItem.COLUMNNAME_YPosition));
+		printFormatItem.setYSpace(getIntValue(atts, I_AD_PrintFormatItem.COLUMNNAME_YSpace));
+		//	Save
+		try {
+			printFormatItem.saveEx(getTrxName(ctx));
+			recordLog(ctx, 1, printFormatItem.getUUID(), "PrintFormatItem",
+					printFormatItem.get_ID(), backupId, objectStatus,
 					"AD_PrintFormatItem", get_IDWithColumn(ctx, "AD_Table",
 							"TableName", "AD_PrintFormatItem"));
-		} else {
-			recordLog(ctx, 0, m_PrintFormatItem.getName(), "PrintFormatItem",
-					m_PrintFormatItem.get_ID(), AD_Backup_ID, Object_Status,
+		} catch (Exception e) {
+			recordLog(ctx, 0, printFormatItem.getUUID(), "PrintFormatItem",
+					printFormatItem.get_ID(), backupId, objectStatus,
 					"AD_PrintFormatItem", get_IDWithColumn(ctx, "AD_Table",
 							"TableName", "AD_PrintFormatItem"));
-			throw new POSaveFailedException("PrintFormatItem");
+			throw new POSaveFailedException(e);
 		}
 	}
 
 	public void endElement(Properties ctx, Element element) throws SAXException {
+		
 	}
 
-	public void create(Properties ctx, TransformerHandler document)
-			throws SAXException {
-		int AD_PrintFormatItem_ID = Env.getContextAsInt(ctx,
-				X_AD_PrintFormatItem.COLUMNNAME_AD_PrintFormatItem_ID);
-		X_AD_PrintFormatItem m_PrintFormatItem = new X_AD_PrintFormatItem(ctx,
-				AD_PrintFormatItem_ID, null);
+	public void create(Properties ctx, TransformerHandler document) throws SAXException {
+		int printFormatItemId = Env.getContextAsInt(ctx, X_AD_PrintFormatItem.COLUMNNAME_AD_PrintFormatItem_ID);
+		X_AD_PrintFormatItem printFormatItem = new X_AD_PrintFormatItem(ctx, printFormatItemId, null);
 		AttributesImpl atts = new AttributesImpl();
-		createPrintFormatItemBinding(atts, m_PrintFormatItem);
+		createPrintFormatItemBinding(atts, printFormatItem);
 		document.startElement("", "", "printformatitem", atts);
 		document.endElement("", "", "printformatitem");
 	}
 
-	private AttributesImpl createPrintFormatItemBinding(AttributesImpl atts,
-			X_AD_PrintFormatItem m_PrintformatItem) {
-		String sql = null;
-		String name = null;
+	private AttributesImpl createPrintFormatItemBinding(AttributesImpl atts, X_AD_PrintFormatItem printFormatItem) {
 		atts.clear();
-		if (m_PrintformatItem.getAD_PrintFormatItem_ID() <= PackOut.MAX_OFFICIAL_ID)
-	        atts.addAttribute("","","AD_PrintFormatItem_ID","CDATA",Integer.toString(m_PrintformatItem.getAD_PrintFormatItem_ID()));
-		if (m_PrintformatItem.getAD_PrintFormat_ID() > 0) {
-			sql = "SELECT Name FROM AD_PrintFormat WHERE AD_PrintFormat_ID=?";
-			name = DB.getSQLValueString(null, sql, m_PrintformatItem
-					.getAD_PrintFormat_ID());
-			atts.addAttribute("", "", "ADPrintFormatNameID", "CDATA", name);
-		} else
-			atts.addAttribute("", "", "ADPrintFormatNameID", "CDATA", "");
-
-		if (m_PrintformatItem.getAD_PrintFormatChild_ID() > 0) {
-			sql = "SELECT Name FROM AD_PrintFormat WHERE AD_PrintFormat_ID=?";
-			name = DB.getSQLValueString(null, sql, m_PrintformatItem
-					.getAD_PrintFormatChild_ID());
-			atts
-					.addAttribute("", "", "ADPrintFormatChildNameID", "CDATA",
-							name);
-		} else
-			atts.addAttribute("", "", "ADPrintFormatChildNameID", "CDATA", "");
-
-		if (m_PrintformatItem.getAD_Column_ID() > 0) {
-			sql = "SELECT ColumnName FROM AD_Column WHERE AD_Column_ID=?";
-			name = DB.getSQLValueString(null, sql, m_PrintformatItem
-					.getAD_Column_ID());
-			atts.addAttribute("", "", "ADColumnNameID", "CDATA", name);
-		} else
-			atts.addAttribute("", "", "ADColumnNameID", "CDATA", "");
-
-		if (m_PrintformatItem.getAD_Column_ID() > 0) {
-			sql = "SELECT AD_Table_ID FROM AD_Column WHERE AD_Column_ID=?";
-			int tableID = DB.getSQLValue(null, sql, m_PrintformatItem
-					.getAD_Column_ID());
-			sql = "SELECT TableName FROM AD_Table WHERE AD_Table_ID=?";
-			name = DB.getSQLValueString(null, sql, tableID);
-			atts.addAttribute("", "", "ADTableNameID", "CDATA", name);
-		} else
-			atts.addAttribute("", "", "ADTableNameID", "CDATA", "");
-
-		if (m_PrintformatItem.getAD_PrintGraph_ID() > 0) {
-			sql = "SELECT Name FROM AD_PrintGraph WHERE AD_PrintGraph_ID=?";
-			name = DB.getSQLValueString(null, sql, m_PrintformatItem
-					.getAD_PrintGraph_ID());
-			atts.addAttribute("", "", "ADPrintGraphID", "CDATA", name);
-		} else
-			atts.addAttribute("", "", "ADPrintGraphID", "CDATA", "");
-
-		if (m_PrintformatItem.getAD_PrintColor_ID() > 0) {
-			sql = "SELECT Name FROM AD_PrintColor WHERE AD_PrintColor_ID=?";
-			name = DB.getSQLValueString(null, sql, m_PrintformatItem
-					.getAD_PrintColor_ID());
-			atts.addAttribute("", "", "ADPrintColorID", "CDATA", name);
-		} else
-			atts.addAttribute("", "", "ADPrintColorID", "CDATA", "");
-
-		if (m_PrintformatItem.getAD_PrintFont_ID() > 0) {
-			sql = "SELECT Name FROM AD_PrintFont WHERE AD_PrintFont_ID=?";
-			name = DB.getSQLValueString(null, sql, m_PrintformatItem
-					.getAD_PrintFont_ID());
-			atts.addAttribute("", "", "ADPrintFontID", "CDATA", name);
-		} else
-			atts.addAttribute("", "", "ADPrintFontID", "CDATA", "");
-
-		atts.addAttribute("", "", "PrintName", "CDATA",
-				(m_PrintformatItem.getPrintName() != null ? m_PrintformatItem
-						.getPrintName() : ""));
-		atts.addAttribute("", "", "Name", "CDATA",
-				(m_PrintformatItem.getName() != null ? m_PrintformatItem
-						.getName() : ""));
-		atts.addAttribute("", "", "PrintAreaType", "CDATA", (m_PrintformatItem
-				.getPrintAreaType() != null ? m_PrintformatItem
-				.getPrintAreaType() : ""));
-		atts.addAttribute("", "", "SeqNo", "CDATA", ""
-				+ m_PrintformatItem.getSeqNo());
-		atts.addAttribute("", "", "PrintFormatType", "CDATA", m_PrintformatItem
-				.getPrintFormatType());
-		atts.addAttribute("", "", "XSpace", "CDATA", ("" + m_PrintformatItem
-				.getXSpace()));
-		atts.addAttribute("", "", "YSpace", "CDATA", ("" + m_PrintformatItem
-				.getYSpace()));
-		atts.addAttribute("", "", "Xposition", "CDATA", ("" + m_PrintformatItem
-				.getXPosition()));
-		atts.addAttribute("", "", "Yposition", "CDATA", ("" + m_PrintformatItem
-				.getYPosition()));
-		atts.addAttribute("", "", "MaxWidth", "CDATA", ("" + m_PrintformatItem
-				.getMaxWidth()));
-		atts.addAttribute("", "", "MaxHieght", "CDATA", ("" + m_PrintformatItem
-				.getMaxHeight()));
-		atts.addAttribute("", "", "SortNo", "CDATA", ("" + m_PrintformatItem
-				.getSortNo()));
-		atts
-				.addAttribute(
-						"",
-						"",
-						"FieldAlignmentType",
-						"CDATA",
-						(m_PrintformatItem.getFieldAlignmentType() != null ? m_PrintformatItem
-								.getFieldAlignmentType()
-								: ""));
-		atts
-				.addAttribute(
-						"",
-						"",
-						"LineAlignmentType",
-						"CDATA",
-						(m_PrintformatItem.getLineAlignmentType() != null ? m_PrintformatItem
-								.getLineAlignmentType()
-								: ""));
-		atts.addAttribute("", "", "ImageURL", "CDATA", (m_PrintformatItem
-				.getImageURL() != null ? m_PrintformatItem.getImageURL() : ""));
-		atts.addAttribute("", "", "BelowColumn", "CDATA",
-				("" + m_PrintformatItem.getBelowColumn()));
-		atts.addAttribute("", "", "RunningTotalLines", "CDATA",
-				("" + m_PrintformatItem.getRunningTotalLines()));
-		atts
-				.addAttribute(
-						"",
-						"",
-						"PrintNameSuffix",
-						"CDATA",
-						(m_PrintformatItem.getPrintNameSuffix() != null ? m_PrintformatItem
-								.getPrintNameSuffix()
-								: ""));
-		atts.addAttribute("", "", "ArcDiameter", "CDATA", ""
-				+ m_PrintformatItem.getArcDiameter());
-		atts.addAttribute("", "", "LineWidth", "CDATA", ""
-				+ m_PrintformatItem.getLineWidth());
-		atts
-				.addAttribute("", "", "ShapeType", "CDATA", m_PrintformatItem
-						.getShapeType() != null ? m_PrintformatItem
-						.getShapeType() : "");
-		atts.addAttribute("", "", "isActive", "CDATA", (m_PrintformatItem
-				.isActive() == true ? "true" : "false"));
-		atts.addAttribute("", "", "isPrinted", "CDATA", (m_PrintformatItem
-				.isPrinted() == true ? "true" : "false"));
-		atts.addAttribute("", "", "isRelativePosition", "CDATA",
-				(m_PrintformatItem.isRelativePosition() == true ? "true"
-						: "false"));
-		atts.addAttribute("", "", "isNextLine", "CDATA", (m_PrintformatItem
-				.isNextLine() == true ? "true" : "false"));
-		atts
-				.addAttribute("", "", "isHeightOneLine", "CDATA",
-						(m_PrintformatItem.isHeightOneLine() == true ? "true"
-								: "false"));
-		atts.addAttribute("", "", "isOrderBy", "CDATA", (m_PrintformatItem
-				.isOrderBy() == true ? "true" : "false"));
-		atts.addAttribute("", "", "isGroupBy", "CDATA", (m_PrintformatItem
-				.isGroupBy() == true ? "true" : "false"));
-		atts.addAttribute("", "", "isPageBreak", "CDATA", (m_PrintformatItem
-				.isPageBreak() == true ? "true" : "false"));
-		atts.addAttribute("", "", "isSummarized", "CDATA", (m_PrintformatItem
-				.isSummarized() == true ? "true" : "false"));
-		atts.addAttribute("", "", "isImageIsAttached", "CDATA",
-				(m_PrintformatItem.isImageIsAttached() == true ? "true"
-						: "false"));
-		atts.addAttribute("", "", "isAveraged", "CDATA", (m_PrintformatItem
-				.isAveraged() == true ? "true" : "false"));
-		atts.addAttribute("", "", "isCounted", "CDATA", (m_PrintformatItem
-				.isCounted() == true ? "true" : "false"));
-		atts
-				.addAttribute("", "", "isSetNLPosition", "CDATA",
-						(m_PrintformatItem.isSetNLPosition() == true ? "true"
-								: "false"));
-		atts.addAttribute("", "", "isSuppressNull", "CDATA", (m_PrintformatItem
-				.isSuppressNull() == true ? "true" : "false"));
-		atts.addAttribute("", "", "isFixedWidth", "CDATA", (m_PrintformatItem
-				.isFixedWidth() == true ? "true" : "false"));
-		atts.addAttribute("", "", "isNextPage", "CDATA", (m_PrintformatItem
-				.isNextPage() == true ? "true" : "false"));
-		atts.addAttribute("", "", "isMaxCalc", "CDATA", (m_PrintformatItem
-				.isMaxCalc() == true ? "true" : "false"));
-		atts.addAttribute("", "", "isMinCalc", "CDATA", (m_PrintformatItem
-				.isMinCalc() == true ? "true" : "false"));
-		atts.addAttribute("", "", "isRunningTotal", "CDATA", (m_PrintformatItem
-				.isRunningTotal() == true ? "true" : "false"));
-		atts.addAttribute("", "", "isVarianceCalc", "CDATA", (m_PrintformatItem
-				.isVarianceCalc() == true ? "true" : "false"));
-		atts
-				.addAttribute("", "", "isDeviationCalc", "CDATA",
-						(m_PrintformatItem.isDeviationCalc() == true ? "true"
-								: "false"));
-		// BarCode Type
-		if (m_PrintformatItem.getBarcodeType() != null)
-			atts.addAttribute("", "", X_AD_PrintFormatItem.COLUMNNAME_BarcodeType, "CDATA",
-					m_PrintformatItem.getBarcodeType());
-
+		AttributeFiller filler = new AttributeFiller(atts, printFormatItem);
+		if (printFormatItem.getAD_PrintFormatItem_ID() <= PackOut.MAX_OFFICIAL_ID) {
+			filler.add(I_AD_PrintFormatItem.COLUMNNAME_AD_PrintFormatItem_ID);
+		}
+		filler.addUUID();
+		//	Print Format
+		if (printFormatItem.getAD_PrintFormat_ID() > 0) {
+			filler.add(I_AD_PrintFormatItem.COLUMNNAME_AD_PrintFormat_ID, true);
+			filler.addUUID(I_AD_PrintFormatItem.COLUMNNAME_AD_PrintFormat_ID, getUUIDFromId(printFormatItem.getCtx(), I_AD_PrintFormat.Table_Name, printFormatItem.getAD_PrintFormat_ID()));
+		}
+		//	Print Format
+		if (printFormatItem.getAD_PrintFormatChild_ID() > 0) {
+			filler.add(I_AD_PrintFormatItem.COLUMNNAME_AD_PrintFormatChild_ID, true);
+			filler.addUUID(I_AD_PrintFormatItem.COLUMNNAME_AD_PrintFormatChild_ID, getUUIDFromId(printFormatItem.getCtx(), I_AD_PrintFormat.Table_Name, printFormatItem.getAD_PrintFormatChild_ID()));
+		}
+		//	Print Format
+		if (printFormatItem.getAD_Column_ID() > 0) {
+			filler.add(I_AD_PrintFormatItem.COLUMNNAME_AD_Column_ID, true);
+			filler.addUUID(I_AD_PrintFormatItem.COLUMNNAME_AD_Column_ID, getUUIDFromId(printFormatItem.getCtx(), I_AD_Column.Table_Name, printFormatItem.getAD_Column_ID()));
+		}
+		//	Print Color
+		if (printFormatItem.getAD_PrintColor_ID() > 0) {
+			filler.add(I_AD_PrintFormatItem.COLUMNNAME_AD_PrintColor_ID, true);
+			filler.addUUID(I_AD_PrintFormatItem.COLUMNNAME_AD_PrintColor_ID, getUUIDFromId(printFormatItem.getCtx(), I_AD_PrintColor.Table_Name, printFormatItem.getAD_PrintColor_ID()));
+		}
+		//	Print Font
+		if (printFormatItem.getAD_PrintFont_ID() > 0) {
+			filler.add(I_AD_PrintFormatItem.COLUMNNAME_AD_PrintFont_ID, true);
+			filler.addUUID(I_AD_PrintFormatItem.COLUMNNAME_AD_PrintFont_ID, getUUIDFromId(printFormatItem.getCtx(), I_AD_PrintFont.Table_Name, printFormatItem.getAD_PrintFont_ID()));
+		}
+		//	Print Graph
+		if (printFormatItem.getAD_PrintGraph_ID() > 0) {
+			filler.add(I_AD_PrintFormatItem.COLUMNNAME_AD_PrintGraph_ID, true);
+			filler.addUUID(I_AD_PrintFormatItem.COLUMNNAME_AD_PrintGraph_ID, getUUIDFromId(printFormatItem.getCtx(), I_AD_PrintGraph.Table_Name, printFormatItem.getAD_PrintGraph_ID()));
+		}
+		//	Standard Attributes
+		filler.add(I_AD_PrintFormatItem.COLUMNNAME_ArcDiameter);
+		filler.add(I_AD_PrintFormatItem.COLUMNNAME_BarcodeType);
+		filler.add(I_AD_PrintFormatItem.COLUMNNAME_BelowColumn);
+		filler.add(I_AD_PrintFormatItem.COLUMNNAME_DisplayLogic);
+		filler.add(I_AD_PrintFormatItem.COLUMNNAME_FieldAlignmentType);
+		filler.add(I_AD_PrintFormatItem.COLUMNNAME_FormatPattern);
+		filler.add(I_AD_PrintFormatItem.COLUMNNAME_ImageIsAttached);
+		filler.add(I_AD_PrintFormatItem.COLUMNNAME_ImageURL);
+		filler.add(I_AD_PrintFormatItem.COLUMNNAME_IsActive);
+		filler.add(I_AD_PrintFormatItem.COLUMNNAME_IsAveraged);
+		filler.add(I_AD_PrintFormatItem.COLUMNNAME_IsCentrallyMaintained);
+		filler.add(I_AD_PrintFormatItem.COLUMNNAME_IsCounted);
+		filler.add(I_AD_PrintFormatItem.COLUMNNAME_IsDesc);
+		filler.add(I_AD_PrintFormatItem.COLUMNNAME_IsDeviationCalc);
+		filler.add(I_AD_PrintFormatItem.COLUMNNAME_IsFilledRectangle);
+		filler.add(I_AD_PrintFormatItem.COLUMNNAME_IsFixedWidth);
+		filler.add(I_AD_PrintFormatItem.COLUMNNAME_IsGroupBy);
+		filler.add(I_AD_PrintFormatItem.COLUMNNAME_IsHeightOneLine);
+		filler.add(I_AD_PrintFormatItem.COLUMNNAME_IsImageField);
+		filler.add(I_AD_PrintFormatItem.COLUMNNAME_IsMaxCalc);
+		filler.add(I_AD_PrintFormatItem.COLUMNNAME_IsMinCalc);
+		filler.add(I_AD_PrintFormatItem.COLUMNNAME_IsNextLine);
+		filler.add(I_AD_PrintFormatItem.COLUMNNAME_IsNextPage);
+		filler.add(I_AD_PrintFormatItem.COLUMNNAME_IsOrderBy);
+		filler.add(I_AD_PrintFormatItem.COLUMNNAME_IsPageBreak);
+		filler.add(I_AD_PrintFormatItem.COLUMNNAME_IsPrintBarcodeText);
+		filler.add(I_AD_PrintFormatItem.COLUMNNAME_IsPrinted);
+		filler.add(I_AD_PrintFormatItem.COLUMNNAME_IsRelativePosition);
+		filler.add(I_AD_PrintFormatItem.COLUMNNAME_IsRunningTotal);
+		filler.add(I_AD_PrintFormatItem.COLUMNNAME_IsSetNLPosition);
+		filler.add(I_AD_PrintFormatItem.COLUMNNAME_IsSummarized);
+		filler.add(I_AD_PrintFormatItem.COLUMNNAME_IsSuppressNull);
+		filler.add(I_AD_PrintFormatItem.COLUMNNAME_IsSuppressRepeats);
+		filler.add(I_AD_PrintFormatItem.COLUMNNAME_IsVarianceCalc);
+		filler.add(I_AD_PrintFormatItem.COLUMNNAME_ImageIsAttached);
+		filler.add(I_AD_PrintFormatItem.COLUMNNAME_LineAlignmentType);
+		filler.add(I_AD_PrintFormatItem.COLUMNNAME_LineWidth);
+		filler.add(I_AD_PrintFormatItem.COLUMNNAME_MaxHeight);
+		filler.add(I_AD_PrintFormatItem.COLUMNNAME_MaxWidth);
+		filler.add(I_AD_PrintFormatItem.COLUMNNAME_Name);
+		filler.add(I_AD_PrintFormatItem.COLUMNNAME_PrintAreaType);
+		filler.add(I_AD_PrintFormatItem.COLUMNNAME_PrintFormatType);
+		filler.add(I_AD_PrintFormatItem.COLUMNNAME_PrintName);
+		filler.add(I_AD_PrintFormatItem.COLUMNNAME_PrintNameSuffix);
+		filler.add(I_AD_PrintFormatItem.COLUMNNAME_SeqNo);
+		filler.add(I_AD_PrintFormatItem.COLUMNNAME_ShapeType);
+		filler.add(I_AD_PrintFormatItem.COLUMNNAME_SortNo);
+		filler.add(I_AD_PrintFormatItem.COLUMNNAME_XPosition);
+		filler.add(I_AD_PrintFormatItem.COLUMNNAME_XSpace);
+		filler.add(I_AD_PrintFormatItem.COLUMNNAME_YPosition);
+		filler.add(I_AD_PrintFormatItem.COLUMNNAME_YSpace);
 		return atts;
 	}
 }

@@ -26,7 +26,6 @@ import javax.xml.transform.sax.TransformerHandler;
 import org.adempiere.pipo.AbstractElementHandler;
 import org.adempiere.pipo.AttributeFiller;
 import org.adempiere.pipo.Element;
-import org.adempiere.pipo.PackIn;
 import org.adempiere.pipo.PackOut;
 import org.adempiere.pipo.exception.POSaveFailedException;
 import org.compiere.model.I_AD_Table;
@@ -49,20 +48,13 @@ public class TableElementHandler extends AbstractElementHandler {
 	
 	public void startElement(Properties ctx, Element element) throws SAXException
 	{
-		final PackIn packIn = (PackIn)ctx.get("PackInProcess");
-		final String elementValue = element.getElementValue();
-		final Attributes atts = element.attributes;
+		String elementValue = element.getElementValue();
+		Attributes atts = element.attributes;
 		String uuid = getUUIDValue(atts, I_AD_Table.Table_Name);
-		String tableUuid = uuid;
 		log.info(elementValue + " " + uuid);
 		String entitytype = getStringValue(atts, I_AD_Table.COLUMNNAME_EntityType);
 		if (isProcessElement(ctx, entitytype)) {
-			int id = packIn.getTableUUID(uuid);
-			if (id <= 0) {
-				id = getIdWithFromUUID(ctx, I_AD_Table.Table_Name, uuid);
-				if (id > 0)
-					packIn.addTable(uuid, id);
-			}
+			int id = getIdFromUUID(ctx, I_AD_Table.Table_Name, uuid);
 			if (id > 0 && isTableProcess(ctx, id) && element.pass == 1) {
 				return;
 			}
@@ -85,7 +77,7 @@ public class TableElementHandler extends AbstractElementHandler {
 			// Window
 			uuid = getUUIDValue(atts, I_AD_Table.COLUMNNAME_AD_Window_ID);
 			if (!Util.isEmpty(uuid)) {
-				id = getIdWithFromUUID(ctx, I_AD_Window.Table_Name, uuid);
+				id = getIdFromUUID(ctx, I_AD_Window.Table_Name, uuid);
 				if (id <= 0) {
 					element.defer = true;
 					return;
@@ -95,7 +87,7 @@ public class TableElementHandler extends AbstractElementHandler {
 			// PO Window
 			uuid = getUUIDValue(atts, I_AD_Table.COLUMNNAME_PO_Window_ID);
 			if (!Util.isEmpty(uuid)) {
-				id = getIdWithFromUUID(ctx, I_AD_Window.Table_Name, uuid);
+				id = getIdFromUUID(ctx, I_AD_Window.Table_Name, uuid);
 				if (id <= 0) {
 					element.defer = true;
 					return;
@@ -123,13 +115,12 @@ public class TableElementHandler extends AbstractElementHandler {
 			table.setReplicationType(getStringValue(atts, I_AD_Table.COLUMNNAME_ReplicationType));
 			//	Save
 			try {
-				table.save(getTrxName(ctx));
-				recordLog (ctx, 1, table.getName(),"Table", table.get_ID(),backupId, objectStatus,"AD_Table",get_IDWithColumn(ctx, "AD_Table", "TableName", "AD_Table"));
+				table.saveEx(getTrxName(ctx));
+				recordLog (ctx, 1, table.getUUID(),"Table", table.get_ID(),backupId, objectStatus,"AD_Table",get_IDWithColumn(ctx, "AD_Table", "TableName", "AD_Table"));
 				tables.add(table.getAD_Table_ID());
-				packIn.addTable(tableUuid, table.getAD_Table_ID());
 				element.recordId = table.getAD_Table_ID();
 			} catch (Exception e) {
-				recordLog (ctx, 0, table.getName(),"Table", table.get_ID(),backupId, objectStatus,"AD_Table",get_IDWithColumn(ctx, "AD_Table", "TableName", "AD_Table"));
+				recordLog (ctx, 0, table.getUUID(),"Table", table.get_ID(),backupId, objectStatus,"AD_Table",get_IDWithColumn(ctx, "AD_Table", "TableName", "AD_Table"));
 				throw new POSaveFailedException(e);
 			}
 		} else {

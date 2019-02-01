@@ -22,6 +22,7 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.math.BigDecimal;
+import java.sql.Timestamp;
 import java.util.Properties;
 import java.util.logging.Level;
 
@@ -62,7 +63,7 @@ public abstract class AbstractElementHandler implements ElementHandler {
 	 * @param columName
 	 * @param name
 	 */
-	public int getIdWithFromUUID(Properties ctx, String tableName, String uuid) {
+	public int getIdFromUUID(Properties ctx, String tableName, String uuid) {
 		return IDFinder.get_IDWithColumn(tableName, I_AD_Element.COLUMNNAME_UUID, uuid, getClientId(ctx), getTrxName(ctx));
 	}
 	
@@ -453,6 +454,51 @@ public abstract class AbstractElementHandler implements ElementHandler {
 		 int i = Integer.parseInt(value.trim());
 		 return i;
 	}
+    
+    /**
+     * Get Long Value
+     * @param atts
+     * @param name
+     * @param defaultValue
+     * @return
+     */
+    protected long getLongValue(Attributes atts, String name, int defaultValue) {
+		String value = atts.getValue(name);
+		if (Util.isEmpty(value, true))
+			return defaultValue;
+		 long i = Integer.parseInt(value.trim());
+		 return i;
+	}
+    
+    /**
+     * Get Double Value
+     * @param atts
+     * @param name
+     * @param defaultValue
+     * @return
+     */
+    protected double getDoubleValue(Attributes atts, String name, double defaultValue) {
+		String value = atts.getValue(name);
+		if (Util.isEmpty(value, true))
+			return defaultValue;
+		 double i = Double.parseDouble(value.trim());
+		 return i;
+	}
+    
+    /**
+     * Get Timestamp Value
+     * @param atts
+     * @param name
+     * @return
+     */
+    protected Timestamp getTimestampValue(Attributes atts, String name) {
+    	long time = getLongValue(atts, name, 0);
+    	if(time > 0) {
+    		return new Timestamp(time);
+    	}
+    	// default
+    	return null;
+    }
 	
     /**
      * get Integer value with 0 as default
@@ -471,7 +517,7 @@ public abstract class AbstractElementHandler implements ElementHandler {
 	 * @return
 	 */
 	protected BigDecimal getBigDecimalValue(Attributes atts, String name) {
-		return new BigDecimal(getIntValue(atts, name, 0));
+		return new BigDecimal(getDoubleValue(atts, name, 0.0));
 	}
     
 }

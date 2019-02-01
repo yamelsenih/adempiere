@@ -22,6 +22,7 @@ import java.util.Properties;
 
 import javax.xml.transform.sax.TransformerHandler;
 
+import org.adempiere.model.I_AD_View;
 import org.adempiere.model.I_AD_View_Column;
 import org.adempiere.model.I_AD_View_Definition;
 import org.adempiere.model.MViewColumn;
@@ -29,12 +30,14 @@ import org.adempiere.model.MViewDefinition;
 import org.adempiere.model.X_AD_View_Column;
 import org.adempiere.model.X_AD_View_Definition;
 import org.adempiere.pipo.AbstractElementHandler;
+import org.adempiere.pipo.AttributeFiller;
 import org.adempiere.pipo.Element;
 import org.adempiere.pipo.PackOut;
 import org.adempiere.pipo.exception.POSaveFailedException;
+import org.compiere.model.I_AD_Table;
 import org.compiere.model.Query;
-import org.compiere.util.DB;
 import org.compiere.util.Env;
+import org.compiere.util.Util;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.AttributesImpl;
@@ -51,8 +54,9 @@ public class ViewDefinitionElementHandler extends AbstractElementHandler {
 			throws SAXException {
 		String elementValue = element.getElementValue();
 		Attributes atts = element.attributes;
-		log.info(elementValue + " " + atts.getValue("ADViewDefinitionNameID"));
-		String entitytype = atts.getValue("EntityType");
+		String uuid = getUUIDValue(atts, I_AD_View_Definition.Table_Name);
+		log.info(elementValue + " " + uuid);
+		String entitytype = getStringValue(atts, I_AD_View.COLUMNNAME_EntityType);
 		if (isProcessElement(ctx, entitytype)) {
 			if (element.parent != null
 					&& element.parent.getElementValue().equals("view")
@@ -60,22 +64,21 @@ public class ViewDefinitionElementHandler extends AbstractElementHandler {
 				element.defer = true;
 				return;
 			}
-
-			String tableAlias = atts.getValue("ADViewDefinitionNameID");
-			int tableid = get_IDWithColumn(ctx, "AD_Table", "TableName",
-					atts.getValue("ADTableNameID"));
+			String tableUuid = getUUIDValue(atts, I_AD_View_Definition.COLUMNNAME_AD_Table_ID);
+			int tableid = getIdFromUUID(ctx, I_AD_Table.Table_Name, tableUuid);
 			if (tableid <= 0) {
 				element.defer = true;
 				return;
 			}
-
+			
 			int viewid = 0;
 			if (element.parent != null
 					&& element.parent.getElementValue().equals("view")
 					&& element.parent.recordId > 0) {
 				viewid = element.parent.recordId;
 			} else {
-				viewid = get_ID(ctx, "AD_View", atts.getValue("ADViewNameID"));
+				String viewUuid = getUUIDValue(atts, I_AD_View_Definition.COLUMNNAME_AD_View_ID);
+				viewid = getIdFromUUID(ctx, I_AD_View.Table_Name, viewUuid);
 				if (element.parent != null
 						&& element.parent.getElementValue().equals("view")
 						&& viewid > 0) {
@@ -86,74 +89,72 @@ public class ViewDefinitionElementHandler extends AbstractElementHandler {
 				element.defer = true;
 				return;
 			}
-
-			StringBuffer sqlB = new StringBuffer(
-					"SELECT AD_View_Definition_ID FROM AD_View_Definition WHERE AD_View_ID = "
-							+ viewid + " and TableAlias = '" + tableAlias + "'"
-							+ " and AD_Table_ID = ?");
-
-			int id = DB.getSQLValue(getTrxName(ctx), sqlB.toString(), tableid);
-			MViewDefinition m_View_Definition = new MViewDefinition(ctx, id,
-					getTrxName(ctx));
-			if (id <= 0
-					&& atts.getValue("AD_View_Definition_ID") != null
-					&& Integer.parseInt(atts.getValue("AD_View_Definition_ID")) <= PackOut.MAX_OFFICIAL_ID) {
-				m_View_Definition.setAD_View_Definition_ID(Integer.parseInt(atts.getValue("AD_View_Definition_ID")));
-				m_View_Definition.setIsDirectLoad(true);
+			int id = getIdFromUUID(ctx, I_AD_View_Definition.Table_Name, uuid);
+			X_AD_View_Definition viewDefinition = new X_AD_View_Definition(ctx, id, getTrxName(ctx));
+			if (id <= 0 && getIntValue(atts, I_AD_View_Definition.COLUMNNAME_AD_View_Definition_ID) > 0 && getIntValue(atts, I_AD_View_Definition.COLUMNNAME_AD_View_Definition_ID) <= PackOut.MAX_OFFICIAL_ID) {
+				viewDefinition.setAD_View_Definition_ID(getIntValue(atts, I_AD_View_Definition.COLUMNNAME_AD_View_Definition_ID));
+				viewDefinition.setIsDirectLoad(true);
 			}
-			int AD_Backup_ID = -1;
-			String Object_Status = null;
+			int backupId = -1;
+			String objectStatus = null;
 			if (id > 0) {
-				AD_Backup_ID = copyRecord(ctx, "AD_View_Definition",
-						m_View_Definition);
-				Object_Status = "Update";
+				backupId = copyRecord(ctx, "AD_View_Definition",
+						viewDefinition);
+				objectStatus = "Update";
 			} else {
-				Object_Status = "New";
-				AD_Backup_ID = 0;
+				objectStatus = "New";
+				backupId = 0;
 			}
-			sqlB = null;
-			m_View_Definition.setTableAlias(tableAlias);
-			String name;
-			if (getStringValue(atts, "ADTableNameID") != null) {
-				name = atts.getValue("ADTableNameID");
-				id = get_IDWithColumn(ctx, "AD_Table", "TableName", name);
-				m_View_Definition.setAD_Table_ID(id);
+			viewDefinition.setUUID(uuid);
+			// View
+			uuid = getUUIDValue(atts, I_AD_View_Definition.COLUMNNAME_AD_View_ID);
+			if (!Util.isEmpty(uuid)) {
+				id = getIdFromUUID(ctx, I_AD_View.Table_Name, uuid);
+				if (id <= 0) {
+					element.defer = true;
+					return;
+				}
+				viewDefinition.setAD_View_ID(id);
 			}
-
-			m_View_Definition.setAD_View_ID(viewid);
-			m_View_Definition
-					.setIsActive(atts.getValue("isActive") != null ? Boolean
-							.valueOf(atts.getValue("isActive")).booleanValue()
-							: true);
-			m_View_Definition.setProcessing(false);
-			m_View_Definition
-					.setSeqNo(Integer.parseInt(atts.getValue("SeqNo")));
-			if (getStringValue(atts, "JoinClause") != null) {
-				m_View_Definition.setJoinClause(atts.getValue("JoinClause"));
+			// Table
+			uuid = getUUIDValue(atts, I_AD_View_Definition.COLUMNNAME_AD_Table_ID);
+			if (!Util.isEmpty(uuid)) {
+				id = getIdFromUUID(ctx, I_AD_Table.Table_Name, uuid);
+				if (id <= 0) {
+					element.defer = true;
+					return;
+				}
+				viewDefinition.setAD_Table_ID(id);
 			}
-
-			if (m_View_Definition.save(getTrxName(ctx)) == true) {
+			//	Standard Attributes
+			viewDefinition.setSeqNo(getIntValue(atts, I_AD_View_Definition.COLUMNNAME_SeqNo));
+			viewDefinition.setTableAlias(getStringValue(atts, I_AD_View_Definition.COLUMNNAME_TableAlias));
+			viewDefinition.setJoinClause(getStringValue(atts, I_AD_View_Definition.COLUMNNAME_JoinClause));
+			viewDefinition.setIsActive(getBooleanValue(atts, I_AD_View_Definition.COLUMNNAME_IsActive));
+			//	Save
+			try {
+				viewDefinition.saveEx(getTrxName(ctx));
 				recordLog(
 						ctx,
 						1,
-						m_View_Definition.getTableAlias(),
+						viewDefinition.getUUID(),
 						"ViewDefinition",
-						m_View_Definition.get_ID(),
-						AD_Backup_ID,
-						Object_Status,
+						viewDefinition.get_ID(),
+						backupId,
+						objectStatus,
 						"AD_View_Definition",
 						get_IDWithColumn(ctx, "AD_Table", "TableName",
 								"AD_View_Definition"));
-				element.recordId = m_View_Definition.getAD_View_Definition_ID();
-			} else {
+				element.recordId = viewDefinition.getAD_View_Definition_ID();
+			} catch (Exception e) {
 				recordLog(
 						ctx,
 						0,
-						m_View_Definition.getTableAlias(),
+						viewDefinition.getUUID(),
 						"ViewDefinition",
-						m_View_Definition.get_ID(),
-						AD_Backup_ID,
-						Object_Status,
+						viewDefinition.get_ID(),
+						backupId,
+						objectStatus,
 						"AD_View_Definition",
 						get_IDWithColumn(ctx, "AD_Table", "TableName",
 								"AD_View_Definition"));
@@ -166,89 +167,62 @@ public class ViewDefinitionElementHandler extends AbstractElementHandler {
 	}
 
 	public void endElement(Properties ctx, Element element) throws SAXException {
+		
 	}
 
-	public void create(Properties ctx, TransformerHandler document)
-			throws SAXException {
+	public void create(Properties ctx, TransformerHandler document) throws SAXException {
+		int viewDefinitionId = Env.getContextAsInt(ctx, X_AD_View_Definition.COLUMNNAME_AD_View_Definition_ID);
+		MViewDefinition viewDefinition = new MViewDefinition(ctx, viewDefinitionId, getTrxName(ctx));
 		PackOut packOut = (PackOut) ctx.get("PackOutProcess");
-		int AD_View_Definition_ID = Env.getContextAsInt(ctx,
-				X_AD_View_Definition.COLUMNNAME_AD_View_Definition_ID);
-		MViewDefinition m_View_Definition = new MViewDefinition(ctx,
-				AD_View_Definition_ID, getTrxName(ctx));
 		AttributesImpl atts = new AttributesImpl();
-		createViewDefinitionBinding(atts, m_View_Definition);
+		createViewDefinitionBinding(atts, viewDefinition);
 		document.startElement("", "", "viewdefinition", atts);
-
+		//	Create Table before
+		if(viewDefinition.getAD_Table_ID() > 0) {
+			packOut.createTable(viewDefinition.getAD_Table_ID(), document);
+		}
 		// View Columns tags.
-		StringBuilder whereClause = new StringBuilder(
-				I_AD_View_Definition.COLUMNNAME_AD_View_Definition_ID)
-				.append("=?");
+		StringBuilder whereClause = new StringBuilder(I_AD_View_Definition.COLUMNNAME_AD_View_Definition_ID).append("=?");
 		List<MViewColumn> viewColumns = new Query(ctx,
 				I_AD_View_Column.Table_Name, whereClause.toString(),
-				getTrxName(ctx)).setParameters(m_View_Definition.get_ID())
+				getTrxName(ctx)).setParameters(viewDefinition.get_ID())
 				.list();
-
 		for (MViewColumn vc : viewColumns) {
 			createViewColumn(ctx, document, vc.getAD_View_Column_ID());
 		}
 		document.endElement("", "", "viewdefinition");
-
 	}
 
-	private void createViewColumn(Properties ctx, TransformerHandler document,
-			int AD_View_Column_ID) throws SAXException {
-		Env.setContext(ctx, X_AD_View_Column.COLUMNNAME_AD_View_Column_ID,
-				AD_View_Column_ID);
+	private void createViewColumn(Properties ctx, TransformerHandler document, int viewColumnId) throws SAXException {
+		Env.setContext(ctx, X_AD_View_Column.COLUMNNAME_AD_View_Column_ID, viewColumnId);
 		viewColumnHandler.create(ctx, document);
 		ctx.remove(X_AD_View_Column.COLUMNNAME_AD_View_Column_ID);
 	}
 
-	private AttributesImpl createViewDefinitionBinding(AttributesImpl atts,
-			X_AD_View_Definition m_View_Definition) {
-		String sql = null;
-		String name = null;
+	private AttributesImpl createViewDefinitionBinding(AttributesImpl atts, X_AD_View_Definition viewDefinition) {
 		atts.clear();
-		if (m_View_Definition.getAD_View_Definition_ID() <= PackOut.MAX_OFFICIAL_ID)
-			atts.addAttribute("", "", "AD_View_Definition_ID", "CDATA", Integer
-					.toString(m_View_Definition.getAD_View_Definition_ID()));
-		atts.addAttribute("", "", "Name", "CDATA", (m_View_Definition
-				.getTableAlias() != null ? m_View_Definition.getTableAlias()
-				: ""));
-
-		if (m_View_Definition.getAD_View_Definition_ID() > 0) {
-			sql = "SELECT TableAlias FROM AD_View_Definition WHERE AD_View_Definition_ID=?";
-			name = DB.getSQLValueString(null, sql,
-					m_View_Definition.getAD_View_Definition_ID());
-			atts.addAttribute("", "", "ADViewDefinitionNameID", "CDATA", name);
-		} else
-			atts.addAttribute("", "", "ADViewDefinitionNameID", "CDATA", "");
-
-		sql = "SELECT TableName FROM AD_Table WHERE AD_Table_ID=?";
-		name = DB.getSQLValueString(null, sql,
-				m_View_Definition.getAD_Table_ID());
-		atts.addAttribute("", "", "ADTableNameID", "CDATA", name);
-		sql = "SELECT Name FROM AD_View WHERE AD_View_ID=?";
-		name = DB.getSQLValueString(null, sql,
-				m_View_Definition.getAD_View_ID());
-		atts.addAttribute("", "", "ADViewNameID", "CDATA", name);
-
-		atts.addAttribute("", "", "TableAlias", "CDATA", (m_View_Definition
-				.getTableAlias() != null ? m_View_Definition.getTableAlias()
-				: ""));
-		atts.addAttribute("", "", "isActive", "CDATA",
-				(m_View_Definition.isActive() == true ? "true" : "false"));
-		atts.addAttribute("", "", "JoinClause", "CDATA", (m_View_Definition
-				.getJoinClause() != null ? m_View_Definition.getJoinClause()
-				: ""));
-		atts.addAttribute("", "", "isProcessing", "CDATA",
-				(m_View_Definition.isProcessing() == true ? "true" : "false"));
-		atts.addAttribute(
-				"",
-				"",
-				"SeqNo",
-				"CDATA",
-				(m_View_Definition.getSeqNo() >= 0 ? ""
-						+ m_View_Definition.getSeqNo() : "0"));
+		AttributeFiller filler = new AttributeFiller(atts, viewDefinition);
+		if (viewDefinition.getAD_View_Definition_ID() <= PackOut.MAX_OFFICIAL_ID) {
+			filler.add(I_AD_View_Definition.COLUMNNAME_AD_View_Definition_ID);
+		}
+		filler.addUUID();
+		//	View
+		if(viewDefinition.getAD_View_ID() > 0) {
+			filler.add(I_AD_View_Definition.COLUMNNAME_AD_View_ID, true);
+			filler.addUUID(I_AD_View_Definition.COLUMNNAME_AD_View_ID, getUUIDFromId(viewDefinition.getCtx(), I_AD_View.Table_Name, viewDefinition.getAD_View_ID()));
+			//	Add Entity Type
+			filler.addString(I_AD_View.COLUMNNAME_EntityType, viewDefinition.getAD_View().getEntityType());
+		}
+		//	Table
+		if(viewDefinition.getAD_Table_ID() > 0) {
+			filler.add(I_AD_View_Definition.COLUMNNAME_AD_Table_ID, true);
+			filler.addUUID(I_AD_View_Definition.COLUMNNAME_AD_Table_ID, getUUIDFromId(viewDefinition.getCtx(), I_AD_Table.Table_Name, viewDefinition.getAD_Table_ID()));
+		}
+		//	Attributes
+		filler.add(I_AD_View_Definition.COLUMNNAME_SeqNo);
+		filler.add(I_AD_View_Definition.COLUMNNAME_TableAlias);
+		filler.add(I_AD_View_Definition.COLUMNNAME_JoinClause);
+		filler.add(I_AD_View_Definition.COLUMNNAME_IsActive);
 		return atts;
 	}
 

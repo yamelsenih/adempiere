@@ -45,7 +45,7 @@ public class FormElementHandler extends AbstractElementHandler {
 		log.info(elementValue + " " + uuid);
 		String entitytype = getStringValue(atts, I_AD_Form.COLUMNNAME_EntityType);		
 		if (isProcessElement(ctx, entitytype)) {
-			int id = getIdWithFromUUID(ctx, I_AD_Form.Table_Name, uuid);
+			int id = getIdFromUUID(ctx, I_AD_Form.Table_Name, uuid);
 			X_AD_Form form = new X_AD_Form(ctx, id, getTrxName(ctx));
 			int backupId = -1;
 			String objectStatus = null;
@@ -73,9 +73,9 @@ public class FormElementHandler extends AbstractElementHandler {
 			//	Save
 			try {
 				form.saveEx(getTrxName(ctx));
-				recordLog (ctx, 1, form.getName(),"Form", form.get_ID(),backupId, objectStatus,"AD_Form",get_IDWithColumn(ctx, "AD_Table", "TableName", "AD_Form"));
+				recordLog (ctx, 1, form.getUUID(),"Form", form.get_ID(),backupId, objectStatus,"AD_Form",get_IDWithColumn(ctx, "AD_Table", "TableName", "AD_Form"));
 			} catch (Exception e) {
-				recordLog (ctx, 0, form.getName(),"Form", form.get_ID(),backupId, objectStatus,"AD_Form",get_IDWithColumn(ctx, "AD_Table", "TableName", "AD_Form"));
+				recordLog (ctx, 0, form.getUUID(),"Form", form.get_ID(),backupId, objectStatus,"AD_Form",get_IDWithColumn(ctx, "AD_Table", "TableName", "AD_Form"));
 				throw new POSaveFailedException(e);
 			}
 		} else {

@@ -24,10 +24,11 @@ import java.util.Properties;
 import javax.xml.transform.sax.TransformerHandler;
 
 import org.adempiere.pipo.AbstractElementHandler;
+import org.adempiere.pipo.AttributeFiller;
 import org.adempiere.pipo.Element;
 import org.adempiere.pipo.PackOut;
 import org.adempiere.pipo.exception.POSaveFailedException;
-import org.compiere.model.MMessage;
+import org.compiere.model.I_AD_Message;
 import org.compiere.model.Query;
 import org.compiere.model.X_AD_Message;
 import org.compiere.model.X_AD_Package_Exp_Detail;
@@ -43,39 +44,39 @@ public class MessageElementHandler extends AbstractElementHandler {
 	public void startElement(Properties ctx, Element element) throws SAXException {
 		String elementValue = element.getElementValue();
 		Attributes atts = element.attributes;
-		log.info(elementValue+" "+atts.getValue("Value"));
-		String entitytype = atts.getValue("EntityType");
+		String uuid = getUUIDValue(atts, I_AD_Message.Table_Name);
+		log.info(elementValue + " " + uuid);
+		String entitytype = getStringValue(atts, I_AD_Message.COLUMNNAME_EntityType);
 		if (isProcessElement(ctx, entitytype)) {
-			String value = atts.getValue("Value");
-			int id = get_IDWithColumn(ctx, "AD_Message", "value", value);
-
-			MMessage m_Message = new MMessage(ctx, id, getTrxName(ctx));
-			int AD_Backup_ID  = -1;
-			String Object_Status = null;
-			if (id <= 0 && atts.getValue("AD_Message_ID") != null && Integer.parseInt(atts.getValue("AD_Message_ID")) <= PackOut.MAX_OFFICIAL_ID) {
-				m_Message.setAD_Message_ID(Integer.parseInt(atts.getValue("AD_Message_ID")));
-				m_Message.setIsDirectLoad(true);
+			int id = getIdFromUUID(ctx, I_AD_Message.Table_Name, uuid);
+			X_AD_Message message = new X_AD_Message(ctx, id, getTrxName(ctx));
+			int backupId  = -1;
+			String objectStatus = null;
+			if (id <= 0 && getIntValue(atts, I_AD_Message.COLUMNNAME_AD_Message_ID) > 0 && getIntValue(atts, I_AD_Message.COLUMNNAME_AD_Message_ID) <= PackOut.MAX_OFFICIAL_ID) {
+				message.setAD_Message_ID(getIntValue(atts, I_AD_Message.COLUMNNAME_AD_Message_ID));
+				message.setIsDirectLoad(true);
 			}
 			if (id > 0){		
-				AD_Backup_ID = copyRecord(ctx, "AD_Message",m_Message);
-				Object_Status = "Update";			
+				backupId = copyRecord(ctx, "AD_Message",message);
+				objectStatus = "Update";			
 			}
 			else{
-				Object_Status = "New";
-				AD_Backup_ID =0;
-			}    	    
-			m_Message.setMsgText(getStringValue(atts, "MsgText"));
-			m_Message.setMsgTip(getStringValue(atts, "MsgTip"));
-			m_Message.setEntityType(atts.getValue("EntityType"));
-			m_Message.setIsActive(atts.getValue("isActive") != null ? Boolean.valueOf(atts.getValue("isActive")).booleanValue():true);
-			m_Message.setValue(value);
-			m_Message.setMsgType(atts.getValue("MsgType"));		        
-			if (m_Message.save(getTrxName(ctx)) == true){		    	
-				recordLog (ctx, 1, m_Message.getValue(),"Message", m_Message.get_ID(),AD_Backup_ID, Object_Status,"AD_Message",get_IDWithColumn(ctx, "AD_Table", "TableName", "AD_Message"));           		        		
+				objectStatus = "New";
+				backupId =0;
 			}
-			else{
-				recordLog (ctx, 0, m_Message.getValue(),"Message", m_Message.get_ID(),AD_Backup_ID, Object_Status,"AD_Message",get_IDWithColumn(ctx, "AD_Table", "TableName", "AD_Message"));
-				throw new POSaveFailedException("Failed to save message.");
+			message.setUUID(uuid);
+			message.setMsgText(getStringValue(atts, I_AD_Message.COLUMNNAME_Value));
+			message.setMsgText(getStringValue(atts, I_AD_Message.COLUMNNAME_MsgText));
+			message.setMsgText(getStringValue(atts, I_AD_Message.COLUMNNAME_MsgTip));
+			message.setMsgText(getStringValue(atts, I_AD_Message.COLUMNNAME_MsgType));
+			message.setMsgText(getStringValue(atts, I_AD_Message.COLUMNNAME_EntityType));
+			//	Save
+			try {
+				message.saveEx(getTrxName(ctx));
+				recordLog (ctx, 1, message.getUUID(),"Message", message.get_ID(),backupId, objectStatus,"AD_Message",get_IDWithColumn(ctx, "AD_Table", "TableName", "AD_Message"));
+			} catch (Exception e) {
+				recordLog (ctx, 0, message.getUUID(),"Message", message.get_ID(),backupId, objectStatus,"AD_Message",get_IDWithColumn(ctx, "AD_Table", "TableName", "AD_Message"));
+				throw new POSaveFailedException(e);
 			}
 		} else {
 			element.skip = true;
@@ -84,14 +85,14 @@ public class MessageElementHandler extends AbstractElementHandler {
 	}
 
 	public void endElement(Properties ctx, Element element) throws SAXException {
+		
 	}
 
-	public void create(Properties ctx, TransformerHandler document) throws SAXException
-	{
-		for (X_AD_Message message : getMessages(ctx))
-		{
-			if (messages.contains(message.getAD_Message_ID()))
+	public void create(Properties ctx, TransformerHandler document) throws SAXException {
+		for (X_AD_Message message : getMessages(ctx)) {
+			if (messages.contains(message.getAD_Message_ID())) {
 				continue;
+			}
 			messages.add(message.getAD_Message_ID());
 			//
 			AttributesImpl atts = new AttributesImpl();
@@ -101,26 +102,20 @@ public class MessageElementHandler extends AbstractElementHandler {
 		}
 	}
 	
-	private List<X_AD_Message> getMessages(Properties ctx)
-	{
-		int AD_Message_ID = Env.getContextAsInt(ctx, X_AD_Package_Exp_Detail.COLUMNNAME_AD_Message_ID);
-		int AD_EntityType_ID = Env.getContextAsInt(ctx, X_AD_Package_Exp_Detail.COLUMNNAME_AD_EntityType_ID);
+	private List<X_AD_Message> getMessages(Properties ctx) {
+		int messageId = Env.getContextAsInt(ctx, X_AD_Package_Exp_Detail.COLUMNNAME_AD_Message_ID);
+		int entityTypeId = Env.getContextAsInt(ctx, X_AD_Package_Exp_Detail.COLUMNNAME_AD_EntityType_ID);
 		String whereClause;
 		Object[] params;
-		if (AD_Message_ID > 0)
-		{
+		if (messageId > 0) {
 			whereClause = X_AD_Message.COLUMNNAME_AD_Message_ID+"=?";
-			params = new Object[]{AD_Message_ID};
-		}
-		else if (AD_EntityType_ID > 0)
-		{
+			params = new Object[]{messageId};
+		} else if (entityTypeId > 0) {
 			whereClause = " EXISTS (SELECT 1 FROM AD_EntityType et"
 				+" WHERE et.AD_EntityType_ID=? AND et.EntityType=AD_Message.EntityType)";
-			params = new Object[]{AD_EntityType_ID};
-		}
-		else
-		{
-			throw new IllegalArgumentException("AD_Message_ID and AD_EntityType_ID not found");
+			params = new Object[]{entityTypeId};
+		} else {
+			throw new IllegalArgumentException("@AD_Message_ID@ / @AD_EntityType_ID@");
 		}
 		
 		List<X_AD_Message> list = new Query(ctx, X_AD_Message.Table_Name, whereClause, null)
@@ -130,19 +125,19 @@ public class MessageElementHandler extends AbstractElementHandler {
 		return list;
 	}
 
-	private AttributesImpl createMessageBinding( AttributesImpl atts, X_AD_Message m_Message) 
-	{
+	private AttributesImpl createMessageBinding( AttributesImpl atts, X_AD_Message message) {
 		atts.clear();
-		if (m_Message.getAD_Message_ID() <= PackOut.MAX_OFFICIAL_ID)
-	        atts.addAttribute("","","AD_Message_ID","CDATA",Integer.toString(m_Message.getAD_Message_ID()));
-		//FIXME:  may not need this I guess
-		//atts.addAttribute("","","AccessLevel","CDATA",(m_Message.getAccessLevel () != null ? m_Message.getAccessLevel ():""));
-		atts.addAttribute("","","MsgText","CDATA",(m_Message.getMsgText() != null ? m_Message.getMsgText():""));
-		atts.addAttribute("","","MsgType","CDATA",(m_Message.getMsgType() != null ? m_Message.getMsgType ():""));
-		atts.addAttribute("","","MsgTip","CDATA",(m_Message.getMsgTip() != null ? m_Message.getMsgTip ():""));
-		atts.addAttribute("","","Value","CDATA",(m_Message.getValue() != null ? m_Message.getValue ():""));
-		atts.addAttribute("","","EntityType","CDATA",(m_Message.getEntityType () != null ? m_Message.getEntityType ():""));
-		atts.addAttribute("","","isActive","CDATA",(m_Message.isActive()== true ? "true":"false"));
+		AttributeFiller filler = new AttributeFiller(atts, message);
+		if (message.getAD_Message_ID() <= PackOut.MAX_OFFICIAL_ID) {
+			filler.add(I_AD_Message.COLUMNNAME_AD_Message_ID);
+		}
+		filler.addUUID();
+		//	
+		filler.add(I_AD_Message.COLUMNNAME_Value);
+		filler.add(I_AD_Message.COLUMNNAME_MsgText);
+		filler.add(I_AD_Message.COLUMNNAME_MsgTip);
+		filler.add(I_AD_Message.COLUMNNAME_MsgType);
+		filler.add(I_AD_Message.COLUMNNAME_EntityType);
 		return atts;
 	}
 }

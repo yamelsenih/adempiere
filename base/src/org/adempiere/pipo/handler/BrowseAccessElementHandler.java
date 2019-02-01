@@ -37,6 +37,7 @@ import org.xml.sax.helpers.AttributesImpl;
  * @author victor.perez@e-evolution.com, www.e-evolution.com
  * 
  */
+@Deprecated
 public class BrowseAccessElementHandler extends AbstractElementHandler {
 
 	public void startElement(Properties ctx, Element element)

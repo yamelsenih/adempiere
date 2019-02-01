@@ -59,7 +59,7 @@ public class TabElementHandler extends AbstractElementHandler
 				return;
 			}
 			uuid = getUUIDValue(atts, I_AD_Tab.COLUMNNAME_AD_Table_ID);
-			int tableid = getIdWithFromUUID(ctx, I_AD_Table.Table_Name, uuid);
+			int tableid = getIdFromUUID(ctx, I_AD_Table.Table_Name, uuid);
 			if (tableid <= 0) {
 				element.defer = true;
 				return;
@@ -70,7 +70,7 @@ public class TabElementHandler extends AbstractElementHandler
 				windowId = element.parent.recordId;
 			} else {
 				uuid = getUUIDValue(atts, I_AD_Tab.COLUMNNAME_AD_Window_ID);
-				windowId = getIdWithFromUUID(ctx, I_AD_Window.Table_Name, uuid);
+				windowId = getIdFromUUID(ctx, I_AD_Window.Table_Name, uuid);
 				if (element.parent != null && element.parent.getElementValue().equals("window")
 						&& windowId > 0) {
 					element.parent.recordId = windowId;
@@ -82,7 +82,7 @@ public class TabElementHandler extends AbstractElementHandler
 			}
 			//	Instance tab
 			uuid = atts.getValue(AttributeFiller.getUUIDAttribute(I_AD_Tab.Table_Name));
-			int tabId = getIdWithFromUUID(ctx, I_AD_Tab.Table_Name, uuid);
+			int tabId = getIdFromUUID(ctx, I_AD_Tab.Table_Name, uuid);
 			//	
 			X_AD_Tab tab = new X_AD_Tab(ctx, tabId, getTrxName(ctx));
 			if (tabId <= 0 && getIntValue(atts, I_AD_Tab.COLUMNNAME_AD_Tab_ID) > 0 && getIntValue(atts, I_AD_Tab.COLUMNNAME_AD_Tab_ID) <= PackOut.MAX_OFFICIAL_ID) {
@@ -103,7 +103,7 @@ public class TabElementHandler extends AbstractElementHandler
 			//	Column Sort
 			uuid = getUUIDValue(atts, I_AD_Tab.COLUMNNAME_AD_ColumnSortOrder_ID);
 			if (!Util.isEmpty(uuid)) {
-				int id = getIdWithFromUUID(ctx, I_AD_Column.Table_Name, uuid);
+				int id = getIdFromUUID(ctx, I_AD_Column.Table_Name, uuid);
 				if (id <= 0) {
 					element.defer = true;
 					return;
@@ -113,7 +113,7 @@ public class TabElementHandler extends AbstractElementHandler
 			//	Yes/No Column
 			uuid = getUUIDValue(atts, I_AD_Tab.COLUMNNAME_AD_ColumnSortYesNo_ID);
 			if (!Util.isEmpty(uuid)) {
-				int id = getIdWithFromUUID(ctx, I_AD_Column.Table_Name, uuid);
+				int id = getIdFromUUID(ctx, I_AD_Column.Table_Name, uuid);
 				if (id <= 0) {
 					element.defer = true;
 					return;
@@ -123,7 +123,7 @@ public class TabElementHandler extends AbstractElementHandler
 			//	Column
 			uuid = getUUIDValue(atts, I_AD_Tab.COLUMNNAME_AD_Column_ID);
 			if (!Util.isEmpty(uuid)) {
-				int id = getIdWithFromUUID(ctx, I_AD_Column.Table_Name, uuid);
+				int id = getIdFromUUID(ctx, I_AD_Column.Table_Name, uuid);
 				if (id <= 0) {
 					element.defer = true;
 					return;
@@ -133,7 +133,7 @@ public class TabElementHandler extends AbstractElementHandler
 			//	Parent Column
 			uuid = getUUIDValue(atts, I_AD_Tab.COLUMNNAME_Parent_Column_ID);
 			if (!Util.isEmpty(uuid)) {
-				int id = getIdWithFromUUID(ctx, I_AD_Column.Table_Name, uuid);
+				int id = getIdFromUUID(ctx, I_AD_Column.Table_Name, uuid);
 				if (id <= 0) {
 					element.defer = true;
 					return;
@@ -143,7 +143,7 @@ public class TabElementHandler extends AbstractElementHandler
 			//	Image
 			uuid = getUUIDValue(atts, I_AD_Tab.COLUMNNAME_AD_Image_ID);
 			if (!Util.isEmpty(uuid)) {
-				int id = getIdWithFromUUID(ctx, I_AD_Image.Table_Name, uuid);
+				int id = getIdFromUUID(ctx, I_AD_Image.Table_Name, uuid);
 				if (id <= 0) {
 					element.defer = true;
 					return;
@@ -153,7 +153,7 @@ public class TabElementHandler extends AbstractElementHandler
 			//	Process
 			uuid = getUUIDValue(atts, I_AD_Tab.COLUMNNAME_AD_Process_ID);
 			if (!Util.isEmpty(uuid)) {
-				int id = getIdWithFromUUID(ctx, I_AD_Process.Table_Name, uuid);
+				int id = getIdFromUUID(ctx, I_AD_Process.Table_Name, uuid);
 				if (id <= 0) {
 					element.defer = true;
 					return;
@@ -163,7 +163,7 @@ public class TabElementHandler extends AbstractElementHandler
 			//	Table
 			uuid = getUUIDValue(atts, I_AD_Tab.COLUMNNAME_AD_Table_ID);
 			if (!Util.isEmpty(uuid)) {
-				int id = getIdWithFromUUID(ctx, I_AD_Table.Table_Name, uuid);
+				int id = getIdFromUUID(ctx, I_AD_Table.Table_Name, uuid);
 				if (id <= 0) {
 					element.defer = true;
 					return;
@@ -173,7 +173,7 @@ public class TabElementHandler extends AbstractElementHandler
 			//	Window
 			uuid = getUUIDValue(atts, I_AD_Tab.COLUMNNAME_AD_Window_ID);
 			if (!Util.isEmpty(uuid)) {
-				int id = getIdWithFromUUID(ctx, I_AD_Window.Table_Name, uuid);
+				int id = getIdFromUUID(ctx, I_AD_Window.Table_Name, uuid);
 				if (id <= 0) {
 					element.defer = true;
 					return;
@@ -183,7 +183,7 @@ public class TabElementHandler extends AbstractElementHandler
 			//	Included Tab
 			uuid = getUUIDValue(atts, I_AD_Tab.COLUMNNAME_Included_Tab_ID);
 			if (!Util.isEmpty(uuid)) {
-				int id = getIdWithFromUUID(ctx, I_AD_Tab.Table_Name, uuid);
+				int id = getIdFromUUID(ctx, I_AD_Tab.Table_Name, uuid);
 				if (id <= 0) {
 					element.defer = true;
 					return;
@@ -216,10 +216,10 @@ public class TabElementHandler extends AbstractElementHandler
 			//	Save
 			try {
 				tab.saveEx(getTrxName(ctx));
-				recordLog (ctx, 1, tab.getName(),"Tab", tab.get_ID(),backupId, Object_Status,"AD_Tab",get_IDWithColumn(ctx, "AD_Table", "TableName", "AD_Tab"));
+				recordLog (ctx, 1, tab.getUUID(),"Tab", tab.get_ID(),backupId, Object_Status,"AD_Tab",get_IDWithColumn(ctx, "AD_Table", "TableName", "AD_Tab"));
 				element.recordId = tab.getAD_Tab_ID();
 			} catch (Exception e) {
-				recordLog (ctx, 0, tab.getName(),"Tab", tab.get_ID(),backupId, Object_Status,"AD_Tab",get_IDWithColumn(ctx, "AD_Table", "TableName", "AD_Tab"));
+				recordLog (ctx, 0, tab.getUUID(),"Tab", tab.get_ID(),backupId, Object_Status,"AD_Tab",get_IDWithColumn(ctx, "AD_Table", "TableName", "AD_Tab"));
 				throw new POSaveFailedException(e);
 			}
 		} else {
@@ -250,8 +250,7 @@ public class TabElementHandler extends AbstractElementHandler
 		}
 	}
 
-	private void createField(Properties ctx, TransformerHandler document,
-			int fieldId) throws SAXException {
+	private void createField(Properties ctx, TransformerHandler document, int fieldId) throws SAXException {
 		Env.setContext(ctx, X_AD_Field.COLUMNNAME_AD_Field_ID, fieldId);
 		fieldHandler.create(ctx, document);
 		ctx.remove(X_AD_Field.COLUMNNAME_AD_Field_ID);

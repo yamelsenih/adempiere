@@ -3,25 +3,20 @@
  */
 package org.adempiere.pipo.handler;
 
-import java.math.BigDecimal;
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
 import javax.xml.transform.sax.TransformerHandler;
 
-import org.adempiere.exceptions.AdempiereException;
 import org.adempiere.pipo.AbstractElementHandler;
+import org.adempiere.pipo.AttributeFiller;
 import org.adempiere.pipo.Element;
 import org.adempiere.pipo.PackOut;
 import org.adempiere.pipo.exception.POSaveFailedException;
 import org.compiere.model.I_AD_PrintPaper;
-import org.compiere.model.MTable;
-import org.compiere.model.PO;
-import org.compiere.model.POInfo;
+import org.compiere.model.X_AD_PrintPaper;
 import org.compiere.util.Env;
-import org.compiere.util.Util;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.AttributesImpl;
@@ -35,222 +30,102 @@ public class PrintPaperElementHandler extends AbstractElementHandler
 {
 	public static final String TAG_Name = "printpaper";
 
-	private final List<Integer> list = new ArrayList<Integer>();
+	private final List<Integer> papers = new ArrayList<Integer>();
 	
-	protected String getTagName()
-	{
+	protected String getTagName() {
 		return TAG_Name;
 	}
-	
-	protected String getTableName()
-	{
-		return I_AD_PrintPaper.Table_Name;
-	}
-	
-	protected final int getTable_ID()
-	{
-		return MTable.getTable_ID(getTableName());
-	}
-	
-	protected String getKeyColumnName()
-	{
-		return I_AD_PrintPaper.COLUMNNAME_AD_PrintPaper_ID;
-	}
-	
-	protected String getIdentifierColumnName()
-	{
-		return I_AD_PrintPaper.COLUMNNAME_Name;
-	}
-	
-	protected String[] getAttributeNames()
-	{
-		final String[] attributeNames = new String[]{
-				I_AD_PrintPaper.COLUMNNAME_Name,
-				I_AD_PrintPaper.COLUMNNAME_Description,
-				I_AD_PrintPaper.COLUMNNAME_IsActive,
-				I_AD_PrintPaper.COLUMNNAME_IsDefault,
-				I_AD_PrintPaper.COLUMNNAME_IsLandscape,
-				I_AD_PrintPaper.COLUMNNAME_Code,
-				I_AD_PrintPaper.COLUMNNAME_MarginTop,
-				I_AD_PrintPaper.COLUMNNAME_MarginLeft,
-				I_AD_PrintPaper.COLUMNNAME_MarginRight,
-				I_AD_PrintPaper.COLUMNNAME_MarginBottom,
-				I_AD_PrintPaper.COLUMNNAME_SizeX,
-				I_AD_PrintPaper.COLUMNNAME_SizeY,
-				I_AD_PrintPaper.COLUMNNAME_DimensionUnits,
-		};
-		return attributeNames;
-	}
-	
-	protected int getExportItem_ID(Properties ctx)
-	{
-		final int id = Env.getContextAsInt(ctx, getKeyColumnName());
-		return id;
-	}
-	
-	protected PO getCreatePO(Properties ctx, int id, String trxName)
-	{
-		return MTable.get(ctx, getTableName()).getPO(id, trxName);
-	}
 
-	public void startElement(Properties ctx, Element element) throws SAXException
-	{
-		final String elementValue = element.getElementValue();
-		final Attributes atts = element.attributes;
-
-		final String strIdentifier = atts.getValue(getIdentifierColumnName());
-		final int id = get_IDWithColumn(ctx, getTableName(), getIdentifierColumnName(), strIdentifier);
-		final PO po = getCreatePO(ctx, id, getTrxName(ctx));
-		final String keyColumnName = getKeyColumnName();
-		log.info(elementValue+" "+strIdentifier+"["+id+"]");
-
-		if (id <= 0 && keyColumnName != null && getIntValue(atts, keyColumnName, 0) <= PackOut.MAX_OFFICIAL_ID)
-		{
-			po.set_ValueOfColumn(keyColumnName, getIntValue(atts, keyColumnName, 0));
-			po.setIsDirectLoad(true);
+	public void startElement(Properties ctx, Element element) throws SAXException {
+		String elementValue = element.getElementValue();
+		Attributes atts = element.attributes;
+		String uuid = getUUIDValue(atts, I_AD_PrintPaper.Table_Name);
+		log.info(elementValue + " " + uuid);
+		int id = getIdFromUUID(ctx, I_AD_PrintPaper.Table_Name, uuid);
+		X_AD_PrintPaper printPaper = new X_AD_PrintPaper(ctx, id, getTrxName(ctx));
+		if (id <= 0 && getIntValue(atts, I_AD_PrintPaper.COLUMNNAME_AD_PrintPaper_ID) > 0 && getIntValue(atts, I_AD_PrintPaper.COLUMNNAME_AD_PrintPaper_ID) <= PackOut.MAX_OFFICIAL_ID) {
+			printPaper.setAD_PrintPaper_ID(getIntValue(atts, I_AD_PrintPaper.COLUMNNAME_AD_PrintPaper_ID));
+			printPaper.setIsDirectLoad(true);
+		}
+		int backupId;
+		String objectStatus;
+		if (id > 0) {		
+			backupId = copyRecord(ctx, I_AD_PrintPaper.Table_Name, printPaper);
+			objectStatus = "Update";
+		} else {
+			objectStatus = "New";
+			backupId = 0;
+		}
+		printPaper.setUUID(uuid);
+		//	Standard Attributes
+		printPaper.setCode(getStringValue(atts, I_AD_PrintPaper.COLUMNNAME_Code));
+		printPaper.setName(getStringValue(atts, I_AD_PrintPaper.COLUMNNAME_Name));
+		printPaper.setDescription(getStringValue(atts, I_AD_PrintPaper.COLUMNNAME_Description));
+		printPaper.setDimensionUnits(getStringValue(atts, I_AD_PrintPaper.COLUMNNAME_DimensionUnits));
+		printPaper.setIsActive(getBooleanValue(atts, I_AD_PrintPaper.COLUMNNAME_IsActive));
+		printPaper.setIsDefault(getBooleanValue(atts, I_AD_PrintPaper.COLUMNNAME_IsDefault));
+		printPaper.setIsLandscape(getBooleanValue(atts, I_AD_PrintPaper.COLUMNNAME_IsLandscape));
+		printPaper.setMarginBottom(getIntValue(atts, I_AD_PrintPaper.COLUMNNAME_MarginBottom));
+		printPaper.setMarginLeft(getIntValue(atts, I_AD_PrintPaper.COLUMNNAME_MarginLeft));
+		printPaper.setMarginRight(getIntValue(atts, I_AD_PrintPaper.COLUMNNAME_MarginRight));
+		printPaper.setMarginTop(getIntValue(atts, I_AD_PrintPaper.COLUMNNAME_MarginTop));
+		printPaper.setSizeX(getBigDecimalValue(atts, I_AD_PrintPaper.COLUMNNAME_SizeX));
+		printPaper.setSizeY(getBigDecimalValue(atts, I_AD_PrintPaper.COLUMNNAME_SizeY));
+		//	Save
+		try {
+			printPaper.saveEx(getTrxName(ctx));
+			recordLog(ctx, 0, printPaper.getUUID(), "PrintPaper",
+					printPaper.get_ID(), backupId, objectStatus,
+					"AD_PrintPaper", get_IDWithColumn(ctx, "AD_Table",
+							"TableName", "AD_PrintPaper"));
+		} catch (Exception e) {
+			recordLog(ctx, 0, printPaper.getUUID(), "PrintPaper",
+					printPaper.get_ID(), backupId, objectStatus,
+					"AD_PrintPaper", get_IDWithColumn(ctx, "AD_Table",
+							"TableName", "AD_PrintPaper"));
+			throw new POSaveFailedException(e);
 		}
 		
-		final int AD_Backup_ID;
-		final String Object_Status;
-		if (id > 0)
-		{		
-			AD_Backup_ID = copyRecord(ctx, getTableName(), po);
-			Object_Status = "Update";
-		}
-		else
-		{
-			Object_Status = "New";
-			AD_Backup_ID = 0;
-		}
-
-		for (String attributeName : getAttributeNames())
-		{
-			loadAttribute(atts, attributeName, po);
-		}
-
-		if (po.save(getTrxName(ctx)) == true)
-		{		    	
-			recordLog (ctx, 1, strIdentifier, getTagName(), po.get_ID(),
-					AD_Backup_ID, Object_Status,
-					getTableName(), getTable_ID());
-		}
-		else
-		{
-			recordLog (ctx, 0, strIdentifier, getTagName(), po.get_ID(),
-					AD_Backup_ID, Object_Status,
-					getTableName(), getTable_ID());
-			throw new POSaveFailedException("Failed to save message.");
-		}
 	}
 
-	public void endElement(Properties ctx, Element element) throws SAXException
-	{
+	public void endElement(Properties ctx, Element element) throws SAXException {
+		
 	}
 
-	public void create(Properties ctx, TransformerHandler document) throws SAXException
-	{
-		final int id = getExportItem_ID(ctx);
-		if (list.contains(id))
+	public void create(Properties ctx, TransformerHandler document) throws SAXException {
+		int printPaperId = Env.getContextAsInt(ctx, X_AD_PrintPaper.COLUMNNAME_AD_PrintPaper_ID);
+		if (papers.contains(printPaperId)) {
 			return;
-		list.add(id);
-
-		final PO po = getCreatePO(ctx, id, null);
-		final AttributesImpl atts = new AttributesImpl();
-		createMessageBinding(atts, po);	
+		}
+		papers.add(printPaperId);
+		X_AD_PrintPaper printPaper = new X_AD_PrintPaper(ctx, printPaperId, null);
+		AttributesImpl atts = new AttributesImpl();
+		createMessageBinding(atts, printPaper);	
 		document.startElement("", "", getTagName(), atts);
 		document.endElement("", "", getTagName());
 	}
 
-	private AttributesImpl createMessageBinding(AttributesImpl atts, PO po) 
-	{
+	private AttributesImpl createMessageBinding(AttributesImpl atts, X_AD_PrintPaper printPaper) {
 		atts.clear();
-		// Add ID if it's official
-		String keyColumnName = getKeyColumnName();
-		if (keyColumnName != null && po.get_ID() <= PackOut.MAX_OFFICIAL_ID)
-		{
-			addAttribute(atts, keyColumnName, po);
+		AttributeFiller filler = new AttributeFiller(atts, printPaper);
+		if (printPaper.getAD_PrintPaper_ID() <= PackOut.MAX_OFFICIAL_ID) {
+			filler.add(I_AD_PrintPaper.COLUMNNAME_AD_PrintPaper_ID);
 		}
-		for (String name : getAttributeNames())
-		{
-			addAttribute(atts, name, po);
-		}
+		filler.addUUID();
+		//	Standard Attributes
+		filler.add(I_AD_PrintPaper.COLUMNNAME_Code);
+		filler.add(I_AD_PrintPaper.COLUMNNAME_Name);
+		filler.add(I_AD_PrintPaper.COLUMNNAME_Description);
+		filler.add(I_AD_PrintPaper.COLUMNNAME_DimensionUnits);
+		filler.add(I_AD_PrintPaper.COLUMNNAME_IsActive);
+		filler.add(I_AD_PrintPaper.COLUMNNAME_IsDefault);
+		filler.add(I_AD_PrintPaper.COLUMNNAME_IsLandscape);
+		filler.add(I_AD_PrintPaper.COLUMNNAME_MarginBottom);
+		filler.add(I_AD_PrintPaper.COLUMNNAME_MarginLeft);
+		filler.add(I_AD_PrintPaper.COLUMNNAME_MarginRight);
+		filler.add(I_AD_PrintPaper.COLUMNNAME_MarginTop);
+		filler.add(I_AD_PrintPaper.COLUMNNAME_SizeX);
+		filler.add(I_AD_PrintPaper.COLUMNNAME_SizeY);
 		return atts;
-	}
-
-	protected void loadAttribute(Attributes atts, String name, PO po)
-	{
-		final String strValueExact = atts.getValue(name);
-		String strValue = strValueExact;
-		if (Util.isEmpty(strValue, true))
-		{
-			strValue = null;
-		}
-		else
-		{
-			strValue = strValue.trim();
-		}
-		
-		final POInfo poInfo = POInfo.getPOInfo(po.getCtx(), getTable_ID());
-		final Class<?> clazz = poInfo.getColumnClass(poInfo.getColumnIndex(name));
-		if (strValue == null)
-		{
-			po.set_ValueOfColumn(name, null);
-		}
-		else if (clazz == BigDecimal.class)
-		{
-			po.set_ValueOfColumn(name, new BigDecimal(strValue));
-		}
-		else if (clazz == Integer.class)
-		{
-			po.set_ValueOfColumn(name, new BigDecimal(strValue).intValueExact());
-		}
-		else if (clazz == String.class)
-		{
-			po.set_ValueOfColumn(name, strValueExact);
-		}
-		else if (clazz == Boolean.class)
-		{
-			po.set_ValueOfColumn(name, Boolean.valueOf(strValue));
-		}
-		else if (clazz == Timestamp.class)
-		{
-			Timestamp ts = Timestamp.valueOf(strValue);
-			po.set_ValueOfColumn(name, ts);
-		}
-		else
-		{
-			throw new AdempiereException("Class not supported - "+clazz);
-		}
-	}
-
-	protected boolean getBooleanValue(Attributes atts, String qName, boolean defaultValue)
-	{
-		String s = atts.getValue(qName);
-		return s != null ? Boolean.valueOf(s) : defaultValue;
-	}
-
-	protected int getIntValue(Attributes atts, String qName, int defaultValue)
-	{
-		Object o = atts.getValue(qName);
-		if (o == null)
-			return defaultValue;
-		if (o instanceof Number)
-			return ((Number)o).intValue();
-		return Integer.parseInt(o.toString());
-	}
-
-	private final void addAttribute(AttributesImpl atts, String name, PO po)
-	{
-		Object value = po.get_Value(name);
-		atts.addAttribute("", "", name, "CDATA", toStringAttribute(value));
-	}
-
-	private final String toStringAttribute(Object value)
-	{
-		if (value == null)
-			return "";
-		if (value instanceof Boolean)
-			return ((Boolean)value).booleanValue() == true ? "true" : "false";
-		return value.toString();
 	}
 }

@@ -48,14 +48,9 @@ public class ReferenceListElementHandler extends AbstractElementHandler {
 				element.skip = true;
 				return;
 			}
-			int referenceId = 0;
-			if (element.parent != null && element.parent.getElementValue().equals("reference") && element.parent.recordId > 0) {
-				referenceId = element.parent.recordId;
-			} else {
-				String referenceUuid = getUUIDValue(atts, I_AD_Ref_List.COLUMNNAME_AD_Reference_ID);
-				referenceId = getIdWithFromUUID(ctx, I_AD_Reference.Table_Name, referenceUuid);
-			}
-			int refListId = getIdWithFromUUID(ctx, I_AD_Reference.Table_Name, uuid);
+			String referenceUuid = getUUIDValue(atts, I_AD_Ref_List.COLUMNNAME_AD_Reference_ID);
+			int referenceId = getIdFromUUID(ctx, I_AD_Reference.Table_Name, referenceUuid);
+			int refListId = getIdFromUUID(ctx, I_AD_Ref_List.Table_Name, uuid);
 			X_AD_Ref_List refList = new X_AD_Ref_List(ctx, refListId, getTrxName(ctx));
 			if (refListId <= 0 && getIntValue(atts, I_AD_Ref_List.COLUMNNAME_AD_Ref_List_ID) > 0 && getIntValue(atts, I_AD_Ref_List.COLUMNNAME_AD_Ref_List_ID) <= PackOut.MAX_OFFICIAL_ID) {
 				refList.setAD_Ref_List_ID(getIntValue(atts, I_AD_Ref_List.COLUMNNAME_AD_Ref_List_ID));
@@ -71,21 +66,21 @@ public class ReferenceListElementHandler extends AbstractElementHandler {
 			refList.setUUID(uuid);
 			refList.setAD_Reference_ID(referenceId);
 			refList.setValue(getStringValue(atts, I_AD_Ref_List.COLUMNNAME_Value));
-			refList.setValue(getStringValue(atts, I_AD_Ref_List.COLUMNNAME_Name));
-			refList.setValue(getStringValue(atts, I_AD_Ref_List.COLUMNNAME_Description));
-			refList.setValue(getStringValue(atts, I_AD_Ref_List.COLUMNNAME_EntityType));
-			refList.setValue(getStringValue(atts, I_AD_Ref_List.COLUMNNAME_IsActive));
-			refList.setValue(getStringValue(atts, I_AD_Ref_List.COLUMNNAME_ValidFrom));
-			refList.setValue(getStringValue(atts, I_AD_Ref_List.COLUMNNAME_ValidTo));
+			refList.setName(getStringValue(atts, I_AD_Ref_List.COLUMNNAME_Name));
+			refList.setDescription(getStringValue(atts, I_AD_Ref_List.COLUMNNAME_Description));
+			refList.setEntityType(getStringValue(atts, I_AD_Ref_List.COLUMNNAME_EntityType));
+			refList.setIsActive(getBooleanValue(atts, I_AD_Ref_List.COLUMNNAME_IsActive));
+			refList.setValidFrom(getTimestampValue(atts, I_AD_Ref_List.COLUMNNAME_ValidFrom));
+			refList.setValidTo(getTimestampValue(atts, I_AD_Ref_List.COLUMNNAME_ValidTo));
 			//	Save
 			try {
 				refList.saveEx(getTrxName(ctx));
-				recordLog(ctx, 1, refList.getName(), "Reference List",
+				recordLog(ctx, 1, refList.getUUID(), "Reference List",
 						refList.get_ID(), backupId, objectStatus,
 						"AD_Ref_List", get_IDWithColumn(ctx, "AD_Table",
 								"TableName", "AD_Ref_List"));
 			} catch (Exception e) {
-				recordLog(ctx, 0, refList.getName(), "Reference List",
+				recordLog(ctx, 0, refList.getUUID(), "Reference List",
 						refList.get_ID(), backupId, objectStatus,
 						"AD_Ref_List", get_IDWithColumn(ctx, "AD_Table",
 								"TableName", "AD_Ref_List"));
@@ -102,12 +97,10 @@ public class ReferenceListElementHandler extends AbstractElementHandler {
 
 	public void create(Properties ctx, TransformerHandler document)
 			throws SAXException {
-		int AD_Ref_List_ID = Env.getContextAsInt(ctx,
-				X_AD_Ref_List.COLUMNNAME_AD_Ref_List_ID);
-		X_AD_Ref_List m_Ref_List = new X_AD_Ref_List(ctx, AD_Ref_List_ID,
-				getTrxName(ctx));
+		int refListId = Env.getContextAsInt(ctx, X_AD_Ref_List.COLUMNNAME_AD_Ref_List_ID);
+		X_AD_Ref_List refList = new X_AD_Ref_List(ctx, refListId, getTrxName(ctx));
 		AttributesImpl atts = new AttributesImpl();
-		createRefListBinding(atts, m_Ref_List);
+		createRefListBinding(atts, refList);
 		document.startElement("", "", "referencelist", atts);
 		document.endElement("", "", "referencelist");
 	}

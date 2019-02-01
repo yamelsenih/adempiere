@@ -61,7 +61,7 @@ public class ProcessParaElementHandler extends AbstractElementHandler {
 				masterId = element.parent.recordId;
 			} else {
 				if (!Util.isEmpty(processUuid)) {
-					masterId = getIdWithFromUUID(ctx, I_AD_Process.Table_Name, processUuid);					
+					masterId = getIdFromUUID(ctx, I_AD_Process.Table_Name, processUuid);					
 				}				
 			}
 			if (masterId <= 0) {
@@ -69,7 +69,7 @@ public class ProcessParaElementHandler extends AbstractElementHandler {
 				element.unresolved = "AD_Process: " + processUuid;
 				return;
 			}
-			id = getIdWithFromUUID(ctx, I_AD_Process_Para.Table_Name, uuid);
+			id = getIdFromUUID(ctx, I_AD_Process_Para.Table_Name, uuid);
 			//	Instance
 			X_AD_Process_Para processparameter = new X_AD_Process_Para(ctx, id, getTrxName(ctx));
 			int backupId = -1;
@@ -89,7 +89,7 @@ public class ProcessParaElementHandler extends AbstractElementHandler {
 			// Process
 			uuid = getUUIDValue(atts, I_AD_Process_Para.COLUMNNAME_AD_Process_ID);
 			if (!Util.isEmpty(uuid)) {
-				id = getIdWithFromUUID(ctx, I_AD_Process.Table_Name, uuid);
+				id = getIdFromUUID(ctx, I_AD_Process.Table_Name, uuid);
 				if (id <= 0) {
 					element.defer = true;
 					return;
@@ -99,7 +99,7 @@ public class ProcessParaElementHandler extends AbstractElementHandler {
 			// Reference
 			uuid = getUUIDValue(atts, I_AD_Process_Para.COLUMNNAME_AD_Reference_ID);
 			if (!Util.isEmpty(uuid)) {
-				id = getIdWithFromUUID(ctx, I_AD_Reference.Table_Name, uuid);
+				id = getIdFromUUID(ctx, I_AD_Reference.Table_Name, uuid);
 				if (id <= 0) {
 					element.defer = true;
 					return;
@@ -109,7 +109,7 @@ public class ProcessParaElementHandler extends AbstractElementHandler {
 			// Reference Value
 			uuid = getUUIDValue(atts, I_AD_Process_Para.COLUMNNAME_AD_Reference_Value_ID);
 			if (!Util.isEmpty(uuid)) {
-				id = getIdWithFromUUID(ctx, I_AD_Reference.Table_Name, uuid);
+				id = getIdFromUUID(ctx, I_AD_Reference.Table_Name, uuid);
 				if (id <= 0) {
 					element.defer = true;
 					return;
@@ -119,7 +119,7 @@ public class ProcessParaElementHandler extends AbstractElementHandler {
 			// Validation Rule
 			uuid = getUUIDValue(atts, I_AD_Process_Para.COLUMNNAME_AD_Val_Rule_ID);
 			if (!Util.isEmpty(uuid)) {
-				id = getIdWithFromUUID(ctx, I_AD_Val_Rule.Table_Name, uuid);
+				id = getIdFromUUID(ctx, I_AD_Val_Rule.Table_Name, uuid);
 				if (id <= 0) {
 					element.defer = true;
 					return;
@@ -148,7 +148,7 @@ public class ProcessParaElementHandler extends AbstractElementHandler {
 			// Element
 			uuid = getUUIDValue(atts, I_AD_Process_Para.COLUMNNAME_AD_Element_ID);
 			if (!Util.isEmpty(uuid)) {
-				id = getIdWithFromUUID(ctx, I_AD_Element.Table_Name, uuid);
+				id = getIdFromUUID(ctx, I_AD_Element.Table_Name, uuid);
 				if (id <= 0) {
 					element.defer = true;
 					return;
@@ -158,12 +158,12 @@ public class ProcessParaElementHandler extends AbstractElementHandler {
 			//	Save
 			try {
 				processparameter.saveEx(getTrxName(ctx));
-				recordLog(ctx, 1, processparameter.getName(), "Process_para",
+				recordLog(ctx, 1, processparameter.getUUID(), "Process_para",
 						processparameter.get_ID(), backupId, objectStatus,
 						"AD_Process_para", get_IDWithColumn(ctx, "AD_Table",
 								"TableName", "AD_Process_para"));
 			} catch (Exception e) {
-				recordLog(ctx, 0, processparameter.getName(), "Process_para",
+				recordLog(ctx, 0, processparameter.getUUID(), "Process_para",
 						processparameter.get_ID(), backupId, objectStatus,
 						"AD_Process_para", get_IDWithColumn(ctx, "AD_Table",
 								"TableName", "AD_Process_para"));

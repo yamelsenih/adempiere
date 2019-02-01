@@ -21,12 +21,16 @@ import java.util.Properties;
 import javax.xml.transform.sax.TransformerHandler;
 
 import org.adempiere.pipo.AbstractElementHandler;
+import org.adempiere.pipo.AttributeFiller;
 import org.adempiere.pipo.Element;
 import org.adempiere.pipo.PackOut;
 import org.adempiere.pipo.exception.POSaveFailedException;
+import org.compiere.model.I_AD_Column;
+import org.compiere.model.I_AD_ReportView;
+import org.compiere.model.I_AD_ReportView_Col;
 import org.compiere.model.X_AD_ReportView_Col;
-import org.compiere.util.DB;
 import org.compiere.util.Env;
+import org.compiere.util.Util;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.AttributesImpl;
@@ -36,92 +40,81 @@ public class ReportViewColElementHandler extends AbstractElementHandler {
 	public void startElement(Properties ctx, Element element)
 			throws SAXException {
 		String elementValue = element.getElementValue();
-		int AD_Backup_ID = -1;
-		String Object_Status = null;
-
+		int backupId = -1;
+		String objectStatus = null;
 		Attributes atts = element.attributes;
-		log.info(elementValue + " " + atts.getValue("ADReportViewColID"));
-
-		String entitytype = atts.getValue("EntityType");
-		
+		String uuid = getUUIDValue(atts, I_AD_ReportView_Col.Table_Name);
+		log.info(elementValue + " " + uuid);
+		String entitytype = getStringValue(atts, I_AD_ReportView.COLUMNNAME_EntityType);
 		if (isProcessElement(ctx, entitytype)) {
-			String name = atts.getValue("ADReportviewNameID");
-			int AD_ReportView_ID = 0;
+			String reportViewUuid = getUUIDValue(atts, I_AD_ReportView_Col.COLUMNNAME_AD_ReportView_ID);
+			int reportViewId = 0;
 			if (element.parent != null && element.parent.getElementValue().equals("reportview") &&
 				element.parent.recordId > 0) {
-				AD_ReportView_ID = element.parent.recordId;
+				reportViewId = element.parent.recordId;
 			} else {
-				AD_ReportView_ID = get_IDWithColumn(ctx, "AD_ReportView", "Name", name);
+				reportViewId = getIdFromUUID(ctx, I_AD_ReportView.Table_Name, reportViewUuid);
 			}
-			if (AD_ReportView_ID <= 0) {
+			if (reportViewId <= 0) {
 				element.defer = true;
 				return;
 			}
 			
-			name = atts.getValue("ADColumnNameID");
-			int AD_Column_ID = 0;
-			if (name != null && name.trim().length() > 0) {
-				AD_Column_ID = get_IDWithColumn(ctx, "AD_Column", "Name", name);
-				if (AD_Column_ID <= 0) {
+			String columnUuid = getUUIDValue(atts, I_AD_ReportView_Col.COLUMNNAME_AD_Column_ID);
+			int columnId = 0;
+			if (!Util.isEmpty(columnUuid)) {
+				columnId = getIdFromUUID(ctx, I_AD_Column.Table_Name, columnUuid);
+				if (columnId <= 0) {
 					element.defer = true;
 					return;
 				}
 			}
-			
-			String functionColumn = getStringValue(atts, "FunctionColumn");
-			StringBuffer sql = new StringBuffer("SELECT AD_Reportview_Col_ID FROM AD_Reportview_Col ")
-				.append(" WHERE AD_Column_ID ");
-			if (AD_Column_ID > 0)
-				sql.append(" = " + AD_Column_ID);
-			else
-				sql.append(" IS NULL ");
-			sql.append(" AND FunctionColumn = ?");
-			
-			int id = DB.getSQLValue(getTrxName(ctx), sql.toString(), functionColumn);
-			if (id < 0) id = 0;
-			X_AD_ReportView_Col m_Reportview_Col = new X_AD_ReportView_Col(ctx,
-					id, getTrxName(ctx));
-			if (id <= 0 && atts.getValue("AD_ReportView_Col_ID") != null && Integer.parseInt(atts.getValue("AD_ReportView_Col_ID")) <= PackOut.MAX_OFFICIAL_ID) {
-				m_Reportview_Col.setAD_ReportView_Col_ID(Integer.parseInt(atts.getValue("AD_ReportView_Col_ID")));
-				m_Reportview_Col.setIsDirectLoad(true);
+			int id = getIdFromUUID(ctx, I_AD_ReportView_Col.Table_Name, uuid);
+			X_AD_ReportView_Col reportViewColumn = new X_AD_ReportView_Col(ctx, id, getTrxName(ctx));
+			if (id <= 0 && getIntValue(atts, I_AD_ReportView_Col.COLUMNNAME_AD_ReportView_Col_ID) > 0 && getIntValue(atts, I_AD_ReportView_Col.COLUMNNAME_AD_ReportView_Col_ID) <= PackOut.MAX_OFFICIAL_ID) {
+				reportViewColumn.setAD_ReportView_Col_ID(getIntValue(atts, I_AD_ReportView_Col.COLUMNNAME_AD_ReportView_Col_ID));
+				reportViewColumn.setIsDirectLoad(true);
 			}
 			if (id > 0) {
-				AD_Backup_ID = copyRecord(ctx, "AD_Reportview_Col",
-						m_Reportview_Col);
-				Object_Status = "Update";
+				backupId = copyRecord(ctx, "AD_Reportview_Col",
+						reportViewColumn);
+				objectStatus = "Update";
 			} else {
-				Object_Status = "New";
-				AD_Backup_ID = 0;
+				objectStatus = "New";
+				backupId = 0;
 			}
-			
-			boolean isGroupFunction = Boolean.valueOf(
-					atts.getValue("isGroupFunction")).booleanValue();
-			
-			m_Reportview_Col.setAD_ReportView_ID(AD_ReportView_ID);
-
-			if (AD_Column_ID > 0) {
-				m_Reportview_Col.setAD_Column_ID(id);
+			//	Set UUID
+			reportViewColumn.setUUID(uuid);
+			//	
+			//	Column
+			uuid = getUUIDValue(atts, I_AD_ReportView_Col.COLUMNNAME_AD_Column_ID);
+			if (!Util.isEmpty(uuid)) {
+				id = getIdFromUUID(ctx, I_AD_Column.Table_Name, uuid);
+				if (id <= 0) {
+					element.defer = true;
+					return;
+				}
+				reportViewColumn.setAD_Column_ID(id);
 			}
-
-			m_Reportview_Col.setFunctionColumn(functionColumn);
-			m_Reportview_Col
-					.setIsActive(atts.getValue("isActive") != null ? Boolean
-							.valueOf(atts.getValue("isActive")).booleanValue()
-							: true);
-			m_Reportview_Col.setIsGroupFunction(isGroupFunction);
-			if (m_Reportview_Col.save(getTrxName(ctx)) == true) {
-				recordLog(ctx, 1, "" + m_Reportview_Col.getAD_ReportView_ID(),
-						"Reportview_Col", m_Reportview_Col.get_ID(),
-						AD_Backup_ID, Object_Status, "AD_Reportview_Col",
+			//	Report View
+			reportViewColumn.setAD_ReportView_ID(reportViewId);
+			reportViewColumn.setFunctionColumn(getStringValue(atts, I_AD_ReportView_Col.COLUMNNAME_FunctionColumn));
+			reportViewColumn.setIsGroupFunction(getBooleanValue(atts, I_AD_ReportView_Col.COLUMNNAME_IsActive));
+			reportViewColumn.setIsGroupFunction(getBooleanValue(atts, I_AD_ReportView_Col.COLUMNNAME_IsGroupFunction));
+			try {
+				reportViewColumn.saveEx(getTrxName(ctx));
+				recordLog(ctx, 1, reportViewColumn.getUUID(),
+						"Reportview_Col", reportViewColumn.get_ID(),
+						backupId, objectStatus, "AD_Reportview_Col",
 						get_IDWithColumn(ctx, "AD_Table", "TableName",
 								"AD_Reportview_Col"));
-			} else {
-				recordLog(ctx, 0, "" + m_Reportview_Col.getAD_ReportView_ID(),
-						"Reportview_Col", m_Reportview_Col.get_ID(),
-						AD_Backup_ID, Object_Status, "AD_Reportview_Col",
+			} catch (Exception e) {
+				recordLog(ctx, 0, reportViewColumn.getUUID(),
+						"Reportview_Col", reportViewColumn.get_ID(),
+						backupId, objectStatus, "AD_Reportview_Col",
 						get_IDWithColumn(ctx, "AD_Table", "TableName",
 								"AD_Reportview_Col"));
-				throw new POSaveFailedException("ReportViewCol");
+				throw new POSaveFailedException(e);
 			}
 		} else {
 			element.skip = true;
@@ -129,50 +122,40 @@ public class ReportViewColElementHandler extends AbstractElementHandler {
 	}
 
 	public void endElement(Properties ctx, Element element) throws SAXException {
+		
 	}
 
-	public void create(Properties ctx, TransformerHandler document)
-			throws SAXException {
-		int AD_ReportView_Col_ID = Env.getContextAsInt(ctx,
-				X_AD_ReportView_Col.COLUMNNAME_AD_ReportView_Col_ID);
-		X_AD_ReportView_Col m_Reportview_Col = new X_AD_ReportView_Col(ctx,
-				AD_ReportView_Col_ID, getTrxName(ctx));
+	public void create(Properties ctx, TransformerHandler document) throws SAXException {
+		int reportViewColId = Env.getContextAsInt(ctx, X_AD_ReportView_Col.COLUMNNAME_AD_ReportView_Col_ID);
+		X_AD_ReportView_Col reportviewCol = new X_AD_ReportView_Col(ctx, reportViewColId, getTrxName(ctx));
 		AttributesImpl atts = new AttributesImpl();
-		createReportViewColBinding(atts, m_Reportview_Col);
+		createReportViewColBinding(atts, reportviewCol);
 		document.startElement("", "", "reportviewcol", atts);
 		document.endElement("", "", "reportviewcol");
 	}
 
-	private AttributesImpl createReportViewColBinding(AttributesImpl atts,
-			X_AD_ReportView_Col m_Reportview_Col) {
-		String sql = null;
-		String name = null;
+	private AttributesImpl createReportViewColBinding(AttributesImpl atts, X_AD_ReportView_Col reportviewCol) {
 		atts.clear();
-		if (m_Reportview_Col.getAD_ReportView_Col_ID() <= PackOut.MAX_OFFICIAL_ID)
-	        atts.addAttribute("","","AD_ReportView_Col_ID","CDATA",Integer.toString(m_Reportview_Col.getAD_ReportView_Col_ID()));
-		if (m_Reportview_Col.getAD_Column_ID() > 0) {
-			sql = "SELECT ColumnName FROM AD_Column WHERE AD_Column_ID=?";
-			name = DB.getSQLValueString(null, sql, m_Reportview_Col
-					.getAD_Column_ID());
-			atts.addAttribute("", "", "ADColumnNameID", "CDATA", name);
-		} else
-			atts.addAttribute("", "", "ADColumnNameID", "CDATA", "");
-
-		if (m_Reportview_Col.getAD_ReportView_ID() > 0) {
-			sql = "SELECT Name FROM AD_Reportview WHERE AD_Reportview_ID=?";
-			name = DB.getSQLValueString(null, sql, m_Reportview_Col
-					.getAD_ReportView_ID());
-			atts.addAttribute("", "", "ADReportviewNameID", "CDATA", name);
-		} else
-			atts.addAttribute("", "", "ADReportviewNameID", "CDATA", "");
-
-		atts.addAttribute("", "", "FunctionColumn", "CDATA", (m_Reportview_Col
-				.getFunctionColumn() != null ? m_Reportview_Col
-				.getFunctionColumn() : ""));
-		atts.addAttribute("", "", "isActive", "CDATA", (m_Reportview_Col
-				.isActive() == true ? "true" : "false"));
-		atts.addAttribute("", "", "isGroupFunction", "CDATA", (m_Reportview_Col
-				.isGroupFunction() == true ? "true" : "false"));
+		AttributeFiller filler = new AttributeFiller(atts, reportviewCol);
+		if (reportviewCol.getAD_ReportView_Col_ID() <= PackOut.MAX_OFFICIAL_ID) {
+			filler.add(I_AD_ReportView_Col.COLUMNNAME_AD_ReportView_Col_ID);
+		}
+		filler.addUUID();
+		//	Report View
+		if(reportviewCol.getAD_ReportView_ID() > 0) {
+			filler.add(I_AD_ReportView_Col.COLUMNNAME_AD_ReportView_ID, true);
+			filler.addUUID(I_AD_ReportView_Col.COLUMNNAME_AD_ReportView_ID, getUUIDFromId(reportviewCol.getCtx(), I_AD_ReportView.Table_Name, reportviewCol.getAD_ReportView_ID()));
+			filler.addString(I_AD_ReportView.COLUMNNAME_EntityType, reportviewCol.getAD_ReportView().getEntityType());
+		}
+		//	Column
+		if(reportviewCol.getAD_Column_ID() > 0) {
+			filler.add(I_AD_ReportView_Col.COLUMNNAME_AD_Column_ID, true);
+			filler.addUUID(I_AD_ReportView_Col.COLUMNNAME_AD_Column_ID, getUUIDFromId(reportviewCol.getCtx(), I_AD_Column.Table_Name, reportviewCol.getAD_Column_ID()));
+		}
+		//	Fields
+		filler.add(I_AD_ReportView_Col.COLUMNNAME_FunctionColumn);
+		filler.add(I_AD_ReportView_Col.COLUMNNAME_IsActive);
+		filler.add(I_AD_ReportView_Col.COLUMNNAME_IsGroupFunction);
 		return atts;
 	}
 }

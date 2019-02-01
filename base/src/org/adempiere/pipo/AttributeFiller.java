@@ -1,6 +1,7 @@
 package org.adempiere.pipo;
 
 import java.math.BigDecimal;
+import java.sql.Timestamp;
 
 import org.compiere.model.I_AD_Element;
 import org.compiere.model.PO;
@@ -69,7 +70,6 @@ public class AttributeFiller {
 	 * @param boolValue
 	 */
 	public void addBoolean(String name, boolean boolValue){
-
 		atts.addAttribute("", "", name, "CDATA", boolValue == true ? "true" : "false");
 	}
 	
@@ -104,14 +104,11 @@ public class AttributeFiller {
 	 * @param onlyValidId
 	 */
 	public void add(String columnName, boolean onlyValidId) {
-		
 		Object value = po.get_Value(columnName);
-		
 		if(value == null){
 			atts.addAttribute("", "", columnName, "CDATA", "");
 			return;
 		}
-		
 		if(value instanceof String) {
 			atts.addAttribute("", "", columnName, "CDATA", (String)value);	
 		} else if(value instanceof Boolean) {
@@ -130,6 +127,8 @@ public class AttributeFiller {
 			}
 		} else if(value instanceof BigDecimal) { 
 			atts.addAttribute("", "", columnName, "CDATA",  value.toString());
+		} else if(value instanceof Timestamp) {
+			atts.addAttribute("", "", columnName, "CDATA",  String.valueOf(((Timestamp)value).getTime()));
 		} else {
 			throw new IllegalArgumentException("Add your own type implementation here.");
 		}

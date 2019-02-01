@@ -59,7 +59,7 @@ public class ProcessElementHandler extends AbstractElementHandler {
 		int id = 0;
 		if (isProcessElement(ctx, entitytype)) {
 			// Get New process.
-			id = getIdWithFromUUID(ctx, I_AD_Process.Table_Name, uuid);
+			id = getIdFromUUID(ctx, I_AD_Process.Table_Name, uuid);
 			X_AD_Process process = null;
 			int backupId = -1;
 			String objectStatus = null;
@@ -80,7 +80,7 @@ public class ProcessElementHandler extends AbstractElementHandler {
 			// Workflow
 			uuid = getUUIDValue(atts, I_AD_Process.COLUMNNAME_AD_Workflow_ID);
 			if (!Util.isEmpty(uuid)) {
-				id = getIdWithFromUUID(ctx, I_AD_Workflow.Table_Name, uuid);
+				id = getIdFromUUID(ctx, I_AD_Workflow.Table_Name, uuid);
 				if (id <= 0) {
 					element.defer = true;
 					return;
@@ -90,7 +90,7 @@ public class ProcessElementHandler extends AbstractElementHandler {
 			// Print Format
 			uuid = getUUIDValue(atts, I_AD_Process.COLUMNNAME_AD_PrintFormat_ID);
 			if (!Util.isEmpty(uuid)) {
-				id = getIdWithFromUUID(ctx, I_AD_PrintFormat.Table_Name, uuid);
+				id = getIdFromUUID(ctx, I_AD_PrintFormat.Table_Name, uuid);
 				if (id <= 0) {
 					element.defer = true;
 					return;
@@ -100,7 +100,7 @@ public class ProcessElementHandler extends AbstractElementHandler {
 			// Report View
 			uuid = getUUIDValue(atts, I_AD_Process.COLUMNNAME_AD_ReportView_ID);
 			if (!Util.isEmpty(uuid)) {
-				id = getIdWithFromUUID(ctx, I_AD_ReportView.Table_Name, uuid);
+				id = getIdFromUUID(ctx, I_AD_ReportView.Table_Name, uuid);
 				if (id <= 0) {
 					element.defer = true;
 					return;
@@ -110,7 +110,7 @@ public class ProcessElementHandler extends AbstractElementHandler {
 			// Form
 			uuid = getUUIDValue(atts, I_AD_Process.COLUMNNAME_AD_Form_ID);
 			if (!Util.isEmpty(uuid)) {
-				id = getIdWithFromUUID(ctx, I_AD_Form.Table_Name, uuid);
+				id = getIdFromUUID(ctx, I_AD_Form.Table_Name, uuid);
 				if (id <= 0) {
 					element.defer = true;
 					return;
@@ -120,7 +120,7 @@ public class ProcessElementHandler extends AbstractElementHandler {
 			// Browse
 			uuid = getUUIDValue(atts, I_AD_Process.COLUMNNAME_AD_Browse_ID);
 			if (!Util.isEmpty(uuid)) {
-				id = getIdWithFromUUID(ctx, I_AD_Browse.Table_Name, uuid);
+				id = getIdFromUUID(ctx, I_AD_Browse.Table_Name, uuid);
 				if (id <= 0) {
 					element.defer = true;
 					return;
@@ -149,13 +149,13 @@ public class ProcessElementHandler extends AbstractElementHandler {
 			//	Save
 			try {
 				process.saveEx(getTrxName(ctx));
-				recordLog(ctx, 1, process.getName(), "Process", process
+				recordLog(ctx, 1, process.getUUID(), "Process", process
 						.get_ID(), backupId, objectStatus, "AD_Process",
 						get_IDWithColumn(ctx, "AD_Table", "TableName",
 								"AD_Process"));
 				element.recordId = process.getAD_Process_ID();
 			} catch (Exception e) {
-				recordLog(ctx, 0, process.getName(), "Process", process
+				recordLog(ctx, 0, process.getUUID(), "Process", process
 						.get_ID(), backupId, objectStatus, "AD_Process",
 						get_IDWithColumn(ctx, "AD_Table", "TableName",
 								"AD_Process"));
@@ -198,7 +198,9 @@ public class ProcessElementHandler extends AbstractElementHandler {
 		createProcessBinding(atts, process);
 		document.startElement("", "", "process", atts);
 		for(MProcessPara parameter : process.getParameters()) {
-			packOut.createAdElement(parameter.getAD_Element_ID(), document);
+			if(parameter.getAD_Element_ID() > 0) {
+				packOut.createAdElement(parameter.getAD_Element_ID(), document);
+			}
 			createProcessPara(ctx, document, parameter.getAD_Process_Para_ID());
 		}
 		document.endElement("", "", "process");

@@ -55,7 +55,7 @@ public class WindowElementHandler extends AbstractElementHandler {
 		log.info(elementValue + " " + uuid);
 		String entitytype = getStringValue(atts, I_AD_Window.COLUMNNAME_EntityType);
 		if (isProcessElement(ctx, entitytype)) {
-			int windowId = getIdWithFromUUID(ctx, I_AD_Window.Table_Name, uuid);
+			int windowId = getIdFromUUID(ctx, I_AD_Window.Table_Name, uuid);
 			if (windowId > 0 && windows.contains(windowId)) {
 				return;
 			}
@@ -78,7 +78,7 @@ public class WindowElementHandler extends AbstractElementHandler {
 			//	For Image
 			uuid = getUUIDValue(atts, I_AD_Window.COLUMNNAME_AD_Image_ID);
 			if (!Util.isEmpty(uuid)) {
-				int id = getIdWithFromUUID(ctx, I_AD_Image.Table_Name, uuid);
+				int id = getIdFromUUID(ctx, I_AD_Image.Table_Name, uuid);
 				if (id <= 0) {
 					element.defer = true;
 					return;
@@ -88,7 +88,7 @@ public class WindowElementHandler extends AbstractElementHandler {
 			//	For Color
 			uuid = getUUIDValue(atts, I_AD_Window.COLUMNNAME_AD_Color_ID);
 			if (!Util.isEmpty(uuid)) {
-				int id = getIdWithFromUUID(ctx, I_AD_Color.Table_Name, uuid);
+				int id = getIdFromUUID(ctx, I_AD_Color.Table_Name, uuid);
 				if (id <= 0) {
 					element.defer = true;
 					return;
@@ -133,9 +133,12 @@ public class WindowElementHandler extends AbstractElementHandler {
 		
 	}
 
-	public void create(Properties ctx, TransformerHandler document)
-			throws SAXException {
+	public void create(Properties ctx, TransformerHandler document) throws SAXException {
 		int windowId = Env.getContextAsInt(ctx, "AD_Window_ID");
+		if(windows.contains(windowId)) {
+			return;
+		}
+		windows.add(windowId);
 		PackOut packOut = (PackOut) ctx.get("PackOutProcess");
 
 		MWindow window = new MWindow(ctx, windowId, null);
@@ -151,9 +154,8 @@ public class WindowElementHandler extends AbstractElementHandler {
 		document.endElement("", "", "window");
 	}
 	
-	private void createTab(Properties ctx, TransformerHandler document,
-			int AD_Tab_ID) throws SAXException {
-		Env.setContext(ctx, X_AD_Tab.COLUMNNAME_AD_Tab_ID, AD_Tab_ID);
+	private void createTab(Properties ctx, TransformerHandler document, int tabId) throws SAXException {
+		Env.setContext(ctx, X_AD_Tab.COLUMNNAME_AD_Tab_ID, tabId);
 		tabHandler.create(ctx, document);
 		ctx.remove(X_AD_Tab.COLUMNNAME_AD_Tab_ID);
 	}

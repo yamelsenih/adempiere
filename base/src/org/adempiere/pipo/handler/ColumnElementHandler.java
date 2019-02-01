@@ -24,7 +24,6 @@ import javax.xml.transform.sax.TransformerHandler;
 import org.adempiere.pipo.AbstractElementHandler;
 import org.adempiere.pipo.AttributeFiller;
 import org.adempiere.pipo.Element;
-import org.adempiere.pipo.PackIn;
 import org.adempiere.pipo.PackOut;
 import org.adempiere.pipo.exception.DatabaseAccessException;
 import org.adempiere.pipo.exception.POSaveFailedException;
@@ -50,7 +49,6 @@ public class ColumnElementHandler extends AbstractElementHandler {
 
 	public void startElement(Properties ctx, Element element)
 			throws SAXException {
-		PackIn packIn = (PackIn)ctx.get("PackInProcess");
 		String elementValue = element.getElementValue();
 		Attributes atts = element.attributes;
 		String uuid = getUUIDValue(atts, I_AD_Column.Table_Name);
@@ -67,21 +65,11 @@ public class ColumnElementHandler extends AbstractElementHandler {
 			if (element.parent != null && element.parent.getElementValue().equals("table") &&
 				element.parent.recordId > 0) {
 				tableid = element.parent.recordId;
-			} else {
-				tableid = packIn.getTableUUID(tableUuid);
 			}
 			if (tableid <= 0) {
-				tableid = getIdWithFromUUID(ctx, I_AD_Table.Table_Name, tableUuid);
-				if (tableid > 0)
-					packIn.addTable(tableUuid, tableid);
+				tableid = getIdFromUUID(ctx, I_AD_Table.Table_Name, tableUuid);
 			}
-			int id = packIn.getColumnId(tableUuid, uuid);
-			if (id <= 0) {
-				id = getIdWithFromUUID(ctx, I_AD_Column.Table_Name, uuid);
-				if (id > 0) {
-					packIn.addColumn(tableUuid, uuid, id);
-				}
-			}
+			int id = getIdFromUUID(ctx, I_AD_Column.Table_Name, uuid);
 			X_AD_Column column = new X_AD_Column(ctx, id, getTrxName(ctx));
 			if (id <= 0 && getIntValue(atts, I_AD_Column.COLUMNNAME_AD_Column_ID) > 0 && getIntValue(atts, I_AD_Column.COLUMNNAME_AD_Column_ID) <= PackOut.MAX_OFFICIAL_ID) {
 				column.setAD_Column_ID(getIntValue(atts, I_AD_Column.COLUMNNAME_AD_Column_ID));
@@ -97,10 +85,30 @@ public class ColumnElementHandler extends AbstractElementHandler {
 				backupId = 0;
 			}
 			column.setUUID(uuid);
+			// Table
+			uuid = getUUIDValue(atts, I_AD_Column.COLUMNNAME_AD_Table_ID);
+			if (!Util.isEmpty(uuid)) {
+				id = getIdFromUUID(ctx, I_AD_Table.Table_Name, uuid);
+				if (id <= 0) {
+					element.defer = true;
+					return;
+				}
+				column.setAD_Table_ID(id);
+			}
+			// Element
+			uuid = getUUIDValue(atts, I_AD_Column.COLUMNNAME_AD_Element_ID);
+			if (!Util.isEmpty(uuid)) {
+				id = getIdFromUUID(ctx, I_AD_Element.Table_Name, uuid);
+				if (id <= 0) {
+					element.defer = true;
+					return;
+				}
+				column.setAD_Element_ID(id);
+			}
 			// Process
 			uuid = getUUIDValue(atts, I_AD_Column.COLUMNNAME_AD_Process_ID);
 			if (!Util.isEmpty(uuid)) {
-				id = getIdWithFromUUID(ctx, I_AD_Process.Table_Name, uuid);
+				id = getIdFromUUID(ctx, I_AD_Process.Table_Name, uuid);
 				if (id <= 0) {
 					element.defer = true;
 					return;
@@ -110,7 +118,7 @@ public class ColumnElementHandler extends AbstractElementHandler {
 			// Reference
 			uuid = getUUIDValue(atts, I_AD_Column.COLUMNNAME_AD_Reference_ID);
 			if (!Util.isEmpty(uuid)) {
-				id = getIdWithFromUUID(ctx, I_AD_Reference.Table_Name, uuid);
+				id = getIdFromUUID(ctx, I_AD_Reference.Table_Name, uuid);
 				if (id <= 0) {
 					element.defer = true;
 					return;
@@ -120,27 +128,17 @@ public class ColumnElementHandler extends AbstractElementHandler {
 			// Reference Value
 			uuid = getUUIDValue(atts, I_AD_Column.COLUMNNAME_AD_Reference_Value_ID);
 			if (!Util.isEmpty(uuid)) {
-				id = getIdWithFromUUID(ctx, I_AD_Reference.Table_Name, uuid);
+				id = getIdFromUUID(ctx, I_AD_Reference.Table_Name, uuid);
 				if (id <= 0) {
 					element.defer = true;
 					return;
 				}
 				column.setAD_Reference_Value_ID(id);
 			}			
-			// Table
-			uuid = getUUIDValue(atts, I_AD_Column.COLUMNNAME_AD_Table_ID);
-			if (!Util.isEmpty(uuid)) {
-				id = getIdWithFromUUID(ctx, I_AD_Table.Table_Name, uuid);
-				if (id <= 0) {
-					element.defer = true;
-					return;
-				}
-				column.setAD_Table_ID(id);
-			}
 			// Validation Rule
 			uuid = getUUIDValue(atts, I_AD_Column.COLUMNNAME_AD_Val_Rule_ID);
 			if (!Util.isEmpty(uuid)) {
-				id = getIdWithFromUUID(ctx, I_AD_Val_Rule.Table_Name, uuid);
+				id = getIdFromUUID(ctx, I_AD_Val_Rule.Table_Name, uuid);
 				if (id <= 0) {
 					element.defer = true;
 					return;
@@ -150,7 +148,7 @@ public class ColumnElementHandler extends AbstractElementHandler {
 			// Image
 			uuid = getUUIDValue(atts, I_AD_Column.COLUMNNAME_AD_Image_ID);
 			if (!Util.isEmpty(uuid)) {
-				id = getIdWithFromUUID(ctx, I_AD_Image.Table_Name, uuid);
+				id = getIdFromUUID(ctx, I_AD_Image.Table_Name, uuid);
 				if (id <= 0) {
 					element.defer = true;
 					return;
@@ -160,7 +158,7 @@ public class ColumnElementHandler extends AbstractElementHandler {
 			// Chart
 			uuid = getUUIDValue(atts, I_AD_Column.COLUMNNAME_AD_Chart_ID);
 			if (!Util.isEmpty(uuid)) {
-				id = getIdWithFromUUID(ctx, I_AD_Chart.Table_Name, uuid);
+				id = getIdFromUUID(ctx, I_AD_Chart.Table_Name, uuid);
 				if (id <= 0) {
 					element.defer = true;
 					return;
@@ -195,16 +193,6 @@ public class ColumnElementHandler extends AbstractElementHandler {
 			column.setIsAllowCopy(getBooleanValue(atts, I_AD_Column.COLUMNNAME_IsAllowCopy));
 			column.setIsAllowLogging(getBooleanValue(atts, I_AD_Column.COLUMNNAME_IsAllowLogging));
 			column.setFormatPattern(getStringValue(atts, I_AD_Column.COLUMNNAME_FormatPattern));
-			// Element
-			uuid = getUUIDValue(atts, I_AD_Column.COLUMNNAME_AD_Element_ID);
-			if (!Util.isEmpty(uuid)) {
-				id = getIdWithFromUUID(ctx, I_AD_Element.Table_Name, uuid);
-				if (id <= 0) {
-					element.defer = true;
-					return;
-				}
-				column.setAD_Element_ID(id);
-			}
 			//	
 			boolean recreateColumn = (column.is_new()
 					|| column.is_ValueChanged("AD_Reference_ID")
@@ -245,13 +233,13 @@ public class ColumnElementHandler extends AbstractElementHandler {
 			//	Save
 			try {
 				column.saveEx(getTrxName(ctx));
-				recordLog(ctx, 1, column.getName(), "Column", column
+				recordLog(ctx, 1, column.getUUID(), "Column", column
 						.get_ID(), backupId, object_Status, "AD_Column",
 						get_IDWithColumn(ctx, "AD_Table", "TableName",
 								"AD_Column"));
 				element.recordId = column.getAD_Column_ID();
 			} catch (Exception e) {
-				recordLog(ctx, 0, column.getName(), "Column", column
+				recordLog(ctx, 0, column.getUUID(), "Column", column
 						.get_ID(), backupId, object_Status, "AD_Column",
 						get_IDWithColumn(ctx, "AD_Table", "TableName",
 								"AD_Column"));

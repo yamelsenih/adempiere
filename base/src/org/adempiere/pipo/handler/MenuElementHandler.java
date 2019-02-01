@@ -37,6 +37,7 @@ import org.compiere.model.I_AD_TreeNodeMM;
 import org.compiere.model.I_AD_Window;
 import org.compiere.model.I_AD_Workbench;
 import org.compiere.model.I_AD_Workflow;
+import org.compiere.model.MMenu;
 import org.compiere.model.MTree;
 import org.compiere.model.MTree_NodeMM;
 import org.compiere.model.X_AD_Menu;
@@ -57,7 +58,7 @@ public class MenuElementHandler extends AbstractElementHandler {
 		Attributes atts = element.attributes;
 		String uuid = getUUIDValue(atts, I_AD_Menu.Table_Name);
 		log.info(elementValue + " " + uuid);
-		int menuId = getIdWithFromUUID(ctx, I_AD_Menu.Table_Name, uuid);
+		int menuId = getIdFromUUID(ctx, I_AD_Menu.Table_Name, uuid);
 		X_AD_Menu menu = new X_AD_Menu(ctx, menuId, getTrxName(ctx));
 		if (menuId <= 0 && getIntValue(atts, I_AD_Menu.COLUMNNAME_AD_Menu_ID) > 0 && getIntValue(atts, I_AD_Menu.COLUMNNAME_AD_Menu_ID) <= PackOut.MAX_OFFICIAL_ID) {
 			menu.setAD_Menu_ID(getIntValue(atts, I_AD_Menu.COLUMNNAME_AD_Menu_ID));
@@ -75,7 +76,7 @@ public class MenuElementHandler extends AbstractElementHandler {
 		menu.setName(atts.getValue(I_AD_Menu.COLUMNNAME_Name));
 		uuid = getUUIDValue(atts, I_AD_Menu.COLUMNNAME_AD_Window_ID);
 		if (!Util.isEmpty(uuid)) {
-			int id = getIdWithFromUUID(ctx, I_AD_Window.Table_Name, uuid);
+			int id = getIdFromUUID(ctx, I_AD_Window.Table_Name, uuid);
 			if (id <= 0) {
 				element.defer = true;
 				return;
@@ -85,7 +86,7 @@ public class MenuElementHandler extends AbstractElementHandler {
 		//	for Process
 		uuid = getUUIDValue(atts, I_AD_Menu.COLUMNNAME_AD_Process_ID);
 		if (!Util.isEmpty(uuid)) {
-			int id = getIdWithFromUUID(ctx, I_AD_Process.Table_Name, uuid);
+			int id = getIdFromUUID(ctx, I_AD_Process.Table_Name, uuid);
 			if (id <= 0) {
 				element.defer = true;
 				return;
@@ -95,7 +96,7 @@ public class MenuElementHandler extends AbstractElementHandler {
 		//	For Form
 		uuid = getUUIDValue(atts, I_AD_Menu.COLUMNNAME_AD_Form_ID);
 		if (!Util.isEmpty(uuid)) {
-			int id = getIdWithFromUUID(ctx, I_AD_Form.Table_Name, uuid);
+			int id = getIdFromUUID(ctx, I_AD_Form.Table_Name, uuid);
 			if (id <= 0) {
 				element.defer = true;
 				return;
@@ -105,7 +106,7 @@ public class MenuElementHandler extends AbstractElementHandler {
 		//	Browse
 		uuid = getUUIDValue(atts, I_AD_Menu.COLUMNNAME_AD_Browse_ID);
 		if (!Util.isEmpty(uuid)) {
-			int id = getIdWithFromUUID(ctx, I_AD_Browse.Table_Name, uuid);
+			int id = getIdFromUUID(ctx, I_AD_Browse.Table_Name, uuid);
 			if (id <= 0) {
 				element.defer = true;
 				return;
@@ -115,7 +116,7 @@ public class MenuElementHandler extends AbstractElementHandler {
 		//	Task
 		uuid = getUUIDValue(atts, I_AD_Menu.COLUMNNAME_AD_Task_ID);
 		if (!Util.isEmpty(uuid)) {
-			int id = getIdWithFromUUID(ctx, I_AD_Task.Table_Name, uuid);
+			int id = getIdFromUUID(ctx, I_AD_Task.Table_Name, uuid);
 			if (id <= 0) {
 				element.defer = true;
 				return;
@@ -125,7 +126,7 @@ public class MenuElementHandler extends AbstractElementHandler {
 		//	Workbench
 		uuid = getUUIDValue(atts, I_AD_Menu.COLUMNNAME_AD_Workbench_ID);
 		if (!Util.isEmpty(uuid)) {
-			int id = getIdWithFromUUID(ctx, I_AD_Workbench.Table_Name, uuid);
+			int id = getIdFromUUID(ctx, I_AD_Workbench.Table_Name, uuid);
 			if (id <= 0) {
 				element.defer = true;
 				return;
@@ -135,7 +136,7 @@ public class MenuElementHandler extends AbstractElementHandler {
 		//	Workflow
 		uuid = getUUIDValue(atts, I_AD_Menu.COLUMNNAME_AD_Workflow_ID);
 		if (!Util.isEmpty(uuid)) {
-			int id = getIdWithFromUUID(ctx, I_AD_Workflow.Table_Name, uuid);
+			int id = getIdFromUUID(ctx, I_AD_Workflow.Table_Name, uuid);
 			if (id <= 0) {
 				element.defer = true;
 				return;
@@ -157,11 +158,11 @@ public class MenuElementHandler extends AbstractElementHandler {
 		int detailId;
 		try {
 			menu.saveEx(getTrxName(ctx));
-			detailId = recordLog(ctx, 1, menu.getName(), "Menu", menu
+			detailId = recordLog(ctx, 1, menu.getUUID(), "Menu", menu
 					.get_ID(), backupId, Object_Status, "AD_Menu",
 					get_IDWithColumn(ctx, "AD_Table", "TableName", "AD_Menu"));
 		} catch (Exception e) {
-			detailId = recordLog(ctx, 0, menu.getName(), "Menu", menu
+			detailId = recordLog(ctx, 0, menu.getUUID(), "Menu", menu
 					.get_ID(), backupId, Object_Status, "AD_Menu",
 					get_IDWithColumn(ctx, "AD_Table", "TableName",
 							"AD_Menu"));
@@ -169,7 +170,7 @@ public class MenuElementHandler extends AbstractElementHandler {
 		}
 		//	Parent Menu UUID
 		uuid = getUUIDValue(atts, I_AD_TreeNodeMM.COLUMNNAME_Parent_ID);
-		int parentId = getIdWithFromUUID(ctx, I_AD_Menu.Table_Name, uuid);
+		int parentId = getIdFromUUID(ctx, I_AD_Menu.Table_Name, uuid);
 		//	Default tree ID
 		int defaultTreeId = MTree.getDefaultTreeIdFromTableId(menu.getAD_Client_ID(), I_AD_Menu.Table_ID);
 		String sqlCounter = "SELECT count(Parent_ID) FROM AD_TREENODEMM WHERE AD_Tree_ID = " + defaultTreeId
@@ -320,8 +321,11 @@ public class MenuElementHandler extends AbstractElementHandler {
 		//	Parent Menu UUID
 		int defaultTreeId = MTree.getDefaultTreeIdFromTableId(menu.getAD_Client_ID(), I_AD_Menu.Table_ID);
 		MTree_NodeMM node = MTree_NodeMM.get(MTree.get(Env.getCtx(), defaultTreeId, null), menu.getAD_Menu_ID());
-		//	Set Parent UUID
-		filler.addUUID(I_AD_TreeNodeMM.COLUMNNAME_Parent_ID, node.getUUID());
+		if(node.getParent_ID() > 0) {
+			MMenu parent = MMenu.getFromId(Env.getCtx(), node.getParent_ID());
+			//	Set Parent UUID
+			filler.addUUID(I_AD_TreeNodeMM.COLUMNNAME_Parent_ID, parent.getUUID());
+		}
 		filler.addInt(I_AD_TreeNodeMM.COLUMNNAME_SeqNo, node.getSeqNo());
 		return atts;
 	}

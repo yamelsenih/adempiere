@@ -33,7 +33,7 @@ import org.compiere.util.Env;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.AttributesImpl;
-
+@Deprecated
 public class TaskElementHandler extends AbstractElementHandler {
 
 	private List<Integer> tasks = new ArrayList<Integer>();

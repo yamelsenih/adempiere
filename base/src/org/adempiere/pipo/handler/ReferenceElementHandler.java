@@ -54,7 +54,7 @@ public class ReferenceElementHandler extends AbstractElementHandler {
 		log.info(elementValue + " " + uuid);
 		String entitytype = getStringValue(atts, I_AD_Reference.COLUMNNAME_EntityType);
 		if (isProcessElement(ctx, entitytype)) {
-			int id = getIdWithFromUUID(ctx, I_AD_Reference.Table_Name, uuid);
+			int id = getIdFromUUID(ctx, I_AD_Reference.Table_Name, uuid);
 			X_AD_Reference reference = new X_AD_Reference(ctx, id, getTrxName(ctx));
 			if (id <= 0 && getIntValue(atts, I_AD_Reference.COLUMNNAME_AD_Reference_ID) > 0 && getIntValue(atts, I_AD_Reference.COLUMNNAME_AD_Reference_ID) <= PackOut.MAX_OFFICIAL_ID) {
 				reference.setAD_Reference_ID(getIntValue(atts, I_AD_Reference.COLUMNNAME_AD_Reference_ID));
@@ -84,14 +84,14 @@ public class ReferenceElementHandler extends AbstractElementHandler {
 			//	Save
 			try {
 				reference.saveEx(getTrxName(ctx));
-				recordLog(ctx, 1, reference.getName(), "Reference",
+				recordLog(ctx, 1, reference.getUUID(), "Reference",
 						reference.get_ID(), backupId, objectStatus,
 						"AD_Reference", get_IDWithColumn(ctx, "AD_Table",
 								"TableName", "AD_Reference"));
 				references.add(reference.getAD_Reference_ID());
 				element.recordId = reference.getAD_Reference_ID();
 			} catch (Exception e) {
-				recordLog(ctx, 0, reference.getName(), "Reference",
+				recordLog(ctx, 0, reference.getUUID(), "Reference",
 						reference.get_ID(), backupId, objectStatus,
 						"AD_Reference", get_IDWithColumn(ctx, "AD_Table",
 								"TableName", "AD_Reference"));

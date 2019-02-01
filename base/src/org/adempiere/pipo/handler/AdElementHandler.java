@@ -54,7 +54,7 @@ public class AdElementHandler extends AbstractElementHandler {
 		String entitytype = getStringValue(atts, I_AD_Element.COLUMNNAME_EntityType);
 		//	
 		if (isProcessElement(ctx, entitytype)) {
-			int id = getIdWithFromUUID(ctx, I_AD_Element.Table_Name, uuid);
+			int id = getIdFromUUID(ctx, I_AD_Element.Table_Name, uuid);
 			X_AD_Element importElement = new X_AD_Element(ctx, id, getTrxName(ctx));
 			if (id <= 0 && getIntValue(atts, I_AD_Element.COLUMNNAME_AD_Element_ID) > 0 && getIntValue(atts, I_AD_Element.COLUMNNAME_AD_Element_ID) <= PackOut.MAX_OFFICIAL_ID) {
 				importElement.setAD_Element_ID(getIntValue(atts, I_AD_Element.COLUMNNAME_AD_Element_ID));
@@ -75,22 +75,21 @@ public class AdElementHandler extends AbstractElementHandler {
 			PoFiller pf = new PoFiller(importElement, atts);
 			
 			pf.setBoolean(I_AD_Element.COLUMNNAME_IsActive);
+			pf.setString(I_AD_Element.COLUMNNAME_ColumnName);
+			pf.setString(I_AD_Element.COLUMNNAME_Description);
+			pf.setString(I_AD_Element.COLUMNNAME_EntityType);
+			pf.setString(I_AD_Element.COLUMNNAME_Help);
+			pf.setString(I_AD_Element.COLUMNNAME_Name);
+			pf.setString(I_AD_Element.COLUMNNAME_PrintName);
 			
-			pf.setString(X_AD_Element.COLUMNNAME_ColumnName);
-			pf.setString(X_AD_Element.COLUMNNAME_Description);
-			pf.setString(X_AD_Element.COLUMNNAME_EntityType);
-			pf.setString(X_AD_Element.COLUMNNAME_Help);
-			pf.setString(X_AD_Element.COLUMNNAME_Name);
-			pf.setString(X_AD_Element.COLUMNNAME_PrintName);
-			
-			pf.setString(X_AD_Element.COLUMNNAME_PO_Description);
-			pf.setString(X_AD_Element.COLUMNNAME_PO_Name);
-			pf.setString(X_AD_Element.COLUMNNAME_PO_Help);
-			pf.setString(X_AD_Element.COLUMNNAME_PO_PrintName);
+			pf.setString(I_AD_Element.COLUMNNAME_PO_Description);
+			pf.setString(I_AD_Element.COLUMNNAME_PO_Name);
+			pf.setString(I_AD_Element.COLUMNNAME_PO_Help);
+			pf.setString(I_AD_Element.COLUMNNAME_PO_PrintName);
 			// Reference
 			uuid = getUUIDValue(atts, I_AD_Element.COLUMNNAME_AD_Reference_ID);
 			if (!Util.isEmpty(uuid)) {
-				id = getIdWithFromUUID(ctx, I_AD_Reference.Table_Name, uuid);
+				id = getIdFromUUID(ctx, I_AD_Reference.Table_Name, uuid);
 				if (id <= 0) {
 					element.defer = true;
 					return;
@@ -100,7 +99,7 @@ public class AdElementHandler extends AbstractElementHandler {
 			// Reference
 			uuid = getUUIDValue(atts, I_AD_Element.COLUMNNAME_AD_Reference_Value_ID);
 			if (!Util.isEmpty(uuid)) {
-				id = getIdWithFromUUID(ctx, I_AD_Reference.Table_Name, uuid);
+				id = getIdFromUUID(ctx, I_AD_Reference.Table_Name, uuid);
 				if (id <= 0) {
 					element.defer = true;
 					return;
@@ -134,7 +133,7 @@ public class AdElementHandler extends AbstractElementHandler {
 	}
 
 	public void create(Properties ctx, TransformerHandler document) throws SAXException {
-		int elementId = Env.getContextAsInt(ctx, X_AD_Element.COLUMNNAME_AD_Element_ID);
+		int elementId = Env.getContextAsInt(ctx, I_AD_Element.COLUMNNAME_AD_Element_ID);
 		//	
 		if (processedElements.contains(elementId)) {
 			return;
@@ -147,14 +146,14 @@ public class AdElementHandler extends AbstractElementHandler {
 		createAdElementBinding(atts, element);
 		document.startElement("", "", "element", atts);
 		PackOut packOut = (PackOut)ctx.get("PackOutProcess");
-		packOut.createTranslations(X_AD_Element.Table_Name, element.get_ID(), document);		
+		packOut.createTranslations(I_AD_Element.Table_Name, element.get_ID(), document);		
 		document.endElement("", "", "element");
 	}
 	
 	private AttributesImpl createAdElementBinding(AttributesImpl atts, X_AD_Element element) {
 		AttributeFiller filler = new AttributeFiller(atts, element);
 		if (element.getAD_Element_ID() <= PackOut.MAX_OFFICIAL_ID) {
-			filler.add(X_AD_Element.COLUMNNAME_AD_Element_ID);
+			filler.add(I_AD_Element.COLUMNNAME_AD_Element_ID);
 		}
 		filler.addUUID();
 		//	Reference
@@ -168,18 +167,18 @@ public class AdElementHandler extends AbstractElementHandler {
 			filler.addUUID(I_AD_Element.COLUMNNAME_AD_Reference_Value_ID, getUUIDFromId(element.getCtx(), I_AD_Reference.Table_Name, element.getAD_Reference_Value_ID()));
         }
 		//	
-		filler.add(X_AD_Element.COLUMNNAME_ColumnName);
-		filler.add(X_AD_Element.COLUMNNAME_Description);
-		filler.add(X_AD_Element.COLUMNNAME_EntityType);
-		filler.add(X_AD_Element.COLUMNNAME_Help);
-		filler.add(X_AD_Element.COLUMNNAME_Name);
-		filler.add(X_AD_Element.COLUMNNAME_PrintName);
-        filler.add(X_AD_Element.COLUMNNAME_FieldLength);
-        filler.add(X_AD_Element.COLUMNNAME_IsActive);
-		filler.add(X_AD_Element.COLUMNNAME_PO_Description);
-		filler.add(X_AD_Element.COLUMNNAME_PO_Name);
-		filler.add(X_AD_Element.COLUMNNAME_PO_Help);
-		filler.add(X_AD_Element.COLUMNNAME_PO_PrintName);
+		filler.add(I_AD_Element.COLUMNNAME_ColumnName);
+		filler.add(I_AD_Element.COLUMNNAME_Description);
+		filler.add(I_AD_Element.COLUMNNAME_EntityType);
+		filler.add(I_AD_Element.COLUMNNAME_Help);
+		filler.add(I_AD_Element.COLUMNNAME_Name);
+		filler.add(I_AD_Element.COLUMNNAME_PrintName);
+        filler.add(I_AD_Element.COLUMNNAME_FieldLength);
+        filler.add(I_AD_Element.COLUMNNAME_IsActive);
+		filler.add(I_AD_Element.COLUMNNAME_PO_Description);
+		filler.add(I_AD_Element.COLUMNNAME_PO_Name);
+		filler.add(I_AD_Element.COLUMNNAME_PO_Help);
+		filler.add(I_AD_Element.COLUMNNAME_PO_PrintName);
 		return atts;
 	}
 }

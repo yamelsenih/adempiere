@@ -52,7 +52,7 @@ public class ModelValidatorElementHandler extends AbstractElementHandler
 		log.info(elementValue + " " + uuid);
 		String entitytype = getStringValue(atts, I_AD_ModelValidator.COLUMNNAME_EntityType);
 		if (isProcessElement(ctx, entitytype)) {
-			int id = getIdWithFromUUID(ctx, I_AD_ModelValidator.Table_Name, uuid);
+			int id = getIdFromUUID(ctx, I_AD_ModelValidator.Table_Name, uuid);
 			X_AD_ModelValidator validator = new X_AD_ModelValidator(ctx, id, getTrxName(ctx));
 			int backupId;
 			String objectStatus;
@@ -78,11 +78,11 @@ public class ModelValidatorElementHandler extends AbstractElementHandler
 			//	Save
 			try {
 				validator.saveEx(getTrxName(ctx));
-				recordLog (ctx, 1, validator.getName(),TAG_Name, validator.get_ID(),
+				recordLog (ctx, 1, validator.getUUID(),TAG_Name, validator.get_ID(),
 						backupId, objectStatus,
 						I_AD_ModelValidator.Table_Name, I_AD_ModelValidator.Table_ID);
 			} catch (Exception e) {
-				recordLog (ctx, 0, validator.getName(),TAG_Name, validator.get_ID(),
+				recordLog (ctx, 0, validator.getUUID(),TAG_Name, validator.get_ID(),
 						backupId, objectStatus,
 						I_AD_ModelValidator.Table_Name, I_AD_ModelValidator.Table_ID);
 				throw new POSaveFailedException(e);

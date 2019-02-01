@@ -51,7 +51,7 @@ public class FieldGroupElementHandler extends AbstractElementHandler {
 		log.info(elementValue + " " + uuid);
 		String entitytype = getStringValue(atts, I_AD_FieldGroup.COLUMNNAME_EntityType);
 		if (isProcessElement(ctx, entitytype)) {
-			int id = getIdWithFromUUID(ctx, I_AD_FieldGroup.Table_Name, uuid);
+			int id = getIdFromUUID(ctx, I_AD_FieldGroup.Table_Name, uuid);
 			X_AD_FieldGroup fieldGroup = new X_AD_FieldGroup(ctx, id, getTrxName(ctx));
 			if (id <= 0 && getIntValue(atts, I_AD_FieldGroup.COLUMNNAME_AD_FieldGroup_ID) > 0 && getIntValue(atts, I_AD_FieldGroup.COLUMNNAME_AD_FieldGroup_ID) <= PackOut.MAX_OFFICIAL_ID) {
 				fieldGroup.setAD_FieldGroup_ID(getIntValue(atts, I_AD_FieldGroup.COLUMNNAME_AD_FieldGroup_ID));
@@ -78,14 +78,14 @@ public class FieldGroupElementHandler extends AbstractElementHandler {
 			//	Save
 			try {
 				fieldGroup.saveEx(getTrxName(ctx));
-				recordLog(ctx, 1, fieldGroup.getName(), "FieldGroup",
+				recordLog(ctx, 1, fieldGroup.getUUID(), "FieldGroup",
 						fieldGroup.get_ID(), backupId, objectStatus,
 						X_AD_FieldGroup.Table_Name, get_IDWithColumn(ctx, "AD_Table",
 								"TableName", X_AD_FieldGroup.Table_Name));
 				element.recordId = fieldGroup.getAD_FieldGroup_ID();
 				processedFieldGroups.add(fieldGroup.getAD_FieldGroup_ID());
 			} catch (Exception e) {
-				recordLog(ctx, 0, fieldGroup.getName(), "FieldGroup",
+				recordLog(ctx, 0, fieldGroup.getUUID(), "FieldGroup",
 						fieldGroup.get_ID(), backupId, objectStatus,
 						X_AD_FieldGroup.Table_Name, get_IDWithColumn(ctx, "AD_Table",
 								"TableName", X_AD_FieldGroup.Table_Name));
