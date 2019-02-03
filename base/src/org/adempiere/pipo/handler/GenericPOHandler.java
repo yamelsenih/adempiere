@@ -55,6 +55,9 @@ public class GenericPOHandler extends AbstractElementHandler {
 	public static final String TAG_Name = "GenericPO";
 	/**	Just current Entity	*/
 	private boolean includeParents;
+	/**	Exclusion parents tables	*/
+	private List<String> excludedParentTables = new ArrayList<>();
+	
 	/**
 	 * Set Include parents
 	 * @param includeParents
@@ -68,6 +71,18 @@ public class GenericPOHandler extends AbstractElementHandler {
 	 */
 	public GenericPOHandler() {
 		this(true);
+	}
+	
+	/**
+	 * Exclude table
+	 * @param tableName
+	 * @return
+	 */
+	public GenericPOHandler excludeParentTable(String tableName) {
+		if(!excludedParentTables.contains(tableName)) {
+			excludedParentTables.add(tableName);
+		}
+		return this;
 	}
 	
 	@Override
@@ -239,6 +254,10 @@ public class GenericPOHandler extends AbstractElementHandler {
 			//	Create Parent
 			MLookupInfo info = MLookupFactory.getLookupInfo(ctx, 0, poInfo.getAD_Column_ID(columnName), displayType);
 			if(info == null) {
+				continue;
+			}
+			//	Verify Exclusion
+			if(excludedParentTables.contains(info.TableName)) {
 				continue;
 			}
 			PO parentEntity = MTable.get(ctx, info.TableName).getPO(entity.get_ValueAsInt(columnName), null);
