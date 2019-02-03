@@ -27,8 +27,6 @@ import java.util.Properties;
 import java.util.logging.Level;
 
 import javax.xml.transform.sax.TransformerHandler;
-
-import org.compiere.model.I_AD_Element;
 import org.compiere.model.PO;
 import org.compiere.model.POInfo;
 import org.compiere.model.X_AD_Package_Imp_Detail;

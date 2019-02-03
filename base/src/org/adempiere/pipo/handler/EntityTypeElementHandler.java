@@ -69,18 +69,16 @@ public class EntityTypeElementHandler extends AbstractElementHandler
 			entity.setIsActive(getBooleanValue(atts, I_AD_EntityType.COLUMNNAME_IsActive, true));
 			entity.setModelPackage(getStringValue(atts, I_AD_EntityType.COLUMNNAME_ModelPackage));
 			entity.setClasspath(getStringValue(atts, I_AD_EntityType.COLUMNNAME_Classpath));
-			if (entity.save(getTrxName(ctx)) == true)
-			{		    	
+			try {
+				entity.saveEx(getTrxName(ctx));
 				recordLog (ctx, 1, entity.getUUID(), TAG_Name, entity.get_ID(),
 						AD_Backup_ID, Object_Status,
 						I_AD_EntityType.Table_Name, I_AD_EntityType.Table_ID);
-			}
-			else
-			{
+			} catch (Exception e) {
 				recordLog (ctx, 0, entity.getUUID(), TAG_Name, entity.get_ID(),
 						AD_Backup_ID, Object_Status,
 						I_AD_EntityType.Table_Name, I_AD_EntityType.Table_ID);
-				throw new POSaveFailedException("Failed to save message.");
+				throw new POSaveFailedException(e);
 			}
 		}
 		else

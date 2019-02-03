@@ -57,8 +57,8 @@ import org.adempiere.pipo.handler.DynValRuleElementHandler;
 import org.adempiere.pipo.handler.EntityTypeElementHandler;
 import org.adempiere.pipo.handler.FieldElementHandler;
 import org.adempiere.pipo.handler.FieldGroupElementHandler;
-import org.adempiere.pipo.handler.FormAccessElementHandler;
 import org.adempiere.pipo.handler.FormElementHandler;
+import org.adempiere.pipo.handler.GenericPOHandler;
 import org.adempiere.pipo.handler.ImpFormatElementHandler;
 import org.adempiere.pipo.handler.ImpFormatRowElementHandler;
 import org.adempiere.pipo.handler.MenuElementHandler;
@@ -69,7 +69,6 @@ import org.adempiere.pipo.handler.PreferenceElementHandler;
 import org.adempiere.pipo.handler.PrintFormatElementHandler;
 import org.adempiere.pipo.handler.PrintFormatItemElementHandler;
 import org.adempiere.pipo.handler.PrintPaperElementHandler;
-import org.adempiere.pipo.handler.ProcessAccessElementHandler;
 import org.adempiere.pipo.handler.ProcessElementHandler;
 import org.adempiere.pipo.handler.ProcessParaElementHandler;
 import org.adempiere.pipo.handler.ReferenceElementHandler;
@@ -77,19 +76,14 @@ import org.adempiere.pipo.handler.ReferenceListElementHandler;
 import org.adempiere.pipo.handler.ReferenceTableElementHandler;
 import org.adempiere.pipo.handler.ReportViewColElementHandler;
 import org.adempiere.pipo.handler.ReportViewElementHandler;
-import org.adempiere.pipo.handler.RoleElementHandler;
 import org.adempiere.pipo.handler.SQLStatementElementHandler;
 import org.adempiere.pipo.handler.TabElementHandler;
 import org.adempiere.pipo.handler.TableElementHandler;
-import org.adempiere.pipo.handler.TaskAccessElementHandler;
 import org.adempiere.pipo.handler.TaskElementHandler;
-import org.adempiere.pipo.handler.UserRoleElementHandler;
 import org.adempiere.pipo.handler.ViewColumnElementHandler;
 import org.adempiere.pipo.handler.ViewDefinitionElementHandler;
 import org.adempiere.pipo.handler.ViewElementHandler;
-import org.adempiere.pipo.handler.WindowAccessElementHandler;
 import org.adempiere.pipo.handler.WindowElementHandler;
-import org.adempiere.pipo.handler.WorkflowAccessElementHandler;
 import org.adempiere.pipo.handler.WorkflowElementHandler;
 import org.adempiere.pipo.handler.WorkflowNodeElementHandler;
 import org.adempiere.pipo.handler.WorkflowNodeNextConditionElementHandler;
@@ -213,7 +207,6 @@ public class PackInHandler extends DefaultHandler {
     	handlers.put("drow", dataHandler);
     	handlers.put("dcolumn", dataHandler);
     	handlers.put("window", new WindowElementHandler());
-    	handlers.put("windowaccess", new WindowAccessElementHandler());
     	handlers.put("preference", new PreferenceElementHandler());
     	handlers.put("tab", new TabElementHandler());
     	handlers.put("field", new FieldElementHandler());
@@ -224,23 +217,18 @@ public class PackInHandler extends DefaultHandler {
     	handlers.put("browsefield", new BrowseFieldElementHandler());
     	handlers.put("process", new ProcessElementHandler());
     	handlers.put("processpara", new ProcessParaElementHandler());
-    	handlers.put("processaccess", new ProcessAccessElementHandler());
     	handlers.put("message", new MessageElementHandler());
     	handlers.put("dynvalrule", new DynValRuleElementHandler());
     	handlers.put("workflow", new WorkflowElementHandler());
     	handlers.put("workflowNode", new WorkflowNodeElementHandler());
     	handlers.put("workflowNodeNext", new WorkflowNodeNextElementHandler());
     	handlers.put("workflowNodeNextCondition", new WorkflowNodeNextConditionElementHandler());
-    	handlers.put("workflowaccess", new WorkflowAccessElementHandler());
     	handlers.put("table", new TableElementHandler());
     	handlers.put("column", new ColumnElementHandler());
-    	handlers.put("role", new RoleElementHandler());
-    	handlers.put("userrole", new UserRoleElementHandler());
+    	handlers.put(GenericPOHandler.TAG_Name, new GenericPOHandler());
     	handlers.put("orgrole", new OrgRoleElementHandler());
     	handlers.put("form", new FormElementHandler());
-    	handlers.put("formaccess", new FormAccessElementHandler());
     	handlers.put("task", new TaskElementHandler());
-    	handlers.put("taskaccess", new TaskAccessElementHandler());
     	handlers.put("impformat", new ImpFormatElementHandler());
     	handlers.put("impformatrow", new ImpFormatRowElementHandler());
     	handlers.put("codesnipit", new CodeSnipitElementHandler());
@@ -435,9 +423,13 @@ public class PackInHandler extends DefaultHandler {
 			{
 				nodes.add(e);
 			}
-			
-					
-			ElementHandler handler = handlers.get(elementValue);
+			//	for generic handler
+			ElementHandler handler = null;
+			if(elementValue.startsWith(GenericPOHandler.TAG_Name)) {
+				handler = new GenericPOHandler();
+			} else {
+				handler = handlers.get(elementValue);
+			}
 			if (handler != null)
 				handler.startElement(m_ctx, e);
 			if (e.defer) {
