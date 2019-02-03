@@ -28,6 +28,7 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.util.List;
 import java.util.Properties;
 import java.util.logging.Level;
 
@@ -47,6 +48,7 @@ import org.adempiere.pipo.handler.DynValRuleElementHandler;
 import org.adempiere.pipo.handler.EntityTypeElementHandler;
 import org.adempiere.pipo.handler.FieldGroupElementHandler;
 import org.adempiere.pipo.handler.FormElementHandler;
+import org.adempiere.pipo.handler.GenericPOHandler;
 import org.adempiere.pipo.handler.ImpFormatElementHandler;
 import org.adempiere.pipo.handler.MenuElementHandler;
 import org.adempiere.pipo.handler.MessageElementHandler;
@@ -64,6 +66,7 @@ import org.adempiere.pipo.handler.ViewElementHandler;
 import org.adempiere.pipo.handler.WindowElementHandler;
 import org.adempiere.pipo.handler.WorkflowElementHandler;
 import org.compiere.model.MSysConfig;
+import org.compiere.model.PO;
 import org.compiere.model.X_AD_Element;
 import org.compiere.model.X_AD_FieldGroup;
 import org.compiere.model.X_AD_Package_Exp;
@@ -135,6 +138,7 @@ public class PackOut extends SvrProcess
     ModelValidatorElementHandler modelValidatorHandler = new ModelValidatorElementHandler();
     EntityTypeElementHandler entitytypeHandler = new EntityTypeElementHandler();
     PrintPaperElementHandler printPaperHandler = new PrintPaperElementHandler();
+    GenericPOHandler genericPOHandler = new GenericPOHandler();
     
     /**
 	 *  Prepare - e.g., get Parameters.
@@ -735,9 +739,9 @@ public class PackOut extends SvrProcess
 	 * 
 	 * @param Role_id
 	 * @param packOutDocument
-	 * @throws SAXException
+	 * @throws Exception 
 	 */
-	public void createRoles (int Role_id, TransformerHandler packOutDocument) throws SAXException
+	public void createRoles (int Role_id, TransformerHandler packOutDocument) throws Exception
 	{
 		Env.setContext(getCtx(), X_AD_Package_Exp_Detail.COLUMNNAME_AD_Role_ID, Role_id);
 		roleHandler.create(getCtx(), packOutDocument);
@@ -864,7 +868,52 @@ public class PackOut extends SvrProcess
 		printPaperHandler.create(getCtx(), packOutDocument);
 		getCtx().remove(X_AD_PrintPaper.COLUMNNAME_AD_PrintPaper_ID);
 	}
-
+	
+	/**
+	 * Create for generic PO
+	 * @param packOutDocument
+	 * @param entity
+	 * @throws SAXException
+	 */
+	public void createGenericPO(TransformerHandler packOutDocument, PO entity, boolean includeParents, List<String> excludedParentList) throws SAXException {
+		genericPOHandler.create(getCtx(), packOutDocument, entity, includeParents, excludedParentList);
+	}
+	
+	/**
+	 * Create Generic PO without parents
+	 * @param packOutDocument
+	 * @param entity
+	 * @throws SAXException
+	 */
+	public void createGenericPO(TransformerHandler packOutDocument, PO entity) throws SAXException {
+		createGenericPO(packOutDocument, entity, false, null);
+	}
+	
+	/**
+	 * Create generic PO
+	 * @param packOutDocument
+	 * @param tableId
+	 * @param recordId
+	 * @throws SAXException
+	 */
+	public void createGenericPO(TransformerHandler packOutDocument, int tableId, int recordId, boolean includeParents, List<String> excludedParentList) throws SAXException {
+		Env.setContext(getCtx(), GenericPOHandler.TABLE_ID_TAG, tableId);
+		Env.setContext(getCtx(), GenericPOHandler.RECORD_ID_TAG, recordId);
+		genericPOHandler.create(getCtx(), packOutDocument, null, includeParents, excludedParentList);
+		getCtx().remove(GenericPOHandler.TABLE_ID_TAG);
+		getCtx().remove(GenericPOHandler.RECORD_ID_TAG);
+	}
+	
+	/**
+	 * Create Generic PO without parents
+	 * @param packOutDocument
+	 * @param tableId
+	 * @param recordId
+	 * @throws SAXException
+	 */
+	public void createGenericPO(TransformerHandler packOutDocument, int tableId, int recordId) throws SAXException {
+		createGenericPO(packOutDocument, tableId, recordId, false, null);
+	}
 
 	
 	public void copyFile (String sourceName, String copyName ) {

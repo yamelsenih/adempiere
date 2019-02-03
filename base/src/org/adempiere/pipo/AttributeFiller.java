@@ -61,7 +61,7 @@ public class AttributeFiller {
 	}
 	
 	public static String getUUIDAttribute(String name) {
-		return (name + I_AD_Element.COLUMNNAME_UUID).replaceAll("_", "");
+		return (name + I_AD_Element.COLUMNNAME_UUID);
 	}
 
 	/**

@@ -44,7 +44,6 @@ import org.xml.sax.helpers.AttributesImpl;
 /**
  * Generic PO Handler for import and export PO
  * @author Yamel Senih, ysenih@erpya.com , http://www.erpya.com
- *
  */
 public class GenericPOHandler extends AbstractElementHandler {
 	private final List<String> list = new ArrayList<String>();
@@ -53,37 +52,6 @@ public class GenericPOHandler extends AbstractElementHandler {
 	public static final String TABLE_ID_TAG = "TableIdTag";
 	public static final String RECORD_ID_TAG = "RecordIdTag";
 	public static final String TAG_Name = "GenericPO";
-	/**	Just current Entity	*/
-	private boolean includeParents;
-	/**	Exclusion parents tables	*/
-	private List<String> excludedParentTables = new ArrayList<>();
-	
-	/**
-	 * Set Include parents
-	 * @param includeParents
-	 */
-	public GenericPOHandler(boolean includeParents) {
-		this.includeParents = includeParents;
-	}
-	
-	/**
-	 * Include parents
-	 */
-	public GenericPOHandler() {
-		this(true);
-	}
-	
-	/**
-	 * Exclude table
-	 * @param tableName
-	 * @return
-	 */
-	public GenericPOHandler excludeParentTable(String tableName) {
-		if(!excludedParentTables.contains(tableName)) {
-			excludedParentTables.add(tableName);
-		}
-		return this;
-	}
 	
 	@Override
 	public void startElement(Properties ctx, Element element) throws SAXException {
@@ -167,16 +135,27 @@ public class GenericPOHandler extends AbstractElementHandler {
 	}
 	
 	/**
-	 * Create from context
+	 * With default include parents
 	 */
 	public void create(Properties ctx, TransformerHandler document) throws SAXException {
-		create(ctx, document, null);
+		create(ctx, document, null, false, null);
+	}
+	
+	/**
+	 * With PO and include parents by default
+	 * @param ctx
+	 * @param document
+	 * @param entity
+	 * @throws SAXException
+	 */
+	public void create(Properties ctx, TransformerHandler document, PO entity) throws SAXException {
+		create(ctx, document, entity, false, null);
 	}
 	
 	/**
 	 * Create Attributes
 	 */
-	public void create(Properties ctx, TransformerHandler document, PO entity) throws SAXException {
+	public void create(Properties ctx, TransformerHandler document, PO entity, boolean includeParents, List<String> excludedParentList) throws SAXException {
 		int tableId = 0;
 		int recordId = 0;
 		if(entity != null) {
@@ -202,7 +181,7 @@ public class GenericPOHandler extends AbstractElementHandler {
 		}
 		//	Create parents
 		if(includeParents) {
-			createParents(ctx, document, entity);
+			createParents(ctx, document, entity, excludedParentList);
 		}
 		AttributesImpl atts = createMessageBinding(entity);
 		if(atts != null) {
@@ -218,7 +197,7 @@ public class GenericPOHandler extends AbstractElementHandler {
 	 * @param entity
 	 * @throws SAXException
 	 */
-	private void createParents(Properties ctx, TransformerHandler document, PO entity) throws SAXException {
+	private void createParents(Properties ctx, TransformerHandler document, PO entity, List<String> excludedParentList) throws SAXException {
 		POInfo poInfo = POInfo.getPOInfo(entity.getCtx(), entity.get_Table_ID());
 		for(int index = 0; index < poInfo.getColumnCount(); index++) {
 			int displayType = poInfo.getColumnDisplayType(index);
@@ -257,8 +236,10 @@ public class GenericPOHandler extends AbstractElementHandler {
 				continue;
 			}
 			//	Verify Exclusion
-			if(excludedParentTables.contains(info.TableName)) {
-				continue;
+			if(excludedParentList!= null) {
+				if(excludedParentList.contains(info.TableName)) {
+					continue;
+				}
 			}
 			PO parentEntity = MTable.get(ctx, info.TableName).getPO(entity.get_ValueAsInt(columnName), null);
 			if(parentEntity == null

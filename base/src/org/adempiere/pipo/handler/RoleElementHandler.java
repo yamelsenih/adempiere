@@ -24,6 +24,7 @@ import javax.xml.transform.sax.TransformerHandler;
 
 import org.adempiere.model.I_AD_Browse_Access;
 import org.adempiere.model.X_AD_Browse_Access;
+import org.adempiere.pipo.PackOut;
 import org.compiere.model.I_AD_Document_Action_Access;
 import org.compiere.model.I_AD_Form_Access;
 import org.compiere.model.I_AD_Process_Access;
@@ -35,7 +36,6 @@ import org.compiere.model.I_AD_Task_Access;
 import org.compiere.model.I_AD_User_Roles;
 import org.compiere.model.I_AD_Window_Access;
 import org.compiere.model.I_AD_Workflow_Access;
-import org.compiere.model.MDocType;
 import org.compiere.model.MFormAccess;
 import org.compiere.model.MProcessAccess;
 import org.compiere.model.MRole;
@@ -54,100 +54,104 @@ import org.spin.model.I_AD_Dashboard_Access;
 import org.spin.model.X_AD_Dashboard_Access;
 import org.xml.sax.SAXException;
 
+/**
+ * Add support to generic PO Handler
+ * @author Yamel Senih, ysenih@erpya.com , http://www.erpya.com
+ */
 public class RoleElementHandler extends GenericPOHandler {
 	public void create(Properties ctx, TransformerHandler document) throws SAXException {
-		Env.setContext(ctx, GenericPOHandler.TABLE_ID_TAG, I_AD_Role.Table_ID);
+		PackOut packOut = (PackOut) ctx.get("PackOutProcess");
+		if(packOut == null ) {
+			packOut = new PackOut();
+			packOut.setLocalContext(ctx);
+		}
 		int roleId = Env.getContextAsInt(ctx, X_AD_Package_Exp_Detail.COLUMNNAME_AD_Role_ID);
-		Env.setContext(ctx, GenericPOHandler.RECORD_ID_TAG, roleId);
-		super.create(ctx, document);
-		ctx.remove(GenericPOHandler.TABLE_ID_TAG);
-		ctx.remove(GenericPOHandler.RECORD_ID_TAG);
+		packOut.createGenericPO(document, I_AD_Role.Table_ID, roleId, true, null);
 		//	Org Access
-		GenericPOHandler accessHandle = new GenericPOHandler(false);
-		List<MRoleOrgAccess> orgAccessList = new Query(ctx, I_AD_Role_OrgAccess.Table_Name, "AD_Role_ID = ?", getTrxName(ctx))
+		List<MRoleOrgAccess> orgAccessList = new Query(ctx, I_AD_Role_OrgAccess.Table_Name, "AD_Role_ID = ?", null)
 			.setParameters(roleId)
 			.<MRoleOrgAccess>list();
 		for(MRoleOrgAccess access : orgAccessList) {
-			accessHandle.create(ctx, document, access);
+			packOut.createGenericPO(document, access);
 		}
 		//	User Access
-		List<MUserRoles> userAccessList = new Query(ctx, I_AD_User_Roles.Table_Name, "AD_Role_ID = ?", getTrxName(ctx))
+		List<MUserRoles> userAccessList = new Query(ctx, I_AD_User_Roles.Table_Name, "AD_Role_ID = ?", null)
 			.setParameters(roleId)
 			.<MUserRoles>list();
 		for(MUserRoles access : userAccessList) {
-			accessHandle.create(ctx, document, access);
+			packOut.createGenericPO(document, access);
 		}
 		//	Process Access
-		List<MProcessAccess> processAccessList = new Query(ctx, I_AD_Process_Access.Table_Name, "AD_Role_ID = ?", getTrxName(ctx))
+		List<MProcessAccess> processAccessList = new Query(ctx, I_AD_Process_Access.Table_Name, "AD_Role_ID = ?", null)
 			.setParameters(roleId)
 			.<MProcessAccess>list();
 		for(MProcessAccess access : processAccessList) {
-			accessHandle.create(ctx, document, access);
+			packOut.createGenericPO(document, access);
 		}
 		//	Window Access
-		List<MWindowAccess> windowAccessList = new Query(ctx, I_AD_Window_Access.Table_Name, "AD_Role_ID = ?", getTrxName(ctx))
+		List<MWindowAccess> windowAccessList = new Query(ctx, I_AD_Window_Access.Table_Name, "AD_Role_ID = ?", null)
 			.setParameters(roleId)
 			.<MWindowAccess>list();
 		for(MWindowAccess access : windowAccessList) {
-			accessHandle.create(ctx, document, access);
+			packOut.createGenericPO(document, access);
 		}
 		//	Form Access
-		List<MFormAccess> formAccessList = new Query(ctx, I_AD_Form_Access.Table_Name, "AD_Role_ID = ?", getTrxName(ctx))
+		List<MFormAccess> formAccessList = new Query(ctx, I_AD_Form_Access.Table_Name, "AD_Role_ID = ?", null)
 			.setParameters(roleId)
 			.<MFormAccess>list();
 		for(MFormAccess access : formAccessList) {
-			accessHandle.create(ctx, document, access);
+			packOut.createGenericPO(document, access);
 		}
 		//	Browse Access
-		List<X_AD_Browse_Access> browseAccessList = new Query(ctx, I_AD_Browse_Access.Table_Name, "AD_Role_ID = ?", getTrxName(ctx))
+		List<X_AD_Browse_Access> browseAccessList = new Query(ctx, I_AD_Browse_Access.Table_Name, "AD_Role_ID = ?", null)
 			.setParameters(roleId)
 			.<X_AD_Browse_Access>list();
 		for(X_AD_Browse_Access access : browseAccessList) {
-			accessHandle.create(ctx, document, access);
+			packOut.createGenericPO(document, access);
 		}
 		//	Task Access
-		List<X_AD_Task_Access> taskAccessList = new Query(ctx, I_AD_Task_Access.Table_Name, "AD_Role_ID = ?", getTrxName(ctx))
+		List<X_AD_Task_Access> taskAccessList = new Query(ctx, I_AD_Task_Access.Table_Name, "AD_Role_ID = ?", null)
 			.setParameters(roleId)
 			.<X_AD_Task_Access>list();
 		for(X_AD_Task_Access access : taskAccessList) {
-			accessHandle.create(ctx, document, access);
+			packOut.createGenericPO(document, access);
 		}
 		//	Dashboard Access
-		List<X_AD_Dashboard_Access> dashboardAccessList = new Query(ctx, I_AD_Dashboard_Access.Table_Name, "AD_Role_ID = ?", getTrxName(ctx))
+		List<X_AD_Dashboard_Access> dashboardAccessList = new Query(ctx, I_AD_Dashboard_Access.Table_Name, "AD_Role_ID = ?", null)
 			.setParameters(roleId)
 			.<X_AD_Dashboard_Access>list();
 		for(X_AD_Dashboard_Access access : dashboardAccessList) {
-			accessHandle.create(ctx, document, access);
+			packOut.createGenericPO(document, access);
 		}
 		//	Table Access
-		List<MTableAccess> tableAccessList = new Query(ctx, I_AD_Table_Access.Table_Name, "AD_Role_ID = ?", getTrxName(ctx))
+		List<MTableAccess> tableAccessList = new Query(ctx, I_AD_Table_Access.Table_Name, "AD_Role_ID = ?", null)
 			.setParameters(roleId)
 			.<MTableAccess>list();
 		for(MTableAccess access : tableAccessList) {
-			accessHandle.create(ctx, document, access);
+			packOut.createGenericPO(document, access);
 		}
 		//	Workflow Access
-		List<MWorkflowAccess> workflowAccessList = new Query(ctx, I_AD_Workflow_Access.Table_Name, "AD_Role_ID = ?", getTrxName(ctx))
+		List<MWorkflowAccess> workflowAccessList = new Query(ctx, I_AD_Workflow_Access.Table_Name, "AD_Role_ID = ?", null)
 			.setParameters(roleId)
 			.<MWorkflowAccess>list();
 		for(MWorkflowAccess access : workflowAccessList) {
-			accessHandle.create(ctx, document, access);
+			packOut.createGenericPO(document, access);
 		}
 		//	Document Action Access
-		List<X_AD_Document_Action_Access> documentActionAccessList = new Query(ctx, I_AD_Document_Action_Access.Table_Name, "AD_Role_ID = ?", getTrxName(ctx))
+		List<X_AD_Document_Action_Access> documentActionAccessList = new Query(ctx, I_AD_Document_Action_Access.Table_Name, "AD_Role_ID = ?", null)
 			.setParameters(roleId)
 			.<X_AD_Document_Action_Access>list();
 		for(X_AD_Document_Action_Access access : documentActionAccessList) {
-			accessHandle.create(ctx, document, access);
+			packOut.createGenericPO(document, access);
 		}
 		//	Include Role Access
-		List<X_AD_Role_Included> includeRoleAccessList = new Query(ctx, I_AD_Role_Included.Table_Name, "AD_Role_ID = ?", getTrxName(ctx))
+		List<X_AD_Role_Included> includeRoleAccessList = new Query(ctx, I_AD_Role_Included.Table_Name, "AD_Role_ID = ?", null)
 			.setParameters(roleId)
 			.<X_AD_Role_Included>list();
 		for(X_AD_Role_Included access : includeRoleAccessList) {
 			MRole includedRole = MRole.get(ctx, access.getIncluded_Role_ID());
-			accessHandle.create(ctx, document, includedRole);
-			accessHandle.create(ctx, document, access);
+			packOut.createGenericPO(document, includedRole, true, null);
+			packOut.createGenericPO(document, access);
 		}
 	}
 }

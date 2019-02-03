@@ -81,9 +81,12 @@ public class PoFiller{
 		}
 		int index = poInfo.getColumnIndex(columnName);
 		boolean isMandatory = poInfo.isColumnMandatory(index);
+		boolean isKeyColumn = poInfo.isKey(index);
 		if(isMandatory
 				&& Util.isEmpty(value)) {
-			entity.set_ValueOfColumn(columnName, entity.getDefaultValue(index));
+			if(!isKeyColumn) {
+				entity.set_ValueOfColumn(columnName, entity.getDefaultValue(index));
+			}
 			return;
 		}
 		//	

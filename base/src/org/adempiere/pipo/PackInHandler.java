@@ -226,7 +226,6 @@ public class PackInHandler extends DefaultHandler {
     	handlers.put("table", new TableElementHandler());
     	handlers.put("column", new ColumnElementHandler());
     	handlers.put(GenericPOHandler.TAG_Name, new GenericPOHandler());
-    	handlers.put("orgrole", new OrgRoleElementHandler());
     	handlers.put("form", new FormElementHandler());
     	handlers.put("task", new TaskElementHandler());
     	handlers.put("impformat", new ImpFormatElementHandler());
