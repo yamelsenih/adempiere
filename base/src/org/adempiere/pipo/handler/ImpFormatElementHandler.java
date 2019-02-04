@@ -37,8 +37,7 @@ import org.xml.sax.SAXException;
  */
 public class ImpFormatElementHandler extends GenericPOHandler {
 
-	public void create(Properties ctx, TransformerHandler document)
-			throws SAXException {
+	public void create(Properties ctx, TransformerHandler document) throws SAXException {
 		int importId = Env.getContextAsInt(ctx, X_AD_Package_Exp_Detail.COLUMNNAME_AD_ImpFormat_ID);
 		PackOut packOut = (PackOut) ctx.get("PackOutProcess");
 		if(packOut == null ) {
@@ -48,7 +47,6 @@ public class ImpFormatElementHandler extends GenericPOHandler {
 		//	Parent
 		packOut.createGenericPO(document, I_AD_ImpFormat.Table_ID, importId, true, null);
 		//	Import format Row
-		//	Org Access
 		List<MImpFormatRow> impFormatRowList = new Query(ctx, I_AD_ImpFormat_Row.Table_Name, "AD_ImpFormat_ID = ?", null)
 			.setParameters(importId)
 			.<MImpFormatRow>list();

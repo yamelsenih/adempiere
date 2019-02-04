@@ -66,15 +66,16 @@ public class GenericPOHandler extends AbstractElementHandler {
 			|| tableId == -1) {
 			element.skip = true;
 		}
-		//	Else
-		int recordId = getIdFromUUID(ctx, tableName, uuid);
-		PO entity = getCreatePO(ctx, tableId, recordId, getTrxName(ctx));
 		//	Fill attributes
-		POInfo poInfo = POInfo.getPOInfo(entity.getCtx(), entity.get_Table_ID());
-		if(poInfo.isIgnoreMigration()) {
-			return;
+		POInfo poInfo = POInfo.getPOInfo(ctx, tableId);
+		String keyColumnName = poInfo.getKeyColumnName();
+		int recordId = 0;
+		//	Get Record Id
+		if(!Util.isEmpty(keyColumnName)) {
+			recordId = getIdFromUUID(ctx, tableName, uuid);
 		}
-		
+		PO entity = getCreatePO(ctx, tableId, recordId, getTrxName(ctx));
+		//	
 		int backupId;
 		String objectStatus;
 		if (recordId > 0) {		
@@ -113,7 +114,22 @@ public class GenericPOHandler extends AbstractElementHandler {
 					|| columnName.equals(I_AD_Element.COLUMNNAME_AD_Org_ID)) {
 				continue;
 			}
-			//	Fill each column
+			//	Verify reference
+			if(poInfo.isColumnLookup(index)) {
+				String parentNameUuid = AttributeFiller.getUUIDAttribute(columnName);
+				String parentUuid = atts.getValue(parentNameUuid);
+				if(!Util.isEmpty(parentUuid)) {
+					String parentTableName = getParentTableName(ctx, poInfo.getAD_Column_ID(columnName), poInfo.getColumnDisplayType(index));
+					if(!Util.isEmpty(parentTableName)) {
+						int foreignId = getParentId(ctx, parentTableName, parentUuid);
+						if(foreignId != -1) {
+							entity.set_ValueOfColumn(columnName, foreignId);
+							continue;
+						}
+					}
+				}
+			}
+			//	Add Standard
 			filler.setAttribute(columnName);
 		}
 		//	Save
@@ -181,9 +197,9 @@ public class GenericPOHandler extends AbstractElementHandler {
 		}
 		//	Create parents
 		if(includeParents) {
-			createParents(ctx, document, entity, excludedParentList);
+			createParent(ctx, document, entity, excludedParentList);
 		}
-		AttributesImpl atts = createMessageBinding(entity);
+		AttributesImpl atts = createMessageBinding(ctx, entity);
 		if(atts != null) {
 			document.startElement("", "", getTagName(entity), atts);
 			document.endElement("", "", getTagName(entity));
@@ -197,23 +213,11 @@ public class GenericPOHandler extends AbstractElementHandler {
 	 * @param entity
 	 * @throws SAXException
 	 */
-	private void createParents(Properties ctx, TransformerHandler document, PO entity, List<String> excludedParentList) throws SAXException {
+	private void createParent(Properties ctx, TransformerHandler document, PO entity, List<String> excludedParentList) throws SAXException {
 		POInfo poInfo = POInfo.getPOInfo(entity.getCtx(), entity.get_Table_ID());
 		for(int index = 0; index < poInfo.getColumnCount(); index++) {
-			int displayType = poInfo.getColumnDisplayType(index);
-			if(!DisplayType.isLookup(displayType)) {
-				continue;
-			}
-			//	Validate list
-			if(DisplayType.List == displayType) {
-				continue;
-			}
 			//	No SQL
 			if(poInfo.isVirtualColumn(index)) {
-				continue;
-			}
-			//	No Key if is major that Official ID
-			if (poInfo.isKey(index) && entity.get_ID() > PackOut.MAX_OFFICIAL_ID) {
 				continue;
 			}
 			//	No Encrypted
@@ -230,18 +234,21 @@ public class GenericPOHandler extends AbstractElementHandler {
 					|| columnName.equals(I_AD_Element.COLUMNNAME_AD_Org_ID)) {
 				continue;
 			}
-			//	Create Parent
-			MLookupInfo info = MLookupFactory.getLookupInfo(ctx, 0, poInfo.getAD_Column_ID(columnName), displayType);
-			if(info == null) {
+			String parentTableName = getParentTableName(ctx, poInfo.getAD_Column_ID(columnName), poInfo.getColumnDisplayType(index));
+			if(Util.isEmpty(parentTableName)) {
+				continue;
+			}
+			int referenceId = entity.get_ValueAsInt(columnName);
+			if(referenceId <= 0) {
 				continue;
 			}
 			//	Verify Exclusion
 			if(excludedParentList!= null) {
-				if(excludedParentList.contains(info.TableName)) {
+				if(excludedParentList.contains(parentTableName)) {
 					continue;
 				}
 			}
-			PO parentEntity = MTable.get(ctx, info.TableName).getPO(entity.get_ValueAsInt(columnName), null);
+			PO parentEntity = MTable.get(ctx, parentTableName).getPO(referenceId, null);
 			if(parentEntity == null
 					|| parentEntity.get_ID() <= 0) {
 				continue;
@@ -279,9 +286,10 @@ public class GenericPOHandler extends AbstractElementHandler {
 	/**
 	 * Create export from data
 	 * @param entity
+	 * @param ctx
 	 * @return
 	 */
-	private AttributesImpl createMessageBinding(PO entity) {
+	private AttributesImpl createMessageBinding(Properties ctx, PO entity) {
 		AttributesImpl atts = new AttributesImpl();
 		atts.clear();
 		//	Fill attributes
@@ -315,8 +323,75 @@ public class GenericPOHandler extends AbstractElementHandler {
 			}
 			//	
 			filler.add(columnName);
+			String foreignUuid = getParentUuid(ctx, poInfo.getAD_Column_ID(columnName), poInfo.getColumnDisplayType(index), columnName, entity);
+			if(!Util.isEmpty(foreignUuid)) {
+				filler.addString(AttributeFiller.getUUIDAttribute(columnName), foreignUuid);
+			}
 		}
 		//	Return Attributes
 		return atts;
+	}
+	
+	/**
+	 * Verify if is elegible for parent
+	 * @param ctx
+	 * @param columnId
+	 * @param displayType
+	 * @return
+	 */
+	private String getParentTableName(Properties ctx, int columnId, int displayType) {
+		if(!DisplayType.isLookup(displayType)) {
+			return null;
+		}
+		//	Validate list
+		if(DisplayType.List == displayType) {
+			return null;
+		}
+		//	Create Parent
+		MLookupInfo info = MLookupFactory.getLookupInfo(ctx, 0, columnId, displayType);
+		if(info == null) {
+			return null;
+		}
+		//	Default
+		return info.TableName;
+	}
+	
+	/**
+	 * Get Parent UUID
+	 * @param ctx
+	 * @param columnId
+	 * @param displayType
+	 * @param foreignId
+	 * @return
+	 */
+	private String getParentUuid(Properties ctx, int columnId, int displayType, String columnName, PO entity) {
+		String parentTableName = getParentTableName(ctx, columnId, displayType);
+		if(Util.isEmpty(parentTableName)) {
+			return null;
+		}
+		int foreignId = entity.get_ValueAsInt(columnName);
+		//	Add UUID reference
+		String referenceUuid = getUUIDFromId(ctx, parentTableName, foreignId);
+		//	
+		if(Util.isEmpty(referenceUuid)) {
+			return null;
+		}
+		//	Default
+		return referenceUuid;
+	}
+	
+	/**
+	 * Get Parent ID from UUID
+	 * @param ctx
+	 * @param parentTableName
+	 * @param uuid
+	 * @return
+	 */
+	private int getParentId(Properties ctx, String parentTableName, String uuid) {
+		if(Util.isEmpty(parentTableName)) {
+			return -1;
+		}
+		//	Get
+		return getIdFromUUID(ctx, parentTableName, uuid);
 	}
 }
