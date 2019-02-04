@@ -34,6 +34,7 @@ import org.compiere.model.MLookupInfo;
 import org.compiere.model.MTable;
 import org.compiere.model.PO;
 import org.compiere.model.POInfo;
+import org.compiere.model.X_AD_Table;
 import org.compiere.util.DisplayType;
 import org.compiere.util.Env;
 import org.compiere.util.Util;
@@ -253,6 +254,10 @@ public class GenericPOHandler extends AbstractElementHandler {
 					|| parentEntity.get_ID() <= 0) {
 				continue;
 			}
+			//	Validate Access Level
+			if(!isValidAccess(MTable.get(ctx, entity.get_Table_ID()).getAccessLevel(), MTable.get(ctx, parentEntity.get_Table_ID()).getAccessLevel())) {
+				continue;
+			}
 			//	For others
 			Env.setContext(ctx, GenericPOHandler.TABLE_ID_TAG, parentEntity.get_Table_ID());
 			Env.setContext(ctx, GenericPOHandler.RECORD_ID_TAG, parentEntity.get_ID());
@@ -260,6 +265,24 @@ public class GenericPOHandler extends AbstractElementHandler {
 			ctx.remove(GenericPOHandler.TABLE_ID_TAG);
 			ctx.remove(GenericPOHandler.RECORD_ID_TAG);
 		}
+	}
+	
+	/**
+	 * Validate Access Level
+	 * @param accessLevel
+	 * @param parentAccessLevel
+	 * @return
+	 */
+	private boolean isValidAccess(String accessLevel, String parentAccessLevel) {
+		//	Validate system
+		if((parentAccessLevel.equals(X_AD_Table.ACCESSLEVEL_SystemOnly)
+				|| parentAccessLevel.equals(X_AD_Table.ACCESSLEVEL_SystemPlusClient))
+				&& !accessLevel.equals(X_AD_Table.ACCESSLEVEL_SystemOnly)
+				&& !accessLevel.equals(X_AD_Table.ACCESSLEVEL_SystemPlusClient)) {
+			return false;
+		}
+		//	Ok
+		return true;
 	}
 	
 	/**
