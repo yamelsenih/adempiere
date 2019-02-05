@@ -25,9 +25,11 @@ import javax.xml.transform.sax.TransformerHandler;
 import org.adempiere.model.I_AD_Browse_Access;
 import org.adempiere.model.X_AD_Browse_Access;
 import org.adempiere.pipo.PackOut;
+import org.compiere.model.I_AD_Column_Access;
 import org.compiere.model.I_AD_Document_Action_Access;
 import org.compiere.model.I_AD_Form_Access;
 import org.compiere.model.I_AD_Process_Access;
+import org.compiere.model.I_AD_Record_Access;
 import org.compiere.model.I_AD_Role;
 import org.compiere.model.I_AD_Role_Included;
 import org.compiere.model.I_AD_Role_OrgAccess;
@@ -36,8 +38,10 @@ import org.compiere.model.I_AD_Task_Access;
 import org.compiere.model.I_AD_User_Roles;
 import org.compiere.model.I_AD_Window_Access;
 import org.compiere.model.I_AD_Workflow_Access;
+import org.compiere.model.MColumnAccess;
 import org.compiere.model.MFormAccess;
 import org.compiere.model.MProcessAccess;
+import org.compiere.model.MRecordAccess;
 import org.compiere.model.MRole;
 import org.compiere.model.MRoleOrgAccess;
 import org.compiere.model.MTableAccess;
@@ -123,13 +127,6 @@ public class RoleElementHandler extends GenericPOHandler {
 		for(X_AD_Dashboard_Access access : dashboardAccessList) {
 			packOut.createGenericPO(document, access);
 		}
-		//	Table Access
-		List<MTableAccess> tableAccessList = new Query(ctx, I_AD_Table_Access.Table_Name, "AD_Role_ID = ?", null)
-			.setParameters(roleId)
-			.<MTableAccess>list();
-		for(MTableAccess access : tableAccessList) {
-			packOut.createGenericPO(document, access);
-		}
 		//	Workflow Access
 		List<MWorkflowAccess> workflowAccessList = new Query(ctx, I_AD_Workflow_Access.Table_Name, "AD_Role_ID = ?", null)
 			.setParameters(roleId)
@@ -151,6 +148,29 @@ public class RoleElementHandler extends GenericPOHandler {
 		for(X_AD_Role_Included access : includeRoleAccessList) {
 			MRole includedRole = MRole.get(ctx, access.getIncluded_Role_ID());
 			packOut.createGenericPO(document, includedRole, true, null);
+			packOut.createGenericPO(document, access);
+		}
+		//	Table Access
+		List<MTableAccess> tableAccessList = new Query(ctx, I_AD_Table_Access.Table_Name, "AD_Role_ID = ?", null)
+			.setParameters(roleId)
+			.<MTableAccess>list();
+		for(MTableAccess access : tableAccessList) {
+			packOut.createGenericPO(document, access);
+		}
+		//	Column Access
+		List<MColumnAccess> columnAccessList = new Query(Env.getCtx(), I_AD_Column_Access.Table_Name, "AD_Role_ID = ?", null)
+			.setParameters(roleId)
+			.setOnlyActiveRecords(true)
+			.<MColumnAccess>list();
+		for(MColumnAccess access : columnAccessList) {
+			packOut.createGenericPO(document, access);
+		}
+		//	Record Access
+		List<MRecordAccess> recordAccessList = new Query(Env.getCtx(), I_AD_Record_Access.Table_Name, "AD_Role_ID = ?", null)
+			.setParameters(roleId)
+			.setOnlyActiveRecords(true)
+			.<MRecordAccess>list();
+		for(MRecordAccess access : recordAccessList) {
 			packOut.createGenericPO(document, access);
 		}
 	}
