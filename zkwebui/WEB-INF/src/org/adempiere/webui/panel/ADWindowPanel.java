@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Properties;
 
 import org.adempiere.webui.theme.ThemeUtils;
+import org.adempiere.webui.component.ADTabListModel;
 import org.adempiere.webui.component.CompositeADTab;
 import org.adempiere.webui.component.IADTab;
 import org.adempiere.webui.component.Tabbox;
@@ -116,20 +117,18 @@ public class ADWindowPanel extends AbstractADWindowPanel
         } else {
         	layout.setPage(page);
         }
-        ThemeUtils.addSclass("ad-adwindowpanel", layout);
-
+ 
         if (!isEmbedded())
         {
 	        North n = new North();
 	        n.setParent(layout);
 	        n.setCollapsible(false);
-//	        n.setFlex(true);
-//	        Vbox box = new Vbox();
-//	        box.setWidth("100%");
-//	        toolbar.setParent(box);
-	        ThemeUtils.addSclass("ad-adwindowpanel-toolbar-layout", n);
-//	        box.setParent(n);
-	        toolbar.setParent(n);
+	        n.setFlex(true);
+	        Vbox box = new Vbox();
+	        box.setWidth("100%");
+	        toolbar.setParent(box);
+	        box.setParent(n);
+//	        toolbar.setParent(n);
 	        toolbar.setWindowNo(getWindowNo());
 	        //	FR [ 588 ]
 	        South s = new South();
@@ -174,7 +173,6 @@ public class ADWindowPanel extends AbstractADWindowPanel
 		        east.setSplittable(false);
 		        east.setAutoscroll(true);
 		        east.setHflex("true");
-		        east.setVflex("true");
 		        ThemeUtils.addSclass("ad-adwindowpanel-nav ad-adwindowpanel-nav-right", east);
 		        adTab.setTabplacement(IADTab.RIGHT);
 		        adTab.getTabSelectionComponent().setParent(east);
@@ -190,10 +188,9 @@ public class ADWindowPanel extends AbstractADWindowPanel
 
         contentArea = new Center();
         contentArea.setParent(layout);
-        //contentArea.setAutoscroll(true);
+        contentArea.setAutoscroll(true);
         contentArea.setHflex("true");
         contentArea.setVflex("true");
-        ThemeUtils.addSclass("ad-adwindowpanel-content-area", contentArea);
         adTab.createPart(contentArea);
 
         if (parent instanceof Tabpanel) {
@@ -201,16 +198,16 @@ public class ADWindowPanel extends AbstractADWindowPanel
         	((Tabpanel)parent).setOnCloseHandler(handler);
         }
 
-        if (!isEmbedded()) {
-//        	if (keyListener != null)
-//        		keyListener.detach();
-//        	keyListener = new Keylistener();
-//        	statusBar.appendChild(keyListener);
-//        	keyListener.setCtrlKeys("#f1#f2#f3#f4#f5#f6#f7#f8#f9#f10#f11#f12^f^i^n^s^d@#left@#right@#up@#down@#pgup@#pgdn@p^p@z@x#enter");
-//        	keyListener.addEventListener(Events.ON_CTRL_KEY, toolbar);
-//        	keyListener.addEventListener(Events.ON_CTRL_KEY, this);
-//        	keyListener.setAutoBlur(false);
-        }
+  //      if (!isEmbedded()) {
+  //  	if (keyListener != null)
+  //     		keyListener.detach();
+   //     	keyListener = new Keylistener();
+     //   	statusBar.appendChild(keyListener);
+       // 	keyListener.setCtrlKeys("#f1#f2#f3#f4#f5#f6#f7#f8#f9#f10#f11#f12^f^i^n^s^d@#left@#right@#up@#down@#pgup@#pgdn@p^p@z@x#enter");
+       // 	keyListener.addEventListener(Events.ON_CTRL_KEY, toolbar);
+       // 	keyListener.addEventListener(Events.ON_CTRL_KEY, this);
+       // 	keyListener.setAutoBlur(false);
+        //}
 
         layout.setAttribute(ITabOnSelectHandler.ATTRIBUTE_KEY, new ITabOnSelectHandler() {
 			public void onSelect() {
@@ -315,6 +312,8 @@ public class ADWindowPanel extends AbstractADWindowPanel
 				tab.detach();
 				if (getWindowNo() > 0)
 					SessionManager.getAppDesktop().unregisterWindow(getWindowNo());
+				
+				ADTabListModel
 			}
 		}
 	}

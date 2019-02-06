@@ -127,7 +127,6 @@ public class WDeleteSelection extends DeleteSelectionController implements Event
 		AEnv.showCenterScreen(container);
 	}
 
-	@Override
 	public void onEvent1(Event event) throws Exception {
 		if(event.getTarget() == confirmPanel.getButton(ConfirmPanel.A_CANCEL)) {
 			container.detach();

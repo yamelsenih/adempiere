@@ -16,8 +16,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import javax.swing.table.AbstractTableModel;
+
 import org.adempiere.webui.theme.ThemeUtils;
+import org.adempiere.webui.dashboard.DashboardPanel;
 import org.adempiere.webui.editor.WEditor;
 import org.adempiere.webui.panel.AbstractADWindowPanel;
 import org.adempiere.webui.panel.IADTabPanel;

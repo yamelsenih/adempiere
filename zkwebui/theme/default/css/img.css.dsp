@@ -393,11 +393,7 @@ tr.z-row .z-detail-outer {
 
 }
  
-.z-button:hover {
-    border-color: #0a3a5e !important;
-    background: -webkit-linear-gradient(top, #0a3a5e 0%, #0a3a5e 100%)!important;
-    background: linear-gradient(to bottom, #0a3a5e 0%, #0a3a5e 100%)!important;
-}
+
 .z-button:focus {
     color: #fefefe;
     border-color: #0a3a5e !important;
@@ -876,7 +872,38 @@ tr.z-list-group{
 
 	
 	}
-	
+
+
+.z-tab {
+    background: -webkit-linear-gradient(top, #fefefe 0%, #fefefe 100%);
+    background: linear-gradient(to bottom, #fefefe 0%, #fefefe 100%);
+   }
+   
+   
+
+   
+.z-tabbox-left .z-tab {
+    border-width: 1px 0 1px 1px;
+    border-top: 3px solid #a5a5a5;
+    -webkit-border-radius: 4px 0 0 2px;
+    border-radius: 8px 0 0 7px;
+    padding-top: 0;
+    float: none;
+    margin-left: 15px !important;
+         
+}
+
+
+.z-tabbox-left .z-tab:first-child {
+    -webkit-box-shadow: 1px 1px 0 #ffffff;
+    box-shadow: 1px 1px 0 #ffffff;
+    margin-left: 1px !important;
+}        
+    
+   
+    
+  }
+    
 .z-panel-head {
     border: 1px solid #008fd3;
     border-bottom-color: #cfcfcf;
