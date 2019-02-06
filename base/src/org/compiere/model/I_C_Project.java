@@ -107,6 +107,19 @@ public interface I_C_Project
 
 	public org.compiere.model.I_AD_User getAD_User() throws RuntimeException;
 
+    /** Column name AlertMessage */
+    public static final String COLUMNNAME_AlertMessage = "AlertMessage";
+
+	/** Set Alert Message.
+	  * Message of the Alert
+	  */
+	public void setAlertMessage (String AlertMessage);
+
+	/** Get Alert Message.
+	  * Message of the Alert
+	  */
+	public String getAlertMessage();
+
     /** Column name C_Activity_ID */
     public static final String COLUMNNAME_C_Activity_ID = "C_Activity_ID";
 
@@ -121,21 +134,6 @@ public interface I_C_Project
 	public int getC_Activity_ID();
 
 	public org.compiere.model.I_C_Activity getC_Activity() throws RuntimeException;
-
-    /** Column name C_BPartnerSR_ID */
-    public static final String COLUMNNAME_C_BPartnerSR_ID = "C_BPartnerSR_ID";
-
-	/** Set BPartner (Agent).
-	  * Business Partner (Agent or Sales Rep)
-	  */
-	public void setC_BPartnerSR_ID (int C_BPartnerSR_ID);
-
-	/** Get BPartner (Agent).
-	  * Business Partner (Agent or Sales Rep)
-	  */
-	public int getC_BPartnerSR_ID();
-
-	public org.compiere.model.I_C_BPartner getC_BPartnerSR() throws RuntimeException;
 
     /** Column name C_BPartner_ID */
     public static final String COLUMNNAME_C_BPartner_ID = "C_BPartner_ID";
@@ -166,6 +164,21 @@ public interface I_C_Project
 	public int getC_BPartner_Location_ID();
 
 	public org.compiere.model.I_C_BPartner_Location getC_BPartner_Location() throws RuntimeException;
+
+    /** Column name C_BPartnerSR_ID */
+    public static final String COLUMNNAME_C_BPartnerSR_ID = "C_BPartnerSR_ID";
+
+	/** Set BPartner (Agent).
+	  * Business Partner (Agent or Sales Rep)
+	  */
+	public void setC_BPartnerSR_ID (int C_BPartnerSR_ID);
+
+	/** Get BPartner (Agent).
+	  * Business Partner (Agent or Sales Rep)
+	  */
+	public int getC_BPartnerSR_ID();
+
+	public org.compiere.model.I_C_BPartner getC_BPartnerSR() throws RuntimeException;
 
     /** Column name C_Campaign_ID */
     public static final String COLUMNNAME_C_Campaign_ID = "C_Campaign_ID";
@@ -448,6 +461,32 @@ public interface I_C_Project
 	  */
 	public Timestamp getDateFinishSchedule();
 
+    /** Column name DateLastAction */
+    public static final String COLUMNNAME_DateLastAction = "DateLastAction";
+
+	/** Set Date last action.
+	  * Date this request was last acted on
+	  */
+	public void setDateLastAction (Timestamp DateLastAction);
+
+	/** Get Date last action.
+	  * Date this request was last acted on
+	  */
+	public Timestamp getDateLastAction();
+
+    /** Column name DateLastAlert */
+    public static final String COLUMNNAME_DateLastAlert = "DateLastAlert";
+
+	/** Set Last Alert.
+	  * Date when last alert were sent
+	  */
+	public void setDateLastAlert (Timestamp DateLastAlert);
+
+	/** Get Last Alert.
+	  * Date when last alert were sent
+	  */
+	public Timestamp getDateLastAlert();
+
     /** Column name DateStart */
     public static final String COLUMNNAME_DateStart = "DateStart";
 
@@ -486,6 +525,19 @@ public interface I_C_Project
 	  * Optional short description of the record
 	  */
 	public String getDescription();
+
+    /** Column name DueType */
+    public static final String COLUMNNAME_DueType = "DueType";
+
+	/** Set Due type.
+	  * Status of the next action for this Request
+	  */
+	public void setDueType (String DueType);
+
+	/** Get Due type.
+	  * Status of the next action for this Request
+	  */
+	public String getDueType();
 
     /** Column name DurationUnit */
     public static final String COLUMNNAME_DurationUnit = "DurationUnit";
