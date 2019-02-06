@@ -59,6 +59,7 @@ public class CreateCommissionFromContract extends CreateCommissionFromContractAb
 				commissionRun.setC_DocType_ID(getDocTypeId());
 				commissionRun.setDescription(Msg.parseTranslation(getCtx(), "@Generate@: @S_Contract_ID@ - " + contract.getDocumentNo()));
 				commissionRun.set_ValueOfColumn("S_Contract_ID", contract.getS_Contract_ID());
+				commissionRun.setAD_Org_ID(contract.getAD_Org_ID());
 				commissionRun.saveEx();
 				//	Process commission
 				commissionRun.setDocStatus(MCommissionRun.DOCSTATUS_Drafted);

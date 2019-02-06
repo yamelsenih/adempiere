@@ -26,8 +26,6 @@ import org.compiere.model.MOrder;
 import org.compiere.model.MOrderLine;
 import org.compiere.model.MProject;
 import org.compiere.model.MProjectLine;
-import org.compiere.model.MProjectPhase;
-import org.compiere.model.MProjectTask;
 import org.compiere.util.Env;
 
 /**
@@ -41,15 +39,7 @@ import org.compiere.util.Env;
  *
  *
  */
-public class ProjectGenOrder extends ProjectGenOrderAbstract
-{
-	/**
-	 *  Prepare - e.g., get Parameters.
-	 */
-	protected void prepare()
-	{
-		super.prepare();
-	}	//	prepare
+public class ProjectGenOrder extends ProjectGenOrderAbstract {
 
 	/**
 	 *  Perform process.
@@ -64,14 +54,11 @@ public class ProjectGenOrder extends ProjectGenOrderAbstract
 		MProject fromProject = getProject (getCtx(), getRecord_ID(), get_TrxName());
 		Env.setSOTrx(getCtx(), true);	//	Set SO context
 
-		if(!fromProject.get_ValueAsBoolean("IsCustomerApproved"))
-			throw new AdempiereException("@C_Project_ID@ @NotApproved@");
-		
 		/** @todo duplicate invoice prevention */
-		
-		MOrder order = new MOrder (fromProject, true, MOrder.DocSubTypeSO_OnCredit);
-		if (!order.save())
-			throw new AdempiereException("@Error@ @To@ @Generated@ @C_Order_ID@");
+
+		MOrder order = new MOrder (fromProject, true, MOrder.DocSubTypeSO_OnCredit);		
+		order.setC_DocTypeTarget_ID(getDocTypeId());
+		order.saveEx();
 
 		//	***	Lines ***
 		AtomicInteger count = new AtomicInteger(0);
@@ -95,24 +82,18 @@ public class ProjectGenOrder extends ProjectGenOrderAbstract
 				if (fromProjectLine.getPlannedPrice() != null && fromProjectLine.getPlannedPrice().compareTo(Env.ZERO) != 0)
 					orderLine.setPrice(fromProjectLine.getPlannedPrice());
 				orderLine.setDiscount();
+				//	Project Reference
+				orderLine.setC_Project_ID(fromProjectLine.getC_Project_ID());
+				//	Project Phase
+				if(fromProjectLine.getC_ProjectPhase_ID() > 0) {
+					orderLine.setC_ProjectPhase_ID(fromProjectLine.getC_ProjectPhase_ID());
+				}
+				//	Project Task
+				if(fromProjectLine.getC_ProjectTask_ID() > 0) {
+					orderLine.setC_ProjectTask_ID(fromProjectLine.getC_ProjectTask_ID());
+				}
 				orderLine.setTax();
 				
-				int mediaType = 0;
-				
-				if(fromProjectLine.getC_ProjectTask_ID() != 0){
-					MProjectTask task = new MProjectTask(getCtx(),fromProjectLine.getC_ProjectTask_ID(),  null);
-						mediaType = task.get_ValueAsInt("CUST_MediaType_ID");	
-				}
-				else if (fromProjectLine.getC_ProjectPhase_ID() != 0 && mediaType <= 0 ){
-					MProjectPhase phase = new MProjectPhase(getCtx(),fromProjectLine.getC_ProjectPhase_ID(),  null);
-					mediaType = phase.get_ValueAsInt("CUST_MediaType_ID");
-				} 
-				else if (fromProject.get_Value("CUST_MediaType_ID")!= null && mediaType <= 0){
-					mediaType = fromProject.get_ValueAsInt("CUST_MediaType_ID");	
-				}
-						
-				orderLine.set_ValueOfColumn("CUST_MediaType_ID", mediaType);
-			
 				//BR [ 2111 ]
 				orderLine.saveEx();
 				count.getAndUpdate(no -> no + 1);

@@ -24,9 +24,11 @@ import org.adempiere.exceptions.AdempiereException;
 import org.compiere.model.I_C_BPartner;
 import org.compiere.model.I_C_Commission;
 import org.compiere.model.I_C_CommissionRun;
+import org.compiere.model.I_C_CommissionSalesRep;
 import org.compiere.model.I_C_CommissionType;
 import org.compiere.model.I_C_Order;
 import org.compiere.model.I_C_OrderLine;
+import org.compiere.model.I_C_Project;
 import org.compiere.model.I_S_TimeExpense;
 import org.compiere.model.I_S_TimeExpenseLine;
 import org.compiere.model.MAttachment;
@@ -53,12 +55,15 @@ import org.compiere.model.ModelValidator;
 import org.compiere.model.PO;
 import org.compiere.model.Query;
 import org.compiere.process.DocAction;
+import org.compiere.process.OrderLineCreateShipmentAbstract;
 import org.compiere.process.OrderPOCreateAbstract;
 import org.compiere.util.CLogger;
 import org.compiere.util.Env;
 import org.compiere.util.Msg;
 import org.eevolution.service.dsl.ProcessBuilder;
 import org.spin.process.CommissionPOCreateAbstract;
+
+import com.eevolution.model.MSContract;
 
 
 
@@ -88,6 +93,7 @@ public class AgencyValidator implements ModelValidator
 		engine.addModelChange(MProjectTask.Table_Name, this);
 		engine.addModelChange(MBPartner.Table_Name, this);
 		engine.addDocValidate(MTimeExpense.Table_Name, this);
+		engine.addDocValidate(MSContract.Table_Name, this);
 	}	//	initialize
 
 	public String modelChange (PO po, int type) throws Exception {
@@ -106,15 +112,33 @@ public class AgencyValidator implements ModelValidator
 			} else if(po instanceof MOrderLine) {
 				if(po.is_ValueChanged(I_C_OrderLine.COLUMNNAME_Link_OrderLine_ID)) {
 					MOrderLine orderLine = (MOrderLine) po;
+					int projectPhaseId = orderLine.getC_ProjectPhase_ID();
+					int projectTaskId = orderLine.getC_ProjectTask_ID();
 					if(orderLine.getLink_OrderLine_ID() > 0) {
 						MOrder order = orderLine.getParent();
 						if(order.isSOTrx()) {
-							MOrderLine linkSourceOrderLine = (MOrderLine) orderLine.getLink_OrderLine();
-							MOrder linkSourceOrder = linkSourceOrderLine.getParent();
-							if(!linkSourceOrder.isProcessed()) {
-								linkSourceOrderLine.setPriceEntered(orderLine.getPriceEntered());
-								linkSourceOrderLine.setPriceActual(orderLine.getPriceActual());
-								linkSourceOrderLine.saveEx();
+							MOrderLine generatedOrderLine = (MOrderLine) orderLine.getLink_OrderLine();
+							MOrder generatedOrder = generatedOrderLine.getParent();
+							if(!generatedOrder.isProcessed()) {
+								MDocType sourceDocumentType = MDocType.get(order.getCtx(), order.getC_DocTypeTarget_ID());
+								if(sourceDocumentType.get_ValueAsBoolean("IsSetPOPriceFromSO")) {
+									generatedOrderLine.setPriceEntered(orderLine.getPriceEntered());
+									generatedOrderLine.setPriceActual(orderLine.getPriceActual());
+								}
+								if(projectPhaseId > 0) {
+									generatedOrderLine.setC_ProjectPhase_ID(projectPhaseId);
+								} else if(projectTaskId > 0) {
+									generatedOrderLine.setC_ProjectTask_ID(projectTaskId);
+								}								
+								if(orderLine.getC_Campaign_ID() != 0)
+									generatedOrderLine.set_ValueOfColumn("C_Campaign_ID", orderLine.getC_Campaign_ID());
+								if(orderLine.getUser1_ID() != 0)
+									generatedOrderLine.set_ValueOfColumn("User1_ID", orderLine.getUser1_ID());
+								if(orderLine.getC_Project_ID() != 0)
+									generatedOrderLine.set_ValueOfColumn("C_Project_ID", orderLine.getC_Project_ID());
+								if(orderLine.get_ValueAsInt("CUST_MediaType_ID") != 0)
+									generatedOrderLine.set_ValueOfColumn("CUST_MediaType_ID", orderLine.get_ValueAsInt("CUST_MediaType_ID"));
+								generatedOrderLine.saveEx();
 							}
 						}
 					}
@@ -127,6 +151,9 @@ public class AgencyValidator implements ModelValidator
 						MOrder linkSourceOrder = (MOrder) order.getLink_Order();
 						linkSourceOrder.setDateOrdered(order.getDateOrdered());
 						linkSourceOrder.setDatePromised(order.getDatePromised());
+						if(order.isDropShip()) {
+							linkSourceOrder.set_ValueOfColumn("IsDirectInvoice", order.get_ValueAsBoolean("IsDirectInvoice"));
+						}
 						linkSourceOrder.saveEx();
 					}
 				}
@@ -143,36 +170,69 @@ public class AgencyValidator implements ModelValidator
 				}
 			}
 		} else if(type == TYPE_BEFORE_NEW) {
-			 if (po instanceof MCommissionLine) {
-				 MCommissionLine commissionLine = (MCommissionLine) po;
-				 MCommission commission = (MCommission) commissionLine.getC_Commission();
-				 if(commission != null
-						 && commissionLine.get_ValueAsInt("Vendor_ID") <= 0) {
-					 if(commissionLine.get_ValueAsInt("C_Order_ID") > 0) {
-						 MOrder order = new MOrder(commission.getCtx(), commissionLine.get_ValueAsInt("C_Order_ID"), commission.get_TrxName());
-						 commissionLine.set_ValueOfColumn("Vendor_ID", order.getC_BPartner_ID());
-					 }
-				 }
-			 } else if(po instanceof MOrderLine) {
-					MOrderLine orderLine = (MOrderLine) po;
-					int projectPhaseId = orderLine.getC_ProjectPhase_ID();
-					int projectTaskId = orderLine.getC_ProjectTask_ID();
-					if(projectPhaseId > 0) {
-						MProjectPhase projectPhase = new MProjectPhase(orderLine.getCtx(), projectPhaseId, orderLine.get_TrxName());						
-						orderLine.set_ValueOfColumn("C_Campaign_ID", projectPhase.getC_Campaign_ID());
-						orderLine.set_ValueOfColumn("User1_ID", projectPhase.getUser1_ID());
-						orderLine.set_ValueOfColumn("C_Project_ID", projectPhase.getC_Project_ID());
-						orderLine.set_ValueOfColumn("CUST_MediaType_ID", projectPhase.get_ValueAsInt("CUST_MediaType_ID"));
-					} else if(projectTaskId > 0) {
-						MProjectTask projectTask = new MProjectTask(orderLine.getCtx(), projectTaskId,orderLine.get_TrxName());
-						orderLine.set_ValueOfColumn("C_Campaign_ID", projectTask.getC_Campaign_ID());
-						orderLine.set_ValueOfColumn("User1_ID", projectTask.getUser1_ID());						
-						orderLine.set_ValueOfColumn("CUST_MediaType_ID", projectTask.get_ValueAsInt("CUST_MediaType_ID"));
-						MProjectPhase projectPhasefromTask = new MProjectPhase(orderLine.getCtx(), projectTask.getC_ProjectPhase_ID(),orderLine.get_TrxName());
-						orderLine.set_ValueOfColumn("C_Project_ID", projectPhasefromTask.getC_Project_ID());						
+			if (po instanceof MCommissionLine) {
+				MCommissionLine commissionLine = (MCommissionLine) po;
+				MCommission commission = (MCommission) commissionLine.getC_Commission();
+				if(commission != null
+						&& commissionLine.get_ValueAsInt("Vendor_ID") <= 0) {
+					if(commissionLine.get_ValueAsInt("C_Order_ID") > 0) {
+						MOrder order = new MOrder(commission.getCtx(), commissionLine.get_ValueAsInt("C_Order_ID"), commission.get_TrxName());
+						commissionLine.set_ValueOfColumn("Vendor_ID", order.getC_BPartner_ID());
 					}
-					orderLine.saveEx();
 				}
+			} else if(po instanceof MOrderLine) {
+				MOrderLine orderLine = (MOrderLine) po;
+				int projectPhaseId = orderLine.getC_ProjectPhase_ID();
+				int projectTaskId = orderLine.getC_ProjectTask_ID();
+				if(projectPhaseId > 0) {
+					MProjectPhase projectPhase = new MProjectPhase(orderLine.getCtx(), projectPhaseId, orderLine.get_TrxName());						
+					if(projectPhase.getC_Campaign_ID() != 0)
+						orderLine.set_ValueOfColumn("C_Campaign_ID", projectPhase.getC_Campaign_ID());
+					if(projectPhase.getUser1_ID() != 0)
+						orderLine.set_ValueOfColumn("User1_ID", projectPhase.getUser1_ID());
+					if(projectPhase.getC_Project_ID() != 0)
+						orderLine.set_ValueOfColumn("C_Project_ID", projectPhase.getC_Project_ID());
+					if(projectPhase.get_ValueAsInt("CUST_MediaType_ID") != 0)
+						orderLine.set_ValueOfColumn("CUST_MediaType_ID", projectPhase.get_ValueAsInt("CUST_MediaType_ID"));
+				} else if(projectTaskId > 0) {
+					MProjectTask projectTask = new MProjectTask(orderLine.getCtx(), projectTaskId,orderLine.get_TrxName());
+					if(projectTask.getC_Campaign_ID() != 0)
+						orderLine.set_ValueOfColumn("C_Campaign_ID", projectTask.getC_Campaign_ID());
+					if(projectTask.getUser1_ID() != 0)
+						orderLine.set_ValueOfColumn("User1_ID", projectTask.getUser1_ID());
+					if(projectTask.get_ValueAsInt("CUST_MediaType_ID") != 0)
+						orderLine.set_ValueOfColumn("CUST_MediaType_ID", projectTask.get_ValueAsInt("CUST_MediaType_ID"));
+					MProjectPhase projectPhasefromTask = new MProjectPhase(orderLine.getCtx(), projectTask.getC_ProjectPhase_ID(),orderLine.get_TrxName());
+					if(projectPhasefromTask.getC_Project_ID() != 0)
+					orderLine.set_ValueOfColumn("C_Project_ID", projectPhasefromTask.getC_Project_ID());						
+				}
+			}else if(po instanceof MOrder) {
+				MOrder order = (MOrder) po;
+				int orderprojectId = order.getC_Project_ID();
+				if(orderprojectId > 0) {					
+					MProject project = new MProject(order.getCtx(), orderprojectId,order.get_TrxName());
+					// Validates Customer Approved
+					if(!project.get_ValueAsBoolean("IsCustomerApproved")) {
+						throw new AdempiereException(Msg.parseTranslation(Env.getCtx(), "@CustomerApprovedRequired@"));
+					}
+				}
+				// Validates Order Has ProjectPorcentaje 
+				int serviceContractId = order.get_ValueAsInt("S_Contract_ID");
+				if(serviceContractId > 0) {
+					MSContract serviceContract = new MSContract(order.getCtx(), serviceContractId, order.get_TrxName());
+					//	Get first contract
+					int projectId = new Query(order.getCtx(), I_C_Project.Table_Name, "S_Contract_ID = ?", po.get_TrxName())
+						.setParameters(serviceContract.getS_Contract_ID())
+						.setOnlyActiveRecords(true)
+						.firstId();
+					if(serviceContract.getUser1_ID() > 0) {
+						order.setUser1_ID(serviceContract.getUser1_ID());
+					}
+					if(projectId > 0) {
+						order.setC_Project_ID(projectId);
+					}
+				}
+			}
 		} else if(type == TYPE_AFTER_CHANGE) {
 			if (po instanceof MBPartner
 					&& po.is_ValueChanged(I_C_BPartner.COLUMNNAME_BPartner_Parent_ID)) {
@@ -191,7 +251,8 @@ public class AgencyValidator implements ModelValidator
 					}
 				}
 			}
-		}
+		} 
+
 		//
 		return null;
 	}	//	modelChange
@@ -252,7 +313,12 @@ public class AgencyValidator implements ModelValidator
 								.withoutTransactionClose()
 								.execute(order.get_TrxName());
 						}
+						//	Validate Document Type for commission
+						if(documentType.get_ValueAsInt("C_CommissionType_ID") > 0) {
+							createCommissionForOrder(order, documentType.get_ValueAsInt("C_CommissionType_ID"), true);
+						}
 					}
+				} else if(!order.isSOTrx()) {
 					//	Validate Document Type for commission
 					if(documentType.get_ValueAsInt("C_CommissionType_ID") > 0) {
 						createCommissionForOrder(order, documentType.get_ValueAsInt("C_CommissionType_ID"), true);
@@ -344,6 +410,19 @@ public class AgencyValidator implements ModelValidator
 					}
 				}
 			}
+		} else if(po instanceof MSContract) {
+			if(timing == TIMING_BEFORE_COMPLETE) {
+				MSContract serviceContract = (MSContract) po;
+				String whereClause =(" S_Contract_ID = ?");				
+				BigDecimal sumPercent = new Query(po.getCtx(), I_C_CommissionSalesRep.Table_Name, whereClause.toString(), po.get_TrxName())
+						.setParameters(serviceContract.getS_Contract_ID())
+						.sum("AmtMultiplier");
+
+				BigDecimal comparepercent = new BigDecimal("100.0");
+				if(sumPercent.compareTo(comparepercent) != 0){					
+					throw new AdempiereException(Msg.getMsg(Env.getCtx(), "TotalPercentageIsNot100"));
+				}								
+			}
 		}
 		return null;
 	}	//	docValidate
@@ -370,6 +449,36 @@ public class AgencyValidator implements ModelValidator
 		inOut.setDocStatus(MInOut.DOCSTATUS_Drafted);
 		inOut.processIt(MInOut.ACTION_Complete);
 		inOut.saveEx();
+		//	Generate Delivery for Commission
+		generateInOutFromCommissionOrder(order);
+	}
+	
+	/**
+	 * Generate Delivery from commission Order that are generated from order
+	 * @param order
+	 */
+	private void generateInOutFromCommissionOrder(MOrder order) {
+		new Query(order.getCtx(), I_C_Order.Table_Name, 
+				"DocStatus = 'CO' "
+				+ "AND EXISTS(SELECT 1 FROM C_CommissionRun cr "
+				+ "WHERE cr.C_CommissionRun_ID = C_Order.C_CommissionRun_ID "
+				+ "AND cr.C_Order_ID = ?) "
+				+ "AND EXISTS(SELECT 1 FROM C_OrderLine ol "
+				+ "WHERE ol.C_Order_ID = C_Order.C_Order_ID "
+				+ "AND ol.QtyOrdered > COALESCE(QtyDelivered, 0))", order.get_TrxName())
+			.setOnlyActiveRecords(true)
+			.setParameters(order.getC_Order_ID())
+			.<MOrder>list()
+			.stream().forEach(commissionOrder -> {
+				for(MOrderLine line : commissionOrder.getLines()) {
+					ProcessBuilder.create(order.getCtx())
+						.process(OrderLineCreateShipmentAbstract.getProcessId())
+						.withRecordId(I_C_OrderLine.Table_ID, line.getC_OrderLine_ID())
+						.withParameter(OrderLineCreateShipmentAbstract.DOCACTION, DocAction.ACTION_Complete)
+						.withoutTransactionClose()
+					.execute(order.get_TrxName());
+				}
+			});
 	}
 	
 	/**
@@ -391,6 +500,7 @@ public class AgencyValidator implements ModelValidator
 				commissionRun.setC_DocType_ID(documentTypeId);
 				commissionRun.setDescription(Msg.parseTranslation(order.getCtx(), "@Generate@: @C_Order_ID@ - " + order.getDocumentNo()));
 				commissionRun.set_ValueOfColumn("C_Order_ID", order.getC_Order_ID());
+				commissionRun.setAD_Org_ID(order.getAD_Org_ID());
 				commissionRun.saveEx();
 				//	Process commission
 				commissionRun.addFilterValues("C_Order_ID", order.getC_Order_ID());
@@ -442,9 +552,7 @@ public class AgencyValidator implements ModelValidator
 			line.deleteEx(true);
 		}
 	}
-
-
-	
+        
 	
 	@Override
 	public int getAD_Client_ID() {

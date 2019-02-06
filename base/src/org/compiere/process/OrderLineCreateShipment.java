@@ -16,6 +16,7 @@
  *****************************************************************************/
 package org.compiere.process;
 
+import java.math.BigDecimal;
 import java.sql.Timestamp;
 
 import org.compiere.model.MInOut;
@@ -80,11 +81,12 @@ public class OrderLineCreateShipment extends OrderLineCreateShipmentAbstract {
 		shipment.setMovementDate(line.getDatePromised());
 		shipment.saveEx();
 		//	Add Line
+		BigDecimal qtyToDeliver = line.getQtyOrdered().subtract(line.getQtyDelivered());
 		MInOutLine sline = new MInOutLine(shipment);
-		sline.setOrderLine(line, 0, line.getQtyReserved());
-		sline.setQtyEntered(line.getQtyReserved());
+		sline.setOrderLine(line, 0, qtyToDeliver);
+		sline.setQtyEntered(qtyToDeliver);
 		sline.setC_UOM_ID(line.getC_UOM_ID());
-		sline.setQty(line.getQtyReserved());
+		sline.setQty(qtyToDeliver);
 		sline.setM_Warehouse_ID(line.getM_Warehouse_ID());
 		sline.saveEx();
 		//	Process It

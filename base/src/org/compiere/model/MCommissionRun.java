@@ -288,15 +288,18 @@ public class MCommissionRun extends X_C_CommissionRun implements DocAction, DocO
 			if(get_ValueAsInt("S_Contract_ID") > 0) {
 				//	Add filters for lines
 				addFilterValues("S_Contract_ID", get_ValueAsInt("S_Contract_ID"));
-				List<X_C_CommissionSalesRep> commissionSalesRepList = getCommissionSalesRepList(commission);
+				List<X_C_CommissionSalesRep> commissionSalesRepList = getCommissionSplitFromSalesRepList(commission);
 				if(commissionSalesRepList != null
 						&& commissionSalesRepList.size() > 0) {
 					for(X_C_CommissionSalesRep commissionSalesRep : commissionSalesRepList) {
+						if(commissionSalesRep.get_ValueAsBoolean("IsExcludeOfCommission")) {
+							continue;
+						}
 						MBPartner salesRep = MBPartner.get(getCtx(), commissionSalesRep.getC_BPartner_ID());
 						processCommissionLine(salesRep, commission, commissionSalesRep.get_ValueAsBoolean("IsPercentage"), (BigDecimal)commissionSalesRep.get_Value("AmtMultiplier"));
 					}
 				} else {
-					List<MBPartner> partiesList = getCommissionSplitFromSalesRepList(commission);
+					List<MBPartner> partiesList = getCommissionSplitFromSalesRepListAsLine(commission);
 					if(partiesList != null
 							&& partiesList.size() > 0) {
 						for(MBPartner party: partiesList) {
@@ -323,7 +326,7 @@ public class MCommissionRun extends X_C_CommissionRun implements DocAction, DocO
 	 * Get Sales Representative for commission run based on Contract
 	 * @return
 	 */
-	private List<X_C_CommissionSalesRep> getCommissionSalesRepList(MCommission commission) {
+	private List<X_C_CommissionSalesRep> getCommissionSplitFromSalesRepList(MCommission commission) {
 		return new Query(getCtx(), I_C_CommissionSalesRep.Table_Name, "C_Commission_ID = ? AND S_Contract_ID = ?", get_TrxName())
 				.setParameters(commission.getC_Commission_ID(), get_ValueAsInt("S_Contract_ID"))
 				.setOnlyActiveRecords(true)
@@ -334,7 +337,7 @@ public class MCommissionRun extends X_C_CommissionRun implements DocAction, DocO
 	 * Get Sales Representative for commission run
 	 * @return
 	 */
-	private List<MBPartner> getCommissionSplitFromSalesRepList(MCommission commission) {
+	private List<MBPartner> getCommissionSplitFromSalesRepListAsLine(MCommission commission) {
 		return new Query(getCtx(), I_C_BPartner.Table_Name, "EXISTS(SELECT 1 FROM C_CommissionLine cl "
 				+ "WHERE cl.SplitBPartner_ID = C_BPartner.C_BPartner_ID "
 				+ "AND cl.C_Commission_ID = ? "

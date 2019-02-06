@@ -19,42 +19,27 @@ package org.compiere.process;
 
 
 
-/** Generated Process for (Generate Order)
+/** Generated Process for (Create Purchase Order)
  *  @author ADempiere (generated) 
- *  @version Release 3.9.0
+ *  @version Release 3.9.1
  */
-public abstract class ProjectGenOrderAbstract extends SvrProcess {
+public abstract class RfQCreatePOAbstract extends SvrProcess {
 	/** Process Value 	*/
-	private static final String VALUE_FOR_PROCESS = "C_Project_Generate";
+	private static final String VALUE_FOR_PROCESS = "C_RfQ_CreatePO";
 	/** Process Name 	*/
-	private static final String NAME_FOR_PROCESS = "Generate Order";
+	private static final String NAME_FOR_PROCESS = "Create Purchase Order";
 	/** Process Id 	*/
-	private static final int ID_FOR_PROCESS = 164;
-	/**	Parameter Name for SO Sub Type	*/
-	public static final String DOCSUBTYPESO = "DocSubTypeSO";
+	private static final int ID_FOR_PROCESS = 266;
 	/**	Parameter Name for Document Type	*/
 	public static final String C_DOCTYPE_ID = "C_DocType_ID";
-	/**	Parameter Value for SO Sub Type	*/
-	private String docSubTypeSO;
 	/**	Parameter Value for Document Type	*/
 	private int docTypeId;
 
 	@Override
 	protected void prepare() {
-		docSubTypeSO = getParameterAsString(DOCSUBTYPESO);
 		docTypeId = getParameterAsInt(C_DOCTYPE_ID);
 	}
 
-	/**	 Getter Parameter Value for SO Sub Type	*/
-	protected String getDocSubTypeSO() {
-		return docSubTypeSO;
-	}
-
-	/**	 Setter Parameter Value for SO Sub Type	*/
-	protected void setDocSubTypeSO(String docSubTypeSO) {
-		this.docSubTypeSO = docSubTypeSO;
-	}
-	
 	/**	 Getter Parameter Value for Document Type	*/
 	protected int getDocTypeId() {
 		return docTypeId;
