@@ -17,14 +17,10 @@
 package org.compiere.server;
 
 import java.sql.Timestamp;
-import java.text.DecimalFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
-import org.adempiere.exceptions.AdempiereException;
-import org.compiere.model.Lookup;
 import org.compiere.model.MClient;
 import org.compiere.model.MColumn;
 import org.compiere.model.MMailText;
@@ -36,18 +32,15 @@ import org.compiere.model.MProjectTask;
 import org.compiere.model.MUser;
 import org.compiere.model.MUserMail;
 import org.compiere.model.PO;
-import org.compiere.model.POInfo;
 import org.compiere.model.Query;
 import org.compiere.util.AdempiereUserError;
 import org.compiere.util.CLogger;
-import org.compiere.util.DisplayType;
 import org.compiere.util.EMail;
 import org.compiere.util.Env;
 import org.compiere.util.Msg;
 import org.compiere.util.ProjectProcessorUtils;
 import org.compiere.util.TimeUtil;
 import org.compiere.util.Util;
-import org.eevolution.model.MProjectMember;
 import org.eevolution.model.MProjectProcessor;
 import org.eevolution.model.MProjectProcessorLog;
 import org.eevolution.model.MProjectStatus;
