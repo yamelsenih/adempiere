@@ -110,7 +110,11 @@ public class ProjectProcessorUtils {
 	 * @return
 	 */
 	public static String get_DisplayValue(String columnName, PO entity) {
-		Object value = entity.get_Value(columnName); //: get_ValueOld(columnName);
+		
+		if (entity==null) 
+			return "--";
+		
+		Object value = entity.get_Value(columnName); 
 		if (value == null)
 			return "--";
 		

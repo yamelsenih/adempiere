@@ -647,14 +647,8 @@ public class ProjectProcessor extends AdempiereServer
 		result.append("<li><strong>" + Msg.parseTranslation(m_PO.getCtx(), "@" + column + "@") + ":</strong> ");
 		if (value !=null)
 			result.append(value);
-		else if (m_PO.get_TableName().equals(MProject.Table_Name)) 
-			result.append(ProjectProcessorUtils.get_DisplayValue(column,m_ProjectTask));
-		else if (m_PO.get_TableName().equals(MProjectPhase.Table_Name)) 
-			result.append(ProjectProcessorUtils.get_DisplayValue(column,m_ProjectTask));
-		else if (m_PO.get_TableName().equals(MProjectTask.Table_Name)) 
-			result.append(ProjectProcessorUtils.get_DisplayValue(column,m_ProjectTask));
-		else
-			result.append(m_PO.get_ValueAsString(column));
+		else 
+			result.append(ProjectProcessorUtils.get_DisplayValue(column,m_PO));
 		
 		result.append("</li>\n");
 
