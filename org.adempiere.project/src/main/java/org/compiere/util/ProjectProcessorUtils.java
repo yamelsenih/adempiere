@@ -114,7 +114,7 @@ public class ProjectProcessorUtils {
 		if (value == null)
 			return "--";
 		
-		if (p_info == null
+		if (p_info != null
 				&& p_info.getAD_Table_ID()!=entity.get_Table_ID()) 
 			p_info = POInfo.getPOInfo (entity.getCtx(), entity.get_Table_ID(), entity.get_TrxName());
 		
