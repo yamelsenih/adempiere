@@ -33,43 +33,16 @@ import org.compiere.util.DB;
  *  @author 	Michael Judd (mjudd) Akuna Ltd - BF [ 2685127 ]
  *  
  */
-public class InventoryValue extends SvrProcess
-{
-	/** Price List Used         */
-	private int         p_M_PriceList_Version_ID;
-	/** Valuation Date          */
-	private Timestamp   p_DateValue;
-	/** Warehouse               */
-	private int         p_M_Warehouse_ID;
-	/** Currency                */
-	private int         p_C_Currency_ID;
-	/** Optional Cost Element	*/
-	private int			p_M_CostElement_ID;
-
+public class InventoryValue extends InventoryValueAbstract {
+	
 	/**
 	 *  Prepare - get Parameters.
 	 */
-	protected void prepare()
-	{
-		ProcessInfoParameter[] para = getParameter();
-		for (int i = 0; i < para.length; i++)
-		{
-			String name = para[i].getParameterName();
-			if (para[i].getParameter() == null)
-				;
-			else if (name.equals("M_PriceList_Version_ID"))
-				p_M_PriceList_Version_ID = para[i].getParameterAsInt();
-			else if (name.equals("DateValue"))
-				p_DateValue = (Timestamp)para[i].getParameter();
-			else if (name.equals("M_Warehouse_ID"))
-				p_M_Warehouse_ID = para[i].getParameterAsInt();
-			else if (name.equals("C_Currency_ID"))
-				p_C_Currency_ID = para[i].getParameterAsInt();
-			else if (name.equals("M_CostElement_ID"))
-				p_M_CostElement_ID = para[i].getParameterAsInt();
+	protected void prepare() {
+		super.prepare();
+		if (getDateValue() == null) {
+			setDateValue(new Timestamp (System.currentTimeMillis()));
 		}
-		if (p_DateValue == null)
-			p_DateValue = new Timestamp (System.currentTimeMillis());
 	}   //  prepare
 
 	/**
@@ -81,15 +54,14 @@ public class InventoryValue extends SvrProcess
 	 * @return Message
 	 * @throws Exception
 	 */
-	protected String doIt() throws Exception
-	{
-		log.info("M_Warehouse_ID=" + p_M_Warehouse_ID
-			+ ",C_Currency_ID=" + p_C_Currency_ID
-			+ ",DateValue=" + p_DateValue
-			+ ",M_PriceList_Version_ID=" + p_M_PriceList_Version_ID
-			+ ",M_CostElement_ID=" + p_M_CostElement_ID);
+	protected String doIt() throws Exception {
+		log.info("M_Warehouse_ID=" + getWarehouseId()
+			+ ",C_Currency_ID=" + getCurrencyId()
+			+ ",DateValue=" + getDateValue()
+			+ ",M_PriceList_Version_ID=" + getPriceListVersionId()
+			+ ",M_CostElement_ID=" + getCostElementId());
 		
-		MWarehouse wh = MWarehouse.get(getCtx(), p_M_Warehouse_ID);
+		MWarehouse wh = MWarehouse.get(getCtx(), getWarehouseId());
 		MClient c = MClient.get(getCtx(), wh.getAD_Client_ID());
 		MAcctSchema as = c.getAcctSchema();
 		
@@ -98,45 +70,39 @@ public class InventoryValue extends SvrProcess
 		sql.append(getAD_PInstance_ID());
 		int no = DB.executeUpdateEx(sql.toString(), get_TrxName());
 
-		//	Insert Standard Costs
-		sql = new StringBuffer ("INSERT INTO T_InventoryValue "
-			+ "(AD_PInstance_ID, M_Warehouse_ID, M_Product_ID, M_AttributeSetInstance_ID,"
-			+ " AD_Client_ID, AD_Org_ID, CostStandard) "
-			+ "SELECT ").append(getAD_PInstance_ID())
-			.append(", w.M_Warehouse_ID, c.M_Product_ID, c.M_AttributeSetInstance_ID,"
-			+ " w.AD_Client_ID, w.AD_Org_ID, c.CurrentCostPrice "
-			+ "FROM M_Warehouse w"
-			+ " INNER JOIN AD_ClientInfo ci ON (w.AD_Client_ID=ci.AD_Client_ID)"
-			+ " INNER JOIN C_AcctSchema acs ON (ci.C_AcctSchema1_ID=acs.C_AcctSchema_ID)"
-			+ " INNER JOIN M_Cost c ON (acs.C_AcctSchema_ID=c.C_AcctSchema_ID AND acs.M_CostType_ID=c.M_CostType_ID AND c.AD_Org_ID IN (0, w.AD_Org_ID))"
-			+ " INNER JOIN M_CostElement ce ON (c.M_CostElement_ID=ce.M_CostElement_ID AND ce.CostingMethod='S' AND ce.CostElementType='M') "
-			+ "WHERE w.M_Warehouse_ID=").append(p_M_Warehouse_ID);
-		int noInsertStd = DB.executeUpdateEx(sql.toString(), get_TrxName());
-		log.fine("Inserted Std=" + noInsertStd);
-		if (noInsertStd == 0)
-			return "No Standard Costs found";
-
 		//	Insert addl Costs
 		int noInsertCost = 0;
-		if (p_M_CostElement_ID != 0)
-		{
+		int noInsertStd = 0;
+		if(getCostElementId() <= 0) {
+			//	Insert Standard Costs
 			sql = new StringBuffer ("INSERT INTO T_InventoryValue "
 				+ "(AD_PInstance_ID, M_Warehouse_ID, M_Product_ID, M_AttributeSetInstance_ID,"
-				+ " AD_Client_ID, AD_Org_ID, CostStandard, Cost, M_CostElement_ID) "
+				+ " AD_Client_ID, AD_Org_ID, CostStandard, M_CostElement_ID, M_CostType_ID) "
 				+ "SELECT ").append(getAD_PInstance_ID())
 				.append(", w.M_Warehouse_ID, c.M_Product_ID, c.M_AttributeSetInstance_ID,"
-				+ " w.AD_Client_ID, w.AD_Org_ID, 0, c.CurrentCostPrice, c.M_CostElement_ID "
+				+ " w.AD_Client_ID, w.AD_Org_ID, c.CurrentCostPrice, ce.M_CostElement_ID, c.M_CostType_ID "
 				+ "FROM M_Warehouse w"
 				+ " INNER JOIN AD_ClientInfo ci ON (w.AD_Client_ID=ci.AD_Client_ID)"
-				+ " INNER JOIN C_AcctSchema acs ON (ci.C_AcctSchema1_ID=acs.C_AcctSchema_ID)"
-				+ " INNER JOIN M_Cost c ON (acs.C_AcctSchema_ID=c.C_AcctSchema_ID AND acs.M_CostType_ID=c.M_CostType_ID AND c.AD_Org_ID IN (0, w.AD_Org_ID)) "
-				+ "WHERE w.M_Warehouse_ID=").append(p_M_Warehouse_ID)
-				.append(" AND c.M_CostElement_ID=").append(p_M_CostElement_ID)
-				.append(" AND NOT EXISTS (SELECT * FROM T_InventoryValue iv "
-					+ "WHERE iv.AD_PInstance_ID=").append(getAD_PInstance_ID())
-					.append(" AND iv.M_Warehouse_ID=w.M_Warehouse_ID"
-					+ " AND iv.M_Product_ID=c.M_Product_ID"
-					+ " AND iv.M_AttributeSetInstance_ID=c.M_AttributeSetInstance_ID)");
+				+ " INNER JOIN M_Cost c ON (ci.C_AcctSchema1_ID=c.C_AcctSchema_ID AND c.AD_Org_ID IN (0, w.AD_Org_ID))"
+				+ " INNER JOIN M_CostElement ce ON (c.M_CostElement_ID=ce.M_CostElement_ID AND ce.CostElementType='M') "
+				+ "WHERE w.M_Warehouse_ID=").append(getWarehouseId());
+			noInsertStd = DB.executeUpdateEx(sql.toString(), get_TrxName());
+			log.fine("Inserted Std=" + noInsertStd);
+			if (noInsertStd == 0)
+				return "No Standard Costs found";
+		} else {
+			sql = new StringBuffer ("INSERT INTO T_InventoryValue "
+				+ "(AD_PInstance_ID, M_Warehouse_ID, M_Product_ID, M_AttributeSetInstance_ID,"
+				+ " AD_Client_ID, AD_Org_ID, CostStandard, Cost, M_CostElement_ID, M_CostType_ID) "
+				+ "SELECT ").append(getAD_PInstance_ID())
+				.append(", w.M_Warehouse_ID, c.M_Product_ID, c.M_AttributeSetInstance_ID,"
+				+ " w.AD_Client_ID, w.AD_Org_ID, 0, c.CurrentCostPrice, c.M_CostElement_ID, c.M_CostType_ID "
+				+ "FROM M_Warehouse w"
+				+ " INNER JOIN AD_ClientInfo ci ON (w.AD_Client_ID=ci.AD_Client_ID)"
+				+ " INNER JOIN M_Cost c ON (ci.C_AcctSchema1_ID=c.C_AcctSchema_ID AND c.AD_Org_ID IN (0, w.AD_Org_ID))"
+				+ " INNER JOIN M_CostElement ce ON (c.M_CostElement_ID=ce.M_CostElement_ID AND ce.CostElementType='M') "
+				+ "WHERE w.M_Warehouse_ID=").append(getWarehouseId())
+				.append(" AND c.M_CostElement_ID=").append(getCostElementId());
 			noInsertCost = DB.executeUpdateEx(sql.toString(), get_TrxName());
 			log.fine("Inserted Cost=" + noInsertCost);
 			//	Update Std Cost Records
@@ -145,10 +111,9 @@ public class InventoryValue extends SvrProcess
 					+ "(SELECT c.CurrentCostPrice, c.M_CostElement_ID "
 					+ "FROM M_Warehouse w"
 					+ " INNER JOIN AD_ClientInfo ci ON (w.AD_Client_ID=ci.AD_Client_ID)"
-					+ " INNER JOIN C_AcctSchema acs ON (ci.C_AcctSchema1_ID=acs.C_AcctSchema_ID)"
-					+ " INNER JOIN M_Cost c ON (acs.C_AcctSchema_ID=c.C_AcctSchema_ID"
-						+ " AND acs.M_CostType_ID=c.M_CostType_ID AND c.AD_Org_ID IN (0, w.AD_Org_ID)) "
-					+ "WHERE c.M_CostElement_ID=" + p_M_CostElement_ID
+					+ " INNER JOIN M_Cost c ON (ci.C_AcctSchema1_ID=c.C_AcctSchema_ID AND c.AD_Org_ID IN (0, w.AD_Org_ID))"
+					+ " INNER JOIN M_CostElement ce ON (c.M_CostElement_ID=ce.M_CostElement_ID AND ce.CostElementType='M') "
+					+ "WHERE c.M_CostElement_ID=" + getCostElementId()
 					+ " AND iv.M_Warehouse_ID=w.M_Warehouse_ID"
 					+ " AND iv.M_Product_ID=c.M_Product_ID"
 					+ " AND iv.M_AttributeSetInstance_ID=c.M_AttributeSetInstance_ID) "
@@ -163,12 +128,12 @@ public class InventoryValue extends SvrProcess
 		
 		//  Update Constants
 		//  YYYY-MM-DD HH24:MI:SS.mmmm  JDBC Timestamp format
-		String myDate = p_DateValue.toString();
+		String myDate = getDateValue().toString();
 		sql = new StringBuffer ("UPDATE T_InventoryValue SET ")
 			.append("DateValue=TO_DATE('").append(myDate.substring(0,10))
 			.append(" 23:59:59','YYYY-MM-DD HH24:MI:SS'),")
-			.append("M_PriceList_Version_ID=").append(p_M_PriceList_Version_ID).append(",")
-			.append("C_Currency_ID=").append(p_C_Currency_ID)
+			.append("M_PriceList_Version_ID=").append(getPriceListVersionId()).append(",")
+			.append("C_Currency_ID=").append(getCurrencyId())
 			.append(" WHERE AD_PInstance_ID=" + getAD_PInstance_ID());
 		no = DB.executeUpdateEx(sql.toString(), get_TrxName());
 		log.fine("Constants=" + no);
@@ -257,12 +222,12 @@ public class InventoryValue extends SvrProcess
 				+ " WHERE iv.AD_PInstance_ID=").append(getAD_PInstance_ID());
 
 		no = DB.executeUpdateEx (sql.toString(), get_TrxName());
-		String msg = "";
+		String msg = "Ok";
 		if (no == 0)
 			msg = "No Prices";
 
 		//	Convert if different Currency
-		if (as.getC_Currency_ID() != p_C_Currency_ID)
+		if (as.getC_Currency_ID() != getCurrencyId())
 		{
 			sql = new StringBuffer ("UPDATE T_InventoryValue iv "
 				+ "SET CostStandard= "
