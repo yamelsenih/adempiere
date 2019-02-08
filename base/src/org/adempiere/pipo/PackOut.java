@@ -46,7 +46,6 @@ import org.adempiere.pipo.handler.DataElementHandler;
 import org.adempiere.pipo.handler.DistFileElementHandler;
 import org.adempiere.pipo.handler.DynValRuleElementHandler;
 import org.adempiere.pipo.handler.EntityTypeElementHandler;
-import org.adempiere.pipo.handler.FieldGroupElementHandler;
 import org.adempiere.pipo.handler.FormElementHandler;
 import org.adempiere.pipo.handler.GenericPOHandler;
 import org.adempiere.pipo.handler.ImpFormatElementHandler;
@@ -54,7 +53,6 @@ import org.adempiere.pipo.handler.MenuElementHandler;
 import org.adempiere.pipo.handler.MessageElementHandler;
 import org.adempiere.pipo.handler.ModelValidatorElementHandler;
 import org.adempiere.pipo.handler.PrintFormatElementHandler;
-import org.adempiere.pipo.handler.PrintPaperElementHandler;
 import org.adempiere.pipo.handler.ProcessElementHandler;
 import org.adempiere.pipo.handler.ReferenceElementHandler;
 import org.adempiere.pipo.handler.ReportViewElementHandler;
@@ -68,10 +66,8 @@ import org.adempiere.pipo.handler.WorkflowElementHandler;
 import org.compiere.model.MSysConfig;
 import org.compiere.model.PO;
 import org.compiere.model.X_AD_Element;
-import org.compiere.model.X_AD_FieldGroup;
 import org.compiere.model.X_AD_Package_Exp;
 import org.compiere.model.X_AD_Package_Exp_Detail;
-import org.compiere.model.X_AD_PrintPaper;
 import org.compiere.model.X_AD_Reference;
 import org.compiere.process.ProcessInfoParameter;
 import org.compiere.process.SvrProcess;
@@ -132,12 +128,10 @@ public class PackOut extends SvrProcess
     PrintFormatElementHandler printFormatHandler = new PrintFormatElementHandler();
     DistFileElementHandler distFileHandler = new DistFileElementHandler();
     ReferenceElementHandler referenceHandler = new ReferenceElementHandler();
-    FieldGroupElementHandler fieldGroupHandler = new FieldGroupElementHandler();
     AdElementHandler adElementHandler = new AdElementHandler();
     CommonTranslationHandler translationHandler = new CommonTranslationHandler();
     ModelValidatorElementHandler modelValidatorHandler = new ModelValidatorElementHandler();
     EntityTypeElementHandler entitytypeHandler = new EntityTypeElementHandler();
-    PrintPaperElementHandler printPaperHandler = new PrintPaperElementHandler();
     GenericPOHandler genericPOHandler = new GenericPOHandler();
     
     /**
@@ -790,19 +784,6 @@ public class PackOut extends SvrProcess
 	
 	/**
 	 * 
-	 * @param FieldGroup_id
-	 * @param packOutDocument
-	 * @throws SAXException
-	 */
-	public void createFieldGroupElement (int FieldGroup_id, TransformerHandler packOutDocument) throws SAXException
-	{
-		Env.setContext(getCtx(), X_AD_FieldGroup.COLUMNNAME_AD_FieldGroup_ID, FieldGroup_id);
-		fieldGroupHandler.create(getCtx(), packOutDocument);
-		getCtx().remove(X_AD_FieldGroup.COLUMNNAME_AD_FieldGroup_ID);
-	}
-	
-	/**
-	 * 
 	 * @param Reference_id
 	 * @param packOutDocument
 	 * @throws SAXException
@@ -857,17 +838,11 @@ public class PackOut extends SvrProcess
 	 */
 	public void createEntityType (int AD_EntityType_ID, TransformerHandler packOutDocument) throws Exception
 	{
-		//Env.setContext(getCtx(), X_AD_Package_Exp_Detail.COLUMNNAME_AD_EntityType_ID, AD_EntityType_ID);
+		Env.setContext(getCtx(), X_AD_Package_Exp_Detail.COLUMNNAME_AD_EntityType_ID, AD_EntityType_ID);
 		entitytypeHandler.create(getCtx(), packOutDocument);
-		//getCtx().remove(X_AD_Package_Exp_Detail.COLUMNNAME_AD_EntityType_ID);
+		getCtx().remove(X_AD_Package_Exp_Detail.COLUMNNAME_AD_EntityType_ID);
 	}
 	
-	public void createPrintPaper (int AD_PrintPaper_ID, TransformerHandler packOutDocument) throws SAXException
-	{
-		Env.setContext(getCtx(), X_AD_PrintPaper.COLUMNNAME_AD_PrintPaper_ID, AD_PrintPaper_ID);
-		printPaperHandler.create(getCtx(), packOutDocument);
-		getCtx().remove(X_AD_PrintPaper.COLUMNNAME_AD_PrintPaper_ID);
-	}
 	
 	/**
 	 * Create for generic PO

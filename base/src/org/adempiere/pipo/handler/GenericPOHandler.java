@@ -139,12 +139,22 @@ public class GenericPOHandler extends AbstractElementHandler {
 			recordLog (ctx, 1, entity.get_ValueAsString(I_AD_Element.COLUMNNAME_UUID), getTagName(entity), entity.get_ID(),
 						backupId, objectStatus,
 						I_AD_EntityType.Table_Name, I_AD_EntityType.Table_ID);
+			//	After Save
+			afterSave(entity);
 		} catch (Exception e) {
 			recordLog (ctx, 0, entity.get_ValueAsString(I_AD_Element.COLUMNNAME_UUID), getTagName(entity), entity.get_ID(),
 						backupId, objectStatus,
 						I_AD_EntityType.Table_Name, I_AD_EntityType.Table_ID);
 			throw new POSaveFailedException(e);
 		}
+	}
+	
+	/**
+	 * After Save trigger
+	 * @param entity
+	 */
+	protected void afterSave(PO entity) {
+		//	
 	}
 
 	public void endElement(Properties ctx, Element element) throws SAXException {
