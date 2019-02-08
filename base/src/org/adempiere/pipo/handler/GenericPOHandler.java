@@ -80,7 +80,7 @@ public class GenericPOHandler extends AbstractElementHandler {
 		int backupId;
 		String objectStatus;
 		if (recordId > 0) {		
-			backupId = copyRecord(ctx, I_AD_EntityType.Table_Name, entity);
+			backupId = copyRecord(ctx, poInfo.getTableName(), entity);
 			objectStatus = "Update";			
 		} else {
 			objectStatus = "New";

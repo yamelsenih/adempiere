@@ -106,8 +106,7 @@ public abstract class AbstractElementHandler implements ElementHandler {
 		AttributesImpl attsOut = new AttributesImpl();
 		String result = success == 1 ? "Success" : "Failure";
     	
-		//hd_documemt.startElement("","","Successful",attsOut);
-    		recordLayout.append("Type:")
+		recordLayout.append("Type:")
     			.append(objectType)
     			.append("  -   Name:")
     			.append(objectName)
@@ -132,10 +131,7 @@ public abstract class AbstractElementHandler implements ElementHandler {
     		detail.setAD_Backup_ID(objectIDBackup);
     		detail.setTableName(tableName);
     		detail.setAD_Table_ID(AD_Table_ID);
-    		
-    		if ( !detail.save(getTrxName(ctx)) )
-    			log.info("Insert to import detail failed");
-    		
+    		detail.saveEx(getTrxName(ctx));
     		id = detail.get_ID();
     	
     	return id;  
@@ -209,55 +205,52 @@ public abstract class AbstractElementHandler implements ElementHandler {
      *  	
      *       	
      */
-    public int copyRecord(Properties ctx, String tableName,PO from){
-	// Create new record
+    public int copyRecord(Properties ctx, String tableName, PO from){
     	int idBackup = 0;
     	String colValue=null;
-    	int tableID = get_IDWithColumn(ctx, "AD_Table", "TableName", tableName);    	
-		POInfo poInfo = POInfo.getPOInfo(ctx, tableID, getTrxName(ctx));
+    	int tableId = get_IDWithColumn(ctx, "AD_Table", "TableName", tableName);    	
+		POInfo poInfo = POInfo.getPOInfo(ctx, tableId, getTrxName(ctx));
 		for (int i = 0; i < poInfo.getColumnCount(); i++){
-			colValue=null;
-			
-			    int columnID =get_IDWithMasterAndColumn (ctx, "AD_Column", "ColumnName", poInfo.getColumnName(i), "AD_Table", tableID);
-			    StringBuffer sqlD = new StringBuffer("SELECT AD_Reference_ID FROM AD_COLUMN WHERE AD_Column_ID = '"+columnID+"'");
-	    		int referenceID = DB.getSQLValue(getTrxName(ctx),sqlD.toString());
-	    		
-	    		idBackup = DB.getNextID (getClientId(ctx), "AD_Package_Imp_Backup", getTrxName(ctx));
-	    		
-	    		sqlD = new StringBuffer("SELECT MAX(AD_PACKAGE_IMP_DETAIL_ID) FROM AD_PACKAGE_IMP_DETAIL");
-	    		int idDetail = DB.getSQLValue(getTrxName(ctx),sqlD.toString())+1;
-	    		
-	    		if (referenceID == 10 || referenceID == 14 || referenceID == 34 || referenceID == 17)
-	    			if (from != null && from.get_Value(i)!= null)
-	    				colValue = from.get_Value(i).toString().replaceAll("'","''");	    		
-				else if (referenceID == 20|| referenceID == 28)
-					if (from != null && from.get_Value(i)!= null)	    				    				
-	    				colValue = from.get_Value(i).toString().replaceAll("'","''");
-				else
-					;//Ignore
-	    			    		
-	    		StringBuffer sqlB = new StringBuffer ("INSERT INTO AD_Package_Imp_Backup") 
-	    				.append( "(AD_Client_ID, AD_Org_ID, CreatedBy, UpdatedBy, " ) 
-	    				.append( "AD_PACKAGE_IMP_BACKUP_ID, AD_PACKAGE_IMP_DETAIL_ID, AD_PACKAGE_IMP_ID," ) 
-	    				.append( " AD_TABLE_ID, AD_COLUMN_ID, AD_REFERENCE_ID, COLVALUE)" )
-	    				.append( "VALUES(" )
-	    				.append( " "+ Env.getAD_Client_ID(ctx) )
-	    				.append( ", "+ Env.getAD_Org_ID(ctx) )
-	    				.append( ", "+ Env.getAD_User_ID(ctx) )
-	    				.append( ", "+ Env.getAD_User_ID(ctx) )
-						.append( ", " + idBackup )
-						.append( ", " + idDetail )
-	    				.append( ", " + getPackageImpId(ctx) )
-	    				.append( ", " + tableID )
-	    				.append( ", " + (columnID == -1 ? "null" : columnID) )
-	    				.append( ", " + (referenceID == -1 ? "null" : referenceID) )
-	    				.append( ", '" + (colValue != null ? colValue : (from != null ? from.get_Value(i) : "null")) )
-	    				.append( "')");
-	    		
-	    		int no = DB.executeUpdate (sqlB.toString(), getTrxName(ctx));
-	    		if (no == -1)
-					log.info("Insert to import backup failed");
-	    		//}
+			colValue = null;
+			int columnId = poInfo.getAD_Column_ID(poInfo.getColumnName(i));
+		    StringBuffer sqlD = new StringBuffer();
+    		int referenceId = poInfo.getColumnDisplayType(i);
+    		
+    		idBackup = DB.getNextID (getClientId(ctx), "AD_Package_Imp_Backup", getTrxName(ctx));
+    		
+    		sqlD = new StringBuffer("SELECT MAX(AD_PACKAGE_IMP_DETAIL_ID) FROM AD_PACKAGE_IMP_DETAIL");
+    		int idDetail = DB.getSQLValue(getTrxName(ctx),sqlD.toString())+1;
+    		
+    		if (referenceId == 10 || referenceId == 14 || referenceId == 34 || referenceId == 17)
+    			if (from != null && from.get_Value(i)!= null)
+    				colValue = from.get_Value(i).toString().replaceAll("'","''");	    		
+			else if (referenceId == 20|| referenceId == 28)
+				if (from != null && from.get_Value(i)!= null)	    				    				
+    				colValue = from.get_Value(i).toString().replaceAll("'","''");
+			else
+				;//Ignore
+    			    		
+    		StringBuffer sqlB = new StringBuffer ("INSERT INTO AD_Package_Imp_Backup") 
+    				.append( "(AD_Client_ID, AD_Org_ID, CreatedBy, UpdatedBy, " ) 
+    				.append( "AD_PACKAGE_IMP_BACKUP_ID, AD_PACKAGE_IMP_DETAIL_ID, AD_PACKAGE_IMP_ID," ) 
+    				.append( " AD_TABLE_ID, AD_COLUMN_ID, AD_REFERENCE_ID, COLVALUE)" )
+    				.append( "VALUES(" )
+    				.append( " "+ Env.getAD_Client_ID(ctx) )
+    				.append( ", "+ Env.getAD_Org_ID(ctx) )
+    				.append( ", "+ Env.getAD_User_ID(ctx) )
+    				.append( ", "+ Env.getAD_User_ID(ctx) )
+					.append( ", " + idBackup )
+					.append( ", " + idDetail )
+    				.append( ", " + getPackageImpId(ctx) )
+    				.append( ", " + tableId )
+    				.append( ", " + (columnId == -1 ? "null" : columnId) )
+    				.append( ", " + (referenceId == -1 ? "null" : referenceId) )
+    				.append( ", '" + (colValue != null ? colValue : (from != null ? from.get_Value(i) : "null")) )
+    				.append( "')");
+    		
+    		int no = DB.executeUpdate (sqlB.toString(), getTrxName(ctx));
+    		if (no == -1)
+				log.info("Insert to import backup failed");
 		}		
 		return idBackup;
     }
