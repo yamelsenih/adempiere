@@ -44,7 +44,6 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
 import org.adempiere.util.Util;
-import org.compiere.util.CLogger;
 import org.compiere.util.Env;
 import org.compiere.util.MimeType;
 import org.w3c.dom.Document;
@@ -93,9 +92,6 @@ public class MAttachment extends X_AD_Attachment
 		.first();
 		return retValue;
 	}	//	get
-	
-	/**	Static Logger	*/
-	private static CLogger	s_log	= CLogger.getCLogger (MAttachment.class);
 
 	
 	/**************************************************************************
