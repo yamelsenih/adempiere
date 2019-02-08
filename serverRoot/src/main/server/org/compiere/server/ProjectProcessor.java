@@ -504,9 +504,11 @@ public class ProjectProcessor extends AdempiereServer
 				}
 			}
 
-			if (m_PO!=null) 
-				m_ExtraMsg = m_PO.get_ValueAsString(MProject.COLUMNNAME_AlertMessage); 
-			
+			if (m_PO!=null) {
+				m_ExtraMsg = m_PO.get_ValueAsString(MProject.COLUMNNAME_AlertMessage);
+				m_PO.set_ValueOfColumn(MProject.COLUMNNAME_AlertMessage, "");
+				m_PO.save();
+			}
 			if (change.getAD_Column_ID()!=0) {
 				MColumn col = MColumn.get (change.getCtx(), change.getAD_Column_ID());
 				m_columns.add(col.getColumnName());
@@ -580,12 +582,16 @@ public class ProjectProcessor extends AdempiereServer
 				|| !Util.isEmpty(m_ExtraMsg))
 			sb.append("<ul>\n");
 		
-		int i = 0;
-		for (String column : m_columns) {
+		for (int i=0; i < m_columns.size(); i++) {
+			String column = m_columns.get(i);
+			
+			if (ProjectProcessorUtils.isExcludeColumn(column))
+				continue;
+			
 			String value = m_Values.get(i);
 			sb.append(getItemPO(column,value));
-			i++;
 		}
+		
 		if (!Util.isEmpty(m_ExtraMsg)) 
 			sb.append("<li><strong>" + m_ExtraMsg + "</li></strong>");
 		

@@ -58,7 +58,31 @@ public class ProjectProcessorModelValidator implements ModelValidator{
 			if (type == TYPE_AFTER_NEW
 					|| (type == TYPE_AFTER_CHANGE
 							&& columnsValids(entity))) {
+
 				String eventChangeLog = (type == TYPE_AFTER_NEW ? MProjectProcessorLog.EVENTCHANGELOG_Insert : MProjectProcessorLog.EVENTCHANGELOG_Update);
+				if (entity.get_Table_ID()==MProjectPhase.Table_ID
+						|| entity.get_Table_ID()==MProjectTask.Table_ID) {
+					
+					MProject project = null;
+					
+					if (entity.get_Table_ID()==MProjectPhase.Table_ID) { 
+						MProjectPhase projectPhase = (MProjectPhase) entity;
+						project = (MProject) projectPhase.getC_Project();
+					}
+					
+					if (entity.get_Table_ID()==MProjectTask.Table_ID) { 
+						MProjectTask projectTask = (MProjectTask) entity;
+						MProjectPhase projectPhase = (MProjectPhase) projectTask.getC_ProjectPhase();
+						project = (MProject) projectPhase.getC_Project();
+					}
+					
+					if (project!=null
+							&& project.getProjectLineLevel().equals(MProject.PROJECTLINELEVEL_Project))
+						return null;
+					
+					
+				}
+					
 				ProjectProcessorUtils.runProjectProcessor(entity, null, "", eventChangeLog);
 				
 			}

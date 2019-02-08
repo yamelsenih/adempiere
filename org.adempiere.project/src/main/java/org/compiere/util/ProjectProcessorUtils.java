@@ -35,6 +35,8 @@ import org.eevolution.model.MProjectMember;
 import org.eevolution.model.MProjectProcessor;
 import org.eevolution.model.MProjectProcessorLog;
 
+import com.eevolution.model.MSContract;
+
 /**
  * Project Processor Utils
  * @author Carlos Parada, cparada@erpya.com, ERPCyA http://www.erpya.com
@@ -62,6 +64,13 @@ public class ProjectProcessorUtils {
 															MProject.COLUMNNAME_IsIndefinite,
 															MProject.COLUMNNAME_IsActive,
 															MProject.COLUMNNAME_DateLastAlert,
+															MProject.COLUMNNAME_M_PriceList_Version_ID,
+															MProject.COLUMNNAME_M_PriceList_ID,
+															MProject.COLUMNNAME_ProjInvoiceRule,
+															MProject.COLUMNNAME_C_BPartner_ID,
+															MProject.COLUMNNAME_PlannedAmt,
+															MProject.COLUMNNAME_PlannedQty,
+															MSContract.COLUMNNAME_S_Contract_ID,
 															MProjectPhase.COLUMNNAME_Help,
 															MProjectPhase.COLUMNNAME_Responsible_ID,
 															MProjectPhase.COLUMNNAME_PercentageCompleted,
@@ -80,6 +89,9 @@ public class ProjectProcessorUtils {
 															MProjectTask.COLUMNNAME_DateFinish,
 															MProjectTask.COLUMNNAME_C_ProjectTaskCategory_ID
 															};
+	
+	public static String[] EXCLUDE_COLUMNS = new String [] {MProject.COLUMNNAME_DateLastAlert};
+
 
 	public static String[] RESPONSIBLE_COLUMNS = new String [] {MProject.COLUMNNAME_ProjectManager_ID,
 															MProjectPhase.COLUMNNAME_Responsible_ID
@@ -329,6 +341,21 @@ public class ProjectProcessorUtils {
 		if (column != null) {
 			for (String column_listen : LISTEN_COLUMNS) {
 				if (column_listen.equals(column))
+					return true;
+			}
+		}
+		return false;
+	}	//isListenColumn
+	
+	/**
+	 * Check if column is excluded
+	 * @param column
+	 * @return
+	 */
+	public static boolean isExcludeColumn(String column) {
+		if (column != null) {
+			for (String column_exclude : EXCLUDE_COLUMNS) {
+				if (column_exclude.equals(column))
 					return true;
 			}
 		}
