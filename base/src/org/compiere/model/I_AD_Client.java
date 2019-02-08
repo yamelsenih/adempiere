@@ -378,14 +378,18 @@ public interface I_AD_Client
 	/** Get Store Attachments On File System	  */
 	public boolean isStoreAttachmentsOnFileSystem();
 
-    /** Column name StoreFilesOnFileSystem */
-    public static final String COLUMNNAME_StoreFilesOnFileSystem = "StoreFilesOnFileSystem";
+    /** Column name UUID */
+    public static final String COLUMNNAME_UUID = "UUID";
 
-	/** Set Store Files On File System	  */
-	public void setStoreFilesOnFileSystem (boolean StoreFilesOnFileSystem);
+	/** Set Immutable Universally Unique Identifier.
+	  * Immutable Universally Unique Identifier
+	  */
+	public void setUUID (String UUID);
 
-	/** Get Store Files On File System	  */
-	public boolean isStoreFilesOnFileSystem();
+	/** Get Immutable Universally Unique Identifier.
+	  * Immutable Universally Unique Identifier
+	  */
+	public String getUUID();
 
     /** Column name UnixArchivePath */
     public static final String COLUMNNAME_UnixArchivePath = "UnixArchivePath";
@@ -405,15 +409,6 @@ public interface I_AD_Client
 	/** Get Unix Attachment Path	  */
 	public String getUnixAttachmentPath();
 
-    /** Column name UnixFilePath */
-    public static final String COLUMNNAME_UnixFilePath = "UnixFilePath";
-
-	/** Set Unix File Path	  */
-	public void setUnixFilePath (String UnixFilePath);
-
-	/** Get Unix File Path	  */
-	public String getUnixFilePath();
-
     /** Column name Updated */
     public static final String COLUMNNAME_Updated = "Updated";
 
@@ -429,19 +424,6 @@ public interface I_AD_Client
 	  * User who updated this records
 	  */
 	public int getUpdatedBy();
-
-    /** Column name UUID */
-    public static final String COLUMNNAME_UUID = "UUID";
-
-	/** Set Immutable Universally Unique Identifier.
-	  * Immutable Universally Unique Identifier
-	  */
-	public void setUUID (String UUID);
-
-	/** Get Immutable Universally Unique Identifier.
-	  * Immutable Universally Unique Identifier
-	  */
-	public String getUUID();
 
     /** Column name Value */
     public static final String COLUMNNAME_Value = "Value";
@@ -473,13 +455,4 @@ public interface I_AD_Client
 
 	/** Get Windows Attachment Path	  */
 	public String getWindowsAttachmentPath();
-
-    /** Column name WindowsFilePath */
-    public static final String COLUMNNAME_WindowsFilePath = "WindowsFilePath";
-
-	/** Set Windows File Path	  */
-	public void setWindowsFilePath (String WindowsFilePath);
-
-	/** Get Windows File Path	  */
-	public String getWindowsFilePath();
 }

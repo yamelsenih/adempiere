@@ -30,7 +30,7 @@ public class X_AD_Client extends PO implements I_AD_Client, I_Persistent
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20181004L;
+	private static final long serialVersionUID = 20170731L;
 
     /** Standard Constructor */
     public X_AD_Client (Properties ctx, int AD_Client_ID, String trxName)
@@ -570,25 +570,21 @@ public class X_AD_Client extends PO implements I_AD_Client, I_Persistent
 		return false;
 	}
 
-	/** Set Store Files On File System.
-		@param StoreFilesOnFileSystem Store Files On File System	  */
-	public void setStoreFilesOnFileSystem (boolean StoreFilesOnFileSystem)
+	/** Set Immutable Universally Unique Identifier.
+		@param UUID 
+		Immutable Universally Unique Identifier
+	  */
+	public void setUUID (String UUID)
 	{
-		set_Value (COLUMNNAME_StoreFilesOnFileSystem, Boolean.valueOf(StoreFilesOnFileSystem));
+		set_Value (COLUMNNAME_UUID, UUID);
 	}
 
-	/** Get Store Files On File System.
-		@return Store Files On File System	  */
-	public boolean isStoreFilesOnFileSystem () 
+	/** Get Immutable Universally Unique Identifier.
+		@return Immutable Universally Unique Identifier
+	  */
+	public String getUUID () 
 	{
-		Object oo = get_Value(COLUMNNAME_StoreFilesOnFileSystem);
-		if (oo != null) 
-		{
-			 if (oo instanceof Boolean) 
-				 return ((Boolean)oo).booleanValue(); 
-			return "Y".equals(oo);
-		}
-		return false;
+		return (String)get_Value(COLUMNNAME_UUID);
 	}
 
 	/** Set Unix Archive Path.
@@ -617,37 +613,6 @@ public class X_AD_Client extends PO implements I_AD_Client, I_Persistent
 	public String getUnixAttachmentPath () 
 	{
 		return (String)get_Value(COLUMNNAME_UnixAttachmentPath);
-	}
-
-	/** Set Unix File Path.
-		@param UnixFilePath Unix File Path	  */
-	public void setUnixFilePath (String UnixFilePath)
-	{
-		set_Value (COLUMNNAME_UnixFilePath, UnixFilePath);
-	}
-
-	/** Get Unix File Path.
-		@return Unix File Path	  */
-	public String getUnixFilePath () 
-	{
-		return (String)get_Value(COLUMNNAME_UnixFilePath);
-	}
-
-	/** Set Immutable Universally Unique Identifier.
-		@param UUID 
-		Immutable Universally Unique Identifier
-	  */
-	public void setUUID (String UUID)
-	{
-		set_Value (COLUMNNAME_UUID, UUID);
-	}
-
-	/** Get Immutable Universally Unique Identifier.
-		@return Immutable Universally Unique Identifier
-	  */
-	public String getUUID () 
-	{
-		return (String)get_Value(COLUMNNAME_UUID);
 	}
 
 	/** Set Search Key.
@@ -693,19 +658,5 @@ public class X_AD_Client extends PO implements I_AD_Client, I_Persistent
 	public String getWindowsAttachmentPath () 
 	{
 		return (String)get_Value(COLUMNNAME_WindowsAttachmentPath);
-	}
-
-	/** Set Windows File Path.
-		@param WindowsFilePath Windows File Path	  */
-	public void setWindowsFilePath (String WindowsFilePath)
-	{
-		set_Value (COLUMNNAME_WindowsFilePath, WindowsFilePath);
-	}
-
-	/** Get Windows File Path.
-		@return Windows File Path	  */
-	public String getWindowsFilePath () 
-	{
-		return (String)get_Value(COLUMNNAME_WindowsFilePath);
 	}
 }

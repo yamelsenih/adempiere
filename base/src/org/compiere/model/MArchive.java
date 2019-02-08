@@ -45,7 +45,6 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
-import org.adempiere.util.Util;
 import org.compiere.util.CLogger;
 import org.compiere.util.DB;
 import org.compiere.util.Env;
@@ -61,9 +60,6 @@ import org.xml.sax.SAXException;
  * 
  * @author Jorg Janke
  * @version $Id: MArchive.java,v 1.3 2006/07/30 00:58:36 jjanke Exp $
- * @author Carlos Parada, cparada@erpya.com, ERPCyA http://www.erpya.com
- * 		<li> FR[ 2057 ] Add Support to Unique File Path Root
- * 		@see https://github.com/adempiere/adempiere/issues/2057
  */
 public class MArchive extends X_AD_Archive {
 	/**
@@ -188,8 +184,6 @@ public class MArchive extends X_AD_Archive {
 	 */
 	private final String ARCHIVE_FOLDER_PLACEHOLDER = "%ARCHIVE_FOLDER%";
 
-	/**Is Attachment Root*/
-	private boolean isArchiveRoot = false;
 	/**
 	 * Get the isStoreArchiveOnFileSystem and archivePath for the client.
 	 * 
@@ -198,15 +192,12 @@ public class MArchive extends X_AD_Archive {
 	 */
 	private void initArchiveStoreDetails(Properties ctx, String trxName) {
 		final MClient client = new MClient(ctx, this.getAD_Client_ID(), trxName);
-		//FR[ 2057 ]
-		isArchiveRoot = client.isStoreArchiveOnFileSystem();
-		isStoreArchiveOnFileSystem = isArchiveRoot ? isArchiveRoot : client.isStoreFilesOnFileSystem();
-		
+		isStoreArchiveOnFileSystem = client.isStoreArchiveOnFileSystem();
 		if (isStoreArchiveOnFileSystem) {
 			if (File.separatorChar == '\\') {
-				m_archivePathRoot = isArchiveRoot ? client.getWindowsArchivePath() : client.getWindowsFilePath();
+				m_archivePathRoot = client.getWindowsArchivePath();
 			} else {
-				m_archivePathRoot = isArchiveRoot ? client.getUnixArchivePath() : client.getUnixFilePath();
+				m_archivePathRoot = client.getUnixArchivePath();
 			}
 			if ("".equals(m_archivePathRoot)) {
 				log.severe("no archivePath defined");
@@ -416,13 +407,12 @@ public class MArchive extends X_AD_Archive {
 				throw new IllegalArgumentException("unable to save MArchive");
 			}
 		}
-		//FR[ 2057 ]
 		final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 		BufferedOutputStream out = null;
 		try {
 			// create destination folder
 			final File destFolder = new File(m_archivePathRoot + File.separator
-					+ (isArchiveRoot ? getArchivePathSnippet() :Util.getFilePathSnippet(this)));
+					+ getArchivePathSnippet());
 			if (!destFolder.exists()) {
 				if (!destFolder.mkdirs()) {
 					log.warning("unable to create folder: " + destFolder.getPath());
@@ -430,7 +420,7 @@ public class MArchive extends X_AD_Archive {
 			}
 			// write to pdf
 			final File destFile = new File(m_archivePathRoot + File.separator
-					+ (isArchiveRoot ? getArchivePathSnippet() : Util.getFilePathSnippet(this)) + this.get_ID() + ".pdf");
+					+ getArchivePathSnippet() + this.get_ID() + ".pdf");
 
 			out = new BufferedOutputStream(new FileOutputStream(destFile));
 			out.write(inflatedData);
@@ -443,7 +433,7 @@ public class MArchive extends X_AD_Archive {
 			document.appendChild(root);
 			document.setXmlStandalone(true);
 			final Element entry = document.createElement("entry");
-			entry.setAttribute("file", ARCHIVE_FOLDER_PLACEHOLDER + (isArchiveRoot ? getArchivePathSnippet() :Util.getFilePathSnippet(this)) + this.get_ID() + ".pdf");
+			entry.setAttribute("file", ARCHIVE_FOLDER_PLACEHOLDER + getArchivePathSnippet() + this.get_ID() + ".pdf");
 			root.appendChild(entry);
 			final Source source = new DOMSource(document);
 			final ByteArrayOutputStream bos = new ByteArrayOutputStream();
@@ -580,24 +570,4 @@ public class MArchive extends X_AD_Archive {
 		return true;
 	} // beforeSave
 
-	/**
-	 * Set Binary Data And Set Is Store on File System And Archive Path
-	 * @param inflatedData
-	 * @param storeArchiveOnFileSystem
-	 * @param archivePathRoot
-	 * @return void
-	 * FR[ 2057 ]
-	 */
-	public void setBinaryData(byte[] inflatedData,boolean storeArchiveOnFileSystem, String archivePathRoot) {
-		
-		isStoreArchiveOnFileSystem = storeArchiveOnFileSystem;
-		isArchiveRoot =false;
-		if (isStoreArchiveOnFileSystem) {
-			m_archivePathRoot = archivePathRoot;
-			saveBinaryDataIntoFileSystem(inflatedData);
-		} else {
-			saveBinaryDataIntoDB(inflatedData);
-		}
-	}//setBinaryData
-	
 } // MArchive
