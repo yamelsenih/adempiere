@@ -25,7 +25,6 @@ import org.adempiere.exceptions.AdempiereException;
 import org.compiere.model.MArchive;
 import org.compiere.model.MAttachment;
 import org.compiere.model.MClient;
-import org.compiere.model.MImage;
 import org.compiere.util.DB;
 
 /**
@@ -62,14 +61,14 @@ public class ClientSaveDiskDB  extends ClientSaveDiskDBAbstract {
 		MClient client = MClient.get(getCtx());
 		
 		//Process Attachments Files
-		if (client.isStoreFilesOnFileSystem()!=p_StoreFilesOnFileSystem){
+		if (client.get_ValueAsBoolean("StoreFilesOnFileSystem")!=p_StoreFilesOnFileSystem){
 			processAttachmentFiles(client);
 			processArchiveFiles(client);
 			processImagesFiles();
 			
-			client.setStoreFilesOnFileSystem(p_StoreFilesOnFileSystem);
-			client.setWindowsFilePath(p_WindowsFilePath);
-			client.setUnixFilePath(p_UnixFilePath);
+			client.set_ValueOfColumn("StoreFilesOnFileSystem", p_StoreFilesOnFileSystem);
+			client.set_ValueOfColumn("WindowsFilePath", p_WindowsFilePath);
+			client.set_ValueOfColumn("UnixFilePath",p_UnixFilePath);
 			client.save();
 		}
 		

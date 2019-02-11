@@ -21,7 +21,7 @@ import org.compiere.process.SvrProcess;
 
 /** Generated Process for (Change Save Files Disk <-> DB)
  *  @author ADempiere (generated) 
- *  @version Release 3.9.0
+ *  @version Release 3.9.1
  */
 public abstract class ClientSaveDiskDBAbstract extends SvrProcess {
 	/** Process Value 	*/
@@ -29,7 +29,7 @@ public abstract class ClientSaveDiskDBAbstract extends SvrProcess {
 	/** Process Name 	*/
 	private static final String NAME_FOR_PROCESS = "Change Save Files Disk <-> DB";
 	/** Process Id 	*/
-	private static final int ID_FOR_PROCESS = 1000000;
+	private static final int ID_FOR_PROCESS = 54142;
 	/**	Parameter Name for Store Files On File System	*/
 	public static final String STOREFILESONFILESYSTEM = "StoreFilesOnFileSystem";
 	/**	Parameter Name for Windows File Path	*/

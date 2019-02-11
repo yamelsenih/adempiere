@@ -49,6 +49,7 @@ import org.adempiere.util.Util;
 import org.compiere.util.CLogger;
 import org.compiere.util.DB;
 import org.compiere.util.Env;
+import org.spin.util.XMLUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
@@ -200,13 +201,13 @@ public class MArchive extends X_AD_Archive {
 		final MClient client = new MClient(ctx, this.getAD_Client_ID(), trxName);
 		//FR[ 2057 ]
 		isArchiveRoot = client.isStoreArchiveOnFileSystem();
-		isStoreArchiveOnFileSystem = isArchiveRoot ? isArchiveRoot : client.isStoreFilesOnFileSystem();
+		isStoreArchiveOnFileSystem = isArchiveRoot ? isArchiveRoot : client.get_ValueAsBoolean("StoreFilesOnFileSystem");
 		
 		if (isStoreArchiveOnFileSystem) {
 			if (File.separatorChar == '\\') {
-				m_archivePathRoot = isArchiveRoot ? client.getWindowsArchivePath() : client.getWindowsFilePath();
+				m_archivePathRoot = isArchiveRoot ? client.getWindowsArchivePath() : client.get_ValueAsString("WindowsFilePath");
 			} else {
-				m_archivePathRoot = isArchiveRoot ? client.getUnixArchivePath() : client.getUnixFilePath();
+				m_archivePathRoot = isArchiveRoot ? client.getUnixArchivePath() : client.get_ValueAsString("UnixFilePath");
 			}
 			if ("".equals(m_archivePathRoot)) {
 				log.severe("no archivePath defined");
@@ -255,9 +256,11 @@ public class MArchive extends X_AD_Archive {
 			return null;
 		}
 
-		final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 
 		try {
+			//	Add default features
+			XMLUtils.setDefaultFeatures(factory);
 			final DocumentBuilder builder = factory.newDocumentBuilder();
 			final Document document = builder.parse(new ByteArrayInputStream(data));
 			final NodeList entries = document.getElementsByTagName("entry");
@@ -416,10 +419,11 @@ public class MArchive extends X_AD_Archive {
 				throw new IllegalArgumentException("unable to save MArchive");
 			}
 		}
-		//FR[ 2057 ]
-		final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 		BufferedOutputStream out = null;
 		try {
+			//	Add default features
+			XMLUtils.setDefaultFeatures(factory);
 			// create destination folder
 			final File destFolder = new File(m_archivePathRoot + File.separator
 					+ (isArchiveRoot ? getArchivePathSnippet() :Util.getFilePathSnippet(this)));
@@ -448,7 +452,9 @@ public class MArchive extends X_AD_Archive {
 			final Source source = new DOMSource(document);
 			final ByteArrayOutputStream bos = new ByteArrayOutputStream();
 			final Result result = new StreamResult(bos);
-			final Transformer xformer = TransformerFactory.newInstance().newTransformer();
+			TransformerFactory transformerFactory = TransformerFactory.newInstance();
+			XMLUtils.setDefaultFeatures(transformerFactory);
+			final Transformer xformer = transformerFactory.newTransformer();
 			xformer.transform(source, result);
 			final byte[] xmlData = bos.toByteArray();
 			log.fine(bos.toString());
