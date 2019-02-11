@@ -189,12 +189,13 @@ public class InventoryValue extends InventoryValueAbstract {
 		no = DB.executeUpdateEx(sql.toString(), get_TrxName());
 		log.fine("Update w/o ASI=" + no);
 		
-		//  Delete Records w/o OnHand Qty
-		sql = new StringBuffer("DELETE T_InventoryValue "
-			+ "WHERE (QtyOnHand=0 OR QtyOnHand IS NULL) AND AD_PInstance_ID=").append(getAD_PInstance_ID());
-		int noQty = DB.executeUpdateEx (sql.toString(), get_TrxName());
-		log.fine("NoQty Deleted=" + noQty);
-
+		if(!getParameterAsBoolean("IsIncludeNotAvailable")) {
+			//  Delete Records w/o OnHand Qty
+			sql = new StringBuffer("DELETE T_InventoryValue "
+				+ "WHERE (QtyOnHand=0 OR QtyOnHand IS NULL) AND AD_PInstance_ID=").append(getAD_PInstance_ID());
+			int noQty = DB.executeUpdateEx (sql.toString(), get_TrxName());
+			log.fine("NoQty Deleted=" + noQty);
+		}
 		//  Update Prices
 		sql = new StringBuffer("UPDATE T_InventoryValue iv "
 			+ "SET PricePO = "
