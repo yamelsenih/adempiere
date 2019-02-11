@@ -369,12 +369,12 @@ public class MImage extends X_AD_Image
 	 */
 	private void initImageStoreDetails(Properties ctx, String trxName){
 		final MClient client = new MClient(ctx, this.getAD_Client_ID(), trxName);
-		isStoreImagesOnFileSystem = client.isStoreFilesOnFileSystem();
+		isStoreImagesOnFileSystem = client.get_ValueAsBoolean("StoreFilesOnFileSystem");
 		if(isStoreImagesOnFileSystem){
 			if(File.separatorChar == '\\'){
-				m_imagePathRoot = client.getWindowsFilePath(); 
+				m_imagePathRoot = client.get_ValueAsString("WindowsFilePath");
 			} else {
-				m_imagePathRoot = client.getUnixFilePath(); 
+				m_imagePathRoot = client.get_ValueAsString("UnixFilePath");
 			}
 			if(m_imagePathRoot==null || "".equals(m_imagePathRoot)){
 				s_log.severe("no Path defined");

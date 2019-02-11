@@ -25,6 +25,7 @@ import org.adempiere.exceptions.AdempiereException;
 import org.compiere.model.MArchive;
 import org.compiere.model.MAttachment;
 import org.compiere.model.MClient;
+import org.compiere.model.MImage;
 import org.compiere.util.DB;
 
 /**
