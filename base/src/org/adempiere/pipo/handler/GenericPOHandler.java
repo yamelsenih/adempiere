@@ -27,6 +27,7 @@ import org.adempiere.pipo.Element;
 import org.adempiere.pipo.PackOut;
 import org.adempiere.pipo.PoFiller;
 import org.adempiere.pipo.exception.POSaveFailedException;
+import org.compiere.model.I_AD_Column;
 import org.compiere.model.I_AD_Element;
 import org.compiere.model.I_AD_EntityType;
 import org.compiere.model.MLookupFactory;
@@ -53,6 +54,9 @@ public class GenericPOHandler extends AbstractElementHandler {
 	public static final String TABLE_ID_TAG = "TableIdTag";
 	public static final String RECORD_ID_TAG = "RecordIdTag";
 	public static final String TAG_Name = "GenericPO";
+	/**	Tag for column	*/
+	public static final String Column_TAG_Name = TAG_Name + "_" + I_AD_Column.Table_Name;
+	
 	
 	@Override
 	public void startElement(Properties ctx, Element element) throws SAXException {
@@ -88,6 +92,7 @@ public class GenericPOHandler extends AbstractElementHandler {
 		}
 		//	Load filler
 		PoFiller filler = new PoFiller(entity, atts);
+		entity.setIsDirectLoad(true);
 		for(int index = 0; index < poInfo.getColumnCount(); index++) {
 			//	No SQL
 			if(poInfo.isVirtualColumn(index)) {
@@ -97,8 +102,6 @@ public class GenericPOHandler extends AbstractElementHandler {
 			if (poInfo.isKey(index)) {
 				if(entity.get_ID() > PackOut.MAX_OFFICIAL_ID) {
 					continue;
-				} else {
-					//entity.setIsDirectLoad(true);
 				}
 			}
 			//	No Encrypted
@@ -135,18 +138,29 @@ public class GenericPOHandler extends AbstractElementHandler {
 		}
 		//	Save
 		try {
-			entity.save(getTrxName(ctx));
+			beforeSave(entity);
+			entity.saveEx(getTrxName(ctx));
 			recordLog (ctx, 1, entity.get_ValueAsString(I_AD_Element.COLUMNNAME_UUID), getTagName(entity), entity.get_ID(),
 						backupId, objectStatus,
 						I_AD_EntityType.Table_Name, I_AD_EntityType.Table_ID);
 			//	After Save
 			afterSave(entity);
 		} catch (Exception e) {
-			recordLog (ctx, 0, entity.get_ValueAsString(I_AD_Element.COLUMNNAME_UUID), getTagName(entity), entity.get_ID(),
+			if(backupId > 0) {
+				recordLog (ctx, 0, entity.get_ValueAsString(I_AD_Element.COLUMNNAME_UUID), getTagName(entity), backupId,
 						backupId, objectStatus,
 						I_AD_EntityType.Table_Name, I_AD_EntityType.Table_ID);
+			}
 			throw new POSaveFailedException(e);
 		}
+	}
+
+	/**
+	 * Before Save trigger
+	 * @param entity
+	 */
+	protected void beforeSave(PO entity) {
+		//	
 	}
 	
 	/**

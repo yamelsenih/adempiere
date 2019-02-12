@@ -45,39 +45,30 @@ import javax.xml.transform.sax.SAXTransformerFactory;
 import javax.xml.transform.sax.TransformerHandler;
 import javax.xml.transform.stream.StreamResult;
 
-import org.adempiere.pipo.handler.AdElementHandler;
-import org.adempiere.pipo.handler.BrowseElementHandler;
 import org.adempiere.pipo.handler.CodeSnipitElementHandler;
 import org.adempiere.pipo.handler.CommonTranslationHandler;
 import org.adempiere.pipo.handler.DataElementHandler;
 import org.adempiere.pipo.handler.DistFileElementHandler;
-import org.adempiere.pipo.handler.DynValRuleElementHandler;
 import org.adempiere.pipo.handler.EntityTypeElementHandler;
-import org.adempiere.pipo.handler.FormElementHandler;
 import org.adempiere.pipo.handler.GenericPOHandler;
-import org.adempiere.pipo.handler.ImpFormatElementHandler;
 import org.adempiere.pipo.handler.MenuElementHandler;
-import org.adempiere.pipo.handler.MessageElementHandler;
 import org.adempiere.pipo.handler.ModelValidatorElementHandler;
-import org.adempiere.pipo.handler.PreferenceElementHandler;
-import org.adempiere.pipo.handler.PrintFormatElementHandler;
-import org.adempiere.pipo.handler.ProcessElementHandler;
 import org.adempiere.pipo.handler.ReferenceElementHandler;
 import org.adempiere.pipo.handler.ReferenceListElementHandler;
 import org.adempiere.pipo.handler.ReferenceTableElementHandler;
-import org.adempiere.pipo.handler.ReportViewElementHandler;
 import org.adempiere.pipo.handler.SQLStatementElementHandler;
 import org.adempiere.pipo.handler.TableElementHandler;
-import org.adempiere.pipo.handler.TaskElementHandler;
-import org.adempiere.pipo.handler.ViewElementHandler;
-import org.adempiere.pipo.handler.WindowElementHandler;
 import org.adempiere.pipo.handler.WorkflowElementHandler;
 import org.adempiere.pipo.handler.WorkflowNodeElementHandler;
 import org.adempiere.pipo.handler.WorkflowNodeNextConditionElementHandler;
 import org.adempiere.pipo.handler.WorkflowNodeNextElementHandler;
+import org.compiere.model.I_AD_Column;
 import org.compiere.model.I_AD_WF_Node;
 import org.compiere.model.I_AD_Workflow;
+import org.compiere.model.MColumn;
 import org.compiere.model.MSequence;
+import org.compiere.process.SequenceCheck;
+import org.compiere.process.SequenceCheckAbstract;
 import org.compiere.util.CLogger;
 import org.compiere.util.DB;
 import org.compiere.util.Env;
@@ -85,6 +76,7 @@ import org.compiere.util.Trx;
 import org.compiere.util.Util;
 import org.compiere.wf.MWFNode;
 import org.compiere.wf.MWorkflow;
+import org.eevolution.service.dsl.ProcessBuilder;
 import org.spin.util.XMLUtils;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
@@ -134,6 +126,7 @@ public class PackInHandler extends DefaultHandler {
 	private List<Element> nodes = new ArrayList<Element>();
 	private List<DeferEntry> defer = new ArrayList<DeferEntry>();
 	private Stack<Element> stack = new Stack<Element>();
+	private List<Element> columns = new ArrayList<Element>();
 	private PackIn packIn;
 
 	private void init() throws SAXException {
@@ -193,31 +186,18 @@ public class PackInHandler extends DefaultHandler {
     	handlers.put("dtable", dataHandler);
     	handlers.put("drow", dataHandler);
     	handlers.put("dcolumn", dataHandler);
-    	handlers.put("window", new WindowElementHandler());
-    	handlers.put("preference", new PreferenceElementHandler());
-    	handlers.put("view", new ViewElementHandler());
-    	handlers.put("browse", new BrowseElementHandler());
-    	handlers.put("process", new ProcessElementHandler());
-    	handlers.put("message", new MessageElementHandler());
-    	handlers.put("dynvalrule", new DynValRuleElementHandler());
     	handlers.put("workflow", new WorkflowElementHandler());
     	handlers.put("workflowNode", new WorkflowNodeElementHandler());
     	handlers.put("workflowNodeNext", new WorkflowNodeNextElementHandler());
     	handlers.put("workflowNodeNextCondition", new WorkflowNodeNextConditionElementHandler());
-    	handlers.put("table", new TableElementHandler());
+    	handlers.put(GenericPOHandler.Column_TAG_Name, new TableElementHandler());
     	handlers.put(GenericPOHandler.TAG_Name, new GenericPOHandler());
-    	handlers.put("form", new FormElementHandler());
-    	handlers.put("task", new TaskElementHandler());
-    	handlers.put("impformat", new ImpFormatElementHandler());
     	handlers.put("codesnipit", new CodeSnipitElementHandler());
     	handlers.put("distfile", new DistFileElementHandler());
-    	handlers.put("reportview", new ReportViewElementHandler());
-    	handlers.put("printformat", new PrintFormatElementHandler());
     	handlers.put("SQLStatement", new SQLStatementElementHandler());
     	handlers.put("reference", new ReferenceElementHandler());
     	handlers.put("referencelist", new ReferenceListElementHandler());
     	handlers.put("referencetable", new ReferenceTableElementHandler());
-    	handlers.put("element", new AdElementHandler());
     	handlers.put("trl", new CommonTranslationHandler());
     	handlers.put(ModelValidatorElementHandler.TAG_Name, new ModelValidatorElementHandler());
     	handlers.put(EntityTypeElementHandler.TAG_Name, new EntityTypeElementHandler());
@@ -397,12 +377,15 @@ public class PackInHandler extends DefaultHandler {
 			{
 				nodes.add(e);
 			}
+			
+			if(elementValue.equals(GenericPOHandler.Column_TAG_Name)) {
+				columns.add(e);
+			}
 			//	for generic handler
-			ElementHandler handler = null;
-			if(elementValue.startsWith(GenericPOHandler.TAG_Name)) {
+			ElementHandler handler = handlers.get(elementValue);
+			if(handler == null
+					&& elementValue.startsWith(GenericPOHandler.TAG_Name)) {
 				handler = new GenericPOHandler();
-			} else {
-				handler = handlers.get(elementValue);
 			}
 			if (handler != null)
 				handler.startElement(m_ctx, e);
@@ -693,6 +676,21 @@ public class PackInHandler extends DefaultHandler {
     						}
     					}
     						
+    				}
+        		}
+        	}
+        	
+        	//	Columns
+        	if(columns.size() > 0) {
+        		for (Element e : columns) {
+    	    		Attributes atts = e.attributes;
+    	    		String columnUuid = atts.getValue(AttributeFiller.getUUIDAttribute(I_AD_Column.Table_Name));
+    	    		int id = IDFinder.getIdFromUUID(m_ctx, I_AD_Column.Table_Name, columnUuid, 0, trxName);
+    				if(id > 0) {
+    					MColumn column = new MColumn(m_ctx, id, trxName);
+    					if(column.getAD_Table_ID() > 0) {
+    						column.syncDatabase();
+    					}
     				}
         		}
         	}

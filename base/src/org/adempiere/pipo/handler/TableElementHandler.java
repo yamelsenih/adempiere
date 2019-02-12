@@ -23,17 +23,21 @@ import javax.xml.transform.sax.TransformerHandler;
 
 import org.adempiere.pipo.PackOut;
 import org.compiere.model.I_AD_Column;
+import org.compiere.model.I_AD_Sequence;
 import org.compiere.model.I_AD_Table;
 import org.compiere.model.MColumn;
+import org.compiere.model.MSequence;
 import org.compiere.model.MTable;
-import org.compiere.model.PO;
-import org.compiere.model.X_AD_Column;
 import org.compiere.model.X_AD_Package_Exp_Detail;
 import org.compiere.util.Env;
-import org.compiere.util.Util;
 import org.xml.sax.SAXException;
 
+/**
+ * Change to Generic PO Handler for import and export PO
+ * @author Yamel Senih, ysenih@erpya.com , http://www.erpya.com
+ */
 public class TableElementHandler extends GenericPOHandler {
+	
 	public void create(Properties ctx, TransformerHandler document) throws SAXException {
 		int tableId = Env.getContextAsInt(ctx, X_AD_Package_Exp_Detail.COLUMNNAME_AD_Table_ID);
 		PackOut packOut = (PackOut) ctx.get("PackOutProcess");
@@ -47,16 +51,10 @@ public class TableElementHandler extends GenericPOHandler {
 		for(MColumn colunm : table.getColumns(true)) {
 			packOut.createGenericPO(document, I_AD_Column.Table_ID, colunm.getAD_Column_ID(), true, null);
 		}
-	}
-	
-	@Override
-	protected void afterSave(PO entity) {
-		if(X_AD_Column.class.isAssignableFrom(entity.getClass())) {
-			MColumn column = (MColumn) entity;
-			MTable table = new MTable(entity.getCtx(), column.getAD_Table_ID(), getTrxName(entity.getCtx()));
-			if (!table.isView() && Util.isEmpty(column.getColumnSQL())) {
-				column.syncDatabase();
-			}
+		//	Create Sequence
+		MSequence sequence = MSequence.get(ctx, table.getTableName());
+		if(sequence != null) {
+			packOut.createGenericPO(document, I_AD_Sequence.Table_ID, sequence.getAD_Sequence_ID(), true, null);
 		}
 	}
 }

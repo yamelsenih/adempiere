@@ -62,7 +62,6 @@ public class MenuElementHandler extends AbstractElementHandler {
 		X_AD_Menu menu = new X_AD_Menu(ctx, menuId, getTrxName(ctx));
 		if (menuId <= 0 && getIntValue(atts, I_AD_Menu.COLUMNNAME_AD_Menu_ID) > 0 && getIntValue(atts, I_AD_Menu.COLUMNNAME_AD_Menu_ID) <= PackOut.MAX_OFFICIAL_ID) {
 			menu.setAD_Menu_ID(getIntValue(atts, I_AD_Menu.COLUMNNAME_AD_Menu_ID));
-			menu.setIsDirectLoad(true);
 		}
 		if (menuId > 0) {
 			backupId = copyRecord(ctx, I_AD_Menu.Table_Name, menu);
@@ -71,6 +70,7 @@ public class MenuElementHandler extends AbstractElementHandler {
 			Object_Status = "New";
 			backupId = 0;
 		}
+		menu.setIsDirectLoad(true);
 		menu.setUUID(uuid);
 		//	For window
 		menu.setName(atts.getValue(I_AD_Menu.COLUMNNAME_Name));
@@ -261,6 +261,9 @@ public class MenuElementHandler extends AbstractElementHandler {
 		//	Tree
 		MTree tree = MTree.get(ctx, defaultTreeId, getTrxName(ctx));
 		MTree_NodeMM treeNode = MTree_NodeMM.get(tree, menu.getAD_Menu_ID());
+		if(treeNode == null) {
+			treeNode = new MTree_NodeMM(tree, menu.getAD_Menu_ID());
+		}
 		treeNode.setSeqNo(Integer.valueOf(atts.getValue(I_AD_TreeNodeMM.COLUMNNAME_SeqNo)));
 		treeNode.setParent_ID(parentId);
 		treeNode.saveEx();
