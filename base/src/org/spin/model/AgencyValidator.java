@@ -46,6 +46,8 @@ import org.compiere.model.MOrderLine;
 import org.compiere.model.MProject;
 import org.compiere.model.MProjectPhase;
 import org.compiere.model.MProjectTask;
+import org.compiere.model.MRequest;
+import org.compiere.model.MRequestType;
 import org.compiere.model.MTimeExpense;
 import org.compiere.model.MTimeExpenseLine;
 import org.compiere.model.MTree;
@@ -92,6 +94,7 @@ public class AgencyValidator implements ModelValidator
 		engine.addModelChange(MCommissionLine.Table_Name, this);
 		engine.addModelChange(MProjectTask.Table_Name, this);
 		engine.addModelChange(MBPartner.Table_Name, this);
+		engine.addModelChange(MRequest.Table_Name, this);
 		engine.addDocValidate(MTimeExpense.Table_Name, this);
 		engine.addDocValidate(MSContract.Table_Name, this);
 	}	//	initialize
@@ -168,6 +171,23 @@ public class AgencyValidator implements ModelValidator
 						}
 					}
 				}
+			}else if(po instanceof MRequest) {
+				MRequest request = (MRequest) po;
+				if(request.getR_RequestType_ID() != 0) {
+					MRequestType requestType = new MRequestType(request.getCtx(), request.getR_RequestType_ID(), request.get_TrxName());
+					// Validates Approved on Request Type					
+					if(requestType.get_ValueAsBoolean("IsApproved")) {
+						// Validates Approved 1 on Request						
+						if(request.get_ValueAsBoolean("IsApproved1")) {
+							// Validates Approved 2 on Request
+							if(!request.get_ValueAsBoolean("IsApproved2")) {
+								throw new AdempiereException(Msg.getMsg(Env.getCtx(), "NotApproved2"));
+							}
+						}else {
+							throw new AdempiereException(Msg.getMsg(Env.getCtx(), "NotApproved1"));
+						}
+					}		
+				}				
 			}
 		} else if(type == TYPE_BEFORE_NEW) {
 			if (po instanceof MCommissionLine) {
@@ -251,7 +271,7 @@ public class AgencyValidator implements ModelValidator
 					}
 				}
 			}
-		} 
+		}
 
 		//
 		return null;
