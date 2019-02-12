@@ -17,16 +17,11 @@
 
 package org.spin.form;
 
-import java.math.BigDecimal;
 import java.util.Date;
-import java.util.TimeZone;
-import java.util.Vector;
-import java.util.logging.Level;
 
 import org.adempiere.exceptions.ValueChangeEvent;
 import org.adempiere.exceptions.ValueChangeListener;
 import org.adempiere.webui.component.Button;
-import org.adempiere.webui.component.ConfirmPanel;
 import org.adempiere.webui.component.DatetimeBox;
 import org.adempiere.webui.component.Grid;
 import org.adempiere.webui.component.GridFactory;
@@ -41,13 +36,12 @@ import org.adempiere.webui.event.WTableModelListener;
 import org.adempiere.webui.panel.ADForm;
 import org.adempiere.webui.panel.CustomForm;
 import org.adempiere.webui.panel.IFormController;
-import org.compiere.apps.AEnv;
 import org.compiere.util.Env;
 import org.compiere.util.Msg;
 import org.zkoss.calendar.Calendars;
 import org.zkoss.calendar.event.CalendarsEvent;
-import org.zkoss.zhtml.Textarea;
-import org.zkoss.calendar.api.CalendarEvent;
+import org.zkoss.calendar.impl.SimpleCalendarEvent;
+import org.zkoss.calendar.impl.SimpleCalendarModel;
 import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.event.EventListener;
 import org.zkoss.zk.ui.event.Events;
@@ -55,28 +49,22 @@ import org.zkoss.zk.ui.util.Clients;
 import org.zkoss.zul.Borderlayout;
 import org.zkoss.zul.Calendar;
 import org.zkoss.zul.Center;
-import org.zkoss.zul.Column;
-import org.zkoss.zul.Columns;
-import org.zkoss.zul.Datebox;
-import org.zkoss.zul.Listitem;
+import org.zkoss.zul.East;
 import org.zkoss.zul.North;
 import org.zkoss.zul.South;
-import org.zkoss.zul.Div;
-import org.zkoss.zul.East;
-import org.zkoss.zul.Separator;
 import org.zkoss.zul.Space;
 
 
 /**
  * 
  *
- * @author  Jorg Janke
- * @version $Id: VAllocation.java,v 1.2 2006/07/30 00:51:28 jjanke Exp $
  * 
- * Contributor : Fabian Aguilar - OFBConsulting - Multiallocation
- * @author Yamel Senih, ysenih@erpcya.com, ERPCyA http://www.erpcya.com
- *		<a href="https://github.com/adempiere/adempiere/issues/407">
- * 		@see FR [ 407 ] Enhance visualization of allocation payment window</a>
+ * 
+ * 
+ * 
+ * 
+ *		
+ * 		
  */
 public class WCalendar  
 	implements IFormController,EventListener, WTableModelListener, ValueChangeListener
@@ -89,6 +77,11 @@ public class WCalendar
 //	private static final long serialVersionUID = 7806119329546820204L;
 	
 	private CustomForm form = new CustomForm(){
+
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
 		
 	};
 
@@ -113,6 +106,8 @@ public class WCalendar
 		}
 	}	//	init
 	
+	SimpleCalendarModel scm = new SimpleCalendarModel();
+	SimpleCalendarEvent sce = new SimpleCalendarEvent();		
 	//
 	private Calendar smallcalendar = new Calendar();
 	private Calendars bigcalendar = new Calendars();
@@ -125,10 +120,10 @@ public class WCalendar
 	private Grid northLayout = GridFactory.newGridLayout();
 	
 	private Grid windowgridLayout = GridFactory.newGridLayout();
-	//	private Label paymentLabel = new Label();
+	
 	private Textbox descriptionField = new Textbox();
 	private Textbox dateInputTitle = new Textbox();
-	private Textarea dateInputNote = new Textarea();
+	private Textbox dateInputNote = new Textbox();
 	
 	private Panel NorthPanel = new Panel();
 	
@@ -350,58 +345,18 @@ public class WCalendar
 		return form;
 	}
 
-	
-	public void createEvent (CalendarsEvent event) {
-//		event.stopClearGhost();
-		if(event.ON_EVENT_CREATE!= null) {
-    		calevent.setVisible(true);
-//        	CalendarsEvent m = new
-        	org.adempiere.webui.apps.AEnv.showWindow(calevent);
-    	}
-		
-    	if(event.getBeginDate() != null) {
-    		calevent.setVisible(true);
-//        	CalendarsEvent m = new
-        	org.adempiere.webui.apps.AEnv.showWindow(calevent);
-    	}
-    	
-    	if(event.ON_DAY_CLICK != null) {
-    		calevent.setVisible(true);
-//        	CalendarsEvent m = new CalendarsEvent(name, target, ce, beginDate, endDate, x, y, dtwd, dthgh);
-        	org.adempiere.webui.apps.AEnv.showWindow(calevent);
-    	}
-	}
-
 @Override
 public void onEvent(Event event) throws Exception {
-	// TODO Auto-generated method stub
-//	bigcalendar.stopClearGhost();
-//	         
-//	        DemoCalendarEvent data = (DemoCalendarEvent)event.getCalendarEvent();
-//	         
-//	        if(data == null) {
-//	            data = new DemoCalendarEvent();
-//	            data.setHeaderColor("#3366ff");
-//	            data.setContentColor("#6699ff");
-//	            data.setBeginDate(event.getBeginDate());
-//	            data.setEndDate(event.getEndDate());
-//	        } else {
-//	            data = (DemoCalendarEvent) event.getCalendarEvent();
-//	        }
-//
 	
+	// Calendar Go today
     if (event.getTarget().equals(Today))
     {    	 
-//    	TimeZone timeZone = bigcalendar.getDefaultTimeZone();
-    	
     	Date currentday = new Date();
     	bigcalendar.setCurrentDate(currentday);
     	smallcalendar.setValue(currentday);
-    	calevent.setVisible(true);
-    	
-//    	CalendarsEvent m = new 
-//    	org.adempiere.webui.apps.AEnv.showWindow(calevent);
+    	calevent.setVisible(true);    	
     }
+    // Browse on calendar pages
     else if (event.getTarget().equals(previous))
     {
     	bigcalendar.previousPage();
@@ -412,22 +367,50 @@ public void onEvent(Event event) throws Exception {
     	bigcalendar.nextPage();
     	calevent.setVisible(false);
     }
+    // Set Calendar to show Days
     else if (event.getTarget().equals(day))
     {
     	bigcalendar.setMold("default");
     	bigcalendar.setDays(1);
+    // Set Calendar to show Weeks
     }else if (event.getTarget().equals(week))
     {
     	bigcalendar.setMold("default");
     	bigcalendar.setDays(7);
+    // Set Calendar to show Months
     }else if (event.getTarget().equals(month))
     {
-    	bigcalendar.setMold("month");   
+    	bigcalendar.setMold("month");
+    // Cancel Even register Window	
     }else if (event.getTarget().equals(Cancel))
     {
-    	calevent.dispose();   
-    }else {	
-
+    	calevent.dispose();
+    //    Save Even register Window
+    }else if (event.getTarget().equals(Save))
+       {
+    	// Simple Calendar Event
+    	// Get Dates From Textbox
+       	sce.setBeginDate(dateBegin.getValue());
+       	sce.setEndDate(dateEnd.getValue());
+       	//The color Strings should only be colors
+       	//that CSS accept
+       	sce.setContentColor("red");
+       	sce.setHeaderColor("blue");
+   
+       	sce.setContent(dateInputNote.getValue());
+       	sce.setTitle(dateInputTitle.getValue());
+   
+       	//is this event locked?
+       	sce.setLocked(false);
+    	// Simple Model Calendar       	
+       	scm = new SimpleCalendarModel();
+       	
+       	scm.add(sce);
+       	// Set Model to Calendar      	
+       	bigcalendar.setModel(scm);
+       	// Close Window      	
+       	calevent.dispose();
+       }else {	
     	CalendarsEvent Cevent = (CalendarsEvent)event;
     	Cevent.stopClearGhost();
     	// Create Event
@@ -439,12 +422,20 @@ public void onEvent(Event event) throws Exception {
     		org.adempiere.webui.apps.AEnv.showWindow(calevent);
     		Cevent.clearGhost();
     	}
+    	// Day Click Event
     	else if(Cevent.ON_DAY_CLICK != null) 
     	{
     		calevent.setVisible(true);
     		org.adempiere.webui.apps.AEnv.showWindow(calevent);
     		Cevent.clearGhost();
-    	}
+        // Edit Event
+    	}else if(Cevent.ON_EVENT_EDIT != null) 
+    	{
+    		calevent.setVisible(true);
+    		org.adempiere.webui.apps.AEnv.showWindow(calevent);
+    		Cevent.clearGhost();
+    	}  
+    	
     }
     
 }
