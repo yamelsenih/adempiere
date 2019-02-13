@@ -52,6 +52,7 @@ public class MProjectProcessorQueued extends X_C_ProjectProcessorQueued {
 		if (getC_ProjectProcessorQueued_ID()==0) {
 			setAD_User_ID(AD_User_ID);
 			setC_ProjectProcessorLog_ID(parent.getC_ProjectProcessorLog_ID());
+			setSendEMail(false);
 		}
 	}
 	

@@ -29,7 +29,7 @@ public class X_C_ProjectProcessorQueued extends PO implements I_C_ProjectProcess
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20190129L;
+	private static final long serialVersionUID = 20190212L;
 
     /** Standard Constructor */
     public X_C_ProjectProcessorQueued (Properties ctx, int C_ProjectProcessorQueued_ID, String trxName)
@@ -168,6 +168,34 @@ public class X_C_ProjectProcessorQueued extends PO implements I_C_ProjectProcess
 		if (ii == null)
 			 return 0;
 		return ii.intValue();
+	}
+
+	/** NotificationType AD_Reference_ID=344 */
+	public static final int NOTIFICATIONTYPE_AD_Reference_ID=344;
+	/** EMail = E */
+	public static final String NOTIFICATIONTYPE_EMail = "E";
+	/** Notice = N */
+	public static final String NOTIFICATIONTYPE_Notice = "N";
+	/** None = X */
+	public static final String NOTIFICATIONTYPE_None = "X";
+	/** EMail+Notice = B */
+	public static final String NOTIFICATIONTYPE_EMailPlusNotice = "B";
+	/** Set Notification Type.
+		@param NotificationType 
+		Type of Notifications
+	  */
+	public void setNotificationType (String NotificationType)
+	{
+
+		set_Value (COLUMNNAME_NotificationType, NotificationType);
+	}
+
+	/** Get Notification Type.
+		@return Type of Notifications
+	  */
+	public String getNotificationType () 
+	{
+		return (String)get_Value(COLUMNNAME_NotificationType);
 	}
 
 	/** Set Send EMail.

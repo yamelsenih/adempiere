@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.compiere.util.ProjectProcessorUtils;
+import org.compiere.util.Util;
 import org.eevolution.model.MProjectProcessorLog;
 
 /**
@@ -68,21 +69,29 @@ public class ProjectProcessorModelValidator implements ModelValidator{
 					if (entity.get_Table_ID()==MProjectPhase.Table_ID) { 
 						MProjectPhase projectPhase = (MProjectPhase) entity;
 						project = (MProject) projectPhase.getC_Project();
-					}
-					
-					if (entity.get_Table_ID()==MProjectTask.Table_ID) { 
+						if (project.getProjectLineLevel().equals(MProject.PROJECTLINELEVEL_Project))
+							return null;
+					}else{ 
 						MProjectTask projectTask = (MProjectTask) entity;
 						MProjectPhase projectPhase = (MProjectPhase) projectTask.getC_ProjectPhase();
 						project = (MProject) projectPhase.getC_Project();
+						if (project.getProjectLineLevel().equals(MProject.PROJECTLINELEVEL_Project)
+								|| project.getProjectLineLevel().equals(MProject.PROJECTLINELEVEL_Phase))
+							return null;
 					}
-					
-					if (project!=null
-							&& project.getProjectLineLevel().equals(MProject.PROJECTLINELEVEL_Project))
-						return null;
-					
-					
 				}
-					
+				
+				if (entity.is_ValueChanged(MProject.COLUMNNAME_DateStartSchedule)
+						&& !Util.isEmpty(entity.get_ValueAsString(MProject.COLUMNNAME_DueType))
+							&& entity.get_ValueAsString(MProject.COLUMNNAME_DueType).equals(MProject.DUETYPE_Scheduled)) {
+					entity.set_Value(MProject.COLUMNNAME_DueType, null);
+					entity.save();
+				}else if (entity.is_ValueChanged(MProject.COLUMNNAME_DateFinishSchedule)
+							|| entity.is_ValueChanged(MProject.COLUMNNAME_DateDeadline)) {
+					entity.set_Value(MProject.COLUMNNAME_DueType, MProject.DUETYPE_Scheduled);
+					entity.save();
+				}
+				 
 				ProjectProcessorUtils.runProjectProcessor(entity, null, "", eventChangeLog);
 				
 			}

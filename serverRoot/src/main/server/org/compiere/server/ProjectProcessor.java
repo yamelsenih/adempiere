@@ -24,6 +24,7 @@ import java.util.Properties;
 import org.compiere.model.MClient;
 import org.compiere.model.MColumn;
 import org.compiere.model.MMailText;
+import org.compiere.model.MNote;
 import org.compiere.model.MProject;
 import org.compiere.model.MProjectPhase;
 import org.compiere.model.MProjectProcessorChange;
@@ -97,12 +98,18 @@ public class ProjectProcessor extends AdempiereServer
 	/**Prefix Text for Mail to Send*/
 	private String				m_PrefixTextMail = "";
 	
+	/**No HTML Text for Notice */
+	private String 				m_TextNotice	= "";
+	
 	/**Mail Template for Project Processor */
 	private MMailText			m_MailText = null;
 	
 	/**Extra Message for Mail*/
 	private String m_ExtraMsg	= "";
 
+	/**Changes is Scheduled*/
+	private boolean isScheduled = false;
+	
 	/**Log */
 	private static CLogger logger = CLogger.getCLogger (ProjectProcessor.class);
 	
@@ -114,10 +121,13 @@ public class ProjectProcessor extends AdempiereServer
 		m_summary = new StringBuffer();
 		m_MailText = new MMailText (Env.getCtx(), m_model.getR_MailText_ID(), null);
 		//
+		clearGlobals();
+		//Process Queued Manual Changes
+		processQueued();
 		
+		//Process Scheduled Changes
 		processProjects ();
 		processQueued();
-		clearGlobals();
 		
 	}	//	doWork
 
@@ -150,14 +160,24 @@ public class ProjectProcessor extends AdempiereServer
 								+ "FROM C_ProjectProcessorQueued q "
 								+ "WHERE q.SendEmail='N' AND q.C_ProjectProcessorLog_ID = C_ProjectProcessorLog.C_ProjectProcessorLog_ID )";
 		MProjectProcessorLog[] pLogs = m_model.getProcessorLogs(whereClause);
+		boolean loadMsj = false;
 		for (MProjectProcessorLog mProjectProcessorLog : pLogs) {
-			loadMsgToSend(mProjectProcessorLog);
+			loadMsj = loadMsgToSend(mProjectProcessorLog);
 			MProjectProcessorQueued[] queued = mProjectProcessorLog.getQueued("SendEmail='N'");
 			for (MProjectProcessorQueued mProjectProcessorQueued : queued) {
-				if (sendEmail(mProjectProcessorLog, mProjectProcessorQueued)) {
-					mProjectProcessorQueued.setSendEMail(true);
-					mProjectProcessorQueued.save();
+				if (loadMsj) {
+					String NotificationType = (Util.isEmpty(mProjectProcessorQueued.getNotificationType()) ? MProjectProcessorQueued.NOTIFICATIONTYPE_None : mProjectProcessorQueued.getNotificationType()) ; 
+					if (NotificationType.equals(MProjectProcessorQueued.NOTIFICATIONTYPE_EMail))
+						sendEmail(mProjectProcessorQueued);
+					else if (NotificationType.equals(MProjectProcessorQueued.NOTIFICATIONTYPE_EMailPlusNotice)) {
+						sendEmail(mProjectProcessorQueued);
+						createNotice(mProjectProcessorQueued);
+					}
+					else if (NotificationType.equals(MProjectProcessorQueued.NOTIFICATIONTYPE_Notice)) 
+						createNotice(mProjectProcessorQueued);
 				}
+				mProjectProcessorQueued.setSendEMail(true);
+				mProjectProcessorQueued.save();
 			}
 			//Clear Globals
 			clearGlobals();
@@ -170,7 +190,7 @@ public class ProjectProcessor extends AdempiereServer
 	 * @param queued
 	 * @return
 	 */
-	private boolean sendEmail (MProjectProcessorLog log, MProjectProcessorQueued queued)
+	private boolean sendEmail (MProjectProcessorQueued queued)
 	{
 		
 		try {
@@ -184,7 +204,13 @@ public class ProjectProcessor extends AdempiereServer
 				m_MailText.setPO(m_PO);
 			
 			//	
-			EMail email = m_client.createEMail(to.getEMail(), null, null);
+			EMail email = null;
+			if (m_model.getSupervisor_ID()==0)
+				email = m_client.createEMail(to.getEMail(), null, null);
+			else {
+				MUser from = (MUser) m_model.getSupervisor();
+				email = m_client.createEMail(from, to, null, null);
+			}
 			//	
 			String msg = null;
 			if (!email.isValid()) {
@@ -193,7 +219,10 @@ public class ProjectProcessor extends AdempiereServer
 						"@RequestActionEMailError@ Invalid EMail: " + to);
 			}
 			String subject = (!Util.isEmpty(m_MailText.getMailHeader())  ? m_MailText.getMailHeader() + " " :m_MailText.getMailHeader()) + m_PrefixSubject;
-			String message = m_MailText.getMailText(true);
+			String message = "";
+			if (m_MailText.getR_MailText_ID()!=0)
+				message = m_MailText.getMailText(true);
+			
 			email.setMessageHTML(subject, m_PrefixTextMail + (message == null ? "" : message)  + "\n");
 			//
 			msg = email.send();
@@ -209,6 +238,27 @@ public class ProjectProcessor extends AdempiereServer
 		}
 		return true;
 	}   //  sendEmail
+	
+	/**
+	 * Send Email
+	 * @param log
+	 * @param queued
+	 * @return
+	 */
+	private boolean createNotice (MProjectProcessorQueued queued){
+		MUser to = (MUser) queued.getAD_User();
+		if (to.getAD_User_ID()!=0) {
+			MNote note = new MNote(getCtx(), "Error", to.getAD_User_ID(), m_PO.get_TrxName());
+			note.setRecord(m_PO.get_Table_ID(), m_PO.get_ID());
+			note.setReference(m_PrefixSubject);
+			note.setTextMsg(m_TextNotice);
+			if (!note.save())
+				return false;
+		}
+		
+		return true;
+	}   //  createNotice
+
 
 	/**
 	 * Process Project Status
@@ -266,13 +316,17 @@ public class ProjectProcessor extends AdempiereServer
 		
 		String whereClauseGeneral = "";
 		String whereClause = "";
+		isScheduled = true;
 		ArrayList<Object> params = new ArrayList<Object>();
 		Timestamp currentDate = new Timestamp(TimeUtil.getToday().getTimeInMillis());
-		
+		int daysBeforeStart = m_model.get_ValueAsInt("DaysBeforeStart");
 		//Project
-		whereClauseGeneral =  "(DateStartSchedule IS NOT NULL AND DateStartSchedule <= ?) AND (DueType IS NULL OR DueType = ?)";
+		whereClauseGeneral =  "(DateStartSchedule IS NOT NULL AND DateStartSchedule - ? <= ? AND DateStartSchedule >= ?) AND (DueType IS NULL OR DueType = ?)";
+		params.add(daysBeforeStart);
+		params.add(currentDate);
 		params.add(currentDate);
 		params.add(MProject.DUETYPE_Scheduled);
+		
 		
 		//Remind Days
 		whereClauseGeneral+= " AND (DateLastAlert IS NULL OR DateLastAlert!=?)";
@@ -285,7 +339,7 @@ public class ProjectProcessor extends AdempiereServer
 		
 		new ScheduleChange(getCtx(), MProject.Table_Name, whereClauseGeneral + whereClause, m_model.get_TrxName())
 				.setColumns(MProject.COLUMNNAME_DueType,MProject.COLUMNNAME_DateLastAlert)
-				.setValues(MProject.DUETYPE_Due,currentDate)
+				.setValues(MProject.DUETYPE_Scheduled,currentDate)
 				.setAlertMessageColumn("@C_Project_ID@ @IsFor@ @Start@")
 				.setParameters(params)
 				.processScheduleChanges();
@@ -297,7 +351,7 @@ public class ProjectProcessor extends AdempiereServer
 		
 		new ScheduleChange(getCtx(), MProjectPhase.Table_Name, whereClauseGeneral + whereClause, m_model.get_TrxName())
 				.setColumns(MProjectPhase.COLUMNNAME_DueType,MProjectPhase.COLUMNNAME_DateLastAlert)
-				.setValues(MProjectPhase.DUETYPE_Due,currentDate)
+				.setValues(MProject.DUETYPE_Scheduled,currentDate)
 				.setAlertMessageColumn("@C_ProjectPhase_ID@ @IsFor@ @Start@")
 				.setParameters(params)
 				.processScheduleChanges();
@@ -317,7 +371,7 @@ public class ProjectProcessor extends AdempiereServer
 			
 		new ScheduleChange(getCtx(), MProjectTask.Table_Name, whereClauseGeneral + whereClause, m_model.get_TrxName())
 				.setColumns(MProjectTask.COLUMNNAME_DueType,MProjectTask.COLUMNNAME_DateLastAlert)
-				.setValues(MProjectTask.DUETYPE_Due,currentDate)
+				.setValues(MProject.DUETYPE_Scheduled,currentDate)
 				.setAlertMessageColumn("@C_ProjectTask_ID@ @IsFor@ @Start@")
 				.setParameters(params)
 				.processScheduleChanges();
@@ -330,13 +384,13 @@ public class ProjectProcessor extends AdempiereServer
 		if (m_model.getOverdueAlertDays()!=0) {
 			String whereClauseGeneral = "";
 			String whereClause = ""; 
+			isScheduled =true;
 			ArrayList<Object> params = new ArrayList<Object>();
 			Timestamp currentDate = new Timestamp(TimeUtil.getToday().getTimeInMillis());
 			//General Filters
-			whereClauseGeneral =  "(COALESCE(DateDeadLine,DateFinishSchedule) IS NOT NULL) AND (DueType IS NULL OR DueType IN (?,?)) ";
+			whereClauseGeneral =  "(COALESCE(DateDeadLine,DateFinishSchedule) IS NOT NULL) AND (DueType IS NULL OR DueType IN = ?) ";
 			
 			params.add(MProject.DUETYPE_Scheduled);
-			params.add(MProject.DUETYPE_Due);
 			
 			//Due Days Alert
 			whereClauseGeneral += " AND (COALESCE(DateDeadLine,DateFinishSchedule) + ? <= ? AND COALESCE(DateDeadLine,DateFinishSchedule) >= ?) ";
@@ -401,6 +455,7 @@ public class ProjectProcessor extends AdempiereServer
 		if (m_model.getOverdueAssignDays()!=0) {
 			String whereClauseGeneral = "";
 			String whereClause = ""; 
+			isScheduled = true;
 			ArrayList<Object> params = new ArrayList<Object>();
 			Timestamp currentDate = new Timestamp(TimeUtil.getToday().getTimeInMillis());
 			//General Filters
@@ -478,7 +533,7 @@ public class ProjectProcessor extends AdempiereServer
 	 * Load Message to Send
 	 * @param log
 	 */
-	private void loadMsgToSend(MProjectProcessorLog log) {
+	private boolean loadMsgToSend(MProjectProcessorLog log) {
 		
 		MProjectProcessorChange[] changes = log.getChange(null);
 		MProjectStatus status = null;
@@ -486,6 +541,9 @@ public class ProjectProcessor extends AdempiereServer
 		String itemStatus = "";
 		MUser createdBy = null;
 		MUser updatedBy = null;
+		
+		if (changes.length==0)
+			return false;
 		
 		for (MProjectProcessorChange change : changes) {
 			if (m_PO == null) {
@@ -504,11 +562,10 @@ public class ProjectProcessor extends AdempiereServer
 				}
 			}
 
-			if (m_PO!=null) {
+			if (m_PO!=null 
+					&& isScheduled) 
 				m_ExtraMsg = m_PO.get_ValueAsString(MProject.COLUMNNAME_AlertMessage);
-				m_PO.set_ValueOfColumn(MProject.COLUMNNAME_AlertMessage, "");
-				m_PO.save();
-			}
+			
 			if (change.getAD_Column_ID()!=0) {
 				MColumn col = MColumn.get (change.getCtx(), change.getAD_Column_ID());
 				m_columns.add(col.getColumnName());
@@ -561,7 +618,8 @@ public class ProjectProcessor extends AdempiereServer
 			else if (log.getEventChangeLog().equals(MProjectProcessorLog.EVENTCHANGELOG_Update)
 					&& updatedBy!=null) 
 				m_PrefixTextMail+= " " +Msg.parseTranslation(log.getCtx(), "@UpdatedBy@") + " " + updatedBy.getName();
-				
+			
+			m_TextNotice = m_PrefixTextMail; 
 			StringBuffer sb = new StringBuffer("<HR>\n")
 				.append(m_PrefixTextMail + "\n")
 				.append(getMessageColumnsChanged())
@@ -569,6 +627,8 @@ public class ProjectProcessor extends AdempiereServer
 			
 			m_PrefixTextMail = sb.toString();
 		}
+		
+		return true;
 	}	//loadMsgToSend
 	
 	/**
@@ -589,12 +649,15 @@ public class ProjectProcessor extends AdempiereServer
 				continue;
 			
 			String value = m_Values.get(i);
-			sb.append(getItemPO(column,value));
+			String item = getItemPO(column,value);
+			m_TextNotice += item + "\n";  	
+			sb.append(item);
 		}
 		
-		if (!Util.isEmpty(m_ExtraMsg)) 
+		if (!Util.isEmpty(m_ExtraMsg)) {
 			sb.append("<li><strong>" + m_ExtraMsg + "</li></strong>");
-		
+			m_TextNotice += m_ExtraMsg + "\n";  
+		}
 		if (m_columns.size()>0
 				|| !Util.isEmpty(m_ExtraMsg)) 
 			sb.append("</ul>\n")
@@ -667,6 +730,8 @@ public class ProjectProcessor extends AdempiereServer
 		m_ProjectPhase = null;
 		m_ProjectTask = null;
 		m_ExtraMsg = "";
+		m_TextNotice = "";
+		isScheduled = false;
 	}	//clearGlobals
 	
 }	

@@ -224,49 +224,56 @@ public class ProjectProcessorUtils {
 				throw new AdempiereException ("@SaveError@ @C_ProjectProcessorLog_ID@");
 			else {
 					
-					boolean queuedCreated = false;
+					int  addQueued= 0;
 					//Process Project
 					if (entity.get_Table_ID() == MProject.Table_ID) 
 						if (project!= null 
 								&& project.getProjectManager_ID()!=0)
-							queuedCreated = addQueued(pLog,project.getProjectManager_ID());
+							if (addQueued(pLog,project.getProjectManager_ID()))
+								addQueued ++; 
 	
 					//Process Project Phase
 					if (entity.get_Table_ID() == MProjectPhase.Table_ID) { 
 					
 						if (projectPhase!= null 
 								&& projectPhase.getResponsible_ID()!=0)
-							queuedCreated = addQueued(pLog,projectPhase.getResponsible_ID());
+							if (addQueued(pLog,projectPhase.getResponsible_ID()))
+								addQueued ++;
 						
 						if (project!= null 
 								&& project.getProjectManager_ID()!=0)
-							queuedCreated = addQueued(pLog,project.getProjectManager_ID());
+							if (addQueued(pLog,project.getProjectManager_ID()))
+								addQueued ++;
 					}
 					//Process Project Task
 					if (entity.get_Table_ID() == MProjectTask.Table_ID) { 
 						
 						if (projectTask!= null 
 								&& projectTask.getResponsible_ID()!=0)
-							queuedCreated = addQueued(pLog,projectTask.getResponsible_ID());
+							if (addQueued(pLog,projectTask.getResponsible_ID()))
+								addQueued ++;
 						
 						if (projectPhase!= null 
 								&& projectPhase.getResponsible_ID()!=0)
-							queuedCreated = addQueued(pLog,projectPhase.getResponsible_ID());
+							if (addQueued(pLog,projectPhase.getResponsible_ID()))
+								addQueued ++;
 						
 						if (project!= null 
 								&& project.getProjectManager_ID()!=0)
-							queuedCreated = addQueued(pLog,project.getProjectManager_ID());
+							if (addQueued(pLog,project.getProjectManager_ID()))
+								addQueued ++;
 					}
 					
 					//Project Members
 					if (project!=null) {
 						List<MProjectMember> members = MProjectMember.getMembers(project);
 						for (MProjectMember mProjectMember : members) 
-							addQueued(pLog,mProjectMember.getAD_User_ID());
+							if (addQueued(pLog,mProjectMember.getAD_User_ID(),mProjectMember.getNotificationType()))
+								addQueued ++;
 						
 					}
 					//Add Changes
-					if (queuedCreated)
+					if (addQueued > 0)
 						addChanges(pLog, entity);
 				
 			}
@@ -281,17 +288,35 @@ public class ProjectProcessorUtils {
 	 * @param AD_User_ID
 	 * @return
 	 */
-    private static boolean addQueued(MProjectProcessorLog pLog, int AD_User_ID) {
+    private static boolean addQueued(MProjectProcessorLog pLog, int AD_User_ID, String NotificationType) {
     	MProjectProcessorQueued queued = new MProjectProcessorQueued(pLog, AD_User_ID);
-    	if (queued.getC_ProjectProcessorQueued_ID()==0) {
-			queued.setSendEMail(false);
-			queued.setAD_User_ID(AD_User_ID);
-			if (!queued.save()) {
+    	if (NotificationType!=null
+    			&& !NotificationType.equals(queued.getNotificationType())) 
+    		queued.setNotificationType(NotificationType);
+    	
+    	
+    	if (NotificationType==null
+    			&& queued.getNotificationType()==null)
+			queued.setNotificationType(MProjectProcessorQueued.NOTIFICATIONTYPE_None);
+	
+		if (queued.is_new()
+				|| queued.is_Changed())
+			if(!queued.save()) 
 				throw new AdempiereException("@SaveError@ @C_ProjectProcessorQueued_ID@");
-			}
-    	}
+		
+
 		return true;
     }	//addQueued
+    
+    /**
+     * Add Queued
+     * @param pLog
+     * @param AD_User_ID
+     * @return
+     */
+    private static boolean addQueued(MProjectProcessorLog pLog, int AD_User_ID) {
+    	return addQueued(pLog, AD_User_ID, null);
+    }
     
     /**
      * Add Changes
