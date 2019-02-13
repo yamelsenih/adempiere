@@ -20,17 +20,17 @@ import java.math.BigDecimal;
 import java.sql.Timestamp;
 import org.compiere.util.KeyNamePair;
 
-/** Generated Interface for AD_UserDef_Field
+/** Generated Interface for AD_WindowCustom
  *  @author Adempiere (generated) 
  *  @version Release 3.9.1
  */
-public interface I_AD_UserDef_Field 
+public interface I_AD_WindowCustom 
 {
 
-    /** TableName=AD_UserDef_Field */
-    public static final String Table_Name = "AD_UserDef_Field";
+    /** TableName=AD_WindowCustom */
+    public static final String Table_Name = "AD_WindowCustom";
 
-    /** AD_Table_ID=464 */
+    /** AD_Table_ID=467 */
     public static final int Table_ID = MTable.getTable_ID(Table_Name);
 
     KeyNamePair Model = new KeyNamePair(Table_ID, Table_Name);
@@ -49,20 +49,33 @@ public interface I_AD_UserDef_Field
 	  */
 	public int getAD_Client_ID();
 
-    /** Column name AD_Field_ID */
-    public static final String COLUMNNAME_AD_Field_ID = "AD_Field_ID";
+    /** Column name AD_ContextInfo_ID */
+    public static final String COLUMNNAME_AD_ContextInfo_ID = "AD_ContextInfo_ID";
 
-	/** Set Field.
-	  * Field on a database table
+	/** Set Context Info.
+	  * Context Info Maintaining
 	  */
-	public void setAD_Field_ID (int AD_Field_ID);
+	public void setAD_ContextInfo_ID (int AD_ContextInfo_ID);
 
-	/** Get Field.
-	  * Field on a database table
+	/** Get Context Info.
+	  * Context Info Maintaining
 	  */
-	public int getAD_Field_ID();
+	public int getAD_ContextInfo_ID();
 
-	public org.compiere.model.I_AD_Field getAD_Field() throws RuntimeException;
+	public org.spin.model.I_AD_ContextInfo getAD_ContextInfo() throws RuntimeException;
+
+    /** Column name AD_Language */
+    public static final String COLUMNNAME_AD_Language = "AD_Language";
+
+	/** Set Language.
+	  * Language for this entity
+	  */
+	public void setAD_Language (String AD_Language);
+
+	/** Get Language.
+	  * Language for this entity
+	  */
+	public String getAD_Language();
 
     /** Column name AD_Org_ID */
     public static final String COLUMNNAME_AD_Org_ID = "AD_Org_ID";
@@ -77,25 +90,70 @@ public interface I_AD_UserDef_Field
 	  */
 	public int getAD_Org_ID();
 
-    /** Column name AD_UserDef_Field_ID */
-    public static final String COLUMNNAME_AD_UserDef_Field_ID = "AD_UserDef_Field_ID";
+    /** Column name AD_Role_ID */
+    public static final String COLUMNNAME_AD_Role_ID = "AD_Role_ID";
 
-	/** Set User defined Field	  */
-	public void setAD_UserDef_Field_ID (int AD_UserDef_Field_ID);
+	/** Set Role.
+	  * Responsibility Role
+	  */
+	public void setAD_Role_ID (int AD_Role_ID);
 
-	/** Get User defined Field	  */
-	public int getAD_UserDef_Field_ID();
+	/** Get Role.
+	  * Responsibility Role
+	  */
+	public int getAD_Role_ID();
 
-    /** Column name AD_UserDef_Tab_ID */
-    public static final String COLUMNNAME_AD_UserDef_Tab_ID = "AD_UserDef_Tab_ID";
+	public org.compiere.model.I_AD_Role getAD_Role() throws RuntimeException;
 
-	/** Set User defined Tab	  */
-	public void setAD_UserDef_Tab_ID (int AD_UserDef_Tab_ID);
+    /** Column name AD_User_ID */
+    public static final String COLUMNNAME_AD_User_ID = "AD_User_ID";
 
-	/** Get User defined Tab	  */
-	public int getAD_UserDef_Tab_ID();
+	/** Set User/Contact.
+	  * User within the system - Internal or Business Partner Contact
+	  */
+	public void setAD_User_ID (int AD_User_ID);
 
-	public org.compiere.model.I_AD_UserDef_Tab getAD_UserDef_Tab() throws RuntimeException;
+	/** Get User/Contact.
+	  * User within the system - Internal or Business Partner Contact
+	  */
+	public int getAD_User_ID();
+
+	public org.compiere.model.I_AD_User getAD_User() throws RuntimeException;
+
+    /** Column name AD_WindowCustom_ID */
+    public static final String COLUMNNAME_AD_WindowCustom_ID = "AD_WindowCustom_ID";
+
+	/** Set User defined Window	  */
+	public void setAD_WindowCustom_ID (int AD_WindowCustom_ID);
+
+	/** Get User defined Window	  */
+	public int getAD_WindowCustom_ID();
+
+    /** Column name AD_Window_ID */
+    public static final String COLUMNNAME_AD_Window_ID = "AD_Window_ID";
+
+	/** Set Window.
+	  * Data entry or display window
+	  */
+	public void setAD_Window_ID (int AD_Window_ID);
+
+	/** Get Window.
+	  * Data entry or display window
+	  */
+	public int getAD_Window_ID();
+
+	public org.compiere.model.I_AD_Window getAD_Window() throws RuntimeException;
+
+    /** Column name ASP_Level_ID */
+    public static final String COLUMNNAME_ASP_Level_ID = "ASP_Level_ID";
+
+	/** Set ASP Level	  */
+	public void setASP_Level_ID (int ASP_Level_ID);
+
+	/** Get ASP Level	  */
+	public int getASP_Level_ID();
+
+	public org.compiere.model.I_ASP_Level getASP_Level() throws RuntimeException;
 
     /** Column name Created */
     public static final String COLUMNNAME_Created = "Created";
@@ -113,21 +171,6 @@ public interface I_AD_UserDef_Field
 	  */
 	public int getCreatedBy();
 
-    /** Column name DefaultValue */
-    public static final String COLUMNNAME_DefaultValue = "DefaultValue";
-
-	/** Set Default Logic.
-	  * Default value hierarchy, separated by ;
-
-	  */
-	public void setDefaultValue (String DefaultValue);
-
-	/** Get Default Logic.
-	  * Default value hierarchy, separated by ;
-
-	  */
-	public String getDefaultValue();
-
     /** Column name Description */
     public static final String COLUMNNAME_Description = "Description";
 
@@ -140,32 +183,6 @@ public interface I_AD_UserDef_Field
 	  * Optional short description of the record
 	  */
 	public String getDescription();
-
-    /** Column name DisplayLength */
-    public static final String COLUMNNAME_DisplayLength = "DisplayLength";
-
-	/** Set Display Length.
-	  * Length of the display in characters
-	  */
-	public void setDisplayLength (int DisplayLength);
-
-	/** Get Display Length.
-	  * Length of the display in characters
-	  */
-	public int getDisplayLength();
-
-    /** Column name DisplayLogic */
-    public static final String COLUMNNAME_DisplayLogic = "DisplayLogic";
-
-	/** Set Display Logic.
-	  * If the Field is displayed, the result determines if the field is actually displayed
-	  */
-	public void setDisplayLogic (String DisplayLogic);
-
-	/** Get Display Logic.
-	  * If the Field is displayed, the result determines if the field is actually displayed
-	  */
-	public String getDisplayLogic();
 
     /** Column name Help */
     public static final String COLUMNNAME_Help = "Help";
@@ -193,18 +210,18 @@ public interface I_AD_UserDef_Field
 	  */
 	public boolean isActive();
 
-    /** Column name IsDisplayed */
-    public static final String COLUMNNAME_IsDisplayed = "IsDisplayed";
+    /** Column name IsDefault */
+    public static final String COLUMNNAME_IsDefault = "IsDefault";
 
-	/** Set Displayed.
-	  * Determines, if this field is displayed
+	/** Set Default.
+	  * Default value
 	  */
-	public void setIsDisplayed (boolean IsDisplayed);
+	public void setIsDefault (boolean IsDefault);
 
-	/** Get Displayed.
-	  * Determines, if this field is displayed
+	/** Get Default.
+	  * Default value
 	  */
-	public boolean isDisplayed();
+	public boolean isDefault();
 
     /** Column name IsReadOnly */
     public static final String COLUMNNAME_IsReadOnly = "IsReadOnly";
@@ -212,38 +229,25 @@ public interface I_AD_UserDef_Field
 	/** Set Read Only.
 	  * Field is read only
 	  */
-	public void setIsReadOnly (boolean IsReadOnly);
+	public void setIsReadOnly (String IsReadOnly);
 
 	/** Get Read Only.
 	  * Field is read only
 	  */
-	public boolean isReadOnly();
+	public String getIsReadOnly();
 
-    /** Column name IsSameLine */
-    public static final String COLUMNNAME_IsSameLine = "IsSameLine";
+    /** Column name IsUserUpdateable */
+    public static final String COLUMNNAME_IsUserUpdateable = "IsUserUpdateable";
 
-	/** Set Same Line.
-	  * Displayed on same line as previous field
+	/** Set User updatable.
+	  * The field can be updated by the user
 	  */
-	public void setIsSameLine (boolean IsSameLine);
+	public void setIsUserUpdateable (String IsUserUpdateable);
 
-	/** Get Same Line.
-	  * Displayed on same line as previous field
+	/** Get User updatable.
+	  * The field can be updated by the user
 	  */
-	public boolean isSameLine();
-
-    /** Column name IsUpdateable */
-    public static final String COLUMNNAME_IsUpdateable = "IsUpdateable";
-
-	/** Set Updatable.
-	  * Determines, if the field can be updated
-	  */
-	public void setIsUpdateable (boolean IsUpdateable);
-
-	/** Get Updatable.
-	  * Determines, if the field can be updated
-	  */
-	public boolean isUpdateable();
+	public String getIsUserUpdateable();
 
     /** Column name Name */
     public static final String COLUMNNAME_Name = "Name";
@@ -257,47 +261,6 @@ public interface I_AD_UserDef_Field
 	  * Alphanumeric identifier of the entity
 	  */
 	public String getName();
-
-    /** Column name SeqNo */
-    public static final String COLUMNNAME_SeqNo = "SeqNo";
-
-	/** Set Sequence.
-	  * Method of ordering records;
- lowest number comes first
-	  */
-	public void setSeqNo (int SeqNo);
-
-	/** Get Sequence.
-	  * Method of ordering records;
- lowest number comes first
-	  */
-	public int getSeqNo();
-
-    /** Column name SortNo */
-    public static final String COLUMNNAME_SortNo = "SortNo";
-
-	/** Set Record Sort No.
-	  * Determines in what order the records are displayed
-	  */
-	public void setSortNo (int SortNo);
-
-	/** Get Record Sort No.
-	  * Determines in what order the records are displayed
-	  */
-	public int getSortNo();
-
-    /** Column name UUID */
-    public static final String COLUMNNAME_UUID = "UUID";
-
-	/** Set Immutable Universally Unique Identifier.
-	  * Immutable Universally Unique Identifier
-	  */
-	public void setUUID (String UUID);
-
-	/** Get Immutable Universally Unique Identifier.
-	  * Immutable Universally Unique Identifier
-	  */
-	public String getUUID();
 
     /** Column name Updated */
     public static final String COLUMNNAME_Updated = "Updated";
@@ -314,4 +277,30 @@ public interface I_AD_UserDef_Field
 	  * User who updated this records
 	  */
 	public int getUpdatedBy();
+
+    /** Column name UUID */
+    public static final String COLUMNNAME_UUID = "UUID";
+
+	/** Set Immutable Universally Unique Identifier.
+	  * Immutable Universally Unique Identifier
+	  */
+	public void setUUID (String UUID);
+
+	/** Get Immutable Universally Unique Identifier.
+	  * Immutable Universally Unique Identifier
+	  */
+	public String getUUID();
+
+    /** Column name WindowType */
+    public static final String COLUMNNAME_WindowType = "WindowType";
+
+	/** Set WindowType.
+	  * Type or classification of a Window
+	  */
+	public void setWindowType (String WindowType);
+
+	/** Get WindowType.
+	  * Type or classification of a Window
+	  */
+	public String getWindowType();
 }

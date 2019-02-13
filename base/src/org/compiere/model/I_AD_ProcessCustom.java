@@ -20,17 +20,17 @@ import java.math.BigDecimal;
 import java.sql.Timestamp;
 import org.compiere.util.KeyNamePair;
 
-/** Generated Interface for AD_UserDef_Win
+/** Generated Interface for AD_ProcessCustom
  *  @author Adempiere (generated) 
  *  @version Release 3.9.1
  */
-public interface I_AD_UserDef_Win 
+public interface I_AD_ProcessCustom 
 {
 
-    /** TableName=AD_UserDef_Win */
-    public static final String Table_Name = "AD_UserDef_Win";
+    /** TableName=AD_ProcessCustom */
+    public static final String Table_Name = "AD_ProcessCustom";
 
-    /** AD_Table_ID=467 */
+    /** AD_Table_ID=1000000 */
     public static final int Table_ID = MTable.getTable_ID(Table_Name);
 
     KeyNamePair Model = new KeyNamePair(Table_ID, Table_Name);
@@ -41,6 +41,17 @@ public interface I_AD_UserDef_Win
 
     /** Load Meta Data */
 
+    /** Column name AD_Browse_ID */
+    public static final String COLUMNNAME_AD_Browse_ID = "AD_Browse_ID";
+
+	/** Set Smart Browse	  */
+	public void setAD_Browse_ID (int AD_Browse_ID);
+
+	/** Get Smart Browse	  */
+	public int getAD_Browse_ID();
+
+	public org.adempiere.model.I_AD_Browse getAD_Browse() throws RuntimeException;
+
     /** Column name AD_Client_ID */
     public static final String COLUMNNAME_AD_Client_ID = "AD_Client_ID";
 
@@ -48,6 +59,21 @@ public interface I_AD_UserDef_Win
 	  * Client/Tenant for this installation.
 	  */
 	public int getAD_Client_ID();
+
+    /** Column name AD_Form_ID */
+    public static final String COLUMNNAME_AD_Form_ID = "AD_Form_ID";
+
+	/** Set Special Form.
+	  * Special Form
+	  */
+	public void setAD_Form_ID (int AD_Form_ID);
+
+	/** Get Special Form.
+	  * Special Form
+	  */
+	public int getAD_Form_ID();
+
+	public org.compiere.model.I_AD_Form getAD_Form() throws RuntimeException;
 
     /** Column name AD_Language */
     public static final String COLUMNNAME_AD_Language = "AD_Language";
@@ -75,6 +101,60 @@ public interface I_AD_UserDef_Win
 	  */
 	public int getAD_Org_ID();
 
+    /** Column name AD_PrintFormat_ID */
+    public static final String COLUMNNAME_AD_PrintFormat_ID = "AD_PrintFormat_ID";
+
+	/** Set Print Format.
+	  * Data Print Format
+	  */
+	public void setAD_PrintFormat_ID (int AD_PrintFormat_ID);
+
+	/** Get Print Format.
+	  * Data Print Format
+	  */
+	public int getAD_PrintFormat_ID();
+
+	public org.compiere.model.I_AD_PrintFormat getAD_PrintFormat() throws RuntimeException;
+
+    /** Column name AD_ProcessCustom_ID */
+    public static final String COLUMNNAME_AD_ProcessCustom_ID = "AD_ProcessCustom_ID";
+
+	/** Set User defined Process	  */
+	public void setAD_ProcessCustom_ID (int AD_ProcessCustom_ID);
+
+	/** Get User defined Process	  */
+	public int getAD_ProcessCustom_ID();
+
+    /** Column name AD_Process_ID */
+    public static final String COLUMNNAME_AD_Process_ID = "AD_Process_ID";
+
+	/** Set Process.
+	  * Process or Report
+	  */
+	public void setAD_Process_ID (int AD_Process_ID);
+
+	/** Get Process.
+	  * Process or Report
+	  */
+	public int getAD_Process_ID();
+
+	public org.compiere.model.I_AD_Process getAD_Process() throws RuntimeException;
+
+    /** Column name AD_ReportView_ID */
+    public static final String COLUMNNAME_AD_ReportView_ID = "AD_ReportView_ID";
+
+	/** Set Report View.
+	  * View used to generate this report
+	  */
+	public void setAD_ReportView_ID (int AD_ReportView_ID);
+
+	/** Get Report View.
+	  * View used to generate this report
+	  */
+	public int getAD_ReportView_ID();
+
+	public org.compiere.model.I_AD_ReportView getAD_ReportView() throws RuntimeException;
+
     /** Column name AD_Role_ID */
     public static final String COLUMNNAME_AD_Role_ID = "AD_Role_ID";
 
@@ -89,15 +169,6 @@ public interface I_AD_UserDef_Win
 	public int getAD_Role_ID();
 
 	public org.compiere.model.I_AD_Role getAD_Role() throws RuntimeException;
-
-    /** Column name AD_UserDef_Win_ID */
-    public static final String COLUMNNAME_AD_UserDef_Win_ID = "AD_UserDef_Win_ID";
-
-	/** Set User defined Window	  */
-	public void setAD_UserDef_Win_ID (int AD_UserDef_Win_ID);
-
-	/** Get User defined Window	  */
-	public int getAD_UserDef_Win_ID();
 
     /** Column name AD_User_ID */
     public static final String COLUMNNAME_AD_User_ID = "AD_User_ID";
@@ -114,20 +185,31 @@ public interface I_AD_UserDef_Win
 
 	public org.compiere.model.I_AD_User getAD_User() throws RuntimeException;
 
-    /** Column name AD_Window_ID */
-    public static final String COLUMNNAME_AD_Window_ID = "AD_Window_ID";
+    /** Column name AD_Workflow_ID */
+    public static final String COLUMNNAME_AD_Workflow_ID = "AD_Workflow_ID";
 
-	/** Set Window.
-	  * Data entry or display window
+	/** Set Workflow.
+	  * Workflow or combination of tasks
 	  */
-	public void setAD_Window_ID (int AD_Window_ID);
+	public void setAD_Workflow_ID (int AD_Workflow_ID);
 
-	/** Get Window.
-	  * Data entry or display window
+	/** Get Workflow.
+	  * Workflow or combination of tasks
 	  */
-	public int getAD_Window_ID();
+	public int getAD_Workflow_ID();
 
-	public org.compiere.model.I_AD_Window getAD_Window() throws RuntimeException;
+	public org.compiere.model.I_AD_Workflow getAD_Workflow() throws RuntimeException;
+
+    /** Column name ASP_Level_ID */
+    public static final String COLUMNNAME_ASP_Level_ID = "ASP_Level_ID";
+
+	/** Set ASP Level	  */
+	public void setASP_Level_ID (int ASP_Level_ID);
+
+	/** Get ASP Level	  */
+	public int getASP_Level_ID();
+
+	public org.compiere.model.I_ASP_Level getASP_Level() throws RuntimeException;
 
     /** Column name Created */
     public static final String COLUMNNAME_Created = "Created";
@@ -197,31 +279,18 @@ public interface I_AD_UserDef_Win
 	  */
 	public boolean isDefault();
 
-    /** Column name IsReadOnly */
-    public static final String COLUMNNAME_IsReadOnly = "IsReadOnly";
+    /** Column name IsDirectPrint */
+    public static final String COLUMNNAME_IsDirectPrint = "IsDirectPrint";
 
-	/** Set Read Only.
-	  * Field is read only
+	/** Set Direct print.
+	  * Print without dialog
 	  */
-	public void setIsReadOnly (boolean IsReadOnly);
+	public void setIsDirectPrint (boolean IsDirectPrint);
 
-	/** Get Read Only.
-	  * Field is read only
+	/** Get Direct print.
+	  * Print without dialog
 	  */
-	public boolean isReadOnly();
-
-    /** Column name IsUserUpdateable */
-    public static final String COLUMNNAME_IsUserUpdateable = "IsUserUpdateable";
-
-	/** Set User updatable.
-	  * The field can be updated by the user
-	  */
-	public void setIsUserUpdateable (boolean IsUserUpdateable);
-
-	/** Get User updatable.
-	  * The field can be updated by the user
-	  */
-	public boolean isUserUpdateable();
+	public boolean isDirectPrint();
 
     /** Column name Name */
     public static final String COLUMNNAME_Name = "Name";
@@ -236,18 +305,14 @@ public interface I_AD_UserDef_Win
 	  */
 	public String getName();
 
-    /** Column name UUID */
-    public static final String COLUMNNAME_UUID = "UUID";
+    /** Column name ShowHelp */
+    public static final String COLUMNNAME_ShowHelp = "ShowHelp";
 
-	/** Set Immutable Universally Unique Identifier.
-	  * Immutable Universally Unique Identifier
-	  */
-	public void setUUID (String UUID);
+	/** Set Show Help	  */
+	public void setShowHelp (String ShowHelp);
 
-	/** Get Immutable Universally Unique Identifier.
-	  * Immutable Universally Unique Identifier
-	  */
-	public String getUUID();
+	/** Get Show Help	  */
+	public String getShowHelp();
 
     /** Column name Updated */
     public static final String COLUMNNAME_Updated = "Updated";
@@ -264,4 +329,17 @@ public interface I_AD_UserDef_Win
 	  * User who updated this records
 	  */
 	public int getUpdatedBy();
+
+    /** Column name UUID */
+    public static final String COLUMNNAME_UUID = "UUID";
+
+	/** Set Immutable Universally Unique Identifier.
+	  * Immutable Universally Unique Identifier
+	  */
+	public void setUUID (String UUID);
+
+	/** Get Immutable Universally Unique Identifier.
+	  * Immutable Universally Unique Identifier
+	  */
+	public String getUUID();
 }
