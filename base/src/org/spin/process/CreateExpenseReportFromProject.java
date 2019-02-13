@@ -25,6 +25,7 @@ import org.compiere.model.MOrderLine;
 import org.compiere.model.MTimeExpense;
 import org.compiere.model.MTimeExpenseLine;
 import org.compiere.model.X_S_TimeExpense;
+import org.compiere.util.Env;
 
 /** Generated Process for (Create Expense Report from Drop Ship Orders)
  *  @author ADempiere (generated) 
@@ -44,6 +45,7 @@ public class CreateExpenseReportFromProject extends CreateExpenseReportFromProje
 		for(Integer key : getSelectionKeys()) {
 			int orderLineId = getSelectionAsInt(key, "SOL_C_OrderLine_ID");
 			int linkOrderLineId = getSelectionAsInt(key, "SOL_Link_OrderLine_ID");
+			int expenseProductId = getSelectionAsInt(key, "SOL_M_Product_ID");
 			MOrderLine orderLine = new MOrderLine(getCtx(), orderLineId, get_TrxName());
 			MOrder order = orderLine.getParent();
 			//	Create new
@@ -53,14 +55,20 @@ public class CreateExpenseReportFromProject extends CreateExpenseReportFromProje
 			}
 			//	Set Quantity
 			BigDecimal qty = getSelectionAsBigDecimal(key, "SOL_QtyToDeliver");
+			BigDecimal priceActual = getSelectionAsBigDecimal(key, "SOL_PriceActual");
+			if(priceActual == null
+					|| priceActual == Env.ZERO) {
+				priceActual = orderLine.getPriceActual();
+			}
 			MTimeExpenseLine expenseLine = new MTimeExpenseLine(getCtx(), 0, get_TrxName());
 			expenseLine.setS_TimeExpense_ID(expenseReport.getS_TimeExpense_ID());
 			expenseLine.setDateExpense(getDateReport());
-			expenseLine.setIsTimeReport(true);
+			expenseLine.setIsTimeReport(false);
 			expenseLine.setIsInvoiced(false);
 			//	Validate product
-			expenseLine.setM_Product_ID(orderLine.getM_Product_ID());
+			expenseLine.setM_Product_ID(expenseProductId);
 			expenseLine.setQty(qty);
+			expenseLine.setExpenseAmt(priceActual.multiply(qty));
 			if(order.get_ValueAsInt("S_Contract_ID") > 0) {
 				expenseLine.set_ValueOfColumn("S_ContractLine_ID", order.get_ValueAsInt("S_Contract_ID"));
 			}
