@@ -220,6 +220,9 @@ public class GenericPOHandler extends AbstractElementHandler {
 		if(entity == null) {
 			entity = getCreatePO(ctx, tableId, recordId, null);
 		}
+		if(entity == null) {
+			return;
+		}
 		//	Create parents
 		if(includeParents) {
 			createParent(ctx, document, entity, excludedParentList);

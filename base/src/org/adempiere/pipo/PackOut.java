@@ -38,6 +38,7 @@ import javax.xml.transform.stream.StreamResult;
 
 import org.adempiere.pipo.handler.ASPModuleElementHandler;
 import org.adempiere.pipo.handler.AdElementHandler;
+import org.adempiere.pipo.handler.BrowseCustomElementHandler;
 import org.adempiere.pipo.handler.BrowseElementHandler;
 import org.adempiere.pipo.handler.CodeSnipitElementHandler;
 import org.adempiere.pipo.handler.CommonTranslationHandler;
@@ -52,6 +53,7 @@ import org.adempiere.pipo.handler.MenuElementHandler;
 import org.adempiere.pipo.handler.MessageElementHandler;
 import org.adempiere.pipo.handler.ModelValidatorElementHandler;
 import org.adempiere.pipo.handler.PrintFormatElementHandler;
+import org.adempiere.pipo.handler.ProcessCustomElementHandler;
 import org.adempiere.pipo.handler.ProcessElementHandler;
 import org.adempiere.pipo.handler.ReferenceElementHandler;
 import org.adempiere.pipo.handler.ReportViewElementHandler;
@@ -60,10 +62,14 @@ import org.adempiere.pipo.handler.SQLStatementElementHandler;
 import org.adempiere.pipo.handler.TableElementHandler;
 import org.adempiere.pipo.handler.TaskElementHandler;
 import org.adempiere.pipo.handler.ViewElementHandler;
+import org.adempiere.pipo.handler.WindowCustomElementHandler;
 import org.adempiere.pipo.handler.WindowElementHandler;
 import org.adempiere.pipo.handler.WorkflowElementHandler;
+import org.compiere.model.I_AD_BrowseCustom;
 import org.compiere.model.I_AD_Package_Exp;
 import org.compiere.model.I_AD_Package_Exp_Detail;
+import org.compiere.model.I_AD_ProcessCustom;
+import org.compiere.model.I_AD_WindowCustom;
 import org.compiere.model.I_ASP_Module;
 import org.compiere.model.MPackageExp;
 import org.compiere.model.MPackageExpDetail;
@@ -135,6 +141,9 @@ public class PackOut extends SvrProcess
     ModelValidatorElementHandler modelValidatorHandler = new ModelValidatorElementHandler();
     EntityTypeElementHandler entitytypeHandler = new EntityTypeElementHandler();
     ASPModuleElementHandler aspModuleHandler = new ASPModuleElementHandler();
+    WindowCustomElementHandler windowCustomizationHandler = new WindowCustomElementHandler();
+    ProcessCustomElementHandler processCustomizationHandler = new ProcessCustomElementHandler();
+    BrowseCustomElementHandler browseCustomizationHandler = new BrowseCustomElementHandler();
     GenericPOHandler genericPOHandler = new GenericPOHandler();
     
     /**
@@ -814,6 +823,42 @@ public class PackOut extends SvrProcess
 		Env.setContext(getCtx(), X_AD_Package_Exp_Detail.COLUMNNAME_AD_EntityType_ID, AD_EntityType_ID);
 		entitytypeHandler.create(getCtx(), packOutDocument);
 		getCtx().remove(X_AD_Package_Exp_Detail.COLUMNNAME_AD_EntityType_ID);
+	}
+	
+	/**
+	 * For Window Customization
+	 * @param windowCustomizationId
+	 * @param packOutDocument
+	 * @throws Exception
+	 */
+	public void createWindowCustomization(int windowCustomizationId, TransformerHandler packOutDocument) throws Exception {
+		Env.setContext(getCtx(), I_AD_WindowCustom.COLUMNNAME_AD_WindowCustom_ID, windowCustomizationId);
+		windowCustomizationHandler.create(getCtx(), packOutDocument);
+		getCtx().remove(I_AD_WindowCustom.COLUMNNAME_AD_WindowCustom_ID);
+	}
+	
+	/**
+	 * For Process Customization
+	 * @param processCustomizationId
+	 * @param packOutDocument
+	 * @throws Exception
+	 */
+	public void createProcessCustomization(int processCustomizationId, TransformerHandler packOutDocument) throws Exception {
+		Env.setContext(getCtx(), I_AD_ProcessCustom.COLUMNNAME_AD_ProcessCustom_ID, processCustomizationId);
+		processCustomizationHandler.create(getCtx(), packOutDocument);
+		getCtx().remove(I_AD_ProcessCustom.COLUMNNAME_AD_ProcessCustom_ID);
+	}
+	
+	/**
+	 * For Browse Customization
+	 * @param processCustomizationId
+	 * @param packOutDocument
+	 * @throws Exception
+	 */
+	public void createBrowseCustomization(int processCustomizationId, TransformerHandler packOutDocument) throws Exception {
+		Env.setContext(getCtx(), I_AD_BrowseCustom.COLUMNNAME_AD_BrowseCustom_ID, processCustomizationId);
+		browseCustomizationHandler.create(getCtx(), packOutDocument);
+		getCtx().remove(I_AD_BrowseCustom.COLUMNNAME_AD_BrowseCustom_ID);
 	}
 	
 	/**

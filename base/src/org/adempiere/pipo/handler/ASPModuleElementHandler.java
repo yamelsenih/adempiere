@@ -15,28 +15,48 @@
  *************************************************************************************/
 package org.adempiere.pipo.handler;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
 import javax.xml.transform.sax.TransformerHandler;
 
+import org.adempiere.exceptions.AdempiereException;
 import org.adempiere.pipo.PackOut;
-import org.compiere.model.I_AD_Column;
+import org.compiere.model.I_AD_BrowseCustom;
 import org.compiere.model.I_AD_Field;
+import org.compiere.model.I_AD_ProcessCustom;
+import org.compiere.model.I_AD_Role;
 import org.compiere.model.I_AD_Tab;
+import org.compiere.model.I_AD_User;
+import org.compiere.model.I_AD_Window;
+import org.compiere.model.I_AD_WindowCustom;
+import org.compiere.model.I_ASP_Field;
+import org.compiere.model.I_ASP_Form;
 import org.compiere.model.I_ASP_Level;
 import org.compiere.model.I_ASP_Module;
+import org.compiere.model.I_ASP_Process;
+import org.compiere.model.I_ASP_Process_Para;
+import org.compiere.model.I_ASP_Tab;
+import org.compiere.model.I_ASP_Task;
 import org.compiere.model.I_ASP_Window;
-import org.compiere.model.MColumn;
-import org.compiere.model.MField;
-import org.compiere.model.MTab;
-import org.compiere.model.MTable;
-import org.compiere.model.MWindow;
+import org.compiere.model.I_ASP_Workflow;
+import org.compiere.model.MBrowseCustom;
+import org.compiere.model.MProcessCustom;
+import org.compiere.model.MWindowCustom;
 import org.compiere.model.Query;
+import org.compiere.model.X_ASP_Field;
+import org.compiere.model.X_ASP_Form;
 import org.compiere.model.X_ASP_Level;
-import org.compiere.model.X_ASP_Module;
+import org.compiere.model.X_ASP_Process;
+import org.compiere.model.X_ASP_Process_Para;
+import org.compiere.model.X_ASP_Tab;
+import org.compiere.model.X_ASP_Task;
 import org.compiere.model.X_ASP_Window;
+import org.compiere.model.X_ASP_Workflow;
 import org.compiere.util.Env;
+import org.eevolution.model.I_ASP_Browse;
+import org.spin.model.X_ASP_Browse;
 import org.xml.sax.SAXException;
 
 /**
@@ -52,26 +72,125 @@ public class ASPModuleElementHandler extends GenericPOHandler {
 			packOut = new PackOut();
 			packOut.setLocalContext(ctx);
 		}
-		//	Task
-		packOut.createGenericPO(document, I_ASP_Module.Table_ID, aspModuleId, true, null);
-		//	Level
-		List<X_ASP_Level> levelList = new Query(ctx, I_ASP_Level.Table_Name, I_ASP_Level.COLUMNNAME_ASP_Module_ID + " = ?", null)
-				.setParameters(aspModuleId)
-				.setOnlyActiveRecords(true)
-				.list();
-		//	For tabs
-		for(X_ASP_Level level : levelList) {
-			packOut.createGenericPO(document, I_ASP_Level.Table_ID, level.getASP_Level_ID(), true, null);
-			//	For window
-			List<X_ASP_Window> windowList = new Query(ctx, I_ASP_Window.Table_Name, I_ASP_Window.COLUMNNAME_ASP_Level_ID + " = ?", null)
-					.setParameters(level.getASP_Level_ID())
+		//	ASP
+		try {
+			packOut.createGenericPO(document, I_ASP_Module.Table_ID, aspModuleId, true, null);
+			List<String> excludedTables = new ArrayList<>();
+			excludedTables.add(I_AD_User.Table_Name);
+			excludedTables.add(I_AD_Role.Table_Name);
+			excludedTables.add(I_AD_Window.Table_Name);
+			excludedTables.add(I_AD_Tab.Table_Name);
+			excludedTables.add(I_AD_Field.Table_Name);
+			//	Level
+			List<X_ASP_Level> levelList = new Query(ctx, I_ASP_Level.Table_Name, I_ASP_Level.COLUMNNAME_ASP_Module_ID + " = ?", null)
+					.setParameters(aspModuleId)
 					.setOnlyActiveRecords(true)
 					.list();
 			//	For tabs
-			for(X_ASP_Window windowlevel : windowList) {
-				
+			for(X_ASP_Level level : levelList) {
+				packOut.createGenericPO(document, level, true, excludedTables);
+				//	For window
+				List<X_ASP_Window> windowList = new Query(ctx, I_ASP_Window.Table_Name, I_ASP_Window.COLUMNNAME_ASP_Level_ID + " = ?", null)
+						.setParameters(level.getASP_Level_ID())
+						.setOnlyActiveRecords(true)
+						.list();
+				//	For tabs
+				for(X_ASP_Window window : windowList) {
+					packOut.createGenericPO(document, window, true, excludedTables);
+					//	For Tabs
+					List<X_ASP_Tab> tabList = new Query(ctx, I_ASP_Tab.Table_Name, I_ASP_Tab.COLUMNNAME_ASP_Window_ID + " = ?", null)
+							.setParameters(window.getASP_Window_ID())
+							.setOnlyActiveRecords(true)
+							.list();
+					//	
+					for(X_ASP_Tab tab : tabList) {
+						packOut.createGenericPO(document, tab, true, excludedTables);
+						//	For Fields
+						List<X_ASP_Field> fieldList = new Query(ctx, I_ASP_Field.Table_Name, I_ASP_Field.COLUMNNAME_ASP_Tab_ID + " = ?", null)
+								.setParameters(tab.getASP_Tab_ID())
+								.setOnlyActiveRecords(true)
+								.list();
+						//	
+						for(X_ASP_Field field : fieldList) {
+							packOut.createGenericPO(document, field, true, excludedTables);
+						}
+					}
+				}
+				//	for Process
+				List<X_ASP_Process> processList = new Query(ctx, I_ASP_Process.Table_Name, I_ASP_Process.COLUMNNAME_ASP_Level_ID + " = ?", null)
+						.setParameters(level.getASP_Level_ID())
+						.setOnlyActiveRecords(true)
+						.list();
+				for(X_ASP_Process process : processList) {
+					packOut.createGenericPO(document, process, true, excludedTables);
+					//	For process parameters
+					List<X_ASP_Process_Para> processParamerersList = new Query(ctx, I_ASP_Process_Para.Table_Name, I_ASP_Process_Para.COLUMNNAME_ASP_Process_ID + " = ?", null)
+							.setParameters(process.getASP_Process_ID())
+							.setOnlyActiveRecords(true)
+							.list();
+					for(X_ASP_Process_Para processParameter : processParamerersList) {
+						packOut.createGenericPO(document, processParameter, true, excludedTables);
+					}
+				}
+				//	For Task
+				List<X_ASP_Task> taskList = new Query(ctx, I_ASP_Task.Table_Name, I_ASP_Task.COLUMNNAME_ASP_Level_ID + " = ?", null)
+						.setParameters(level.getASP_Level_ID())
+						.setOnlyActiveRecords(true)
+						.list();
+				for(X_ASP_Task task : taskList) {
+					packOut.createGenericPO(document, task, true, excludedTables);
+				}
+				//	For Browse
+				List<X_ASP_Browse> browseList = new Query(ctx, I_ASP_Browse.Table_Name, I_ASP_Browse.COLUMNNAME_ASP_Level_ID + " = ?", null)
+						.setParameters(level.getASP_Level_ID())
+						.setOnlyActiveRecords(true)
+						.list();
+				for(X_ASP_Browse browse : browseList) {
+					packOut.createGenericPO(document, browse, true, excludedTables);
+				}
+				//	For Form
+				List<X_ASP_Form> formList = new Query(ctx, I_ASP_Form.Table_Name, I_ASP_Form.COLUMNNAME_ASP_Level_ID + " = ?", null)
+						.setParameters(level.getASP_Level_ID())
+						.setOnlyActiveRecords(true)
+						.list();
+				for(X_ASP_Form form : formList) {
+					packOut.createGenericPO(document, form, true, excludedTables);
+				}
+				//	For Workflow
+				List<X_ASP_Workflow> workflowList = new Query(ctx, I_ASP_Workflow.Table_Name, I_ASP_Workflow.COLUMNNAME_ASP_Level_ID + " = ?", null)
+						.setParameters(level.getASP_Level_ID())
+						.setOnlyActiveRecords(true)
+						.list();
+				for(X_ASP_Workflow workflow : workflowList) {
+					packOut.createGenericPO(document, workflow, true, excludedTables);
+				}
+				//	For window Customization
+				List<MWindowCustom> windowCustomizationList = new Query(ctx, I_AD_WindowCustom.Table_Name, I_AD_WindowCustom.COLUMNNAME_ASP_Level_ID + " = ?", null)
+						.setParameters(level.getASP_Level_ID())
+						.setOnlyActiveRecords(true)
+						.list();
+				for(MWindowCustom window : windowCustomizationList) {
+					packOut.createWindowCustomization(window.getAD_WindowCustom_ID(), document);
+				}
+				//	For process Customization
+				List<MProcessCustom> processCustomizationList = new Query(ctx, I_AD_ProcessCustom.Table_Name, I_AD_ProcessCustom.COLUMNNAME_ASP_Level_ID + " = ?", null)
+						.setParameters(level.getASP_Level_ID())
+						.setOnlyActiveRecords(true)
+						.list();
+				for(MProcessCustom process : processCustomizationList) {
+					packOut.createProcessCustomization(process.getAD_ProcessCustom_ID(), document);
+				}
+				//	For process Customization
+				List<MBrowseCustom> browseCustomizationList = new Query(ctx, I_AD_BrowseCustom.Table_Name, I_AD_BrowseCustom.COLUMNNAME_ASP_Level_ID + " = ?", null)
+						.setParameters(level.getASP_Level_ID())
+						.setOnlyActiveRecords(true)
+						.list();
+				for(MBrowseCustom browse : browseCustomizationList) {
+					packOut.createBrowseCustomization(browse.getAD_BrowseCustom_ID(), document);
+				}
 			}
-			
+		} catch (Exception e) {
+			throw new AdempiereException(e);
 		}
 	}
 }
