@@ -35,6 +35,8 @@ import org.eevolution.model.MProjectMember;
 import org.eevolution.model.MProjectProcessor;
 import org.eevolution.model.MProjectProcessorLog;
 
+import com.eevolution.model.MSContract;
+
 /**
  * Project Processor Utils
  * @author Carlos Parada, cparada@erpya.com, ERPCyA http://www.erpya.com
