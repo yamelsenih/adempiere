@@ -141,6 +141,19 @@ public interface I_C_ProjectProcessorQueued
 	  */
 	public boolean isActive();
 
+    /** Column name NotificationType */
+    public static final String COLUMNNAME_NotificationType = "NotificationType";
+
+	/** Set Notification Type.
+	  * Type of Notifications
+	  */
+	public void setNotificationType (String NotificationType);
+
+	/** Get Notification Type.
+	  * Type of Notifications
+	  */
+	public String getNotificationType();
+
     /** Column name SendEMail */
     public static final String COLUMNNAME_SendEMail = "SendEMail";
 
