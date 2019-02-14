@@ -19,7 +19,6 @@ package org.compiere.model;
 
 import java.sql.ResultSet;
 import java.util.Properties;
-import org.compiere.util.KeyNamePair;
 
 /** Generated Model for AD_WindowCustom
  *  @author Adempiere (generated) 
@@ -30,7 +29,7 @@ public class X_AD_WindowCustom extends PO implements I_AD_WindowCustom, I_Persis
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20190212L;
+	private static final long serialVersionUID = 20190213L;
 
     /** Standard Constructor */
     public X_AD_WindowCustom (Properties ctx, int AD_WindowCustom_ID, String trxName)
@@ -40,7 +39,6 @@ public class X_AD_WindowCustom extends PO implements I_AD_WindowCustom, I_Persis
         {
 			setAD_WindowCustom_ID (0);
 			setAD_Window_ID (0);
-			setIsDefault (false);
         } */
     }
 
@@ -234,9 +232,9 @@ public class X_AD_WindowCustom extends PO implements I_AD_WindowCustom, I_Persis
 	public void setASP_Level_ID (int ASP_Level_ID)
 	{
 		if (ASP_Level_ID < 1) 
-			set_Value (COLUMNNAME_ASP_Level_ID, null);
+			set_ValueNoCheck (COLUMNNAME_ASP_Level_ID, null);
 		else 
-			set_Value (COLUMNNAME_ASP_Level_ID, Integer.valueOf(ASP_Level_ID));
+			set_ValueNoCheck (COLUMNNAME_ASP_Level_ID, Integer.valueOf(ASP_Level_ID));
 	}
 
 	/** Get ASP Level.
@@ -371,14 +369,6 @@ public class X_AD_WindowCustom extends PO implements I_AD_WindowCustom, I_Persis
 	{
 		return (String)get_Value(COLUMNNAME_Name);
 	}
-
-    /** Get Record ID/ColumnName
-        @return ID/ColumnName pair
-      */
-    public KeyNamePair getKeyNamePair() 
-    {
-        return new KeyNamePair(get_ID(), getName());
-    }
 
 	/** Set Immutable Universally Unique Identifier.
 		@param UUID 

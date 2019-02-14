@@ -15,12 +15,15 @@
  * or via info@adempiere.net or http://www.adempiere.net/license.html         *
  *****************************************************************************/
 
-package org.compiere.process;
+package org.adempiere.process;
 
 import java.util.Enumeration;
 
+import org.adempiere.exceptions.AdempiereException;
 import org.adempiere.model.MBrowse;
 import org.adempiere.model.MBrowseField;
+import org.compiere.model.I_AD_Menu;
+import org.compiere.model.I_ASP_Level;
 import org.compiere.model.MBrowseCustom;
 import org.compiere.model.MBrowseFieldCustom;
 import org.compiere.model.MClientInfo;
@@ -54,18 +57,41 @@ public class CreateCustomizationFromASP extends CreateCustomizationFromASPAbstra
 	private int noParameters = 0;
 	private int noBrowses = 0;
 	private int noBrowseFields = 0;
+	/**	For processing	*/
+	private int menuId;
+	private int levelId;
+	
+	@Override
+	protected void prepare() {
+		super.prepare();
+		if(getTable_ID() == I_ASP_Level.Table_ID) {
+			levelId = getRecord_ID();
+			menuId = getParameterAsInt(I_AD_Menu.COLUMNNAME_AD_Menu_ID);
+		} else if(getTable_ID() == I_AD_Menu.Table_ID) {
+			menuId = getRecord_ID();
+			levelId = getParameterAsInt(I_ASP_Level.COLUMNNAME_ASP_Level_ID);
+		}
+		//	Validate
+		if(menuId <= 0) {
+			throw new AdempiereException("@AD_Menu_ID@ @NotFound@");
+		}
+		//	ASP Level
+		if(levelId <= 0) {
+			throw new AdempiereException("@ASP_Level_ID@ @NotFound@");
+		}
+	}
 	
 	@Override
 	protected String doIt() throws Exception {
 		MClientInfo clientInfo = MClientInfo.get(getCtx(), getAD_Client_ID(), get_TrxName());
-		int AD_Tree_ID = clientInfo.getAD_Tree_Menu_ID();
+		int treeId = clientInfo.getAD_Tree_Menu_ID();
 		//	Yamel Senih [ 9223372036854775807 ]
 		//	Change Constructor
-		MTree thisTree = new MTree (getCtx(), AD_Tree_ID, true, true, null, get_TrxName());
+		MTree thisTree = new MTree (getCtx(), treeId, true, true, null, get_TrxName());
 		//	End Yamel Senih
 		MTreeNode node;
-		if (getMenuId() > 0) {
-			node = thisTree.getRoot().findNode(getMenuId());
+		if (menuId > 0) {
+			node = thisTree.getRoot().findNode(menuId);
 		} else {
 			node = thisTree.getRoot();
 		}
@@ -110,12 +136,12 @@ public class CreateCustomizationFromASP extends CreateCustomizationFromASPAbstra
 			MWindow window = new MWindow(getCtx(), menu.getAD_Window_ID(), get_TrxName());
 			int customWindowId = DB.getSQLValueEx(get_TrxName(),
 					"SELECT AD_WindowCustom_ID FROM AD_WindowCustom WHERE ASP_Level_ID = ? AND AD_Window_ID = ?",
-					getRecord_ID(), window.getAD_Window_ID());
+					levelId, window.getAD_Window_ID());
 			MWindowCustom customWindow = null;
 			if (customWindowId < 1) {
 				// Add Window, Tabs and Fields (if IsGenerateFields)
 				customWindow = new MWindowCustom(getCtx(), 0, get_TrxName());
-				customWindow.setASP_Level_ID(getRecord_ID());
+				customWindow.setASP_Level_ID(levelId);
 				customWindow.setAD_Window_ID(window.getAD_Window_ID());
 				customWindow.saveEx();
 				noWindows++;
@@ -171,9 +197,9 @@ public class CreateCustomizationFromASP extends CreateCustomizationFromASPAbstra
 			if (DB.getSQLValueEx(
 					get_TrxName(),
 					"SELECT COUNT(*) FROM AD_BrowseCustom WHERE ASP_Level_ID = ? AND AD_Browse_ID = ?",
-					getRecord_ID(), browse.getAD_Browse_ID()) < 1) {
+					levelId, browse.getAD_Browse_ID()) < 1) {
 				MBrowseCustom customBrowse = new MBrowseCustom(getCtx(), 0, get_TrxName());
-				customBrowse.setASP_Level_ID(getRecord_ID());
+				customBrowse.setASP_Level_ID(levelId);
 				customBrowse.setAD_Browse_ID(browse.getAD_Browse_ID());
 				customBrowse.saveEx();
 				//	For Browse Field
@@ -204,11 +230,11 @@ public class CreateCustomizationFromASP extends CreateCustomizationFromASPAbstra
 		MProcess process = new MProcess(getCtx(), processId, get_TrxName());
 		int customprocessId = DB.getSQLValueEx(get_TrxName(),
 				"SELECT AD_ProcessCustom_ID FROM AD_ProcessCustom WHERE ASP_Level_ID = ? AND AD_Process_ID = ?",
-				getRecord_ID(), process.getAD_Process_ID());
+				levelId, process.getAD_Process_ID());
 		MProcessCustom customProcess = null;
 		if (customprocessId < 1) {
 			customProcess = new MProcessCustom(getCtx(), 0, get_TrxName());
-			customProcess.setASP_Level_ID(getRecord_ID());
+			customProcess.setASP_Level_ID(levelId);
 			customProcess.setAD_Process_ID(process.getAD_Process_ID());
 			customProcess.saveEx();
 			noProcesses++;

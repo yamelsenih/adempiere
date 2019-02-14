@@ -15,34 +15,49 @@
  * or via info@adempiere.net or http://www.adempiere.net/license.html         *
  *****************************************************************************/
 
-package org.compiere.process;
+package org.adempiere.process;
 
+import org.compiere.process.SvrProcess;
 
-
-/** Generated Process for (Create Customization)
+/** Generated Process for (ASP Generate Level)
  *  @author ADempiere (generated) 
  *  @version Release 3.9.1
  */
-public abstract class CreateCustomizationFromASPAbstract extends SvrProcess {
+public abstract class ASPGenerateLevelAbstract extends SvrProcess {
 	/** Process Value 	*/
-	private static final String VALUE_FOR_PROCESS = "ASPCreateCustomization";
+	private static final String VALUE_FOR_PROCESS = "ASP Generate Level";
 	/** Process Name 	*/
-	private static final String NAME_FOR_PROCESS = "Create Customization";
+	private static final String NAME_FOR_PROCESS = "ASP Generate Level";
 	/** Process Id 	*/
-	private static final int ID_FOR_PROCESS = 1000000;
+	private static final int ID_FOR_PROCESS = 53067;
+	/**	Parameter Name for ASP Status	*/
+	public static final String ASP_STATUS = "ASP_Status";
 	/**	Parameter Name for Menu	*/
 	public static final String AD_MENU_ID = "AD_Menu_ID";
-	/**	Parameter Name for AllFields	*/
-	public static final String ALLFIELDS = "AllFields";
+	/**	Parameter Name for Generate Fields	*/
+	public static final String ISGENERATEFIELDS = "IsGenerateFields";
+	/**	Parameter Value for ASP Status	*/
+	private String status;
 	/**	Parameter Value for Menu	*/
 	private int menuId;
-	/**	Parameter Value for AllFields	*/
-	private boolean isAllFields;
+	/**	Parameter Value for Generate Fields	*/
+	private boolean isGenerateFields;
 
 	@Override
 	protected void prepare() {
+		status = getParameterAsString(ASP_STATUS);
 		menuId = getParameterAsInt(AD_MENU_ID);
-		isAllFields = getParameterAsBoolean(ALLFIELDS);
+		isGenerateFields = getParameterAsBoolean(ISGENERATEFIELDS);
+	}
+
+	/**	 Getter Parameter Value for ASP Status	*/
+	protected String getStatus() {
+		return status;
+	}
+
+	/**	 Setter Parameter Value for ASP Status	*/
+	protected void setStatus(String status) {
+		this.status = status;
 	}
 
 	/**	 Getter Parameter Value for Menu	*/
@@ -55,14 +70,14 @@ public abstract class CreateCustomizationFromASPAbstract extends SvrProcess {
 		this.menuId = menuId;
 	}
 
-	/**	 Getter Parameter Value for AllFields	*/
-	protected boolean isAllFields() {
-		return isAllFields;
+	/**	 Getter Parameter Value for Generate Fields	*/
+	protected boolean isGenerateFields() {
+		return isGenerateFields;
 	}
 
-	/**	 Setter Parameter Value for AllFields	*/
-	protected void setAllFields(boolean isAllFields) {
-		this.isAllFields = isAllFields;
+	/**	 Setter Parameter Value for Generate Fields	*/
+	protected void setIsGenerateFields(boolean isGenerateFields) {
+		this.isGenerateFields = isGenerateFields;
 	}
 
 	/**	 Getter Parameter Value for Process ID	*/

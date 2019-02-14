@@ -19,7 +19,6 @@ package org.compiere.model;
 
 import java.sql.ResultSet;
 import java.util.Properties;
-import org.compiere.util.KeyNamePair;
 
 /** Generated Model for AD_FieldCustom
  *  @author Adempiere (generated) 
@@ -30,7 +29,7 @@ public class X_AD_FieldCustom extends PO implements I_AD_FieldCustom, I_Persiste
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20190212L;
+	private static final long serialVersionUID = 20190213L;
 
     /** Standard Constructor */
     public X_AD_FieldCustom (Properties ctx, int AD_FieldCustom_ID, String trxName)
@@ -749,14 +748,6 @@ public class X_AD_FieldCustom extends PO implements I_AD_FieldCustom, I_Persiste
 	{
 		return (String)get_Value(COLUMNNAME_Name);
 	}
-
-    /** Get Record ID/ColumnName
-        @return ID/ColumnName pair
-      */
-    public KeyNamePair getKeyNamePair() 
-    {
-        return new KeyNamePair(get_ID(), getName());
-    }
 
 	/** ObscureType AD_Reference_ID=291 */
 	public static final int OBSCURETYPE_AD_Reference_ID=291;

@@ -249,6 +249,19 @@ public interface I_AD_BrowseCustom
 	  */
 	public String getIsCollapsibleByDefault();
 
+    /** Column name IsDefault */
+    public static final String COLUMNNAME_IsDefault = "IsDefault";
+
+	/** Set Default.
+	  * Default value
+	  */
+	public void setIsDefault (boolean IsDefault);
+
+	/** Get Default.
+	  * Default value
+	  */
+	public boolean isDefault();
+
     /** Column name IsDeleteable */
     public static final String COLUMNNAME_IsDeleteable = "IsDeleteable";
 

@@ -29,7 +29,7 @@ public class X_AD_BrowseCustom extends PO implements I_AD_BrowseCustom, I_Persis
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20190212L;
+	private static final long serialVersionUID = 20190213L;
 
     /** Standard Constructor */
     public X_AD_BrowseCustom (Properties ctx, int AD_BrowseCustom_ID, String trxName)
@@ -285,9 +285,9 @@ public class X_AD_BrowseCustom extends PO implements I_AD_BrowseCustom, I_Persis
 	public void setASP_Level_ID (int ASP_Level_ID)
 	{
 		if (ASP_Level_ID < 1) 
-			set_Value (COLUMNNAME_ASP_Level_ID, null);
+			set_ValueNoCheck (COLUMNNAME_ASP_Level_ID, null);
 		else 
-			set_Value (COLUMNNAME_ASP_Level_ID, Integer.valueOf(ASP_Level_ID));
+			set_ValueNoCheck (COLUMNNAME_ASP_Level_ID, Integer.valueOf(ASP_Level_ID));
 	}
 
 	/** Get ASP Level.
@@ -356,6 +356,30 @@ public class X_AD_BrowseCustom extends PO implements I_AD_BrowseCustom, I_Persis
 	public String getIsCollapsibleByDefault () 
 	{
 		return (String)get_Value(COLUMNNAME_IsCollapsibleByDefault);
+	}
+
+	/** Set Default.
+		@param IsDefault 
+		Default value
+	  */
+	public void setIsDefault (boolean IsDefault)
+	{
+		set_Value (COLUMNNAME_IsDefault, Boolean.valueOf(IsDefault));
+	}
+
+	/** Get Default.
+		@return Default value
+	  */
+	public boolean isDefault () 
+	{
+		Object oo = get_Value(COLUMNNAME_IsDefault);
+		if (oo != null) 
+		{
+			 if (oo instanceof Boolean) 
+				 return ((Boolean)oo).booleanValue(); 
+			return "Y".equals(oo);
+		}
+		return false;
 	}
 
 	/** IsDeleteable AD_Reference_ID=319 */

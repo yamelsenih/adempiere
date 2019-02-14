@@ -29,7 +29,7 @@ public class X_AD_BrowseFieldCustom extends PO implements I_AD_BrowseFieldCustom
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20190212L;
+	private static final long serialVersionUID = 20190213L;
 
     /** Standard Constructor */
     public X_AD_BrowseFieldCustom (Properties ctx, int AD_BrowseFieldCustom_ID, String trxName)
