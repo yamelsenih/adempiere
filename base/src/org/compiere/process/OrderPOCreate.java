@@ -215,7 +215,12 @@ public class OrderPOCreate extends OrderPOCreateAbstract {
 		MOrder purchaseOrder = new MOrder (getCtx(), 0, get_TrxName());
 		purchaseOrder.setClientOrg(salesOrder.getAD_Client_ID(), salesOrder.getAD_Org_ID());
 		purchaseOrder.setIsSOTrx(false);
-		purchaseOrder.setC_DocTypeTarget_ID();
+		int documentTypeTargetId = getParameterAsInt("C_DocTypeDropShip_ID");
+		if(documentTypeTargetId > 0) {
+			purchaseOrder.setC_DocTypeTarget_ID(documentTypeTargetId);
+		} else {
+			purchaseOrder.setC_DocTypeTarget_ID();
+		}
 		//
 		purchaseOrder.setDescription(salesOrder.getDescription());
 		purchaseOrder.setPOReference(salesOrder.getDocumentNo());

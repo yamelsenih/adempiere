@@ -330,6 +330,7 @@ public class AgencyValidator implements ModelValidator
 								.process(OrderPOCreateAbstract.getProcessId())
 								.withParameter(OrderPOCreateAbstract.C_ORDER_ID, order.getC_Order_ID())
 								.withParameter(OrderPOCreateAbstract.VENDOR_ID, order.getDropShip_BPartner_ID())
+								.withParameter("C_DocTypeDropShip_ID", documentType.get_ValueAsInt("C_DocTypeDropShip_ID"))
 								.withoutTransactionClose()
 								.execute(order.get_TrxName());
 						}
