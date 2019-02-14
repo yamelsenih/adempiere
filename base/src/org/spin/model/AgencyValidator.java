@@ -344,6 +344,8 @@ public class AgencyValidator implements ModelValidator
 						createCommissionForOrder(order, documentType.get_ValueAsInt("C_CommissionType_ID"), true);
 					}
 				}
+				//	Generate Pre-Purchase reverse
+				generateReverseAmount(order);
 			}
 		} else if(po instanceof MTimeExpense) {
 			MTimeExpense expenseReport = (MTimeExpense) po;
@@ -471,6 +473,60 @@ public class AgencyValidator implements ModelValidator
 		inOut.saveEx();
 		//	Generate Delivery for Commission
 		generateInOutFromCommissionOrder(order);
+	}
+	
+	/**
+	 * Reverse amount of pre-purchase order from a purchase order
+	 * @param sourceOrder
+	 */
+	private void generateReverseAmount(MOrder sourceOrder) {
+		if(sourceOrder.getC_Project_ID() <= 0) {
+			return;
+		}
+		//	
+		MDocType documentType = MDocType.get(sourceOrder.getCtx(), sourceOrder.getC_DocTypeTarget_ID());
+		if(documentType.get_ValueAsBoolean("IsConsumePreOrder")) {
+			//	find all purchase order of pre-purchase
+			MOrder preOrder = new Query(sourceOrder.getCtx(), I_C_Order.Table_Name, "DocStatus = 'CO' "
+					+ "AND C_Project_ID = ? "
+					+ "AND C_BPartner_ID = ? "
+					+ "AND IsSOTrx = '" + (sourceOrder.isSOTrx()? "Y": "N") + "' "
+					+ "AND EXISTS(SELECT 1 FROM C_DocType dt WHERE dt.C_DocType_ID = C_Order.C_DocType_ID AND dt.IsPreOrder = 'Y')", sourceOrder.get_TrxName())
+				.setParameters(sourceOrder.getC_Project_ID(), sourceOrder.getC_BPartner_ID())
+				.first();
+			//	Validate
+			if(preOrder != null
+					&& preOrder.getC_Order_ID() > 0) {
+				MOrder reverseOrder = new MOrder(sourceOrder.getCtx(), 0, sourceOrder.get_TrxName());
+				PO.copyValues(preOrder, reverseOrder);
+				reverseOrder.setDocumentNo(null);
+				reverseOrder.setDateOrdered(sourceOrder.getDateOrdered());
+				reverseOrder.setDatePromised(sourceOrder.getDatePromised());
+				reverseOrder.addDescription(Msg.parseTranslation(sourceOrder.getCtx(), "@Generated@ [@C_Order_ID@ " + sourceOrder.getDocumentNo()) + "]");
+				reverseOrder.setDocStatus(MOrder.DOCSTATUS_Drafted);
+				reverseOrder.setDocAction(MOrder.DOCACTION_Complete);
+				reverseOrder.setTotalLines(Env.ZERO);
+				reverseOrder.setGrandTotal(Env.ZERO);
+				reverseOrder.setIsSOTrx(sourceOrder.isSOTrx());
+				reverseOrder.saveEx();
+				//	Add Line
+				MOrderLine preOrderLine = preOrder.getLines(true, null)[0];
+				
+				MOrderLine reverseOrderLine = new MOrderLine(reverseOrder);
+				PO.copyValues(reverseOrderLine, preOrderLine);
+				reverseOrderLine.setOrder(reverseOrder);
+				reverseOrderLine.setProduct(preOrderLine.getProduct());
+				reverseOrderLine.setLineNetAmt(Env.ZERO);
+				reverseOrderLine.setQty(Env.ONE);
+				reverseOrderLine.setPrice(sourceOrder.getTotalLines().negate());
+				reverseOrderLine.setTax();
+				reverseOrderLine.saveEx();
+				//	Complete
+				if(!reverseOrder.processIt(MOrder.DOCACTION_Complete)) {
+					throw new AdempiereException(reverseOrder.getProcessMsg());
+				}
+			}
+		}
 	}
 	
 	/**
