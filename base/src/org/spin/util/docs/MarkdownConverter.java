@@ -30,7 +30,7 @@ import org.compiere.util.Util;
  * @see: https://github.com/adempiere/adempiere/issues/1934
  * For formst reference use: http://www.sphinx-doc.org/en/master/usage/restructuredtext/basics.html
  */
-public class MarkdownConverter extends AbstractTextConverter {
+public class MarkdownConverter extends AbstractTextConverter implements IIndex {
 
 	/**
 	 * Standard constructor
@@ -423,6 +423,28 @@ public class MarkdownConverter extends AbstractTextConverter {
 	}
 	
 	/**
+	 * Format as Quote
+	 * @param text
+	 * @return
+	 */
+	private String formatIndex(String text, int level) {
+		//	Add Space
+		if(previouslevel != level) {
+			newLine();
+		}
+		previouslevel = level;
+		StringBuffer formattedValue = new StringBuffer();
+		//	
+		String leftSpace = "";
+		if(level > 0) {
+			leftSpace = String.format("%1$" + level + "s", "");
+		}
+		String type = "-";
+		formattedValue.append(leftSpace).append(type).append(" ").append(text);
+		return formattedValue.toString();
+	}
+	
+	/**
 	 * Format Header
 	 * @param text
 	 * @param charValue
@@ -523,11 +545,11 @@ public class MarkdownConverter extends AbstractTextConverter {
 		//	.. _distributed scaling: http://en.wikipedia.org/wiki/CAP_theorem
 		StringBuffer formattedValue = new StringBuffer(Env.NL);
 		//	
-		formattedValue.append(":::tip")
+		formattedValue.append("```")
 			.append(Env.NL)
 			.append(text.trim())
 			.append(Env.NL)
-			.append(":::");
+			.append("```");
 		return formattedValue.toString();
 	}
 	
@@ -544,11 +566,7 @@ public class MarkdownConverter extends AbstractTextConverter {
 		if(Util.isEmpty(name)) {
 			name = internalLink;
 		}
-		formattedValue.append(":::tip")
-			.append(Env.NL)
-			.append(formatExternalLink(name, internalLink.trim() + "." + getExtension()))
-			.append(Env.NL)
-			.append(":::");
+		formattedValue.append(formatExternalLink(name, internalLink.trim() + "." + getExtension()));
 		return formattedValue.toString();
 	}
 	
@@ -679,13 +697,6 @@ public class MarkdownConverter extends AbstractTextConverter {
 		addText(leftSpace + text);
 		return this;
 	}
-
-	@Override
-	public AbstractTextConverter addTreeDefinition(int maxdepth, boolean isnumbered) {
-		newLine();
-		//	
-		return this;
-	}
 	
 	@Override
 	public AbstractTextConverter getMainIndex() {
@@ -704,13 +715,27 @@ public class MarkdownConverter extends AbstractTextConverter {
 			mainIndex = new MarkdownConverter();
 			mainIndex.addText("site_name: ERPCyA - Documentation");
 			mainIndex.newLine();
+			mainIndex.newLine();
 			mainIndex.addText("nav:");
 			mainIndex.newLine();
 			mainIndex.newLine();
 		}
 		//	
-		mainIndex.addText("- " + title + ": '" + folder + File.separator + name.trim() + "." + getExtension() + "'", margin);
+		String fileName = "";
+		if(margin == -1) {
+			margin = 1;
+		}
+		if(!Util.isEmpty(folder)) {
+			fileName = folder + File.separator + name.trim() + "." + getExtension();
+		}
+		for (char value : fileName.toCharArray())  { 
+            // checking character in string 
+            if (value == File.separatorChar) {
+            	margin++;
+            } 
+        }
 		mainIndex.newLine();
+		mainIndex.addText(formatIndex(title + ": " + (Util.isEmpty(fileName)? "":"'" + fileName + "'") , margin*4));
 	}
 
 	@Override
@@ -720,8 +745,18 @@ public class MarkdownConverter extends AbstractTextConverter {
 	}
 
 	@Override
-	public AbstractTextConverter addIndex(String title, String name, String folder, int margin, int mainMargin) {
-		addToMainIndex(title, name, folder, margin);
-		return addQuote(formatExternalLink(title, folder.trim() + File.separator + name.trim() + "." + getExtension()), margin);
+	public void addIndex(String title, String name, String folder, int margin) {
+		addToMainIndex(title, name, folder, -1);
+		addText(formatIndex(formatExternalLink(title, name.trim() + "." + getExtension()), margin));
+	}
+
+	@Override
+	public void addGroup(String title, String name, int margin) {
+		addToMainIndex(title, null, null, margin);
+	}
+
+	@Override
+	public void addTreeDefinition(int maxdepth, boolean isnumbered) {
+		newLine();
 	}
 }

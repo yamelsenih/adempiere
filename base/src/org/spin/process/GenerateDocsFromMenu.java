@@ -40,6 +40,7 @@ import org.spin.util.docs.FunctionalDocsForMenu;
 import org.spin.util.docs.FunctionalDocsForProcess;
 import org.spin.util.docs.FunctionalDocsForSmartBrowse;
 import org.spin.util.docs.FunctionalDocsForWindow;
+import org.spin.util.docs.IIndex;
 
 /**
  * @author Yamel Senih, ysenih@erpya.com , http://www.erpya.com
@@ -71,6 +72,7 @@ public class GenerateDocsFromMenu extends GenerateDocsFromMenuAbstract {
 		//	Instance
 		textConverter = (AbstractTextConverter) clazz.newInstance();
 		indexConverter = (AbstractTextConverter) clazz.newInstance();
+		((IIndex) indexConverter).addGroup("Functional Guide", FOLDER_NAME, 1);
 		loadMenu();
 		loadProcess();
 		loadWindow();
@@ -110,7 +112,8 @@ public class GenerateDocsFromMenu extends GenerateDocsFromMenuAbstract {
 			indexConverter.newLine();
 			indexConverter.addSection("Menu");
 			indexConverter.newLine();
-			indexConverter.addTreeDefinition(1, true);
+			((IIndex) indexConverter).addTreeDefinition(1, true);
+			((IIndex) indexConverter).addGroup("Menu", FunctionalDocsForMenu.FOLDER_NAME, 2);
 		}
 		//	
 		for(MMenu menu : menuList) {
@@ -146,7 +149,8 @@ public class GenerateDocsFromMenu extends GenerateDocsFromMenuAbstract {
 			indexConverter.newLine();
 			indexConverter.addSection("Process");
 			indexConverter.newLine();
-			indexConverter.addTreeDefinition(1, true);
+			((IIndex) indexConverter).addTreeDefinition(1, true);
+			((IIndex) indexConverter).addGroup("Process", FunctionalDocsForProcess.FOLDER_NAME, 2);
 		}
 		//	
 		for(MProcess process : processList) {
@@ -183,7 +187,8 @@ public class GenerateDocsFromMenu extends GenerateDocsFromMenuAbstract {
 			indexConverter.newLine();
 			indexConverter.addSection("Windows");
 			indexConverter.newLine();
-			indexConverter.addTreeDefinition(1, true);
+			((IIndex) indexConverter).addTreeDefinition(1, true);
+			((IIndex) indexConverter).addGroup("Window", FunctionalDocsForProcess.FOLDER_NAME, 2);
 		}
 		//	
 		for(MWindow window : windowList) {
@@ -219,7 +224,8 @@ public class GenerateDocsFromMenu extends GenerateDocsFromMenuAbstract {
 			indexConverter.newLine();
 			indexConverter.addSection("Forms");
 			indexConverter.newLine();
-			indexConverter.addTreeDefinition(1, true);
+			((IIndex) indexConverter).addTreeDefinition(1, true);
+			((IIndex) indexConverter).addGroup("Form", FunctionalDocsForProcess.FOLDER_NAME, 2);
 		}
 		//	
 		for(MForm form : formList) {
@@ -255,7 +261,8 @@ public class GenerateDocsFromMenu extends GenerateDocsFromMenuAbstract {
 			indexConverter.newLine();
 			indexConverter.addSection("Smart Browsers");
 			indexConverter.newLine();
-			indexConverter.addTreeDefinition(1, true);
+			((IIndex) indexConverter).addTreeDefinition(1, true);
+			((IIndex) indexConverter).addGroup("Smart Browsers", FunctionalDocsForProcess.FOLDER_NAME, 2);
 		}
 		//	
 		for(MBrowse smartBrowse : smartBrowseList) {

@@ -70,8 +70,7 @@ public class FunctionalDocsForForm extends AbstractDocumentationSource {
 	@Override
 	public boolean addIndex(AbstractTextConverter indexConverter, PO source) {
 		form = (MForm) source;
-		indexConverter.newLine();
-		indexConverter.addIndex(form.getName(), getDocumentName().toLowerCase(), getFolderName(), 0, 0);
+		((IIndex) indexConverter).addIndex(form.getName(), getDocumentName().toLowerCase(), getFolderName(), 0);
 		return true;
 	}
 

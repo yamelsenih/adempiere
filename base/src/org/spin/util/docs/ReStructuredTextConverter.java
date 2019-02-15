@@ -29,7 +29,7 @@ import org.compiere.util.Util;
  * @see: https://github.com/adempiere/adempiere/issues/1934
  * For formst reference use: http://www.sphinx-doc.org/en/master/usage/restructuredtext/basics.html
  */
-public class ReStructuredTextConverter extends AbstractTextConverter {
+public class ReStructuredTextConverter extends AbstractTextConverter implements IIndex {
 
 	/**
 	 * Standard constructor
@@ -699,7 +699,7 @@ public class ReStructuredTextConverter extends AbstractTextConverter {
 	}
 
 	@Override
-	public AbstractTextConverter addTreeDefinition(int maxdepth, boolean isnumbered) {
+	public void addTreeDefinition(int maxdepth, boolean isnumbered) {
 		formattedText.append(".. toctree::");
 		newLine();
 		addText(":maxdepth: " + maxdepth, 4);
@@ -708,8 +708,6 @@ public class ReStructuredTextConverter extends AbstractTextConverter {
 			addText(":numbered:", 4);
 		}
 		newLine();
-		//	
-		return this;
 	}
 
 	@Override
@@ -724,7 +722,12 @@ public class ReStructuredTextConverter extends AbstractTextConverter {
 	}
 
 	@Override
-	public AbstractTextConverter addIndex(String title, String name, String folder, int margin, int mainMargin) {
-		return addText(name, margin);
+	public void addIndex(String title, String name, String folder, int margin) {
+		addText(name, margin);
+	}
+
+	@Override
+	public void addGroup(String title, String name, int margin) {
+		
 	}
 }

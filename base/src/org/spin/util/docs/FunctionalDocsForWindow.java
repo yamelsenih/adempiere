@@ -241,8 +241,7 @@ public class FunctionalDocsForWindow extends AbstractDocumentationSource {
 	@Override
 	public boolean addIndex(AbstractTextConverter indexConverter, PO source) {
 		window = (MWindow) source;
-		indexConverter.newLine();
-		indexConverter.addIndex(window.getName(), getDocumentName().toLowerCase(), getFolderName(), 0, 0);
+		((IIndex) indexConverter).addIndex(window.getName(), getDocumentName().toLowerCase(), getFolderName(), 0);
 		return true;
 	}
 
