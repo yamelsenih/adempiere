@@ -157,7 +157,7 @@ public class FunctionalDocsForProcess extends AbstractDocumentationSource {
 	public boolean addIndex(AbstractTextConverter indexConverter, PO source) {
 		process = (MProcess) source;
 		indexConverter.newLine();
-		indexConverter.addIndex(process.getName(), getDocumentName().toLowerCase(), 0);
+		indexConverter.addIndex(process.getName(), getDocumentName().toLowerCase(), getFolderName(), 0, 0);
 		return true;
 	}
 	

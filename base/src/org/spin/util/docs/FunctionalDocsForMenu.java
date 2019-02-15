@@ -122,7 +122,7 @@ public class FunctionalDocsForMenu extends AbstractDocumentationSource {
 	public boolean addIndex(AbstractTextConverter indexConverter, PO source) {
 		menu = (MMenu) source;
 		indexConverter.newLine();
-		indexConverter.addIndex(menu.getName(), getDocumentName().toLowerCase(), 0);
+		indexConverter.addIndex(menu.getName(), getDocumentName().toLowerCase(), getFolderName(), 0, 0);
 		return true;
 	}
 

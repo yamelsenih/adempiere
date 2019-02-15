@@ -241,6 +241,17 @@ public abstract class AbstractTextConverter {
 	}
 	
 	/**
+	 * Add Main index reference
+	 * @param title
+	 * @param path
+	 * @param margin
+	 * @return
+	 */
+	public AbstractTextConverter getMainIndex() {
+		return this;
+	}
+	
+	/**
 	 * add translation text
 	 * @param text
 	 * @return
@@ -251,11 +262,13 @@ public abstract class AbstractTextConverter {
 	 * Add Index value
 	 * Used for File as index
 	 * @param title
-	 * @param path
+	 * @param name
+	 * @param folder
 	 * @param margin
+	 * @param mainMargin
 	 * @return
 	 */
-	public abstract AbstractTextConverter addIndex(String title, String path, int margin);
+	public abstract AbstractTextConverter addIndex(String title, String name, String folder, int margin, int mainMargin);
 	
 	/**
 	 * Validate if is numeric

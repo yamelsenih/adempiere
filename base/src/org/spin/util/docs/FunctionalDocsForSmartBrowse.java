@@ -171,7 +171,7 @@ public class FunctionalDocsForSmartBrowse extends AbstractDocumentationSource {
 	public boolean addIndex(AbstractTextConverter indexConverter, PO source) {
 		smartBrowse = (MBrowse) source;
 		indexConverter.newLine();
-		indexConverter.addIndex(smartBrowse.getName(), getDocumentName().toLowerCase(), 0);
+		indexConverter.addIndex(smartBrowse.getName(), getDocumentName().toLowerCase(), getFolderName(), 0, 0);
 		return true;
 	}
 

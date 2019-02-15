@@ -16,6 +16,7 @@
  *****************************************************************************/
 package org.spin.util.docs;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -49,6 +50,8 @@ public class MarkdownConverter extends AbstractTextConverter {
 	private int previouslevel = -1;
 	/**	Logging								*/
 	private CLogger	log = CLogger.getCLogger(getClass());
+	/**	Main index added	*/
+	private MarkdownConverter mainIndex;
 	
 	@Override
 	public AbstractTextConverter addText(String text) {
@@ -657,6 +660,11 @@ public class MarkdownConverter extends AbstractTextConverter {
 	public String getIndexFileName() {
 		return "index.md";
 	}
+	
+	@Override
+	public String getMainIndexFileName() {
+		return "mkdocs.yml";
+	}
 
 	@Override
 	public AbstractTextConverter addText(String text, int margin) {
@@ -678,6 +686,32 @@ public class MarkdownConverter extends AbstractTextConverter {
 		//	
 		return this;
 	}
+	
+	@Override
+	public AbstractTextConverter getMainIndex() {
+		return mainIndex;
+	}
+	
+	/**
+	 * Add link to main index
+	 * @param title
+	 * @param name
+	 * @param folder
+	 * @param margin
+	 */
+	private void addToMainIndex(String title, String name, String folder, int margin) {
+		if(mainIndex == null) {
+			mainIndex = new MarkdownConverter();
+			mainIndex.addText("site_name: ERPCyA - Documentation");
+			mainIndex.newLine();
+			mainIndex.addText("nav:");
+			mainIndex.newLine();
+			mainIndex.newLine();
+		}
+		//	
+		mainIndex.addText("- " + title + ": '" + folder + File.separator + name.trim() + "." + getExtension() + "'", margin);
+		mainIndex.newLine();
+	}
 
 	@Override
 	public AbstractTextConverter addTranslationText(String text) {
@@ -686,7 +720,8 @@ public class MarkdownConverter extends AbstractTextConverter {
 	}
 
 	@Override
-	public AbstractTextConverter addIndex(String title, String path, int margin) {
-		return addQuote(formatExternalLink(title, path.trim() + "." + getExtension()), margin);
+	public AbstractTextConverter addIndex(String title, String name, String folder, int margin, int mainMargin) {
+		addToMainIndex(title, name, folder, margin);
+		return addQuote(formatExternalLink(title, folder.trim() + File.separator + name.trim() + "." + getExtension()), margin);
 	}
 }

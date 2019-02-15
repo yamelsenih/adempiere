@@ -724,7 +724,7 @@ public class ReStructuredTextConverter extends AbstractTextConverter {
 	}
 
 	@Override
-	public AbstractTextConverter addIndex(String title, String path, int margin) {
-		return addText(path, margin);
+	public AbstractTextConverter addIndex(String title, String name, String folder, int margin, int mainMargin) {
+		return addText(name, margin);
 	}
 }

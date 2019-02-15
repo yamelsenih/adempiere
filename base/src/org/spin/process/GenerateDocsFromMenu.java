@@ -59,6 +59,8 @@ public class GenerateDocsFromMenu extends GenerateDocsFromMenuAbstract {
 	private AbstractTextConverter indexConverter = null;
 	/**	Created	*/
 	private int created = 0;
+	/**	Folder Name	*/
+	public static final String FOLDER_NAME = "functional-guide";
 
 	@Override
 	protected String doIt() throws Exception {
@@ -74,6 +76,15 @@ public class GenerateDocsFromMenu extends GenerateDocsFromMenuAbstract {
 		loadWindow();
 		loadForm();
 		loadSmartBrowse();
+		//	Save Main index
+		if(indexConverter.getMainIndex() != null
+				&& !Util.isEmpty(indexConverter.getMainIndexFileName())) {
+			String folderName = getDirectory();
+			String fileName = FOLDER_NAME + File.separator + textConverter.getMainIndexFileName();
+			if(!Util.isEmpty(fileName)) {
+				writeFile(folderName, fileName, indexConverter.getMainIndex().toString());
+			}
+		}
 		return "@Created@ " + created;
 	}
 	
