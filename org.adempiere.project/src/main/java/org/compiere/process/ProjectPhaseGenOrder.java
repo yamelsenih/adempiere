@@ -22,6 +22,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 
 import org.adempiere.exceptions.AdempiereException;
+import org.compiere.model.I_C_Order;
 import org.compiere.model.MOrder;
 import org.compiere.model.MOrderLine;
 import org.compiere.model.MProject;
@@ -54,6 +55,8 @@ public class ProjectPhaseGenOrder  extends ProjectPhaseGenOrderAbstract
 	 */
 	protected String doIt() throws Exception
 	{
+		int documentTypeTargetId = getParameterAsInt(I_C_Order.COLUMNNAME_C_DocTypeTarget_ID);
+		
 		log.info("doIt - C_ProjectPhase_ID=" + getRecord_ID());
 		if (getRecord_ID() == 0)
 			throw new IllegalArgumentException("C_ProjectPhase_ID == 0");
@@ -66,6 +69,10 @@ public class ProjectPhaseGenOrder  extends ProjectPhaseGenOrderAbstract
 			throw new AdempiereException("@C_PaymentTerm_ID@ @NotFound@");
 
 		MOrder order = new MOrder (fromProject, true, getDocSubTypeSO());
+		//	Add Document Type Target
+		if(documentTypeTargetId > 0) {
+			order.setC_DocTypeTarget_ID(documentTypeTargetId);
+		}
 		order.setDescription(order.getDescription() + " - " + fromPhase.getName());
 		order.saveEx();
 
