@@ -93,6 +93,17 @@ public class MarkdownConverter extends AbstractTextConverter {
 	}
 	
 	@Override
+	public AbstractTextConverter addStrikethrough(String text) {
+		if(Util.isEmpty(text)) {
+			return this;
+		}
+		log.fine("Strikethrough=" + text);
+		//	Format
+		addText(formatStrikethrough(text));
+		return this;
+	}
+	
+	@Override
 	public AbstractTextConverter addCode(String text) {
 		if(Util.isEmpty(text)) {
 			return this;
@@ -232,21 +243,21 @@ public class MarkdownConverter extends AbstractTextConverter {
 	
 	@Override
 	public AbstractTextConverter addSeeAlso(String internalLink) {
+		return addSeeAlso(null, internalLink);
+	}
+	
+	@Override
+	public AbstractTextConverter addSeeAlso(String name, String internalLink) {
 		if(Util.isEmpty(internalLink)) {
 			return this;
 		}
 		log.fine("addSeeAlso=" + internalLink);
-		formattedText.append(formatSeeAlso(internalLink));
+		formattedText.append(formatSeeAlso(name, internalLink));
 		return this;
 	}
 	
 	@Override
 	public AbstractTextConverter addHeaderIndexName(String indexName) {
-		if(Util.isEmpty(indexName)) {
-			return this;
-		}
-		log.fine("addSeeAlso=" + indexName);
-		addText(formatHeaderIndexName(indexName));
 		return this;
 	}
 	
@@ -276,7 +287,7 @@ public class MarkdownConverter extends AbstractTextConverter {
 		if(table.getRows().size() != 0) {
 			List<String> firstRow = table.getRow(0);
 			if(firstRow.size() != 0) {
-				String columnSeparator = "  ";
+				String columnSeparator = " | ";
 				int[] maxSizes = new int[firstRow.size()];
 				newLine();
 				boolean isFirst = true;
@@ -312,12 +323,11 @@ public class MarkdownConverter extends AbstractTextConverter {
 							if(headerLine.length() > 0) {
 								headerLine.append(columnSeparator);
 							}
-							headerLine.append(getParalelChar(columnText, "="));
+							headerLine.append(getParalelChar(columnText, "-"));
 						}
 					}
 					//	For first
 					if(isFirst) {
-						addText(headerLine.toString());
 						newLine();
 						addText(text.toString());
 						newLine();
@@ -328,8 +338,6 @@ public class MarkdownConverter extends AbstractTextConverter {
 					}
 				}
 				//	last for table
-				newLine();
-				addText(headerLine.toString());
 				newLine();
 			}
 		}
@@ -357,6 +365,18 @@ public class MarkdownConverter extends AbstractTextConverter {
 		StringBuffer formattedValue = new StringBuffer();
 		//	*phrase* 
 		formattedValue.append("*").append(text.trim()).append("*");
+		return formattedValue.toString();
+	}
+	
+	/**
+	 * Format as Strikethrough
+	 * @param text
+	 * @return
+	 */
+	private String formatStrikethrough(String text) {
+		StringBuffer formattedValue = new StringBuffer();
+		//	~~phrase~~ 
+		formattedValue.append("~~").append(text.trim()).append("~~");
 		return formattedValue.toString();
 	}
 	
@@ -414,15 +434,6 @@ public class MarkdownConverter extends AbstractTextConverter {
 	}
 	
 	/**
-	 * Format External Link Text
-	 * @param text
-	 * @return
-	 */
-	private String formatExternalLinkText(String text) {
-		return formatExternalLink(text, text);
-	}
-	
-	/**
 	 * Format Link
 	 * @param text
 	 * @param link
@@ -430,7 +441,7 @@ public class MarkdownConverter extends AbstractTextConverter {
 	 */
 	private String formatExternalLink(String text, String link) {
 		//	.. _distributed scaling: http://en.wikipedia.org/wiki/CAP_theorem
-		StringBuffer formattedValue = new StringBuffer(Env.NL);
+		StringBuffer formattedValue = new StringBuffer();
 		//	
 		formattedValue.append("[").append(text.trim()).append("]").append("(").append(link).append(")");
 		return formattedValue.toString();
@@ -509,10 +520,11 @@ public class MarkdownConverter extends AbstractTextConverter {
 		//	.. _distributed scaling: http://en.wikipedia.org/wiki/CAP_theorem
 		StringBuffer formattedValue = new StringBuffer(Env.NL);
 		//	
-		formattedValue.append("")
+		formattedValue.append(":::tip")
 			.append(Env.NL)
-			.append("    ").append(text.trim())
-			.append(Env.NL);
+			.append(text.trim())
+			.append(Env.NL)
+			.append(":::");
 		return formattedValue.toString();
 	}
 	
@@ -521,30 +533,19 @@ public class MarkdownConverter extends AbstractTextConverter {
 	 * @param internalLink
 	 * @return
 	 */
-	private String formatSeeAlso(String internalLink) {
+	private String formatSeeAlso(String name, String internalLink) {
 		//	.. seealso::
 		    //	:ref:`vdufun`
 		StringBuffer formattedValue = new StringBuffer(Env.NL);
 		//	
-		formattedValue.append(".. seealso::")
+		if(Util.isEmpty(name)) {
+			name = internalLink;
+		}
+		formattedValue.append(":::tip")
 			.append(Env.NL)
-			.append("    :ref:`").append(internalLink).append("`")
-			.append(Env.NL);
-		return formattedValue.toString();
-	}
-	
-	/**
-	 * Format Header link
-	 * @param indexName
-	 * @return
-	 */
-	private String formatHeaderIndexName(String indexName) {
-		//	.. _api/db/security:
-		StringBuffer formattedValue = new StringBuffer(Env.NL);
-		//	
-		formattedValue.append(".. _")
-			.append(indexName).append(":")
-			.append(Env.NL);
+			.append(formatExternalLink(name, internalLink.trim() + "." + getExtension()))
+			.append(Env.NL)
+			.append(":::");
 		return formattedValue.toString();
 	}
 	
@@ -586,8 +587,13 @@ public class MarkdownConverter extends AbstractTextConverter {
 		formatter.newLine();
 		formatter.newLine();
 		formatter.addBold("Hi");
+		formatter.newLine();
 		formatter.addItalic("Hello");
+		formatter.newLine();
+		formatter.addStrikethrough("Hello");
+		formatter.newLine();
 		formatter.addText("Hi all");
+		formatter.newLine();
 		formatter.addQuote("Items");
 		formatter.addQuote("Item 1", 1);
 		formatter.addQuote("Item 2", 1);
@@ -649,7 +655,7 @@ public class MarkdownConverter extends AbstractTextConverter {
 	
 	@Override
 	public String getIndexFileName() {
-		return "index";
+		return "index.md";
 	}
 
 	@Override
@@ -668,13 +674,6 @@ public class MarkdownConverter extends AbstractTextConverter {
 
 	@Override
 	public AbstractTextConverter addTreeDefinition(int maxdepth, boolean isnumbered) {
-		formattedText.append(".. toctree::");
-		newLine();
-		addText(":maxdepth: " + maxdepth, 4);
-		newLine();
-		if(isnumbered) {
-			addText(":numbered:", 4);
-		}
 		newLine();
 		//	
 		return this;
@@ -684,5 +683,10 @@ public class MarkdownConverter extends AbstractTextConverter {
 	public AbstractTextConverter addTranslationText(String text) {
 		translatedText.append(text);
 		return this;
+	}
+
+	@Override
+	public AbstractTextConverter addIndex(String title, String path, int margin) {
+		return addQuote(formatExternalLink(title, path.trim() + "." + getExtension()), margin);
 	}
 }

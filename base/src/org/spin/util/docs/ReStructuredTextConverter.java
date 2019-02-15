@@ -237,6 +237,11 @@ public class ReStructuredTextConverter extends AbstractTextConverter {
 	
 	@Override
 	public AbstractTextConverter addSeeAlso(String internalLink) {
+		return addSeeAlso(null, internalLink);
+	}
+	
+	@Override
+	public AbstractTextConverter addSeeAlso(String name, String internalLink) {
 		if(Util.isEmpty(internalLink)) {
 			return this;
 		}
@@ -676,7 +681,7 @@ public class ReStructuredTextConverter extends AbstractTextConverter {
 	
 	@Override
 	public String getIndexFileName() {
-		return "index";
+		return "index.rst";
 	}
 
 	@Override
@@ -711,5 +716,15 @@ public class ReStructuredTextConverter extends AbstractTextConverter {
 	public AbstractTextConverter addTranslationText(String text) {
 		translatedText.append(text);
 		return this;
+	}
+	
+	@Override
+	public AbstractTextConverter addStrikethrough(String text) {
+		return addText(text);
+	}
+
+	@Override
+	public AbstractTextConverter addIndex(String title, String path, int margin) {
+		return addText(path, margin);
 	}
 }

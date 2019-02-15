@@ -70,6 +70,13 @@ public abstract class AbstractTextConverter {
 	public abstract AbstractTextConverter addItalic(String text);
 	
 	/**
+	 * Add text as Strikethrough
+	 * @param text
+	 * @return
+	 */
+	public abstract AbstractTextConverter addStrikethrough(String text);
+	
+	/**
 	 * Add text as code
 	 * @param text
 	 * @return
@@ -196,6 +203,14 @@ public abstract class AbstractTextConverter {
 	public abstract AbstractTextConverter addSeeAlso(String internalLink);
 	
 	/**
+	 * Add internal link with name
+	 * @param name
+	 * @param internalLink
+	 * @return
+	 */
+	public abstract AbstractTextConverter addSeeAlso(String name, String internalLink);
+	
+	/**
 	 * Add Header Index Name used for make link from other file
 	 * @param indexName
 	 * @return
@@ -218,11 +233,29 @@ public abstract class AbstractTextConverter {
 	}
 	
 	/**
+	 * Get Main index name for global index
+	 * @return
+	 */
+	public String getMainIndexFileName() {
+		return null;
+	}
+	
+	/**
 	 * add translation text
 	 * @param text
 	 * @return
 	 */
 	public abstract AbstractTextConverter addTranslationText(String text);
+	
+	/**
+	 * Add Index value
+	 * Used for File as index
+	 * @param title
+	 * @param path
+	 * @param margin
+	 * @return
+	 */
+	public abstract AbstractTextConverter addIndex(String title, String path, int margin);
 	
 	/**
 	 * Validate if is numeric

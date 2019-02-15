@@ -93,14 +93,22 @@ public class FunctionalDocsForMenu extends AbstractDocumentationSource {
 		}
 		textConverter.newLine();
 		String internalReference = null;
+		String validName = null;
+		String showName = null;
 		if(menu.getAction().equals(MMenu.ACTION_Process)) {
-			internalReference = FunctionalDocsForProcess.FOLDER_NAME + File.separator + FunctionalDocsForProcess.SUB_FOLDER_NAME + "-" + getValidValue(MProcess.get(menu.getCtx(), menu.getAD_Process_ID()).getValue());
+			MProcess process = MProcess.get(menu.getCtx(), menu.getAD_Process_ID());
+			validName = getValidValue(process.getValue());
+			showName = process.getName();
+			internalReference = FunctionalDocsForProcess.FOLDER_NAME + File.separator + FunctionalDocsForProcess.SUB_FOLDER_NAME + "-" + validName;
 		} else if(menu.getAction().equals(MMenu.ACTION_Window)) {
-			internalReference = FunctionalDocsForWindow.FOLDER_NAME + File.separator + FunctionalDocsForWindow.SUB_FOLDER_NAME + "-" + getValidValue(menu.getAD_Window().getName());
+			MWindow window = (MWindow) menu.getAD_Window();
+			validName = getValidValue(window.getName());
+			showName = window.getName();
+			internalReference = FunctionalDocsForWindow.FOLDER_NAME + File.separator + FunctionalDocsForWindow.SUB_FOLDER_NAME + "-" + validName;
 		}
 		//	Validate null
 		if(!Util.isEmpty(internalReference)) {
-			textConverter.addSeeAlso(internalReference.toLowerCase());
+			textConverter.addSeeAlso(showName, internalReference.toLowerCase());
 		}
 		return true;
 	}
@@ -111,10 +119,10 @@ public class FunctionalDocsForMenu extends AbstractDocumentationSource {
 	}
 	
 	@Override
-	public boolean addIndex(AbstractTextConverter textConverter, PO source) {
+	public boolean addIndex(AbstractTextConverter indexConverter, PO source) {
 		menu = (MMenu) source;
-		textConverter.newLine();
-		textConverter.addText(getDocumentName().toLowerCase(), 4);
+		indexConverter.newLine();
+		indexConverter.addIndex(menu.getName(), getDocumentName().toLowerCase(), 0);
 		return true;
 	}
 

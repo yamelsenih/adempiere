@@ -93,7 +93,7 @@ public class GenerateDocsFromMenu extends GenerateDocsFromMenuAbstract {
 			return;
 		}
 		String folderName = getDirectory() + File.separator + FunctionalDocsForMenu.FOLDER_NAME;
-		String fileName = getValidName(textConverter.getIndexFileName());
+		String fileName = textConverter.getIndexFileName();
 		if(!Util.isEmpty(fileName)) {
 			indexConverter.addHeaderIndexName(FunctionalDocsForMenu.FOLDER_NAME);
 			indexConverter.newLine();
@@ -129,7 +129,7 @@ public class GenerateDocsFromMenu extends GenerateDocsFromMenuAbstract {
 			return;
 		}
 		String folderName = getDirectory() + File.separator + FunctionalDocsForProcess.FOLDER_NAME;
-		String fileName = getValidName(textConverter.getIndexFileName());
+		String fileName = textConverter.getIndexFileName();
 		if(!Util.isEmpty(fileName)) {
 			indexConverter.addHeaderIndexName(FunctionalDocsForProcess.FOLDER_NAME);
 			indexConverter.newLine();
@@ -166,7 +166,7 @@ public class GenerateDocsFromMenu extends GenerateDocsFromMenuAbstract {
 			return;
 		}
 		String folderName = getDirectory() + File.separator + FunctionalDocsForWindow.FOLDER_NAME;
-		String fileName = getValidName(textConverter.getIndexFileName());
+		String fileName = textConverter.getIndexFileName();
 		if(!Util.isEmpty(fileName)) {
 			indexConverter.addHeaderIndexName(FunctionalDocsForWindow.FOLDER_NAME);
 			indexConverter.newLine();
@@ -202,7 +202,7 @@ public class GenerateDocsFromMenu extends GenerateDocsFromMenuAbstract {
 			return;
 		}
 		String folderName = getDirectory() + File.separator + FunctionalDocsForForm.FOLDER_NAME;
-		String fileName = getValidName(textConverter.getIndexFileName());
+		String fileName = textConverter.getIndexFileName();
 		if(!Util.isEmpty(fileName)) {
 			indexConverter.addHeaderIndexName(FunctionalDocsForForm.FOLDER_NAME);
 			indexConverter.newLine();
@@ -238,7 +238,7 @@ public class GenerateDocsFromMenu extends GenerateDocsFromMenuAbstract {
 			return;
 		}
 		String folderName = getDirectory() + File.separator + FunctionalDocsForSmartBrowse.FOLDER_NAME;
-		String fileName = getValidName(textConverter.getIndexFileName());
+		String fileName = textConverter.getIndexFileName();
 		if(!Util.isEmpty(fileName)) {
 			indexConverter.addHeaderIndexName(FunctionalDocsForSmartBrowse.FOLDER_NAME);
 			indexConverter.newLine();
