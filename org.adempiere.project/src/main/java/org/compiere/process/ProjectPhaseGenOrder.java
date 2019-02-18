@@ -18,7 +18,6 @@ package org.compiere.process;
 
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -29,6 +28,7 @@ import org.adempiere.exceptions.AdempiereException;
 import org.compiere.model.I_C_Order;
 import org.compiere.model.MOrder;
 import org.compiere.model.MOrderLine;
+import org.compiere.model.MProduct;
 import org.compiere.model.MProject;
 import org.compiere.model.MProjectLine;
 import org.compiere.model.MProjectPhase;
@@ -63,7 +63,6 @@ public class ProjectPhaseGenOrder  extends ProjectPhaseGenOrderAbstract
 		int documentTypeTargetId = getParameterAsInt(I_C_Order.COLUMNNAME_C_DocTypeTarget_ID);
 		int projectId = 0;
 		MProjectPhase phase;
-		int phaseId = 0; 
 		List<MProjectLine> projectLines = null;
 		List<MProjectTask> tasks = null;
 		HashMap<String, Object> values = new HashMap<String, Object>();
@@ -73,9 +72,10 @@ public class ProjectPhaseGenOrder  extends ProjectPhaseGenOrderAbstract
 		if (getDocSubTypeSO()==null)
 			throw new AdempiereException("@NotFound@ @DocSubTypeSO@");
 		PO fromPhase; 
-		if(MProjectTask.Table_Name == getTableName()) {
+		
+		if(MProjectTask.Table_Name.equals(getTableName())) {
 			fromPhase = new MProjectTask (getCtx(), getRecord_ID(), get_TrxName());
-			phaseId = ((MProjectTask)fromPhase).getC_ProjectPhase_ID();
+			int phaseId = ((MProjectTask)fromPhase).getC_ProjectPhase_ID();
 			phase = new MProjectPhase(getCtx(), phaseId, get_TrxName());
 			projectId = phase.getC_Project_ID();
 			values.put("Name", ((MProjectTask)fromPhase).getName());
@@ -84,10 +84,11 @@ public class ProjectPhaseGenOrder  extends ProjectPhaseGenOrderAbstract
 			values.put("Description", ((MProjectTask)fromPhase).getDescription());
 			values.put("Qty", ((MProjectTask)fromPhase).getQty());
 			values.put("C_ProjectPhase_ID", ((MProjectTask)fromPhase).getC_ProjectPhase_ID());
-			values.put("PriceActual", 0);			
+			values.put("PriceActual", 0);
+			
 			projectLines =Arrays.asList(((MProjectTask)fromPhase).getLines());
 		}
-		else if(MProjectPhase.Table_Name  == getTableName()) {
+		else if(MProjectPhase.Table_Name.equals(getTableName())) {
 			fromPhase = new MProjectPhase (getCtx(), getRecord_ID(), get_TrxName());
 			projectId = ((MProjectPhase)fromPhase).getC_Project_ID();
 			values.put("Name", ((MProjectPhase)fromPhase).getName());
@@ -96,12 +97,13 @@ public class ProjectPhaseGenOrder  extends ProjectPhaseGenOrderAbstract
 			values.put("Description", ((MProjectPhase)fromPhase).getDescription());
 			values.put("Qty", ((MProjectPhase)fromPhase).getQty());
 			values.put("C_ProjectPhase_ID", ((MProjectPhase)fromPhase).getC_ProjectPhase_ID());
-			values.put("PriceActual", 0);
+			values.put("PriceActual", ((MProjectPhase)fromPhase).getPriceActual());
 			projectLines =((MProjectPhase)fromPhase).getLines();
 			tasks = ((MProjectPhase)fromPhase).getTasks();
 		}
 		
-		
+		MProduct product = new MProduct(getCtx(),(int)values.get("M_Product_ID"),get_TrxName());
+		int uom = product.getC_UOM_ID();
 		MProject fromProject = ProjectGenOrder.getProject (getCtx(), projectId, get_TrxName());
 		if (fromProject.getC_PaymentTerm_ID() <= 0)
 			throw new AdempiereException("@C_PaymentTerm_ID@ @NotFound@");
@@ -128,6 +130,7 @@ public class ProjectPhaseGenOrder  extends ProjectPhaseGenOrderAbstract
 			orderLine.setC_Project_ID(fromProject.getC_Project_ID());
 			orderLine.setC_ProjectPhase_ID((int)values.get("C_ProjectPhase_ID"));
 			orderLine.setPrice();
+			orderLine.setC_UOM_ID(uom);
 			BigDecimal price = new BigDecimal(values.get("PriceActual").toString());
 			if (price!= null && price.compareTo(Env.ZERO) != 0)
 				orderLine.setPrice(price);
@@ -139,7 +142,7 @@ public class ProjectPhaseGenOrder  extends ProjectPhaseGenOrderAbstract
 
 		//	Project Phase Lines
 		AtomicInteger count = new AtomicInteger(0);
-		if(projectLines != null)
+		if(projectLines != null) {
 		projectLines.stream()
 				.forEach(projectLine -> {
 					MOrderLine orderLine = new MOrderLine(order);
@@ -147,6 +150,9 @@ public class ProjectPhaseGenOrder  extends ProjectPhaseGenOrderAbstract
 					orderLine.setDescription(projectLine.getDescription());
 					//
 					orderLine.setM_Product_ID(projectLine.getM_Product_ID(), true);
+					MProduct productLine = new MProduct(getCtx(),projectLine.getM_Product_ID(),get_TrxName());
+					int uomLine = productLine.getC_UOM_ID();
+					
 					orderLine.setQty(projectLine.getPlannedQty().subtract(projectLine.getInvoicedQty()));
 					orderLine.setPrice();
 					if (projectLine.getPlannedPrice() != null && projectLine.getPlannedPrice().compareTo(Env.ZERO) != 0)
@@ -155,12 +161,13 @@ public class ProjectPhaseGenOrder  extends ProjectPhaseGenOrderAbstract
 					orderLine.setTax();
 					orderLine.setC_Project_ID(fromProject.getC_Project_ID());
 					orderLine.setC_ProjectPhase_ID(projectLine.getC_ProjectPhase_ID());
+					orderLine.setC_UOM_ID(uomLine);
 					orderLine.saveEx();
 					count.getAndUpdate(no -> no + 1);
 				});    //	for all lines
 		if (projectLines.size() != count.get())
 			log.log(Level.SEVERE, "Lines difference - ProjectLines=" + projectLines.size() + " <> Saved=" + count.get());
-
+		}
 		//	Project Tasks
 		if(tasks != null) {
 			tasks.stream().filter(task -> task.getM_Product_ID() != 0).forEach(fromTask -> {
@@ -172,12 +179,17 @@ public class ProjectPhaseGenOrder  extends ProjectPhaseGenOrderAbstract
 						stringBuilder.append(" - ").append(fromTask.getDescription());
 					orderLine.setDescription(stringBuilder.toString());
 					orderLine.setM_Product_ID(fromTask.getM_Product_ID(), true);
+					MProduct productLine = new MProduct(getCtx(),fromTask.getM_Product_ID(),get_TrxName());
+					int uomLine = productLine.getC_UOM_ID();
+					
 					orderLine.setQty(fromTask.getQty());
 					orderLine.setPrice();
 					orderLine.setC_Project_ID(fromProject.getC_Project_ID());
 					orderLine.setC_ProjectPhase_ID(fromTask.getC_ProjectPhase_ID());
 					orderLine.setC_ProjectTask_ID(fromTask.getC_ProjectTask_ID());
 					orderLine.setTax();
+
+					orderLine.setC_UOM_ID(uomLine);
 					orderLine.saveEx();
 					count.getAndUpdate(no -> no + 1);
 				}
