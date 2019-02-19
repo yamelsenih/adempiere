@@ -18,6 +18,7 @@ package org.spin.model;
 import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Map;
 
 import org.adempiere.exceptions.AdempiereException;
@@ -41,6 +42,7 @@ import org.compiere.model.MDocType;
 import org.compiere.model.MInOut;
 import org.compiere.model.MInOutLine;
 import org.compiere.model.MInvoice;
+import org.compiere.model.MInvoiceLine;
 import org.compiere.model.MOrder;
 import org.compiere.model.MOrderLine;
 import org.compiere.model.MProject;
@@ -97,6 +99,7 @@ public class AgencyValidator implements ModelValidator
 		engine.addModelChange(MRequest.Table_Name, this);
 		engine.addDocValidate(MTimeExpense.Table_Name, this);
 		engine.addDocValidate(MSContract.Table_Name, this);
+		engine.addDocValidate(MInvoice.Table_Name, this);
 	}	//	initialize
 
 	public String modelChange (PO po, int type) throws Exception {
@@ -421,8 +424,8 @@ public class AgencyValidator implements ModelValidator
 				});
 			}
 		} else if(po instanceof MInvoice) {
+			MInvoice invoice = (MInvoice) po;
 			if(timing == TIMING_BEFORE_PREPARE) {
-				MInvoice invoice = (MInvoice) po;
 				if(invoice.get_ValueAsInt("S_Contract_ID") <= 0) {
 					if(invoice.getC_Project_ID() > 0) {
 						MProject parentProject = MProject.getById(invoice.getCtx(), invoice.getC_Project_ID(), invoice.get_TrxName());
@@ -431,6 +434,13 @@ public class AgencyValidator implements ModelValidator
 							invoice.saveEx();
 						}
 					}
+				}
+			} else if(timing == TIMING_AFTER_COMPLETE) {
+				//	Validate
+				MDocType  documentType = MDocType.get(invoice.getCtx(), invoice.getC_DocTypeTarget_ID());
+				//	Validate Document Type for commission
+				if(documentType.get_ValueAsInt("C_CommissionType_ID") > 0) {
+//					createCommissionForInvoice(invoice, documentType.get_ValueAsInt("C_CommissionType_ID"), true);
 				}
 			}
 		} else if(po instanceof MSContract) {
@@ -487,6 +497,7 @@ public class AgencyValidator implements ModelValidator
 		//	
 		MDocType documentType = MDocType.get(sourceOrder.getCtx(), sourceOrder.getC_DocTypeTarget_ID());
 		if(documentType.get_ValueAsBoolean("IsConsumePreOrder")) {
+			int reverseDocumentTypeId = documentType.get_ValueAsInt("C_DocTypeReversal_ID");
 			//	find all purchase order of pre-purchase
 			MOrder preOrder = new Query(sourceOrder.getCtx(), I_C_Order.Table_Name, "DocStatus = 'CO' "
 					+ "AND C_Project_ID = ? "
@@ -498,33 +509,37 @@ public class AgencyValidator implements ModelValidator
 			//	Validate
 			if(preOrder != null
 					&& preOrder.getC_Order_ID() > 0) {
-				MOrder reverseOrder = new MOrder(sourceOrder.getCtx(), 0, sourceOrder.get_TrxName());
-				PO.copyValues(preOrder, reverseOrder);
-				reverseOrder.setDocumentNo(null);
-				reverseOrder.setDateOrdered(sourceOrder.getDateOrdered());
-				reverseOrder.setDatePromised(sourceOrder.getDatePromised());
-				reverseOrder.addDescription(Msg.parseTranslation(sourceOrder.getCtx(), "@Generated@ [@C_Order_ID@ " + sourceOrder.getDocumentNo()) + "]");
-				reverseOrder.setDocStatus(MOrder.DOCSTATUS_Drafted);
-				reverseOrder.setDocAction(MOrder.DOCACTION_Complete);
-				reverseOrder.setTotalLines(Env.ZERO);
-				reverseOrder.setGrandTotal(Env.ZERO);
-				reverseOrder.setIsSOTrx(sourceOrder.isSOTrx());
-				reverseOrder.saveEx();
-				//	Add Line
-				MOrderLine preOrderLine = preOrder.getLines(true, null)[0];
-				
-				MOrderLine reverseOrderLine = new MOrderLine(reverseOrder);
-				PO.copyValues(reverseOrderLine, preOrderLine);
-				reverseOrderLine.setOrder(reverseOrder);
-				reverseOrderLine.setProduct(preOrderLine.getProduct());
-				reverseOrderLine.setLineNetAmt(Env.ZERO);
-				reverseOrderLine.setQty(Env.ONE);
-				reverseOrderLine.setPrice(sourceOrder.getTotalLines().negate());
-				reverseOrderLine.setTax();
-				reverseOrderLine.saveEx();
-				//	Complete
-				if(!reverseOrder.processIt(MOrder.DOCACTION_Complete)) {
-					throw new AdempiereException(reverseOrder.getProcessMsg());
+				if(reverseDocumentTypeId > 0) {
+					MOrder reverseOrder = new MOrder(sourceOrder.getCtx(), 0, sourceOrder.get_TrxName());
+					PO.copyValues(preOrder, reverseOrder);
+					reverseOrder.setDocumentNo(null);
+					reverseOrder.setC_DocTypeTarget_ID(reverseDocumentTypeId);
+					reverseOrder.setDateOrdered(sourceOrder.getDateOrdered());
+					reverseOrder.setDatePromised(sourceOrder.getDatePromised());
+					reverseOrder.setPOReference(sourceOrder.getDocumentNo());
+					reverseOrder.addDescription(Msg.parseTranslation(sourceOrder.getCtx(), "@Generated@ [@C_Order_ID@ " + sourceOrder.getDocumentNo()) + "]");
+					reverseOrder.setDocStatus(MOrder.DOCSTATUS_Drafted);
+					reverseOrder.setDocAction(MOrder.DOCACTION_Complete);
+					reverseOrder.setTotalLines(Env.ZERO);
+					reverseOrder.setGrandTotal(Env.ZERO);
+					reverseOrder.setIsSOTrx(sourceOrder.isSOTrx());
+					reverseOrder.saveEx();
+					//	Add Line
+					MOrderLine preOrderLine = preOrder.getLines(true, null)[0];
+					
+					MOrderLine reverseOrderLine = new MOrderLine(reverseOrder);
+					PO.copyValues(reverseOrderLine, preOrderLine);
+					reverseOrderLine.setOrder(reverseOrder);
+					reverseOrderLine.setProduct(preOrderLine.getProduct());
+					reverseOrderLine.setLineNetAmt(Env.ZERO);
+					reverseOrderLine.setQty(Env.ONE);
+					reverseOrderLine.setPrice(sourceOrder.getTotalLines().negate());
+					reverseOrderLine.setTax();
+					reverseOrderLine.saveEx();
+					//	Complete
+					if(!reverseOrder.processIt(MOrder.DOCACTION_Complete)) {
+						throw new AdempiereException(reverseOrder.getProcessMsg());
+					}
 				}
 			}
 		}
@@ -619,6 +634,66 @@ public class AgencyValidator implements ModelValidator
 	}
 	
 	/**
+	 * Create a commission based on rules defined and get result inside order line 
+	 * it is only running if exists a flag for document type named (Calculate commission for Order)
+	 * @param invoice
+	 * @param
+	 */
+	private void createCommissionForInvoice(MInvoice invoice, int commissionTypeId, boolean splitDocuments) {
+		removeLineFromCommission(invoice, commissionTypeId);
+		new Query(invoice.getCtx(), I_C_Commission.Table_Name, I_C_CommissionType.COLUMNNAME_C_CommissionType_ID + " = ? "
+				+ "AND IsSplitDocuments = ?", invoice.get_TrxName())
+			.setOnlyActiveRecords(true)
+			.setParameters(commissionTypeId, (splitDocuments? "Y": "N"))
+			.<MCommission>list().forEach(commissionDefinition -> {
+				int documentTypeId = MDocType.getDocType(MDocType.DOCBASETYPE_SalesCommission, invoice.getAD_Org_ID());
+				MCommissionRun commissionRun = new MCommissionRun(commissionDefinition);
+				commissionRun.setDateDoc(invoice.getDateInvoiced());
+				commissionRun.setC_DocType_ID(documentTypeId);
+				commissionRun.setDescription(Msg.parseTranslation(invoice.getCtx(), "@Generate@: @C_Order_ID@ - " + invoice.getDocumentNo()));
+				commissionRun.set_ValueOfColumn("C_Invoice_ID", invoice.getC_Invoice_ID());
+				commissionRun.setAD_Org_ID(invoice.getAD_Org_ID());
+				commissionRun.saveEx();
+				//	Process commission
+				commissionRun.addFilterValues("C_Invoice_ID", invoice.getC_Invoice_ID());
+				commissionRun.setDocStatus(MCommissionRun.DOCSTATUS_Drafted);
+				//	Complete
+				if(commissionRun.processIt(MCommissionRun.DOCACTION_Complete)) {
+					commissionRun.updateFromAmt();
+					commissionRun.saveEx();
+					if(commissionRun.getGrandTotal() != null
+							&& commissionRun.getGrandTotal().compareTo(Env.ZERO) > 0) {
+						if(commissionDefinition.get_ValueAsBoolean("IsSplitDocuments")) {
+							ProcessBuilder.create(invoice.getCtx())
+								.process(CommissionPOCreateAbstract.getProcessId())
+								.withRecordId(I_C_CommissionRun.Table_ID, commissionRun.getC_CommissionRun_ID())
+								.withParameter(CommissionPOCreateAbstract.ISSOTRX, true)
+								.withParameter(CommissionPOCreateAbstract.DATEORDERED, invoice.getDateInvoiced())
+								.withParameter(CommissionPOCreateAbstract.DOCACTION, DocAction.ACTION_Complete)
+								.withParameter(CommissionPOCreateAbstract.C_BPARTNER_ID, invoice.getC_BPartner_ID())
+								.withParameter(CommissionPOCreateAbstract.C_DOCTYPE_ID, commissionDefinition.get_ValueAsInt("C_DocTypeOrder_ID"))
+								.withoutTransactionClose()
+							.execute(invoice.get_TrxName());
+						} else {
+							commissionRun.getCommissionAmtList().stream()
+							.filter(commissionAmt -> commissionAmt.getCommissionAmt() != null 
+								&& commissionAmt.getCommissionAmt().compareTo(Env.ZERO) > 0).forEach(commissionAmt -> {
+									MInvoiceLine invoiceLine = new MInvoiceLine(invoice);
+									invoiceLine.setC_Charge_ID(commissionDefinition.getC_Charge_ID());
+									invoiceLine.setQty(Env.ONE);
+									invoiceLine.setPrice(commissionAmt.getCommissionAmt());
+									invoiceLine.setTax();
+									invoiceLine.saveEx(invoice.get_TrxName());
+							});
+						}
+					}
+				} else {
+					throw new AdempiereException(commissionRun.getProcessMsg());
+				}
+			});
+	}
+	
+	/**
 	 * Remove Line From Commission
 	 * @param order
 	 */
@@ -626,6 +701,20 @@ public class AgencyValidator implements ModelValidator
 		String whereClause = " AND EXISTS(SELECT 1 FROM C_Commission c WHERE c.C_CommissionType_ID = " + commissionTypeId 
 				+ " AND c.C_Charge_ID = C_OrderLine.C_Charge_ID)";
 		for(MOrderLine line : order.getLines(whereClause, "")) {
+			line.deleteEx(true);
+		}
+	}
+	
+	/**
+	 * Remove Line From Commission
+	 * @param invoice
+	 */
+	private void removeLineFromCommission(MInvoice invoice, int commissionTypeId) {
+		String whereClause = "EXISTS(SELECT 1 FROM C_Commission c WHERE c.C_CommissionType_ID = " + commissionTypeId 
+				+ " AND c.C_Charge_ID = C_InvoiceLine.C_Charge_ID)";
+		List<MInvoiceLine> invoiceLineList = new Query(invoice.getCtx(), MInvoiceLine.Table_Name, whereClause, invoice.get_TrxName())
+			.<MInvoiceLine>list();
+		for(MInvoiceLine line : invoiceLineList) {
 			line.deleteEx(true);
 		}
 	}
