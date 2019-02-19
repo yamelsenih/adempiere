@@ -104,7 +104,26 @@ public class AgencyValidator implements ModelValidator
 
 	public String modelChange (PO po, int type) throws Exception {
 		log.info(po.get_TableName() + " Type: "+type);
-		
+		if (type == TYPE_BEFORE_NEW || type == TYPE_BEFORE_CHANGE) {
+			if(po instanceof MRequest) {
+				MRequest request = (MRequest) po;
+				if(request.getR_RequestType_ID() != 0) {
+					MRequestType requestType = new MRequestType(request.getCtx(), request.getR_RequestType_ID(), request.get_TrxName());
+					// Validates Approved on Request Type					
+					if(requestType.get_ValueAsBoolean("IsApproved")) {
+						// Validates Approved 1 on Request						
+						if(request.get_ValueAsBoolean("IsApproved1")) {
+							// Validates Approved 2 on Request
+							if(!request.get_ValueAsBoolean("IsApproved2")) {
+								throw new AdempiereException(Msg.getMsg(Env.getCtx(), "NotApproved2"));
+							}
+						}else {
+							throw new AdempiereException(Msg.getMsg(Env.getCtx(), "NotApproved1"));
+						}
+					}		
+				}				
+			}
+		}
 		if (type == TYPE_BEFORE_CHANGE) {
 			if (po instanceof MProject) {
 				MProject project = (MProject) po;
@@ -174,23 +193,6 @@ public class AgencyValidator implements ModelValidator
 						}
 					}
 				}
-			}else if(po instanceof MRequest) {
-				MRequest request = (MRequest) po;
-				if(request.getR_RequestType_ID() != 0) {
-					MRequestType requestType = new MRequestType(request.getCtx(), request.getR_RequestType_ID(), request.get_TrxName());
-					// Validates Approved on Request Type					
-					if(requestType.get_ValueAsBoolean("IsApproved")) {
-						// Validates Approved 1 on Request						
-						if(request.get_ValueAsBoolean("IsApproved1")) {
-							// Validates Approved 2 on Request
-							if(!request.get_ValueAsBoolean("IsApproved2")) {
-								throw new AdempiereException(Msg.getMsg(Env.getCtx(), "NotApproved2"));
-							}
-						}else {
-							throw new AdempiereException(Msg.getMsg(Env.getCtx(), "NotApproved1"));
-						}
-					}		
-				}				
 			}
 		} else if(type == TYPE_BEFORE_NEW) {
 			if (po instanceof MCommissionLine) {
