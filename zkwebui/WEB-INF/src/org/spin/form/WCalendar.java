@@ -17,15 +17,18 @@
 
 package org.spin.form;
 
+import java.math.BigDecimal;
 import java.util.Date;
 
 import org.adempiere.exceptions.ValueChangeEvent;
 import org.adempiere.exceptions.ValueChangeListener;
 import org.adempiere.webui.component.Button;
+import org.adempiere.webui.component.Checkbox;
 import org.adempiere.webui.component.DatetimeBox;
 import org.adempiere.webui.component.Grid;
 import org.adempiere.webui.component.GridFactory;
 import org.adempiere.webui.component.Label;
+import org.adempiere.webui.component.Listbox;
 import org.adempiere.webui.component.Panel;
 import org.adempiere.webui.component.Row;
 import org.adempiere.webui.component.Rows;
@@ -66,7 +69,7 @@ import org.zkoss.zul.Space;
  *		
  * 		
  */
-public class WCalendar  
+public class WCalendar extends org.spin.form.Calendar  
 	implements IFormController,EventListener, WTableModelListener, ValueChangeListener
 {
 	
@@ -77,7 +80,10 @@ public class WCalendar
 //	private static final long serialVersionUID = 7806119329546820204L;
 	
 	private CustomForm form = new CustomForm(){
-
+		
+		public void setProcessInfo(org.compiere.process.ProcessInfo pi) { 
+			setFromPO(pi);
+		}
 		/**
 		 * 
 		 */
@@ -122,8 +128,8 @@ public class WCalendar
 	private Grid windowgridLayout = GridFactory.newGridLayout();
 	
 	private Textbox descriptionField = new Textbox();
-	private Textbox dateInputTitle = new Textbox();
-	private Textbox dateInputNote = new Textbox();
+	private Textbox dateTitle = new Textbox();
+	private Textbox dateDescription = new Textbox();
 	
 	private Panel NorthPanel = new Panel();
 	
@@ -144,6 +150,11 @@ public class WCalendar
 	
 	private DatetimeBox dateBegin = new DatetimeBox();
 	private DatetimeBox dateEnd = new DatetimeBox();
+ 
+	private Listbox resource = new Listbox();
+	
+	private Checkbox lockDate = new Checkbox();
+	
 
 			
 	private boolean m_isCalculating;
@@ -220,17 +231,17 @@ public class WCalendar
 		smallcalendar.setWidth("50%");
 		
 		//South Panel
-		mainLayout.appendChild(south);
-		south.setStyle("border: none");
-		south.setVisible(true);
-		south.setTitle("Description");
-		south.setCollapsible(true);
-		south.setHeight("10%");
-		south.appendChild(descriptionField);
-		descriptionField.setText("Week");
-		descriptionField.setWidth("100%");
+//		mainLayout.appendChild(south);
+//		south.setStyle("border: none");
+//		south.setVisible(true);
+//		south.setTitle("Description");
+//		south.setCollapsible(true);
+//		south.setHeight("10%");
+//		south.appendChild(descriptionField);
+//		descriptionField.setText("Week");
+//		descriptionField.setWidth("100%");
 		
-		//Window 
+		//Input Date Window 
 		calevent.setMold("default");
 		calevent.setVisible(false);
 		calevent.setClosable(true);
@@ -242,31 +253,49 @@ public class WCalendar
 		Rows wrows = windowgridLayout.newRows();
 		calevent.appendChild(windowgridLayout);
 		
+		//Title
 		Row wrow = wrows.newRow();
 		Label inputTitle= new Label();
-		
 		inputTitle.setText("Title");
 		wrow.appendChild(inputTitle);
-		wrow.appendChild(dateInputTitle);
-		
+		wrow.appendChild(dateTitle);
+
+		//Description		
 		wrow = wrows.newRow();
 		Label inputNote= new Label();
-		inputNote.setText("Note");
+		inputNote.setText("Description");
 		wrow.appendChild(inputNote);
-		wrow.appendChild(dateInputNote);
+		wrow.appendChild(dateDescription);
 		
+		//Lock Date		
+		wrow = wrows.newRow();
+		Label lockD= new Label();
+		lockD.setText("Lock Date");
+		wrow.appendChild(lockD);
+		wrow.appendChild(lockDate);
+		
+		//Begin Date
 		wrow = wrows.newRow();
 		Label bDate = new Label();
 		bDate.setText("Begin Date");
 		wrow.appendChild(bDate);
 		wrow.appendChild(dateBegin);
 		
+		//End Date
 		wrow = wrows.newRow();
 		Label eDate = new Label();
 		eDate.setText("End Date");
 		wrow.appendChild(eDate);
 		wrow.appendChild(dateEnd);
 		
+		//Lisboxt
+		wrow = wrows.newRow();
+		Label resourcelabel = new Label();
+		eDate.setText("User");
+		wrow.appendChild(resourcelabel);
+		wrow.appendChild(resource);
+
+		//Save - Cancel - Delete
 		wrow = wrows.newRow();
 		Save.setLabel("Save");
 		wrow.appendChild(Save);
@@ -388,26 +417,28 @@ public void onEvent(Event event) throws Exception {
     //    Save Even register Window
     }else if (event.getTarget().equals(Save))
        {
+    	addToCalendar();
     	// Simple Calendar Event
     	// Get Dates From Textbox
-       	sce.setBeginDate(dateBegin.getValue());
-       	sce.setEndDate(dateEnd.getValue());
-       	//The color Strings should only be colors
-       	//that CSS accept
-       	sce.setContentColor("red");
-       	sce.setHeaderColor("blue");
-   
-       	sce.setContent(dateInputNote.getValue());
-       	sce.setTitle(dateInputTitle.getValue());
-   
-       	//is this event locked?
-       	sce.setLocked(false);
-    	// Simple Model Calendar       	
-       	scm = new SimpleCalendarModel();
-       	
-       	scm.add(sce);
-       	// Set Model to Calendar      	
-       	bigcalendar.setModel(scm);
+//       	sce.setBeginDate(dateBegin.getValue());
+//       	sce.setEndDate(dateEnd.getValue());
+//       	//The color Strings should only be colors
+//       	//that CSS accept
+//       	sce.setContentColor("red");
+//       	sce.setHeaderColor("blue");
+//   
+//       	sce.setContent(dateDescription.getValue());
+//       	sce.setTitle(dateTitle.getValue());
+//   
+//       	//is this event locked?
+//       	sce.setLocked(false);
+//    	// Simple Model Calendar       	
+//       	scm = new SimpleCalendarModel();
+//       	
+//       	scm.add(sce);
+//       	// Set Model to Calendar      	
+//       	bigcalendar.setModel(scm);
+       	// Close Window      	
        	// Close Window      	
        	calevent.dispose();
        }else {	
@@ -439,4 +470,50 @@ public void onEvent(Event event) throws Exception {
     }
     
 }
+
+/**
+ * Set Dates Event on Calendar
+ * **/
+public void addToCalendar() {
+    
+	SimpleCalendarEvent sce = new SimpleCalendarEvent();
+	
+	Date beginDate =  dateBegin.getValue();
+	Date endDate =  dateEnd.getValue();
+	String description = dateDescription.getValue();
+	String note = dateTitle.getValue();
+	
+	sce.setBeginDate(beginDate);
+   	sce.setEndDate(endDate);
+
+    sce.setContentColor("red");
+    sce.setHeaderColor("orange");
+
+    sce.setContent(description);
+    sce.setTitle(note);
+    
+    BigDecimal hours = getHours(beginDate, endDate);
+
+    saveData(hours, beginDate, description, note);
+ 
+    //is this event locked?
+    sce.setLocked(false);
+
+	scm = new SimpleCalendarModel();
+
+	scm.add(sce);
+
+	bigcalendar.setModel(scm);
+}
+
+public BigDecimal getHours(Date beginDate, Date endDate) {
+	 // Get hours   
+    long diferenceTime = endDate.getTime() - beginDate.getTime();
+    long seconds = diferenceTime / 1000;
+    long minutes = seconds / 60;
+    long hours =minutes / 60;
+    BigDecimal sethours = new BigDecimal(hours);
+    return sethours;
+}
+
 }   //  WCalendar}

@@ -171,8 +171,8 @@ position: fixed !important;
 .depressed img {
 	border-style: inset;
 	border-width: 1px;
-	border-color: #9CBDFF;
-	background-color: #C4DCFB;
+	border-color: #00000000;;
+	background-color:#00000000;;
 	-moz-border-radius: 5px;
 	-webkit-border-radius: 5px;
 	padding: 0px 1px 0px 1px;
@@ -227,6 +227,7 @@ div.wc-modal, div.wc-modal-none, div.wc-highlighted, div.wc-highlighted-none {
 	padding: 0;
 	border: 0;
 	position: absolute;
+	background-color: #fefefe !important;
 }
 
 .menu-search {
@@ -236,6 +237,7 @@ div.wc-modal, div.wc-modal-none, div.wc-highlighted, div.wc-highlighted-none {
 <%-- adwindow and form --%>
 .adform-content-none {
 	overflow: auto;
+	
 	position: absolute;
 	width: 100%;
 	margin: 3px;
@@ -299,12 +301,12 @@ div.wc-modal, div.wc-modal-none, div.wc-highlighted, div.wc-highlighted-none {
 
 .adwindow-nav-content {
 	background-color: ##E7E7E7;
-	height: 100%;
+	height: -webkit-fill-available !important;
 	width:110px;
 	-moz-box-shadow: inset 0 0 5px #333;
 	-webkit-box-shadow: inset 0 0 5px#333;
 	box-shadow: inner 0 0 5px #333;
-    overflow: auto;
+    overflow: auto !important;
 }
 
 
@@ -501,6 +503,9 @@ wlogin-layout-center{
 	font-weight: bold;
 }
 
+
+
+
 .status-info {
 	padding-right: 10px;
 	border-left: solid 1px #9CBDFF;
@@ -542,6 +547,7 @@ wlogin-layout-center{
 	color: black;
 	font-weight: bold;
 }
+
 
 
 
