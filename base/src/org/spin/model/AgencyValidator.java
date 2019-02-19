@@ -438,11 +438,13 @@ public class AgencyValidator implements ModelValidator
 					}
 				}
 			} else if(timing == TIMING_AFTER_COMPLETE) {
-				//	Validate
-				MDocType  documentType = MDocType.get(invoice.getCtx(), invoice.getC_DocTypeTarget_ID());
-				//	Validate Document Type for commission
-				if(documentType.get_ValueAsInt("C_CommissionType_ID") > 0) {
-//					createCommissionForInvoice(invoice, documentType.get_ValueAsInt("C_CommissionType_ID"), true);
+				if(!invoice.isReversal()) {
+					//	Validate
+					MDocType  documentType = MDocType.get(invoice.getCtx(), invoice.getC_DocTypeTarget_ID());
+					//	Validate Document Type for commission
+					if(documentType.get_ValueAsInt("C_CommissionType_ID") > 0) {
+						createCommissionForInvoice(invoice, documentType.get_ValueAsInt("C_CommissionType_ID"), true);
+					}
 				}
 			}
 		} else if(po instanceof MSContract) {

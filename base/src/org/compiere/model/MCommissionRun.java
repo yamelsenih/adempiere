@@ -310,6 +310,9 @@ public class MCommissionRun extends X_C_CommissionRun implements DocAction, DocO
 			} else if(get_ValueAsInt("C_Order_ID") > 0) {
 				MOrder order = new MOrder(getCtx(), get_ValueAsInt("C_Order_ID"), get_TrxName());
 				processCommissionLine(MBPartner.get(getCtx(), order.getC_BPartner_ID()), commission);
+			} else if(get_ValueAsInt("C_Invoice_ID") > 0) {
+				MInvoice invoice = new MInvoice(getCtx(), get_ValueAsInt("C_Invoice_ID"), get_TrxName());
+				processCommissionLine(MBPartner.get(getCtx(), invoice.getC_BPartner_ID()), commission);
 			} else {
 				for(MBPartner salesRep : commission.getSalesRepsOfCommission()) {
 					processCommissionLine(salesRep, commission);
@@ -447,8 +450,13 @@ public class MCommissionRun extends X_C_CommissionRun implements DocAction, DocO
 					orderLineId = rs.getInt("C_OrderLine_ID");
 					invoiceLineId = rs.getInt("C_InvoiceLine_ID");
 				}
-				
-				
+				//	Validate
+				if(quantity == null) {
+					quantity = Env.ZERO;
+				}
+				if(amount == null) {
+					amount = Env.ZERO;
+				}
 				//	CommissionAmount, C_Currency_ID, Amt, Qty,
 				MCommissionDetail commissionDetail = new MCommissionDetail (commissionAmt,
 						currencyId, amount, quantity);
@@ -708,6 +716,13 @@ public class MCommissionRun extends X_C_CommissionRun implements DocAction, DocO
 			MOrder order = new MOrder(getCtx(), get_ValueAsInt("C_Order_ID"), get_TrxName());
 			if(!order.isSOTrx()) {
 				if(commissionLine.get_ValueAsInt("Vendor_ID") != order.getC_BPartner_ID()) {
+					return;
+				}
+			}
+		} else if(get_ValueAsInt("C_Invoice_ID") > 0) {
+			MInvoice invoice = new MInvoice(getCtx(), get_ValueAsInt("C_Invoice_ID"), get_TrxName());
+			if(!invoice.isSOTrx()) {
+				if(commissionLine.get_ValueAsInt("Vendor_ID") != invoice.getC_BPartner_ID()) {
 					return;
 				}
 			}
