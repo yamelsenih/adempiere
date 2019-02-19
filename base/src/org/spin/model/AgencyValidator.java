@@ -50,6 +50,7 @@ import org.compiere.model.MProjectPhase;
 import org.compiere.model.MProjectTask;
 import org.compiere.model.MRequest;
 import org.compiere.model.MRequestType;
+import org.compiere.model.MStatus;
 import org.compiere.model.MTimeExpense;
 import org.compiere.model.MTimeExpenseLine;
 import org.compiere.model.MTree;
@@ -111,14 +112,18 @@ public class AgencyValidator implements ModelValidator
 					MRequestType requestType = new MRequestType(request.getCtx(), request.getR_RequestType_ID(), request.get_TrxName());
 					// Validates Approved on Request Type					
 					if(requestType.get_ValueAsBoolean("IsApproved")) {
-						// Validates Approved 1 on Request						
-						if(request.get_ValueAsBoolean("IsApproved1")) {
-							// Validates Approved 2 on Request
-							if(!request.get_ValueAsBoolean("IsApproved2")) {
-								throw new AdempiereException(Msg.getMsg(Env.getCtx(), "NotApproved2"));
+						// Validates Status be Completed
+						MStatus status = new MStatus(request.getCtx(), request.get_ValueAsInt("R_Status_ID"), request.get_TrxName());
+						if (status.isClosed() && !status.isFinalClose()) {
+							// Validates Approved 1 on Request						
+							if(request.get_ValueAsBoolean("IsApproved1")) {
+								// Validates Approved 2 on Request
+								if(!request.get_ValueAsBoolean("IsApproved2")) {
+									throw new AdempiereException(Msg.getMsg(Env.getCtx(), "NotApproved2"));
+								}
+							}else {
+								throw new AdempiereException(Msg.getMsg(Env.getCtx(), "NotApproved1"));
 							}
-						}else {
-							throw new AdempiereException(Msg.getMsg(Env.getCtx(), "NotApproved1"));
 						}
 					}		
 				}				
@@ -314,7 +319,7 @@ public class AgencyValidator implements ModelValidator
 					if(order.getC_Project_ID() <= 0) {
 						throw new AdempiereException(Msg.parseTranslation(Env.getCtx(), "@C_Project_ID@ @NotFound@"));
 					}
-					//	Document type IsCustomerApproved = Y and order IsCustomerApproved Y and order isAttachment("PDF") = N and project IsCustomerApproved = N
+					//	Document type IsCustomerApproved = Y and order IsCustomerApproved Y and order isAttachment() = N and project IsCustomerApproved = N
 					MProject project = new MProject(order.getCtx(), order.getC_Project_ID(), null);
 					if (!project.get_ValueAsBoolean("IsCustomerApproved")) {
 						throw new AdempiereException(Msg.parseTranslation(Env.getCtx(), "@CustomerApprovedRequired@ @C_Project_ID@"));
