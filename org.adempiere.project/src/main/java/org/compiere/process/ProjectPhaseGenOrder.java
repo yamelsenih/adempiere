@@ -84,7 +84,7 @@ public class ProjectPhaseGenOrder  extends ProjectPhaseGenOrderAbstract
 			values.put("Description", ((MProjectTask)fromPhase).getDescription());
 			values.put("Qty", ((MProjectTask)fromPhase).getQty());
 			values.put("C_ProjectPhase_ID", ((MProjectTask)fromPhase).getC_ProjectPhase_ID());
-			values.put("PriceActual", 0);
+			values.put("PriceActual",  ((MProjectTask)fromPhase).getPlannedAmt());
 			
 			projectLines =Arrays.asList(((MProjectTask)fromPhase).getLines());
 		}
@@ -97,7 +97,7 @@ public class ProjectPhaseGenOrder  extends ProjectPhaseGenOrderAbstract
 			values.put("Description", ((MProjectPhase)fromPhase).getDescription());
 			values.put("Qty", ((MProjectPhase)fromPhase).getQty());
 			values.put("C_ProjectPhase_ID", ((MProjectPhase)fromPhase).getC_ProjectPhase_ID());
-			values.put("PriceActual", ((MProjectPhase)fromPhase).getPlannedAmt());
+			values.put("PriceActual", ((MProjectPhase)fromPhase).getPriceActual());
 			projectLines =((MProjectPhase)fromPhase).getLines();
 			tasks = ((MProjectPhase)fromPhase).getTasks();
 		}
