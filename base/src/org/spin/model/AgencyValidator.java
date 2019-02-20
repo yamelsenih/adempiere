@@ -460,7 +460,7 @@ public class AgencyValidator implements ModelValidator
 						.setParameters(serviceContract.getS_Contract_ID())
 						.sum("AmtMultiplier");
 
-				BigDecimal comparepercent = new BigDecimal("100.0");
+				BigDecimal comparepercent = new BigDecimal(100);
 				if(sumPercent.compareTo(comparepercent) != 0){					
 					throw new AdempiereException(Msg.getMsg(Env.getCtx(), "TotalPercentageIsNot100"));
 				}								
@@ -660,6 +660,9 @@ public class AgencyValidator implements ModelValidator
 				commissionRun.setDateDoc(invoice.getDateInvoiced());
 				commissionRun.setC_DocType_ID(documentTypeId);
 				commissionRun.setDescription(Msg.parseTranslation(invoice.getCtx(), "@Generate@: @C_Order_ID@ - " + invoice.getDocumentNo()));
+				if(invoice.getC_Order_ID() > 0) {
+					commissionRun.set_ValueOfColumn("C_Order_ID", invoice.getC_Order_ID());
+				}
 				commissionRun.set_ValueOfColumn("C_Invoice_ID", invoice.getC_Invoice_ID());
 				commissionRun.setAD_Org_ID(invoice.getAD_Org_ID());
 				commissionRun.saveEx();
