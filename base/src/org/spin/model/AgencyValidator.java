@@ -330,30 +330,22 @@ public class AgencyValidator implements ModelValidator
 					createCommissionForOrder(order, documentType.get_ValueAsInt("C_CommissionType_ID"), false);
 				}
 			} else if (timing == TIMING_AFTER_COMPLETE) {
-				// Document type IsCustomerApproved = Y and order IsCustomerApproved = N
-				if (documentType.get_ValueAsBoolean("IsApprovedRequired")) {
-					if(order.isSOTrx()) {
-						//	For Sales Orders only
-						if(order.isDropShip()) {
-							//	For drop ship only
-							ProcessBuilder.create(order.getCtx())
-								.process(OrderPOCreateAbstract.getProcessId())
-								.withParameter(OrderPOCreateAbstract.C_ORDER_ID, order.getC_Order_ID())
-								.withParameter(OrderPOCreateAbstract.VENDOR_ID, order.getDropShip_BPartner_ID())
-								.withParameter("C_DocTypeDropShip_ID", documentType.get_ValueAsInt("C_DocTypeDropShip_ID"))
-								.withoutTransactionClose()
-								.execute(order.get_TrxName());
-						}
-						//	Validate Document Type for commission
-						if(documentType.get_ValueAsInt("C_CommissionType_ID") > 0) {
-							createCommissionForOrder(order, documentType.get_ValueAsInt("C_CommissionType_ID"), true);
-						}
+				if(order.isSOTrx()) {
+					//	For Sales Orders only
+					if(order.isDropShip()) {
+						//	For drop ship only
+						ProcessBuilder.create(order.getCtx())
+							.process(OrderPOCreateAbstract.getProcessId())
+							.withParameter(OrderPOCreateAbstract.C_ORDER_ID, order.getC_Order_ID())
+							.withParameter(OrderPOCreateAbstract.VENDOR_ID, order.getDropShip_BPartner_ID())
+							.withParameter("C_DocTypeDropShip_ID", documentType.get_ValueAsInt("C_DocTypeDropShip_ID"))
+							.withoutTransactionClose()
+							.execute(order.get_TrxName());
 					}
-				} else if(!order.isSOTrx()) {
-					//	Validate Document Type for commission
-					if(documentType.get_ValueAsInt("C_CommissionType_ID") > 0) {
-						createCommissionForOrder(order, documentType.get_ValueAsInt("C_CommissionType_ID"), true);
-					}
+				}
+				//	Validate Document Type for commission
+				if(documentType.get_ValueAsInt("C_CommissionType_ID") > 0) {
+					createCommissionForOrder(order, documentType.get_ValueAsInt("C_CommissionType_ID"), true);
 				}
 				//	Generate Pre-Purchase reverse
 				generateReverseAmount(order);
