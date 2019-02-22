@@ -178,13 +178,13 @@ public class WCollectDetail extends CollectDetail implements EventListener, POSP
 		columnId = 5299;
 		int conversionTypeId = v_Parent.getM_POS().get_ValueAsInt("C_ConversionType_ID");
 		if(conversionTypeId > 0) {
-			int fromCurrencyId = v_Parent.getPOSPanel().getOrder().getC_Currency_ID();
+			int fromCurrencyId = v_Parent.getOrder().getC_Currency_ID();
 			MLookupInfo info = MLookupFactory.getLookupInfo(Env.getCtx(), 0, columnId, DisplayType.TableDir);
 			info.ValidationCode = "EXISTS(SELECT 1 FROM C_Conversion_Rate cr "
 					+ "WHERE cr.C_Currency_ID_To = C_Currency.C_Currency_ID "
 					+ "AND cr.C_Currency_ID = " + fromCurrencyId + " "
 					+ "AND cr.C_ConversionType_ID = " + conversionTypeId + ") "
-					+ "OR C_Currency_ID = " + v_Parent.getPOSPanel().getOrder().getC_Currency_ID();
+					+ "OR C_Currency_ID = " + v_Parent.getOrder().getC_Currency_ID();
 			info.IsValidated = false;
 			MLookup currencyLookup = new MLookup(info, 0);
 			ArrayList<Object> currencyList = currencyLookup.getData(true, true, true, true);
