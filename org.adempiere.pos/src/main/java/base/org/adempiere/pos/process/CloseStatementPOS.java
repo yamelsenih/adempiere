@@ -78,7 +78,7 @@ public class CloseStatementPOS extends CloseStatementPOSAbstract {
     }
 
     private void generateLostOrProfit() {
-        MBankStatement bankStatement = (MBankStatement) getBankStatements().entrySet().iterator().next();
+        MBankStatement bankStatement = getBankStatements().entrySet().iterator().next().getValue();
         MBankStatementLine bankStatementLine = new MBankStatementLine(bankStatement);
         bankStatementLine.setDateAcct(getTransactionDate());
         bankStatementLine.setStatementLineDate(getTransactionDateTo());
@@ -182,7 +182,7 @@ public class CloseStatementPOS extends CloseStatementPOSAbstract {
             if (bankStatementLineId != null && bankStatementLineId > 0)
             {
                 MBankStatementLine bankStatementLine = new MBankStatementLine(getCtx() , bankStatementLineId ,  get_TrxName());
-                MBankStatement bankStatement = bankStatementLine.getParent();
+                MBankStatement bankStatement =  new MBankStatement (getCtx(), bankStatementLine.getC_BankStatement_ID(), get_TrxName());
                 if (!baskStatements.containsKey(bankStatement.get_ID()))
                     baskStatements.put(bankStatement.get_ID() , bankStatement);
             }
