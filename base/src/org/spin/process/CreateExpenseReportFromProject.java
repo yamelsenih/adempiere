@@ -68,7 +68,7 @@ public class CreateExpenseReportFromProject extends CreateExpenseReportFromProje
 			//	Validate product
 			expenseLine.setM_Product_ID(expenseProductId);
 			expenseLine.setQty(qty);
-			expenseLine.setExpenseAmt(priceActual.multiply(qty));
+			expenseLine.setExpenseAmt(priceActual);
 			if(order.get_ValueAsInt("S_Contract_ID") > 0) {
 				expenseLine.set_ValueOfColumn("S_ContractLine_ID", order.get_ValueAsInt("S_Contract_ID"));
 			}

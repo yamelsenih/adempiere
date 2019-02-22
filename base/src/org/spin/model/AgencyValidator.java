@@ -16,6 +16,7 @@
 package org.spin.model;
 
 import java.math.BigDecimal;
+import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
@@ -63,6 +64,8 @@ import org.compiere.process.DocAction;
 import org.compiere.process.OrderLineCreateShipmentAbstract;
 import org.compiere.process.OrderPOCreateAbstract;
 import org.compiere.util.CLogger;
+import org.compiere.util.DB;
+import org.compiere.util.DisplayType;
 import org.compiere.util.Env;
 import org.compiere.util.Msg;
 import org.eevolution.service.dsl.ProcessBuilder;
@@ -352,36 +355,29 @@ public class AgencyValidator implements ModelValidator
 			}
 		} else if(po instanceof MTimeExpense) {
 			MTimeExpense expenseReport = (MTimeExpense) po;
-			
 			if(timing == TIMING_BEFORE_COMPLETE) {
-				Map<Integer,BigDecimal> projectList = new HashMap<>();
-					MTimeExpenseLine[] expenseReportLine = expenseReport.getLines();
-						for(int i=0; i<expenseReportLine.length; i++) {
-							StringBuffer whereClause = new StringBuffer();
-							
-							whereClause.append(" EXISTS(SELECT 1 FROm S_TimeExpense te")
-									   .append(" WHERE S_TimeExpenseLine.S_TimeExpense_ID=te.S_TimeExpense_ID and te.DocStatus=?)");
-							BigDecimal value = new Query(po.getCtx(), I_S_TimeExpenseLine.Table_Name, whereClause.toString(), po.get_TrxName())
-									.setClient_ID()
-									.setParameters(MTimeExpense.DOCSTATUS_Completed)
-									.sum(MTimeExpenseLine.COLUMNNAME_ExpenseAmt);
-
-							int projectId=expenseReportLine[i].getC_Project_ID();
-							if(projectId > 0){
-								projectList.put(projectId, value);
-							}
-						}
-		
-				projectList.forEach((projectId, value)-> {
-					MProject project = MProject.getById(po.getCtx(), projectId, null);
-					if( project != null){
-						BigDecimal plannedAmt = project.getPlannedAmt();
-						if(plannedAmt != null
-								&& plannedAmt.compareTo(value) < 0){
-							throw new AdempiereException(Msg.parseTranslation(Env.getCtx(), "@PlannedAmt@ < @S_TimeExpenseLine_ID@"));
-						}
-					}
-				});				
+//				for(MTimeExpenseLine expenseReportLine : expenseReport.getLines()) {
+//					if(expenseReportLine.getC_Project_ID() <= 0) {
+//						continue;
+//					}
+//					StringBuffer whereClause = new StringBuffer();
+//					whereClause.append("C_Project_ID = ? "
+//							+ "AND EXISTS(SELECT 1 FROM S_TimeExpense te ")
+//						.append("WHERE S_TimeExpenseLine.S_TimeExpense_ID = te.S_TimeExpense_ID AND (te.DocStatus = ? OR te.S_TimeExpense_ID = ?))");
+//					BigDecimal expenseAmt = new Query(po.getCtx(), I_S_TimeExpenseLine.Table_Name, whereClause.toString(), po.get_TrxName())
+//							.setClient_ID()
+//							.setParameters(expenseReportLine.getC_Project_ID(), MTimeExpense.DOCSTATUS_Completed, expenseReportLine.getS_TimeExpense_ID())
+//							.sum(MTimeExpenseLine.COLUMNNAME_ExpenseAmt);
+//					//	
+//					MProject project = MProject.getById(expenseReport.getCtx(), expenseReportLine.getC_Project_ID(), expenseReport.get_TrxName());
+//					BigDecimal plannedAmt = project.getPlannedAmt();
+//					if(plannedAmt != null
+//							&& plannedAmt.compareTo(expenseAmt) < 0) {
+//						DecimalFormat format = DisplayType.getNumberFormat(DisplayType.Amount);
+//						throw new AdempiereException(Msg.parseTranslation(Env.getCtx(), 
+//								"@S_TimeExpenseLine_ID@ > @PlannedAmt@ @C_Project_ID@ [" + project.getName() + ", " + format.format(plannedAmt) + "] @ExpenseAmt@ " + format.format(expenseAmt)));
+//					}
+//				}
 			} else if(timing == TIMING_AFTER_COMPLETE) {
 				Hashtable<Integer, Hashtable<Integer, BigDecimal>> orders = new Hashtable<Integer, Hashtable<Integer, BigDecimal>>();
 				for(MTimeExpenseLine line : expenseReport.getLines()) {
@@ -524,6 +520,12 @@ public class AgencyValidator implements ModelValidator
 					reverseOrder.setTotalLines(Env.ZERO);
 					reverseOrder.setGrandTotal(Env.ZERO);
 					reverseOrder.setIsSOTrx(sourceOrder.isSOTrx());
+					reverseOrder.setRef_Order_ID(-1);
+					reverseOrder.setIsDropShip(false);
+					reverseOrder.setDropShip_BPartner_ID(0);
+					reverseOrder.setDropShip_Location_ID(0);
+					reverseOrder.setDropShip_User_ID(0);
+					reverseOrder.set_ValueOfColumn("ConsumptionOrder_ID", sourceOrder.getC_Order_ID());
 					reverseOrder.saveEx();
 					//	Add Line
 					MOrderLine preOrderLine = preOrder.getLines(true, null)[0];
