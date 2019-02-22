@@ -89,7 +89,7 @@ public class RequisitionPOCreate extends RequisitionPOCreateAbstract
 			closeOrder();
 			return "";
 		}
-
+         
 		//	Specific
 		if (getRequisitionId() != 0)
 		{
