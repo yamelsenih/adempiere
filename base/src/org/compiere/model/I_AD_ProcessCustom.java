@@ -253,6 +253,15 @@ public interface I_AD_ProcessCustom
 	  */
 	public String getHelp();
 
+    /** Column name HierarchyType */
+    public static final String COLUMNNAME_HierarchyType = "HierarchyType";
+
+	/** Set Hierarchy Type	  */
+	public void setHierarchyType (String HierarchyType);
+
+	/** Get Hierarchy Type	  */
+	public String getHierarchyType();
+
     /** Column name IsActive */
     public static final String COLUMNNAME_IsActive = "IsActive";
 

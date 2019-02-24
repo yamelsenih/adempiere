@@ -19,7 +19,6 @@ package org.compiere.model;
 
 import java.sql.ResultSet;
 import java.util.Properties;
-import org.compiere.util.KeyNamePair;
 
 /** Generated Model for AD_TabCustom
  *  @author Adempiere (generated) 
@@ -30,7 +29,7 @@ public class X_AD_TabCustom extends PO implements I_AD_TabCustom, I_Persistent
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20190212L;
+	private static final long serialVersionUID = 20190224L;
 
     /** Standard Constructor */
     public X_AD_TabCustom (Properties ctx, int AD_TabCustom_ID, String trxName)
@@ -409,14 +408,6 @@ public class X_AD_TabCustom extends PO implements I_AD_TabCustom, I_Persistent
 	{
 		return (String)get_Value(COLUMNNAME_Name);
 	}
-
-    /** Get Record ID/ColumnName
-        @return ID/ColumnName pair
-      */
-    public KeyNamePair getKeyNamePair() 
-    {
-        return new KeyNamePair(get_ID(), getName());
-    }
 
 	/** Set Sql ORDER BY.
 		@param OrderByClause 

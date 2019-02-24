@@ -15,9 +15,9 @@
  * or via info@adempiere.net or http://www.adempiere.net/license.html         *
  *****************************************************************************/
 
-package org.compiere.process;
+package org.adempiere.process;
 
-
+import org.compiere.process.SvrProcess;
 
 /** Generated Process for (Create Customization)
  *  @author ADempiere (generated) 
@@ -34,15 +34,20 @@ public abstract class CreateCustomizationFromASPAbstract extends SvrProcess {
 	public static final String AD_MENU_ID = "AD_Menu_ID";
 	/**	Parameter Name for AllFields	*/
 	public static final String ALLFIELDS = "AllFields";
+	/**	Parameter Name for Hierarchy Type	*/
+	public static final String HIERARCHYTYPE = "HierarchyType";
 	/**	Parameter Value for Menu	*/
 	private int menuId;
 	/**	Parameter Value for AllFields	*/
 	private boolean isAllFields;
+	/**	Parameter Value for Hierarchy Type	*/
+	private String hierarchyType;
 
 	@Override
 	protected void prepare() {
 		menuId = getParameterAsInt(AD_MENU_ID);
 		isAllFields = getParameterAsBoolean(ALLFIELDS);
+		hierarchyType = getParameterAsString(HIERARCHYTYPE);
 	}
 
 	/**	 Getter Parameter Value for Menu	*/
@@ -63,6 +68,16 @@ public abstract class CreateCustomizationFromASPAbstract extends SvrProcess {
 	/**	 Setter Parameter Value for AllFields	*/
 	protected void setAllFields(boolean isAllFields) {
 		this.isAllFields = isAllFields;
+	}
+
+	/**	 Getter Parameter Value for Hierarchy Type	*/
+	protected String getHierarchyType() {
+		return hierarchyType;
+	}
+
+	/**	 Setter Parameter Value for Hierarchy Type	*/
+	protected void setHierarchyType(String hierarchyType) {
+		this.hierarchyType = hierarchyType;
 	}
 
 	/**	 Getter Parameter Value for Process ID	*/

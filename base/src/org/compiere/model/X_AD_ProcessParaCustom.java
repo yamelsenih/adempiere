@@ -19,7 +19,6 @@ package org.compiere.model;
 
 import java.sql.ResultSet;
 import java.util.Properties;
-import org.compiere.util.KeyNamePair;
 
 /** Generated Model for AD_ProcessParaCustom
  *  @author Adempiere (generated) 
@@ -30,7 +29,7 @@ public class X_AD_ProcessParaCustom extends PO implements I_AD_ProcessParaCustom
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20190212L;
+	private static final long serialVersionUID = 20190224L;
 
     /** Standard Constructor */
     public X_AD_ProcessParaCustom (Properties ctx, int AD_ProcessParaCustom_ID, String trxName)
@@ -41,7 +40,6 @@ public class X_AD_ProcessParaCustom extends PO implements I_AD_ProcessParaCustom
 			setAD_ProcessCustom_ID (0);
 			setAD_ProcessParaCustom_ID (0);
 			setAD_Process_Para_ID (0);
-			setName (null);
         } */
     }
 
@@ -400,14 +398,6 @@ public class X_AD_ProcessParaCustom extends PO implements I_AD_ProcessParaCustom
 	{
 		return (String)get_Value(COLUMNNAME_Name);
 	}
-
-    /** Get Record ID/ColumnName
-        @return ID/ColumnName pair
-      */
-    public KeyNamePair getKeyNamePair() 
-    {
-        return new KeyNamePair(get_ID(), getName());
-    }
 
 	/** Set Read Only Logic.
 		@param ReadOnlyLogic 

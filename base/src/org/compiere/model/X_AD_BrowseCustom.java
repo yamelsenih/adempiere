@@ -29,7 +29,7 @@ public class X_AD_BrowseCustom extends PO implements I_AD_BrowseCustom, I_Persis
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20190212L;
+	private static final long serialVersionUID = 20190224L;
 
     /** Standard Constructor */
     public X_AD_BrowseCustom (Properties ctx, int AD_BrowseCustom_ID, String trxName)
@@ -39,6 +39,8 @@ public class X_AD_BrowseCustom extends PO implements I_AD_BrowseCustom, I_Persis
         {
 			setAD_BrowseCustom_ID (0);
 			setAD_Browse_ID (0);
+			setHierarchyType (null);
+// O
         } */
     }
 
@@ -285,9 +287,9 @@ public class X_AD_BrowseCustom extends PO implements I_AD_BrowseCustom, I_Persis
 	public void setASP_Level_ID (int ASP_Level_ID)
 	{
 		if (ASP_Level_ID < 1) 
-			set_Value (COLUMNNAME_ASP_Level_ID, null);
+			set_ValueNoCheck (COLUMNNAME_ASP_Level_ID, null);
 		else 
-			set_Value (COLUMNNAME_ASP_Level_ID, Integer.valueOf(ASP_Level_ID));
+			set_ValueNoCheck (COLUMNNAME_ASP_Level_ID, Integer.valueOf(ASP_Level_ID));
 	}
 
 	/** Get ASP Level.
@@ -334,6 +336,27 @@ public class X_AD_BrowseCustom extends PO implements I_AD_BrowseCustom, I_Persis
 		return (String)get_Value(COLUMNNAME_Help);
 	}
 
+	/** HierarchyType AD_Reference_ID=1000000 */
+	public static final int HIERARCHYTYPE_AD_Reference_ID=1000000;
+	/** Overwrite = O */
+	public static final String HIERARCHYTYPE_Overwrite = "O";
+	/** Merge = M */
+	public static final String HIERARCHYTYPE_Merge = "M";
+	/** Set Hierarchy Type.
+		@param HierarchyType Hierarchy Type	  */
+	public void setHierarchyType (String HierarchyType)
+	{
+
+		set_Value (COLUMNNAME_HierarchyType, HierarchyType);
+	}
+
+	/** Get Hierarchy Type.
+		@return Hierarchy Type	  */
+	public String getHierarchyType () 
+	{
+		return (String)get_Value(COLUMNNAME_HierarchyType);
+	}
+
 	/** IsCollapsibleByDefault AD_Reference_ID=319 */
 	public static final int ISCOLLAPSIBLEBYDEFAULT_AD_Reference_ID=319;
 	/** Yes = Y */
@@ -356,6 +379,30 @@ public class X_AD_BrowseCustom extends PO implements I_AD_BrowseCustom, I_Persis
 	public String getIsCollapsibleByDefault () 
 	{
 		return (String)get_Value(COLUMNNAME_IsCollapsibleByDefault);
+	}
+
+	/** Set Default.
+		@param IsDefault 
+		Default value
+	  */
+	public void setIsDefault (boolean IsDefault)
+	{
+		set_Value (COLUMNNAME_IsDefault, Boolean.valueOf(IsDefault));
+	}
+
+	/** Get Default.
+		@return Default value
+	  */
+	public boolean isDefault () 
+	{
+		Object oo = get_Value(COLUMNNAME_IsDefault);
+		if (oo != null) 
+		{
+			 if (oo instanceof Boolean) 
+				 return ((Boolean)oo).booleanValue(); 
+			return "Y".equals(oo);
+		}
+		return false;
 	}
 
 	/** IsDeleteable AD_Reference_ID=319 */

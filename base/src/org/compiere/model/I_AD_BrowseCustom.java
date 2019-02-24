@@ -223,6 +223,15 @@ public interface I_AD_BrowseCustom
 	  */
 	public String getHelp();
 
+    /** Column name HierarchyType */
+    public static final String COLUMNNAME_HierarchyType = "HierarchyType";
+
+	/** Set Hierarchy Type	  */
+	public void setHierarchyType (String HierarchyType);
+
+	/** Get Hierarchy Type	  */
+	public String getHierarchyType();
+
     /** Column name IsActive */
     public static final String COLUMNNAME_IsActive = "IsActive";
 
@@ -248,6 +257,19 @@ public interface I_AD_BrowseCustom
 	  * Flag to indicate if is collapsible by default
 	  */
 	public String getIsCollapsibleByDefault();
+
+    /** Column name IsDefault */
+    public static final String COLUMNNAME_IsDefault = "IsDefault";
+
+	/** Set Default.
+	  * Default value
+	  */
+	public void setIsDefault (boolean IsDefault);
+
+	/** Get Default.
+	  * Default value
+	  */
+	public boolean isDefault();
 
     /** Column name IsDeleteable */
     public static final String COLUMNNAME_IsDeleteable = "IsDeleteable";

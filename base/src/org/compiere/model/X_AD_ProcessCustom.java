@@ -19,7 +19,6 @@ package org.compiere.model;
 
 import java.sql.ResultSet;
 import java.util.Properties;
-import org.compiere.util.KeyNamePair;
 
 /** Generated Model for AD_ProcessCustom
  *  @author Adempiere (generated) 
@@ -30,7 +29,7 @@ public class X_AD_ProcessCustom extends PO implements I_AD_ProcessCustom, I_Pers
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20190212L;
+	private static final long serialVersionUID = 20190224L;
 
     /** Standard Constructor */
     public X_AD_ProcessCustom (Properties ctx, int AD_ProcessCustom_ID, String trxName)
@@ -40,7 +39,8 @@ public class X_AD_ProcessCustom extends PO implements I_AD_ProcessCustom, I_Pers
         {
 			setAD_ProcessCustom_ID (0);
 			setAD_Process_ID (0);
-			setIsDefault (false);
+			setHierarchyType (null);
+// O
         } */
     }
 
@@ -343,9 +343,9 @@ public class X_AD_ProcessCustom extends PO implements I_AD_ProcessCustom, I_Pers
 	public void setASP_Level_ID (int ASP_Level_ID)
 	{
 		if (ASP_Level_ID < 1) 
-			set_Value (COLUMNNAME_ASP_Level_ID, null);
+			set_ValueNoCheck (COLUMNNAME_ASP_Level_ID, null);
 		else 
-			set_Value (COLUMNNAME_ASP_Level_ID, Integer.valueOf(ASP_Level_ID));
+			set_ValueNoCheck (COLUMNNAME_ASP_Level_ID, Integer.valueOf(ASP_Level_ID));
 	}
 
 	/** Get ASP Level.
@@ -390,6 +390,27 @@ public class X_AD_ProcessCustom extends PO implements I_AD_ProcessCustom, I_Pers
 	public String getHelp () 
 	{
 		return (String)get_Value(COLUMNNAME_Help);
+	}
+
+	/** HierarchyType AD_Reference_ID=1000000 */
+	public static final int HIERARCHYTYPE_AD_Reference_ID=1000000;
+	/** Overwrite = O */
+	public static final String HIERARCHYTYPE_Overwrite = "O";
+	/** Merge = M */
+	public static final String HIERARCHYTYPE_Merge = "M";
+	/** Set Hierarchy Type.
+		@param HierarchyType Hierarchy Type	  */
+	public void setHierarchyType (String HierarchyType)
+	{
+
+		set_Value (COLUMNNAME_HierarchyType, HierarchyType);
+	}
+
+	/** Get Hierarchy Type.
+		@return Hierarchy Type	  */
+	public String getHierarchyType () 
+	{
+		return (String)get_Value(COLUMNNAME_HierarchyType);
 	}
 
 	/** Set Default.
@@ -456,14 +477,6 @@ public class X_AD_ProcessCustom extends PO implements I_AD_ProcessCustom, I_Pers
 	{
 		return (String)get_Value(COLUMNNAME_Name);
 	}
-
-    /** Get Record ID/ColumnName
-        @return ID/ColumnName pair
-      */
-    public KeyNamePair getKeyNamePair() 
-    {
-        return new KeyNamePair(get_ID(), getName());
-    }
 
 	/** ShowHelp AD_Reference_ID=50007 */
 	public static final int SHOWHELP_AD_Reference_ID=50007;

@@ -15,7 +15,7 @@
  * or via info@adempiere.net or http://www.adempiere.net/license.html         *
  *****************************************************************************/
 
-package org.compiere.process;
+package org.adempiere.process;
 
 import java.util.Enumeration;
 
@@ -59,10 +59,7 @@ public class CreateCustomizationFromASP extends CreateCustomizationFromASPAbstra
 	protected String doIt() throws Exception {
 		MClientInfo clientInfo = MClientInfo.get(getCtx(), getAD_Client_ID(), get_TrxName());
 		int AD_Tree_ID = clientInfo.getAD_Tree_Menu_ID();
-		//	Yamel Senih [ 9223372036854775807 ]
-		//	Change Constructor
 		MTree thisTree = new MTree (getCtx(), AD_Tree_ID, true, true, null, get_TrxName());
-		//	End Yamel Senih
 		MTreeNode node;
 		if (getMenuId() > 0) {
 			node = thisTree.getRoot().findNode(getMenuId());
@@ -117,6 +114,7 @@ public class CreateCustomizationFromASP extends CreateCustomizationFromASPAbstra
 				customWindow = new MWindowCustom(getCtx(), 0, get_TrxName());
 				customWindow.setASP_Level_ID(getRecord_ID());
 				customWindow.setAD_Window_ID(window.getAD_Window_ID());
+				customWindow.setHierarchyType(getHierarchyType());
 				customWindow.saveEx();
 				noWindows++;
 				customWindowId = customWindow.getAD_WindowCustom_ID();
@@ -175,6 +173,7 @@ public class CreateCustomizationFromASP extends CreateCustomizationFromASPAbstra
 				MBrowseCustom customBrowse = new MBrowseCustom(getCtx(), 0, get_TrxName());
 				customBrowse.setASP_Level_ID(getRecord_ID());
 				customBrowse.setAD_Browse_ID(browse.getAD_Browse_ID());
+				customBrowse.setHierarchyType(getHierarchyType());
 				customBrowse.saveEx();
 				//	For Browse Field
 				if(isAllFields()) {
@@ -210,6 +209,7 @@ public class CreateCustomizationFromASP extends CreateCustomizationFromASPAbstra
 			customProcess = new MProcessCustom(getCtx(), 0, get_TrxName());
 			customProcess.setASP_Level_ID(getRecord_ID());
 			customProcess.setAD_Process_ID(process.getAD_Process_ID());
+			customProcess.setHierarchyType(getHierarchyType());
 			customProcess.saveEx();
 			noProcesses++;
 			customprocessId = customProcess.getAD_ProcessCustom_ID();

@@ -20,17 +20,17 @@ import java.math.BigDecimal;
 import java.sql.Timestamp;
 import org.compiere.util.KeyNamePair;
 
-/** Generated Interface for AD_WindowCustom
+/** Generated Interface for ASP_DataLog
  *  @author Adempiere (generated) 
  *  @version Release 3.9.1
  */
-public interface I_AD_WindowCustom 
+public interface I_ASP_DataLog 
 {
 
-    /** TableName=AD_WindowCustom */
-    public static final String Table_Name = "AD_WindowCustom";
+    /** TableName=ASP_DataLog */
+    public static final String Table_Name = "ASP_DataLog";
 
-    /** AD_Table_ID=467 */
+    /** AD_Table_ID=1000004 */
     public static final int Table_ID = MTable.getTable_ID(Table_Name);
 
     KeyNamePair Model = new KeyNamePair(Table_ID, Table_Name);
@@ -49,34 +49,6 @@ public interface I_AD_WindowCustom
 	  */
 	public int getAD_Client_ID();
 
-    /** Column name AD_ContextInfo_ID */
-    public static final String COLUMNNAME_AD_ContextInfo_ID = "AD_ContextInfo_ID";
-
-	/** Set Context Info.
-	  * Context Info Maintaining
-	  */
-	public void setAD_ContextInfo_ID (int AD_ContextInfo_ID);
-
-	/** Get Context Info.
-	  * Context Info Maintaining
-	  */
-	public int getAD_ContextInfo_ID();
-
-	public org.spin.model.I_AD_ContextInfo getAD_ContextInfo() throws RuntimeException;
-
-    /** Column name AD_Language */
-    public static final String COLUMNNAME_AD_Language = "AD_Language";
-
-	/** Set Language.
-	  * Language for this entity
-	  */
-	public void setAD_Language (String AD_Language);
-
-	/** Get Language.
-	  * Language for this entity
-	  */
-	public String getAD_Language();
-
     /** Column name AD_Org_ID */
     public static final String COLUMNNAME_AD_Org_ID = "AD_Org_ID";
 
@@ -90,44 +62,20 @@ public interface I_AD_WindowCustom
 	  */
 	public int getAD_Org_ID();
 
-    /** Column name AD_Role_ID */
-    public static final String COLUMNNAME_AD_Role_ID = "AD_Role_ID";
+    /** Column name AD_Table_ID */
+    public static final String COLUMNNAME_AD_Table_ID = "AD_Table_ID";
 
-	/** Set Role.
-	  * Responsibility Role
+	/** Set Table.
+	  * Database Table information
 	  */
-	public void setAD_Role_ID (int AD_Role_ID);
+	public void setAD_Table_ID (int AD_Table_ID);
 
-	/** Get Role.
-	  * Responsibility Role
+	/** Get Table.
+	  * Database Table information
 	  */
-	public int getAD_Role_ID();
+	public int getAD_Table_ID();
 
-	public org.compiere.model.I_AD_Role getAD_Role() throws RuntimeException;
-
-    /** Column name AD_User_ID */
-    public static final String COLUMNNAME_AD_User_ID = "AD_User_ID";
-
-	/** Set User/Contact.
-	  * User within the system - Internal or Business Partner Contact
-	  */
-	public void setAD_User_ID (int AD_User_ID);
-
-	/** Get User/Contact.
-	  * User within the system - Internal or Business Partner Contact
-	  */
-	public int getAD_User_ID();
-
-	public org.compiere.model.I_AD_User getAD_User() throws RuntimeException;
-
-    /** Column name AD_WindowCustom_ID */
-    public static final String COLUMNNAME_AD_WindowCustom_ID = "AD_WindowCustom_ID";
-
-	/** Set User defined Window	  */
-	public void setAD_WindowCustom_ID (int AD_WindowCustom_ID);
-
-	/** Get User defined Window	  */
-	public int getAD_WindowCustom_ID();
+	public org.compiere.model.I_AD_Table getAD_Table() throws RuntimeException;
 
     /** Column name AD_Window_ID */
     public static final String COLUMNNAME_AD_Window_ID = "AD_Window_ID";
@@ -144,6 +92,15 @@ public interface I_AD_WindowCustom
 
 	public org.compiere.model.I_AD_Window getAD_Window() throws RuntimeException;
 
+    /** Column name ASP_DataLog_ID */
+    public static final String COLUMNNAME_ASP_DataLog_ID = "ASP_DataLog_ID";
+
+	/** Set ASP Data Log	  */
+	public void setASP_DataLog_ID (int ASP_DataLog_ID);
+
+	/** Get ASP Data Log	  */
+	public int getASP_DataLog_ID();
+
     /** Column name ASP_Level_ID */
     public static final String COLUMNNAME_ASP_Level_ID = "ASP_Level_ID";
 
@@ -154,6 +111,17 @@ public interface I_AD_WindowCustom
 	public int getASP_Level_ID();
 
 	public org.compiere.model.I_ASP_Level getASP_Level() throws RuntimeException;
+
+    /** Column name ASP_Module_ID */
+    public static final String COLUMNNAME_ASP_Module_ID = "ASP_Module_ID";
+
+	/** Set ASP Module	  */
+	public void setASP_Module_ID (int ASP_Module_ID);
+
+	/** Get ASP Module	  */
+	public int getASP_Module_ID();
+
+	public org.compiere.model.I_ASP_Module getASP_Module() throws RuntimeException;
 
     /** Column name Created */
     public static final String COLUMNNAME_Created = "Created";
@@ -171,41 +139,6 @@ public interface I_AD_WindowCustom
 	  */
 	public int getCreatedBy();
 
-    /** Column name Description */
-    public static final String COLUMNNAME_Description = "Description";
-
-	/** Set Description.
-	  * Optional short description of the record
-	  */
-	public void setDescription (String Description);
-
-	/** Get Description.
-	  * Optional short description of the record
-	  */
-	public String getDescription();
-
-    /** Column name Help */
-    public static final String COLUMNNAME_Help = "Help";
-
-	/** Set Comment/Help.
-	  * Comment or Hint
-	  */
-	public void setHelp (String Help);
-
-	/** Get Comment/Help.
-	  * Comment or Hint
-	  */
-	public String getHelp();
-
-    /** Column name HierarchyType */
-    public static final String COLUMNNAME_HierarchyType = "HierarchyType";
-
-	/** Set Hierarchy Type	  */
-	public void setHierarchyType (String HierarchyType);
-
-	/** Get Hierarchy Type	  */
-	public String getHierarchyType();
-
     /** Column name IsActive */
     public static final String COLUMNNAME_IsActive = "IsActive";
 
@@ -219,57 +152,18 @@ public interface I_AD_WindowCustom
 	  */
 	public boolean isActive();
 
-    /** Column name IsDefault */
-    public static final String COLUMNNAME_IsDefault = "IsDefault";
+    /** Column name Record_ID */
+    public static final String COLUMNNAME_Record_ID = "Record_ID";
 
-	/** Set Default.
-	  * Default value
+	/** Set Record ID.
+	  * Direct internal record ID
 	  */
-	public void setIsDefault (boolean IsDefault);
+	public void setRecord_ID (int Record_ID);
 
-	/** Get Default.
-	  * Default value
+	/** Get Record ID.
+	  * Direct internal record ID
 	  */
-	public boolean isDefault();
-
-    /** Column name IsReadOnly */
-    public static final String COLUMNNAME_IsReadOnly = "IsReadOnly";
-
-	/** Set Read Only.
-	  * Field is read only
-	  */
-	public void setIsReadOnly (String IsReadOnly);
-
-	/** Get Read Only.
-	  * Field is read only
-	  */
-	public String getIsReadOnly();
-
-    /** Column name IsUserUpdateable */
-    public static final String COLUMNNAME_IsUserUpdateable = "IsUserUpdateable";
-
-	/** Set User updatable.
-	  * The field can be updated by the user
-	  */
-	public void setIsUserUpdateable (String IsUserUpdateable);
-
-	/** Get User updatable.
-	  * The field can be updated by the user
-	  */
-	public String getIsUserUpdateable();
-
-    /** Column name Name */
-    public static final String COLUMNNAME_Name = "Name";
-
-	/** Set Name.
-	  * Alphanumeric identifier of the entity
-	  */
-	public void setName (String Name);
-
-	/** Get Name.
-	  * Alphanumeric identifier of the entity
-	  */
-	public String getName();
+	public int getRecord_ID();
 
     /** Column name Updated */
     public static final String COLUMNNAME_Updated = "Updated";
@@ -299,17 +193,4 @@ public interface I_AD_WindowCustom
 	  * Immutable Universally Unique Identifier
 	  */
 	public String getUUID();
-
-    /** Column name WindowType */
-    public static final String COLUMNNAME_WindowType = "WindowType";
-
-	/** Set WindowType.
-	  * Type or classification of a Window
-	  */
-	public void setWindowType (String WindowType);
-
-	/** Get WindowType.
-	  * Type or classification of a Window
-	  */
-	public String getWindowType();
 }
