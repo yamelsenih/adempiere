@@ -34,10 +34,10 @@ import org.compiere.util.KeyNamePair;
 import org.compiere.util.Msg;
 import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.event.EventListener;
-import org.zkoss.zkex.zul.Borderlayout;
-import org.zkoss.zkex.zul.Center;
-import org.zkoss.zkex.zul.North;
-import org.zkoss.zkex.zul.South;
+import org.zkoss.zul.Borderlayout;
+import org.zkoss.zul.Center;
+import org.zkoss.zul.North;
+import org.zkoss.zul.South;
 import org.zkoss.zul.Div;
 
 /**
@@ -46,7 +46,7 @@ import org.zkoss.zul.Div;
  * @author Elaine
  *
  */
-public class InfoPAttributeInstancePanel extends Window implements EventListener, WTableModelListener
+public class InfoPAttributeInstancePanel extends Window implements EventListener<Event>, WTableModelListener
 {
 	/**
 	 * 

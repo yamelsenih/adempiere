@@ -22,15 +22,16 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.adempiere.webui.AdempiereIdGenerator;
-import org.adempiere.webui.LayoutUtils;
+import org.adempiere.webui.theme.ThemeUtils;
 import org.compiere.util.Env;
 import org.compiere.util.Msg;
 import org.compiere.util.Util;
 import org.zkoss.zk.ui.Component;
+import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.event.EventListener;
 import org.zkoss.zk.ui.event.Events;
 import org.zkoss.zul.Hbox;
+import org.zkoss.zul.Hlayout;
 import org.zkoss.zul.Messagebox;
 /**
  * Application Confirm Panel
@@ -113,9 +114,8 @@ public final class ConfirmPanel extends Hbox
     {
         Button button = new Button();
         button.setName("btn"+name);
-        button.setId(name);
-        button.setAttribute(AdempiereIdGenerator.ZK_COMPONENT_PREFIX_ATTRIBUTE, button.getId());
-        
+        button.setId(name);  // Might get overwritten by renderer
+        button.setAttribute("zk_component_ID", "ConfirmPanel_btn"+name);
         String text = Msg.translate(Env.getCtx(), name);
         if (!name.equals(text))
         	text = text.replaceAll("[&]", "");
@@ -129,14 +129,14 @@ public final class ConfirmPanel extends Hbox
         		button.setImage("images/"+name+"16.png");
         	}
         	button.setLabel(text);
-        	LayoutUtils.addSclass("action-text-button", button);
+        	ThemeUtils.addSclass("action-text-button", button);
         }
         else
         {
         	button.setImage("images/"+name+"16.png");
         	if (text != null)
         		button.setTooltiptext(text);
-        	LayoutUtils.addSclass("action-button", button);
+        	ThemeUtils.addSclass("action-button", button);
         }
 
         buttonMap.put(name, button);

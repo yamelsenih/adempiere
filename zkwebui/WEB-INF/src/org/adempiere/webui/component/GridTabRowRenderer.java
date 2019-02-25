@@ -28,6 +28,7 @@ import org.adempiere.webui.editor.WebEditorFactory;
 import org.adempiere.webui.event.ContextMenuListener;
 import org.adempiere.webui.panel.AbstractADWindowPanel;
 import org.adempiere.webui.session.SessionManager;
+import org.adempiere.webui.theme.ThemeUtils;
 import org.adempiere.webui.util.GridTabDataBinder;
 import org.adempiere.webui.window.ADWindow;
 import org.compiere.model.GridField;
@@ -263,12 +264,15 @@ public class GridTabRowRenderer implements RowRenderer, RowRendererExt, Renderer
 	 */
 	private void setLabelText(String text, Label label) {
 		String display = text;
-		if (text != null && text.length() > MAX_TEXT_LENGTH)
-			display = text.substring(0, MAX_TEXT_LENGTH - 3) + "...";
+		// Since ZK7 truncation of strings moved to theme - text-overflow property controls 
+		// the presentation.
+		//if (text != null && text.length() > MAX_TEXT_LENGTH)
+		//	display = text.substring(0, MAX_TEXT_LENGTH - 3) + "...";
 		if (display != null)
 			display = XMLs.encodeText(display);
 		label.appendChild(new Text(display));
-		if (text != null && text.length() > MAX_TEXT_LENGTH)
+		//if (text != null && text.length() > MAX_TEXT_LENGTH)
+		if (text != null)
 			label.setDynamicProperty("title", text);
 		else
 			label.setDynamicProperty("title", "");
@@ -336,7 +340,6 @@ public class GridTabRowRenderer implements RowRenderer, RowRendererExt, Renderer
 	 * @see RowRenderer#render(Row, Object)
 	 */
 	public void render(Row row, Object data) throws Exception {
-		
 		//don't render if not visible
 		if (gridPanel != null && !gridPanel.isVisible()) {
 			return;
@@ -387,12 +390,16 @@ public class GridTabRowRenderer implements RowRenderer, RowRendererExt, Renderer
 
 				if (DisplayType.YesNo == gridField[i].getDisplayType() || DisplayType.Image == gridField[i].getDisplayType()) {
 					div.setTextAlign("center"); 
+					ThemeUtils.addSclass("yes-no", div);
+					//divStyle += "text-align:center; ";
 				}
 				else if (DisplayType.isNumeric(gridField[i].getDisplayType())) {
 					div.setTextAlign("right");
 				}
 				else {
 					div.setTextAlign("left"); 
+					ThemeUtils.addSclass("numeric", div);
+					//divStyle += "text-align:right; ";
 				}
 			}
 
@@ -437,9 +444,19 @@ public class GridTabRowRenderer implements RowRenderer, RowRendererExt, Renderer
 //		if(isEditing() && currentRowIndex > 1 )
 //			stopColEditing(true);
 		currentRow.setStyle("");
+		if (currentRow != null && currentRow.getParent() != null && currentRow != row) {
+			ThemeUtils.removeSclass("current", currentRow);
+		}
 		currentRow = row;
 		Clients.scrollIntoView(currentRow);
 		if (currentRowIndex != gridTab.getCurrentRow()) {
+		ThemeUtils.addSclass("current", currentRow);
+		if (currentRowIndex == gridTab.getCurrentRow()) {
+			if (editing) {
+				stopEditing(false);
+				editCurrentRow();
+			}
+		} else {
 			currentRowIndex = gridTab.getCurrentRow();
 		}
 		setCurrentColumn(currentColumn);

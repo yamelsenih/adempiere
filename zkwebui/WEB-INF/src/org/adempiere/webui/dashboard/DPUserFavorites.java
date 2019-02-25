@@ -21,7 +21,7 @@ import org.zkoss.zul.Box;
 import org.zkoss.zul.Button;
 import org.zkoss.zul.Panel;
 import org.zkoss.zul.Panelchildren;
-import org.zkoss.zul.SimpleTreeNode;
+import org.zkoss.zul.DefaultTreeNode;
 import org.zkoss.zul.Textbox;
 import org.zkoss.zul.Toolbar;
 import org.zkoss.zul.Tree;
@@ -142,7 +142,7 @@ public class DPUserFavorites extends DashboardPanel implements EventListener
 
 				public void run(Treeitem treeItem)
 				{
-					SimpleTreeNode simpleTreeNode = (SimpleTreeNode) treeItem.getValue();
+					DefaultTreeNode<?> simpleTreeNode = (DefaultTreeNode<?>) treeItem.getValue();
 					MTreeNode mtn = (MTreeNode) simpleTreeNode.getData();
 					if (mtn.IsCollapsible())
 						treeItem.setOpen(false);
@@ -228,13 +228,13 @@ public class DPUserFavorites extends DashboardPanel implements EventListener
 					mTreeFavoriteNode.getSeqNo(), mTreeFavoriteNode.getNodeName(), "",
 					mTreeFavoriteNode.getParent_ID(), mTreeFavoriteNode.isSummary(), mTreeFavoriteNode.getAD_Menu_ID(),
 					null, false);
-			SimpleTreeNode newNode = new SimpleTreeNode(mtnNew, new ArrayList());
-			SimpleTreeNode parentNode = tModel.find(null, mtnNew.getParent_ID());
+			DefaultTreeNode newNode = new DefaultTreeNode(mtnNew, new ArrayList());
+			DefaultTreeNode<?> parentNode = tModel.find(null, mtnNew.getParent_ID());
 
 			try
 			{
 				tModel.addNode(parentNode, newNode, 0);
-				int[] path = tModel.getPath(tModel.getRoot(), newNode);
+				int[] path = tModel.getPath(newNode);
 				Treeitem ti = tree.renderItemByPath(path);
 				tree.setSelectedItem(ti);
 				Events.sendEvent(tree, new Event(Events.ON_SELECT, tree));

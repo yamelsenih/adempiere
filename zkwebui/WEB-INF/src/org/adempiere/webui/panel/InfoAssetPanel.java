@@ -20,6 +20,7 @@ package org.adempiere.webui.panel;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.util.Comparator;
 
 import org.adempiere.webui.apps.AEnv;
 import org.adempiere.webui.component.Label;
@@ -38,6 +39,7 @@ import org.compiere.model.MQuery;
 import org.compiere.util.DisplayType;
 import org.compiere.util.Env;
 import org.compiere.util.Msg;
+import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.event.EventListener;
 import org.zkoss.zk.ui.event.Events;
 
@@ -56,7 +58,7 @@ import org.zkoss.zk.ui.event.Events;
  * 	<li>https://adempiere.atlassian.net/browse/ADEMPIERE-72
 */
 
-public class InfoAssetPanel extends InfoPanel implements ValueChangeListener, EventListener
+public class InfoAssetPanel extends InfoPanel implements ValueChangeListener, EventListener<Event>
 {
 	/**
 	 * 
@@ -362,5 +364,11 @@ public class InfoAssetPanel extends InfoPanel implements ValueChangeListener, Ev
 	{
 		return true;
 	} // hasZoom
+
+	@Override
+	public String getSortDirection(Comparator cmpr) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 
 }

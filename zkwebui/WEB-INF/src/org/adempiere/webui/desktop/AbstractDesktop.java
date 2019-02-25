@@ -42,6 +42,7 @@ public abstract class AbstractDesktop extends AbstractUIPart implements IDesktop
 
 	private List<Object> windows = null;
 
+	@SuppressWarnings("unused")
 	private static final CLogger logger = CLogger.getCLogger(AbstractDesktop.class);
 
 	public AbstractDesktop() {
@@ -197,15 +198,8 @@ public abstract class AbstractDesktop extends AbstractUIPart implements IDesktop
    		//fall back to highlighted if can't execute doModal
    		if (Events.inEventListener())
    		{
-			try
-			{
 				win.doModal();
 			}
-			catch(InterruptedException e)
-			{
-				
-			}
-   		}
    		else
    		{
    			showHighlighted(win, null);

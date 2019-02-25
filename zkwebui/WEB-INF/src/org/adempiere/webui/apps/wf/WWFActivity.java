@@ -56,15 +56,16 @@ import org.compiere.util.ValueNamePair;
 import org.compiere.wf.MWFActivity;
 import org.compiere.wf.MWFNode;
 import org.eevolution.form.WBrowser;
+import org.zkoss.web.fn.ServletFns;
 import org.zkoss.zk.ui.Component;
 import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.event.EventListener;
 import org.zkoss.zk.ui.event.Events;
 import org.zkoss.zk.ui.util.Clients;
-import org.zkoss.zkex.zul.Borderlayout;
-import org.zkoss.zkex.zul.Center;
-import org.zkoss.zkex.zul.North;
-import org.zkoss.zkex.zul.South;
+import org.zkoss.zul.Borderlayout;
+import org.zkoss.zul.Center;
+import org.zkoss.zul.North;
+import org.zkoss.zul.South;
 import org.zkoss.zul.Div;
 import org.zkoss.zul.Hbox;
 import org.zkoss.zul.Html;
@@ -118,7 +119,7 @@ public class WWFActivity extends ADForm implements EventListener
 	private ListModelTable model = null;
 	private WListbox listbox = new WListbox();
 
-	private final static String HISTORY_DIV_START_TAG = "<div style='width: 100%; height: 100px; border: 1px solid #7F9DB9;'>";
+	private final static String HISTORY_DIV_START_TAG = "<div style='width: 100%; height: 100px; border: 1px solid #7F9DB9;box-sizing: border-box;-webkit-box-sizing:border-box;-moz-box-sizing: border-box;'>";
 	public WWFActivity()
 	{
 		super();
@@ -277,7 +278,7 @@ public class WWFActivity extends ADForm implements EventListener
     			cmd_zoom();
     		else if (comp == bOK)
     		{
-    			Clients.showBusy(Msg.getMsg(Env.getCtx(), "Processing"), true);
+    			Clients.showBusy(Msg.getMsg(Env.getCtx(), "Processing"));
     			Events.echoEvent("onOK", this, null);
     		}
     		else if (comp == fAnswerButton)
@@ -606,7 +607,7 @@ public class WWFActivity extends ADForm implements EventListener
 		log.config("Activity=" + m_activity);
 		if (m_activity == null)
 		{
-			Clients.showBusy(null, false);
+			Clients.clearBusy();
 			return;
 		}
 		int AD_User_ID = Env.getAD_User_ID(Env.getCtx());
@@ -701,12 +702,12 @@ public class WWFActivity extends ADForm implements EventListener
 		}
 		finally
 		{
-			Clients.showBusy(null, false);
+			Clients.clearBusy();
 			if (trx != null)
 				trx.close();
 			if(Util.isEmpty(errorMessage)) {
-				FDialog.info(m_WindowNo, this , "WorkflowResult" ,
-						Msg.parseTranslation(Env.getCtx(), "@AD_WF_Node_ID@") + " : "  + m_activity.getNodeName() + " -> " +  m_activity.getTextMsg());
+			FDialog.info(m_WindowNo, this , "WorkflowResult" ,
+					Msg.parseTranslation(Env.getCtx(), "@AD_WF_Node_ID@") + " : "  + m_activity.getNodeName() + " -> " +  m_activity.getTextMsg());
 			} else {
 				FDialog.error(m_WindowNo, this, Msg.parseTranslation(Env.getCtx(), errorMessage));
 			}

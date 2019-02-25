@@ -42,6 +42,7 @@ import org.adempiere.webui.panel.InfoPanelFactory;
 import org.adempiere.webui.panel.InfoProductPanel;
 import org.adempiere.webui.session.SessionManager;
 import org.adempiere.webui.window.ADWindow;
+import org.adempiere.webui.theme.ThemeUtils;
 import org.adempiere.webui.window.WRecordInfo;
 import org.compiere.model.GridField;
 import org.compiere.model.Lookup;
@@ -61,7 +62,11 @@ import org.compiere.util.Env;
 import org.compiere.util.Msg;
 import org.compiere.util.Trx;
 import org.eevolution.model.I_PP_Product_BOMLine;
+<<<<<<< HEAD
 import org.zkforge.keylistener.Keylistener;
+=======
+import org.zkoss.web.fn.ServletFns;
+>>>>>>> refs/heads/feature/develop-zk7
 import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.event.Events;
 import org.zkoss.zk.ui.event.KeyEvent;
@@ -198,6 +203,8 @@ public class WSearchEditor extends WEditor implements ContextMenuListener, Value
 	 */
 	private void init()
 	{
+
+		ThemeUtils.addSclass("ad-search-editor", getComponent());
 
 		m_columnName = this.getColumnName();
                 

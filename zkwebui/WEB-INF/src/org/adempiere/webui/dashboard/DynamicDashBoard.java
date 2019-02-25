@@ -112,7 +112,11 @@ public class DynamicDashBoard extends DashboardPanel implements EventListener
 		int columnsSize = column.length;
 		for (int i1 = 0; i1 < columnsSize; i1++) {
 			if (column[i1] != null) {
-				column[i1].setSort("auto");
+				try {
+					column[i1].setSort("auto");
+				} catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
+					e.printStackTrace();
+				}
 				columns.appendChild(column[i1]);
 			}
 
