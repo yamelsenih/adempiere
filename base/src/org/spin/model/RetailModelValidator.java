@@ -38,6 +38,8 @@ import org.compiere.model.PO;
 import org.compiere.util.CLogger;
 import org.compiere.util.Env;
 
+import jdk.nashorn.internal.runtime.Timing;
+
 
 
 /**
@@ -63,59 +65,14 @@ public class RetailModelValidator implements ModelValidator
 	public String modelChange (PO po, int type) throws Exception {
 		log.info(po.get_TableName() + " Type: "+type);
 		
-		if (type == TYPE_BEFORE_CHANGE) {
+		if (type == TYPE_BEFORE_CHANGE ||type == TYPE_BEFORE_NEW) {
 			if (po instanceof MBankStatementLine) {
 				//	Get values
-				
-				MBankStatementLine bstl = (MBankStatementLine)po;
-				Properties ctx = bstl.getCtx();
-				BigDecimal stmtAmt = bstl.getStmtAmt();
-				Integer bankStatementId = bstl.getC_BankStatement_ID();
-				Integer currencyId = bstl.getC_Currency_ID();
 
-				//	
-				int AD_Client_ID = Env.getAD_Client_ID(ctx);
-				int AD_Org_ID = 0;
-				int ConversionTypeId = 0;
-				
-				//	Get Currency POS
-				int currencyPOSId = 0;
-				//	For invoice
-				List<MPOS> poss = MPOS.getByOrganization(ctx,Env.getAD_Org_ID(ctx), null);
-				for(MPOS pos : poss) {
-					if(Env.getAD_User_ID(ctx) == pos.getSalesRep_ID() ) {
-						
-						currencyPOSId = pos.getC_BankAccount().getC_Currency_ID();
-						ConversionTypeId = pos.get_ValueAsInt("C_ConversionType_ID");
-						break;
-					}
-				}
-				if(currencyPOSId == 0 || currencyId == currencyPOSId)
-					return "";
-				
-				//	Get Currency Info
-				MCurrency currency = MCurrency.get (ctx,currencyId);
-				MBankStatement bankStatement = new  MBankStatement(ctx, bankStatementId, null);
-				Timestamp ConvDate = bankStatement.getStatementDate();
-			
-				// Get Currency Rate
-				BigDecimal CurrencyRate = Env.ONE;
-				//	For Conversion Rate
-				if (currencyId > 0) {
-					//	Rate
-					CurrencyRate = MConversionRate.getRate (currencyId,
-						currencyPOSId, ConvDate, ConversionTypeId, AD_Client_ID,
-						AD_Org_ID);
-				}
-				if(CurrencyRate != null){
-				//	Set Open Amount
-				BigDecimal ConvertedAmt = stmtAmt.multiply(CurrencyRate).setScale(
-						currency.getStdPrecision(), BigDecimal.ROUND_HALF_UP);
-			
-				//	Set values
-				bstl.set_ValueOfColumn("ConvertedAmt", ConvertedAmt);
-			}
-		}	
+				MBankStatementLine bstl = (MBankStatementLine)po;
+				currencyConvert(bstl);
+
+			}	
 		} else if(type == TYPE_BEFORE_NEW) {
 
 			
@@ -132,7 +89,11 @@ public class RetailModelValidator implements ModelValidator
 		log.info(po.get_TableName() + " Timing: "+timing);
 		//	Validate table
 
-
+		if(timing == TIMING_BEFORE_COMPLETE)
+			if (po instanceof MBankStatementLine) {	
+				MBankStatementLine bstl = (MBankStatementLine)po;
+				currencyConvert(bstl);
+			}
 		return null;
 	}	//	docValidate
 	
@@ -151,4 +112,60 @@ public class RetailModelValidator implements ModelValidator
 	public String login(int AD_Org_ID, int AD_Role_ID, int AD_User_ID) {
 		return null;
 	}
+	
+	
+	/**
+	 * Currency Convert
+	 */
+	private void currencyConvert(MBankStatementLine bstl){
+		Properties ctx = bstl.getCtx();
+		BigDecimal stmtAmt = bstl.getStmtAmt();
+		Integer bankStatementId = bstl.getC_BankStatement_ID();
+		Integer currencyId = bstl.getC_Currency_ID();
+
+		//	
+		int AD_Client_ID = Env.getAD_Client_ID(ctx);
+		int AD_Org_ID = 0;
+		int ConversionTypeId = 0;
+
+		//	Get Currency POS
+		int currencyPOSId = 0;
+		//	For invoice
+		List<MPOS> poss = MPOS.getByOrganization(ctx,Env.getAD_Org_ID(ctx), null);
+		for(MPOS pos : poss) {
+			if(Env.getAD_User_ID(ctx) == pos.getSalesRep_ID() ) {
+
+				currencyPOSId = pos.getC_BankAccount().getC_Currency_ID();
+				ConversionTypeId = pos.get_ValueAsInt("C_ConversionType_ID");
+				break;
+			}
+		}
+		if(currencyPOSId == 0 || currencyId == currencyPOSId)
+			return ;
+
+		//	Get Currency Info
+		MCurrency currency = MCurrency.get (ctx,currencyId);
+		MBankStatement bankStatement = new  MBankStatement(ctx, bankStatementId, null);
+		Timestamp ConvDate = bankStatement.getStatementDate();
+
+		// Get Currency Rate
+		BigDecimal CurrencyRate = Env.ONE;
+		//	For Conversion Rate
+		if (currencyId > 0) {
+			//	Rate
+			CurrencyRate = MConversionRate.getRate (currencyId,
+					currencyPOSId, ConvDate, ConversionTypeId, AD_Client_ID,
+					AD_Org_ID);
+		}
+		if(CurrencyRate != null){
+			//	Set Open Amount
+			BigDecimal ConvertedAmt = stmtAmt.multiply(CurrencyRate).setScale(
+					currency.getStdPrecision(), BigDecimal.ROUND_HALF_UP);
+
+			//	Set values
+			bstl.set_ValueOfColumn("ConvertedAmt", ConvertedAmt);
+		}
+		return ;
+	}
+	
 }	//	AgencyValidator
