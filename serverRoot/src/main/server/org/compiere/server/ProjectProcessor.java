@@ -205,12 +205,17 @@ public class ProjectProcessor extends AdempiereServer
 			
 			//	
 			EMail email = null;
-			if (m_model.getSupervisor_ID()==0)
-				email = m_client.createEMail(to.getEMail(), null, null);
-			else {
+			if (m_model.getSupervisor_ID()!=0) {
 				MUser from = (MUser) m_model.getSupervisor();
 				email = m_client.createEMail(from, to, null, null);
 			}
+			
+			if (email == null)
+				email = m_client.createEMail(to.getEMail(), null, null);
+			
+			if (email==null)
+				return false;
+			
 			//	
 			String msg = null;
 			if (!email.isValid()) {
