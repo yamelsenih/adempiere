@@ -28,11 +28,13 @@ import org.compiere.model.MConversionRate;
 import org.compiere.model.MOrder;
 import org.compiere.model.MOrderLine;
 import org.compiere.model.MPriceList;
+import org.compiere.model.MProduct;
 import org.compiere.model.MProductPO;
 import org.compiere.model.MProject;
 import org.compiere.model.MProjectLine;
 import org.compiere.model.MProjectPhase;
 import org.compiere.model.MProjectTask;
+import org.compiere.model.MUOMConversion;
 import org.compiere.model.PO;
 import org.compiere.model.Query;
 import org.compiere.util.Env;
@@ -238,7 +240,24 @@ public class ProjectGenPO extends ProjectGenPOAbstract
             MProductPO productPurchase) {
         MOrderLine orderLine = new MOrderLine(order);
         orderLine.setM_Product_ID(projectLine.getM_Product_ID(), true);
-        orderLine.setQty(projectLine.getPlannedQty());
+        BigDecimal quantityToOrder = projectLine.getPlannedQty().subtract(projectLine.getInvoicedQty());
+        MProduct product = MProduct.get(getCtx(), projectLine.getM_Product_ID());
+        int uomId = product.getC_UOM_ID();
+		if(projectLine.get_ValueAsInt("C_UOM_ID") > 0
+				&& projectLine.get_Value("Qtyentered") != null) {
+			uomId = projectLine.get_ValueAsInt("C_UOM_ID");
+			if(uomId != product.getC_UOM_ID()) {
+				BigDecimal quantityEntered = MUOMConversion.convertProductTo (getCtx(), projectLine.getM_Product_ID(), uomId, quantityToOrder);
+				if (quantityEntered == null) {
+					quantityEntered = quantityToOrder;
+				}
+				orderLine.setQty(quantityEntered);
+				orderLine.setQtyOrdered(quantityToOrder);
+				orderLine.setC_UOM_ID(uomId);			}
+		} else { 
+			orderLine.setQty(quantityToOrder);
+		}
+		orderLine.setC_UOM_ID(uomId);
         orderLine.setDescription(projectLine.getDescription());
 
         //	(Vendor) PriceList Price

@@ -26,7 +26,6 @@ import java.util.logging.Level;
 
 import org.adempiere.model.GridTabWrapper;
 import org.compiere.util.DB;
-import org.compiere.util.DisplayType;
 import org.compiere.util.Env;
 
 
@@ -332,4 +331,96 @@ public class CalloutProject extends CalloutEngine
 		}
 		return "";
 	}	//	bPartner
+	
+	/**
+	 * Convert Quantity
+	 * @param ctx
+	 * @param windowNo
+	 * @param tab
+	 * @param field
+	 * @param value
+	 * @return
+	 */
+	public String quantity(Properties ctx, int windowNo, GridTab tab, GridField field, Object value) {
+		if (isCalloutActive() || value == null)
+			return "";
+		//	Validate columns
+		if(!field.getColumnName().equals("PlannedQty")
+				&& !field.getColumnName().equals("Qty")
+				&& !field.getColumnName().equals("QtyEntered")
+				&& !field.getColumnName().equals("C_UOM_ID")
+				&& !field.getColumnName().equals("M_Product_ID"))  {
+			return "";
+		}
+		int uOmToId = Env.getContextAsInt(ctx, windowNo, "C_UOM_ID");
+		//	get values
+		int productId = (int) tab.getValue("M_Product_ID");
+		if(productId <= 0) {
+			return "";
+		}
+		BigDecimal quantityEntered = (BigDecimal) tab.getValue("QtyEntered");
+		BigDecimal plannedQuantity = (BigDecimal) tab.getValue("PlannedQty");
+		if(plannedQuantity == null) {
+			plannedQuantity = (BigDecimal) tab.getValue("Qty");
+		}
+		if(quantityEntered == null) {
+			quantityEntered = Env.ZERO;
+		}
+		if(plannedQuantity == null) {
+			plannedQuantity = Env.ZERO;
+		}
+		log.fine("QtyEntered = " + quantityEntered + ", PlannedQty=" + plannedQuantity + ", UOM=" + uOmToId);
+		//	Calculate
+		if (field.getColumnName().equals("QtyEntered")
+				|| field.getColumnName().equals("C_UOM_ID")
+				|| field.getColumnName().equals("M_Product_ID")) {
+			BigDecimal quantityEnteredRounded = quantityEntered.setScale(MUOM.getPrecision(ctx, uOmToId), BigDecimal.ROUND_HALF_UP);
+			if (quantityEntered.compareTo(quantityEnteredRounded) != 0)
+			{
+				log.fine("Corrected QtyEntered Scale UOM=" + uOmToId 
+					+ "; QtyEntered=" + quantityEntered + "->" + quantityEnteredRounded);  
+				quantityEntered = quantityEnteredRounded;
+				tab.setValue("QtyEntered", quantityEntered);
+			}
+			plannedQuantity = MUOMConversion.convertProductFrom (ctx, productId, uOmToId, quantityEntered);
+			if (plannedQuantity == null) {
+				plannedQuantity = quantityEntered;
+			}
+			boolean conversion = quantityEntered.compareTo(plannedQuantity) != 0;
+			log.fine("UOM=" + uOmToId 
+				+ ", QtyEntered=" + quantityEntered
+				+ " -> " + conversion 
+				+ " PlannedQty=" + plannedQuantity);
+			tab.setValue("PlannedQty", plannedQuantity);
+			tab.setValue("Qty", plannedQuantity);
+		}
+		//	PlannedQty changed - calculate QtyEntered (should not happen)
+		else if (field.getColumnName().equals("PlannedQty")
+				|| field.getColumnName().equals("Qty")) {
+			int precision = MProduct.get(ctx, productId).getUOMPrecision(); 
+			BigDecimal quantityRounded = plannedQuantity.setScale(precision, BigDecimal.ROUND_HALF_UP);
+			if (plannedQuantity.compareTo(quantityRounded) != 0) {
+				log.fine("Corrected PlannedQty Scale " 
+					+ plannedQuantity + "->" + quantityRounded);  
+				plannedQuantity = quantityRounded;
+				tab.setValue("PlannedQty", plannedQuantity);
+			}
+			quantityEntered = MUOMConversion.convertProductTo (ctx, productId, uOmToId, plannedQuantity);
+			if (quantityEntered == null) {
+				quantityEntered = plannedQuantity;
+			}
+			boolean conversion = plannedQuantity.compareTo(quantityEntered) != 0;
+			log.fine("UOM=" + uOmToId 
+				+ ", PlannedQty=" + plannedQuantity
+				+ " -> " + conversion 
+				+ " QtyEntered=" + quantityEntered);
+			tab.setValue("QtyEntered", quantityEntered);
+		}
+		//	
+		if (plannedQuantity == null) {
+			plannedQuantity = quantityEntered;
+		}
+
+		return "";
+	}
 }	//	CalloutProject

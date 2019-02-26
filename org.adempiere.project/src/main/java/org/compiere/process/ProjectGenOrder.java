@@ -16,6 +16,7 @@
  *****************************************************************************/
 package org.compiere.process;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -24,8 +25,10 @@ import java.util.logging.Level;
 import org.adempiere.exceptions.AdempiereException;
 import org.compiere.model.MOrder;
 import org.compiere.model.MOrderLine;
+import org.compiere.model.MProduct;
 import org.compiere.model.MProject;
 import org.compiere.model.MProjectLine;
+import org.compiere.model.MUOMConversion;
 import org.compiere.util.Env;
 
 /**
@@ -72,25 +75,42 @@ public class ProjectGenOrder extends ProjectGenOrderAbstract {
 		else	//	Order Lines
 		{
 			List<MProjectLine> fromProjectLines = fromProject.getLines();
-			fromProjectLines.stream().forEach(fromProjectLine -> {
+			fromProjectLines.stream().forEach(projectLine -> {
 				MOrderLine orderLine = new MOrderLine(order);
-				orderLine.setLine(fromProjectLine.getLine());
-				orderLine.setDescription(fromProjectLine.getDescription());
-				orderLine.setM_Product_ID(fromProjectLine.getM_Product_ID(), true);
-				orderLine.setQty(fromProjectLine.getPlannedQty().subtract(fromProjectLine.getInvoicedQty()));
+				orderLine.setLine(projectLine.getLine());
+				orderLine.setDescription(projectLine.getDescription());
+				orderLine.setM_Product_ID(projectLine.getM_Product_ID(), true);
+				BigDecimal quantityToOrder = projectLine.getPlannedQty().subtract(projectLine.getInvoicedQty());
+				MProduct product = MProduct.get(getCtx(), projectLine.getM_Product_ID());
+				int uomId = product.getC_UOM_ID();
+				if(projectLine.get_ValueAsInt("C_UOM_ID") > 0
+						&& projectLine.get_Value("Qtyentered") != null) {
+					uomId = projectLine.get_ValueAsInt("C_UOM_ID");
+					if(uomId != product.getC_UOM_ID()) {
+						BigDecimal quantityEntered = MUOMConversion.convertProductTo (getCtx(), projectLine.getM_Product_ID(), uomId, quantityToOrder);
+						if (quantityEntered == null) {
+							quantityEntered = quantityToOrder;
+						}
+						orderLine.setQty(quantityEntered);
+						orderLine.setQtyOrdered(quantityToOrder);
+					}
+				} else { 
+					orderLine.setQty(quantityToOrder);
+				}
+				orderLine.setC_UOM_ID(uomId);
 				orderLine.setPrice();
-				if (fromProjectLine.getPlannedPrice() != null && fromProjectLine.getPlannedPrice().compareTo(Env.ZERO) != 0)
-					orderLine.setPrice(fromProjectLine.getPlannedPrice());
+				if (projectLine.getPlannedPrice() != null && projectLine.getPlannedPrice().compareTo(Env.ZERO) != 0)
+					orderLine.setPrice(projectLine.getPlannedPrice());
 				orderLine.setDiscount();
 				//	Project Reference
-				orderLine.setC_Project_ID(fromProjectLine.getC_Project_ID());
+				orderLine.setC_Project_ID(projectLine.getC_Project_ID());
 				//	Project Phase
-				if(fromProjectLine.getC_ProjectPhase_ID() > 0) {
-					orderLine.setC_ProjectPhase_ID(fromProjectLine.getC_ProjectPhase_ID());
+				if(projectLine.getC_ProjectPhase_ID() > 0) {
+					orderLine.setC_ProjectPhase_ID(projectLine.getC_ProjectPhase_ID());
 				}
 				//	Project Task
-				if(fromProjectLine.getC_ProjectTask_ID() > 0) {
-					orderLine.setC_ProjectTask_ID(fromProjectLine.getC_ProjectTask_ID());
+				if(projectLine.getC_ProjectTask_ID() > 0) {
+					orderLine.setC_ProjectTask_ID(projectLine.getC_ProjectTask_ID());
 				}
 				orderLine.setTax();
 				

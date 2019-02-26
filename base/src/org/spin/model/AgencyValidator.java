@@ -517,8 +517,8 @@ public class AgencyValidator implements ModelValidator
 				consumeAmount = consumeAmount.add(sourceOrder.getGrandTotal());
 				if(consumeAmount.compareTo(preOrder.getGrandTotal()) > 0) {
 					DecimalFormat format = DisplayType.getNumberFormat(DisplayType.Amount);
-					throw new AdempiereException("[@ConsumeAmt@] > @PreOrderAmt@ (@PreOrderAmt@ = " 
-							+ format.format(preOrder.getGrandTotal()) + ", @ConsumeAmt@ = " + format.format(consumeAmount) 
+					throw new AdempiereException("[@ConsumedAmt@] > @PreOrderAmt@ (@PreOrderAmt@ = " 
+							+ format.format(preOrder.getGrandTotal()) + ", @ConsumedAmt@ = " + format.format(consumeAmount) 
 							+ Env.NL + "@amount.difference@ = " + format.format(preOrder.getGrandTotal().subtract(consumeAmount)) + ")");
 				}
 				//	Generate document
