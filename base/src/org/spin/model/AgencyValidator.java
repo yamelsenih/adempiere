@@ -16,6 +16,7 @@
 package org.spin.model;
 
 import java.math.BigDecimal;
+import java.text.DecimalFormat;
 import java.util.Hashtable;
 import java.util.List;
 
@@ -60,6 +61,8 @@ import org.compiere.process.DocAction;
 import org.compiere.process.OrderLineCreateShipmentAbstract;
 import org.compiere.process.OrderPOCreateAbstract;
 import org.compiere.util.CLogger;
+import org.compiere.util.DB;
+import org.compiere.util.DisplayType;
 import org.compiere.util.Env;
 import org.compiere.util.Msg;
 import org.eevolution.service.dsl.ProcessBuilder;
@@ -500,6 +503,25 @@ public class AgencyValidator implements ModelValidator
 			//	Validate
 			if(preOrder != null
 					&& preOrder.getC_Order_ID() > 0) {
+				BigDecimal consumeAmount = DB.getSQLValueBD(sourceOrder.get_TrxName(), "SELECT SUM(GrandTotal) "
+						+ "FROM C_Order o "
+						+ "WHERE o.DocStatus IN('CO') "
+						+ "AND o.C_Project_ID = ? "
+						+ "AND o.C_BPartner_ID = ? "
+						+ "AND o.IsSOTrx = '" + (sourceOrder.isSOTrx()? "Y": "N") + "' "
+						+ "AND EXISTS(SELECT 1 FROM C_DocType dt WHERE dt.C_DocType_ID = o.C_DocType_ID AND dt.IsConsumePreOrder = 'Y')", sourceOrder.getC_Project_ID(), sourceOrder.getC_BPartner_ID());
+				//	Validate
+				if(consumeAmount == null) {
+					consumeAmount = Env.ZERO;
+				}
+				consumeAmount = consumeAmount.add(sourceOrder.getGrandTotal());
+				if(consumeAmount.compareTo(preOrder.getGrandTotal()) > 0) {
+					DecimalFormat format = DisplayType.getNumberFormat(DisplayType.Amount);
+					throw new AdempiereException("[@ConsumeAmt@] > @PreOrderAmt@ (@PreOrderAmt@ = " 
+							+ format.format(preOrder.getGrandTotal()) + ", @ConsumeAmt@ = " + format.format(consumeAmount) 
+							+ Env.NL + "@amount.difference@ = " + format.format(preOrder.getGrandTotal().subtract(consumeAmount)) + ")");
+				}
+				//	Generate document
 				if(reverseDocumentTypeId > 0) {
 					MOrder reverseOrder = new MOrder(sourceOrder.getCtx(), 0, sourceOrder.get_TrxName());
 					PO.copyValues(preOrder, reverseOrder);
