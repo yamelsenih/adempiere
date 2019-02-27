@@ -125,7 +125,7 @@ public class MProcess extends X_AD_Process
 	/**	Cache						*/
 	private static CCache<Integer,MProcess>	s_cache	= new CCache<Integer,MProcess>(Table_Name, 20);
 	/**	Cache for parameters		*/
-	private static CCache<String, MProcessPara[]>	s_cacheASPParameters = new CCache<String, MProcessPara[]>(I_AD_Process_Para.Table_Name, 20);
+	private static CCache<String, MProcessPara[]>	cacheASPParameters = new CCache<String, MProcessPara[]>(I_AD_Process_Para.Table_Name, 20);
 	
 	
 	/**************************************************************************
@@ -184,13 +184,13 @@ public class MProcess extends X_AD_Process
 	public MProcessPara[] getASPParameters() {
 		MClient client = MClient.get(Env.getCtx());
 		String key = getAD_Process_ID() + "|" + client.getAD_Client_ID();
-		MProcessPara[] retValue = s_cacheASPParameters.get (key);
+		MProcessPara[] retValue = cacheASPParameters.get (key);
 		if (retValue != null)
 			return retValue;
 		//	Get where clause
-		String ASPFilter = null;
+		String aSPFilter = null;
 		if (client.isUseASP()) {
-			ASPFilter = 
+			aSPFilter = 
 				//	Just ASP subscribed process parameters for client "
 				"("
 				+ "	EXISTS(SELECT 1 FROM ASP_Process p "
@@ -225,9 +225,9 @@ public class MProcess extends X_AD_Process
 				+ "				AND ce.AD_Field_ID IS NULL "
 				+ "				AND ce.ASP_Status = 'H')";	//	Hide
 		}
-		retValue = getParameters(ASPFilter);
+		retValue = getParameters(aSPFilter);
 		if (retValue.length != 0)
-			s_cacheASPParameters.put(key, retValue);
+			cacheASPParameters.put(key, retValue);
 		//	Default Return
 		return retValue;
 	}
