@@ -16,18 +16,19 @@
 
 package org.adempiere.pos.process;
 
+import java.math.BigDecimal;
+import java.sql.Timestamp;
+import java.util.List;
+
 import org.adempiere.exceptions.AdempiereException;
 import org.compiere.model.MBankStatement;
+import org.compiere.model.MPOS;
 import org.compiere.model.MPayment;
 import org.compiere.model.MPaymentBatch;
 import org.compiere.model.MRefList;
 import org.compiere.util.DisplayType;
 import org.compiere.util.Msg;
 import org.compiere.util.Util;
-
-import java.math.BigDecimal;
-import java.sql.Timestamp;
-import java.util.List;
 
 
 /**
@@ -116,6 +117,7 @@ public class GenerateWithdrawal extends GenerateWithdrawalAbstract {
     {
             MPayment payment = new MPayment(getCtx() ,  0 , get_TrxName());
             payment.setC_POS_ID(pOSTerminalId);
+            MPOS terminal = MPOS.get(getCtx(), pOSTerminalId);
             payment.setDateTrx(transactionDate);
             if (documentNo != null && documentNo.length() > 0)
                 payment.setDocumentNo(documentNo);
@@ -130,6 +132,9 @@ public class GenerateWithdrawal extends GenerateWithdrawalAbstract {
             payment.setC_Charge_ID(chargeId);
             payment.setC_DocType_ID(documentTypeId);
             payment.setC_Currency_ID(currencyId);
+            if(terminal.get_ValueAsInt("C_ConversionType_ID") > 0) {
+            	payment.setC_ConversionType_ID(terminal.get_ValueAsInt("C_ConversionType_ID"));
+            }
             payment.setAmount(currencyId , amount);
             payment.setC_PaymentBatch_ID(paymentBatchId);
             payment.saveEx();
