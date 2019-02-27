@@ -1863,10 +1863,32 @@ public class MCommissionRun extends X_C_CommissionRun implements DocAction, DocO
 	 * 	Same as Close.
 	 * 	@return true if success 
 	 */
-	public boolean voidIt()
-	{
+	public boolean voidIt() {
 		log.info("voidIt - " + toString());
-		return closeIt();
+		// Before Void
+		String processMsg = ModelValidationEngine.get().fireDocValidate(this,ModelValidator.TIMING_BEFORE_VOID);
+		if (processMsg != null)
+			return false;
+	
+	
+	
+		if (DOCSTATUS_Closed.equals(getDocStatus())
+		|| DOCSTATUS_Reversed.equals(getDocStatus())
+		|| DOCSTATUS_Voided.equals(getDocStatus()))
+		{
+			processMsg = "Document Closed: " + getDocStatus();
+			return false;
+		}
+		//
+		setProcessed(true);
+		setDocStatus(DOCSTATUS_Voided); // need to set & save docstatus to be able to check it in MHRProcess.voidIt()
+		saveEx();
+		// After Void
+		processMsg = ModelValidationEngine.get().fireDocValidate(this,ModelValidator.TIMING_AFTER_VOID);
+		if (processMsg != null)
+			return false;
+
+		return true;
 	}	//	voidIt
 	
 	/**

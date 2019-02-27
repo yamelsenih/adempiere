@@ -26,6 +26,7 @@ import org.compiere.model.I_C_Commission;
 import org.compiere.model.I_C_CommissionRun;
 import org.compiere.model.I_C_CommissionSalesRep;
 import org.compiere.model.I_C_CommissionType;
+import org.compiere.model.I_C_Invoice;
 import org.compiere.model.I_C_Order;
 import org.compiere.model.I_C_OrderLine;
 import org.compiere.model.I_C_Project;
@@ -88,8 +89,6 @@ public class AgencyValidator implements ModelValidator
 		if (client != null) {	
 			clientId = client.getAD_Client_ID();
 		}
-		engine.addDocValidate(MOrder.Table_Name, this);
-		engine.addDocValidate(I_S_TimeExpense.Table_Name, this);
 		engine.addModelChange(MProject.Table_Name, this);
 		engine.addModelChange(MOrder.Table_Name, this);
 		engine.addModelChange(MInvoice.Table_Name, this);
@@ -98,9 +97,12 @@ public class AgencyValidator implements ModelValidator
 		engine.addModelChange(MProjectTask.Table_Name, this);
 		engine.addModelChange(MBPartner.Table_Name, this);
 		engine.addModelChange(MRequest.Table_Name, this);
+		engine.addDocValidate(MOrder.Table_Name, this);
+		engine.addDocValidate(I_S_TimeExpense.Table_Name, this);
 		engine.addDocValidate(MTimeExpense.Table_Name, this);
 		engine.addDocValidate(MSContract.Table_Name, this);
 		engine.addDocValidate(MInvoice.Table_Name, this);
+		engine.addDocValidate(MCommissionRun.Table_Name, this);
 	}	//	initialize
 
 	public String modelChange (PO po, int type) throws Exception {
@@ -349,6 +351,44 @@ public class AgencyValidator implements ModelValidator
 				}
 				//	Generate Pre-Purchase reverse
 				generateReverseAmount(order);
+			} else if(timing == TIMING_AFTER_VOID) {
+				//	For commissions
+				new Query(order.getCtx(), I_C_CommissionRun.Table_Name, I_C_Order.COLUMNNAME_C_Order_ID + " = ? "
+						+ "AND " + I_C_Invoice.COLUMNNAME_C_Invoice_ID + " IS NULL "
+						+ "AND DocStatus = 'CO'", order.get_TrxName())
+					.setOnlyActiveRecords(true)
+					.setParameters(order.getC_Order_ID())
+					.<MCommissionRun>list().forEach(commissionRun -> {
+					if(!commissionRun.processIt(MCommissionRun.DOCACTION_Void)) {
+						throw new AdempiereException(commissionRun.getProcessMsg());
+					}
+					commissionRun.saveEx();
+				});
+				//	For reverses
+				new Query(order.getCtx(), I_C_Order.Table_Name, "ConsumptionOrder_ID = ? "
+						+ "AND DocStatus = 'CO'", order.get_TrxName())
+					.setOnlyActiveRecords(true)
+					.setParameters(order.getC_Order_ID())
+					.<MOrder>list().forEach(reverseOrder -> {
+					if(!reverseOrder.processIt(MOrder.DOCACTION_Void)) {
+						throw new AdempiereException(reverseOrder.getProcessMsg());
+					}
+					reverseOrder.saveEx();
+				});
+			}
+		} else if(po instanceof MCommissionRun) {
+			MCommissionRun commissionRun = (MCommissionRun) po;
+			if(timing == TIMING_AFTER_VOID) {
+				new Query(commissionRun.getCtx(), I_C_Order.Table_Name, I_C_CommissionRun.COLUMNNAME_C_CommissionRun_ID + " = ? "
+						+ "AND DocStatus = 'CO'", commissionRun.get_TrxName())
+					.setOnlyActiveRecords(true)
+					.setParameters(commissionRun.getC_CommissionRun_ID())
+					.<MOrder>list().forEach(order -> {
+					if(!order.processIt(MOrder.DOCACTION_Void)) {
+						throw new AdempiereException(order.getProcessMsg());
+					}
+					order.saveEx();
+				});
 			}
 		} else if(po instanceof MTimeExpense) {
 			MTimeExpense expenseReport = (MTimeExpense) po;
@@ -436,6 +476,18 @@ public class AgencyValidator implements ModelValidator
 						createCommissionForInvoice(invoice, documentType.get_ValueAsInt("C_CommissionType_ID"), true);
 					}
 				}
+			} else if(timing == TIMING_AFTER_REVERSECORRECT
+					|| timing == TIMING_AFTER_REVERSEACCRUAL
+					|| timing == TIMING_AFTER_VOID) {
+				new Query(invoice.getCtx(), I_C_CommissionRun.Table_Name, I_C_Invoice.COLUMNNAME_C_Invoice_ID + " = ? "
+						+ "AND DocStatus = 'CO'", invoice.get_TrxName())
+					.setOnlyActiveRecords(true)
+					.setParameters(invoice.getC_Invoice_ID())
+					.<MCommissionRun>list().forEach(commissionRun -> {
+					if(!commissionRun.processIt(MCommissionRun.DOCACTION_Void)) {
+						throw new AdempiereException(commissionRun.getProcessMsg());
+					}
+				});
 			}
 		} else if(po instanceof MSContract) {
 			if(timing == TIMING_BEFORE_COMPLETE) {
