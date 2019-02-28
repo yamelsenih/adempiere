@@ -101,7 +101,7 @@ public class ProjectPhaseGenOrder  extends ProjectPhaseGenOrderAbstract
 			values.put("Description", ((MProjectPhase)fromPhase).getDescription());
 			values.put("Qty", ((MProjectPhase)fromPhase).getQty());
 			values.put("C_ProjectPhase_ID", ((MProjectPhase)fromPhase).getC_ProjectPhase_ID());
-			values.put("PriceActual", ((MProjectPhase)fromPhase).getPriceActual());
+			values.put("PriceActual", ((MProjectPhase)fromPhase).getPlannedAmt());
 			projectLines =((MProjectPhase)fromPhase).getLines();
 			//	Add UOM
 			values.put("QtyEntered", fromPhase.get_Value("QtyEntered"));
