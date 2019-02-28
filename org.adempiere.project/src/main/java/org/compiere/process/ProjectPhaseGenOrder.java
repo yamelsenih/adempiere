@@ -80,7 +80,7 @@ public class ProjectPhaseGenOrder  extends ProjectPhaseGenOrderAbstract
 			phase = new MProjectPhase(getCtx(), phaseId, get_TrxName());
 			projectId = phase.getC_Project_ID();
 			values.put("Name", ((MProjectTask)fromPhase).getName());
-			values.put("M_Product_ID", ((MProjectTask)fromPhase).getM_Product_ID());
+			values.put("M_Product_ID", ((MProjectTask)fromPhase).getM_Product_ID() | 0);
 			values.put("SeqNo", ((MProjectTask)fromPhase).getSeqNo());
 			values.put("Description", ((MProjectTask)fromPhase).getDescription());
 			values.put("Qty", ((MProjectTask)fromPhase).getQty());
@@ -89,14 +89,14 @@ public class ProjectPhaseGenOrder  extends ProjectPhaseGenOrderAbstract
 			//	Add UOM
 			values.put("QtyEntered", ((MProjectTask)fromPhase).get_Value("QtyEntered8"));
 			values.put("C_UOM_ID", ((MProjectTask)fromPhase).get_ValueAsInt("C_UOM_ID"));
-			
+		
 			projectLines = Arrays.asList(((MProjectTask)fromPhase).getLines());
 		}
 		else if(MProjectPhase.Table_Name.equals(getTableName())) {
 			fromPhase = new MProjectPhase (getCtx(), getRecord_ID(), get_TrxName());
 			projectId = ((MProjectPhase)fromPhase).getC_Project_ID();
 			values.put("Name", ((MProjectPhase)fromPhase).getName());
-			values.put("M_Product_ID", ((MProjectPhase)fromPhase).getM_Product_ID());
+			values.put("M_Product_ID", ((MProjectPhase)fromPhase).getM_Product_ID() | 0);
 			values.put("SeqNo", ((MProjectPhase)fromPhase).getSeqNo());
 			values.put("Description", ((MProjectPhase)fromPhase).getDescription());
 			values.put("Qty", ((MProjectPhase)fromPhase).getQty());
@@ -106,11 +106,10 @@ public class ProjectPhaseGenOrder  extends ProjectPhaseGenOrderAbstract
 			//	Add UOM
 			values.put("QtyEntered", fromPhase.get_Value("QtyEntered"));
 			values.put("C_UOM_ID", fromPhase.get_ValueAsInt("C_UOM_ID"));
-			
+		
 			tasks = ((MProjectPhase)fromPhase).getTasks();
 		}
 		
-		MProduct product = new MProduct(getCtx(),(int)values.get("M_Product_ID"),get_TrxName());
 		MProject fromProject = ProjectGenOrder.getProject (getCtx(), projectId, get_TrxName());
 		if (fromProject.getC_PaymentTerm_ID() <= 0)
 			throw new AdempiereException("@C_PaymentTerm_ID@ @NotFound@");
@@ -125,6 +124,7 @@ public class ProjectPhaseGenOrder  extends ProjectPhaseGenOrderAbstract
 		
 		//	Create an order on Phase Level
 		if ((int)values.get("M_Product_ID") != 0) {
+			MProduct product = new MProduct(getCtx(),(int)values.get("M_Product_ID"),get_TrxName());
 			MOrderLine orderLine = new MOrderLine(order);
 			orderLine.setLine((int)values.get("SeqNo"));
 			StringBuilder stringBuilder = new StringBuilder(values.get("Name").toString());
