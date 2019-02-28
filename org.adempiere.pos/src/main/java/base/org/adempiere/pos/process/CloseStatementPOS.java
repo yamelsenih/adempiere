@@ -82,9 +82,9 @@ public class CloseStatementPOS extends CloseStatementPOSAbstract {
         MBankStatementLine bankStatementLine = new MBankStatementLine(bankStatement);
         bankStatementLine.setDateAcct(getTransactionDate());
         bankStatementLine.setStatementLineDate(getTransactionDateTo());
-        bankStatementLine.setStmtAmt(getDifference());
+        bankStatementLine.setStmtAmt(getDifference().multiply(new BigDecimal(-1)));
         bankStatementLine.setC_Charge_ID(getChargeId());
-        bankStatementLine.setChargeAmt(getDifference());
+        bankStatementLine.setChargeAmt(getDifference().multiply(new BigDecimal(-1)));
         bankStatementLine.saveEx();
     }
     
