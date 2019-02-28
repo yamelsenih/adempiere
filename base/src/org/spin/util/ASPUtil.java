@@ -15,14 +15,21 @@
  *************************************************************************************/
 package org.spin.util;
 
+import java.util.List;
 import java.util.Properties;
 
 import org.adempiere.exceptions.AdempiereException;
 import org.compiere.model.I_AD_Process;
+import org.compiere.model.I_AD_ProcessCustom;
+import org.compiere.model.I_AD_Process_Para;
 import org.compiere.model.MProcess;
+import org.compiere.model.MProcessCustom;
+import org.compiere.model.MProcessPara;
 import org.compiere.model.PO;
+import org.compiere.model.Query;
 import org.compiere.util.CCache;
 import org.compiere.util.Env;
+import org.compiere.util.Util;
 
 /**
  * Class for handle ASP Util as wrapper for standard process, window and smart browse
@@ -41,7 +48,9 @@ public class ASPUtil {
 	/**	Context	*/
 	private Properties context;
 	/**	Process	Cache */
-	private static CCache<String, MProcess>	processCache = new CCache<String, MProcess>(I_AD_Process.Table_Name, 20);
+	private static CCache<String, MProcess> processCache = new CCache<String, MProcess>(I_AD_Process.Table_Name, 20);
+	/**	Process	Parameter Cache */
+	private static CCache<String, List<MProcessPara>> processParameterCache = new CCache<String, List<MProcessPara>>(I_AD_Process_Para.Table_Name, 20);
 	/**
 	 * Private constructor
 	 */
@@ -116,19 +125,13 @@ public class ASPUtil {
 		//	Save dictionary
 		processCache.put(getDictionaryKey(processId), process);
 		//	Merge Process for client (ASP)
-		MProcess clientProcess = getClientProcess(process);
-		//	Save client
-		processCache.put(getClientKey(processId, clientId), clientProcess);
+		process = getClientProcess(process);
 		//	Merge Process for role
-		MProcess roleProcess = getRoleProcess(clientProcess);
-		//	Save role
-		processCache.put(getRoleKey(processId, roleId), roleProcess);
+		process = getRoleProcess(process);
 		//	Merge Process for user
-		MProcess userProcess = getUserProcess(roleProcess);
-		//	Save user
-		processCache.put(getUserKey(processId, userId), userProcess);
+		process = getUserProcess(process);
 		//	
-		return userProcess;
+		return process;
 	}
 	
 	/**
@@ -140,8 +143,31 @@ public class ASPUtil {
 		MProcess clientProcess = new MProcess(context, 0, null);
 		PO.copyValues(process, clientProcess);
 		clientProcess.setAD_Process_ID(process.getAD_Process_ID());
+		List<MProcessCustom> customProcessList = getClientProcessList();
+		if(customProcessList != null) {
+			customProcessList.stream().forEach(customProcess -> {
+				mergeProcess(clientProcess, customProcess);
+			});
+		}
+		//	Save client
+		processCache.put(getClientKey(process.getAD_Process_ID(), clientId), clientProcess);
 		//	return
 		return clientProcess;
+	}
+	
+	/**
+	 * Get client process list for ASP
+	 * @return
+	 */
+	private List<MProcessCustom> getClientProcessList() {
+		String whereClause = "EXISTS(SELECT 1 FROM ASP_ClientLevel cl "
+				+ "WHERE cl.AD_Client_ID = ? "
+				+ "AND cl.ASP_Level_ID = AD_ProcessCustom.ASP_Level_ID)";
+		//	Get
+		return new Query(context, I_AD_ProcessCustom.Table_Name, whereClause, null)
+				.setParameters(clientId)
+				.setOnlyActiveRecords(true)
+				.list();
 	}
 	
 	/**
@@ -153,6 +179,9 @@ public class ASPUtil {
 		MProcess roleProcess = new MProcess(context, 0, null);
 		PO.copyValues(process, roleProcess);
 		roleProcess.setAD_Process_ID(process.getAD_Process_ID());
+		
+		//	Save role
+		processCache.put(getRoleKey(process.getAD_Process_ID(), roleId), roleProcess);
 		//	return
 		return roleProcess;
 	}
@@ -166,13 +195,16 @@ public class ASPUtil {
 		MProcess userProcess = new MProcess(context, 0, null);
 		PO.copyValues(process, userProcess);
 		userProcess.setAD_Process_ID(process.getAD_Process_ID());
+		
+		//	Save user
+		processCache.put(getUserKey(process.getAD_Process_ID(), userId), userProcess);
 		//	return
 		return userProcess;
 	}
 	
 	/**
 	 * Get Client Key from object Id
-	 * @param objectId
+	 * @param objectIdmergePO
 	 * @param clientId
 	 * @return
 	 */
@@ -210,28 +242,49 @@ public class ASPUtil {
 	}
 	
 	/**
-	 * Merge PO
-	 * @param originalPO
-	 * @param newLayerPO
-	 * @param overwrite
+	 * Merge Process with custom process
+	 * @param process
+	 * @param customProcess
 	 */
-	private void mergePO(PO originalPO, PO newLayerPO, boolean overwrite) {
-		//	Get copy new values
-		for(int index = 0; index < newLayerPO.get_ColumnCount(); index++) {
-			String columnName = newLayerPO.get_ColumnName(index);
-			//	Overwrite values
-			//  Ignore Standard Values
-			if (columnName.startsWith("Created")
-				|| columnName.startsWith("Updated")
-				|| columnName.equals("AD_Client_ID")
-				|| columnName.equals("AD_Org_ID")
-				|| columnName.equals("UUID")
-				|| columnName.equals(originalPO.get_TableName() + "_ID")
-				|| columnName.equals(newLayerPO.get_TableName() + "_ID")) {
-				continue;
-			}
-			//	
-			
+	private void mergeProcess(MProcess process, MProcessCustom customProcess) {
+		//	Name
+		if(!Util.isEmpty(customProcess.getName())) {
+			process.setName(customProcess.getName());
+		}
+		//	Description
+		if(!Util.isEmpty(customProcess.getDescription())) {
+			process.setDescription(customProcess.getDescription());
+		}
+		//	Help
+		if(!Util.isEmpty(customProcess.getHelp())) {
+			process.setHelp(customProcess.getHelp());
+		}
+		//	TODO: Language unsupported
+		//	Show Help
+		if(!Util.isEmpty(customProcess.getShowHelp())) {
+			process.setShowHelp(customProcess.getShowHelp());
+		}
+		//	Report View
+		if(customProcess.getAD_ReportView_ID() > 0) {
+			process.setAD_ReportView_ID(customProcess.getAD_ReportView_ID());
+		}
+		//	Print Format
+		if(customProcess.getAD_PrintFormat_ID() > 0) {
+			process.setAD_PrintFormat_ID(customProcess.getAD_PrintFormat_ID());
+		}
+		//	Direct Print
+		process.setIsDirectPrint(customProcess.isDirectPrint());
+		//	Smart Browse
+		if(customProcess.getAD_Browse_ID() > 0) {
+			process.setAD_Browse_ID(customProcess.getAD_Browse_ID());
+		}
+		//	Form
+		if(customProcess.getAD_Form_ID() > 0) {
+			process.setAD_Form_ID(customProcess.getAD_Form_ID());
+		}
+		//	Workflow
+		if(customProcess.getAD_Workflow_ID() > 0) {
+			process.setAD_Workflow_ID(customProcess.getAD_Workflow_ID());
 		}
 	}
 }
