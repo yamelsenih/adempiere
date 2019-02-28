@@ -25,6 +25,7 @@ import java.util.Map;
 
 import org.adempiere.webui.theme.ThemeUtils;
 import org.zkoss.zk.ui.Component;
+import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.event.EventListener;
 import org.zkoss.zk.ui.event.Express;
 
@@ -170,9 +171,9 @@ public class Grid extends org.zkoss.zul.Grid
 	private static class EventListenerInfo
 	{
 		private final int			priority;
-		private final EventListener	listener;
+		private final EventListener<Event>	listener;
 
-		private EventListenerInfo(int priority, EventListener listener)
+		private EventListenerInfo(int priority, EventListener<Event> listener)
 		{
 			this.priority = priority;
 			this.listener = listener;

@@ -53,6 +53,7 @@ import org.adempiere.webui.component.Window;
 import org.adempiere.webui.editor.WPAttributeEditor;
 import org.adempiere.webui.editor.WSearchEditor;
 import org.adempiere.webui.editor.WTableDirEditor;
+
 import org.adempiere.webui.event.WTableModelEvent;
 import org.adempiere.webui.event.WTableModelListener;
 import org.adempiere.webui.part.ITabOnSelectHandler;
@@ -80,14 +81,15 @@ import org.zkoss.zk.ui.event.SelectEvent;
 import org.zkoss.zk.ui.util.Clients;
 import org.zkoss.zul.Borderlayout;
 import org.zkoss.zul.Center;
+import org.zkoss.zul.North;
+import org.zkoss.zul.South;
+import org.zkoss.zul.West;
 import org.zkoss.zul.Div;
 import org.zkoss.zul.ListModelExt;
 import org.zkoss.zul.Listitem;
-import org.zkoss.zul.North;
 import org.zkoss.zul.Paging;
 import org.zkoss.zul.Separator;
-import org.zkoss.zul.South;
-import org.zkoss.zul.West;
+
 import org.zkoss.zul.event.ZulEvents;
 import org.zkoss.zul.ext.Sortable;
 
@@ -349,7 +351,7 @@ public abstract class InfoPanel extends Window implements EventListener<Event>, 
 				
 				if (event.getName().equals("onSelect"))
 				{
-					SelectEvent<?, ?> se = ((SelectEvent<?, ?>) event);
+					SelectEvent se = ((SelectEvent) event);
 					setNumRecordsSelected(se.getSelectedItems().size());
 					recordSelected(p_table.getLeadRowKey());
 					p_selectedRecordKey = p_table.getLeadRowKey();
@@ -372,11 +374,11 @@ public abstract class InfoPanel extends Window implements EventListener<Event>, 
 		//  the p_centerCenter which should fill the remaining space.
 		// Have to set the criteriaGrid height specifically.  58 is the height of the reset button and label.
 		// p_criteriaGrid is assumed to hold a Rows component that is non null and has children.
-		//int rowHeight = (25*((Rows) p_criteriaGrid.getFirstChild()).getChildren().size());
-		//rowHeight = rowHeight > 58 ? rowHeight : 58;
-		//p_northLayout.setHeight(rowHeight + "px");
+		int rowHeight = (30*((Rows) p_criteriaGrid.getFirstChild()).getChildren().size());
+		rowHeight = rowHeight > 58 ? rowHeight : 58;
+		p_northLayout.setHeight(rowHeight + "px");
 		p_northLayout.resize();
-		//p_southLayout.setHeight("70px");
+		p_southLayout.setHeight("70px");
 		//p_southLayout.setVflex("min");
 		
 		if (p_centerNorth.getChildren().size() == 0)
@@ -391,9 +393,9 @@ public abstract class InfoPanel extends Window implements EventListener<Event>, 
 		if (p_centerSouth.getChildren().size() > 0)
 		{
 			//p_centerSouth.setVflex("min");  //  Since ZK 5+
-			//int detailHeight = (p_height * 25 / 100);
-			//p_centerSouth.setHeight(detailHeight + "px");
-			p_centerSouth.setSize("25%");
+		    int detailHeight = (p_height * 25 / 100);
+			p_centerSouth.setHeight(detailHeight + "px");
+			//p_centerSouth.setSize("25%");
 		}
 		else
 		{
@@ -420,10 +422,10 @@ public abstract class InfoPanel extends Window implements EventListener<Event>, 
 		else
 		{
 			setAttribute(Window.MODE_KEY, Window.MODE_EMBEDDED);
-//			setBorder("none");
-//			setWidth("100%");
-//			setHeight("100%");
-//			setStyle("position: absolute");
+		    setBorder("none");
+			setWidth("100%");
+			setHeight("100%");
+			setStyle("position: absolute");
     		ThemeUtils.addSclass("ad-infopanel-embedded", this);
 		}
 		
@@ -558,7 +560,7 @@ public abstract class InfoPanel extends Window implements EventListener<Event>, 
 		this.appendChild(mainPanel);
         this.addEventListener(Events.ON_OK, this);
         this.setVisible(true);
-        
+  
         // Add Key Events
         keyListener = new Keylistener();
 		
@@ -1490,7 +1492,7 @@ public abstract class InfoPanel extends Window implements EventListener<Event>, 
 		return m_SO_Window_ID;
 	}	//	getAD_Window_ID
     
-    public void onEvent(Event event)
+    public void onEvent(Event event) throws Exception
     {
     	
     	// Handle actions 
@@ -1503,6 +1505,7 @@ public abstract class InfoPanel extends Window implements EventListener<Event>, 
 
         if  (event!=null)
         {
+
     		if (event.getName().equals("onOK") && event.getTarget() != keyListener)
     		{
     			//  The enter key was pressed in a criteria field.  Ignore it.  The key click will trigger
@@ -1688,6 +1691,7 @@ public abstract class InfoPanel extends Window implements EventListener<Event>, 
 	 * Capture value changes in WSearchEditor components specifically.
 	 * Copy and override as required.
 	 * @param evt
+	 * @throws Exception 
 	 */
 	public void valueChange(ValueChangeEvent evt) 
 	{
@@ -1703,7 +1707,12 @@ public abstract class InfoPanel extends Window implements EventListener<Event>, 
 
 		// Pass it off to the event handler to process.
 		Event e = new Event("onChange", (Component) c);
-		onEvent(e);
+		try {
+			onEvent(e);
+		} catch (Exception e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 
 	}  //  valueChange
 
@@ -1766,7 +1775,7 @@ public abstract class InfoPanel extends Window implements EventListener<Event>, 
 		}
 	}
     
-    private void onDoubleClick()
+    private void onDoubleClick() throws Exception
 	{
 		if (isModal())
 		{
@@ -1854,7 +1863,7 @@ public abstract class InfoPanel extends Window implements EventListener<Event>, 
 		return false;
 	}
 
-    public void zoom()
+    public void zoom() throws Exception
     {
     	if (listeners != null && listeners.size() > 0)
     	{
@@ -1889,7 +1898,7 @@ public abstract class InfoPanel extends Window implements EventListener<Event>, 
         listeners.add(listener);
     }
         
-    public void fireValueChange(ValueChangeEvent event)
+    public void fireValueChange(ValueChangeEvent event) throws Exception
     {
         for (ValueChangeListener listener : listeners)
         {
@@ -2155,6 +2164,11 @@ public abstract class InfoPanel extends Window implements EventListener<Event>, 
 	public String getSortDirection(Comparator<Object> cmpr) {
 		// TODO Auto-generated method stub - fix this to make it functional
 		return "natural";
+	}
+
+	public void render(Listitem item, Object data) throws Exception {
+		// TODO Auto-generated method stub
+		
 	}
 
 }	//	Info

@@ -39,6 +39,7 @@ import org.adempiere.webui.editor.WEditorPopupMenu;
 import org.adempiere.webui.editor.WTableDirEditor;
 import org.adempiere.webui.editor.WebEditorFactory;
 import org.adempiere.webui.event.ContextMenuListener;
+import org.adempiere.webui.panel.InfoProductPanel;
 import org.adempiere.webui.window.FDialog;
 import org.compiere.apps.ProcessController;
 import org.compiere.apps.ProcessCtl;
@@ -232,7 +233,7 @@ public class ProcessPanel extends ProcessController implements SmallViewEditable
 			hBox.appendChild(fSavedName);
 
 			Panel confParaPanel = new Panel();
-			confParaPanel.setAlign("right");
+			confParaPanel.setStyle("text-align: right; margin-left: 60%;");
 			//	BR [ 300 ]
 			try{
 				//	Set Ok
@@ -279,7 +280,11 @@ public class ProcessPanel extends ProcessController implements SmallViewEditable
 				if ("CSV".equals(typeSelection))
 					selectionIndex = 1;
 
-				if (m_isAllowXLSView) {
+				fReportType.appendItem("CSV", "C");
+				if ("CSV".equals(typeSelection))
+					selectionIndex = 1;
+	
+				    if (m_isAllowXLSView) {
 					fReportType.appendItem("Excel", "X");
 					if ("XLS".equals(typeSelection))
 						selectionIndex = 2;
@@ -309,8 +314,11 @@ public class ProcessPanel extends ProcessController implements SmallViewEditable
 			
 			South south = new South();
 			south.appendChild(southRowPanel);
+			south.setStyle("margin-top:467px");
+			
 			//	Add to Main panel
 			mainLayout.appendChild(south);
+			southRowPanel.setStyle("bottom:0px");
 		}
 		//	Set Text
 		if(isShowDescription()) {
@@ -357,6 +365,7 @@ public class ProcessPanel extends ProcessController implements SmallViewEditable
 		return(WebEditorFactory.getEditor(field, false));
 	}
 
+	@SuppressWarnings("deprecation")
 	public void formatEditor(CEditor editor1, CEditor editor2) {
 		//
 		WEditor editor = (WEditor) editor1;
@@ -382,6 +391,7 @@ public class ProcessPanel extends ProcessController implements SmallViewEditable
     	Div div = new Div();
         div.setAlign("right");
         
+        
         Label label = editor.getLabel();
         div.appendChild(label);
         if (label.getDecorator() != null)
@@ -392,12 +402,16 @@ public class ProcessPanel extends ProcessController implements SmallViewEditable
         cols += 2;
 		//	
         Hbox box;
+      		
         if(editorTo != null) {
         	box = new Hbox();
         	box.appendChild(editor.getComponent());
+        	
         } else {
             currentRow.appendChild(editor.getComponent());
         	m_separators.add(null);
+        	currentRow.setStyle("width:49%;");
+        	
         	return;
         }
 		//	The 2nd range editor
@@ -735,9 +749,10 @@ public class ProcessPanel extends ProcessController implements SmallViewEditable
 	public int getQtyRow() {
 		return qtyRow;
 	}
-
+	
 	@Override
 	public void openResult(MQuery query) {
 		AEnv.zoom(query);
 	}
+
 }	//	ProcessParameterPanel

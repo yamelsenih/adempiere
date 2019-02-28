@@ -62,7 +62,7 @@ import org.zkoss.zul.event.ZulEvents;
  *    <li>New ADempiere 3.8.0 ZK Theme Light  https://adempiere.atlassian.net/browse/ADEMPIERE-320 
  *
  */
-public class GridPanel extends Borderlayout implements EventListener
+public class GridPanel extends Borderlayout implements EventListener<Event>
 {
 	/**
 	 * generated serial version ID
@@ -397,7 +397,7 @@ private void init_components() {
 
 		listbox.setVflex(true);
 		listbox.setFixedLayout(true);
-		listbox.addEventListener(Events.ON_CLICK, this);
+		//listbox.addEventListener(Events.ON_CLICK, this);
 		listbox.addEventListener(Events.ON_DOUBLE_CLICK, this);
 		listbox.addEventListener(Events.ON_CANCEL, this);
 		
@@ -799,7 +799,7 @@ private void init_components() {
 					break;
 				}
 			}
-			if (cmp != null)
+//			if (cmp != null)
 				Clients.response(new AuScript(null, "scrollToRow('" + cmp.getUuid() + "');"));
 
 			if (columnOnClick != null && columnOnClick.trim().length() > 0) {
@@ -809,7 +809,7 @@ private void init_components() {
 						Col div = (Col) element;
 						if (columnOnClick.equals(div.getAttribute("columnName"))) {
 							cmp = div.getFirstChild().getNextSibling();
-							Clients.response(new AuScript(null, "scrollToRow('" + cmp.getUuid() + "');"));
+//							Clients.response(new AuScript(null, "scrollToRow('" + cmp.getUuid() + "');"));
 							break;
 						}
 					}

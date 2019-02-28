@@ -51,6 +51,7 @@ import org.compiere.util.Trx;
 import org.compiere.util.Util;
 import org.zkoss.zk.ui.event.Events;
 import org.zkoss.zul.Hbox;
+import org.zkoss.zul.Listitem;
 
 /**
  * Search Invoice and return selection
@@ -647,5 +648,11 @@ public class InfoInvoicePanel extends InfoPanel implements ValueChangeListener
 		{
 			Env.setContext(Env.getCtx(), p_WindowNo, Env.TAB_INFO, "C_InvoicePaySchedule_ID", C_InvoicePaySchedule_ID.toString());
 		}
+	}
+
+	@Override
+	public void render(Listitem item, Object data) throws Exception {
+		// TODO Auto-generated method stub
+		
 	}
 }

@@ -25,6 +25,7 @@ import java.net.URL;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.logging.Level;
+
 import org.adempiere.webui.apps.graph.WGraph;
 import org.adempiere.webui.apps.graph.WPerformanceDetail;
 import org.adempiere.webui.component.Tabpanel;
@@ -40,6 +41,7 @@ import org.adempiere.webui.theme.ThemeUtils;
 import org.adempiere.webui.util.IServerPushCallback;
 import org.adempiere.webui.util.ServerPushTemplate;
 import org.adempiere.webui.util.UserPreference;
+import org.adempiere.webui.window.WAccountDialog;
 import org.compiere.model.I_AD_Menu;
 import org.compiere.model.MDashboardContent;
 import org.compiere.model.MGoal;
@@ -532,5 +534,11 @@ public class DefaultDesktop extends TabbedDesktop implements MenuListener, Seria
 	protected void preOpenNewTab() 
 	{
 		autoHideMenu();
+	}
+
+	@Override
+	public void showWindow(WAccountDialog wAccountDialog, String position) {
+		// TODO Auto-generated method stub
+		
 	}	
 }

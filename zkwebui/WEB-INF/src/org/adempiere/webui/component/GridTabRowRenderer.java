@@ -339,7 +339,7 @@ public class GridTabRowRenderer implements RowRenderer, RowRendererExt, Renderer
 	 * @param data
 	 * @see RowRenderer#render(Row, Object)
 	 */
-	public void render(Row row, Object data) throws Exception {
+	public void render(Row row, Object data, int index)  throws Exception {
 		//don't render if not visible
 		if (gridPanel != null && !gridPanel.isVisible()) {
 			return;
@@ -450,14 +450,15 @@ public class GridTabRowRenderer implements RowRenderer, RowRendererExt, Renderer
 		currentRow = row;
 		Clients.scrollIntoView(currentRow);
 		if (currentRowIndex != gridTab.getCurrentRow()) {
-		ThemeUtils.addSclass("current", currentRow);
-		if (currentRowIndex == gridTab.getCurrentRow()) {
-			if (editing) {
-				stopEditing(false);
-				editCurrentRow();
+			ThemeUtils.addSclass("current", currentRow);
+			if (currentRowIndex == gridTab.getCurrentRow()) {
+	//			if (editing) {
+	//				stopEditing(false);
+	//				editCurrentRow();
+	//			}
+			} else {
+				currentRowIndex = gridTab.getCurrentRow();
 			}
-		} else {
-			currentRowIndex = gridTab.getCurrentRow();
 		}
 		setCurrentColumn(currentColumn);
 	}
@@ -858,5 +859,5 @@ public class GridTabRowRenderer implements RowRenderer, RowRendererExt, Renderer
 			}
 		}
 	}
-	
+
 }

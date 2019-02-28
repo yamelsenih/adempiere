@@ -41,6 +41,7 @@ import org.adempiere.webui.util.IServerPushCallback;
 import org.adempiere.webui.util.ServerPushTemplate;
 import org.adempiere.webui.util.UserPreference;
 import org.adempiere.webui.window.ADWindow;
+import org.adempiere.webui.window.WAccountDialog;
 import org.compiere.model.MGoal;
 import org.compiere.model.MMenu;
 import org.compiere.model.X_AD_Menu;
@@ -62,6 +63,7 @@ import org.zkoss.zk.ui.util.Clients;
 import org.zkoss.zul.Anchorchildren;
 import org.zkoss.zul.Anchorlayout;
 import org.zkoss.zul.Borderlayout;
+import org.zkoss.zul.Calendar;
 import org.zkoss.zul.Center;
 import org.zkoss.zul.North;
 import org.zkoss.zul.West;
@@ -519,5 +521,11 @@ public class NavBarDesktop extends TabbedDesktop implements MenuListener, Serial
 	public void openWorkflow(int workflowID) {
 		autoHideMenu();
 		super.openWorkflow(workflowID);
+	}
+
+	@Override
+	public void showWindow(WAccountDialog wAccountDialog, String position) {
+		// TODO Auto-generated method stub
+		
 	}
 }

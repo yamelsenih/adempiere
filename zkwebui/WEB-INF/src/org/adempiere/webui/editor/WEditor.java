@@ -215,7 +215,7 @@ public abstract class WEditor implements CEditor, EventListener, PropertyChangeL
 
     private void init()
     {
-    	ThemeUtils.addSclass("ad-weditor", this.getComponent());
+    //	ThemeUtils.addSclass("ad-weditor", this.getComponent());
 
         label = new Label("");
         label.setValue(strLabel);
@@ -626,15 +626,18 @@ public abstract class WEditor implements CEditor, EventListener, PropertyChangeL
         			Button btn = (Button) getComponent();
         			String zclass = btn.getZclass();
         			if (gridField.getDisplayType() == DisplayType.Image) {
-        				ThemeUtils.addSclass("ad-button-image", btn);
-        			} else {
-        				ThemeUtils.addSclass("ad-button-form",btn);
+        				if (!zclass.contains("image-button-field ")) {
+            				btn.setZclass("image-button-field " + zclass);
         				}
+        			} else if (!zclass.contains("form-button ")) {
+        				btn.setZclass("form-button " + zclass);
+        			}
         		} else if (getComponent() instanceof Image) {
         			Image image = (Image) getComponent();
-        			ThemeUtils.addSclass("image", image);
+        			image.setWidth("48px");
+        			image.setHeight("48px");
         		} else {
-        			ThemeUtils.addSclass("component", getComponent());
+        			((HtmlBasedComponent)getComponent()).setWidth(width);
         		}
         	}
         }

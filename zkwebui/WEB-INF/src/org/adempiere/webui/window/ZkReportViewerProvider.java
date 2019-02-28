@@ -116,7 +116,7 @@ public class ZkReportViewerProvider implements ReportViewerProvider {
 		       }
 		      }
 		   Window win = new SimplePDFViewer(title, input);
-		   SessionManager.getAppDesktop().showWindow(win, "center");
+		   SessionManager.getAppDesktop().showWindow(win);
 		  } catch (Exception e) {
 		     } finally {
 		      if (!inUIThread && desktopActivated) {

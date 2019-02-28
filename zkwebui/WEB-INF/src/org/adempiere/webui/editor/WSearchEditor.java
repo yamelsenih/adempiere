@@ -62,14 +62,13 @@ import org.compiere.util.Env;
 import org.compiere.util.Msg;
 import org.compiere.util.Trx;
 import org.eevolution.model.I_PP_Product_BOMLine;
-<<<<<<< HEAD
 import org.zkforge.keylistener.Keylistener;
-=======
 import org.zkoss.web.fn.ServletFns;
->>>>>>> refs/heads/feature/develop-zk7
 import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.event.Events;
 import org.zkoss.zk.ui.event.KeyEvent;
+import org.zkoss.zul.Listitem;
+
 
 /**
  * Search Editor for web UI.
@@ -1213,5 +1212,6 @@ public class WSearchEditor extends WEditor implements ContextMenuListener, Value
 			else
 				m_isSOTrx = true;
 	}
+
 
 }

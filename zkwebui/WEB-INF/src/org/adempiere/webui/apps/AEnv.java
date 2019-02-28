@@ -37,10 +37,12 @@ import java.util.logging.Level;
 
 import javax.servlet.ServletRequest;
 
+import org.adempiere.webui.ValuePreference;
 import org.adempiere.webui.component.Window;
 import org.adempiere.webui.session.SessionManager;
 import org.adempiere.webui.theme.ITheme;
 import org.adempiere.webui.theme.DefaultTheme;
+import org.adempiere.webui.window.WAccountDialog;
 import org.compiere.acct.Doc;
 import org.compiere.model.GridWindowVO;
 import org.compiere.model.Lookup;
@@ -93,7 +95,7 @@ public final class AEnv
 	 */
 	public static void showCenterScreen(Window window)
 	{
-		SessionManager.getAppDesktop().showWindow(window, "center");
+		SessionManager.getAppDesktop().showWindow(window);
 	}   //  showCenterScreen
 
 	/**
@@ -113,7 +115,7 @@ public final class AEnv
 	 */
 	public static void showScreen(Window window, String position)
 	{
-		SessionManager.getAppDesktop().showWindow(window, position);
+		SessionManager.getAppDesktop().showWindow(window);
 	}   //  showScreen
 
 	/**

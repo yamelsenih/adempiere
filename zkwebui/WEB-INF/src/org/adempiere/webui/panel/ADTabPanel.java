@@ -64,7 +64,6 @@ import org.zkoss.zul.Div;
 import org.zkoss.zul.Groupfoot;
 import org.zkoss.zul.Panel;
 import org.zkoss.zul.Panelchildren;
-import org.zkoss.zul.Row;
 import org.zkoss.zul.Separator;
 import org.zkoss.zul.Space;
 import org.zkoss.zul.TreeModel;
@@ -308,7 +307,7 @@ public class ADTabPanel extends Div implements Evaluatee, EventListener, DataSta
 
     	Rows rows = grid.newRows();
         GridField fields[] = gridTab.getFields();
-        org.zkoss.zul.Row row = new Row();
+        Row row = new Row();
         rows.appendChild(row);
 
         String currentFieldGroup = null;
@@ -337,126 +336,141 @@ public class ADTabPanel extends Div implements Evaluatee, EventListener, DataSta
 
             		//end current field group
             		if (currentGroup != null) {
-            			row = new Groupfoot();
-            			rows.appendChild(row);
-            			currentGroup = null;
-            			currentFieldGroup = null;
-            		}
+            			Group group = new Group();
+             			//row = new Group();
+               		 	row.setGroup(group);
+                		rows.appendChild(row);
+                		currentGroup = null;
+                		currentFieldGroup = null;
+                		}
 
-                    row = new Row();
-                    row.setSpans("5");
-                    row.appendChild(new Separator());
-                    rows.appendChild(row);
+                        row = new Row();
+//                        row.setSpans("5");
+                        row.appendCellChild(new Separator(),5);
+                        rows.appendChild(row);
 
-                    row = new Group();
-                    row.setSpans("2,3");
-                    rows.appendChild(row);
-                    includedTab.put(field.getIncluded_Tab_ID(), (Group)row);
+                         row = new Row();
+//                       row.setSpans("2,3");
+                        row.appendCellChild(new Separator(),5);         
+                        rows.appendChild(row);
+                        includedTab.put(field.getIncluded_Tab_ID(), (Group)row.getGroup());
 
-    				org.zkoss.zul.Div div = new Div();
-                    div.setWidth("100%");
-                    row = new org.adempiere.webui.component.Row();
-                    row.setSpans("5");
-                    row.appendChild(div);
-                    rows.appendChild(row);
-                    horizontalIncludedTab.put(field.getIncluded_Tab_ID(),  div);
+        				org.zkoss.zul.Div div = new Div();
+                        div.setWidth("100%");
+                        row = new org.adempiere.webui.component.Row();
+//                        row.setSpans("5");
+                      //  row.appendChild(div);
+                       row.appendCellChild(new Separator(),5);
+                        rows.appendChild(row);
+                        horizontalIncludedTab.put(field.getIncluded_Tab_ID(),  div);
 
-                    row = new Groupfoot();
-                    rows.appendChild(row);
-                    includedTabFooter.put(field.getIncluded_Tab_ID(), (Groupfoot)row);
+     //                 row = new Groupfoot();
+                        row.setGroup(currentGroup);
+                		rows.appendChild(row);
+                		includedTab.put(field.getIncluded_Tab_ID(), (Group)row.getGroup());
 
-            		for (EmbeddedPanel ep : includedPanel) {
-            			if (ep.adTabId == field.getIncluded_Tab_ID()) {
-            				ep.group = includedTab.get(ep.adTabId);
-            				createEmbeddedPanelUI(ep);
-            				((ADTabPanel)ep.tabPanel).autoResize();
-            				break;
-            			}
-            		}
-                    //Horizontal
-                    for (HorizontalEmbeddedPanel ep : horizontalIncludedPanel)
-                    {
-                        if (ep.adTabId == field.getIncluded_Tab_ID()) {
-                            ep.divComponent = horizontalIncludedTab.get(ep.adTabId);
-                            createHorizontalEmbeddedPanelUI(ep);
-                            ((ADTabPanel)ep.tabPanel).autoResize();
-                            break;
+                		for (EmbeddedPanel ep : includedPanel) {
+                			if (ep.adTabId == field.getIncluded_Tab_ID()) {
+                				ep.group = includedTab.get(ep.adTabId);
+                				createEmbeddedPanelUI(ep);
+                				((ADTabPanel)ep.tabPanel).autoResize();
+                				break;
+                			}
+                		}
+                        //Horizontal
+                        for (HorizontalEmbeddedPanel ep : horizontalIncludedPanel)
+                        {
+                            if (ep.adTabId == field.getIncluded_Tab_ID()) {
+                                ep.divComponent = horizontalIncludedTab.get(ep.adTabId);
+                                createHorizontalEmbeddedPanelUI(ep);
+                                ((ADTabPanel)ep.tabPanel).autoResize();
+                                break;
+                            }
                         }
-                    }
 
-                    row = new Row();
-            		continue;
-            	}
+                        row = new Row();
+                		continue;
+                	}
 
-            	//normal field
-            	String fieldGroup = field.getFieldGroup();
-            	if (fieldGroup != null && fieldGroup.trim().length() > 0)
-            	{
-            		if (!fieldGroup.equals(currentFieldGroup))
-            		{
-            			currentFieldGroup = fieldGroup;
-            			if (row.getChildren().size() == 2)
-            			{
-            				row.appendChild(createSpacer());
-                            row.appendChild(createSpacer());
-                            row.appendChild(createSpacer());
+                	//normal field
+                	String fieldGroup = field.getFieldGroup();
+                	if (fieldGroup != null && fieldGroup.trim().length() > 0)
+                	{
+                		if (!fieldGroup.equals(currentFieldGroup))
+                		{
+                			currentFieldGroup = fieldGroup;
+                			if (row.getChildren().size() == 2)
+                			{
+                				row.appendChild(createSpacer());
+                                row.appendChild(createSpacer());
+                                row.appendChild(createSpacer());
+                                rows.appendChild(row);
+                                if (rowList != null)
+                    				rowList.add(row);
+                                row = new Row();
+                			} else if (row.getChildren().size() > 0)
+                			{
+                				rows.appendChild(row);
+                				if (rowList != null)
+                    				rowList.add(row);
+                				row = new Row();
+                			}
+
+                			List<org.zkoss.zul.Row> headerRows = new ArrayList<org.zkoss.zul.Row>();
+                			fieldGroupHeaders.put(fieldGroup, headerRows);
+
+     //           			row.setSpans("5");
+     //           			row.appendChild(new Separator());
+                			row.appendCellChild(new Separator(),5);
                             rows.appendChild(row);
-                            if (rowList != null)
-                				rowList.add(row);
-                            row = new Row();
-            			} else if (row.getChildren().size() > 0)
-            			{
-            				rows.appendChild(row);
-            				if (rowList != null)
-                				rowList.add(row);
-            				row = new Row();
-            			}
+                			headerRows.add(row);
 
-            			List<org.zkoss.zul.Row> headerRows = new ArrayList<org.zkoss.zul.Row>();
-            			fieldGroupHeaders.put(fieldGroup, headerRows);
+            				rowList = new ArrayList<org.zkoss.zul.Row>();
+            				fieldGroupContents.put(fieldGroup, rowList);
 
-            			row.setSpans("5");
-            			row.appendChild(new Separator());
-            			rows.appendChild(row);
-            			headerRows.add(row);
+                			if (X_AD_FieldGroup.FIELDGROUPTYPE_Label.equals(field.getFieldGroupType()))
+                			{
+                				row = new Row();
+//                    			row.setSpans("4");
+                				
+                                Label groupLabel = new Label(fieldGroup);
+                                row.appendCellChild(groupLabel,4);
+//                				row.appendChild();
+                				row.appendCellChild(createSpacer());
+                				row.appendCellChild(row);
+                				headerRows.add(row);
 
-        				rowList = new ArrayList<org.zkoss.zul.Row>();
-        				fieldGroupContents.put(fieldGroup, rowList);
+                				row = new Row();
+//    	                        row.setSpans("4");
+                                Separator separator = new Separator();
+                				row.appendCellChild(new Separator(),4);
+                                 
+                				separator.setBar(true);
+    	            			row.appendChild(separator);
+    	            			row.appendChild(createSpacer());
+    	            			rows.appendChild(row);
+    	            			headerRows.add(row);
+                			}
+                			else
+                			{
+                				Group group = new Group(fieldGroup);
+                				 
+                				if (X_AD_FieldGroup.FIELDGROUPTYPE_Tab.equals(field.getFieldGroupType()) || field.getIsCollapsedByDefault())
+                				{
+                					((Group)row.getGroup()).setOpen(false);
+                				}
+                				currentGroup = group;
+                				row.setGroup(currentGroup);
+               				 currentGroup.setLabel(fieldGroup);
+               				 rows.appendChild(row);
+                				headerRows.add(row);
+                			}
 
-            			if (X_AD_FieldGroup.FIELDGROUPTYPE_Label.equals(field.getFieldGroupType()))
-            			{
-            				row = new Row();
-                			row.setSpans("4");
-            				Label groupLabel = new Label(fieldGroup);
-            				row.appendChild(groupLabel);
-            				row.appendChild(createSpacer());
-            				rows.appendChild(row);
-            				headerRows.add(row);
-
-            				row = new Row();
-	                        row.setSpans("4");
-	                        Separator separator = new Separator();
-	                        separator.setBar(true);
-	            			row.appendChild(separator);
-	            			row.appendChild(createSpacer());
-	            			rows.appendChild(row);
-	            			headerRows.add(row);
-            			}
-            			else
-            			{
-            				row = new Group(fieldGroup);
-            				if (X_AD_FieldGroup.FIELDGROUPTYPE_Tab.equals(field.getFieldGroupType()) || field.getIsCollapsedByDefault())
-            				{
-            					((Group)row).setOpen(false);
-            				}
-            				currentGroup = (Group)row;
-            				rows.appendChild(row);
-            				headerRows.add(row);
-            			}
-
-            			row = new Row();
-            		}
+                			row = new Row();
+                		}
+                	}
             	}
+            	
 
                 if (!field.isSameLine() || field.isLongField())
                 {
@@ -570,14 +584,14 @@ public class ADTabPanel extends Div implements Evaluatee, EventListener, DataSta
     				row.appendChild(div);
     			}
             }
-        }
+        
 
         //last row
         if (row.getChildren().size() > 0)
         {
             if (row.getChildren().size() == 2)
             {
-                row.appendChild(createSpacer());
+                row.appendCellChild(createSpacer());
                 row.appendChild(createSpacer());
                 row.appendChild(createSpacer());
             }

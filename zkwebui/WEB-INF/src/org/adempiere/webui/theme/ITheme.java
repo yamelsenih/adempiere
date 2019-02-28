@@ -20,27 +20,26 @@ package org.adempiere.webui.theme;
  * 		<a href="https://github.com/adempiere/adempiere/issues/884">
  * 		@see FR [ 884 ] Recent Items in Dashboard</a>
  */
-@Deprecated
 public interface ITheme {
 
 	//css for login window and box
-	//public static final String WLOGIN_LAYOUT = "wlogin-layout";
-	//public static final String WLOGIN_LAYOUT_CENTER = "wlogin-layout-center";
-	//public static final String LOGIN_WINDOW_CLASS = "ad-loginwindow";
-	//public static final String LOGIN_PANEL_CLASS = "login-panel";
-	//public static final String LOGIN_BOX_CLASS = "login-box";
-	//public static final String LOGIN_BOX_HEADER_CLASS = "login-box-header";
-	//public static final String LOGIN_BOX_HEADER_TXT_CLASS = "login-box-header-text";
-	//public static final String LOGIN_BOX_HEADER_LOGO_CLASS = "login-box-header-logo";
-	//public static final String LOGIN_BOX_BODY_CLASS = "login-box-body";
-	//public static final String LOGIN_BOX_FOOTER_CLASS = "login-box-footer";
-	//public static final String LOGIN_BOX_FOOTER_PANEL_CLASS = "login-box-footer-pnl";
-	//public static final String LOGIN_BOX_CENTER_CLASS = "login-box-center";
+	public static final String WLOGIN_LAYOUT = "wlogin-layout";
+	public static final String WLOGIN_LAYOUT_CENTER = "wlogin-layout-center";
+	public static final String LOGIN_WINDOW_CLASS = "ad-loginwindow";
+	public static final String LOGIN_PANEL_CLASS = "login-panel";
+	public static final String LOGIN_BOX_CLASS = "login-box";
+	public static final String LOGIN_BOX_HEADER_CLASS = "login-box-header";
+	public static final String LOGIN_BOX_HEADER_TXT_CLASS = "login-box-header-text";
+	public static final String LOGIN_BOX_HEADER_LOGO_CLASS = "login-box-header-logo";
+	public static final String LOGIN_BOX_BODY_CLASS = "login-box-body";
+	public static final String LOGIN_BOX_FOOTER_CLASS = "login-box-footer";
+	public static final String LOGIN_BOX_FOOTER_PANEL_CLASS = "login-box-footer-pnl";
+	public static final String LOGIN_BOX_CENTER_CLASS = "login-box-center";
 
 	//css for login control
-	//public static final String LOGIN_BUTTON_CLASS = "login-btn";
-	//public static final String LOGIN_LABEL_CLASS = "login-label";
-	//public static final String LOGIN_FIELD_CLASS = "login-field";
+	public static final String LOGIN_BUTTON_CLASS = "login-btn";
+	public static final String LOGIN_LABEL_CLASS = "login-label";
+	public static final String LOGIN_FIELD_CLASS = "login-field";
 
 	//optional top, bottom, left, right content for the login page
 	//public static final String LOGIN_NORTH_PANEL_CLASS = "login-north-panel";

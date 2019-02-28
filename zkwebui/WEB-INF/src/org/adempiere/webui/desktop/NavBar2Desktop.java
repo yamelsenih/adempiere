@@ -39,6 +39,7 @@ import org.adempiere.webui.util.IServerPushCallback;
 import org.adempiere.webui.util.ServerPushTemplate;
 import org.adempiere.webui.util.UserPreference;
 import org.adempiere.webui.window.ADWindow;
+import org.adempiere.webui.window.WAccountDialog;
 import org.compiere.model.MGoal;
 import org.compiere.model.MMenu;
 import org.compiere.model.X_AD_Menu;
@@ -500,5 +501,11 @@ public class NavBar2Desktop extends TabbedDesktop implements MenuListener, Seria
 	public void openWorkflow(int workflowID) {
 		autoHideMenu();
 		super.openWorkflow(workflowID);
+	}
+
+	@Override
+	public void showWindow(WAccountDialog wAccountDialog, String position) {
+		// TODO Auto-generated method stub
+		
 	}
 }

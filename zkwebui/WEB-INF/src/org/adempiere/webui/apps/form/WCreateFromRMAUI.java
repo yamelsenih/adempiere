@@ -42,6 +42,7 @@ import org.compiere.util.Env;
 import org.compiere.util.Msg;
 import org.zkoss.zul.Borderlayout;
 import org.zkoss.zul.Center;
+import org.zkoss.zul.Listitem;
 
 /**
  *	@author Yamel Senih, ysenih@erpcya.com, ERPCyA http://www.erpcya.com
@@ -228,4 +229,5 @@ public class WCreateFromRMAUI extends CreateFromRMA
 	public ADForm getForm() {
 		return v_Container;
 	}
+
 }

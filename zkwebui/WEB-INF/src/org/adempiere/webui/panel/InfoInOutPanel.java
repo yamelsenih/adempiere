@@ -46,6 +46,7 @@ import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.event.EventListener;
 import org.zkoss.zk.ui.event.Events;
 import org.zkoss.zul.Hbox;
+import org.zkoss.zul.Listitem;
 
 /**
 * Based on InfoInOut written by Jorg Janke
@@ -477,5 +478,11 @@ public class InfoInOutPanel extends InfoPanel implements ValueChangeListener, Ev
 		fDateFrom.set_oldValue();
 		fDateTo.set_oldValue();
 		return;
+	}
+
+	@Override
+	public void render(Listitem item, Object data) throws Exception {
+		// TODO Auto-generated method stub
+		
 	}
 }

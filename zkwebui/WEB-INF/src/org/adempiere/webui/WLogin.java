@@ -120,23 +120,23 @@ public class WLogin extends AbstractUIPart
         		e.printStackTrace();
         	}
         }
-
-        try {
-	        String left = ThemeUtils.getLoginLeftPanel();
-	        PageDefinition pageDefintion = Executions.getCurrent().getPageDefinition(left);
-	    	West west = new West();
-	    	ThemeUtils.addSclass("ad-wlogin-west-panel", west);
-	    	addContent(west, pageDefintion);
-        } catch (Exception e){
-        	//ignore page not found exception
-        	if (e instanceof UiException) {
-        		if (!(e.getMessage() != null && e.getMessage().startsWith("Page not found"))) {
-        			e.printStackTrace();
-        		}
-        	} else {
-        		e.printStackTrace();
-        	}
-        }
+//
+//        try {
+//	        String left = ThemeUtils.getLoginLeftPanel();
+//	        PageDefinition pageDefintion = Executions.getCurrent().getPageDefinition(left);
+//	    	West west = new West();
+//	    	ThemeUtils.addSclass("ad-wlogin-west-panel", west);
+//	    	addContent(west, pageDefintion);
+//        } catch (Exception e){
+//        	//ignore page not found exception
+//        	if (e instanceof UiException) {
+//        		if (!(e.getMessage() != null && e.getMessage().startsWith("Page not found"))) {
+//        			e.printStackTrace();
+//        		}
+//        	} else {
+//        		e.printStackTrace();
+//        	}
+//        }
 
         try {
 	        String top = ThemeUtils.getLoginTopPanel();

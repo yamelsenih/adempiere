@@ -37,6 +37,7 @@ import org.compiere.swing.CEditor;
 import org.eevolution.grid.BrowserSearch;
 import org.zkoss.zul.Div;
 import org.zkoss.zul.Hbox;
+import org.zkoss.zul.Listitem;
 import org.zkoss.zul.Row;
 
 /**
@@ -228,5 +229,6 @@ public class WBrowserSearch extends BrowserSearch implements SmallViewEditable {
 			}
 		}
 	}
+
 
 }

@@ -42,6 +42,7 @@ import org.compiere.util.Msg;
 import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.event.EventListener;
 import org.zkoss.zk.ui.event.Events;
+import org.zkoss.zul.Listitem;
 
 /**
 * Based on InfoPayment written by Jorg Janke
@@ -371,4 +372,5 @@ public class InfoAssetPanel extends InfoPanel implements ValueChangeListener, Ev
 		return null;
 	}
 
+	
 }
