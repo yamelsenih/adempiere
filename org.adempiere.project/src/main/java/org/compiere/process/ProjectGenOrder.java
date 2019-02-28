@@ -93,6 +93,8 @@ public class ProjectGenOrder extends ProjectGenOrderAbstract {
 						}
 						orderLine.setQty(quantityEntered);
 						orderLine.setQtyOrdered(quantityToOrder);
+					} else { 
+						orderLine.setQty(quantityToOrder);
 					}
 				} else { 
 					orderLine.setQty(quantityToOrder);

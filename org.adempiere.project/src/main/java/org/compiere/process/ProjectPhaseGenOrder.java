@@ -87,7 +87,7 @@ public class ProjectPhaseGenOrder  extends ProjectPhaseGenOrderAbstract
 			values.put("C_ProjectPhase_ID", ((MProjectTask)fromPhase).getC_ProjectPhase_ID());
 			values.put("PriceActual",  ((MProjectTask)fromPhase).getPlannedAmt());
 			//	Add UOM
-			values.put("QtyEntered", ((MProjectTask)fromPhase).get_Value("QtyEntered8"));
+			values.put("QtyEntered", ((MProjectTask)fromPhase).get_Value("QtyEntered"));
 			values.put("C_UOM_ID", ((MProjectTask)fromPhase).get_ValueAsInt("C_UOM_ID"));
 		
 			projectLines = Arrays.asList(((MProjectTask)fromPhase).getLines());
@@ -146,6 +146,8 @@ public class ProjectPhaseGenOrder  extends ProjectPhaseGenOrderAbstract
 					}
 					orderLine.setQty(quantityEntered);
 					orderLine.setQtyOrdered(quantityToOrder);
+				} else { 
+					orderLine.setQty(quantityToOrder);
 				}
 			} else { 
 				orderLine.setQty(quantityToOrder);
