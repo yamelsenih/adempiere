@@ -134,23 +134,22 @@ public class ProjectPhaseGenOrder  extends ProjectPhaseGenOrderAbstract
 			//
 			orderLine.setM_Product_ID((int)values.get("M_Product_ID"), true);
 			BigDecimal quantityToOrder = new BigDecimal(values.get("Qty").toString());
-	        BigDecimal quantityEntered = (BigDecimal) values.get("QtyEntered");
+	        BigDecimal quantityEntrered = (BigDecimal) values.get("QtyEntered");
 	        int uomId = product.getC_UOM_ID();
 			if(uomId > 0
-					&& quantityEntered != null) {
+					&& quantityEntrered != null) {
 				uomId = (int) values.get("C_UOM_ID");
 				if(uomId != product.getC_UOM_ID()) {
-					quantityEntered = MUOMConversion.convertProductTo (getCtx(), product.getM_Product_ID(), uomId, quantityToOrder);
+					BigDecimal quantityEntered = MUOMConversion.convertProductTo (getCtx(), product.getM_Product_ID(), uomId, quantityToOrder);
 					if (quantityEntered == null) {
 						quantityEntered = quantityToOrder;
 					}
-					
+					orderLine.setQty(quantityEntered);
+					orderLine.setQtyOrdered(quantityToOrder);
 				}
 			} else { 
 				orderLine.setQty(quantityToOrder);
 			}
-			orderLine.setQty(quantityEntered);
-			orderLine.setQtyOrdered(quantityToOrder);
 			orderLine.setC_UOM_ID(uomId);
 			orderLine.setPrice();
 			orderLine.setC_Project_ID(fromProject.getC_Project_ID());
