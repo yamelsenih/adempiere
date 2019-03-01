@@ -17,6 +17,7 @@
 
 package org.spin.process;
 
+import org.adempiere.model.MBrowse;
 import org.compiere.model.MProcess;
 import org.compiere.model.MProcessAccess;
 
@@ -25,6 +26,10 @@ import org.compiere.model.MProcessAccess;
  *  @version Release 3.9.1
  */
 public class RoleCreateFromWindowProcess extends RoleCreateFromWindowProcessAbstract {
+	
+	/**	Process Added to Access	*/
+	private int processAdded = 0;
+	
 	@Override
 	protected String doIt() throws Exception {
 		for(int processId : getSelectionKeys()) {
@@ -34,10 +39,34 @@ public class RoleCreateFromWindowProcess extends RoleCreateFromWindowProcessAbst
 				continue;
 			}
 			//	Add to process
-			MProcessAccess access = new MProcessAccess(process, getRecord_ID());
-			access.setIsReadWrite(isReadWrite());
-			access.saveEx();
+			addProcessAccess(processId);
+			//	For Smart Browse
+			if(isDependentEntities()) {
+				if(process.getAD_Browse_ID() > 0) {
+					MBrowse browse = MBrowse.get(getCtx(), process.getAD_Browse_ID());
+					if(browse.getAD_Process_ID() > 0) {
+						addProcessAccess(browse.getAD_Process_ID());
+					}
+				}
+			}
 		}
-		return "";
+		return "@AD_Process_ID@ @Added@ " + processAdded;
+	}
+	
+	/**
+	 * Add process Access
+	 * @param processId
+	 */
+	private void addProcessAccess(int processId) {
+		MProcess process = MProcess.get(getCtx(), processId);
+		if(process == null
+				|| process.getAD_Process_ID() <= 0) {
+			return;
+		}
+		MProcessAccess access = new MProcessAccess(process, getRecord_ID());
+		access.setIsReadWrite(isReadWrite());
+		access.saveEx();
+		//	Add
+		processAdded++;
 	}
 }

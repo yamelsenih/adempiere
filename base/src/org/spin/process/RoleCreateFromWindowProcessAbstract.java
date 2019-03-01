@@ -25,19 +25,24 @@ import org.compiere.process.SvrProcess;
  */
 public abstract class RoleCreateFromWindowProcessAbstract extends SvrProcess {
 	/** Process Value 	*/
-	private static final String VALUE_FOR_PROCESS = "RoleCreateFromWindowProcess";
+	private static final String VALUE_FOR_PROCESS = "SBP_RoleCreateFromWindowProcess";
 	/** Process Name 	*/
 	private static final String NAME_FOR_PROCESS = "Create Process Access from Windows";
 	/** Process Id 	*/
 	private static final int ID_FOR_PROCESS = 1000003;
 	/**	Parameter Name for Read Write	*/
 	public static final String ISREADWRITE = "IsReadWrite";
+	/**	Parameter Name for Dependent Entities	*/
+	public static final String ISDEPENDENTENTITIES = "IsDependentEntities";
 	/**	Parameter Value for Read Write	*/
 	private boolean isReadWrite;
+	/**	Parameter Value for Dependent Entities	*/
+	private boolean isDependentEntities;
 
 	@Override
 	protected void prepare() {
 		isReadWrite = getParameterAsBoolean(ISREADWRITE);
+		isDependentEntities = getParameterAsBoolean(ISDEPENDENTENTITIES);
 	}
 
 	/**	 Getter Parameter Value for Read Write	*/
@@ -48,6 +53,16 @@ public abstract class RoleCreateFromWindowProcessAbstract extends SvrProcess {
 	/**	 Setter Parameter Value for Read Write	*/
 	protected void setIsReadWrite(boolean isReadWrite) {
 		this.isReadWrite = isReadWrite;
+	}
+
+	/**	 Getter Parameter Value for Dependent Entities	*/
+	protected boolean isDependentEntities() {
+		return isDependentEntities;
+	}
+
+	/**	 Setter Parameter Value for Dependent Entities	*/
+	protected void setIsDependentEntities(boolean isDependentEntities) {
+		this.isDependentEntities = isDependentEntities;
 	}
 
 	/**	 Getter Parameter Value for Process ID	*/
