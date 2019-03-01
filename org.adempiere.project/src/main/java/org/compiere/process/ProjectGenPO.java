@@ -252,8 +252,10 @@ public class ProjectGenPO extends ProjectGenPOAbstract
 					quantityEntered = quantityToOrder;
 				}
 				orderLine.setQty(quantityEntered);
-				orderLine.setQtyOrdered(quantityToOrder);
-				orderLine.setC_UOM_ID(uomId);			}
+				orderLine.setQtyOrdered(quantityToOrder);			
+			} else { 
+				orderLine.setQty(quantityToOrder);
+			}
 		} else { 
 			orderLine.setQty(quantityToOrder);
 		}
