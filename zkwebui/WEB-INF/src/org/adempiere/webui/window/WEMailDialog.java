@@ -23,6 +23,7 @@ import java.util.StringTokenizer;
 import java.util.logging.Level;
 
 import org.adempiere.webui.apps.AEnv;
+import org.adempiere.webui.component.Borderlayout;
 import org.adempiere.webui.component.ConfirmPanel;
 import org.adempiere.webui.component.Grid;
 import org.adempiere.webui.component.Label;
@@ -44,13 +45,14 @@ import org.compiere.util.DisplayType;
 import org.compiere.util.EMail;
 import org.compiere.util.Env;
 import org.compiere.util.Msg;
+import org.zkoss.zhtml.Center;
+import org.zkoss.zk.ui.Component;
 import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.event.EventListener;
-import org.zkoss.zkex.zul.Borderlayout;
-import org.zkoss.zkex.zul.Center;
-import org.zkoss.zkex.zul.South;
 import org.zkoss.zul.Div;
+import org.zkoss.zul.Listitem;
 import org.zkoss.zul.Separator;
+import org.zkoss.zul.South;
 
 /**
  *	EMail Dialog
@@ -287,14 +289,12 @@ public class WEMailDialog extends Window implements EventListener, ValueChangeLi
 		Center center = new Center();
 		center.appendChild(grid);
 		layout.appendChild(center);
-		center.setStyle("background-color: white");
 		
 		South south = new South();
 		south.appendChild(statusBar);
 		layout.appendChild(south);
-		south.setStyle("background-color: white");
 		
-		this.appendChild(layout);		
+		this.appendChild((Component) layout);		
 	}	//	jbInit
 
 	/**
@@ -533,5 +533,6 @@ public class WEMailDialog extends Window implements EventListener, ValueChangeLi
 
         return;
 	}
+
 
 }	//	VEMailDialog

@@ -19,6 +19,7 @@ import org.adempiere.webui.component.FolderBrowser;
 import org.adempiere.exceptions.ValueChangeEvent;
 import org.compiere.model.GridField;
 import org.compiere.util.CLogger;
+import org.zkoss.web.fn.ServletFns;
 import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.event.Events;
 
@@ -38,7 +39,7 @@ public class WFileDirectoryEditor extends WEditor
 	public WFileDirectoryEditor(GridField gridField)
 	{
 		super(new FilenameBox(), gridField);
-		getComponent().setButtonImage("/images/Open16.png");
+		getComponent().setButtonImage(ServletFns.resolveThemeURL("~./images/Open16.png"));
 		getComponent().addEventListener(Events.ON_CLICK, this);
 	}
 
@@ -85,7 +86,7 @@ public class WFileDirectoryEditor extends WEditor
 		getComponent().setEnabled(readWrite);
 	}
 
-	public void onEvent(Event event)
+	public void onEvent(Event event) throws Exception
 	{
 		if (Events.ON_CHANGE.equals(event.getName()) || Events.ON_OK.equals(event.getName()))
 		{

@@ -55,8 +55,9 @@ import org.compiere.util.Msg;
 import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.event.EventListener;
 import org.zkoss.zk.ui.event.Events;
-import org.zkoss.zkex.zul.Borderlayout;
-import org.zkoss.zkex.zul.Center;
+import org.zkoss.zul.Borderlayout;
+import org.zkoss.zul.Center;
+import org.zkoss.zul.Listitem;
 import org.zkoss.zul.Space;
 
 /**
@@ -595,4 +596,5 @@ public class WCreateFromShipmentUI extends CreateFromShipment
 	public ADForm getForm() {
 		return v_Container;
 	}
+
 }

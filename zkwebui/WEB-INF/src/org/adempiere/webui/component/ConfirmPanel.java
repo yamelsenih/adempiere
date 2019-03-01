@@ -23,7 +23,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.adempiere.webui.AdempiereIdGenerator;
-import org.adempiere.webui.LayoutUtils;
+import org.adempiere.webui.panel.LoginPanel;
+import org.adempiere.webui.theme.ThemeUtils;
 import org.compiere.util.Env;
 import org.compiere.util.Msg;
 import org.compiere.util.Util;
@@ -113,9 +114,8 @@ public final class ConfirmPanel extends Hbox
     {
         Button button = new Button();
         button.setName("btn"+name);
-        button.setId(name);
+        button.setId(name);  // Might get overwritten by renderer
         button.setAttribute(AdempiereIdGenerator.ZK_COMPONENT_PREFIX_ATTRIBUTE, button.getId());
-        
         String text = Msg.translate(Env.getCtx(), name);
         if (!name.equals(text))
         	text = text.replaceAll("[&]", "");
@@ -129,14 +129,14 @@ public final class ConfirmPanel extends Hbox
         		button.setImage("images/"+name+"16.png");
         	}
         	button.setLabel(text);
-        	LayoutUtils.addSclass("action-text-button", button);
+        	ThemeUtils.addSclass("action-text-button", button);
         }
         else
         {
         	button.setImage("images/"+name+"16.png");
         	if (text != null)
         		button.setTooltiptext(text);
-        	LayoutUtils.addSclass("action-button", button);
+        	ThemeUtils.addSclass("action-button", button);
         }
 
         buttonMap.put(name, button);
@@ -265,10 +265,13 @@ public final class ConfirmPanel extends Hbox
     /**
      * initialise components
      */
-    private void init()
+   
+	private void init()
     {
         pnlBtnLeft = new Panel();
         pnlBtnLeft.setAlign("left");
+        
+      
 
         pnlBtnRight = new Panel();
         pnlBtnRight.setAlign("right");

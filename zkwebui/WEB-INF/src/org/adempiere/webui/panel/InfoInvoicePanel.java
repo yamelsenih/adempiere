@@ -51,6 +51,7 @@ import org.compiere.util.Trx;
 import org.compiere.util.Util;
 import org.zkoss.zk.ui.event.Events;
 import org.zkoss.zul.Hbox;
+import org.zkoss.zul.Listitem;
 
 /**
  * Search Invoice and return selection
@@ -299,7 +300,7 @@ public class InfoInvoicePanel extends InfoPanel implements ValueChangeListener
 		hbox.appendChild(fDateFrom);
 		hbox.appendChild(new Label("-"));
 		hbox.appendChild(fDateTo);
-		row.appendChild(hbox);
+		row.appendCellChild(hbox,3);
 		
 		row = new Row();
 		row.setSpans("1, 1, 1, 3");
@@ -311,7 +312,7 @@ public class InfoInvoicePanel extends InfoPanel implements ValueChangeListener
 		hbox.appendChild(fAmtFrom);
 		hbox.appendChild(new Label("-"));
 		hbox.appendChild(fAmtTo);
-		row.appendChild(hbox);
+		row.appendCellChild(hbox,3);
 
 		p_criteriaGrid.appendChild(rows);
 		

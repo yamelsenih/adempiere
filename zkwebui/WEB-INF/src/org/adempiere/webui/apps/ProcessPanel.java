@@ -39,6 +39,7 @@ import org.adempiere.webui.editor.WEditorPopupMenu;
 import org.adempiere.webui.editor.WTableDirEditor;
 import org.adempiere.webui.editor.WebEditorFactory;
 import org.adempiere.webui.event.ContextMenuListener;
+import org.adempiere.webui.panel.InfoProductPanel;
 import org.adempiere.webui.window.FDialog;
 import org.compiere.apps.ProcessController;
 import org.compiere.apps.ProcessCtl;
@@ -63,9 +64,9 @@ import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.event.EventListener;
 import org.zkoss.zk.ui.event.Events;
 import org.zkoss.zk.ui.util.Clients;
-import org.zkoss.zkex.zul.Center;
-import org.zkoss.zkex.zul.North;
-import org.zkoss.zkex.zul.South;
+import org.zkoss.zul.Center;
+import org.zkoss.zul.North;
+import org.zkoss.zul.South;
 import org.zkoss.zul.Comboitem;
 import org.zkoss.zul.Div;
 import org.zkoss.zul.Hbox;
@@ -232,7 +233,7 @@ public class ProcessPanel extends ProcessController implements SmallViewEditable
 			hBox.appendChild(fSavedName);
 
 			Panel confParaPanel = new Panel();
-			confParaPanel.setAlign("right");
+			confParaPanel.setStyle("text-align: right; margin-left: 60%;");
 			//	BR [ 300 ]
 			try{
 				//	Set Ok
@@ -309,8 +310,11 @@ public class ProcessPanel extends ProcessController implements SmallViewEditable
 			
 			South south = new South();
 			south.appendChild(southRowPanel);
+			south.setStyle("margin-top:467px");
+			
 			//	Add to Main panel
 			mainLayout.appendChild(south);
+			southRowPanel.setStyle("bottom:0px");
 		}
 		//	Set Text
 		if(isShowDescription()) {
@@ -398,6 +402,8 @@ public class ProcessPanel extends ProcessController implements SmallViewEditable
         } else {
             currentRow.appendChild(editor.getComponent());
         	m_separators.add(null);
+        	currentRow.setStyle("width:49%;");
+        	
         	return;
         }
 		//	The 2nd range editor

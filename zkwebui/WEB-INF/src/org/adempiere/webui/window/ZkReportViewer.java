@@ -32,6 +32,7 @@ import org.adempiere.pdf.ITextDocument;
 import org.adempiere.webui.apps.AEnv;
 import org.adempiere.webui.apps.ProcessModalDialog;
 import org.adempiere.webui.apps.WReport;
+import org.adempiere.webui.component.Borderlayout;
 import org.adempiere.webui.component.Checkbox;
 import org.adempiere.webui.component.ConfirmPanel;
 import org.adempiere.webui.component.Label;
@@ -71,9 +72,7 @@ import org.zkoss.zk.ui.Executions;
 import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.event.EventListener;
 import org.zkoss.zk.ui.event.Events;
-import org.zkoss.zkex.zul.Borderlayout;
-import org.zkoss.zkex.zul.Center;
-import org.zkoss.zkex.zul.North;
+import org.zkoss.zul.Center;
 import org.zkoss.zul.Div;
 import org.zkoss.zul.Filedownload;
 import org.zkoss.zul.Fileupload;
@@ -81,6 +80,7 @@ import org.zkoss.zul.Hbox;
 import org.zkoss.zul.Iframe;
 import org.zkoss.zul.Listitem;
 import org.zkoss.zul.Menuitem;
+import org.zkoss.zul.North;
 import org.zkoss.zul.Separator;
 import org.zkoss.zul.Toolbar;
 import org.zkoss.zul.Toolbarbutton;
@@ -939,16 +939,9 @@ public class ZkReportViewer extends Window implements EventListener {
 		//  Show File Open Dialog
 		Media file = null;
 
-		try {
-			file = Fileupload.get(true);
-			if (file == null)
-				return;
-		}
-		catch (InterruptedException e)
-		{
-			log.warning(e.getLocalizedMessage());
+		file = Fileupload.get(true);
+		if (file == null)
 			return;
-		}
 
 		FileOutputStream fos = null;
 		try {
@@ -1272,27 +1265,23 @@ public class ZkReportViewer extends Window implements EventListener {
 		//	Launch dialog
 		ProcessModalDialog processModalDialog = new ProcessModalDialog(null, m_WindowNo, pi);
 		if (processModalDialog.isValidDialog()) {
-			try {
-				processModalDialog.setPage(this.getPage());
-				processModalDialog.doModal();
-				//	Valid
-				if(processModalDialog.isOK()) {
-					//	execute
-					//ProcessCtl worker = new ProcessCtl(null, m_WindowNo, pi, true, null);
-					//synchrous
-					//worker.run();
-					processModalDialog.runProcess();
-					//	
-					ReportEngine re = ReportEngine.get(Env.getCtx(), pi);
-					//	
-					if(re != null) {
-						m_reportEngine.setQuery(re.getQuery());
-					}
-					//	
-					return true;
+			processModalDialog.setPage(this.getPage());
+			processModalDialog.doModal();
+			//	Valid
+			if(processModalDialog.isOK()) {
+				//	execute
+				//ProcessCtl worker = new ProcessCtl(null, m_WindowNo, pi, true, null);
+				//synchrous
+				//worker.run();
+				processModalDialog.runProcess();
+				//	
+				ReportEngine re = ReportEngine.get(Env.getCtx(), pi);
+				//	
+				if(re != null) {
+					m_reportEngine.setQuery(re.getQuery());
 				}
-			} catch (InterruptedException e) {
-				log.severe(e.getLocalizedMessage());
+				//	
+				return true;
 			}
 		}
 		else

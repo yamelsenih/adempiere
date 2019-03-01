@@ -31,11 +31,11 @@ import org.compiere.print.MPrintColor;
 import org.compiere.util.CLogger;
 import org.compiere.util.Env;
 import org.zkoss.image.AImage;
+import org.zkoss.zhtml.Center;
 import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.event.EventListener;
-import org.zkoss.zkex.zul.Center;
-import org.zkoss.zkex.zul.South;
 import org.zkoss.zul.Image;
+import org.zkoss.zul.South;
 
 /**
  * Button panel supporting multiple linked layouts

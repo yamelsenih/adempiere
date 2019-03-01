@@ -27,6 +27,7 @@ import java.util.Vector;
 
 import org.adempiere.webui.event.WTableModelEvent;
 import org.adempiere.webui.event.WTableModelListener;
+import org.adempiere.webui.panel.InfoPanel;
 import org.zkoss.zk.ui.Executions;
 import org.zkoss.zul.ListModelExt;
 import org.zkoss.zul.ListModelList;
@@ -51,7 +52,7 @@ public class ListModelTable<E> extends ListModelList implements ListModelExt
 	/** The number of columns in the table. */
 	private int m_noColumns;
 
-	private ListModelExt sorter = null;
+	private InfoPanel sorter = null;
 
 	/**
 	 * Default constructor.
@@ -389,8 +390,8 @@ public class ListModelTable<E> extends ListModelList implements ListModelExt
 		}
 	}
 
-	public void setSorter(ListModelExt lme)
+	public void setSorter(InfoPanel infoPanel)
 	{
-		sorter = lme;
+		sorter = infoPanel;
 	}
 }

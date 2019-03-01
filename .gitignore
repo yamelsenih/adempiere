@@ -47,9 +47,11 @@ migration/postgresql.properties
 .DS_Store
 .DS_Store?
 ._*
+*.class
 /packages/
 /posterita/
 /zkpackages/
 /.metadata/
 /.recommenders/
 /RemoteSystemsTempFiles/
+/03880_1769_Add_Table_AD_Token.xml

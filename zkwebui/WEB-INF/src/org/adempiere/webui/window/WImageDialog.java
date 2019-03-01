@@ -20,6 +20,7 @@ import java.io.InputStream;
 import java.util.logging.Level;
 
 import org.adempiere.webui.apps.AEnv;
+import org.adempiere.webui.component.Borderlayout;
 import org.adempiere.webui.component.Button;
 import org.adempiere.webui.component.ConfirmPanel;
 import org.adempiere.webui.component.Label;
@@ -31,16 +32,16 @@ import org.compiere.util.Env;
 import org.compiere.util.Msg;
 import org.zkoss.image.AImage;
 import org.zkoss.util.media.Media;
+import org.zkoss.zk.ui.Component;
 import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.event.EventListener;
 import org.zkoss.zk.ui.event.Events;
-import org.zkoss.zkex.zul.Borderlayout;
-import org.zkoss.zkex.zul.Center;
-import org.zkoss.zkex.zul.North;
-import org.zkoss.zkex.zul.South;
+import org.zkoss.zul.Center;
 import org.zkoss.zul.Fileupload;
 import org.zkoss.zul.Image;
+import org.zkoss.zul.North;
 import org.zkoss.zul.Separator;
+import org.zkoss.zul.South;
 
 /**
  *  Base on the original Swing Image Dialog.
@@ -126,7 +127,7 @@ public class WImageDialog extends Window implements EventListener
 		fileButton.setLabel("-");
 		
 		North north = new North();
-		north.setParent(mainLayout);
+		north.setParent((Component) mainLayout);
 		north.setStyle("background-color: transparent");
 		north.appendChild(parameterPanel);
 		
@@ -136,13 +137,13 @@ public class WImageDialog extends Window implements EventListener
 		
 		Center center = new Center();
 		center.setFlex(true);
-		center.setParent(mainLayout);
+		center.setParent((Component) mainLayout);
 		center.appendChild(image);
 		center.setStyle("background-color: transparent");
 		
 		South south = new South();
 		south.setStyle("background-color: transparent; border: none;");
-		south.setParent(mainLayout);
+		south.setParent((Component) mainLayout);
 		south.appendChild(confirmPanel);
 		
 		//
@@ -194,18 +195,10 @@ public class WImageDialog extends Window implements EventListener
 		//  Show File Open Dialog
 		Media imageFile = null;
 		
-		try 
-		{
-			imageFile = Fileupload.get(); 
-			
-			if (imageFile == null)
-				return;
-		}
-		catch (InterruptedException e) 
-		{
-			log.warning(e.getLocalizedMessage());
+		imageFile = Fileupload.get(); 
+		
+		if (imageFile == null)
 			return;
-		}
 
 		String fileName = imageFile.getName();
 		

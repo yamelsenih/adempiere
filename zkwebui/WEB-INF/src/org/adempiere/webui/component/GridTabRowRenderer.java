@@ -19,6 +19,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.adempiere.webui.apps.AEnv;
 import org.adempiere.webui.editor.WButtonEditor;
@@ -28,6 +29,7 @@ import org.adempiere.webui.editor.WebEditorFactory;
 import org.adempiere.webui.event.ContextMenuListener;
 import org.adempiere.webui.panel.AbstractADWindowPanel;
 import org.adempiere.webui.session.SessionManager;
+import org.adempiere.webui.theme.ThemeUtils;
 import org.adempiere.webui.util.GridTabDataBinder;
 import org.adempiere.webui.window.ADWindow;
 import org.compiere.model.GridField;
@@ -56,6 +58,9 @@ import org.zkoss.zul.RendererCtrl;
 import org.zkoss.zul.Row;
 import org.zkoss.zul.RowRenderer;
 import org.zkoss.zul.RowRendererExt;
+import org.zkoss.zhtml.Input;
+import org.zkoss.zhtml.Label;
+import org.zkoss.zhtml.Text;
 
 /**
  * Row renderer for GridTab grid.
@@ -69,7 +74,7 @@ import org.zkoss.zul.RowRendererExt;
  * 		@see FR [ 1697 ] Add definition for change style</a>
  *
  */
-public class GridTabRowRenderer implements RowRenderer, RowRendererExt, RendererCtrl, EventListener {
+public class GridTabRowRenderer implements RowRenderer<Object[]>, RowRendererExt, RendererCtrl, EventListener {
 
 	private static final String CURRENT_ROW_STYLE = "border-top: 2px solid #1f9bde; border-bottom: 2px solid #1f9bde";
 	private static final int MAX_TEXT_LENGTH = 60;
@@ -335,7 +340,7 @@ public class GridTabRowRenderer implements RowRenderer, RowRendererExt, Renderer
 	 * @param data
 	 * @see RowRenderer#render(Row, Object)
 	 */
-	public void render(Row row, Object data) throws Exception {
+	public void render(Row row, Object[] data, int index) throws Exception {
 		
 		//don't render if not visible
 		if (gridPanel != null && !gridPanel.isVisible()) {
@@ -386,10 +391,12 @@ public class GridTabRowRenderer implements RowRenderer, RowRendererExt, Renderer
 				div.appendChild(component);
 
 				if (DisplayType.YesNo == gridField[i].getDisplayType() || DisplayType.Image == gridField[i].getDisplayType()) {
-					div.setTextAlign("center"); 
+					div.setTextAlign("center");
+					ThemeUtils.addSclass("yes-no", div); 
 				}
 				else if (DisplayType.isNumeric(gridField[i].getDisplayType())) {
 					div.setTextAlign("right");
+					ThemeUtils.addSclass("numeric", div);
 				}
 				else {
 					div.setTextAlign("left"); 

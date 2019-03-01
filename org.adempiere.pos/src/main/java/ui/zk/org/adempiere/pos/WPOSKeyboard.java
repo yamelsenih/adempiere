@@ -35,13 +35,13 @@ import org.compiere.model.MPOSKeyLayout;
 import org.compiere.util.CLogger;
 import org.compiere.util.Env;
 import org.compiere.util.Msg;
+import org.zkoss.zhtml.Center;
 import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.event.EventListener;
 import org.zkoss.zk.ui.event.Events;
-import org.zkoss.zkex.zul.Center;
-import org.zkoss.zkex.zul.North;
-import org.zkoss.zkex.zul.South;
 import org.zkoss.zul.Doublebox;
+import org.zkoss.zul.North;
+import org.zkoss.zul.South;
 
 /**
  * On Screen Keyboard

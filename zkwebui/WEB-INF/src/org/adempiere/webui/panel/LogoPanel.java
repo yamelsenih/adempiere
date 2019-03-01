@@ -35,14 +35,14 @@ public class LogoPanel extends Panel
 	private Image imgLogo;
     
     public LogoPanel()
-    {
+    { 
         super();
         init();
     }
     
     private void init()
     {
-        imgLogo = new Image("/images/logo.png");
+    	   imgLogo = new Image("~./images/logo.png");
         this.appendChild(imgLogo);
         this.setWidth("250px");
     }

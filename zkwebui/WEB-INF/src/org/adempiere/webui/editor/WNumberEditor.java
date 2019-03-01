@@ -26,6 +26,7 @@ import org.adempiere.webui.component.NumberBox;
 import org.adempiere.webui.event.ContextMenuEvent;
 import org.adempiere.webui.event.ContextMenuListener;
 import org.adempiere.exceptions.ValueChangeEvent;
+import org.adempiere.webui.theme.ThemeUtils;
 import org.adempiere.webui.window.WRecordInfo;
 import org.compiere.model.GridField;
 import org.compiere.model.MRole;
@@ -110,6 +111,8 @@ public class WNumberEditor extends WEditor implements ContextMenuListener
 
 	private void init()
     {
+		ThemeUtils.addSclass("ad-number-editor", getComponent());
+
 		if (gridField != null)
 		{
 			getComponent().setTooltiptext(gridField.getDescription());

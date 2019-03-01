@@ -23,6 +23,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import org.adempiere.webui.theme.ThemeUtils;
 import org.zkoss.zk.ui.Component;
 import org.zkoss.zk.ui.event.EventListener;
 import org.zkoss.zk.ui.event.Express;
@@ -43,6 +44,7 @@ public class Grid extends org.zkoss.zul.Grid
     public Grid() {
 		super();
 		//cache default
+		ThemeUtils.addSclass("ad-grid", this);
 		oddRowSclass = super.getOddRowSclass();
 		super.setOddRowSclass(oddRowSclass);
 		listeners = new HashMap<String, List<EventListenerInfo>>();

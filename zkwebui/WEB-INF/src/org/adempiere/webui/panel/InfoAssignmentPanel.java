@@ -21,6 +21,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
+import java.util.Comparator;
 import java.util.Date;
 
 import org.adempiere.webui.apps.AEnv;
@@ -43,9 +44,11 @@ import org.compiere.util.DB;
 import org.compiere.util.DisplayType;
 import org.compiere.util.Env;
 import org.compiere.util.Msg;
+import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.event.EventListener;
 import org.zkoss.zk.ui.event.Events;
 import org.zkoss.zul.Div;
+import org.zkoss.zul.Listitem;
 
 /**
 * Based on InfoAssignment written by Jorg Janke
@@ -61,7 +64,7 @@ import org.zkoss.zul.Div;
  * 	<li>https://adempiere.atlassian.net/browse/ADEMPIERE-72
 */
 
-public class InfoAssignmentPanel extends InfoPanel implements EventListener, ValueChangeListener
+public class InfoAssignmentPanel extends InfoPanel implements EventListener<Event>, ValueChangeListener
 {
 	/**
 	 * 
@@ -409,6 +412,18 @@ public class InfoAssignmentPanel extends InfoPanel implements EventListener, Val
 		fieldFrom.set_oldValue();
 		fieldTo.set_oldValue();
 		return;
+	}
+
+	@Override
+	public String getSortDirection(Comparator cmpr) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void render(Listitem item, Object data) throws Exception {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

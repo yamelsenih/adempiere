@@ -53,19 +53,22 @@ import org.compiere.util.CLogger;
 import org.compiere.util.DB;
 import org.compiere.util.Env;
 import org.compiere.util.Msg;
+import org.zkoss.zk.ui.Component;
 import org.zkoss.zk.ui.Executions;
 import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.event.EventListener;
 import org.zkoss.zk.ui.event.Events;
-import org.zkoss.zkex.zul.Borderlayout;
-import org.zkoss.zkex.zul.Center;
-import org.zkoss.zkex.zul.North;
-import org.zkoss.zkex.zul.South;
 import org.zkoss.zul.Caption;
+import org.zkoss.zul.Center;
 import org.zkoss.zul.Div;
 import org.zkoss.zul.Groupbox;
 import org.zkoss.zul.Hbox;
+import org.zkoss.zul.Listitem;
+import org.zkoss.zul.North;
+import org.zkoss.zul.South;
 import org.zkoss.zul.Vbox;
+
+
 
 /**
  *	Dialog to enter Account Info
@@ -81,6 +84,7 @@ public final class WAccountDialog extends Window
 {
 
 	private static final long serialVersionUID = 7999516267209766287L;
+	private static long delegatePtr;
 
 	/**
 	 * 	Constructor
@@ -114,6 +118,8 @@ public final class WAccountDialog extends Window
 		else
 			dispose();
 	}	//	WAccountDialog
+
+
 
 	/** Window No					*/
 	private int					m_WindowNo;
@@ -151,7 +157,7 @@ public final class WAccountDialog extends Window
 		f_C_Project_ID, f_C_SalesRegion_ID, f_AD_OrgTrx_ID, f_C_Activity_ID,
 		f_User1_ID, f_User2_ID , f_User3_ID, f_User4_ID;
 	//
-	private Label f_Description = new Label ("");
+	private Label f_Description = new Label ();
 
 	private int					m_line = 0;
 	private boolean				m_newRow = true;
@@ -189,7 +195,7 @@ public final class WAccountDialog extends Window
 		Caption caption = new Caption(Msg.getMsg(Env.getCtx(),"Parameter"));
 		parameterPanel.appendChild(caption);
 		parameterPanel.setStyle("background-color: transparent;");
-		toolBar.setOrient("vertical");
+		toolBar.setAction("vertical");
 		toolBar.setStyle("border: none; margin: 5px");
 
 		bSave.setImage("images/Save24.png");
@@ -202,14 +208,14 @@ public final class WAccountDialog extends Window
 		bIgnore.setTooltiptext(Msg.getMsg(Env.getCtx(),"Ignore"));
 		bIgnore.addEventListener(Events.ON_CLICK, this);
 		//
-		toolBar.appendChild(bRefresh);
-		toolBar.appendChild(bIgnore);
-		toolBar.appendChild(bSave);
+		((Component) toolBar).appendChild(bRefresh);
+		((Component) toolBar).appendChild(bIgnore);
+		((Component) toolBar).appendChild(bSave);
 		//
 
 		northPanel.appendChild(parameterPanel);
 		parameterPanel.setWidth("95%");
-		northPanel.appendChild(toolBar);
+		northPanel.appendChild((Component) toolBar);
 		northPanel.setWidth("100%");
 
 		m_adTabPanel = new ADTabPanel();
@@ -218,7 +224,7 @@ public final class WAccountDialog extends Window
 		m_adTabPanel.setGlobalToolbar(toolbar);
 		m_adTabPanel.setSwitchRowPresentation(false);
 		
-		Borderlayout layout = new Borderlayout();
+		org.adempiere.webui.component.Borderlayout layout = new org.adempiere.webui.component.Borderlayout();
 		layout.setParent(this);
 		if (AEnv.isFirefox2())
 		{
@@ -235,14 +241,14 @@ public final class WAccountDialog extends Window
 		}
 
 		North nRegion = new North();
-		nRegion.setParent(layout);
+		nRegion.setParent((Component) layout);
 		nRegion.setFlex(false);
 		nRegion.appendChild(northPanel);
 		nRegion.setStyle("background-color: transparent; border: none");
 		northPanel.setStyle("background-color: transparent;");
 
 		Center cRegion = new Center();
-		cRegion.setParent(layout);
+		cRegion.setParent((Component) layout);
 		cRegion.appendChild(m_adTabPanel);
 		cRegion.setFlex(true);
 
@@ -633,7 +639,7 @@ public final class WAccountDialog extends Window
 		}
 	}	//	saveSelection
 
-	public void onEvent(Event event) throws Exception {
+	public void onEvent1(Event event) throws Exception {
 		if (event.getTarget().getId().equals("Ok"))
 		{
 			m_changed = true;
@@ -658,7 +664,7 @@ public final class WAccountDialog extends Window
 	 *	Status Change Listener
 	 *  @param e event
 	 */
-	public void dataStatusChanged (DataStatusEvent e)
+	public void dataStatusChanged1 (DataStatusEvent e)
 	{
 		log.config(e.toString());
 		String info = (String)m_mTab.getValue("Description");
@@ -1169,9 +1175,29 @@ public final class WAccountDialog extends Window
 	 * 	valueChange - Account Changed
 	 *	@param evt event
 	 */
-	public void valueChange(ValueChangeEvent evt) {
+	public void valueChange1(ValueChangeEvent evt) {
 		Object newValue = evt.getNewValue();
 		if (newValue instanceof Integer)
 			Env.setContext(Env.getCtx(), m_WindowNo, "Account_ID", ((Integer)newValue).intValue());
 	}
+
+
+	@Override
+	public void dataStatusChanged(DataStatusEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void valueChange(ValueChangeEvent evt) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onEvent(Event event) throws Exception {
+		// TODO Auto-generated method stub
+		
+	}
+
 }	//	WAccountDialog

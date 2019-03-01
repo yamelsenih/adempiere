@@ -52,6 +52,7 @@ import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.event.EventListener;
 import org.zkoss.zk.ui.event.Events;
 import org.zkoss.zul.Hbox;
+import org.zkoss.zul.Listitem;
 
 /**
 * Based on InfoPayment written by Jorg Janke
@@ -272,14 +273,13 @@ public class InfoPaymentPanel extends InfoPanel implements ValueChangeListener, 
 		row.appendChild(fCheckPayment);
 		
 		row = new Row();
-		row.setSpans("3, 1");
 		rows.appendChild(row);
-		row.appendChild(lAmtFrom.rightAlign());
+		row.appendCellChild(lAmtFrom.rightAlign(),3);
 		hbox = new Hbox();
 		hbox.appendChild(fAmtFrom);
 		hbox.appendChild(lAmtTo);
 		hbox.appendChild(fAmtTo);
-		row.appendChild(hbox);
+		row.appendCellChild(hbox,1);
 
 		p_criteriaGrid.appendChild(rows);
 		super.setSizes();
@@ -349,7 +349,7 @@ public class InfoPaymentPanel extends InfoPanel implements ValueChangeListener, 
         }
 	} // initInfo
 	
-    public void onEvent(Event e)
+    public void onEvent(Event e) throws Exception
     {
     	// Handle specific actions if possible or pass the event to the parent class
 
@@ -595,6 +595,12 @@ public class InfoPaymentPanel extends InfoPanel implements ValueChangeListener, 
 		fDateFrom.set_oldValue();
 		fDateTo.set_oldValue();
 		return;
+	}
+
+	@Override
+	public void render(Listitem item, Object data) throws Exception {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

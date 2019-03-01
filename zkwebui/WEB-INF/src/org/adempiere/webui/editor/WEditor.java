@@ -31,8 +31,8 @@ import org.adempiere.webui.component.Button;
 import org.adempiere.webui.component.CWindowToolbar;
 import org.adempiere.webui.component.Datebox;
 import org.adempiere.webui.component.Label;
-import org.adempiere.webui.component.StringBox;
 import org.adempiere.webui.panel.IADTabPanel;
+import org.adempiere.webui.theme.ThemeUtils;
 import org.compiere.model.GridField;
 import org.compiere.model.GridTab;
 import org.compiere.swing.CEditor;
@@ -215,6 +215,8 @@ public abstract class WEditor implements CEditor, EventListener, PropertyChangeL
 
     private void init()
     {
+    //	ThemeUtils.addSclass("ad-weditor", this.getComponent());
+
         label = new Label("");
         label.setValue(strLabel);
         label.setTooltiptext(description);
@@ -507,10 +509,10 @@ public abstract class WEditor implements CEditor, EventListener, PropertyChangeL
         label.setVisible(visible);
         
         
-        if (component instanceof org.adempiere.webui.component.StringBox)
-        {
-        	((StringBox)component).getTextBox().setVisible(visible);
-        }
+//        if (component instanceof org.adempiere.webui.component.StringBox)
+//        {
+//        	((StringBox)component).getTextBox().setVisible(visible);
+//        }
         		
         
         component.setVisible(visible);

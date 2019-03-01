@@ -18,23 +18,31 @@
 package org.adempiere.webui.panel;
 
 import java.net.URI;
+
 import org.adempiere.webui.LayoutUtils;
+import org.adempiere.webui.theme.ThemeUtils;
 import org.adempiere.webui.apps.AEnv;
 import org.adempiere.webui.component.Borderlayout;
 import org.adempiere.webui.component.Label;
 import org.adempiere.webui.component.Panel;
+import org.adempiere.webui.session.SessionManager;
+import org.adempiere.webui.theme.ThemeUtils;
 import org.adempiere.webui.window.WRecordInfo;
 import org.compiere.apps.IStatusBar;
 import org.compiere.model.DataStatusEvent;
 import org.compiere.model.MRole;
 import org.compiere.util.Env;
 import org.compiere.util.Msg;
+import org.zkoss.zhtml.Text;
+import org.zkoss.zk.au.out.AuScript;
 import org.zkoss.zk.ui.Component;
 import org.zkoss.zk.ui.Page;
 import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.event.EventListener;
 import org.zkoss.zk.ui.event.Events;
-import org.zkoss.zkex.zul.North;
+import org.zkoss.zul.North;
+import org.zkoss.zk.ui.util.Clients;
+import org.zkoss.zul.Cell;
 import org.zkoss.zul.Div;
 import org.zkoss.zul.Hbox;
 import org.zkoss.zul.Image;
@@ -141,13 +149,13 @@ public class StatusBarPanel extends Panel implements EventListener, IStatusBar
         	infoLine.setVisible(false);
         }
         east.appendChild(statusDB);
-
         LayoutUtils.addSclass("status-db", statusDB);
-        if (!embedded)
-        	LayoutUtils.addSclass("status-info", infoLine);
-        vbox = new Vbox();
-        vbox.setPack("center");
-        LayoutUtils.addSclass("status", vbox);
+      if (!embedded)
+    	  LayoutUtils.addSclass("status-info", infoLine);
+      vbox = new Vbox();
+      vbox.setPack("center");
+      LayoutUtils.addSclass("status", vbox);
+
         vbox.appendChild(east);
         hbox.appendChild(vbox);
 

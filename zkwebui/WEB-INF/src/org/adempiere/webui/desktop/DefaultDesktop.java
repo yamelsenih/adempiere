@@ -25,6 +25,7 @@ import java.net.URL;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.logging.Level;
+
 import org.adempiere.webui.apps.graph.WGraph;
 import org.adempiere.webui.apps.graph.WPerformanceDetail;
 import org.adempiere.webui.component.Tabpanel;
@@ -36,9 +37,11 @@ import org.adempiere.webui.event.MenuListener;
 import org.adempiere.webui.panel.HeaderPanel;
 import org.adempiere.webui.panel.SidePanel;
 import org.adempiere.webui.session.SessionManager;
+import org.adempiere.webui.theme.ThemeUtils;
 import org.adempiere.webui.util.IServerPushCallback;
 import org.adempiere.webui.util.ServerPushTemplate;
 import org.adempiere.webui.util.UserPreference;
+import org.adempiere.webui.window.WAccountDialog;
 import org.compiere.model.I_AD_Menu;
 import org.compiere.model.MDashboardContent;
 import org.compiere.model.MGoal;
@@ -58,16 +61,16 @@ import org.zkoss.zk.ui.event.EventListener;
 import org.zkoss.zk.ui.event.Events;
 import org.zkoss.zk.ui.event.OpenEvent;
 import org.zkoss.zk.ui.util.Clients;
-import org.zkoss.zkex.zul.Borderlayout;
-import org.zkoss.zkex.zul.Center;
-import org.zkoss.zkex.zul.North;
-import org.zkoss.zkex.zul.West;
-import org.zkoss.zkmax.zul.Portalchildren;
-import org.zkoss.zkmax.zul.Portallayout;
+import org.zkoss.zul.Anchorchildren;
+import org.zkoss.zul.Anchorlayout;
+import org.zkoss.zul.Borderlayout;
+import org.zkoss.zul.Center;
 import org.zkoss.zul.Html;
+import org.zkoss.zul.North;
 import org.zkoss.zul.Panel;
 import org.zkoss.zul.Panelchildren;
 import org.zkoss.zul.Toolbarbutton;
+import org.zkoss.zul.West;
 
 /**
  *
@@ -168,16 +171,16 @@ public class DefaultDesktop extends TabbedDesktop implements MenuListener, Seria
 	private void createHomeTab()
 	{
         Tabpanel homeTab = new Tabpanel();
-        windowContainer.addWindow(homeTab, Msg.getMsg(Env.getCtx(), "Home").replaceAll("&", ""), false);
+        ThemeUtils.addSclass("desktop-tabpanel", homeTab);
 
-        Portallayout portalLayout = new Portallayout();
-        portalLayout.setWidth("100%");
-        portalLayout.setHeight("100%");
-        portalLayout.setStyle("position: absolute; overflow: auto");
-        homeTab.appendChild(portalLayout);
+        windowContainer.addWindow(homeTab, Util.cleanAmp(Msg.getMsg(Env.getCtx(), "Home")), false);
+
+        Anchorlayout anchorLayout = new Anchorlayout();
+
+        homeTab.appendChild(anchorLayout);        
 
         // Dashboard content
-        Portalchildren portalchildren = null;
+        Anchorchildren anchorchildren = null;
         int currentColumnNo = 0;
         
         String sql = "SELECT COUNT(DISTINCT COLUMNNO) "
@@ -230,17 +233,18 @@ public class DefaultDesktop extends TabbedDesktop implements MenuListener, Seria
         		if(role.getDashboardAccess((int)rs.getInt(X_PA_DashboardContent.COLUMNNAME_PA_DashboardContent_ID))) {
 
 				int columnNo = rs.getInt(X_PA_DashboardContent.COLUMNNAME_ColumnNo);
-				if (portalchildren == null || currentColumnNo != columnNo) {
-					portalchildren = new Portalchildren();
-					portalLayout.appendChild(portalchildren);
-					portalchildren.setWidth(width + "%");
-					portalchildren.setStyle("padding: 5px");
+				if (anchorchildren == null || currentColumnNo != columnNo) {
+					anchorchildren = new Anchorchildren();
+					anchorLayout.appendChild(anchorchildren);
+					anchorchildren.setWidth(width + "%");
+					anchorchildren.setStyle("padding: 5px");
 
 					currentColumnNo = columnNo;
 				}
 				
 	        	Panel panel = new Panel();
-	        	panel.setStyle("margin-bottom:10px");
+	        	panel.setBorder("rounded");
+	        	ThemeUtils.addSclass("ad-defaultdesktop-layout-panel", panel);
 	        	panel.setTitle(rs.getString(X_PA_DashboardContent.COLUMNNAME_Name));
 
 	        	String description = rs.getString(X_PA_DashboardContent.COLUMNNAME_Description);
@@ -254,7 +258,7 @@ public class DefaultDesktop extends TabbedDesktop implements MenuListener, Seria
             	panel.setOpen( isOpenByDefault.equals("Y") );
             	
 	        	panel.setBorder("normal");
-	        	portalchildren.appendChild(panel);
+	        	anchorchildren.appendChild(panel);
 	            Panelchildren content = new Panelchildren();
 	            panel.appendChild(content);
 
@@ -422,8 +426,8 @@ public class DefaultDesktop extends TabbedDesktop implements MenuListener, Seria
         //register as 0
         registerWindow(homeTab);
 
-        if (!portalLayout.getDesktop().isServerPushEnabled())
-        	portalLayout.getDesktop().enableServerPush(true);
+        if (!anchorLayout.getDesktop().isServerPushEnabled())
+        	anchorLayout.getDesktop().enableServerPush(true);
 
         dashboardRunnable.refreshDashboard();
 
@@ -530,5 +534,11 @@ public class DefaultDesktop extends TabbedDesktop implements MenuListener, Seria
 	protected void preOpenNewTab() 
 	{
 		autoHideMenu();
+	}
+
+	@Override
+	public void showWindow(WAccountDialog wAccountDialog, String position) {
+		// TODO Auto-generated method stub
+		
 	}	
 }

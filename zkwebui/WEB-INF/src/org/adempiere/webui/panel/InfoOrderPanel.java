@@ -50,6 +50,7 @@ import org.zkoss.zk.ui.Component;
 import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.event.Events;
 import org.zkoss.zul.Hbox;
+import org.zkoss.zul.Listitem;
 
 /**
  * Search Order info and return selection
@@ -223,36 +224,36 @@ public class InfoOrderPanel extends InfoPanel implements ValueChangeListener
 		
 		Row row = new Row();
 		rows.appendChild(row);
-		row.appendChild(lblDocumentNo.rightAlign());
-		row.appendChild(fDocumentNo);
-		row.appendChild(fBPartner_ID.getLabel().rightAlign());
-		row.appendChild(fBPartner_ID.getComponent());
-		row.appendChild(fIsSOTrx);
+		row.appendCellChild(lblDocumentNo.rightAlign());
+		row.appendCellChild(fDocumentNo);
+		row.appendCellChild(fBPartner_ID.getLabel().rightAlign());
+		row.appendCellChild(fBPartner_ID.getComponent());
+		row.appendCellChild(fIsSOTrx);
 		
 		row = new Row();
 		row.setSpans("1, 1, 1, 2");
 		rows.appendChild(row);
-		row.appendChild(lblDescription.rightAlign());
-		row.appendChild(fDescription);
-		row.appendChild(lblDateOrdered.rightAlign());
+		row.appendCellChild(lblDescription.rightAlign());
+		row.appendCellChild(fDescription);
+		row.appendCellChild(lblDateOrdered.rightAlign());
 		Hbox hbox = new Hbox();
 		hbox.appendChild(fDateFrom);
 		hbox.appendChild(new Label("-"));
 		hbox.appendChild(fDateTo);
 		hbox.appendChild(fIsDelivered);
-		row.appendChild(hbox);
+		row.appendCellChild(hbox,2);
 		
 		row = new Row();
 		row.setSpans("1, 1, 1, 2");
 		rows.appendChild(row);
-		row.appendChild(lblOrderRef.rightAlign());
-		row.appendChild(fPOReference);
-		row.appendChild(lblGrandTotal.rightAlign());
+		row.appendCellChild(lblOrderRef.rightAlign());
+		row.appendCellChild(fPOReference);
+		row.appendCellChild(lblGrandTotal.rightAlign());
 		hbox = new Hbox();
 		hbox.appendChild(fAmtFrom);
 		hbox.appendChild(new Label("-"));
 		hbox.appendChild(fAmtTo);
-		row.appendChild(hbox);
+		row.appendCellChild(hbox,2);
         
 		p_criteriaGrid.appendChild(rows);
 		super.setSizes();
@@ -473,7 +474,7 @@ public class InfoOrderPanel extends InfoPanel implements ValueChangeListener
 		pstmt.setString(index++, fIsDelivered.isSelected() ? "Y" : "N");
     }
 
-    public void onEvent(Event e)
+    public void onEvent(Event e) throws Exception
     {
     	// Handle specific actions if possible or pass the event to the parent class
 
@@ -570,6 +571,12 @@ public class InfoOrderPanel extends InfoPanel implements ValueChangeListener
 		fIsSOTrx.set_oldValue() ;
 		fPOReference.set_oldValue();
 		return;
+	}
+
+	@Override
+	public void render(Listitem item, Object data) throws Exception {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

@@ -17,18 +17,21 @@
 
 package org.adempiere.webui.panel;
 
-import org.adempiere.webui.LayoutUtils;
-import org.adempiere.webui.component.Panel;
 import org.adempiere.webui.theme.ThemeManager;
+import org.adempiere.webui.theme.ThemeUtils;
+import org.adempiere.webui.component.Borderlayout;
+import org.adempiere.webui.component.Panel;
 import org.adempiere.webui.window.AboutWindow;
+
+
+
 import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.event.EventListener;
 import org.zkoss.zk.ui.event.Events;
-import org.zkoss.zkex.zul.Borderlayout;
-import org.zkoss.zkex.zul.Center;
-import org.zkoss.zkex.zul.West;
+import org.zkoss.zul.Center;
 import org.zkoss.zul.Image;
 import org.zkoss.zul.Vbox;
+import org.zkoss.zul.West;
 
 /**
  *
@@ -37,9 +40,12 @@ import org.zkoss.zul.Vbox;
  * @date    Mar 2, 2007
  * @date    July 7, 2007
  * @version $Revision: 0.20 $
+ * 
+ * Updated to zk 7.
  */
 
-public class HeaderPanel extends Panel implements EventListener
+@SuppressWarnings("deprecation")
+public class HeaderPanel extends Panel implements EventListener<Event>
 {
 	private static final long serialVersionUID = -2351317624519209484L;
 
@@ -53,7 +59,7 @@ public class HeaderPanel extends Panel implements EventListener
 
     private void init()
     {
-    	LayoutUtils.addSclass("desktop-header", this);
+    	ThemeUtils.addSclass("desktop-header", this);
 
     	UserPanel userPanel = new UserPanel();
 
@@ -61,12 +67,12 @@ public class HeaderPanel extends Panel implements EventListener
     	image.addEventListener(Events.ON_CLICK, this);
     	image.setStyle("cursor: pointer;");
 
+
     	Borderlayout layout = new Borderlayout();
-    	LayoutUtils.addSclass("desktop-header", layout);
+    	ThemeUtils.addSclass("desktop-header", layout);
     	layout.setParent(this);
     	West west = new West();
     	west.setParent(layout);
-
     	Vbox vb = new Vbox();
         vb.setParent(west);
         vb.setHeight("100%");
@@ -75,7 +81,7 @@ public class HeaderPanel extends Panel implements EventListener
 
     	image.setParent(vb);
 
-    	LayoutUtils.addSclass("desktop-header-left", west);
+    	ThemeUtils.addSclass("desktop-header-left", west);
     	//the following doesn't work when declare as part of the header-left style
     	west.setStyle("background-color: transparent; border: none;");
 
@@ -86,8 +92,8 @@ public class HeaderPanel extends Panel implements EventListener
     	userPanel.setWidth("100%");
     	userPanel.setHeight("100%");
     	userPanel.setStyle("position: absolute");
-    	center.setFlex(true);
-    	LayoutUtils.addSclass("desktop-header-right", center);
+    	//center.setFlex(true);
+    	ThemeUtils.addSclass("desktop-header-right", center);
     	//the following doesn't work when declare as part of the header-right style
     	center.setStyle("background-color: transparent; border: none;");
     }
@@ -97,10 +103,11 @@ public class HeaderPanel extends Panel implements EventListener
 			if(event.getTarget() == image)
 			{
 				AboutWindow w = new AboutWindow();
-				w.setPage(this.getPage());
+		    	w.setPage(this.getPage());
 				w.doModal();
 			}
+			
 		}
-
-	}
-}
+		
+	}	
+}		

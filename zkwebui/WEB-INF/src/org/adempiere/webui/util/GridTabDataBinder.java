@@ -24,6 +24,7 @@ import org.compiere.model.GridTable;
 import org.compiere.util.CLogger;
 import org.compiere.util.Env;
 import org.compiere.util.Trx;
+import org.zkoss.zul.Listitem;
 
 /**
  * Transfer data from editor to GridTab
@@ -213,4 +214,6 @@ public class GridTabDataBinder implements ValueChangeListener {
 			gridTab.setCurrentRow(oldRow);
 		}
 	}
+
+	
 }

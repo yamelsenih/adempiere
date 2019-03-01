@@ -19,6 +19,7 @@ import java.util.Map;
 
 import javax.swing.table.AbstractTableModel;
 
+import org.adempiere.webui.theme.ThemeUtils;
 import org.adempiere.webui.LayoutUtils;
 import org.adempiere.webui.editor.WEditor;
 import org.adempiere.webui.panel.ADTabPanel;
@@ -38,14 +39,15 @@ import org.zkoss.zk.au.out.AuFocus;
 import org.zkoss.zk.au.out.AuScript;
 import org.zkoss.zk.ui.AbstractComponent;
 import org.zkoss.zk.ui.Component;
+import org.zkoss.zk.ui.HtmlBasedComponent;
 import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.event.EventListener;
 import org.zkoss.zk.ui.event.Events;
 import org.zkoss.zk.ui.event.KeyEvent;
 import org.zkoss.zk.ui.util.Clients;
-import org.zkoss.zkex.zul.Borderlayout;
-import org.zkoss.zkex.zul.Center;
-import org.zkoss.zkex.zul.South;
+import org.zkoss.zul.Borderlayout;
+import org.zkoss.zul.Center;
+import org.zkoss.zul.South;
 import org.zkoss.zul.Column;
 import org.zkoss.zul.Div;
 import org.zkoss.zul.Paging;
@@ -147,6 +149,7 @@ public class GridPanel extends Borderlayout implements EventListener
 	 */
 	public GridPanel(int windowNo)
 	{
+		ThemeUtils.addSclass("ad-gridpanel adtab-grid-panel", this);
 		this.windowNo = windowNo;
 		listbox = new Grid();
 		
@@ -191,6 +194,32 @@ public class GridPanel extends Borderlayout implements EventListener
 		this.init = true;
 	}
 
+	/**
+	 *
+	 */
+private void init_components() {
+
+	listbox = new Grid();
+	listbox.setOddRowSclass(null);
+
+	//listbox.setHeight("100%");
+        listbox.setVflex(true);
+	//true might look better, false for better performance
+        listbox.setSizedByContent(true);
+	listbox.addEventListener(Events.ON_CLICK, this);
+	listbox.setVflex("1");
+
+	Center center = new Center();
+	ThemeUtils.addSclass("ad-gridpanel-center", center);
+	center.setVflex("1");
+	center.setHflex("1");
+	center.appendChild(listbox);
+	this.appendChild(center);
+
+	south = new South();
+	ThemeUtils.addSclass("ad-gridpanel-south", south);
+	this.appendChild(south);
+}
 	/**
 	 *
 	 * @return boolean

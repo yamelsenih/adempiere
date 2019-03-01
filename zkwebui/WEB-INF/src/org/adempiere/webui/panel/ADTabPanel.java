@@ -39,7 +39,9 @@ import org.adempiere.webui.component.Tabpanels;
 import org.adempiere.webui.component.Tabs;
 import org.adempiere.webui.editor.*;
 import org.adempiere.webui.event.ContextMenuListener;
+import org.adempiere.webui.theme.ThemeUtils;
 import org.adempiere.webui.util.GridTabDataBinder;
+import org.adempiere.webui.util.TreeUtils;
 import org.adempiere.webui.window.FDialog;
 import org.compiere.model.*;
 import org.compiere.util.CLogger;
@@ -54,12 +56,19 @@ import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.event.EventListener;
 import org.zkoss.zk.ui.event.Events;
 import org.zkoss.zk.ui.util.Clients;
-import org.zkoss.zkex.zul.Borderlayout;
-import org.zkoss.zkex.zul.Center;
-import org.zkoss.zkex.zul.West;
-import org.zkoss.zul.*;
+import org.zkoss.zul.Borderlayout;
+import org.zkoss.zul.Cell;
+import org.zkoss.zul.Center;
+import org.zkoss.zul.DefaultTreeNode;
+import org.zkoss.zul.Div;
+import org.zkoss.zul.Groupfoot;
 import org.zkoss.zul.Panel;
-import org.zkoss.zul.Row;
+import org.zkoss.zul.Panelchildren;
+import org.zkoss.zul.Separator;
+import org.zkoss.zul.Space;
+import org.zkoss.zul.TreeModel;
+import org.zkoss.zul.Treeitem;
+import org.zkoss.zul.West;
 
 /**
  *
@@ -138,10 +147,25 @@ public class ADTabPanel extends Div implements Evaluatee, EventListener, DataSta
 
 	private Group currentGroup;
 
+	private Rows rows;
+
 	private boolean m_vetoActive = false;
 
+	private boolean m_processingEvent;
+	
 	private CWindowToolbar globalToolbar;
 
+	private static final String ON_DEFER_SET_SELECTED_NODE = "onDeferSetSelectedNode";
+	
+	private int numCols = 0; // TODO - make this variable
+	
+	private List<Group> allCollapsibleGroups = new ArrayList<Group>();
+
+	/**
+	 * Used to select the first of multiple events that can occur
+	 */
+	private long m_lastCallTime = 0;
+	
     private boolean isEmbedded = false;
 
     private boolean isSwitchRow = true;	
@@ -173,7 +197,7 @@ public class ADTabPanel extends Div implements Evaluatee, EventListener, DataSta
 
     private void initComponents()
     {
-    	LayoutUtils.addSclass("adtab-content", this);
+    	ThemeUtils.addSclass("ad-adtabpanel adtab-content", this);
         grid = new Grid();
         //have problem moving the following out as css class
         grid.setWidth("100%");
@@ -283,7 +307,7 @@ public class ADTabPanel extends Div implements Evaluatee, EventListener, DataSta
 
     	Rows rows = grid.newRows();
         GridField fields[] = gridTab.getFields();
-        org.zkoss.zul.Row row = new Row();
+        Row row = new Row();
         rows.appendChild(row);
 
         String currentFieldGroup = null;
@@ -312,126 +336,141 @@ public class ADTabPanel extends Div implements Evaluatee, EventListener, DataSta
 
             		//end current field group
             		if (currentGroup != null) {
-            			row = new Groupfoot();
-            			rows.appendChild(row);
-            			currentGroup = null;
-            			currentFieldGroup = null;
-            		}
+            			Group group = new Group();
+             			//row = new Group();
+               		 	row.setGroup(group);
+                		rows.appendChild(row);
+                		currentGroup = null;
+                		currentFieldGroup = null;
+                		}
 
-                    row = new Row();
-                    row.setSpans("5");
-                    row.appendChild(new Separator());
-                    rows.appendChild(row);
+                        row = new Row();
+//                        row.setSpans("5");
+                        row.appendCellChild(new Separator(),5);
+                        rows.appendChild(row);
 
-                    row = new Group();
-                    row.setSpans("2,3");
-                    rows.appendChild(row);
-                    includedTab.put(field.getIncluded_Tab_ID(), (Group)row);
+                         row = new Row();
+//                       row.setSpans("2,3");
+                        row.appendCellChild(new Separator(),5);         
+                        rows.appendChild(row);
+                        includedTab.put(field.getIncluded_Tab_ID(), (Group)row.getGroup());
 
-    				org.zkoss.zul.Div div = new Div();
-                    div.setWidth("100%");
-                    row = new org.adempiere.webui.component.Row();
-                    row.setSpans("5");
-                    row.appendChild(div);
-                    rows.appendChild(row);
-                    horizontalIncludedTab.put(field.getIncluded_Tab_ID(),  div);
+        				org.zkoss.zul.Div div = new Div();
+                        div.setWidth("100%");
+                        row = new org.adempiere.webui.component.Row();
+//                        row.setSpans("5");
+                      //  row.appendChild(div);
+                       row.appendCellChild(new Separator(),5);
+                        rows.appendChild(row);
+                        horizontalIncludedTab.put(field.getIncluded_Tab_ID(),  div);
 
-                    row = new Groupfoot();
-                    rows.appendChild(row);
-                    includedTabFooter.put(field.getIncluded_Tab_ID(), (Groupfoot)row);
+     //                 row = new Groupfoot();
+                        row.setGroup(currentGroup);
+                		rows.appendChild(row);
+                		includedTab.put(field.getIncluded_Tab_ID(), (Group)row.getGroup());
 
-            		for (EmbeddedPanel ep : includedPanel) {
-            			if (ep.adTabId == field.getIncluded_Tab_ID()) {
-            				ep.group = includedTab.get(ep.adTabId);
-            				createEmbeddedPanelUI(ep);
-            				((ADTabPanel)ep.tabPanel).autoResize();
-            				break;
-            			}
-            		}
-                    //Horizontal
-                    for (HorizontalEmbeddedPanel ep : horizontalIncludedPanel)
-                    {
-                        if (ep.adTabId == field.getIncluded_Tab_ID()) {
-                            ep.divComponent = horizontalIncludedTab.get(ep.adTabId);
-                            createHorizontalEmbeddedPanelUI(ep);
-                            ((ADTabPanel)ep.tabPanel).autoResize();
-                            break;
+                		for (EmbeddedPanel ep : includedPanel) {
+                			if (ep.adTabId == field.getIncluded_Tab_ID()) {
+                				ep.group = includedTab.get(ep.adTabId);
+                				createEmbeddedPanelUI(ep);
+                				((ADTabPanel)ep.tabPanel).autoResize();
+                				break;
+                			}
+                		}
+                        //Horizontal
+                        for (HorizontalEmbeddedPanel ep : horizontalIncludedPanel)
+                        {
+                            if (ep.adTabId == field.getIncluded_Tab_ID()) {
+                                ep.divComponent = horizontalIncludedTab.get(ep.adTabId);
+                                createHorizontalEmbeddedPanelUI(ep);
+                                ((ADTabPanel)ep.tabPanel).autoResize();
+                                break;
+                            }
                         }
-                    }
 
-                    row = new Row();
-            		continue;
-            	}
+                        row = new Row();
+                		continue;
+                	}
 
-            	//normal field
-            	String fieldGroup = field.getFieldGroup();
-            	if (fieldGroup != null && fieldGroup.trim().length() > 0)
-            	{
-            		if (!fieldGroup.equals(currentFieldGroup))
-            		{
-            			currentFieldGroup = fieldGroup;
-            			if (row.getChildren().size() == 2)
-            			{
-            				row.appendChild(createSpacer());
-                            row.appendChild(createSpacer());
-                            row.appendChild(createSpacer());
+                	//normal field
+                	String fieldGroup = field.getFieldGroup();
+                	if (fieldGroup != null && fieldGroup.trim().length() > 0)
+                	{
+                		if (!fieldGroup.equals(currentFieldGroup))
+                		{
+                			currentFieldGroup = fieldGroup;
+                			if (row.getChildren().size() == 2)
+                			{
+                				row.appendChild(createSpacer());
+                                row.appendChild(createSpacer());
+                                row.appendChild(createSpacer());
+                                rows.appendChild(row);
+                                if (rowList != null)
+                    				rowList.add(row);
+                                row = new Row();
+                			} else if (row.getChildren().size() > 0)
+                			{
+                				rows.appendChild(row);
+                				if (rowList != null)
+                    				rowList.add(row);
+                				row = new Row();
+                			}
+
+                			List<org.zkoss.zul.Row> headerRows = new ArrayList<org.zkoss.zul.Row>();
+                			fieldGroupHeaders.put(fieldGroup, headerRows);
+
+     //           			row.setSpans("5");
+     //           			row.appendChild(new Separator());
+                			row.appendCellChild(new Separator(),5);
                             rows.appendChild(row);
-                            if (rowList != null)
-                				rowList.add(row);
-                            row = new Row();
-            			} else if (row.getChildren().size() > 0)
-            			{
-            				rows.appendChild(row);
-            				if (rowList != null)
-                				rowList.add(row);
-            				row = new Row();
-            			}
+                			headerRows.add(row);
 
-            			List<org.zkoss.zul.Row> headerRows = new ArrayList<org.zkoss.zul.Row>();
-            			fieldGroupHeaders.put(fieldGroup, headerRows);
+            				rowList = new ArrayList<org.zkoss.zul.Row>();
+            				fieldGroupContents.put(fieldGroup, rowList);
 
-            			row.setSpans("5");
-            			row.appendChild(new Separator());
-            			rows.appendChild(row);
-            			headerRows.add(row);
+                			if (X_AD_FieldGroup.FIELDGROUPTYPE_Label.equals(field.getFieldGroupType()))
+                			{
+                				row = new Row();
+//                    			row.setSpans("4");
+                				
+                                Label groupLabel = new Label(fieldGroup);
+                                row.appendCellChild(groupLabel,4);
+//                				row.appendChild();
+                				row.appendCellChild(createSpacer());
+                				row.appendCellChild(row);
+                				headerRows.add(row);
 
-        				rowList = new ArrayList<org.zkoss.zul.Row>();
-        				fieldGroupContents.put(fieldGroup, rowList);
+                				row = new Row();
+//    	                        row.setSpans("4");
+                                Separator separator = new Separator();
+                				row.appendCellChild(new Separator(),4);
+                                 
+                				separator.setBar(true);
+    	            			row.appendChild(separator);
+    	            			row.appendChild(createSpacer());
+    	            			rows.appendChild(row);
+    	            			headerRows.add(row);
+                			}
+                			else
+                			{
+                				Group group = new Group(fieldGroup);
+                				 
+                				if (X_AD_FieldGroup.FIELDGROUPTYPE_Tab.equals(field.getFieldGroupType()) || field.getIsCollapsedByDefault())
+                				{
+                					((Group)row.getGroup()).setOpen(false);
+                				}
+                				currentGroup = group;
+                				row.setGroup(currentGroup);
+               				 currentGroup.setLabel(fieldGroup);
+               				 rows.appendChild(row);
+                				headerRows.add(row);
+                			}
 
-            			if (X_AD_FieldGroup.FIELDGROUPTYPE_Label.equals(field.getFieldGroupType()))
-            			{
-            				row = new Row();
-                			row.setSpans("4");
-            				Label groupLabel = new Label(fieldGroup);
-            				row.appendChild(groupLabel);
-            				row.appendChild(createSpacer());
-            				rows.appendChild(row);
-            				headerRows.add(row);
-
-            				row = new Row();
-	                        row.setSpans("4");
-	                        Separator separator = new Separator();
-	                        separator.setBar(true);
-	            			row.appendChild(separator);
-	            			row.appendChild(createSpacer());
-	            			rows.appendChild(row);
-	            			headerRows.add(row);
-            			}
-            			else
-            			{
-            				row = new Group(fieldGroup);
-            				if (X_AD_FieldGroup.FIELDGROUPTYPE_Tab.equals(field.getFieldGroupType()) || field.getIsCollapsedByDefault())
-            				{
-            					((Group)row).setOpen(false);
-            				}
-            				currentGroup = (Group)row;
-            				rows.appendChild(row);
-            				headerRows.add(row);
-            			}
-
-            			row = new Row();
-            		}
+                			row = new Row();
+                		}
+                	}
             	}
+            	
 
                 if (!field.isSameLine() || field.isLongField())
                 {
@@ -545,14 +584,14 @@ public class ADTabPanel extends Div implements Evaluatee, EventListener, DataSta
     				row.appendChild(div);
     			}
             }
-        }
+        
 
         //last row
         if (row.getChildren().size() > 0)
         {
             if (row.getChildren().size() == 2)
             {
-                row.appendChild(createSpacer());
+                row.appendCellChild(createSpacer());
                 row.appendChild(createSpacer());
                 row.appendChild(createSpacer());
             }
@@ -986,10 +1025,12 @@ public class ADTabPanel extends Div implements Evaluatee, EventListener, DataSta
     		if(isSwitchRowPresentation() && !gridTab.isQuickEntry())
     			this.switchRowPresentation();
     	}
-
-    	else if (event.getTarget() == treePanel.getTree()) {
+    	else if (treePanel != null && event.getTarget() == treePanel.getTree()) 
+    	{
+    		set_processingEvent(true);
     		Treeitem item =  treePanel.getTree().getSelectedItem();
-    		navigateTo((SimpleTreeNode)item.getValue());
+    		navigateTo((DefaultTreeNode<MTreeNode>)item.getValue());
+    		set_processingEvent(false);
     	}
     }
 
@@ -1077,7 +1118,7 @@ public class ADTabPanel extends Div implements Evaluatee, EventListener, DataSta
     		editor.repaintComponent(isRow);
     }
 
-    private void navigateTo(SimpleTreeNode value) {
+    private void navigateTo(DefaultTreeNode<MTreeNode> value) {
     	MTreeNode treeNode = (MTreeNode) value.getData();
     	//  We Have a TreeNode
 		int nodeID = treeNode.getNode_ID();
@@ -1195,10 +1236,10 @@ public class ADTabPanel extends Div implements Evaluatee, EventListener, DataSta
     private void deleteNode(int recordId) {
 		if (recordId <= 0) return;
 
-		SimpleTreeModel model = (SimpleTreeModel) treePanel.getTree().getModel();
+		SimpleTreeModel model = (SimpleTreeModel)(TreeModel<?>) treePanel.getTree().getModel();
 
 		if (treePanel.getTree().getSelectedItem() != null) {
-			SimpleTreeNode treeNode = (SimpleTreeNode) treePanel.getTree().getSelectedItem().getValue();
+			DefaultTreeNode treeNode = (DefaultTreeNode) treePanel.getTree().getSelectedItem().getValue();
 			MTreeNode data = (MTreeNode) treeNode.getData();
 			if (data.getNode_ID() == recordId) {
 				model.removeNode(treeNode);
@@ -1206,7 +1247,7 @@ public class ADTabPanel extends Div implements Evaluatee, EventListener, DataSta
 			}
 		}
 
-		SimpleTreeNode treeNode = model.find(null, recordId);
+		DefaultTreeNode treeNode = model.find(null, recordId);
 		if (treeNode != null) {
 			model.removeNode(treeNode);
 		}
@@ -1219,14 +1260,14 @@ public class ADTabPanel extends Div implements Evaluatee, EventListener, DataSta
 			boolean summary = gridTab.getValueAsBoolean("IsSummary");
 			String imageIndicator = (String)gridTab.getValue("Action");  //  Menu - Action
 			//
-			SimpleTreeModel model = (SimpleTreeModel) treePanel.getTree().getModel();
-			SimpleTreeNode treeNode = model.getRoot();
+			SimpleTreeModel model = (SimpleTreeModel)(TreeModel<?>) treePanel.getTree().getModel();
+			DefaultTreeNode treeNode = model.getRoot();
 			MTreeNode root = (MTreeNode) treeNode.getData();
 			MTreeNode node = new MTreeNode (gridTab.getRecord_ID(), 0, name, description,
 					root.getNode_ID(), summary, imageIndicator, false, null);
-			SimpleTreeNode newNode = new SimpleTreeNode(node, new ArrayList<Object>());
+			DefaultTreeNode newNode = new DefaultTreeNode(node, new ArrayList<Object>());
 			model.addNode(newNode);
-			int[] path = model.getPath(model.getRoot(), newNode);
+			int[] path = model.getPath(newNode);
 			Treeitem ti = treePanel.getTree().renderItemByPath(path);
 			treePanel.getTree().setSelectedItem(ti);
     	}
@@ -1235,16 +1276,30 @@ public class ADTabPanel extends Div implements Evaluatee, EventListener, DataSta
 	private void setSelectedNode(int recordId) {
 		if (recordId <= 0) return;
 
-		if (treePanel.getTree().getSelectedItem() != null) {
-			SimpleTreeNode treeNode = (SimpleTreeNode) treePanel.getTree().getSelectedItem().getValue();
-			MTreeNode data = (MTreeNode) treeNode.getData();
-			if (data.getNode_ID() == recordId) return;
+		if (TreeUtils.isOnInitRenderPosted(treePanel.getTree()) || treePanel.getTree().getTreechildren() == null) {
+			treePanel.getTree().onInitRender();
 		}
 
-		SimpleTreeModel model = (SimpleTreeModel) treePanel.getTree().getModel();
-		SimpleTreeNode treeNode = model.find(null, recordId);
+		
+		SimpleTreeModel model = (SimpleTreeModel)(TreeModel<?>) treePanel.getTree().getModel();
+		
+		
+		if (treePanel.getTree().getSelectedItem() != null) {
+			DefaultTreeNode<Object> treeNode = treePanel.getTree().getSelectedItem().getValue();
+			MTreeNode data = (MTreeNode) treeNode.getData();
+			if (data.getNode_ID() == recordId){
+				int[] path = model.getPath(treeNode);
+				Treeitem ti = treePanel.getTree().renderItemByPath(path);
+				if (ti.getPage() == null) {
+					Events.echoEvent(ON_DEFER_SET_SELECTED_NODE, this, null);
+				}
+				 return;
+			}
+		}
+
+		DefaultTreeNode<Object> treeNode = model.find(null, recordId);
 		if (treeNode != null) {
-			int[] path = model.getPath(model.getRoot(), treeNode);
+			int[] path = model.getPath(treeNode);
 			Treeitem ti = treePanel.getTree().renderItemByPath(path);
 			treePanel.getTree().setSelectedItem(ti);
 		} else {
@@ -1268,8 +1323,11 @@ public class ADTabPanel extends Div implements Evaluatee, EventListener, DataSta
 	 * Toggle between form and grid view
 	 */
 	public void switchRowPresentation() {
+		Component adwindowContentArea = formComponent.getParent().getParent().getParent();
 		if (formComponent.isVisible()) {
 			formComponent.setVisible(false);
+			ThemeUtils.removeSclass("form", adwindowContentArea);
+			ThemeUtils.addSclass("list", adwindowContentArea);
 			//de-activate embedded panel
 	        for(EmbeddedPanel ep : includedPanel)
 	        {
@@ -1282,7 +1340,8 @@ public class ADTabPanel extends Div implements Evaluatee, EventListener, DataSta
             }
 		} else {
 			formComponent.setVisible(true);
-			repaintComponents(false);
+			ThemeUtils.removeSclass("list", adwindowContentArea);
+			ThemeUtils.addSclass("form", adwindowContentArea);
 			//activate embedded panel
 	        for(EmbeddedPanel ep : includedPanel)
 	        {
@@ -1665,7 +1724,7 @@ public class ADTabPanel extends Div implements Evaluatee, EventListener, DataSta
 
 		for (Object o : ((Row) row).getChildren()) {
 
-			if(o instanceof org.zkoss.zkex.zul.Borderlayout)
+			if(o instanceof org.zkoss.zul.Borderlayout)
 			{
 				return 0;
 			}
@@ -1833,7 +1892,20 @@ public class ADTabPanel extends Div implements Evaluatee, EventListener, DataSta
 //        panel.embeddedGrid.setStyle("border: none; position: relative; ");
 //
 //    }
-
+    /**
+	 * Add a row to the rows and group.
+	 * 
+	 * @param row
+	 */
+	private void addRow(Row row) {
+        rows.appendChild(row);
+        if (rowList != null) {
+			rowList.add(row);
+        }
+        if (currentGroup != null) {
+//        	currentGroup.add(row);
+        }
+	}
     private void createHorizontalEmbeddedPanelUI(HorizontalEmbeddedPanel ep) {
 
         org.zkoss.zul.Row ChildRow = createHorizontalPanelForEmbedded(ep.divComponent, includedTabFooter.get(ep.adTabId), ep);
@@ -1987,5 +2059,18 @@ public class ADTabPanel extends Div implements Evaluatee, EventListener, DataSta
 		//	Set Context info
 		((HtmlBasedComponent) editor.getComponent()).setTooltiptext(messageValue);
     }
+    /**
+	 * @return the m_processingEvent
+	 */
+	public boolean is_processingEvent() {
+		return m_processingEvent;
+	}
+
+	/**
+	 * @param m_processingEvent the m_processingEvent to set
+	 */
+	public void set_processingEvent(boolean m_processingEvent) {
+		this.m_processingEvent = m_processingEvent;
+	}
 }
 

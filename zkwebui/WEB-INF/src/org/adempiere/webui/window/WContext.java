@@ -16,22 +16,19 @@ package org.adempiere.webui.window;
 
 import java.util.Arrays;
 
+import org.adempiere.webui.component.Borderlayout;
 import org.adempiere.webui.component.ConfirmPanel;
 import org.adempiere.webui.component.Textbox;
-import org.adempiere.webui.component.ToolBar;
-import org.adempiere.webui.component.ToolBarButton;
 import org.adempiere.webui.component.Window;
 import org.adempiere.webui.session.SessionManager;
 import org.compiere.util.Env;
 import org.compiere.util.Msg;
+import org.zkoss.zhtml.Center;
+import org.zkoss.zk.ui.Component;
 import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.event.EventListener;
 import org.zkoss.zk.ui.event.Events;
-import org.zkoss.zkex.zul.Borderlayout;
-import org.zkoss.zkex.zul.Center;
-import org.zkoss.zkex.zul.North;
-import org.zkoss.zkex.zul.South;
-import org.zkoss.zul.Div;
+import org.zkoss.zul.South;
 
 /**
  * Based on WPreference.java and Info.java
@@ -84,7 +81,7 @@ public class WContext extends Window implements EventListener {
         mainPanel.appendChild(south);
         south.appendChild(confirmPanel);
 
-		this.appendChild(mainPanel);
+		this.appendChild((Component) mainPanel);
 
 		// Get the context
 		String[] contextArray = Env.getEntireContext(Env.getCtx());
@@ -103,10 +100,16 @@ public class WContext extends Window implements EventListener {
 		contextText.setText(sb.toString());
 	}
 
-	public void onEvent(Event event) throws Exception {
+	public void onEvent1(Event event) throws Exception {
 		if (event.getTarget().equals(confirmPanel.getButton(ConfirmPanel.A_OK))) {
 			this.detach();
 		}
+	}
+
+	@Override
+	public void onEvent(Event event) throws Exception {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

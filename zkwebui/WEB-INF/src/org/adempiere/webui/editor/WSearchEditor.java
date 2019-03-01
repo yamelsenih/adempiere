@@ -42,6 +42,7 @@ import org.adempiere.webui.panel.InfoPanelFactory;
 import org.adempiere.webui.panel.InfoProductPanel;
 import org.adempiere.webui.session.SessionManager;
 import org.adempiere.webui.window.ADWindow;
+import org.adempiere.webui.theme.ThemeUtils;
 import org.adempiere.webui.window.WRecordInfo;
 import org.compiere.model.GridField;
 import org.compiere.model.Lookup;
@@ -62,9 +63,11 @@ import org.compiere.util.Msg;
 import org.compiere.util.Trx;
 import org.eevolution.model.I_PP_Product_BOMLine;
 import org.zkforge.keylistener.Keylistener;
+import org.zkoss.web.fn.ServletFns;
 import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.event.Events;
 import org.zkoss.zk.ui.event.KeyEvent;
+import org.zkoss.zul.Listitem;
 
 /**
  * Search Editor for web UI.

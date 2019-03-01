@@ -42,7 +42,7 @@ import org.adempiere.webui.event.TokenEvent;
 import org.adempiere.webui.exception.ApplicationException;
 import org.adempiere.webui.session.SessionManager;
 import org.adempiere.webui.theme.ITheme;
-import org.adempiere.webui.theme.ThemeManager;
+import org.adempiere.webui.theme.ThemeUtils;
 import org.adempiere.webui.util.BrowserToken;
 import org.adempiere.webui.util.UserPreference;
 import org.adempiere.webui.window.LoginWindow;
@@ -60,6 +60,7 @@ import org.compiere.util.Login;
 import org.compiere.util.Msg;
 import org.zkoss.lang.Strings;
 import org.zkoss.util.Locales;
+import org.zkoss.web.fn.ServletFns;
 import org.zkoss.zhtml.Div;
 import org.zkoss.zhtml.Table;
 import org.zkoss.zhtml.Td;
@@ -90,7 +91,7 @@ import org.zkoss.zul.Image;
  * <li> FR [ 1769 ] Add option to restore the password from the login
  * @see https://github.com/adempiere/adempiere/issues/1699
  */
-public class LoginPanel extends Window implements EventListener
+public class LoginPanel extends Window implements EventListener<Event>
 {
 	/**
 	 * 
@@ -128,9 +129,9 @@ public class LoginPanel extends Window implements EventListener
     private void init()
     {
     	Div div = new Div();
-    	div.setSclass(ITheme.LOGIN_BOX_HEADER_CLASS);
-    	Label label = new Label("Login");
-    	label.setSclass(ITheme.LOGIN_BOX_HEADER_TXT_CLASS);
+    	ThemeUtils.addSclass(ITheme.LOGIN_BOX_HEADER_CLASS,div);
+    	Label label = new Label("Login");  // TODO - localization
+    	ThemeUtils.addSclass(ITheme.LOGIN_BOX_HEADER_TXT_CLASS, label);
     	div.appendChild(label);
     	this.appendChild(div);
 
@@ -138,18 +139,21 @@ public class LoginPanel extends Window implements EventListener
     	table.setId("grdLogin");
     	table.setDynamicProperty("cellpadding", "0");
     	table.setDynamicProperty("cellspacing", "5");
-    	table.setSclass(ITheme.LOGIN_BOX_BODY_CLASS);
+    	ThemeUtils.addSclass(ITheme.LOGIN_BOX_BODY_CLASS, table);
+    	
+    	
 
     	this.appendChild(table);
 
     	Tr tr = new Tr();
     	table.appendChild(tr);
     	Td td = new Td();
-    	td.setSclass(ITheme.LOGIN_BOX_HEADER_LOGO_CLASS);
+    	ThemeUtils.addSclass(ITheme.LOGIN_BOX_HEADER_LOGO_CLASS, td);
     	tr.appendChild(td);
     	td.setDynamicProperty("colspan", "2");
     	Image image = new Image();
-        image.setSrc(ThemeManager.getLargeLogo());
+        image.setSrc(ThemeUtils.getLargeLogo());
+    	ThemeUtils.addSclass("ad-loginpanel-header-logo",image);
         td.appendChild(image);
 
         tr = new Tr();
@@ -157,10 +161,10 @@ public class LoginPanel extends Window implements EventListener
         table.appendChild(tr);
     	td = new Td();
     	tr.appendChild(td);
-    	td.setSclass(ITheme.LOGIN_LABEL_CLASS);
+    	ThemeUtils.addSclass(ITheme.LOGIN_LABEL_CLASS, td);
     	td.appendChild(lblUserId);
     	td = new Td();
-    	td.setSclass(ITheme.LOGIN_FIELD_CLASS);
+    	ThemeUtils.addSclass(ITheme.LOGIN_FIELD_CLASS, td);
     	tr.appendChild(td);
     	td.appendChild(txtUserId);
 
@@ -169,10 +173,10 @@ public class LoginPanel extends Window implements EventListener
         table.appendChild(tr);
     	td = new Td();
     	tr.appendChild(td);
-    	td.setSclass(ITheme.LOGIN_LABEL_CLASS);
+    	ThemeUtils.addSclass(ITheme.LOGIN_LABEL_CLASS, td);
     	td.appendChild(lblPassword);
     	td = new Td();
-    	td.setSclass(ITheme.LOGIN_FIELD_CLASS);
+    	ThemeUtils.addSclass(ITheme.LOGIN_FIELD_CLASS, td);
     	tr.appendChild(td);
     	td.appendChild(txtPassword);
 
@@ -181,10 +185,10 @@ public class LoginPanel extends Window implements EventListener
         table.appendChild(tr);
     	td = new Td();
     	tr.appendChild(td);
-    	td.setSclass(ITheme.LOGIN_LABEL_CLASS);
+    	ThemeUtils.addSclass(ITheme.LOGIN_LABEL_CLASS, td);
     	td.appendChild(lblLanguage);
     	td = new Td();
-    	td.setSclass(ITheme.LOGIN_FIELD_CLASS);
+    	ThemeUtils.addSclass(ITheme.LOGIN_FIELD_CLASS, td);
     	tr.appendChild(td);
     	td.appendChild(lstLanguage);
 
@@ -194,10 +198,10 @@ public class LoginPanel extends Window implements EventListener
             table.appendChild(tr);
         	td = new Td();
         	tr.appendChild(td);
-        	td.setSclass(ITheme.LOGIN_LABEL_CLASS);
+        	ThemeUtils.addSclass(ITheme.LOGIN_LABEL_CLASS, td);
         	td.appendChild(new Label(""));
         	td = new Td();
-        	td.setSclass(ITheme.LOGIN_FIELD_CLASS);
+        	ThemeUtils.addSclass(ITheme.LOGIN_FIELD_CLASS, td);
         	tr.appendChild(td);
         	td.appendChild(chkRememberMe);
     	}
@@ -218,16 +222,17 @@ public class LoginPanel extends Window implements EventListener
     	btnForgotPass.addEventListener(Events.ON_CLICK,this);
 
     	div = new Div();
-    	div.setSclass(ITheme.LOGIN_BOX_FOOTER_CLASS);
+    	ThemeUtils.addSclass(ITheme.LOGIN_BOX_FOOTER_CLASS, div);
         ConfirmPanel pnlButtons = new ConfirmPanel(false);
         pnlButtons.addActionListener(this);
         LayoutUtils.addSclass(ITheme.LOGIN_BOX_FOOTER_PANEL_CLASS, pnlButtons);
         pnlButtons.setWidth(null);
+        ThemeUtils.addSclass(ITheme.LOGIN_BOX_FOOTER_PANEL_CLASS, pnlButtons);
         pnlButtons.getButton(ConfirmPanel.A_OK).setSclass(ITheme.LOGIN_BUTTON_CLASS);
         div.appendChild(pnlButtons);
         this.appendChild(div);
 
-        this.addEventListener(TokenEvent.ON_USER_TOKEN, new EventListener() {
+        this.addEventListener(TokenEvent.ON_USER_TOKEN, new EventListener<Event>() {
 
 			@Override
 			public void onEvent(Event event) throws Exception {
@@ -282,7 +287,7 @@ public class LoginPanel extends Window implements EventListener
 
         txtUserId = new Textbox();
         txtUserId.setId("txtUserId");
-        txtUserId.setCols(25);
+        //txtUserId.setCols(25);
         txtUserId.setMaxlength(40);
         txtUserId.setWidth("220px");
         txtUserId.addEventListener(Events.ON_CHANGE, this); // Elaine 2009/02/06
@@ -290,16 +295,15 @@ public class LoginPanel extends Window implements EventListener
         txtPassword = new Textbox();
         txtPassword.setId("txtPassword");
         txtPassword.setType("password");
-        txtPassword.setCols(25);
-//        txtPassword.setMaxlength(40);
-        txtPassword.setWidth("220px");
+        //txtPassword.setCols(25);
+        //txtPassword.setWidth("220px");
 
         lstLanguage = new Combobox();
         lstLanguage.setAutocomplete(true);
         lstLanguage.setAutodrop(true);
         lstLanguage.setId("lstLanguage");
         lstLanguage.addEventListener(Events.ON_SELECT, this);
-        lstLanguage.setWidth("220px");
+        //lstLanguage.setWidth("220px");
 
         // Update Language List
         lstLanguage.getItems().clear();
@@ -456,10 +460,10 @@ public class LoginPanel extends Window implements EventListener
 
             Locales.setThreadLocal(language.getLocale());
 
-            Clients.response("zkLocaleJavaScript", new AuScript(null, ZkFns.outLocaleJavaScript()));
-            String timeoutText = getUpdateTimeoutTextScript();
-            if (!Strings.isEmpty(timeoutText))
-            	Clients.response("zkLocaleJavaScript2", new AuScript(null, timeoutText));
+//            Clients.response("zkLocaleJavaScript", new AuScript(null, ZkFns.outLocaleJavaScript()));
+//            String timeoutText = getUpdateTimeoutTextScript();
+//            if (!Strings.isEmpty(timeoutText))
+//            	Clients.response("zkLocaleJavaScript2", new AuScript(null, timeoutText));
         }
 
 		// This temporary validation code is added to check the reported bug
