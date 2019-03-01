@@ -16,6 +16,7 @@
 package org.compiere.model;
 
 import java.sql.ResultSet;
+import java.util.List;
 import java.util.Properties;
 
 /**
@@ -47,6 +48,18 @@ public class MProcessCustom extends X_AD_ProcessCustom {
 			MProcess process = MProcess.get(getCtx(), processId);
 			setIsActive(process.isActive());
 		}
+	}
+	
+	/**
+	 * Get parameters for it
+	 * @return
+	 */
+	public List<MProcessParaCustom> getParameters() {
+		//	Get
+		return new Query(getCtx(), I_AD_ProcessParaCustom.Table_Name, COLUMNNAME_AD_ProcessCustom_ID + " = ?", null)
+				.setParameters(getAD_ProcessCustom_ID())
+				.setOnlyActiveRecords(true)
+				.list();
 	}
 	
 }

@@ -15,16 +15,19 @@
  *************************************************************************************/
 package org.spin.util;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
 import org.adempiere.exceptions.AdempiereException;
+import org.compiere.Adempiere;
 import org.compiere.model.I_AD_Process;
 import org.compiere.model.I_AD_ProcessCustom;
 import org.compiere.model.I_AD_Process_Para;
 import org.compiere.model.MProcess;
 import org.compiere.model.MProcessCustom;
 import org.compiere.model.MProcessPara;
+import org.compiere.model.MProcessParaCustom;
 import org.compiere.model.PO;
 import org.compiere.model.Query;
 import org.compiere.util.CCache;
@@ -113,6 +116,28 @@ public class ASPUtil {
 	}
 	
 	/**
+	 * Get Process Parameter
+	 * @param processId
+	 * @return
+	 */
+	public List<MProcessPara> getProcessParameters(int processId) {
+		//	User level
+		if(processCache.get(getUserKey(processId, userId)) != null) {
+			return processParameterCache.get(getUserKey(processId, userId));
+		}
+		//	Role Level
+		if(processCache.get(getRoleKey(processId, roleId)) != null) {
+			return processParameterCache.get(getRoleKey(processId, roleId));
+		}
+		//	Client Level (ASP)
+		if(processCache.get(getClientKey(processId, clientId)) != null) {
+			return processParameterCache.get(getClientKey(processId, clientId));
+		}
+		//	Dictionary Level Base
+		return processParameterCache.get(getUserKey(processId, userId));
+	}
+	
+	/**
 	 * Get / Load process for ASP
 	 * @param processId
 	 * @return
@@ -140,19 +165,69 @@ public class ASPUtil {
 	 * @return
 	 */
 	private MProcess getClientProcess(MProcess process) {
-		MProcess clientProcess = new MProcess(context, 0, null);
-		PO.copyValues(process, clientProcess);
-		clientProcess.setAD_Process_ID(process.getAD_Process_ID());
+		List<MProcessPara> clientParameters = loadProcessParameters(process);
+		MProcess clientProcess = MProcess.get(context, process.getAD_Process_ID());
 		List<MProcessCustom> customProcessList = getClientProcessList();
 		if(customProcessList != null) {
-			customProcessList.stream().forEach(customProcess -> {
+			for(MProcessCustom customProcess : customProcessList) {
 				mergeProcess(clientProcess, customProcess);
-			});
+				//	Merge parameters
+				clientParameters = mergeParameters(clientParameters, customProcess.getParameters(), customProcess.getHierarchyType().equals(MProcessCustom.HIERARCHYTYPE_Overwrite));
+			}
+			//	Save client
+			processCache.put(getClientKey(process.getAD_Process_ID(), clientId), clientProcess);
+			processParameterCache.put(getClientKey(process.getAD_Process_ID(), clientId), clientParameters);
 		}
-		//	Save client
-		processCache.put(getClientKey(process.getAD_Process_ID(), clientId), clientProcess);
 		//	return
 		return clientProcess;
+	}
+	
+	/**
+	 * Merge parameters with custom parameters
+	 * @param processParameters
+	 * @param customProcessParameters
+	 * @param overwrite
+	 */
+	private List<MProcessPara> mergeParameters(List<MProcessPara> processParameters, List<MProcessParaCustom> customProcessParameters, boolean overwrite) {
+		List<MProcessPara> mergedParameters = null;
+		if(overwrite) {
+			mergedParameters = new ArrayList<>();
+			for(MProcessPara parameter : processParameters) {
+				MProcessPara parameterToAdd = new MProcessPara(context, 0, null);
+				PO.copyValues(parameter, parameterToAdd);
+				parameterToAdd.setAD_Process_Para_ID(parameter.getAD_Process_Para_ID());
+				parameterToAdd.setIsActive(false);
+				mergedParameters.add(parameterToAdd);
+			}
+		} else {
+			mergedParameters = new ArrayList<>(processParameters);
+		}
+		//	merge all parameters
+		for(int index = 0; index < mergedParameters.size(); index++) {
+			MProcessPara parameter = mergedParameters.get(index);
+			customProcessParameters.stream()
+			.filter(customParameter -> customParameter.getAD_Process_Para_ID() == parameter.getAD_Process_Para_ID())
+			.forEach(customParameter -> {
+				mergeProcessParameter(parameter, customParameter);
+			});
+			mergedParameters.add(index, parameter);
+		}
+		//
+		return mergedParameters;
+	}
+	
+	/**
+	 * Load process parameters
+	 * @param process
+	 */
+	private List<MProcessPara> loadProcessParameters(MProcess process) {
+		processParameterCache.put(getDictionaryKey(process.getAD_Process_ID()), process.getParametersAsList());
+		//	ASP Client
+		List<MProcessPara> parameters = process.getASPParameters();
+		processParameterCache.put(getClientKey(process.getAD_Process_ID(), clientId), parameters);
+		processParameterCache.put(getRoleKey(process.getAD_Process_ID(), roleId), parameters);
+		processParameterCache.put(getUserKey(process.getAD_Process_ID(), userId), parameters);
+		return parameters;
 	}
 	
 	/**
@@ -171,33 +246,75 @@ public class ASPUtil {
 	}
 	
 	/**
+	 * Get role process list for ASP
+	 * @return
+	 */
+	private List<MProcessCustom> getRoleProcessList() {
+		String whereClause = "AD_Role_ID = ?";
+		//	Get
+		return new Query(context, I_AD_ProcessCustom.Table_Name, whereClause, null)
+				.setParameters(roleId)
+				.setOnlyActiveRecords(true)
+				.list();
+	}
+	
+	/**
+	 * Get user process list for ASP
+	 * @return
+	 */
+	private List<MProcessCustom> getUserProcessList() {
+		String whereClause = "AD_User_ID = ?";
+		//	Get
+		return new Query(context, I_AD_ProcessCustom.Table_Name, whereClause, null)
+				.setParameters(userId)
+				.setParameters(userId)
+				.setOnlyActiveRecords(true)
+				.list();
+	}
+	
+	/**
 	 * Get / Merge process for role
 	 * @param process
 	 * @return
 	 */
 	private MProcess getRoleProcess(MProcess process) {
-		MProcess roleProcess = new MProcess(context, 0, null);
-		PO.copyValues(process, roleProcess);
-		roleProcess.setAD_Process_ID(process.getAD_Process_ID());
-		
-		//	Save role
-		processCache.put(getRoleKey(process.getAD_Process_ID(), roleId), roleProcess);
+		MProcess roleProcess = MProcess.get(context, process.getAD_Process_ID());
+		List<MProcessPara> roleParameters = processParameterCache.get(getRoleKey(process.getAD_Process_ID(), roleId));
+		List<MProcessCustom> customProcessList = getRoleProcessList();
+		if(customProcessList != null) {
+			for(MProcessCustom customProcess : customProcessList) {
+				mergeProcess(roleProcess, customProcess);
+				//	Merge parameters
+				roleParameters = mergeParameters(roleParameters, customProcess.getParameters(), customProcess.getHierarchyType().equals(MProcessCustom.HIERARCHYTYPE_Overwrite));
+			}
+			//	Save role
+			processCache.put(getRoleKey(process.getAD_Process_ID(), roleId), roleProcess);
+			processParameterCache.put(getRoleKey(process.getAD_Process_ID(), roleId), roleParameters);
+		}
 		//	return
 		return roleProcess;
 	}
 	
+	
 	/**
-	 * Get / Merge user process
+	 * Get / Merge process for user
 	 * @param process
 	 * @return
 	 */
 	private MProcess getUserProcess(MProcess process) {
-		MProcess userProcess = new MProcess(context, 0, null);
-		PO.copyValues(process, userProcess);
-		userProcess.setAD_Process_ID(process.getAD_Process_ID());
-		
-		//	Save user
-		processCache.put(getUserKey(process.getAD_Process_ID(), userId), userProcess);
+		MProcess userProcess = MProcess.get(context, process.getAD_Process_ID());
+		List<MProcessPara> userParameters = processParameterCache.get(getUserKey(process.getAD_Process_ID(), userId));
+		List<MProcessCustom> customProcessList = getUserProcessList();
+		if(customProcessList != null) {
+			for(MProcessCustom customProcess : customProcessList) {
+				mergeProcess(userProcess, customProcess);
+				//	Merge parameters
+				userParameters = mergeParameters(userParameters, customProcess.getParameters(), customProcess.getHierarchyType().equals(MProcessCustom.HIERARCHYTYPE_Overwrite));
+			}
+			//	Save user
+			processCache.put(getUserKey(process.getAD_Process_ID(), userId), userProcess);
+			processParameterCache.put(getUserKey(process.getAD_Process_ID(), userId), userParameters);
+		}
 		//	return
 		return userProcess;
 	}
@@ -286,5 +403,92 @@ public class ASPUtil {
 		if(customProcess.getAD_Workflow_ID() > 0) {
 			process.setAD_Workflow_ID(customProcess.getAD_Workflow_ID());
 		}
+	}
+	
+	/**
+	 * Merge Process Parameter with custom process
+	 * @param processParameter
+	 * @param customProcessParameter
+	 */
+	private void mergeProcessParameter(MProcessPara processParameter, MProcessParaCustom customProcessParameter) {
+		//	Name
+		if(!Util.isEmpty(customProcessParameter.getName())) {
+			processParameter.setName(customProcessParameter.getName());
+		}
+		//	Description
+		if(!Util.isEmpty(customProcessParameter.getDescription())) {
+			processParameter.setDescription(customProcessParameter.getDescription());
+		}
+		//	Help
+		if(!Util.isEmpty(customProcessParameter.getHelp())) {
+			processParameter.setHelp(customProcessParameter.getHelp());
+		}
+		//	Reference
+		if(customProcessParameter.getAD_Reference_ID() > 0) {
+			processParameter.setAD_Reference_ID(customProcessParameter.getAD_Reference_ID());
+		}
+		//	Reference Key
+		if(customProcessParameter.getAD_Reference_Value_ID() > 0) {
+			processParameter.setAD_Reference_Value_ID(customProcessParameter.getAD_Reference_Value_ID());
+		}
+		//	Mandatory
+		if(!Util.isEmpty(customProcessParameter.getIsMandatory())) {
+			processParameter.setIsMandatory(customProcessParameter.getIsMandatory().equals("Y"));
+		}
+		//	Validation Rule
+		if(customProcessParameter.getAD_Val_Rule_ID() > 0) {
+			processParameter.setAD_Val_Rule_ID(customProcessParameter.getAD_Val_Rule_ID());
+		}
+		//	Sequence
+		processParameter.setSeqNo(customProcessParameter.getSeqNo());
+		//	Default Logic
+		if(!Util.isEmpty(customProcessParameter.getDefaultValue())) {
+			processParameter.setDefaultValue(customProcessParameter.getDefaultValue());
+		}
+		//	Default value to
+		if(!Util.isEmpty(customProcessParameter.getDefaultValue2())) {
+			processParameter.setDefaultValue2(customProcessParameter.getDefaultValue2());
+		}
+		//	Range
+		if(!Util.isEmpty(customProcessParameter.getIsRange())) {
+			processParameter.setIsRange(customProcessParameter.getIsRange().equals("Y"));
+		}
+		//	Display Logic
+		if(!Util.isEmpty(customProcessParameter.getDisplayLogic())) {
+			processParameter.setDisplayLogic(customProcessParameter.getDisplayLogic());
+		}
+		//	Read Only Logic
+		if(!Util.isEmpty(customProcessParameter.getReadOnlyLogic())) {
+			processParameter.setReadOnlyLogic(customProcessParameter.getReadOnlyLogic());
+		}
+		//	Information Only
+		if(!Util.isEmpty(customProcessParameter.getIsInfoOnly())) {
+			processParameter.setIsInfoOnly(customProcessParameter.getIsInfoOnly().equals("Y"));
+		}
+		//	Value Format
+		if(!Util.isEmpty(customProcessParameter.getVFormat())) {
+			processParameter.setVFormat(customProcessParameter.getVFormat());
+		}
+		//	Min Value
+		if(!Util.isEmpty(customProcessParameter.getValueMin())) {
+			processParameter.setValueMin(customProcessParameter.getValueMin());
+		}
+		//	Max Value
+		if(!Util.isEmpty(customProcessParameter.getValueMax())) {
+			processParameter.setValueMax(customProcessParameter.getValueMax());
+		}
+	}
+	
+	/**
+	 * Test It
+	 * @param args
+	 */
+	public static void main(String args[]) {
+		Adempiere.startup(false);
+		ASPUtil aspUtil = new ASPUtil(Env.getCtx());
+		//	
+		MProcess process = aspUtil.getProcess(54015);
+		List<MProcessPara> processParameter = aspUtil.getProcessParameters(54015);
+		//	
 	}
 }
