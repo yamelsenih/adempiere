@@ -69,7 +69,7 @@ import org.zkoss.zul.Listitem;
 * 
 */
 
-public class InfoPaymentPanel extends InfoPanel implements ValueChangeListener, EventListener
+public class InfoPaymentPanel extends InfoPanel implements ValueChangeListener, EventListener<Event>
 {
 	/**
 	 * 
@@ -349,7 +349,7 @@ public class InfoPaymentPanel extends InfoPanel implements ValueChangeListener, 
         }
 	} // initInfo
 	
-    public void onEvent(Event e) throws Exception
+    public void onEvent(Event e)
     {
     	// Handle specific actions if possible or pass the event to the parent class
 

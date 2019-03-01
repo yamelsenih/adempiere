@@ -474,7 +474,7 @@ public class InfoOrderPanel extends InfoPanel implements ValueChangeListener
 		pstmt.setString(index++, fIsDelivered.isSelected() ? "Y" : "N");
     }
 
-    public void onEvent(Event e) throws Exception
+    public void onEvent(Event e)
     {
     	// Handle specific actions if possible or pass the event to the parent class
 

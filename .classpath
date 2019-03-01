@@ -300,6 +300,7 @@
 	<classpathentry kind="lib" path="tools/lib/io-7.1.1.jar"/>
 	<classpathentry kind="lib" path="tools/lib/itext-carriage-0.8.0.jar"/>
 	<classpathentry kind="lib" path="tools/lib/itext-pdfa-5.5.2.jar"/>
+	<classpathentry kind="lib" path="tools/lib/itextpdf-5.5.2.jar"/>
 	<classpathentry kind="lib" path="tools/lib/javax.inject-1.jar"/>
 	<classpathentry kind="lib" path="tools/lib/kernel-7.1.1.jar"/>
 	<classpathentry kind="lib" path="tools/lib/lablib-checkboxtree-3.3.jar"/>
@@ -313,5 +314,9 @@
 	<classpathentry kind="lib" path="zkwebui/WEB-INF/lib/zkforge/gmapsz.jar"/>
 	<classpathentry kind="lib" path="zkwebui/WEB-INF/lib/ext/jxl.jar"/>
 	<classpathentry kind="lib" path="zkwebui/WEB-INF/lib/zkforge/timelinez.jar"/>
+	<classpathentry kind="lib" path="tools/lib/slf4j-api-1.6.0.jar"/>
+	<classpathentry kind="lib" path="/adempiere/org.adempiere.webservice/WEB-INF/lib/generated_xmlbeans.jar"/>
+	<classpathentry kind="lib" path="/Custom-WS-AGROSILOS/WEB-INF/lib/xfire-all-1.2.6.jar"/>
+	<classpathentry kind="lib" path="/adempiere/tools/lib/mariadb-java-client.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

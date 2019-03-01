@@ -718,4 +718,3 @@ public class WWFActivity extends ADForm implements EventListener
 		display(-1);
 	}	//	onOK
 }
->>>>>>> refs/remotes/origin/feature/develop-zk7

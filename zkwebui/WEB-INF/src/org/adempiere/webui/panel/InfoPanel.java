@@ -104,7 +104,7 @@ import org.zkoss.zul.ext.Sortable;
  * @author Michael McKay, ADEMPIERE-72 VLookup and Info Window improvements
  * 	<li>https://adempiere.atlassian.net/browse/ADEMPIERE-72
  */
-public abstract class InfoPanel extends Window implements EventListener, WTableModelListener, ListModelExt
+public abstract class InfoPanel extends Window implements EventListener<Event>, WTableModelListener, ListModelExt
 {
 	
 	/**
@@ -1590,7 +1590,12 @@ public abstract class InfoPanel extends Window implements EventListener, WTableM
 	            }
 	            else if (component == p_table && event.getName().equals(Events.ON_DOUBLE_CLICK))
 	            {
-	            	onDoubleClick();
+	            	try {
+						onDoubleClick();
+					} catch (Exception e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 	            }
 				else if (component.equals(confirmPanel.getButton(ConfirmPanel.A_RESET)))
 				{
@@ -1640,7 +1645,12 @@ public abstract class InfoPanel extends Window implements EventListener, WTableM
 	            {
 	                if (!p_table.getChildren().isEmpty() && p_table.getSelectedRowKey()!=null)
 	                {
-	                    zoom();
+	                    try {
+							zoom();
+						} catch (Exception e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
 	                    if (isModal())
 	                    	this.detach();
 	                }
@@ -1929,7 +1939,7 @@ public abstract class InfoPanel extends Window implements EventListener, WTableM
 	        this.detach();
     }   //  dispose
         
-	public void sort(Comparator<Object> cmpr, boolean ascending) {
+	public void sort(Comparator cmpr, boolean ascending) {
 		WListItemRenderer.ColumnComparator lsc = (WListItemRenderer.ColumnComparator) cmpr;
 		if (m_useDatabasePaging)
 		{
@@ -2156,7 +2166,7 @@ public abstract class InfoPanel extends Window implements EventListener, WTableM
 		p_numRecordsSelected = numRecordsSeleted;
 	}
 
-	public String getSortDirection(Comparator<Object> cmpr) {
+	public String getSortDirection(Comparator cmpr) {
 		// TODO Auto-generated method stub - fix this to make it functional
 		return "natural";
 	}

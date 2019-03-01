@@ -487,7 +487,7 @@ public class InfoBPartnerPanel extends InfoPanel implements WTableModelListener
 		return;
 	}
 
-    public void onEvent(Event e) throws Exception
+    public void onEvent(Event e)
     {
     	// Handle panel specific actions and pass the event to the parent class
 
