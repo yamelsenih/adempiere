@@ -30,6 +30,8 @@ import org.compiere.model.I_C_Invoice;
 import org.compiere.model.I_C_Order;
 import org.compiere.model.I_C_OrderLine;
 import org.compiere.model.I_C_Project;
+import org.compiere.model.I_C_ProjectPhase;
+import org.compiere.model.I_C_ProjectTask;
 import org.compiere.model.I_S_TimeExpense;
 import org.compiere.model.MAttachment;
 import org.compiere.model.MBPartner;
@@ -49,6 +51,8 @@ import org.compiere.model.MProjectPhase;
 import org.compiere.model.MProjectTask;
 import org.compiere.model.MRequest;
 import org.compiere.model.MRequestType;
+import org.compiere.model.MRfQLine;
+import org.compiere.model.MRfQLineQty;
 import org.compiere.model.MStatus;
 import org.compiere.model.MTimeExpense;
 import org.compiere.model.MTimeExpenseLine;
@@ -97,6 +101,7 @@ public class AgencyValidator implements ModelValidator
 		engine.addModelChange(MProjectTask.Table_Name, this);
 		engine.addModelChange(MBPartner.Table_Name, this);
 		engine.addModelChange(MRequest.Table_Name, this);
+		engine.addModelChange(MRfQLineQty.Table_Name, this);
 		engine.addDocValidate(MOrder.Table_Name, this);
 		engine.addDocValidate(I_S_TimeExpense.Table_Name, this);
 		engine.addDocValidate(MTimeExpense.Table_Name, this);
@@ -129,6 +134,15 @@ public class AgencyValidator implements ModelValidator
 						}
 					}		
 				}				
+			} else if(po instanceof MRfQLineQty) {
+				MRfQLineQty lineQuantity = (MRfQLineQty) po;
+				MRfQLine line = MRfQLine.get(lineQuantity.getCtx(), lineQuantity.getC_RfQLine_ID(), lineQuantity.get_TrxName());
+				if(line.get_ValueAsInt(I_C_Project.COLUMNNAME_C_Project_ID) > 0
+						|| line.get_ValueAsInt(I_C_ProjectTask.COLUMNNAME_C_ProjectTask_ID) > 0
+						|| line.get_ValueAsInt(I_C_ProjectPhase.COLUMNNAME_C_ProjectPhase_ID) > 0) {
+					lineQuantity.setIsOfferQty(true);
+					lineQuantity.setIsPurchaseQty(true);
+				}
 			}
 		}
 		if (type == TYPE_BEFORE_CHANGE) {
