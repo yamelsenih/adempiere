@@ -17,10 +17,12 @@ package org.spin.model;
 
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
 
 import org.adempiere.exceptions.AdempiereException;
+import org.compiere.model.I_AD_Image;
 import org.compiere.model.I_C_BPartner;
 import org.compiere.model.I_C_Commission;
 import org.compiere.model.I_C_CommissionRun;
@@ -32,14 +34,17 @@ import org.compiere.model.I_C_OrderLine;
 import org.compiere.model.I_C_Project;
 import org.compiere.model.I_C_ProjectPhase;
 import org.compiere.model.I_C_ProjectTask;
+import org.compiere.model.I_R_Request;
 import org.compiere.model.I_S_TimeExpense;
 import org.compiere.model.MAttachment;
+import org.compiere.model.MAttachmentEntry;
 import org.compiere.model.MBPartner;
 import org.compiere.model.MClient;
 import org.compiere.model.MCommission;
 import org.compiere.model.MCommissionLine;
 import org.compiere.model.MCommissionRun;
 import org.compiere.model.MDocType;
+import org.compiere.model.MImage;
 import org.compiere.model.MInOut;
 import org.compiere.model.MInOutLine;
 import org.compiere.model.MInvoice;
@@ -51,6 +56,7 @@ import org.compiere.model.MProjectPhase;
 import org.compiere.model.MProjectTask;
 import org.compiere.model.MRequest;
 import org.compiere.model.MRequestType;
+import org.compiere.model.MRequestUpdate;
 import org.compiere.model.MRfQLine;
 import org.compiere.model.MRfQLineQty;
 import org.compiere.model.MStatus;
@@ -102,6 +108,7 @@ public class AgencyValidator implements ModelValidator
 		engine.addModelChange(MBPartner.Table_Name, this);
 		engine.addModelChange(MRequest.Table_Name, this);
 		engine.addModelChange(MRfQLineQty.Table_Name, this);
+		engine.addModelChange(MAttachment.Table_Name, this);
 		engine.addDocValidate(MOrder.Table_Name, this);
 		engine.addDocValidate(I_S_TimeExpense.Table_Name, this);
 		engine.addDocValidate(MTimeExpense.Table_Name, this);
@@ -142,6 +149,53 @@ public class AgencyValidator implements ModelValidator
 						|| line.get_ValueAsInt(I_C_ProjectPhase.COLUMNNAME_C_ProjectPhase_ID) > 0) {
 					lineQuantity.setIsOfferQty(true);
 					lineQuantity.setIsPurchaseQty(true);
+				}
+			} else if(po instanceof MAttachment) {
+				MAttachment attachment = (MAttachment) po;
+				if(attachment.getAD_Table_ID() == I_R_Request.Table_ID) {
+					MAttachmentEntry[] entries = attachment.getEntries();
+					MRequest request = new MRequest(attachment.getCtx(), attachment.getRecord_ID(), attachment.get_TrxName());
+					List<MAttachmentEntry> entryToAdd = new ArrayList<>();
+					if(entries != null) {
+						MAttachment requestAttachment = request.getAttachment(true);
+						MAttachmentEntry[] requestEntries = null;
+						if(requestAttachment != null
+								&& requestAttachment.getAD_Attachment_ID() > 0) {
+							requestEntries = requestAttachment.getEntries();
+						}
+						//	Add or match
+						for(MAttachmentEntry entry : entries) {
+							if(!entry.isGraphic()) {
+								continue;
+							}
+							if(requestEntries == null) {
+								entryToAdd.add(entry);
+							} else {
+								boolean existsEntry = false;
+								for(MAttachmentEntry attachmentEntry : requestEntries) {
+									if(attachmentEntry.getName().equals(entry.getName())) {
+										existsEntry = true;
+										break;
+									}
+								}
+								if(!existsEntry) {
+									entryToAdd.add(entry);
+								}
+							}
+						}
+						//	Add Request Update
+						for(MAttachmentEntry entry : entryToAdd) {
+							MImage image = new MImage(attachment.getCtx(), 0, attachment.get_TrxName());
+							image.setBinaryData(entry.getData());
+							image.setName(entry.getName());
+							image.saveEx();
+							//	
+							MRequestUpdate update = new MRequestUpdate(request);
+							update.setResult(Msg.parseTranslation(attachment.getCtx(), "@AD_Image_ID@ @Added@: ") + entry.getName());
+							update.set_ValueOfColumn(I_AD_Image.COLUMNNAME_AD_Image_ID, image.getAD_Image_ID());
+							update.saveEx();
+						}
+					}
 				}
 			}
 		}
