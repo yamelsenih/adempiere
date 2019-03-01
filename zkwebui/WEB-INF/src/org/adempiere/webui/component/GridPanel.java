@@ -21,6 +21,7 @@ import javax.swing.table.AbstractTableModel;
 
 import org.adempiere.webui.theme.ThemeUtils;
 import org.adempiere.webui.LayoutUtils;
+import org.adempiere.webui.dashboard.DashboardPanel;
 import org.adempiere.webui.editor.WEditor;
 import org.adempiere.webui.panel.ADTabPanel;
 import org.adempiere.webui.panel.AbstractADWindowPanel;

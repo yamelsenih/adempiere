@@ -123,7 +123,7 @@ public class DefaultDesktop extends TabbedDesktop implements MenuListener, Seria
         	layout.setParent(parent);
         	layout.setWidth("100%");
         	layout.setHeight("100%");
-        	layout.setStyle("position: absolute");
+        	layout.setStyle("position: absolute; ");
         }
         else
         	layout.setPage(page);
@@ -237,8 +237,8 @@ public class DefaultDesktop extends TabbedDesktop implements MenuListener, Seria
 					anchorchildren = new Anchorchildren();
 					anchorLayout.appendChild(anchorchildren);
 					anchorchildren.setWidth(width + "%");
-					anchorchildren.setStyle("padding: 5px");
-
+					anchorchildren.setStyle("padding: 5px;");
+					
 					currentColumnNo = columnNo;
 				}
 				

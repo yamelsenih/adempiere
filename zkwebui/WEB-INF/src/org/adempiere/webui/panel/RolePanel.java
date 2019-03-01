@@ -80,6 +80,8 @@ public class RolePanel extends Window implements EventListener, Deferrable
 	/**
 	 * 
 	 */
+	
+	
 	private static final long serialVersionUID = 4485820129703005679L;
 
 	private static final String RESOURCE = "org.compiere.apps.ALoginRes";
@@ -110,6 +112,7 @@ public class RolePanel extends Window implements EventListener, Deferrable
         if(rolesKNPairs == null)
             throw new ApplicationException("Login is invalid, UserName: " + userName + " and Password:" + password);
 
+        
         initComponents();
         init();
         this.setId("rolePanel");

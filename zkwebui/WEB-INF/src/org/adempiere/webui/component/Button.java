@@ -101,4 +101,9 @@ public class Button extends org.zkoss.zul.Button
 		return btn;
 	}
 
+	public void setDynamicProperty(String string, Object object) {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

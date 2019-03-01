@@ -125,9 +125,9 @@ public class StatusBarPanel extends Panel implements EventListener, IStatusBar
     	image.setVisible(false);
         
         if (embedded)
-        	hbox.setWidths("5%,80%,10%");
+        	hbox.setWidths("96%,80%,96%");
         else
-        	hbox.setWidths("5%,50%,40%");
+        	hbox.setWidths("5%,50%,95%");
         
         west = new Div();
         west.setStyle("text-align: left; ");
@@ -140,7 +140,7 @@ public class StatusBarPanel extends Panel implements EventListener, IStatusBar
         hbox.appendChild(vbox);
 
         east = new Div();
-        east.setWidth("100%");
+        east.setWidth("530px");
         east.setStyle("text-align: right; ");
         if (!embedded)
         {
