@@ -28,7 +28,6 @@ import org.compiere.model.MProcess;
 import org.compiere.model.MProcessCustom;
 import org.compiere.model.MProcessPara;
 import org.compiere.model.MProcessParaCustom;
-import org.compiere.model.PO;
 import org.compiere.model.Query;
 import org.compiere.util.CCache;
 import org.compiere.util.Env;
@@ -62,9 +61,9 @@ public class ASPUtil {
 			throw new AdempiereException("@ContextIsMandatory@");
 		}
 		this.context = context;
-		clientId = Env.getAD_Client_ID(context);
-		roleId = Env.getAD_Role_ID(context);
-		userId = Env.getAD_User_ID(context);
+		clientId = 11;//Env.getAD_Client_ID(context);
+		roleId = 102;//Env.getAD_Role_ID(context);
+		userId = 100;//Env.getAD_User_ID(context);
 	}
 	
 	/**
@@ -166,9 +165,10 @@ public class ASPUtil {
 	 */
 	private MProcess getClientProcess(MProcess process) {
 		List<MProcessPara> clientParameters = loadProcessParameters(process);
-		MProcess clientProcess = MProcess.get(context, process.getAD_Process_ID());
-		List<MProcessCustom> customProcessList = getClientProcessList();
-		if(customProcessList != null) {
+		MProcess clientProcess = process.getDuplicated();
+		List<MProcessCustom> customProcessList = getClientProcessList(process.getAD_Process_ID());
+		if(customProcessList != null
+				&& customProcessList.size() > 0) {
 			for(MProcessCustom customProcess : customProcessList) {
 				mergeProcess(clientProcess, customProcess);
 				//	Merge parameters
@@ -193,9 +193,7 @@ public class ASPUtil {
 		if(overwrite) {
 			mergedParameters = new ArrayList<>();
 			for(MProcessPara parameter : processParameters) {
-				MProcessPara parameterToAdd = new MProcessPara(context, 0, null);
-				PO.copyValues(parameter, parameterToAdd);
-				parameterToAdd.setAD_Process_Para_ID(parameter.getAD_Process_Para_ID());
+				MProcessPara parameterToAdd = parameter.getDuplicated();
 				parameterToAdd.setIsActive(false);
 				mergedParameters.add(parameterToAdd);
 			}
@@ -210,7 +208,7 @@ public class ASPUtil {
 			.forEach(customParameter -> {
 				mergeProcessParameter(parameter, customParameter);
 			});
-			mergedParameters.add(index, parameter);
+			mergedParameters.set(index, parameter);
 		}
 		//
 		return mergedParameters;
@@ -232,15 +230,17 @@ public class ASPUtil {
 	
 	/**
 	 * Get client process list for ASP
+	 * @param processId
 	 * @return
 	 */
-	private List<MProcessCustom> getClientProcessList() {
+	private List<MProcessCustom> getClientProcessList(int processId) {
 		String whereClause = "EXISTS(SELECT 1 FROM ASP_ClientLevel cl "
 				+ "WHERE cl.AD_Client_ID = ? "
-				+ "AND cl.ASP_Level_ID = AD_ProcessCustom.ASP_Level_ID)";
+				+ "AND cl.ASP_Level_ID = AD_ProcessCustom.ASP_Level_ID) "
+				+ "AND AD_Process_ID = ?";
 		//	Get
 		return new Query(context, I_AD_ProcessCustom.Table_Name, whereClause, null)
-				.setParameters(clientId)
+				.setParameters(clientId, processId)
 				.setOnlyActiveRecords(true)
 				.list();
 	}
@@ -278,10 +278,11 @@ public class ASPUtil {
 	 * @return
 	 */
 	private MProcess getRoleProcess(MProcess process) {
-		MProcess roleProcess = MProcess.get(context, process.getAD_Process_ID());
+		MProcess roleProcess = process.getDuplicated();
 		List<MProcessPara> roleParameters = processParameterCache.get(getRoleKey(process.getAD_Process_ID(), roleId));
 		List<MProcessCustom> customProcessList = getRoleProcessList();
-		if(customProcessList != null) {
+		if(customProcessList != null
+				&& customProcessList.size() > 0) {
 			for(MProcessCustom customProcess : customProcessList) {
 				mergeProcess(roleProcess, customProcess);
 				//	Merge parameters
@@ -302,10 +303,11 @@ public class ASPUtil {
 	 * @return
 	 */
 	private MProcess getUserProcess(MProcess process) {
-		MProcess userProcess = MProcess.get(context, process.getAD_Process_ID());
+		MProcess userProcess = process.getDuplicated();
 		List<MProcessPara> userParameters = processParameterCache.get(getUserKey(process.getAD_Process_ID(), userId));
 		List<MProcessCustom> customProcessList = getUserProcessList();
-		if(customProcessList != null) {
+		if(customProcessList != null
+				&& customProcessList.size() > 0) {
 			for(MProcessCustom customProcess : customProcessList) {
 				mergeProcess(userProcess, customProcess);
 				//	Merge parameters
@@ -441,6 +443,8 @@ public class ASPUtil {
 		}
 		//	Sequence
 		processParameter.setSeqNo(customProcessParameter.getSeqNo());
+		//	Active
+		processParameter.setIsActive(customProcessParameter.isActive());
 		//	Default Logic
 		if(!Util.isEmpty(customProcessParameter.getDefaultValue())) {
 			processParameter.setDefaultValue(customProcessParameter.getDefaultValue());
@@ -488,7 +492,12 @@ public class ASPUtil {
 		ASPUtil aspUtil = new ASPUtil(Env.getCtx());
 		//	
 		MProcess process = aspUtil.getProcess(54015);
-		List<MProcessPara> processParameter = aspUtil.getProcessParameters(54015);
+		List<MProcessPara> processParameterList = aspUtil.getProcessParameters(54015);
 		//	
+		
+		System.err.println("Name " + process.getName());
+		for(MProcessPara parameter : processParameterList) {
+			System.err.println(parameter.getColumnName() + ", " + parameter.isActive() + ", " + parameter.isRange());
+		}
 	}
 }

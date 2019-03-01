@@ -55,4 +55,10 @@ public class MProcessParaCustom extends X_AD_ProcessParaCustom {
 			setSeqNo(processParameter.getSeqNo());
 		}
 	}
+
+	@Override
+	public String toString() {
+		return "MProcessParaCustom [getAD_ProcessCustom_ID()=" + getAD_ProcessCustom_ID() + ", getAD_Process_Para_ID()="
+				+ getAD_Process_Para_ID() + ", getName()=" + getName() + "]";
+	}
 }

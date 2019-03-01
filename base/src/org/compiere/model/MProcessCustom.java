@@ -61,5 +61,11 @@ public class MProcessCustom extends X_AD_ProcessCustom {
 				.setOnlyActiveRecords(true)
 				.list();
 	}
-	
+
+	@Override
+	public String toString() {
+		return "MProcessCustom [getAD_ProcessCustom_ID()=" + getAD_ProcessCustom_ID() + ", getAD_Process_ID()="
+				+ getAD_Process_ID() + ", getAD_Role_ID()=" + getAD_Role_ID() + ", getAD_User_ID()=" + getAD_User_ID()
+				+ ", getASP_Level_ID()=" + getASP_Level_ID() + "]";
+	}
 }

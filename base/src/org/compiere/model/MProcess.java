@@ -620,4 +620,18 @@ public class MProcess extends X_AD_Process
 		return getStatistic_Seconds() / getStatistic_Count();
 	}
 	
+	/**
+	 * Duplicate Process
+	 * @return
+	 */
+	public MProcess getDuplicated() {
+		try {
+			return (MProcess) super.clone();
+		} catch (CloneNotSupportedException e) {
+			log.warning("Error " + e.getLocalizedMessage());
+		}
+		//	Default
+		return null;
+	}
+	
 }	//	MProcess
