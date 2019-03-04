@@ -56,14 +56,23 @@ public class ASPUtil {
 	/**
 	 * Private constructor
 	 */
-	private ASPUtil(Properties context) {
+	private ASPUtil(Properties context, int clientId, int roleId, int userId) {
 		if(context == null) {
 			throw new AdempiereException("@ContextIsMandatory@");
 		}
 		this.context = context;
-		clientId = 11;//Env.getAD_Client_ID(context);
-		roleId = 102;//Env.getAD_Role_ID(context);
-		userId = 100;//Env.getAD_User_ID(context);
+		this.clientId = clientId; 
+		this.roleId = roleId;
+		this.userId = userId;
+	}
+	
+	/**
+	 * Get instance from context
+	 * @param context
+	 * @return
+	 */
+	public static ASPUtil getInstance(Properties context) {
+		return getInstance(context, Env.getAD_Client_ID(context), Env.getAD_Role_ID(context), Env.getAD_User_ID(context));
 	}
 	
 	/**
@@ -71,9 +80,9 @@ public class ASPUtil {
 	 * @param context
 	 * @return
 	 */
-	public static ASPUtil getInstance(Properties context) {
+	public static ASPUtil getInstance(Properties context, int clientId, int roleId, int userId) {
 		if(instance == null) {
-			instance = new ASPUtil(context);
+			instance = new ASPUtil(context, clientId, roleId, userId);
 		}
 		//	
 		return instance;
@@ -489,7 +498,10 @@ public class ASPUtil {
 	 */
 	public static void main(String args[]) {
 		Adempiere.startup(false);
-		ASPUtil aspUtil = new ASPUtil(Env.getCtx());
+		int clientId = 11;
+		int roleId = 102;
+		int userId = 100;
+		ASPUtil aspUtil = ASPUtil.getInstance(Env.getCtx(), clientId, roleId, userId);
 		//	
 		MProcess process = aspUtil.getProcess(54015);
 		List<MProcessPara> processParameterList = aspUtil.getProcessParameters(54015);
