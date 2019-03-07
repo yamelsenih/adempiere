@@ -28,6 +28,7 @@ import org.compiere.model.MProcess;
 import org.compiere.model.MProcessCustom;
 import org.compiere.model.MProcessPara;
 import org.compiere.model.MProcessParaCustom;
+import org.compiere.model.MTable;
 import org.compiere.model.Query;
 import org.compiere.util.CCache;
 import org.compiere.util.Env;
@@ -142,7 +143,7 @@ public class ASPUtil {
 			return processParameterCache.get(getClientKey(processId, clientId));
 		}
 		//	Dictionary Level Base
-		return processParameterCache.get(getUserKey(processId, userId));
+		return processParameterCache.get(getDictionaryKey(processId));
 	}
 	
 	/**
@@ -157,6 +158,13 @@ public class ASPUtil {
 		}
 		//	Save dictionary
 		processCache.put(getDictionaryKey(processId), process);
+		//	Old compatibility
+		MTable newTable = MTable.get(context, I_AD_ProcessCustom.Table_ID);
+		if(newTable == null
+				|| Util.isEmpty(newTable.getTableName())) {
+			loadProcessParameters(process);
+			return process;
+		}
 		//	Merge Process for client (ASP)
 		process = getClientProcess(process);
 		//	Merge Process for role
@@ -165,30 +173,6 @@ public class ASPUtil {
 		process = getUserProcess(process);
 		//	
 		return process;
-	}
-	
-	/**
-	 * Get client process from dictionary process
-	 * @param process
-	 * @return
-	 */
-	private MProcess getClientProcess(MProcess process) {
-		List<MProcessPara> clientParameters = loadProcessParameters(process);
-		MProcess clientProcess = process.getDuplicated();
-		List<MProcessCustom> customProcessList = getClientProcessList(process.getAD_Process_ID());
-		if(customProcessList != null
-				&& customProcessList.size() > 0) {
-			for(MProcessCustom customProcess : customProcessList) {
-				mergeProcess(clientProcess, customProcess);
-				//	Merge parameters
-				clientParameters = mergeParameters(clientParameters, customProcess.getParameters(), customProcess.getHierarchyType().equals(MProcessCustom.HIERARCHYTYPE_Overwrite));
-			}
-			//	Save client
-			processCache.put(getClientKey(process.getAD_Process_ID(), clientId), clientProcess);
-			processParameterCache.put(getClientKey(process.getAD_Process_ID(), clientId), clientParameters);
-		}
-		//	return
-		return clientProcess;
 	}
 	
 	/**
@@ -228,9 +212,13 @@ public class ASPUtil {
 	 * @param process
 	 */
 	private List<MProcessPara> loadProcessParameters(MProcess process) {
+		List<MProcessPara> parameters = processParameterCache.get(getDictionaryKey(process.getAD_Process_ID()));
+		if(parameters != null) {
+			return parameters;
+		}
 		processParameterCache.put(getDictionaryKey(process.getAD_Process_ID()), process.getParametersAsList());
 		//	ASP Client
-		List<MProcessPara> parameters = process.getASPParameters();
+		parameters = process.getASPParameters();
 		processParameterCache.put(getClientKey(process.getAD_Process_ID(), clientId), parameters);
 		processParameterCache.put(getRoleKey(process.getAD_Process_ID(), roleId), parameters);
 		processParameterCache.put(getUserKey(process.getAD_Process_ID(), userId), parameters);
@@ -279,6 +267,30 @@ public class ASPUtil {
 				.setParameters(userId)
 				.setOnlyActiveRecords(true)
 				.list();
+	}
+	
+	/**
+	 * Get client process from dictionary process
+	 * @param process
+	 * @return
+	 */
+	private MProcess getClientProcess(MProcess process) {
+		List<MProcessPara> clientParameters = loadProcessParameters(process);
+		MProcess clientProcess = process.getDuplicated();
+		List<MProcessCustom> customProcessList = getClientProcessList(process.getAD_Process_ID());
+		if(customProcessList != null
+				&& customProcessList.size() > 0) {
+			for(MProcessCustom customProcess : customProcessList) {
+				mergeProcess(clientProcess, customProcess);
+				//	Merge parameters
+				clientParameters = mergeParameters(clientParameters, customProcess.getParameters(), customProcess.getHierarchyType().equals(MProcessCustom.HIERARCHYTYPE_Overwrite));
+			}
+			//	Save client
+			processCache.put(getClientKey(process.getAD_Process_ID(), clientId), clientProcess);
+			processParameterCache.put(getClientKey(process.getAD_Process_ID(), clientId), clientParameters);
+		}
+		//	return
+		return clientProcess;
 	}
 	
 	/**
