@@ -81,17 +81,22 @@ public class ProjectProcessorModelValidator implements ModelValidator{
 					}
 				}
 				
-				if (entity.is_ValueChanged(MProject.COLUMNNAME_DateStartSchedule)
-						&& !Util.isEmpty(entity.get_ValueAsString(MProject.COLUMNNAME_DueType))
-							&& entity.get_ValueAsString(MProject.COLUMNNAME_DueType).equals(MProject.DUETYPE_Scheduled)) {
-					entity.set_Value(MProject.COLUMNNAME_DueType, null);
-					entity.save();
-				}else if (entity.is_ValueChanged(MProject.COLUMNNAME_DateFinishSchedule)
-							|| entity.is_ValueChanged(MProject.COLUMNNAME_DateDeadline)) {
-					entity.set_Value(MProject.COLUMNNAME_DueType, MProject.DUETYPE_Scheduled);
-					entity.save();
+				if (!entity.is_ValueChanged(MProject.COLUMNNAME_DueType)) {
+					if (entity.is_ValueChanged(MProject.COLUMNNAME_DateStartSchedule)
+							&& !Util.isEmpty(entity.get_ValueAsString(MProject.COLUMNNAME_DueType))
+								&& entity.get_ValueAsString(MProject.COLUMNNAME_DueType).equals(MProject.DUETYPE_Scheduled)) {
+						entity.set_Value(MProject.COLUMNNAME_DueType, null);
+						entity.set_Value(MProject.COLUMNNAME_DateLastAlert, null);
+						entity.save();
+					}else if ((entity.is_ValueChanged(MProject.COLUMNNAME_DateFinishSchedule)
+								|| entity.is_ValueChanged(MProject.COLUMNNAME_DateDeadline))
+										&& (entity.get_ValueAsString(MProject.COLUMNNAME_DueType).equals(MProject.DUETYPE_Due)
+											|| entity.get_ValueAsString(MProject.COLUMNNAME_DueType).equals(MProject.DUETYPE_Overdue))) {
+						entity.set_Value(MProject.COLUMNNAME_DueType, MProject.DUETYPE_Scheduled);
+						entity.set_Value(MProject.COLUMNNAME_DateLastAlert, null);
+						entity.save();
+					}
 				}
-				 
 				ProjectProcessorUtils.runProjectProcessor(entity, null, "", eventChangeLog);
 				
 			}

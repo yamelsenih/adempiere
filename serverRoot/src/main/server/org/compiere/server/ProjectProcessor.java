@@ -464,8 +464,9 @@ public class ProjectProcessor extends AdempiereServer
 			ArrayList<Object> params = new ArrayList<Object>();
 			Timestamp currentDate = new Timestamp(TimeUtil.getToday().getTimeInMillis());
 			//General Filters
-			whereClauseGeneral =  "(COALESCE(DateDeadLine,DateFinishSchedule) IS NOT NULL) AND (DueType IS NULL OR DueType IN (?,?)) ";
+			whereClauseGeneral =  "(COALESCE(DateDeadLine,DateFinishSchedule) IS NOT NULL) AND (DueType IS NULL OR DueType IN (?,?,?)) ";
 			
+			params.add(MProject.DUETYPE_Scheduled);
 			params.add(MProject.DUETYPE_Due);
 			params.add(MProject.DUETYPE_Overdue);
 			
