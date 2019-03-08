@@ -280,7 +280,7 @@ public class GridFieldVO implements Serializable
     //  FR [ 566 ]
 		if(processParameter.getAD_Val_Rule_ID() != 0) {
 		  MValRule valRule = MValRule.get(ctx, processParameter.getAD_Val_Rule_ID());
-      vo.ValidationCode = valRule.getCode();
+		  vo.ValidationCode = valRule.getCode();
 		}
 		
 		//	

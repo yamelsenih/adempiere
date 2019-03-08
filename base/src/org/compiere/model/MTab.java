@@ -211,4 +211,23 @@ public class MTab extends X_AD_Tab
 	}
 	//end vpj-cd e-evolution
 	
+	/**
+	 * Duplicate Tab
+	 * @return
+	 */
+	public MTab getDuplicated() {
+		try {
+			return (MTab) super.clone();
+		} catch (CloneNotSupportedException e) {
+			log.warning("Error " + e.getLocalizedMessage());
+		}
+		//	Default
+		return null;
+	}
+	
+	@Override
+	public String toString() {
+		return getAD_Tab_ID() + " " + getName();
+	}
+	
 }	//	M_Tab

@@ -213,4 +213,18 @@ public class MWindow extends X_AD_Window
 	}
 	//end vpj-cd e-evolution
 	
+	/**
+	 * Duplicate Process
+	 * @return
+	 */
+	public MWindow getDuplicated() {
+		try {
+			return (MWindow) super.clone();
+		} catch (CloneNotSupportedException e) {
+			log.warning("Error " + e.getLocalizedMessage());
+		}
+		//	Default
+		return null;
+	}
+	
 }	//	M_Window

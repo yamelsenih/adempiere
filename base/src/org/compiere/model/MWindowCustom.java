@@ -16,6 +16,7 @@
 package org.compiere.model;
 
 import java.sql.ResultSet;
+import java.util.List;
 import java.util.Properties;
 
 /**
@@ -40,4 +41,23 @@ public class MWindowCustom extends X_AD_WindowCustom {
 		super(ctx, rs, trxName);
 	}
 
+	
+	/**
+	 * Get tabs for it
+	 * @return
+	 */
+	public List<MTabCustom> getTabs() {
+		//	Get
+		return new Query(getCtx(), I_AD_TabCustom.Table_Name, COLUMNNAME_AD_WindowCustom_ID + " = ?", null)
+				.setParameters(getAD_WindowCustom_ID())
+				.setOnlyActiveRecords(true)
+				.list();
+	}
+	
+	@Override
+	public String toString() {
+		return "MWindowCustom [getAD_WindowCustom_ID()=" + getAD_WindowCustom_ID() + ", getAD_Window_ID()="
+				+ getAD_Window_ID() + ", getAD_Role_ID()=" + getAD_Role_ID() + ", getAD_User_ID()=" + getAD_User_ID()
+				+ ", getASP_Level_ID()=" + getASP_Level_ID() + "]";
+	}
 }

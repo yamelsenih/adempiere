@@ -16,6 +16,7 @@
 package org.compiere.model;
 
 import java.sql.ResultSet;
+import java.util.List;
 import java.util.Properties;
 
 /**
@@ -55,5 +56,23 @@ public class MTabCustom extends X_AD_TabCustom {
 			setSeqNo(tab.getSeqNo());
 			setTabLevel(tab.getTabLevel());
 		}
+	}
+	
+	/**
+	 * Get tabs for it
+	 * @return
+	 */
+	public List<MFieldCustom> getFields() {
+		//	Get
+		return new Query(getCtx(), I_AD_FieldCustom.Table_Name, COLUMNNAME_AD_TabCustom_ID + " = ?", null)
+				.setParameters(getAD_TabCustom_ID())
+				.setOnlyActiveRecords(true)
+				.list();
+	}
+	
+	@Override
+	public String toString() {
+		return "MTabCustom [getAD_TabCustom_ID()=" + getAD_TabCustom_ID() + ", getAD_Tab_ID()="
+				+ getAD_Tab_ID() + "]";
 	}
 }
