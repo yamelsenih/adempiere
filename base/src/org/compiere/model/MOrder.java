@@ -1178,6 +1178,9 @@ public class MOrder extends X_C_Order implements DocAction
 		ArrayList<MOrderLine> orderLinesToDelete  = new ArrayList<MOrderLine>();
 		for (MOrderLine orderLineOuterLoop : orderLinesOuterLoop) {
 			for (MOrderLine orderLineInnerLoop : orderLinesInnerLoop) {
+				if(orderLineInnerLoop.getC_Charge_ID() > 0) {
+					continue;
+				}
 				if (orderLineInnerLoop.getC_OrderLine_ID()==orderLineOuterLoop.getC_OrderLine_ID())
 					continue;  // same Orderline
 				if (orderLinesToSave.contains(orderLineInnerLoop) || orderLinesToDelete.contains(orderLineInnerLoop))
