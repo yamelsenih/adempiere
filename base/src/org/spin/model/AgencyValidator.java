@@ -77,7 +77,7 @@ import org.compiere.util.DisplayType;
 import org.compiere.util.Env;
 import org.compiere.util.Msg;
 import org.eevolution.service.dsl.ProcessBuilder;
-import org.spin.process.CommissionPOCreateAbstract;
+import org.spin.process.CommissionOrderCreateAbstract;
 
 import com.eevolution.model.MSContract;
 
@@ -744,13 +744,13 @@ public class AgencyValidator implements ModelValidator
 							&& commissionRun.getGrandTotal().compareTo(Env.ZERO) > 0) {
 						if(commissionDefinition.get_ValueAsBoolean("IsSplitDocuments")) {
 							ProcessBuilder.create(order.getCtx())
-								.process(CommissionPOCreateAbstract.getProcessId())
+								.process(CommissionOrderCreateAbstract.getProcessId())
 								.withRecordId(I_C_CommissionRun.Table_ID, commissionRun.getC_CommissionRun_ID())
-								.withParameter(CommissionPOCreateAbstract.ISSOTRX, true)
-								.withParameter(CommissionPOCreateAbstract.DATEORDERED, order.getDateOrdered())
-								.withParameter(CommissionPOCreateAbstract.DOCACTION, DocAction.ACTION_Complete)
-								.withParameter(CommissionPOCreateAbstract.C_BPARTNER_ID, order.getC_BPartner_ID())
-								.withParameter(CommissionPOCreateAbstract.C_DOCTYPE_ID, commissionDefinition.get_ValueAsInt("C_DocTypeOrder_ID"))
+								.withParameter(CommissionOrderCreateAbstract.ISSOTRX, true)
+								.withParameter(CommissionOrderCreateAbstract.DATEORDERED, order.getDateOrdered())
+								.withParameter(CommissionOrderCreateAbstract.DOCACTION, DocAction.ACTION_Complete)
+								.withParameter(CommissionOrderCreateAbstract.C_BPARTNER_ID, order.getC_BPartner_ID())
+								.withParameter(CommissionOrderCreateAbstract.C_DOCTYPE_ID, commissionDefinition.get_ValueAsInt("C_DocTypeOrder_ID"))
 								.withoutTransactionClose()
 							.execute(order.get_TrxName());
 						} else {
@@ -807,13 +807,13 @@ public class AgencyValidator implements ModelValidator
 							&& commissionRun.getGrandTotal().compareTo(Env.ZERO) > 0) {
 						if(commissionDefinition.get_ValueAsBoolean("IsSplitDocuments")) {
 							ProcessBuilder.create(invoice.getCtx())
-								.process(CommissionPOCreateAbstract.getProcessId())
+								.process(CommissionOrderCreateAbstract.getProcessId())
 								.withRecordId(I_C_CommissionRun.Table_ID, commissionRun.getC_CommissionRun_ID())
-								.withParameter(CommissionPOCreateAbstract.ISSOTRX, true)
-								.withParameter(CommissionPOCreateAbstract.DATEORDERED, invoice.getDateInvoiced())
-								.withParameter(CommissionPOCreateAbstract.DOCACTION, DocAction.ACTION_Complete)
-								.withParameter(CommissionPOCreateAbstract.C_BPARTNER_ID, invoice.getC_BPartner_ID())
-								.withParameter(CommissionPOCreateAbstract.C_DOCTYPE_ID, commissionDefinition.get_ValueAsInt("C_DocTypeOrder_ID"))
+								.withParameter(CommissionOrderCreateAbstract.ISSOTRX, true)
+								.withParameter(CommissionOrderCreateAbstract.DATEORDERED, invoice.getDateInvoiced())
+								.withParameter(CommissionOrderCreateAbstract.DOCACTION, DocAction.ACTION_Complete)
+								.withParameter(CommissionOrderCreateAbstract.C_BPARTNER_ID, invoice.getC_BPartner_ID())
+								.withParameter(CommissionOrderCreateAbstract.C_DOCTYPE_ID, commissionDefinition.get_ValueAsInt("C_DocTypeOrder_ID"))
 								.withoutTransactionClose()
 							.execute(invoice.get_TrxName());
 						} else {
