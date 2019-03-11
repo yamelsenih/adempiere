@@ -29,6 +29,7 @@ import org.compiere.util.DB;
 import org.compiere.util.Env;
 import org.compiere.util.Evaluatee;
 import org.compiere.util.Evaluator;
+import org.compiere.util.Util;
 
 /**
  *  Model Tab Value Object
@@ -75,19 +76,190 @@ public class GridTabVO implements Evaluatee, Serializable
 		{
 			vo.Fields = new ArrayList<GridFieldVO>();	//	dummy
 		}
-		/*
-		else
-		{
-			createFields (vo);
-			if (vo.Fields == null || vo.Fields.size() == 0)
-			{
-				CLogger.get().log(Level.SEVERE, "No Fields");
-				return null;
-			}
-		}*/
 		return vo;
 	}	//	create
 
+	/**************************************************************************
+	 *	Create MTab VO
+	 *
+	 *  @param wVO value object
+	 *  @param tabNo tab no
+	 *	@param rs ResultSet from AD_Tab_v
+	 *	@param isRO true if window is r/o
+	 *  @param onlyCurrentRows if true query is limited to not processed records
+	 *  @return TabVO
+	 */
+	public static GridTabVO create (GridWindowVO wVO, int tabNo, MTab tab, 
+		boolean isRO, boolean onlyCurrentRows) {
+		CLogger.get().config("#" + tabNo);
+
+		GridTabVO vo = new GridTabVO (wVO.ctx, wVO.WindowNo);
+		vo.AD_Window_ID = wVO.AD_Window_ID;
+		vo.TabNo = tabNo;
+		//
+		if (!loadTabDetails(vo, tab))
+			return null;
+
+		if (isRO)
+		{
+			CLogger.get().fine("Tab is ReadOnly");
+			vo.IsReadOnly = true;
+		}
+		vo.onlyCurrentRows = onlyCurrentRows;
+
+		//  Create Fields
+		if (vo.IsSortTab)
+		{
+			vo.Fields = new ArrayList<GridFieldVO>();	//	dummy
+		}
+		return vo;
+	}	//	create
+	
+	/**
+	 * 	Load Tab Details from rs into vo
+	 * 	@param vo Tab value object
+	 *	@param tab tab model object from AD_Tab
+	 * 	@return true if read ok
+	 */
+	private static boolean loadTabDetails (GridTabVO vo, MTab tab) {
+		MRole role = MRole.getDefault(vo.ctx, false);
+		boolean showTrl = "Y".equals(Env.getContext(vo.ctx, "#ShowTrl"));
+		boolean showAcct = "Y".equals(Env.getContext(vo.ctx, "#ShowAcct"));
+		boolean showAdvanced = "Y".equals(Env.getContext(vo.ctx, "#ShowAdvanced"));
+		//	TODO: Translation
+		vo.AD_Tab_ID = tab.getAD_Tab_ID();
+		Env.setContext(vo.ctx, vo.WindowNo, vo.TabNo, GridTab.CTX_AD_Tab_ID, String.valueOf(vo.AD_Tab_ID));
+		vo.Name = tab.getName();
+		Env.setContext(vo.ctx, vo.WindowNo, vo.TabNo, GridTab.CTX_Name, vo.Name);
+		MTable table = MTable.get(vo.ctx, tab.getAD_Table_ID());
+		//	Translation Tab	**
+		if (tab.isTranslationTab()) {
+			//	Document Translation
+			vo.TableName = table.getTableName();
+			if (!Env.isBaseTranslation(vo.TableName)	//	C_UOM, ...
+				&& !Env.isMultiLingualDocument(vo.ctx))
+				showTrl = false;
+			if (!showTrl)
+			{
+				CLogger.get().config("TrlTab Not displayed - AD_Tab_ID=" 
+					+ vo.AD_Tab_ID + "=" + vo.Name + ", Table=" + vo.TableName
+					+ ", BaseTrl=" + Env.isBaseTranslation(vo.TableName)
+					+ ", MultiLingual=" + Env.isMultiLingualDocument(vo.ctx));
+				return false;
+			}
+		}
+		//	Advanced Tab	**
+		if (!showAdvanced && tab.isAdvancedTab()) {
+			CLogger.get().config("AdvancedTab Not displayed - AD_Tab_ID=" 
+				+ vo.AD_Tab_ID + " " + vo.Name);
+			return false;
+		}
+		//	Accounting Info Tab	**
+		if (!showAcct && tab.isInfoTab()) {
+			CLogger.get().fine("AcctTab Not displayed - AD_Tab_ID=" 
+				+ vo.AD_Tab_ID + " " + vo.Name);
+			return false;
+		}
+		
+		//	DisplayLogic
+		vo.DisplayLogic = tab.getDisplayLogic();
+		
+		//	Access Level
+		vo.AccessLevel = table.getAccessLevel();
+		if (!role.canView (vo.ctx, vo.AccessLevel))	//	No Access
+		{
+			CLogger.get().fine("No Role Access - AD_Tab_ID=" + vo.AD_Tab_ID + " " + vo. Name);
+			return false;
+		}	//	Used by MField.getDefault
+		Env.setContext(vo.ctx, vo.WindowNo, vo.TabNo, GridTab.CTX_AccessLevel, vo.AccessLevel);
+
+		//	Table Access
+		vo.AD_Table_ID = tab.getAD_Table_ID();
+		Env.setContext(vo.ctx, vo.WindowNo, vo.TabNo, GridTab.CTX_AD_Table_ID, String.valueOf(vo.AD_Table_ID));
+		if (!role.isTableAccess(vo.AD_Table_ID, true))
+		{
+			CLogger.get().config("No Table Access - AD_Tab_ID=" 
+				+ vo.AD_Tab_ID + " " + vo. Name);
+			return false;
+		}
+		if (tab.isReadOnly())
+			vo.IsReadOnly = true;
+		vo.ReadOnlyLogic = tab.getReadOnlyLogic();
+		//	BR [162]
+		if(!vo.IsReadOnly && vo.ReadOnlyLogic != null) {
+			vo.IsReadOnly = Evaluator.evaluateLogic(vo, vo.ReadOnlyLogic);
+		}
+		
+		if (!tab.isInsertRecord())
+			vo.IsInsertRecord = false;
+		
+		//
+		vo.Description = tab.getDescription();
+		if (vo.Description == null)
+			vo.Description = "";
+		vo.Help = tab.getHelp();
+		if (vo.Help == null)
+			vo.Help = "";
+
+		if (tab.isSingleRow())
+			vo.IsSingleRow = true;
+		if (tab.isHasTree())
+			vo.HasTree = true;
+
+		vo.AD_Table_ID = tab.getAD_Table_ID();
+		vo.TableName = table.getTableName();
+		if (table.isView())
+			vo.IsView = true;
+		vo.AD_Column_ID = tab.getAD_Column_ID();   //  Primary Link Column
+		vo.Parent_Column_ID = tab.getParent_Column_ID();   // Parent tab link column
+
+		// TODO: see it
+		//if (tab.getString("IsSecurityEnabled").equals("Y"))
+			//vo.IsSecurityEnabled = true;
+		if (table.isDeleteable())
+			vo.IsDeleteable = true;
+		if (table.isHighVolume())
+			vo.IsHighVolume = true;
+
+		vo.CommitWarning = tab.getCommitWarning();
+		if (vo.CommitWarning == null)
+			vo.CommitWarning = "";
+		vo.WhereClause = tab.getWhereClause();
+		if (vo.WhereClause == null)
+			vo.WhereClause = "";
+		//jz col=null not good for Derby
+		if (vo.WhereClause.indexOf("=null")>0)
+			vo.WhereClause.replaceAll("=null", " IS NULL ");
+		// Where Clauses should be surrounded by parenthesis - teo_sarca, BF [ 1982327 ] 
+		if (vo.WhereClause.trim().length() > 0) {
+			vo.WhereClause = "("+vo.WhereClause+")";
+		}
+
+		vo.OrderByClause = tab.getOrderByClause();
+		if (vo.OrderByClause == null)
+			vo.OrderByClause = "";
+
+		vo.AD_Process_ID = tab.getAD_Process_ID();
+		vo.AD_Image_ID = tab.getAD_Image_ID();
+		vo.Included_Tab_ID = tab.getIncluded_Tab_ID();
+		//
+		vo.TabLevel = tab.getTabLevel();
+		//
+		vo.IsSortTab = tab.isSortTab();
+		if (vo.IsSortTab) {
+			vo.AD_ColumnSortOrder_ID = tab.getAD_ColumnSortOrder_ID();
+			vo.AD_ColumnSortYesNo_ID = tab.getAD_ColumnSortYesNo_ID();
+		}
+		//
+		//	Replication Type - set R/O if Reference
+		vo.ReplicationType = table.getReplicationType();
+		if (!Util.isEmpty(vo.ReplicationType)
+				&& "R".equals(vo.ReplicationType)) {
+			vo.IsReadOnly = true;
+		}
+		return true;
+	}	//	loadTabDetails
+	
 	/**
 	 * 	Load Tab Details from rs into vo
 	 * 	@param vo Tab value object

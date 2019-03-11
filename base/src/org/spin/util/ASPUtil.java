@@ -276,7 +276,7 @@ public class ASPUtil {
 	 * @return
 	 */
 	private MWindow getWindowForASP(int windowId) {
-		MWindow window = new MWindow(context, windowId, null);
+		MWindow window = MWindow.get(context, windowId);
 		//	Save dictionary
 		windowCache.put(getDictionaryKey(windowId), window);
 		//	Old compatibility
@@ -388,7 +388,7 @@ public class ASPUtil {
 			return tabs;
 		}
 		//	Tab List
-		tabs = Arrays.asList(window.getTabs(false, null));
+		tabs = window.getASPTabs();
 		tabCache.put(getDictionaryKey(window.getAD_Window_ID()), tabs);
 		//	ASP Client
 		//	TODO: tabs = window.getASPParameters();

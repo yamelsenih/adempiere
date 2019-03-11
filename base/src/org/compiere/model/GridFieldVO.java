@@ -375,6 +375,26 @@ public class GridFieldVO implements Serializable
 		vo.initFinish();
 		return vo;
 	}   //  initStdField
+	
+	public static GridFieldVO createField (Properties ctx, int WindowNo, int TabNo, 
+			int AD_Window_ID, int AD_Tab_ID, boolean tabReadOnly,
+			boolean isCreated, boolean isTimestamp)
+		{
+			GridFieldVO vo = new GridFieldVO (ctx, WindowNo, TabNo, 
+				AD_Window_ID, AD_Tab_ID, tabReadOnly);
+			vo.ColumnName = isCreated ? "Created" : "Updated";
+			if (!isTimestamp)
+				vo.ColumnName += "By";
+			vo.displayType = isTimestamp ? DisplayType.DateTime : DisplayType.Table;
+			if (!isTimestamp)
+				vo.AD_Reference_Value_ID = 110;		//	AD_User Table Reference
+			vo.IsDisplayed = false;
+			vo.IsMandatory = false;
+			vo.IsReadOnly = false;
+			vo.IsUpdateable = true;
+			vo.initFinish();
+			return vo;
+		}   //  initStdField
 
 	
 	/**************************************************************************
