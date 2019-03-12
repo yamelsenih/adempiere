@@ -51,6 +51,10 @@ import org.compiere.model.MInvoice;
 import org.compiere.model.MInvoiceLine;
 import org.compiere.model.MOrder;
 import org.compiere.model.MOrderLine;
+import org.compiere.model.MPriceList;
+import org.compiere.model.MPriceListVersion;
+import org.compiere.model.MProduct;
+import org.compiere.model.MProductPrice;
 import org.compiere.model.MProject;
 import org.compiere.model.MProjectPhase;
 import org.compiere.model.MProjectTask;
@@ -400,6 +404,7 @@ public class AgencyValidator implements ModelValidator
 					createCommissionForOrder(order, documentType.get_ValueAsInt("C_CommissionType_ID"), false);
 				}
 			} else if (timing == TIMING_AFTER_COMPLETE) {
+				System.out.println("Guardado");
 				if(order.isSOTrx()) {
 					//	For Sales Orders only
 					if(order.isDropShip()) {
@@ -443,7 +448,26 @@ public class AgencyValidator implements ModelValidator
 					}
 					reverseOrder.saveEx();
 				});
-			}
+			} if(timing == TIMING_BEFORE_COMPLETE) {
+//	
+				if(order.isSOTrx()) {
+					for(MOrderLine orderLine : order.getLines()) {
+						if(orderLine.getM_Product_ID() != 0) {
+							MPriceList  priceList = new MPriceList(order.getCtx(), order.getM_PriceList_ID(), order.get_TrxName());
+							MPriceListVersion priceListVersion = new MPriceListVersion(priceList.getCtx(), priceList.getM_PriceList_ID(), priceList.get_TrxName());
+							MProduct product = new MProduct (orderLine.getCtx(), orderLine.getM_Product_ID(), orderLine.get_TrxName());
+							MProductPrice productPrice = new MProductPrice(orderLine.getCtx(), priceListVersion.getM_PriceList_Version_ID(), product.getM_Product_ID(), orderLine.get_TrxName());
+							if (!productPrice.get_ValueAsBoolean("IsIncludedContract")) {
+								BigDecimal priceEntered = orderLine.getPriceEntered();						
+								if( priceEntered.compareTo(BigDecimal.ZERO) == 0) {
+									throw new AdempiereException(Msg.parseTranslation(Env.getCtx(), "@PriceEntereddontBeZero@"));
+								}
+							}	
+						}
+					}
+				}
+//	
+			} 
 		} else if(po instanceof MCommissionRun) {
 			MCommissionRun commissionRun = (MCommissionRun) po;
 			if(timing == TIMING_AFTER_VOID) {
