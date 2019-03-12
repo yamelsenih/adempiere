@@ -24,9 +24,9 @@ import org.compiere.process.SvrProcess;
  *  @author ADempiere (generated) 
  *  @version Release 3.9.1
  */
-public abstract class CommissionPOCreateAbstract extends SvrProcess {
+public abstract class CommissionOrderCreateAbstract extends SvrProcess {
 	/** Process Value 	*/
-	private static final String VALUE_FOR_PROCESS = "C_CommissionRun_CreatePO";
+	private static final String VALUE_FOR_PROCESS = "C_CommissionRun_CreatOrder";
 	/** Process Name 	*/
 	private static final String NAME_FOR_PROCESS = "Create Purchase Order";
 	/** Process Id 	*/
@@ -37,28 +37,28 @@ public abstract class CommissionPOCreateAbstract extends SvrProcess {
 	public static final String C_DOCTYPE_ID = "C_DocType_ID";
 	/**	Parameter Name for Date Ordered	*/
 	public static final String DATEORDERED = "DateOrdered";
-	/**	Parameter Name for Document Action	*/
-	public static final String DOCACTION = "DocAction";
 	/**	Parameter Name for Business Partner 	*/
 	public static final String C_BPARTNER_ID = "C_BPartner_ID";
+	/**	Parameter Name for Document Action	*/
+	public static final String DOCACTION = "DocAction";
 	/**	Parameter Value for Sales Transaction	*/
 	private boolean isSOTrx;
 	/**	Parameter Value for Document Type	*/
 	private int docTypeId;
 	/**	Parameter Value for Date Ordered	*/
 	private Timestamp dateOrdered;
-	/**	Parameter Value for Document Action	*/
-	private String docAction;
 	/**	Parameter Value for Business Partner 	*/
 	private int bPartnerId;
+	/**	Parameter Value for Document Action	*/
+	private String docAction;
 
 	@Override
 	protected void prepare() {
 		isSOTrx = getParameterAsBoolean(ISSOTRX);
 		docTypeId = getParameterAsInt(C_DOCTYPE_ID);
 		dateOrdered = getParameterAsTimestamp(DATEORDERED);
-		docAction = getParameterAsString(DOCACTION);
 		bPartnerId = getParameterAsInt(C_BPARTNER_ID);
+		docAction = getParameterAsString(DOCACTION);
 	}
 
 	/**	 Getter Parameter Value for Sales Transaction	*/
@@ -91,16 +91,6 @@ public abstract class CommissionPOCreateAbstract extends SvrProcess {
 		this.dateOrdered = dateOrdered;
 	}
 
-	/**	 Getter Parameter Value for Document Action	*/
-	protected String getDocAction() {
-		return docAction;
-	}
-
-	/**	 Setter Parameter Value for Document Action	*/
-	protected void setDocAction(String docAction) {
-		this.docAction = docAction;
-	}
-
 	/**	 Getter Parameter Value for Business Partner 	*/
 	protected int getBPartnerId() {
 		return bPartnerId;
@@ -109,6 +99,16 @@ public abstract class CommissionPOCreateAbstract extends SvrProcess {
 	/**	 Setter Parameter Value for Business Partner 	*/
 	protected void setBPartnerId(int bPartnerId) {
 		this.bPartnerId = bPartnerId;
+	}
+
+	/**	 Getter Parameter Value for Document Action	*/
+	protected String getDocAction() {
+		return docAction;
+	}
+
+	/**	 Setter Parameter Value for Document Action	*/
+	protected void setDocAction(String docAction) {
+		this.docAction = docAction;
 	}
 
 	/**	 Getter Parameter Value for Process ID	*/

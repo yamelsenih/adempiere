@@ -32,7 +32,7 @@ import org.compiere.util.Msg;
  *  @author ADempiere (generated) 
  *  @version Release 3.9.1
  */
-public class CommissionPOCreate extends CommissionPOCreateAbstract {
+public class CommissionOrderCreate extends CommissionOrderCreateAbstract {
 	/**	Invoices created	*/
 	private int created = 0;
 	/**	Message	*/
@@ -141,12 +141,12 @@ public class CommissionPOCreate extends CommissionPOCreateAbstract {
 	/**
 	 * Create line from invoice
 	 * @param commissionAmt
-	 * @param invoice
+	 * @param order
 	 * @param chargeId
 	 */
-	private void createOrderLine(MCommissionAmt commissionAmt, MOrder invoice, int chargeId) {
+	private void createOrderLine(MCommissionAmt commissionAmt, MOrder order, int chargeId) {
 		//	Create Invoice Line
- 		MOrderLine orderLine = new MOrderLine(invoice);
+ 		MOrderLine orderLine = new MOrderLine(order);
 		orderLine.setC_Charge_ID(chargeId);
 		orderLine.setQty(Env.ONE);
 		orderLine.setPrice(commissionAmt.getCommissionAmt());
