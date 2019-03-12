@@ -140,7 +140,7 @@ public class ProjectGenOrder extends ProjectGenOrderAbstract {
 		if (fromProject.getC_Project_ID() == 0)
 			throw new AdempiereException("@C_Project_ID@ @NotFound@" + projectId);
 		if (fromProject.getM_PriceList_ID() == 0)
-			throw new AdempiereException("@M_PriceList_ID@ @NotFound @@To@ @C_Project_ID@");
+			throw new AdempiereException("@M_PriceList_ID@ @NotFound@ @To@ @C_Project_ID@");
 		if (fromProject.getM_Warehouse_ID() == 0)
 			throw new AdempiereException("@M_Warehouse_ID@ @NotFound@ @To@ @C_Project_ID@");
 		if (fromProject.getC_BPartner_ID() == 0)
