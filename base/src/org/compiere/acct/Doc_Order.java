@@ -22,8 +22,10 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.logging.Level;
 
+import org.compiere.model.I_C_OrderLine;
 import org.compiere.model.MAccount;
 import org.compiere.model.MAcctSchema;
 import org.compiere.model.MClientInfo;
@@ -33,6 +35,7 @@ import org.compiere.model.MOrderLine;
 import org.compiere.model.MRequisitionLine;
 import org.compiere.model.MTax;
 import org.compiere.model.ProductCost;
+import org.compiere.model.Query;
 import org.compiere.util.DB;
 import org.compiere.util.Env;
 
@@ -637,90 +640,71 @@ public class Doc_Order extends Doc
 	
 	/**
 	 * 	Get Commitments Sales
-	 * 	@param doc document
-	 * 	@param maxQty Qty invoiced/matched
+	 * 	@param document document
+	 * 	@param maxQuantity Qty invoiced/matched
 	 * 	@param C_OrderLine_ID invoice line
 	 *	@return commitments (order lines)
 	 */
-	protected static DocLine[] getCommitmentsSales(Doc doc, BigDecimal maxQty, int M_InOutLine_ID)
-	{
+	protected static DocLine[] getCommitmentsSales(Doc document, BigDecimal maxQuantity, int inOutLineId) {
 		int precision = -1;
 		//
 		ArrayList<DocLine> list = new ArrayList<DocLine>();
-		String sql = "SELECT * FROM C_OrderLine ol "
-			+ "WHERE EXISTS "
-				+ "(SELECT * FROM M_InOutLine il "
-				+ "WHERE il.C_OrderLine_ID=ol.C_OrderLine_ID"
-				+ " AND il.M_InOutLine_ID=?)";
-		PreparedStatement pstmt = null;
-		ResultSet rs = null;
-		try
-		{
-			pstmt = DB.prepareStatement (sql, null);
-			pstmt.setInt (1, M_InOutLine_ID);
-			rs = pstmt.executeQuery ();
-			while (rs.next ())
-			{
-				if (maxQty.signum() == 0)
-					continue;
-				MOrderLine line = new MOrderLine (doc.getCtx(), rs, null);
-				DocLine docLine = new DocLine (line, doc);
-				//	Currency
-				if (precision == -1)
-				{
-					doc.setC_Currency_ID(docLine.getC_Currency_ID());
-					precision = MCurrency.getStdPrecision(doc.getCtx(), docLine.getC_Currency_ID());
-				}
-				//	Qty
-				BigDecimal Qty = line.getQtyOrdered().max(maxQty);
-				docLine.setQty(Qty, false);
-				//
-				BigDecimal PriceActual = line.getPriceActual();
-				BigDecimal PriceCost = line.getPriceCost();
-				BigDecimal LineNetAmt = null;
-				if (PriceCost != null && PriceCost.signum() != 0)
-					LineNetAmt = Qty.multiply(PriceCost);
-				else if (Qty.equals(maxQty))
-					LineNetAmt = line.getLineNetAmt();
-				else
-					LineNetAmt = Qty.multiply(PriceActual);
-				maxQty = maxQty.subtract(Qty);
-				
-				docLine.setAmount (LineNetAmt);	//	DR
-				BigDecimal PriceList = line.getPriceList();
-				int C_Tax_ID = docLine.getC_Tax_ID();
-				//	Correct included Tax
-				if (C_Tax_ID != 0 && line.getParent().isTaxIncluded())
-				{
-					MTax tax = MTax.get(doc.getCtx(), C_Tax_ID);
-					if (!tax.isZeroTax())
-					{
-						BigDecimal LineNetAmtTax = tax.calculateTax(LineNetAmt, true, precision);
-						s_log.fine("LineNetAmt=" + LineNetAmt + " - Tax=" + LineNetAmtTax);
-						LineNetAmt = LineNetAmt.subtract(LineNetAmtTax);
-						BigDecimal PriceListTax = tax.calculateTax(PriceList, true, precision);
-						PriceList = PriceList.subtract(PriceListTax);
-					}
-				}	//	correct included Tax
-				
-				docLine.setAmount (LineNetAmt, PriceList, Qty);
-				list.add(docLine);
+		String whereClause = "EXISTS (SELECT 1 FROM M_InOutLine il "
+					+ "	WHERE il.C_OrderLine_ID = C_OrderLine.C_OrderLine_ID"
+					+ " AND il.M_InOutLine_ID = ?)";
+		List<MOrderLine> orderLineList = new Query(document.getCtx(), I_C_OrderLine.Table_Name, whereClause, null)
+			.setParameters(inOutLineId)
+			.list();
+		//	
+		for(MOrderLine orderLine : orderLineList) {
+			if (maxQuantity.signum() == 0)
+				continue;
+			DocLine documentLine = new DocLine (orderLine, document);
+			//	Currency
+			if (precision == -1) {
+				document.setC_Currency_ID(documentLine.getC_Currency_ID());
+				precision = MCurrency.getStdPrecision(document.getCtx(), documentLine.getC_Currency_ID());
 			}
+			//	Quantity
+			BigDecimal quantity = orderLine.getQtyOrdered();
+			if(maxQuantity.compareTo(quantity) != 0) {
+				quantity = maxQuantity;
+			}
+			documentLine.setQty(quantity, false);
+			//
+			BigDecimal priceActual = orderLine.getPriceActual();
+			BigDecimal priceCost = orderLine.getPriceCost();
+			BigDecimal lineNetAmt = null;
+			if (priceCost != null && priceCost.signum() != 0)
+				lineNetAmt = quantity.multiply(priceCost);
+			else if (orderLine.getQtyOrdered().equals(maxQuantity))
+				lineNetAmt = orderLine.getLineNetAmt();
+			else
+				lineNetAmt = quantity.multiply(priceActual);
+			maxQuantity = maxQuantity.subtract(quantity);
+			
+			documentLine.setAmount (lineNetAmt);	//	DR
+			BigDecimal priceList = orderLine.getPriceList();
+			int taxId = documentLine.getC_Tax_ID();
+			//	Correct included Tax
+			if (taxId != 0 && orderLine.getParent().isTaxIncluded()) {
+				MTax tax = MTax.get(document.getCtx(), taxId);
+				if (!tax.isZeroTax()) {
+					BigDecimal lineNetAmtTax = tax.calculateTax(lineNetAmt, true, precision);
+					s_log.fine("LineNetAmt=" + lineNetAmt + " - Tax=" + lineNetAmtTax);
+					lineNetAmt = lineNetAmt.subtract(lineNetAmtTax);
+					BigDecimal priceListTax = tax.calculateTax(priceList, true, precision);
+					priceList = priceList.subtract(priceListTax);
+				}
+			}	//	correct included Tax
+			
+			documentLine.setAmount (lineNetAmt, priceList, quantity);
+			list.add(documentLine);
 		}
-		catch (Exception e)
-		{
-			s_log.log (Level.SEVERE, sql, e);
-		}
-		finally
-		{
-			DB.close(rs, pstmt);
-			rs = null; pstmt = null;
-		}
-		
 		//	Return Array
-		DocLine[] dl = new DocLine[list.size()];
-		list.toArray(dl);
-		return dl;
+		DocLine[] documentLineAsArray = new DocLine[list.size()];
+		list.toArray(documentLineAsArray);
+		return documentLineAsArray;
 	}	//	getCommitmentsSales
 
 	/**
