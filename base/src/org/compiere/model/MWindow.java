@@ -229,7 +229,7 @@ public class MWindow extends X_AD_Window
 		return success;
 	}	//	afterSave
 
-	/** Get MProcess from Cache
+	/** Get Window from Cache
 	 *	@param ctx context
 	 *	@param windowId id
 	 *	@return MProcess

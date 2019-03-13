@@ -17,13 +17,11 @@ package org.spin.util;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Properties;
 
 import org.adempiere.exceptions.AdempiereException;
-import org.compiere.model.MField;
-import org.compiere.model.MFieldCustom;
 import org.compiere.Adempiere;
 import org.compiere.model.I_AD_Field;
 import org.compiere.model.I_AD_Process;
@@ -32,6 +30,8 @@ import org.compiere.model.I_AD_Process_Para;
 import org.compiere.model.I_AD_Tab;
 import org.compiere.model.I_AD_Window;
 import org.compiere.model.I_AD_WindowCustom;
+import org.compiere.model.MField;
+import org.compiere.model.MFieldCustom;
 import org.compiere.model.MProcess;
 import org.compiere.model.MProcessCustom;
 import org.compiere.model.MProcessPara;
@@ -172,6 +172,7 @@ public class ASPUtil {
 		if(window == null) {
 			window = getWindowForASP(windowId);
 		}
+		
 		return window;
 	}
 	
@@ -181,6 +182,9 @@ public class ASPUtil {
 	 * @return
 	 */
 	public List<MTab> getTabs(int windowId) {
+		if(windowCache.get(getDictionaryKey(windowId)) == null) {
+			getWindow(windowId);
+		}
 		//	User level
 		if(windowCache.get(getUserKey(windowId, userId)) != null) {
 			return tabCache.get(getUserKey(windowId, userId));
@@ -203,16 +207,21 @@ public class ASPUtil {
 	 * @return
 	 */
 	public List<MField> getFields(int tabId) {
+		MTab tab = MTab.get(context, tabId);
+		int windowId = tab.getAD_Window_ID();
+		if(windowCache.get(getDictionaryKey(tab.getAD_Window_ID())) == null) {
+			getWindow(windowId);
+		}
 		//	User level
-		if(windowCache.get(getUserKey(tabId, userId)) != null) {
+		if(windowCache.get(getUserKey(windowId, userId)) != null) {
 			return fieldCache.get(getUserKey(tabId, userId));
 		}
 		//	Role Level
-		if(windowCache.get(getRoleKey(tabId, roleId)) != null) {
+		if(windowCache.get(getRoleKey(windowId, roleId)) != null) {
 			return fieldCache.get(getRoleKey(tabId, roleId));
 		}
 		//	Client Level (ASP)
-		if(windowCache.get(getClientKey(tabId, clientId)) != null) {
+		if(windowCache.get(getClientKey(windowId, clientId)) != null) {
 			return fieldCache.get(getClientKey(tabId, clientId));
 		}
 		//	Dictionary Level Base
@@ -225,6 +234,9 @@ public class ASPUtil {
 	 * @return
 	 */
 	public List<MProcessPara> getProcessParameters(int processId) {
+		if(processCache.get(getDictionaryKey(processId)) == null) {
+			getProcess(processId);
+		}
 		//	User level
 		if(processCache.get(getUserKey(processId, userId)) != null) {
 			return processParameterCache.get(getUserKey(processId, userId));
@@ -325,6 +337,7 @@ public class ASPUtil {
 			mergedParameters.set(index, parameter);
 		}
 		//
+		mergedParameters.sort(Comparator.comparing(MProcessPara::getSeqNo));
 		return mergedParameters;
 	}
 	
@@ -357,6 +370,7 @@ public class ASPUtil {
 			mergedTabs.set(index, tab);
 		}
 		//
+		mergedTabs.sort(Comparator.comparing(MTab::getSeqNo));
 		return mergedTabs;
 	}
 	
@@ -391,10 +405,13 @@ public class ASPUtil {
 		tabs = window.getASPTabs();
 		tabCache.put(getDictionaryKey(window.getAD_Window_ID()), tabs);
 		//	ASP Client
-		//	TODO: tabs = window.getASPParameters();
 		tabCache.put(getClientKey(window.getAD_Window_ID(), clientId), tabs);
 		tabCache.put(getRoleKey(window.getAD_Window_ID(), roleId), tabs);
 		tabCache.put(getUserKey(window.getAD_Window_ID(), userId), tabs);
+		//	Load fields
+		tabs.stream().forEach(tab -> {
+			loadFields(tab);
+		});
 		return tabs;
 	}
 	
@@ -408,10 +425,9 @@ public class ASPUtil {
 			return fields;
 		}
 		//	Tab List
-		fields = Arrays.asList(tab.getFields(false, null));
+		fields = tab.getASPFields();
 		fieldCache.put(getDictionaryKey(tab.getAD_Tab_ID()), fields);
 		//	ASP Client
-		//	TODO: tabs = window.getASPParameters();
 		fieldCache.put(getClientKey(tab.getAD_Tab_ID(), clientId), fields);
 		fieldCache.put(getRoleKey(tab.getAD_Tab_ID(), roleId), fields);
 		fieldCache.put(getUserKey(tab.getAD_Tab_ID(), userId), fields);
@@ -881,6 +897,7 @@ public class ASPUtil {
 			mergedFields.set(index, field);
 		}
 		//
+		mergedFields.sort(Comparator.comparing(MField::getSeqNo));
 		return mergedFields;
 	}
 	

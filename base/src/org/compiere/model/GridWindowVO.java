@@ -27,6 +27,7 @@ import java.util.logging.Level;
 import org.compiere.util.CLogger;
 import org.compiere.util.DB;
 import org.compiere.util.Env;
+import org.spin.util.ASPUtil;
 
 /**
  *  Model Window Value Object
@@ -201,10 +202,9 @@ public class GridWindowVO implements Serializable
 	 */
 	private static boolean createTabs (GridWindowVO mWindowVO) {
 		mWindowVO.Tabs = new ArrayList<GridTabVO>();
-		MWindow window = MWindow.get(mWindowVO.ctx, mWindowVO.AD_Window_ID);
 		boolean firstTab = true;
 		int tabNo = 0;
-		for(MTab tab : window.getASPTabs()) {
+		for(MTab tab : ASPUtil.getInstance(mWindowVO.ctx).getTabs(mWindowVO.AD_Window_ID)) {
 			if (mWindowVO.AD_Table_ID == 0)
 				mWindowVO.AD_Table_ID = tab.getAD_Tab_ID();
 			//  Create TabVO
