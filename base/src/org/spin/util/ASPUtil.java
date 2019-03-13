@@ -60,6 +60,8 @@ public class ASPUtil {
 	private int roleId;
 	/**	User	*/
 	private int userId;
+	/**	Language	*/
+	private String language;
 	/**	Context	*/
 	private Properties context;
 	/**	Process	Cache */
@@ -81,7 +83,7 @@ public class ASPUtil {
 	/**
 	 * Private constructor
 	 */
-	private ASPUtil(Properties context, int clientId, int roleId, int userId) {
+	private ASPUtil(Properties context, int clientId, int roleId, int userId, String language) {
 		if(context == null) {
 			throw new AdempiereException("@ContextIsMandatory@");
 		}
@@ -89,6 +91,7 @@ public class ASPUtil {
 		this.clientId = clientId; 
 		this.roleId = roleId;
 		this.userId = userId;
+		this.language = language;
 	}
 	
 	/**
@@ -97,7 +100,7 @@ public class ASPUtil {
 	 * @return
 	 */
 	public static ASPUtil getInstance(Properties context) {
-		return getInstance(context, Env.getAD_Client_ID(context), Env.getAD_Role_ID(context), Env.getAD_User_ID(context));
+		return getInstance(context, Env.getAD_Client_ID(context), Env.getAD_Role_ID(context), Env.getAD_User_ID(context), Env.getAD_Language(context));
 	}
 	
 	/**
@@ -105,9 +108,9 @@ public class ASPUtil {
 	 * @param context
 	 * @return
 	 */
-	public static ASPUtil getInstance(Properties context, int clientId, int roleId, int userId) {
+	public static ASPUtil getInstance(Properties context, int clientId, int roleId, int userId, String language) {
 		if(instance == null) {
-			instance = new ASPUtil(context, clientId, roleId, userId);
+			instance = new ASPUtil(context, clientId, roleId, userId, language);
 		}
 		//	
 		return instance;
@@ -128,14 +131,14 @@ public class ASPUtil {
 	 */
 	public MProcess getProcess(int processId) {
 		//	User level
-		MProcess process = processCache.get(getUserKey(processId, userId));
+		MProcess process = processCache.get(getUserKey(processId));
 		//	Role Level
 		if(process == null) {
-			process = processCache.get(getRoleKey(processId, roleId));
+			process = processCache.get(getRoleKey(processId));
 		}
 		//	Client Level (ASP)
 		if(process == null) {
-			process = processCache.get(getClientKey(processId, clientId));
+			process = processCache.get(getClientKey(processId));
 		}
 		//	Dictionary Level Base
 		if(process == null) {
@@ -155,14 +158,14 @@ public class ASPUtil {
 	 */
 	public MWindow getWindow(int windowId) {
 		//	User level
-		MWindow window = windowCache.get(getUserKey(windowId, userId));
+		MWindow window = windowCache.get(getUserKey(windowId));
 		//	Role Level
 		if(window == null) {
-			window = windowCache.get(getRoleKey(windowId, roleId));
+			window = windowCache.get(getRoleKey(windowId));
 		}
 		//	Client Level (ASP)
 		if(window == null) {
-			window = windowCache.get(getClientKey(windowId, clientId));
+			window = windowCache.get(getClientKey(windowId));
 		}
 		//	Dictionary Level Base
 		if(window == null) {
@@ -186,16 +189,16 @@ public class ASPUtil {
 			getWindow(windowId);
 		}
 		//	User level
-		if(windowCache.get(getUserKey(windowId, userId)) != null) {
-			return tabCache.get(getUserKey(windowId, userId));
+		if(windowCache.get(getUserKey(windowId)) != null) {
+			return tabCache.get(getUserKey(windowId));
 		}
 		//	Role Level
-		if(windowCache.get(getRoleKey(windowId, roleId)) != null) {
-			return tabCache.get(getRoleKey(windowId, roleId));
+		if(windowCache.get(getRoleKey(windowId)) != null) {
+			return tabCache.get(getRoleKey(windowId));
 		}
 		//	Client Level (ASP)
-		if(windowCache.get(getClientKey(windowId, clientId)) != null) {
-			return tabCache.get(getClientKey(windowId, clientId));
+		if(windowCache.get(getClientKey(windowId)) != null) {
+			return tabCache.get(getClientKey(windowId));
 		}
 		//	Dictionary Level Base
 		return tabCache.get(getDictionaryKey(windowId));
@@ -213,16 +216,16 @@ public class ASPUtil {
 			getWindow(windowId);
 		}
 		//	User level
-		if(windowCache.get(getUserKey(windowId, userId)) != null) {
-			return fieldCache.get(getUserKey(tabId, userId));
+		if(windowCache.get(getUserKey(windowId)) != null) {
+			return fieldCache.get(getUserKey(tabId));
 		}
 		//	Role Level
-		if(windowCache.get(getRoleKey(windowId, roleId)) != null) {
-			return fieldCache.get(getRoleKey(tabId, roleId));
+		if(windowCache.get(getRoleKey(windowId)) != null) {
+			return fieldCache.get(getRoleKey(tabId));
 		}
 		//	Client Level (ASP)
-		if(windowCache.get(getClientKey(windowId, clientId)) != null) {
-			return fieldCache.get(getClientKey(tabId, clientId));
+		if(windowCache.get(getClientKey(windowId)) != null) {
+			return fieldCache.get(getClientKey(tabId));
 		}
 		//	Dictionary Level Base
 		return fieldCache.get(getDictionaryKey(tabId));
@@ -238,16 +241,16 @@ public class ASPUtil {
 			getProcess(processId);
 		}
 		//	User level
-		if(processCache.get(getUserKey(processId, userId)) != null) {
-			return processParameterCache.get(getUserKey(processId, userId));
+		if(processCache.get(getUserKey(processId)) != null) {
+			return processParameterCache.get(getUserKey(processId));
 		}
 		//	Role Level
-		if(processCache.get(getRoleKey(processId, roleId)) != null) {
-			return processParameterCache.get(getRoleKey(processId, roleId));
+		if(processCache.get(getRoleKey(processId)) != null) {
+			return processParameterCache.get(getRoleKey(processId));
 		}
 		//	Client Level (ASP)
-		if(processCache.get(getClientKey(processId, clientId)) != null) {
-			return processParameterCache.get(getClientKey(processId, clientId));
+		if(processCache.get(getClientKey(processId)) != null) {
+			return processParameterCache.get(getClientKey(processId));
 		}
 		//	Dictionary Level Base
 		return processParameterCache.get(getDictionaryKey(processId));
@@ -332,7 +335,7 @@ public class ASPUtil {
 			customProcessParameters.stream()
 			.filter(customParameter -> customParameter.getAD_Process_Para_ID() == parameter.getAD_Process_Para_ID())
 			.forEach(customParameter -> {
-				mergeProcessParameter(parameter, customParameter);
+				mergeProcessParameter(parameter, customParameter, overwrite);
 			});
 			mergedParameters.set(index, parameter);
 		}
@@ -362,11 +365,20 @@ public class ASPUtil {
 		//	merge all parameters
 		for(int index = 0; index < mergedTabs.size(); index++) {
 			MTab tab = mergedTabs.get(index);
-			customWindowTabs.stream()
-			.filter(customTab -> customTab.getAD_Tab_ID() == tab.getAD_Tab_ID())
-			.forEach(customTab -> {
-				mergeTab(tab, customTab, overwrite, level);
-			});
+			List<MField> fields = loadFields(tab);
+			if(level == CLIENT) {
+				fields = fieldCache.get(getClientKey(tab.getAD_Tab_ID()));
+			} else if(level == ROLE) {
+				fields = fieldCache.get(getClientKey(tab.getAD_Tab_ID()));
+			} else if(level == USER) {
+				fields = fieldCache.get(getRoleKey(tab.getAD_Tab_ID()));
+			}
+			for(MTabCustom customTab : customWindowTabs) {
+				if(customTab.getAD_Tab_ID() != tab.getAD_Tab_ID()) {
+					continue;
+				}
+				mergeTab(tab, customTab, overwrite, fields, level);
+			}
 			mergedTabs.set(index, tab);
 		}
 		//
@@ -386,9 +398,9 @@ public class ASPUtil {
 		processParameterCache.put(getDictionaryKey(process.getAD_Process_ID()), process.getParametersAsList());
 		//	ASP Client
 		parameters = process.getASPParameters();
-		processParameterCache.put(getClientKey(process.getAD_Process_ID(), clientId), parameters);
-		processParameterCache.put(getRoleKey(process.getAD_Process_ID(), roleId), parameters);
-		processParameterCache.put(getUserKey(process.getAD_Process_ID(), userId), parameters);
+		processParameterCache.put(getClientKey(process.getAD_Process_ID()), parameters);
+		processParameterCache.put(getRoleKey(process.getAD_Process_ID()), parameters);
+		processParameterCache.put(getUserKey(process.getAD_Process_ID()), parameters);
 		return parameters;
 	}
 	
@@ -405,9 +417,9 @@ public class ASPUtil {
 		tabs = window.getASPTabs();
 		tabCache.put(getDictionaryKey(window.getAD_Window_ID()), tabs);
 		//	ASP Client
-		tabCache.put(getClientKey(window.getAD_Window_ID(), clientId), tabs);
-		tabCache.put(getRoleKey(window.getAD_Window_ID(), roleId), tabs);
-		tabCache.put(getUserKey(window.getAD_Window_ID(), userId), tabs);
+		tabCache.put(getClientKey(window.getAD_Window_ID()), tabs);
+		tabCache.put(getRoleKey(window.getAD_Window_ID()), tabs);
+		tabCache.put(getUserKey(window.getAD_Window_ID()), tabs);
 		//	Load fields
 		tabs.stream().forEach(tab -> {
 			loadFields(tab);
@@ -428,9 +440,9 @@ public class ASPUtil {
 		fields = tab.getASPFields();
 		fieldCache.put(getDictionaryKey(tab.getAD_Tab_ID()), fields);
 		//	ASP Client
-		fieldCache.put(getClientKey(tab.getAD_Tab_ID(), clientId), fields);
-		fieldCache.put(getRoleKey(tab.getAD_Tab_ID(), roleId), fields);
-		fieldCache.put(getUserKey(tab.getAD_Tab_ID(), userId), fields);
+		fieldCache.put(getClientKey(tab.getAD_Tab_ID()), fields);
+		fieldCache.put(getRoleKey(tab.getAD_Tab_ID()), fields);
+		fieldCache.put(getUserKey(tab.getAD_Tab_ID()), fields);
 		return fields;
 	}
 	
@@ -538,8 +550,8 @@ public class ASPUtil {
 				clientTabs = mergeTabs(clientTabs, customWindow.getTabs(), customWindow.getHierarchyType().equals(MWindowCustom.HIERARCHYTYPE_Overwrite), CLIENT);
 			}
 			//	Save client
-			windowCache.put(getClientKey(window.getAD_Window_ID(), clientId), clientWindow);
-			tabCache.put(getClientKey(window.getAD_Window_ID(), clientId), clientTabs);
+			windowCache.put(getClientKey(window.getAD_Window_ID()), clientWindow);
+			tabCache.put(getClientKey(window.getAD_Window_ID()), clientTabs);
 		}
 		//	return
 		return clientWindow;
@@ -562,8 +574,8 @@ public class ASPUtil {
 				clientParameters = mergeParameters(clientParameters, customProcess.getParameters(), customProcess.getHierarchyType().equals(MProcessCustom.HIERARCHYTYPE_Overwrite));
 			}
 			//	Save client
-			processCache.put(getClientKey(process.getAD_Process_ID(), clientId), clientProcess);
-			processParameterCache.put(getClientKey(process.getAD_Process_ID(), clientId), clientParameters);
+			processCache.put(getClientKey(process.getAD_Process_ID()), clientProcess);
+			processParameterCache.put(getClientKey(process.getAD_Process_ID()), clientParameters);
 		}
 		//	return
 		return clientProcess;
@@ -576,7 +588,7 @@ public class ASPUtil {
 	 */
 	private MProcess getRoleProcess(MProcess process) {
 		MProcess roleProcess = process.getDuplicated();
-		List<MProcessPara> roleParameters = processParameterCache.get(getRoleKey(process.getAD_Process_ID(), roleId));
+		List<MProcessPara> roleParameters = processParameterCache.get(getRoleKey(process.getAD_Process_ID()));
 		List<MProcessCustom> customProcessList = getRoleProcessList();
 		if(customProcessList != null
 				&& customProcessList.size() > 0) {
@@ -586,8 +598,8 @@ public class ASPUtil {
 				roleParameters = mergeParameters(roleParameters, customProcess.getParameters(), customProcess.getHierarchyType().equals(MProcessCustom.HIERARCHYTYPE_Overwrite));
 			}
 			//	Save role
-			processCache.put(getRoleKey(process.getAD_Process_ID(), roleId), roleProcess);
-			processParameterCache.put(getRoleKey(process.getAD_Process_ID(), roleId), roleParameters);
+			processCache.put(getRoleKey(process.getAD_Process_ID()), roleProcess);
+			processParameterCache.put(getRoleKey(process.getAD_Process_ID()), roleParameters);
 		}
 		//	return
 		return roleProcess;
@@ -600,7 +612,7 @@ public class ASPUtil {
 	 */
 	private MWindow getRoleWindow(MWindow window) {
 		MWindow roleWindow = window.getDuplicated();
-		List<MTab> roleTabs = tabCache.get(getRoleKey(window.getAD_Window_ID(), roleId));
+		List<MTab> roleTabs = tabCache.get(getClientKey(window.getAD_Window_ID()));
 		List<MWindowCustom> customWindowList = getRoleWindowList();
 		if(customWindowList != null
 				&& customWindowList.size() > 0) {
@@ -610,8 +622,8 @@ public class ASPUtil {
 				roleTabs = mergeTabs(roleTabs, customWindow.getTabs(), customWindow.getHierarchyType().equals(MProcessCustom.HIERARCHYTYPE_Overwrite), ROLE);
 			}
 			//	Save role
-			windowCache.put(getRoleKey(window.getAD_Window_ID(), roleId), roleWindow);
-			tabCache.put(getRoleKey(window.getAD_Window_ID(), roleId), roleTabs);
+			windowCache.put(getRoleKey(window.getAD_Window_ID()), roleWindow);
+			tabCache.put(getRoleKey(window.getAD_Window_ID()), roleTabs);
 		}
 		//	return
 		return roleWindow;
@@ -625,7 +637,7 @@ public class ASPUtil {
 	 */
 	private MProcess getUserProcess(MProcess process) {
 		MProcess userProcess = process.getDuplicated();
-		List<MProcessPara> userParameters = processParameterCache.get(getUserKey(process.getAD_Process_ID(), userId));
+		List<MProcessPara> userParameters = processParameterCache.get(getUserKey(process.getAD_Process_ID()));
 		List<MProcessCustom> customProcessList = getUserProcessList();
 		if(customProcessList != null
 				&& customProcessList.size() > 0) {
@@ -635,8 +647,8 @@ public class ASPUtil {
 				userParameters = mergeParameters(userParameters, customProcess.getParameters(), customProcess.getHierarchyType().equals(MProcessCustom.HIERARCHYTYPE_Overwrite));
 			}
 			//	Save user
-			processCache.put(getUserKey(process.getAD_Process_ID(), userId), userProcess);
-			processParameterCache.put(getUserKey(process.getAD_Process_ID(), userId), userParameters);
+			processCache.put(getUserKey(process.getAD_Process_ID()), userProcess);
+			processParameterCache.put(getUserKey(process.getAD_Process_ID()), userParameters);
 		}
 		//	return
 		return userProcess;
@@ -649,7 +661,7 @@ public class ASPUtil {
 	 */
 	private MWindow getUserWindow(MWindow process) {
 		MWindow userWindow = process.getDuplicated();
-		List<MTab> userTabs = tabCache.get(getUserKey(process.getAD_Window_ID(), userId));
+		List<MTab> userTabs = tabCache.get(getRoleKey(process.getAD_Window_ID()));
 		List<MWindowCustom> customProcessList = getUserWindowList();
 		if(customProcessList != null
 				&& customProcessList.size() > 0) {
@@ -659,8 +671,8 @@ public class ASPUtil {
 				userTabs = mergeTabs(userTabs, customProcess.getTabs(), customProcess.getHierarchyType().equals(MProcessCustom.HIERARCHYTYPE_Overwrite), USER);
 			}
 			//	Save user
-			windowCache.put(getUserKey(process.getAD_Window_ID(), userId), userWindow);
-			tabCache.put(getUserKey(process.getAD_Window_ID(), userId), userTabs);
+			windowCache.put(getUserKey(process.getAD_Window_ID()), userWindow);
+			tabCache.put(getUserKey(process.getAD_Window_ID()), userTabs);
 		}
 		//	return
 		return userWindow;
@@ -669,31 +681,28 @@ public class ASPUtil {
 	/**
 	 * Get Client Key from object Id
 	 * @param objectIdmergePO
-	 * @param clientId
 	 * @return
 	 */
-	private String getClientKey(int objectId, int clientId) {
-		return objectId + "|C|" + clientId;
+	private String getClientKey(int objectId) {
+		return objectId + "|C|" + clientId + "|" + language;
 	}
 	
 	/**
 	 * Get Role Key from object Id
 	 * @param objectId
-	 * @param roleId
 	 * @return
 	 */
-	private String getRoleKey(int objectId, int roleId) {
-		return objectId + "|R|" + roleId;
+	private String getRoleKey(int objectId) {
+		return objectId + "|R|" + roleId + "|" + language;
 	}
 	
 	/**
 	 * Get User Key from object Id
 	 * @param objectId
-	 * @param userId
 	 * @return
 	 */
-	private String getUserKey(int objectId, int userId) {
-		return objectId + "|U|" + userId;
+	private String getUserKey(int objectId) {
+		return objectId + "|U|" + userId + "|" + language;
 	}
 	
 	/**
@@ -702,7 +711,7 @@ public class ASPUtil {
 	 * @return
 	 */
 	private String getDictionaryKey(int objectId) {
-		return String.valueOf(objectId);
+		return String.valueOf(objectId) + "|" + language;
 	}
 	
 	/**
@@ -786,8 +795,11 @@ public class ASPUtil {
 	 * Merge Tab with custom window
 	 * @param tab
 	 * @param customTab
+	 * @param overwrite
+	 * @param fields
+	 * @param level
 	 */
-	private void mergeTab(MTab tab, MTabCustom customTab, boolean overwrite, int level) {
+	private void mergeTab(MTab tab, MTabCustom customTab, boolean overwrite, List<MField> fields, int level) {
 		//	Name
 		if(!Util.isEmpty(customTab.getName())) {
 			tab.setName(customTab.getName());
@@ -805,9 +817,19 @@ public class ASPUtil {
 			tab.setCommitWarning(customTab.getCommitWarning());
 		}
 		//	TODO: Language unsupported
-		tab.setSeqNo(customTab.getSeqNo());
-		//	Tab Level
-		tab.setTabLevel(customTab.getTabLevel());
+		if(overwrite) {
+			tab.setSeqNo(customTab.getSeqNo());
+			//	Tab Level
+			tab.setTabLevel(customTab.getTabLevel());
+		} else {
+			if(customTab.getSeqNo() > 0) {
+				tab.setSeqNo(customTab.getSeqNo());
+			}
+			//	Tab Level
+			if(customTab.getTabLevel() > 0) {
+				tab.setTabLevel(customTab.getTabLevel());	
+			}
+		}
 		//	Single-Row
 		if(!Util.isEmpty(customTab.getIsSingleRow())) {
 			tab.setIsSingleRow(customTab.getIsSingleRow().equals("Y"));
@@ -849,22 +871,14 @@ public class ASPUtil {
 			tab.setOrderByClause(customTab.getOrderByClause());
 		}
 		//	
-		List<MField> fields = loadFields(tab);
-		if(level == CLIENT) {
-			fields = fieldCache.get(getClientKey(tab.getAD_Tab_ID(), clientId));
-		} else if(level == ROLE) {
-			fields = fieldCache.get(getRoleKey(tab.getAD_Tab_ID(), roleId));
-		} else if(level == USER) {
-			fields = fieldCache.get(getUserKey(tab.getAD_Tab_ID(), userId));
-		}
 		fields = mergeFields(fields, customTab.getFields(), overwrite);
 		//	Put here
 		if(level == CLIENT) {
-			fieldCache.put(getClientKey(tab.getAD_Tab_ID(), clientId), fields);
+			fieldCache.put(getClientKey(tab.getAD_Tab_ID()), fields);
 		} else if(level == ROLE) {
-			fieldCache.put(getRoleKey(tab.getAD_Tab_ID(), roleId), fields);
+			fieldCache.put(getRoleKey(tab.getAD_Tab_ID()), fields);
 		} else if(level == USER) {
-			fieldCache.put(getUserKey(tab.getAD_Tab_ID(), userId), fields);
+			fieldCache.put(getUserKey(tab.getAD_Tab_ID()), fields);
 		}
 	}
 	
@@ -892,7 +906,7 @@ public class ASPUtil {
 			customFields.stream()
 			.filter(customField -> customField.getAD_Field_ID() == field.getAD_Field_ID())
 			.forEach(customField -> {
-				mergeField(field, customField);
+				mergeField(field, customField, overwrite);
 			});
 			mergedFields.set(index, field);
 		}
@@ -905,8 +919,9 @@ public class ASPUtil {
 	 * Merge Process Parameter with custom process
 	 * @param processParameter
 	 * @param customProcessParameter
+	 * @param overwrite
 	 */
-	private void mergeProcessParameter(MProcessPara processParameter, MProcessParaCustom customProcessParameter) {
+	private void mergeProcessParameter(MProcessPara processParameter, MProcessParaCustom customProcessParameter, boolean overwrite) {
 		//	Name
 		if(!Util.isEmpty(customProcessParameter.getName())) {
 			processParameter.setName(customProcessParameter.getName());
@@ -935,8 +950,16 @@ public class ASPUtil {
 		if(customProcessParameter.getAD_Val_Rule_ID() > 0) {
 			processParameter.setAD_Val_Rule_ID(customProcessParameter.getAD_Val_Rule_ID());
 		}
-		//	Sequence
-		processParameter.setSeqNo(customProcessParameter.getSeqNo());
+		//	Merge or overwrite
+		if(overwrite) {
+			//	Sequence
+			processParameter.setSeqNo(customProcessParameter.getSeqNo());
+		} else {
+			//	Sequence
+			if(customProcessParameter.getSeqNo() > 0) {
+				processParameter.setSeqNo(customProcessParameter.getSeqNo());
+			}
+		}
 		//	Active
 		processParameter.setIsActive(customProcessParameter.isActive());
 		//	Default Logic
@@ -981,8 +1004,9 @@ public class ASPUtil {
 	 * Merge field with custom process
 	 * @param field
 	 * @param customField
+	 * @param overwrite
 	 */
-	private void mergeField(MField field, MFieldCustom customField) {
+	private void mergeField(MField field, MFieldCustom customField, boolean overwrite) {
 		//	Name
 		if(!Util.isEmpty(customField.getName())) {
 			field.setName(customField.getName());
@@ -996,11 +1020,23 @@ public class ASPUtil {
 			field.setHelp(customField.getHelp());
 		}
 		//	Sequence
-		field.setSeqNo(customField.getSeqNo());
-		//	Grid Sequence
-		field.setSeqNoGrid(customField.getSeqNoGrid());
-		//	Active
-		field.setIsActive(customField.isActive());
+		if(overwrite) {
+			field.setSeqNo(customField.getSeqNo());
+			//	Grid Sequence
+			field.setSeqNoGrid(customField.getSeqNoGrid());
+			//	Active
+			field.setIsActive(customField.isActive());
+		} else {
+			if(customField.getSeqNo() > 0) {
+				field.setSeqNo(customField.getSeqNo());
+			}
+			if(customField.getSeqNoGrid() > 0) {
+				field.setSeqNoGrid(customField.getSeqNoGrid());
+			}
+			if(customField.isActive()) {
+				field.setIsActive(customField.isActive());
+			}
+		}
 		//	Is Displayed
 		field.setIsDisplayed(customField.isDisplayed());
 		//	Is Embedded
@@ -1102,7 +1138,8 @@ public class ASPUtil {
 		int clientId = 11;
 		int roleId = 102;
 		int userId = 100;
-		ASPUtil aspUtil = ASPUtil.getInstance(Env.getCtx(), clientId, roleId, userId);
+		String language = "es_VE";
+		ASPUtil aspUtil = ASPUtil.getInstance(Env.getCtx(), clientId, roleId, userId, language);
 		//	
 		MProcess process = aspUtil.getProcess(54015);
 		List<MProcessPara> processParameterList = aspUtil.getProcessParameters(54015);
