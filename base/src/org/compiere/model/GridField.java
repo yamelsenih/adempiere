@@ -1812,7 +1812,7 @@ public class GridField
 		ArrayList<GridFieldVO> listVO = new ArrayList<GridFieldVO>();
 		int windowId = 0;
 		boolean readOnly = false;
-		ASPUtil.getInstance(ctx).getFields(tabId).stream().forEach(field -> {
+		ASPUtil.getInstance(ctx).getWindowFields(tabId).stream().forEach(field -> {
 			GridFieldVO vo = GridFieldVO.create(ctx, windowNo, tabNo, windowId, tabId, readOnly, field);
 			listVO.add(vo);
 		});

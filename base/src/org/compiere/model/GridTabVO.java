@@ -227,7 +227,7 @@ public class GridTabVO implements Evaluatee, Serializable {
 	private static boolean createFields (GridTabVO mTabVO) {
 		//local only or remote fail for vpn profile
 		mTabVO.Fields = new ArrayList<GridFieldVO>();
-		for(MField field : ASPUtil.getInstance(mTabVO.ctx).getFields(mTabVO.AD_Tab_ID)) {
+		for(MField field : ASPUtil.getInstance(mTabVO.ctx).getWindowFields(mTabVO.AD_Tab_ID)) {
 			GridFieldVO voF = GridFieldVO.create (mTabVO.ctx, 
 					mTabVO.WindowNo, mTabVO.TabNo, 
 					mTabVO.AD_Window_ID, mTabVO.AD_Tab_ID, 

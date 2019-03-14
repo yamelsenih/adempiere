@@ -204,7 +204,7 @@ public class GridWindowVO implements Serializable
 		mWindowVO.Tabs = new ArrayList<GridTabVO>();
 		boolean firstTab = true;
 		int tabNo = 0;
-		for(MTab tab : ASPUtil.getInstance(mWindowVO.ctx).getTabs(mWindowVO.AD_Window_ID)) {
+		for(MTab tab : ASPUtil.getInstance(mWindowVO.ctx).getWindowTabs(mWindowVO.AD_Window_ID)) {
 			if (mWindowVO.AD_Table_ID == 0)
 				mWindowVO.AD_Table_ID = tab.getAD_Tab_ID();
 			//  Create TabVO

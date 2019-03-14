@@ -20,9 +20,15 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Properties;
+import java.util.stream.Collectors;
 
 import org.adempiere.exceptions.AdempiereException;
+import org.adempiere.model.I_AD_Browse;
+import org.adempiere.model.I_AD_Browse_Field;
+import org.adempiere.model.MBrowse;
+import org.adempiere.model.MBrowseField;
 import org.compiere.Adempiere;
+import org.compiere.model.I_AD_BrowseCustom;
 import org.compiere.model.I_AD_Field;
 import org.compiere.model.I_AD_Process;
 import org.compiere.model.I_AD_ProcessCustom;
@@ -30,6 +36,8 @@ import org.compiere.model.I_AD_Process_Para;
 import org.compiere.model.I_AD_Tab;
 import org.compiere.model.I_AD_Window;
 import org.compiere.model.I_AD_WindowCustom;
+import org.compiere.model.MBrowseCustom;
+import org.compiere.model.MBrowseFieldCustom;
 import org.compiere.model.MField;
 import org.compiere.model.MFieldCustom;
 import org.compiere.model.MProcess;
@@ -68,6 +76,10 @@ public class ASPUtil {
 	private static CCache<String, MProcess> processCache = new CCache<String, MProcess>(I_AD_Process.Table_Name, 20);
 	/**	Process	Parameter Cache */
 	private static CCache<String, List<MProcessPara>> processParameterCache = new CCache<String, List<MProcessPara>>(I_AD_Process_Para.Table_Name, 20);
+	/**	Browse Cache */
+	private static CCache<String, MBrowse> browseCache = new CCache<String, MBrowse>(I_AD_Browse.Table_Name, 20);
+	/**	Process	Parameter Cache */
+	private static CCache<String, List<MBrowseField>> browseFieldCache = new CCache<String, List<MBrowseField>>(I_AD_Browse_Field.Table_Name, 20);
 	/**	Window	Cache */
 	private static CCache<String, MWindow> windowCache = new CCache<String, MWindow>(I_AD_Window.Table_Name, 20);
 	/**	Tab	Cache */
@@ -152,6 +164,144 @@ public class ASPUtil {
 	}
 	
 	/**
+	 * Get browse for User / Role / Client / Dictionary
+	 * @param browseId
+	 * @return
+	 */
+	public MBrowse getBrowse(int browseId) {
+		//	User level
+		MBrowse browse = browseCache.get(getUserKey(browseId));
+		//	Role Level
+		if(browse == null) {
+			browse = browseCache.get(getRoleKey(browseId));
+		}
+		//	Client Level (ASP)
+		if(browse == null) {
+			browse = browseCache.get(getClientKey(browseId));
+		}
+		//	Dictionary Level Base
+		if(browse == null) {
+			browse = browseCache.get(getDictionaryKey(browseId));
+		}
+		//	Reload
+		if(browse == null) {
+			browse = getBrowseForASP(browseId);
+		}
+		return browse;
+	}
+	
+	/**
+	 * Get browse fields
+	 * @param browseId
+	 * @return
+	 */
+	public List<MBrowseField> getBrowseFields(int browseId) {
+		if(browseCache.get(getDictionaryKey(browseId)) == null) {
+			getBrowse(browseId);
+		}
+		//	User level
+		if(browseCache.get(getUserKey(browseId)) != null) {
+			return browseFieldCache.get(getUserKey(browseId));
+		}
+		//	Role Level
+		if(browseCache.get(getRoleKey(browseId)) != null) {
+			return browseFieldCache.get(getRoleKey(browseId));
+		}
+		//	Client Level (ASP)
+		if(browseCache.get(getClientKey(browseId)) != null) {
+			return browseFieldCache.get(getClientKey(browseId));
+		}
+		//	Dictionary Level Base
+		return browseFieldCache.get(getDictionaryKey(browseId));
+	}
+	
+	/**
+	 * Get Browse Criteria fields
+	 * @param browseId
+	 * @return
+	 */
+	public List<MBrowseField> getBrowseCriteriaFields(int browseId) {
+		List<MBrowseField> fields = getBrowseFields(browseId);
+		if(fields == null) {
+			return null;
+		}
+		//	Filter
+		return fields.stream()
+			.filter(field -> field.isQueryCriteria())
+			.sorted(Comparator.comparing(MBrowseField::getSeqNoGrid))
+			.collect(Collectors.toList());
+	}
+	
+	/**
+	 * Get Browse Identifier fields
+	 * @param browseId
+	 * @return
+	 */
+	public List<MBrowseField> getBrowseIdentifierFields(int browseId) {
+		List<MBrowseField> fields = getBrowseFields(browseId);
+		if(fields == null) {
+			return null;
+		}
+		//	Filter
+		return fields.stream()
+			.filter(field -> field.isIdentifier())
+			.sorted(Comparator.comparing(MBrowseField::getSeqNo))
+			.collect(Collectors.toList());
+	}
+	
+	/**
+	 * Get Browse Identifier fields
+	 * @param browseId
+	 * @return
+	 */
+	public List<MBrowseField> getBrowseOrderByFields(int browseId) {
+		List<MBrowseField> fields = getBrowseFields(browseId);
+		if(fields == null) {
+			return null;
+		}
+		//	Filter
+		return fields.stream()
+			.filter(field -> field.isOrderBy() && field.isDisplayed())
+			.sorted(Comparator.comparing(MBrowseField::getSeqNo))
+			.collect(Collectors.toList());
+	}
+	
+	/**
+	 * Get Browse Identifier fields
+	 * @param browseId
+	 * @return
+	 */
+	public List<MBrowseField> getBrowseDisplayFields(int browseId) {
+		List<MBrowseField> fields = getBrowseFields(browseId);
+		if(fields == null) {
+			return null;
+		}
+		//	Filter
+		return fields.stream()
+			.filter(field -> field.isDisplayed() || field.isIdentifier())
+			.sorted(Comparator.comparing(MBrowseField::getSeqNo))
+			.collect(Collectors.toList());
+	}
+	
+	/**
+	 * Get Browse Key
+	 * @param browseId
+	 * @return
+	 */
+	public MBrowseField getBrowseFieldKey(int browseId) {
+		List<MBrowseField> fields = getBrowseFields(browseId);
+		if(fields == null) {
+			return null;
+		}
+		//	Filter
+		return fields.stream()
+			.filter(field -> field.isKey())
+			.sorted(Comparator.comparing(MBrowseField::getSeqNo))
+			.findFirst()
+			.get();
+	}
+	
+	/**
 	 * Get window for User / Role / Client / Dictionary
 	 * @param windowId
 	 * @return
@@ -184,7 +334,7 @@ public class ASPUtil {
 	 * @param windowId
 	 * @return
 	 */
-	public List<MTab> getTabs(int windowId) {
+	public List<MTab> getWindowTabs(int windowId) {
 		if(windowCache.get(getDictionaryKey(windowId)) == null) {
 			getWindow(windowId);
 		}
@@ -209,7 +359,7 @@ public class ASPUtil {
 	 * @param tabId
 	 * @return
 	 */
-	public List<MField> getFields(int tabId) {
+	public List<MField> getWindowFields(int tabId) {
 		MTab tab = MTab.get(context, tabId);
 		int windowId = tab.getAD_Window_ID();
 		if(windowCache.get(getDictionaryKey(tab.getAD_Window_ID())) == null) {
@@ -286,6 +436,35 @@ public class ASPUtil {
 	}
 	
 	/**
+	 * Get / Load browse for ASP
+	 * @param processId
+	 * @return
+	 */
+	private MBrowse getBrowseForASP(int processId) {
+		MBrowse browse = MBrowse.get(context, processId);
+		if(browse == null) {
+			return browse;
+		}
+		//	Save dictionary
+		browseCache.put(getDictionaryKey(processId), browse);
+		//	Old compatibility
+		MTable newTable = MTable.get(context, I_AD_BrowseCustom.Table_ID);
+		if(newTable == null
+				|| Util.isEmpty(newTable.getTableName())) {
+			loadBrowseFields(browse);
+			return browse;
+		}
+		//	Merge Browse for client (ASP)
+		browse = getClientBrowse(browse);
+		//	Merge Browse for role
+		browse = getRoleBrowse(browse);
+		//	Merge Browse for user
+		browse = getUserBrowse(browse);
+		//	
+		return browse;
+	}
+	
+	/**
 	 * Get / Load process for ASP
 	 * @param windowId
 	 * @return
@@ -342,6 +521,39 @@ public class ASPUtil {
 		//
 		mergedParameters.sort(Comparator.comparing(MProcessPara::getSeqNo));
 		return mergedParameters;
+	}
+	
+	/**
+	 * Merge fields with custom fields
+	 * @param browseFields
+	 * @param customBrowseFields
+	 * @param overwrite
+	 */
+	private List<MBrowseField> mergeBrowseFields(List<MBrowseField> browseFields, List<MBrowseFieldCustom> customBrowseFields, boolean overwrite) {
+		List<MBrowseField> mergedFields = null;
+		if(overwrite) {
+			mergedFields = new ArrayList<>();
+			for(MBrowseField field : browseFields) {
+				MBrowseField fieldToAdd = field.getDuplicated();
+				fieldToAdd.setIsActive(false);
+				mergedFields.add(fieldToAdd);
+			}
+		} else {
+			mergedFields = new ArrayList<>(browseFields);
+		}
+		//	merge all parameters
+		for(int index = 0; index < mergedFields.size(); index++) {
+			MBrowseField field = mergedFields.get(index);
+			customBrowseFields.stream()
+			.filter(customParameter -> customParameter.getAD_Browse_Field_ID() == field.getAD_Browse_Field_ID())
+			.forEach(customField -> {
+				mergeBrowseField(field, customField, overwrite);
+			});
+			mergedFields.set(index, field);
+		}
+		//
+		mergedFields.sort(Comparator.comparing(MBrowseField::getSeqNo));
+		return mergedFields;
 	}
 	
 	/**
@@ -402,6 +614,24 @@ public class ASPUtil {
 		processParameterCache.put(getRoleKey(process.getAD_Process_ID()), parameters);
 		processParameterCache.put(getUserKey(process.getAD_Process_ID()), parameters);
 		return parameters;
+	}
+	
+	/**
+	 * Load browse parameters
+	 * @param browse
+	 */
+	private List<MBrowseField> loadBrowseFields(MBrowse browse) {
+		List<MBrowseField> fields = browseFieldCache.get(getDictionaryKey(browse.getAD_Browse_ID()));
+		if(fields != null) {
+			return fields;
+		}
+		browseFieldCache.put(getDictionaryKey(browse.getAD_Browse_ID()), browse.getFields());
+		//	ASP Client
+		fields = browse.getFields();
+		browseFieldCache.put(getClientKey(browse.getAD_Browse_ID()), fields);
+		browseFieldCache.put(getRoleKey(browse.getAD_Browse_ID()), fields);
+		browseFieldCache.put(getUserKey(browse.getAD_Browse_ID()), fields);
+		return fields;
 	}
 	
 	/**
@@ -482,6 +712,23 @@ public class ASPUtil {
 	}
 	
 	/**
+	 * Get client browse list for ASP
+	 * @param browseId
+	 * @return
+	 */
+	private List<MBrowseCustom> getClientBrowseList(int browseId) {
+		String whereClause = "EXISTS(SELECT 1 FROM ASP_ClientLevel cl "
+				+ "WHERE cl.AD_Client_ID = ? "
+				+ "AND cl.ASP_Level_ID = AD_BrowseCustom.ASP_Level_ID) "
+				+ "AND AD_Browse_ID = ?";
+		//	Get
+		return new Query(context, I_AD_BrowseCustom.Table_Name, whereClause, null)
+				.setParameters(clientId, browseId)
+				.setOnlyActiveRecords(true)
+				.list();
+	}
+	
+	/**
 	 * Get role window list for ASP
 	 * @return
 	 */
@@ -508,6 +755,19 @@ public class ASPUtil {
 	}
 	
 	/**
+	 * Get role browse list for ASP
+	 * @return
+	 */
+	private List<MBrowseCustom> getRoleBrowseList() {
+		String whereClause = "AD_Role_ID = ?";
+		//	Get
+		return new Query(context, I_AD_BrowseCustom.Table_Name, whereClause, null)
+				.setParameters(roleId)
+				.setOnlyActiveRecords(true)
+				.list();
+	}
+	
+	/**
 	 * Get user process list for ASP
 	 * @return
 	 */
@@ -515,6 +775,19 @@ public class ASPUtil {
 		String whereClause = "AD_User_ID = ?";
 		//	Get
 		return new Query(context, I_AD_ProcessCustom.Table_Name, whereClause, null)
+				.setParameters(userId)
+				.setOnlyActiveRecords(true)
+				.list();
+	}
+	
+	/**
+	 * Get user browse list for ASP
+	 * @return
+	 */
+	private List<MBrowseCustom> getUserBrowseList() {
+		String whereClause = "AD_User_ID = ?";
+		//	Get
+		return new Query(context, I_AD_BrowseCustom.Table_Name, whereClause, null)
 				.setParameters(userId)
 				.setOnlyActiveRecords(true)
 				.list();
@@ -582,6 +855,78 @@ public class ASPUtil {
 	}
 	
 	/**
+	 * Get client process from dictionary process
+	 * @param browse
+	 * @return
+	 */
+	private MBrowse getClientBrowse(MBrowse browse) {
+		List<MBrowseField> clientBrowseFields = loadBrowseFields(browse);
+		MBrowse clientBrowse = browse.getDuplicated();
+		List<MBrowseCustom> customBrowseList = getClientBrowseList(browse.getAD_Browse_ID());
+		if(customBrowseList != null
+				&& customBrowseList.size() > 0) {
+			for(MBrowseCustom customBrowse : customBrowseList) {
+				mergeBrowse(clientBrowse, customBrowse);
+				//	Merge Fields
+				clientBrowseFields = mergeBrowseFields(clientBrowseFields, customBrowse.getFields(), customBrowse.getHierarchyType().equals(MBrowseCustom.HIERARCHYTYPE_Overwrite));
+			}
+			//	Save client
+			browseCache.put(getClientKey(browse.getAD_Browse_ID()), clientBrowse);
+			browseFieldCache.put(getClientKey(browse.getAD_Browse_ID()), clientBrowseFields);
+		}
+		//	return
+		return clientBrowse;
+	}
+	
+	/**
+	 * Get / Merge browse for role
+	 * @param browse
+	 * @return
+	 */
+	private MBrowse getRoleBrowse(MBrowse browse) {
+		MBrowse roleBrowse = browse.getDuplicated();
+		List<MBrowseField> roleFields = browseFieldCache.get(getRoleKey(browse.getAD_Browse_ID()));
+		List<MBrowseCustom> customBrowseList = getRoleBrowseList();
+		if(customBrowseList != null
+				&& customBrowseList.size() > 0) {
+			for(MBrowseCustom customBrowse : customBrowseList) {
+				mergeBrowse(roleBrowse, customBrowse);
+				//	Merge Fields
+				roleFields = mergeBrowseFields(roleFields, customBrowse.getFields(), customBrowse.getHierarchyType().equals(MBrowseCustom.HIERARCHYTYPE_Overwrite));
+			}
+			//	Save role
+			browseCache.put(getRoleKey(browse.getAD_Browse_ID()), roleBrowse);
+			browseFieldCache.put(getRoleKey(browse.getAD_Browse_ID()), roleFields);
+		}
+		//	return
+		return roleBrowse;
+	}
+	
+	/**
+	 * Get / Merge process for user
+	 * @param browse
+	 * @return
+	 */
+	private MBrowse getUserBrowse(MBrowse browse) {
+		MBrowse userFields = browse.getDuplicated();
+		List<MBrowseField> userBrowseFields = browseFieldCache.get(getUserKey(browse.getAD_Browse_ID()));
+		List<MBrowseCustom> customBrowseList = getUserBrowseList();
+		if(customBrowseList != null
+				&& customBrowseList.size() > 0) {
+			for(MBrowseCustom customBrowse : customBrowseList) {
+				mergeBrowse(userFields, customBrowse);
+				//	Merge parameters
+				userBrowseFields = mergeBrowseFields(userBrowseFields, customBrowse.getFields(), customBrowse.getHierarchyType().equals(MBrowseCustom.HIERARCHYTYPE_Overwrite));
+			}
+			//	Save user
+			browseCache.put(getUserKey(browse.getAD_Browse_ID()), userFields);
+			browseFieldCache.put(getUserKey(browse.getAD_Browse_ID()), userBrowseFields);
+		}
+		//	return
+		return userFields;
+	}
+	
+	/**
 	 * Get / Merge process for role
 	 * @param process
 	 * @return
@@ -628,7 +973,6 @@ public class ASPUtil {
 		//	return
 		return roleWindow;
 	}
-	
 	
 	/**
 	 * Get / Merge process for user
@@ -758,6 +1102,67 @@ public class ASPUtil {
 		//	Workflow
 		if(customProcess.getAD_Workflow_ID() > 0) {
 			process.setAD_Workflow_ID(customProcess.getAD_Workflow_ID());
+		}
+	}
+	
+	/**
+	 * Merge Browse with custom browse
+	 * @param browse
+	 * @param customBrowse
+	 */
+	private void mergeBrowse(MBrowse browse, MBrowseCustom customBrowse) {
+		//	Name
+		if(!Util.isEmpty(customBrowse.getName())) {
+			browse.setName(customBrowse.getName());
+		}
+		//	Description
+		if(!Util.isEmpty(customBrowse.getDescription())) {
+			browse.setDescription(customBrowse.getDescription());
+		}
+		//	Help
+		if(!Util.isEmpty(customBrowse.getHelp())) {
+			browse.setHelp(customBrowse.getHelp());
+		}
+		//	TODO: Language unsupported
+		//	Process
+		if(customBrowse.getAD_Process_ID() > 0) {
+			browse.setAD_Process_ID(customBrowse.getAD_Process_ID());
+		}		
+		//	Where Clause
+		if(!Util.isEmpty(customBrowse.getWhereClause())) {
+			browse.setWhereClause(customBrowse.getWhereClause());
+		}
+		//	Window
+		if(customBrowse.getAD_Window_ID() > 0) {
+			browse.setAD_Window_ID(customBrowse.getAD_Window_ID());
+		}
+		//	Table
+		if(customBrowse.getAD_Table_ID() > 0) {
+			browse.setAD_Table_ID(customBrowse.getAD_Table_ID());
+		}
+		//	Updateable
+		if(!Util.isEmpty(customBrowse.getIsUpdateable())) {
+			browse.setIsUpdateable(customBrowse.getIsUpdateable().equals("Y"));
+		}
+		//	Deleteable
+		if(!Util.isEmpty(customBrowse.getIsDeleteable())) {
+			browse.setIsDeleteable(customBrowse.getIsDeleteable().equals("Y"));
+		}
+		//	Is Selected by Default
+		if(!Util.isEmpty(customBrowse.getIsSelectedByDefault())) {
+			browse.setIsSelectedByDefault(customBrowse.getIsSelectedByDefault().equals("Y"));
+		}
+		//	Is Collapsible by Default
+		if(!Util.isEmpty(customBrowse.getIsCollapsibleByDefault())) {
+			browse.setIsCollapsibleByDefault(customBrowse.getIsCollapsibleByDefault().equals("Y"));
+		}
+		//	Is Executed by Default
+		if(!Util.isEmpty(customBrowse.getIsExecutedQueryByDefault())) {
+			browse.setIsExecutedQueryByDefault(customBrowse.getIsExecutedQueryByDefault().equals("Y"));
+		}
+		//	Show Total
+		if(!Util.isEmpty(customBrowse.getIsShowTotal())) {
+			browse.setIsShowTotal(customBrowse.getIsShowTotal().equals("Y"));
 		}
 	}
 	
@@ -1001,6 +1406,111 @@ public class ASPUtil {
 	}
 	
 	/**
+	 * Merge Browse Field with custom browse
+	 * @param browseField
+	 * @param customBrowseField
+	 * @param overwrite
+	 */
+	private void mergeBrowseField(MBrowseField browseField, MBrowseFieldCustom customBrowseField, boolean overwrite) {
+		//	Name
+		if(!Util.isEmpty(customBrowseField.getName())) {
+			browseField.setName(customBrowseField.getName());
+		}
+		//	Description
+		if(!Util.isEmpty(customBrowseField.getDescription())) {
+			browseField.setDescription(customBrowseField.getDescription());
+		}
+		//	Help
+		if(!Util.isEmpty(customBrowseField.getHelp())) {
+			browseField.setHelp(customBrowseField.getHelp());
+		}
+		//	Reference
+		if(customBrowseField.getAD_Reference_ID() > 0) {
+			browseField.setAD_Reference_ID(customBrowseField.getAD_Reference_ID());
+		}
+		//	Reference Key
+		if(customBrowseField.getAD_Reference_Value_ID() > 0) {
+			browseField.setAD_Reference_Value_ID(customBrowseField.getAD_Reference_Value_ID());
+		}
+		//	Mandatory
+		if(!Util.isEmpty(customBrowseField.getIsMandatory())) {
+			browseField.setIsMandatory(customBrowseField.getIsMandatory().equals("Y"));
+		}
+		//	Validation Rule
+		if(customBrowseField.getAD_Val_Rule_ID() > 0) {
+			browseField.setAD_Val_Rule_ID(customBrowseField.getAD_Val_Rule_ID());
+		}
+		//	Merge or overwrite
+		if(overwrite) {
+			//	Sequence
+			browseField.setSeqNo(customBrowseField.getSeqNo());
+			browseField.setSeqNoGrid(customBrowseField.getSeqNoGrid());
+			browseField.setIsActive(customBrowseField.isActive());
+			browseField.setIsQueryCriteria(customBrowseField.isQueryCriteria());
+			browseField.setIsOrderBy(customBrowseField.isOrderBy());
+		} else {
+			//	Sequence
+			if(customBrowseField.getSeqNo() > 0) {
+				browseField.setSeqNo(customBrowseField.getSeqNo());
+				browseField.setSeqNoGrid(customBrowseField.getSeqNoGrid());
+			}
+			if(customBrowseField.getSeqNoGrid() > 0) {
+				browseField.setSeqNoGrid(customBrowseField.getSeqNoGrid());
+			}
+			if(customBrowseField.isActive()) {
+				browseField.setIsActive(customBrowseField.isActive());
+			}
+			if(customBrowseField.isQueryCriteria()) {
+				browseField.setIsQueryCriteria(customBrowseField.isQueryCriteria());
+			}
+		}
+		//	Default Logic
+		if(!Util.isEmpty(customBrowseField.getDefaultValue())) {
+			browseField.setDefaultValue(customBrowseField.getDefaultValue());
+		}
+		//	Default value to
+		if(!Util.isEmpty(customBrowseField.getDefaultValue2())) {
+			browseField.setDefaultValue2(customBrowseField.getDefaultValue2());
+		}
+		//	Range
+		if(!Util.isEmpty(customBrowseField.getIsRange())) {
+			browseField.setIsRange(customBrowseField.getIsRange().equals("Y"));
+		}
+		//	Display Logic
+		if(!Util.isEmpty(customBrowseField.getDisplayLogic())) {
+			browseField.setDisplayLogic(customBrowseField.getDisplayLogic());
+		}
+		//	Read Only Logic
+		if(!Util.isEmpty(customBrowseField.getReadOnlyLogic())) {
+			browseField.setReadOnlyLogic(customBrowseField.getReadOnlyLogic());
+		}
+		//	Information Only
+		if(!Util.isEmpty(customBrowseField.getIsInfoOnly())) {
+			browseField.setIsInfoOnly(customBrowseField.getIsInfoOnly().equals("Y"));
+		}
+		//	Value Format
+		if(!Util.isEmpty(customBrowseField.getVFormat())) {
+			browseField.setVFormat(customBrowseField.getVFormat());
+		}
+		//	Min Value
+		if(!Util.isEmpty(customBrowseField.getValueMin())) {
+			browseField.setValueMin(customBrowseField.getValueMin());
+		}
+		//	Max Value
+		if(!Util.isEmpty(customBrowseField.getValueMax())) {
+			browseField.setValueMax(customBrowseField.getValueMax());
+		}
+		//	Axis Column
+		if(customBrowseField.getAxis_Column_ID() > 0) {
+			browseField.setAxis_Column_ID(customBrowseField.getAxis_Column_ID());
+		}
+		//	Parent Axis Column
+		if(customBrowseField.getAxis_Parent_Column_ID() > 0) {
+			browseField.setAxis_Parent_Column_ID(customBrowseField.getAxis_Parent_Column_ID());
+		}
+	}
+	
+	/**
 	 * Merge field with custom process
 	 * @param field
 	 * @param customField
@@ -1151,11 +1661,11 @@ public class ASPUtil {
 		}
 		
 		MWindow window = aspUtil.getWindow(53553);
-		List<MTab> tabs = aspUtil.getTabs(53553);
+		List<MTab> tabs = aspUtil.getWindowTabs(53553);
 		System.err.println("Window == " + window.getName());
 		for(MTab tab : tabs) {
 			System.err.println("Tab == " + tab.getName());
-			List<MField> fields = aspUtil.getFields(tab.getAD_Tab_ID());
+			List<MField> fields = aspUtil.getWindowFields(tab.getAD_Tab_ID());
 			for(MField field : fields) {
 				System.err.println("Field == " + field.getName() + " Displayed: " + field.isDisplayed() + " Active: " + field.isActive());
 			}
