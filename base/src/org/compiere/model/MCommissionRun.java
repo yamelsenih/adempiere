@@ -344,6 +344,7 @@ public class MCommissionRun extends X_C_CommissionRun implements DocAction, DocO
 		return new Query(getCtx(), I_C_BPartner.Table_Name, "EXISTS(SELECT 1 FROM C_CommissionLine cl "
 				+ "WHERE cl.SplitBPartner_ID = C_BPartner.C_BPartner_ID "
 				+ "AND cl.C_Commission_ID = ? "
+				+ "AND (cl.IsExcludeOfCommission IS NULL OR cl.IsExcludeOfCommission = 'N') "
 				+ "AND cl.S_Contract_ID = ?)", get_TrxName())
 				.setParameters(commission.getC_Commission_ID(), get_ValueAsInt("S_Contract_ID"))
 				.setOnlyActiveRecords(true)
