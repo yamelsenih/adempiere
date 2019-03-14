@@ -52,6 +52,7 @@ import org.compiere.model.MWindowCustom;
 import org.compiere.model.Query;
 import org.compiere.util.CCache;
 import org.compiere.util.Env;
+import org.compiere.util.Language;
 import org.compiere.util.Util;
 
 /**
@@ -1076,7 +1077,25 @@ public class ASPUtil {
 		if(!Util.isEmpty(customProcess.getHelp())) {
 			process.setHelp(customProcess.getHelp());
 		}
-		//	TODO: Language unsupported
+		//	Translation
+		if(!Language.isBaseLanguage(language)) {
+			//	Name
+			String value = customProcess.get_Translation(I_AD_Process.COLUMNNAME_Name, language);
+			if(!Util.isEmpty(value)) {
+				process.setName(value);
+			}
+			//	Description
+			value = customProcess.get_Translation(I_AD_Process.COLUMNNAME_Description, language);
+			if(!Util.isEmpty(value)) {
+				process.setDescription(value);
+			}
+			//	Help
+			value = customProcess.get_Translation(I_AD_Process.COLUMNNAME_Help, language);
+			if(!Util.isEmpty(value)) {
+				process.setHelp(value);
+			}
+		}
+		//	
 		//	Show Help
 		if(!Util.isEmpty(customProcess.getShowHelp())) {
 			process.setShowHelp(customProcess.getShowHelp());
@@ -1123,7 +1142,24 @@ public class ASPUtil {
 		if(!Util.isEmpty(customBrowse.getHelp())) {
 			browse.setHelp(customBrowse.getHelp());
 		}
-		//	TODO: Language unsupported
+		//	Translation
+		if(!Language.isBaseLanguage(language)) {
+			//	Name
+			String value = customBrowse.get_Translation(I_AD_Browse.COLUMNNAME_Name, language);
+			if(!Util.isEmpty(value)) {
+				browse.setName(value);
+			}
+			//	Description
+			value = customBrowse.get_Translation(I_AD_Browse.COLUMNNAME_Description, language);
+			if(!Util.isEmpty(value)) {
+				browse.setDescription(value);
+			}
+			//	Help
+			value = customBrowse.get_Translation(I_AD_Browse.COLUMNNAME_Help, language);
+			if(!Util.isEmpty(value)) {
+				browse.setHelp(value);
+			}
+		}
 		//	Process
 		if(customBrowse.getAD_Process_ID() > 0) {
 			browse.setAD_Process_ID(customBrowse.getAD_Process_ID());
@@ -1184,7 +1220,24 @@ public class ASPUtil {
 		if(!Util.isEmpty(customWindow.getHelp())) {
 			window.setHelp(customWindow.getHelp());
 		}
-		//	TODO: Language unsupported
+		//	Translation
+		if(!Language.isBaseLanguage(language)) {
+			//	Name
+			String value = customWindow.get_Translation(I_AD_Window.COLUMNNAME_Name, language);
+			if(!Util.isEmpty(value)) {
+				window.setName(value);
+			}
+			//	Description
+			value = customWindow.get_Translation(I_AD_Window.COLUMNNAME_Description, language);
+			if(!Util.isEmpty(value)) {
+				window.setDescription(value);
+			}
+			//	Help
+			value = customWindow.get_Translation(I_AD_Window.COLUMNNAME_Help, language);
+			if(!Util.isEmpty(value)) {
+				window.setHelp(value);
+			}
+		}
 		window.setIsDefault(customWindow.isDefault());
 		//	Is Read Only
 		if(!Util.isEmpty(customWindow.getWindowType())) {
@@ -1221,7 +1274,24 @@ public class ASPUtil {
 		if(!Util.isEmpty(customTab.getCommitWarning())) {
 			tab.setCommitWarning(customTab.getCommitWarning());
 		}
-		//	TODO: Language unsupported
+		//	Translation
+		if(!Language.isBaseLanguage(language)) {
+			//	Name
+			String value = customTab.get_Translation(I_AD_Tab.COLUMNNAME_Name, language);
+			if(!Util.isEmpty(value)) {
+				tab.setName(value);
+			}
+			//	Description
+			value = customTab.get_Translation(I_AD_Tab.COLUMNNAME_Description, language);
+			if(!Util.isEmpty(value)) {
+				tab.setDescription(value);
+			}
+			//	Help
+			value = customTab.get_Translation(I_AD_Tab.COLUMNNAME_Help, language);
+			if(!Util.isEmpty(value)) {
+				tab.setHelp(value);
+			}
+		}
 		if(overwrite) {
 			tab.setSeqNo(customTab.getSeqNo());
 			//	Tab Level
@@ -1339,6 +1409,24 @@ public class ASPUtil {
 		if(!Util.isEmpty(customProcessParameter.getHelp())) {
 			processParameter.setHelp(customProcessParameter.getHelp());
 		}
+		//	Translation
+		if(!Language.isBaseLanguage(language)) {
+			//	Name
+			String value = customProcessParameter.get_Translation(I_AD_Process_Para.COLUMNNAME_Name, language);
+			if(!Util.isEmpty(value)) {
+				processParameter.setName(value);
+			}
+			//	Description
+			value = customProcessParameter.get_Translation(I_AD_Process_Para.COLUMNNAME_Description, language);
+			if(!Util.isEmpty(value)) {
+				processParameter.setDescription(value);
+			}
+			//	Help
+			value = customProcessParameter.get_Translation(I_AD_Process_Para.COLUMNNAME_Help, language);
+			if(!Util.isEmpty(value)) {
+				processParameter.setHelp(value);
+			}
+		}
 		//	Reference
 		if(customProcessParameter.getAD_Reference_ID() > 0) {
 			processParameter.setAD_Reference_ID(customProcessParameter.getAD_Reference_ID());
@@ -1423,6 +1511,24 @@ public class ASPUtil {
 		//	Help
 		if(!Util.isEmpty(customBrowseField.getHelp())) {
 			browseField.setHelp(customBrowseField.getHelp());
+		}
+		//	Translation
+		if(!Language.isBaseLanguage(language)) {
+			//	Name
+			String value = customBrowseField.get_Translation(I_AD_Browse_Field.COLUMNNAME_Name, language);
+			if(!Util.isEmpty(value)) {
+				browseField.setName(value);
+			}
+			//	Description
+			value = customBrowseField.get_Translation(I_AD_Browse_Field.COLUMNNAME_Description, language);
+			if(!Util.isEmpty(value)) {
+				browseField.setDescription(value);
+			}
+			//	Help
+			value = customBrowseField.get_Translation(I_AD_Browse_Field.COLUMNNAME_Help, language);
+			if(!Util.isEmpty(value)) {
+				browseField.setHelp(value);
+			}
 		}
 		//	Reference
 		if(customBrowseField.getAD_Reference_ID() > 0) {
@@ -1528,6 +1634,24 @@ public class ASPUtil {
 		//	Help
 		if(!Util.isEmpty(customField.getHelp())) {
 			field.setHelp(customField.getHelp());
+		}
+		//	Translation
+		if(!Language.isBaseLanguage(language)) {
+			//	Name
+			String value = customField.get_Translation(I_AD_Field.COLUMNNAME_Name, language);
+			if(!Util.isEmpty(value)) {
+				field.setName(value);
+			}
+			//	Description
+			value = customField.get_Translation(I_AD_Field.COLUMNNAME_Description, language);
+			if(!Util.isEmpty(value)) {
+				field.setDescription(value);
+			}
+			//	Help
+			value = customField.get_Translation(I_AD_Field.COLUMNNAME_Help, language);
+			if(!Util.isEmpty(value)) {
+				field.setHelp(value);
+			}
 		}
 		//	Sequence
 		if(overwrite) {
