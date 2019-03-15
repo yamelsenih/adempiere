@@ -225,10 +225,22 @@ public class AgencyValidator implements ModelValidator
 							MOrder generatedOrder = generatedOrderLine.getParent();
 							if(!generatedOrder.isProcessed()) {
 								MDocType sourceDocumentType = MDocType.get(order.getCtx(), order.getC_DocTypeTarget_ID());
+
+								//Openup. Nicolas Sarlabos. #2752.
 								if(sourceDocumentType.get_ValueAsBoolean("IsSetPOPriceFromSO")) {
-									generatedOrderLine.setPriceEntered(orderLine.getPriceEntered());
-									generatedOrderLine.setPriceActual(orderLine.getPriceActual());
-								}
+
+									//si la linea de OV tiene definido PriceList entonces lo asigno, si no le asigno
+									//si no le asigno el PriceEntered
+									if(orderLine.getPriceList().compareTo(Env.ZERO) != 0){
+										generatedOrderLine.setPriceEntered(orderLine.getPriceList());
+										generatedOrderLine.setPriceActual(orderLine.getPriceList());
+									} else if(orderLine.getPriceList().compareTo(Env.ZERO) == 0){
+										generatedOrderLine.setPriceEntered(orderLine.getPriceEntered());
+										generatedOrderLine.setPriceActual(orderLine.getPriceEntered());
+									}
+
+								}//Fin #2752.
+
 								if(projectPhaseId > 0) {
 									generatedOrderLine.setC_ProjectPhase_ID(projectPhaseId);
 								} else if(projectTaskId > 0) {
