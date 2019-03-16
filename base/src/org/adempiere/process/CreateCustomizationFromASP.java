@@ -21,6 +21,8 @@ import java.util.Enumeration;
 
 import org.adempiere.model.MBrowse;
 import org.adempiere.model.MBrowseField;
+import org.compiere.model.I_AD_Menu;
+import org.compiere.model.I_ASP_Level;
 import org.compiere.model.MBrowseCustom;
 import org.compiere.model.MBrowseFieldCustom;
 import org.compiere.model.MClientInfo;
@@ -54,6 +56,18 @@ public class CreateCustomizationFromASP extends CreateCustomizationFromASPAbstra
 	private int noParameters = 0;
 	private int noBrowses = 0;
 	private int noBrowseFields = 0;
+	private int menuId = 0;
+	
+	@Override
+	protected void prepare() {
+		super.prepare();
+		if(getTable_ID() == I_AD_Menu.Table_ID) {
+			menuId = getRecord_ID();
+		} else if(getTable_ID() == I_ASP_Level.Table_ID) {
+			menuId = getParameterAsInt(I_AD_Menu.COLUMNNAME_AD_Menu_ID);
+			setLevelId(getRecord_ID());
+		}
+	}
 	
 	@Override
 	protected String doIt() throws Exception {
@@ -61,8 +75,8 @@ public class CreateCustomizationFromASP extends CreateCustomizationFromASPAbstra
 		int AD_Tree_ID = clientInfo.getAD_Tree_Menu_ID();
 		MTree thisTree = new MTree (getCtx(), AD_Tree_ID, true, true, null, get_TrxName());
 		MTreeNode node;
-		if (getMenuId() > 0) {
-			node = thisTree.getRoot().findNode(getMenuId());
+		if (menuId > 0) {
+			node = thisTree.getRoot().findNode(menuId);
 		} else {
 			node = thisTree.getRoot();
 		}
@@ -112,7 +126,7 @@ public class CreateCustomizationFromASP extends CreateCustomizationFromASPAbstra
 			if (customWindowId < 1) {
 				// Add Window, Tabs and Fields (if IsGenerateFields)
 				customWindow = new MWindowCustom(getCtx(), 0, get_TrxName());
-				customWindow.setASP_Level_ID(getRecord_ID());
+				customWindow.setASP_Level_ID(getLevelId());
 				customWindow.setAD_Window_ID(window.getAD_Window_ID());
 				customWindow.setHierarchyType(getHierarchyType());
 				customWindow.saveEx();
@@ -171,7 +185,7 @@ public class CreateCustomizationFromASP extends CreateCustomizationFromASPAbstra
 					"SELECT COUNT(*) FROM AD_BrowseCustom WHERE ASP_Level_ID = ? AND AD_Browse_ID = ?",
 					getRecord_ID(), browse.getAD_Browse_ID()) < 1) {
 				MBrowseCustom customBrowse = new MBrowseCustom(getCtx(), 0, get_TrxName());
-				customBrowse.setASP_Level_ID(getRecord_ID());
+				customBrowse.setASP_Level_ID(getLevelId());
 				customBrowse.setAD_Browse_ID(browse.getAD_Browse_ID());
 				customBrowse.setHierarchyType(getHierarchyType());
 				customBrowse.saveEx();
@@ -207,7 +221,7 @@ public class CreateCustomizationFromASP extends CreateCustomizationFromASPAbstra
 		MProcessCustom customProcess = null;
 		if (customprocessId < 1) {
 			customProcess = new MProcessCustom(getCtx(), 0, get_TrxName());
-			customProcess.setASP_Level_ID(getRecord_ID());
+			customProcess.setASP_Level_ID(getLevelId());
 			customProcess.setAD_Process_ID(process.getAD_Process_ID());
 			customProcess.setHierarchyType(getHierarchyType());
 			customProcess.saveEx();

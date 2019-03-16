@@ -19,40 +19,40 @@ package org.adempiere.process;
 
 import org.compiere.process.SvrProcess;
 
-/** Generated Process for (Create Customization)
+/** Generated Process for (ASP Generate Level From Menu)
  *  @author ADempiere (generated) 
  *  @version Release 3.9.1
  */
-public abstract class CreateCustomizationFromASPAbstract extends SvrProcess {
+public abstract class ASPGenerateLevelAbstract extends SvrProcess {
 	/** Process Value 	*/
-	private static final String VALUE_FOR_PROCESS = "ASPCreateCustomizationFromMenu";
+	private static final String VALUE_FOR_PROCESS = "ASPGenerateLevelFromMenu";
 	/** Process Name 	*/
-	private static final String NAME_FOR_PROCESS = "Create Customization";
+	private static final String NAME_FOR_PROCESS = "ASP Generate Level From Menu";
 	/** Process Id 	*/
-	private static final int ID_FOR_PROCESS = 1000002;
+	private static final int ID_FOR_PROCESS = 1000001;
 	/**	Parameter Name for ASP Module	*/
 	public static final String ASP_MODULE_ID = "ASP_Module_ID";
 	/**	Parameter Name for ASP Level	*/
 	public static final String ASP_LEVEL_ID = "ASP_Level_ID";
-	/**	Parameter Name for AllFields	*/
-	public static final String ALLFIELDS = "AllFields";
-	/**	Parameter Name for Hierarchy Type	*/
-	public static final String HIERARCHYTYPE = "HierarchyType";
+	/**	Parameter Name for Generate Fields	*/
+	public static final String ISGENERATEFIELDS = "IsGenerateFields";
+	/**	Parameter Name for ASP Status	*/
+	public static final String ASP_STATUS = "ASP_Status";
 	/**	Parameter Value for ASP Module	*/
 	private int moduleId;
 	/**	Parameter Value for ASP Level	*/
 	private int levelId;
-	/**	Parameter Value for AllFields	*/
-	private boolean isAllFields;
-	/**	Parameter Value for Hierarchy Type	*/
-	private String hierarchyType;
+	/**	Parameter Value for Generate Fields	*/
+	private boolean isGenerateFields;
+	/**	Parameter Value for ASP Status	*/
+	private String status;
 
 	@Override
 	protected void prepare() {
 		moduleId = getParameterAsInt(ASP_MODULE_ID);
 		levelId = getParameterAsInt(ASP_LEVEL_ID);
-		isAllFields = getParameterAsBoolean(ALLFIELDS);
-		hierarchyType = getParameterAsString(HIERARCHYTYPE);
+		isGenerateFields = getParameterAsBoolean(ISGENERATEFIELDS);
+		status = getParameterAsString(ASP_STATUS);
 	}
 
 	/**	 Getter Parameter Value for ASP Module	*/
@@ -75,24 +75,24 @@ public abstract class CreateCustomizationFromASPAbstract extends SvrProcess {
 		this.levelId = levelId;
 	}
 
-	/**	 Getter Parameter Value for AllFields	*/
-	protected boolean isAllFields() {
-		return isAllFields;
+	/**	 Getter Parameter Value for Generate Fields	*/
+	protected boolean isGenerateFields() {
+		return isGenerateFields;
 	}
 
-	/**	 Setter Parameter Value for AllFields	*/
-	protected void setAllFields(boolean isAllFields) {
-		this.isAllFields = isAllFields;
+	/**	 Setter Parameter Value for Generate Fields	*/
+	protected void setIsGenerateFields(boolean isGenerateFields) {
+		this.isGenerateFields = isGenerateFields;
 	}
 
-	/**	 Getter Parameter Value for Hierarchy Type	*/
-	protected String getHierarchyType() {
-		return hierarchyType;
+	/**	 Getter Parameter Value for ASP Status	*/
+	protected String getStatus() {
+		return status;
 	}
 
-	/**	 Setter Parameter Value for Hierarchy Type	*/
-	protected void setHierarchyType(String hierarchyType) {
-		this.hierarchyType = hierarchyType;
+	/**	 Setter Parameter Value for ASP Status	*/
+	protected void setStatus(String status) {
+		this.status = status;
 	}
 
 	/**	 Getter Parameter Value for Process ID	*/
