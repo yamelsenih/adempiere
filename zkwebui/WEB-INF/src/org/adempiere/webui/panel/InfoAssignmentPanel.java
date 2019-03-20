@@ -21,6 +21,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
+import java.util.Comparator;
 import java.util.Date;
 
 import org.adempiere.webui.apps.AEnv;
@@ -411,4 +412,9 @@ public class InfoAssignmentPanel extends InfoPanel implements EventListener, Val
 		return;
 	}
 
+	@Override
+	public String getSortDirection(Comparator cmpr) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

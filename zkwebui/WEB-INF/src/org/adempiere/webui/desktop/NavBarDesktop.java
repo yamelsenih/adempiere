@@ -59,12 +59,11 @@ import org.zkoss.zk.ui.event.EventListener;
 import org.zkoss.zk.ui.event.Events;
 import org.zkoss.zk.ui.event.OpenEvent;
 import org.zkoss.zk.ui.util.Clients;
-import org.zkoss.zkex.zul.Borderlayout;
-import org.zkoss.zkex.zul.Center;
-import org.zkoss.zkex.zul.North;
-import org.zkoss.zkex.zul.West;
-import org.zkoss.zkmax.zul.Portalchildren;
-import org.zkoss.zkmax.zul.Portallayout;
+import org.zkoss.zul.Anchorlayout;
+import org.zkoss.zul.Borderlayout;
+import org.zkoss.zul.Center;
+import org.zkoss.zul.North;
+import org.zkoss.zul.West;
 import org.zkoss.zul.Div;
 import org.zkoss.zul.Html;
 import org.zkoss.zul.Panel;
@@ -205,14 +204,14 @@ public class NavBarDesktop extends TabbedDesktop implements MenuListener, Serial
         Tabpanel homeTab = new Tabpanel();
         windowContainer.addWindow(homeTab, Msg.getMsg(Env.getCtx(), "Home").replaceAll("&", ""), false);
 
-        Portallayout portalLayout = new Portallayout();
+        Anchorlayout portalLayout = new Anchorlayout();
         portalLayout.setWidth("100%");
         portalLayout.setHeight("100%");
         portalLayout.setStyle("position: absolute; overflow: auto");
         homeTab.appendChild(portalLayout);
 
         // Dashboard content
-        Portalchildren portalchildren = null;
+        Anchorlayout portalchildren = null;
         int currentColumnNo = 0;
 
         String sql = "SELECT COUNT(DISTINCT COLUMNNO) "
@@ -246,7 +245,7 @@ public class NavBarDesktop extends TabbedDesktop implements MenuListener, Serial
 	        	int columnNo = rs.getInt(X_PA_DashboardContent.COLUMNNAME_ColumnNo);
 	        	if(portalchildren == null || currentColumnNo != columnNo)
 	        	{
-	        		portalchildren = new Portalchildren();
+	        		portalchildren = new Anchorlayout();
 	                portalLayout.appendChild(portalchildren);
 	                portalchildren.setWidth(width + "%");
 	                portalchildren.setStyle("padding: 5px");

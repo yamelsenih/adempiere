@@ -49,8 +49,8 @@ import org.compiere.util.CLogger;
 import org.compiere.util.Env;
 import org.compiere.util.Language;
 import org.zkoss.web.Attributes;
-import org.zkoss.zk.au.Command;
 import org.zkoss.zk.ui.Component;
+import org.zkoss.zk.ui.Execution;
 import org.zkoss.zk.ui.Executions;
 import org.zkoss.zk.ui.Page;
 import org.zkoss.zk.ui.Session;
@@ -401,13 +401,15 @@ public class AdempiereWebUI extends Window implements EventListener, IWebClient
 		return userPreference;
 	}
 
-	//global command
-	static {
-		new ZoomCommand("onZoom", Command.IGNORE_OLD_EQUIV);
-		new DrillCommand("onDrillAcross", Command.IGNORE_OLD_EQUIV);
-		new DrillCommand("onDrillDown", Command.IGNORE_OLD_EQUIV);
-		new TokenCommand(TokenEvent.ON_USER_TOKEN, Command.IGNORE_OLD_EQUIV);
-	}
+	/* TODO-evenos: do we need a replacement for this in zk 6? */
+//	//global command
+//	static {
+//		new ZoomCommand("onZoom", Command.IGNORE_OLD_EQUIV);
+//		new DrillCommand("onDrillAcross", Command.IGNORE_OLD_EQUIV);
+//		new DrillCommand("onDrillDown", Command.IGNORE_OLD_EQUIV);
+//		new TokenCommand(TokenEvent.ON_USER_TOKEN, Command.IGNORE_OLD_EQUIV);
+//	}
+		
 
 	@Override
 	public void changeRole(MUser user)

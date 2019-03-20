@@ -21,6 +21,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
+import java.util.Comparator;
 
 import org.adempiere.webui.apps.AEnv;
 import org.adempiere.webui.component.Checkbox;
@@ -476,5 +477,11 @@ public class InfoInOutPanel extends InfoPanel implements ValueChangeListener, Ev
 		fDateFrom.set_oldValue();
 		fDateTo.set_oldValue();
 		return;
+	}
+
+	@Override
+	public String getSortDirection(Comparator cmpr) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

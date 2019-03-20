@@ -19,6 +19,7 @@ package org.adempiere.webui.component;
 
 import java.util.List;
 
+import org.zkoss.zk.ui.WrongValueException;
 import org.zkoss.zul.Comboitem;
 
 /**
@@ -130,9 +131,11 @@ public class Combobox extends org.zkoss.zul.Combobox
     	return item.getValue().equals(value);
     }
     
-    /** Returns RS_NO_WIDTH|RS_NO_HEIGHT.
-	 */
-	protected int getRealStyleFlags() {
-		return super.getRealStyleFlags() & 0x0006;
-	}
+    
+    /* TODO-evenos: is this really needed? this method is not used in idempiere either... */
+//    /** Returns RS_NO_WIDTH|RS_NO_HEIGHT.
+//	 */
+//	protected int getRealStyleFlags() {
+//		return super.getRealStyleFlags() & 0x0006;
+//	}
 }

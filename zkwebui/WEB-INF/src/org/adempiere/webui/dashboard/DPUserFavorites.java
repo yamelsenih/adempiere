@@ -42,7 +42,7 @@ import org.zkoss.zul.Menuitem;
 import org.zkoss.zul.Menupopup;
 import org.zkoss.zul.Panel;
 import org.zkoss.zul.Panelchildren;
-import org.zkoss.zul.SimpleTreeNode;
+import org.zkoss.zul.DefaultTreeNode;
 import org.zkoss.zul.Toolbar;
 import org.zkoss.zul.Tree;
 import org.zkoss.zul.Treeitem;
@@ -136,15 +136,15 @@ public class DPUserFavorites extends DashboardPanel implements EventListener, Tr
 		
 		this.setTooltiptext(Msg.getMsg(Env.getCtx(), "DPUserFavorites.tooltip"));
 
-		int childCount = ((SimpleFavoriteTreeModel) tree.getModel()).getRoot().getChildCount();
-		if (childCount == 0)  //Root node only. Add a hint to the user.
-		{
+//		int childCount = ((SimpleFavoriteTreeModel) tree.getModel()).getRoot().getChildCount();
+//		if (childCount == 0)  //Root node only. Add a hint to the user.
+//		{
 			showHint();
-		}
-		else
-		{
-			hideHint();
-		}
+//		}
+//		else
+//		{
+//			hideHint();
+//		}
 
 		
 	}
@@ -258,7 +258,7 @@ public class DPUserFavorites extends DashboardPanel implements EventListener, Tr
 
 				public void run(Treeitem treeItem)
 				{
-					SimpleTreeNode simpleTreeNode = (SimpleTreeNode) treeItem.getValue();
+					DefaultTreeNode simpleTreeNode = (DefaultTreeNode) treeItem.getValue();
 					MTreeNode mtn = (MTreeNode) simpleTreeNode.getData();
 					if (mtn.IsCollapsible())
 						treeItem.setOpen(false);
@@ -335,7 +335,7 @@ public class DPUserFavorites extends DashboardPanel implements EventListener, Tr
         	else if(comp.equals(trashCan))
         	{
         		
-    			SimpleTreeNode sourceNode = (SimpleTreeNode) src.getValue();
+        		DefaultTreeNode sourceNode = (DefaultTreeNode) src.getValue();
 				ADTreeFavoriteOnDropListener.deleteNodeMenu(sourceNode);
         		
         	}
@@ -381,18 +381,18 @@ public class DPUserFavorites extends DashboardPanel implements EventListener, Tr
 		if (event.getType() == TreeDataEvent.INTERVAL_ADDED 
 			 || event.getType() == TreeDataEvent.INTERVAL_REMOVED)
 		{
-			int childCount = ((SimpleFavoriteTreeModel) tree.getModel()).getRoot().getChildCount();
-			if (childCount == 0)  
-			{
+//			int childCount = ((SimpleFavoriteTreeModel) tree.getModel()).getRoot().getChildCount();
+//			if (childCount == 0)  
+//			{
 				// The tree is empty and won't occupy screen space so it can't serve as a drop target.
 				// Make the hint box visible to provide a drop target and give the user a text
 				// hint as to what they can do.
 				showHint();
-			}
-			else
-			{
-				hideHint();
-			}
+//			}
+//			else
+//			{
+//				hideHint();
+//			}
 		}
 		
 	}
