@@ -210,6 +210,7 @@ Copyright (C) 2005 Potix Corporation. All Rights Reserved.
 	The third parameter is the second argument passed to the constructor.
 		</description>
 	</function>
+
 	<function>
 		<name>new3</name>
 		<function-class>org.zkoss.xel.fn.CommonFns</function-class>
@@ -541,7 +542,7 @@ Copyright (C) 2005 Potix Corporation. All Rights Reserved.
 		<description><![CDATA[
 	Whether the current request is coming from the browser of the specified
 	type.
-	 @param type the type of the browser.
+	@param type the type of the browser.
 	 The syntax: <code>&lt;browser-name&gt;[&lt;version-number&gt;];[-]</code>.<br/>
 	 For example, ie9, ios and ie6-.
 	 And, <code>ie9</code> means Internet Explorer 9 and later, while
