@@ -34,7 +34,6 @@ import org.compiere.model.MProjectLine;
 import org.compiere.model.MProjectPhase;
 import org.compiere.model.MProjectTask;
 import org.compiere.model.MUOMConversion;
-import org.compiere.model.PO;
 import org.compiere.util.Env;
 
 
@@ -61,9 +60,10 @@ public class ProjectPhaseGenOrder  extends ProjectPhaseGenOrderAbstract
 	 */
 	protected String doIt() throws Exception
 	{
-		int documentTypeTargetId = getParameterAsInt(I_C_Order.COLUMNNAME_C_DocTypeTarget_ID);
+		int documentTypeTargetId = getParameterAsInt(I_C_Order.COLUMNNAME_C_DocType_ID);
 		int projectId = 0;
-		MProjectPhase phase;
+		int projectPhaseId = 0;
+		int projectTaskId = 0;
 		List<MProjectLine> projectLines = null;
 		List<MProjectTask> tasks = null;
 		HashMap<String, Object> values = new HashMap<String, Object>();
@@ -72,42 +72,41 @@ public class ProjectPhaseGenOrder  extends ProjectPhaseGenOrderAbstract
 			throw new IllegalArgumentException("C_ProjectPhase_ID == 0");
 		if (getDocSubTypeSO()==null)
 			throw new AdempiereException("@NotFound@ @DocSubTypeSO@");
-		PO fromPhase; 
-		
 		if(MProjectTask.Table_Name.equals(getTableName())) {
-			fromPhase = new MProjectTask (getCtx(), getRecord_ID(), get_TrxName());
-			int phaseId = ((MProjectTask)fromPhase).getC_ProjectPhase_ID();
-			phase = new MProjectPhase(getCtx(), phaseId, get_TrxName());
-			projectId = phase.getC_Project_ID();
-			values.put("Name", ((MProjectTask)fromPhase).getName());
-			values.put("M_Product_ID", ((MProjectTask)fromPhase).getM_Product_ID() | 0);
-			values.put("SeqNo", ((MProjectTask)fromPhase).getSeqNo());
-			values.put("Description", ((MProjectTask)fromPhase).getDescription());
-			values.put("Qty", ((MProjectTask)fromPhase).getQty());
-			values.put("C_ProjectPhase_ID", ((MProjectTask)fromPhase).getC_ProjectPhase_ID());
-			values.put("PriceActual",  ((MProjectTask)fromPhase).getPlannedAmt());
+			MProjectTask projectTask = new MProjectTask (getCtx(), getRecord_ID(), get_TrxName());
+			projectPhaseId = projectTask.getC_ProjectPhase_ID();
+			projectTaskId = projectTask.getC_ProjectTask_ID();
+			MProjectPhase projectPhase = new MProjectPhase(getCtx(), projectPhaseId, get_TrxName());
+			projectId = projectPhase.getC_Project_ID();
+			values.put("Name", projectTask.getName());
+			values.put("M_Product_ID", projectTask.getM_Product_ID() | 0);
+			values.put("SeqNo", projectTask.getSeqNo());
+			values.put("Description", projectTask.getDescription());
+			values.put("Qty", projectTask.getQty());
+			values.put("C_ProjectPhase_ID", projectTask.getC_ProjectPhase_ID());
+			values.put("PriceActual", projectTask.getPlannedAmt());
 			//	Add UOM
-			values.put("QtyEntered", ((MProjectTask)fromPhase).get_Value("QtyEntered"));
-			values.put("C_UOM_ID", ((MProjectTask)fromPhase).get_ValueAsInt("C_UOM_ID"));
+			values.put("QtyEntered", projectTask.get_Value("QtyEntered"));
+			values.put("C_UOM_ID", projectTask.get_ValueAsInt("C_UOM_ID"));
 		
-			projectLines = Arrays.asList(((MProjectTask)fromPhase).getLines());
+			projectLines = Arrays.asList(projectTask.getLines());
 		}
 		else if(MProjectPhase.Table_Name.equals(getTableName())) {
-			fromPhase = new MProjectPhase (getCtx(), getRecord_ID(), get_TrxName());
-			projectId = ((MProjectPhase)fromPhase).getC_Project_ID();
-			values.put("Name", ((MProjectPhase)fromPhase).getName());
-			values.put("M_Product_ID", ((MProjectPhase)fromPhase).getM_Product_ID() | 0);
-			values.put("SeqNo", ((MProjectPhase)fromPhase).getSeqNo());
-			values.put("Description", ((MProjectPhase)fromPhase).getDescription());
-			values.put("Qty", ((MProjectPhase)fromPhase).getQty());
-			values.put("C_ProjectPhase_ID", ((MProjectPhase)fromPhase).getC_ProjectPhase_ID());
-			values.put("PriceActual", ((MProjectPhase)fromPhase).getPlannedAmt());
-			projectLines =((MProjectPhase)fromPhase).getLines();
+			MProjectPhase projectPhase = new MProjectPhase (getCtx(), getRecord_ID(), get_TrxName());
+			projectId = projectPhase.getC_Project_ID();
+			projectPhaseId = projectPhase.getC_ProjectPhase_ID();
+			values.put("Name", projectPhase.getName());
+			values.put("M_Product_ID", projectPhase.getM_Product_ID() | 0);
+			values.put("SeqNo", projectPhase.getSeqNo());
+			values.put("Description", projectPhase.getDescription());
+			values.put("Qty", projectPhase.getQty());
+			values.put("C_ProjectPhase_ID", projectPhase.getC_ProjectPhase_ID());
+			values.put("PriceActual", projectPhase.getPlannedAmt());
+			projectLines = projectPhase.getLines();
 			//	Add UOM
-			values.put("QtyEntered", fromPhase.get_Value("QtyEntered"));
-			values.put("C_UOM_ID", fromPhase.get_ValueAsInt("C_UOM_ID"));
-		
-			tasks = ((MProjectPhase)fromPhase).getTasks();
+			values.put("QtyEntered", projectPhase.get_Value("QtyEntered"));
+			values.put("C_UOM_ID", projectPhase.get_ValueAsInt("C_UOM_ID"));
+			tasks = projectPhase.getTasks();
 		}
 		
 		MProject fromProject = ProjectGenOrder.getProject (getCtx(), projectId, get_TrxName());
@@ -118,6 +117,17 @@ public class ProjectPhaseGenOrder  extends ProjectPhaseGenOrderAbstract
 		//	Add Document Type Target
 		if(documentTypeTargetId > 0) {
 			order.setC_DocTypeTarget_ID(documentTypeTargetId);
+		}
+		if(projectId > 0) {
+			order.setC_Project_ID(projectId);
+		}
+		//	Phase
+		if(projectPhaseId > 0) {
+			order.set_ValueOfColumn("C_ProjectPhase_ID", projectPhaseId);
+		}
+		//	Task
+		if(projectTaskId > 0) {
+			order.set_ValueOfColumn("C_ProjectTask_ID", projectTaskId);
 		}
 		order.setDescription(order.getDescription() + " - " + values.get("Name"));
 		order.saveEx();
@@ -155,13 +165,17 @@ public class ProjectPhaseGenOrder  extends ProjectPhaseGenOrderAbstract
 			orderLine.setC_UOM_ID(uomId);
 			orderLine.setPrice();
 			orderLine.setC_Project_ID(fromProject.getC_Project_ID());
-			orderLine.setC_ProjectPhase_ID((int)values.get("C_ProjectPhase_ID"));
-			BigDecimal price = new BigDecimal(values.get("PriceActual").toString());
+			if(projectPhaseId > 0) {
+				orderLine.setC_ProjectPhase_ID(projectPhaseId);
+			}
+			if(projectTaskId > 0) {
+				orderLine.setC_ProjectTask_ID(projectTaskId);
+			}
+ 			BigDecimal price = new BigDecimal(values.get("PriceActual").toString());
 			if (price!= null && price.compareTo(Env.ZERO) != 0)
 				orderLine.setPrice(price);
 			orderLine.setTax();
-			if (!orderLine.save())
-				log.log(Level.SEVERE, "doIt - Lines not generated");
+			orderLine.saveEx();
 			return "@C_Order_ID@ " + order.getDocumentNo() + " (1)";
 		}
 
@@ -201,6 +215,9 @@ public class ProjectPhaseGenOrder  extends ProjectPhaseGenOrderAbstract
 					orderLine.setTax();
 					orderLine.setC_Project_ID(fromProject.getC_Project_ID());
 					orderLine.setC_ProjectPhase_ID(projectLine.getC_ProjectPhase_ID());
+					if(projectLine.getC_ProjectTask_ID() > 0) {
+						orderLine.setC_ProjectTask_ID(orderLine.getC_ProjectTask_ID());
+					}
 					orderLine.saveEx();
 					count.getAndUpdate(no -> no + 1);
 				});    //	for all lines

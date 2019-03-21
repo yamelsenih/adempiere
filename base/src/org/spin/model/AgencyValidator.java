@@ -225,10 +225,19 @@ public class AgencyValidator implements ModelValidator
 							MOrder generatedOrder = generatedOrderLine.getParent();
 							if(!generatedOrder.isProcessed()) {
 								MDocType sourceDocumentType = MDocType.get(order.getCtx(), order.getC_DocTypeTarget_ID());
+								//Openup. Nicolas Sarlabos. #2752.
 								if(sourceDocumentType.get_ValueAsBoolean("IsSetPOPriceFromSO")) {
-									generatedOrderLine.setPriceEntered(orderLine.getPriceEntered());
-									generatedOrderLine.setPriceActual(orderLine.getPriceActual());
-								}
+									//si la linea de OV tiene definido PriceList entonces lo asigno, si no le asigno
+									//si no le asigno el PriceEntered
+									if(orderLine.getPriceList().compareTo(Env.ZERO) != 0){
+										generatedOrderLine.setPriceEntered(orderLine.getPriceList());
+										generatedOrderLine.setPriceActual(orderLine.getPriceList());
+									} else if(orderLine.getPriceList().compareTo(Env.ZERO) == 0){
+										generatedOrderLine.setPriceEntered(orderLine.getPriceEntered());
+										generatedOrderLine.setPriceActual(orderLine.getPriceEntered());
+									}
+								}//Fin #2752.
+
 								if(projectPhaseId > 0) {
 									generatedOrderLine.setC_ProjectPhase_ID(projectPhaseId);
 								} else if(projectTaskId > 0) {
@@ -257,6 +266,9 @@ public class AgencyValidator implements ModelValidator
 						linkSourceOrder.setDatePromised(order.getDatePromised());
 						if(order.isDropShip()) {
 							linkSourceOrder.set_ValueOfColumn("IsDirectInvoice", order.get_ValueAsBoolean("IsDirectInvoice"));
+						}
+						if(order.get_ValueAsInt("C_ProjectPhase_ID") > 0) {
+							linkSourceOrder.set_ValueOfColumn("C_ProjectPhase_ID", order.get_ValueAsInt("C_ProjectPhase_ID"));
 						}
 						linkSourceOrder.saveEx();
 					}
@@ -404,7 +416,6 @@ public class AgencyValidator implements ModelValidator
 					createCommissionForOrder(order, documentType.get_ValueAsInt("C_CommissionType_ID"), false);
 				}
 			} else if (timing == TIMING_AFTER_COMPLETE) {
-				System.out.println("Guardado");
 				if(order.isSOTrx()) {
 					//	For Sales Orders only
 					if(order.isDropShip()) {
@@ -629,7 +640,8 @@ public class AgencyValidator implements ModelValidator
 	 * @param sourceOrder
 	 */
 	private void generateReverseAmount(MOrder sourceOrder) {
-		if(sourceOrder.getC_Project_ID() <= 0) {
+		int projectPhaseId = sourceOrder.get_ValueAsInt("C_ProjectPhase_ID");
+		if(projectPhaseId <= 0) {
 			return;
 		}
 		//	
@@ -638,11 +650,10 @@ public class AgencyValidator implements ModelValidator
 			int reverseDocumentTypeId = documentType.get_ValueAsInt("C_DocTypeReversal_ID");
 			//	find all purchase order of pre-purchase
 			MOrder preOrder = new Query(sourceOrder.getCtx(), I_C_Order.Table_Name, "DocStatus = 'CO' "
-					+ "AND C_Project_ID = ? "
-					+ "AND C_BPartner_ID = ? "
+					+ "AND C_ProjectPhase_ID = ? "
 					+ "AND IsSOTrx = '" + (sourceOrder.isSOTrx()? "Y": "N") + "' "
 					+ "AND EXISTS(SELECT 1 FROM C_DocType dt WHERE dt.C_DocType_ID = C_Order.C_DocType_ID AND dt.IsPreOrder = 'Y')", sourceOrder.get_TrxName())
-				.setParameters(sourceOrder.getC_Project_ID(), sourceOrder.getC_BPartner_ID())
+				.setParameters(projectPhaseId)
 				.first();
 			//	Validate
 			if(preOrder != null
@@ -650,10 +661,9 @@ public class AgencyValidator implements ModelValidator
 				BigDecimal consumeAmount = DB.getSQLValueBD(sourceOrder.get_TrxName(), "SELECT SUM(GrandTotal) "
 						+ "FROM C_Order o "
 						+ "WHERE o.DocStatus IN('CO') "
-						+ "AND o.C_Project_ID = ? "
-						+ "AND o.C_BPartner_ID = ? "
+						+ "AND o.PreOrder_ID = ? "
 						+ "AND o.IsSOTrx = '" + (sourceOrder.isSOTrx()? "Y": "N") + "' "
-						+ "AND EXISTS(SELECT 1 FROM C_DocType dt WHERE dt.C_DocType_ID = o.C_DocType_ID AND dt.IsConsumePreOrder = 'Y')", sourceOrder.getC_Project_ID(), sourceOrder.getC_BPartner_ID());
+						+ "AND EXISTS(SELECT 1 FROM C_DocType dt WHERE dt.C_DocType_ID = o.C_DocType_ID AND dt.IsConsumePreOrder = 'Y')", preOrder.getC_Order_ID());
 				//	Validate
 				if(consumeAmount == null) {
 					consumeAmount = Env.ZERO;
@@ -686,6 +696,7 @@ public class AgencyValidator implements ModelValidator
 					reverseOrder.setDropShip_Location_ID(0);
 					reverseOrder.setDropShip_User_ID(0);
 					reverseOrder.set_ValueOfColumn("ConsumptionOrder_ID", sourceOrder.getC_Order_ID());
+					reverseOrder.set_ValueOfColumn("PreOrder_ID", preOrder.getC_Order_ID());
 					reverseOrder.saveEx();
 					//	Add Line
 					MOrderLine preOrderLine = preOrder.getLines(true, null)[0];
@@ -702,6 +713,11 @@ public class AgencyValidator implements ModelValidator
 					//	Complete
 					if(!reverseOrder.processIt(MOrder.DOCACTION_Complete)) {
 						throw new AdempiereException(reverseOrder.getProcessMsg());
+					}
+					reverseOrder.saveEx();
+					//	Set pre Order
+					if(sourceOrder.get_ValueAsInt("PreOrder_ID") <= 0) {
+						sourceOrder.set_ValueOfColumn("PreOrder_ID", preOrder.getC_Order_ID());
 					}
 				}
 			}
