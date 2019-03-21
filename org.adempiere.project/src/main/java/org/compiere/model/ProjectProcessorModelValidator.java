@@ -20,6 +20,7 @@ package org.compiere.model;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.adempiere.model.GenericPO;
 import org.compiere.util.ProjectProcessorUtils;
 import org.compiere.util.Util;
 import org.eevolution.model.MProjectProcessorLog;
@@ -56,6 +57,46 @@ public class ProjectProcessorModelValidator implements ModelValidator{
 				|| entity.get_TableName().equals(MProjectPhase.Table_Name)
 					|| entity.get_TableName().equals(MProjectTask.Table_Name)) {
 
+			if (type == TYPE_AFTER_CHANGE){
+				if (entity.get_TableName().equals(MProject.Table_Name)) {
+					System.out.println(entity.is_new());
+					if (entity.is_ValueChanged(MProject.COLUMNNAME_ProjectManager_ID)) {
+						GenericPO projectUser = new Query(entity.getCtx(), "C_ProjectUser", "AD_User_ID = ? AND C_Project_ID = ?", entity.get_TrxName())
+												.setParameters(entity.get_Value(MProject.COLUMNNAME_ProjectManager_ID),entity.get_ID())
+												.first();
+						if (projectUser==null) {
+							projectUser = new GenericPO("C_ProjectUser", entity.getCtx(), 0);
+							projectUser.set_Value(MProject.COLUMNNAME_C_Project_ID, entity.get_ID());
+							projectUser.set_Value(MProject.COLUMNNAME_AD_User_ID, entity.get_Value(MProject.COLUMNNAME_ProjectManager_ID));
+							projectUser.save();
+						}
+					}
+				}else if (entity.get_TableName().equals(MProjectPhase.Table_Name)) {
+					if (entity.is_ValueChanged(MProjectPhase.COLUMNNAME_Responsible_ID)) {
+						GenericPO projectUser = new Query(entity.getCtx(), "C_ProjectUser", "AD_User_ID = ? AND C_Project_ID = ?", entity.get_TrxName())
+												.setParameters(entity.get_Value(MProjectPhase.COLUMNNAME_Responsible_ID),entity.get_ID())
+												.first();
+						if (projectUser==null) {
+							projectUser = new GenericPO("C_ProjectUser", entity.getCtx(), 0);
+							projectUser.set_Value(MProjectPhase.COLUMNNAME_C_ProjectPhase_ID, entity.get_ID());
+							projectUser.set_Value(MProject.COLUMNNAME_AD_User_ID, entity.get_Value(MProjectPhase.COLUMNNAME_Responsible_ID));
+							projectUser.save();
+						}
+					}
+				}else if (entity.get_TableName().equals(MProjectTask.Table_Name)) {
+					if (entity.is_ValueChanged(MProjectTask.COLUMNNAME_Responsible_ID)) {
+						GenericPO projectUser = new Query(entity.getCtx(), "C_ProjectUser", "AD_User_ID = ? AND C_Project_ID = ?", entity.get_TrxName())
+												.setParameters(entity.get_Value(MProjectTask.COLUMNNAME_Responsible_ID),entity.get_ID())
+												.first();
+						if (projectUser==null) {
+							projectUser = new GenericPO("C_ProjectUser", entity.getCtx(), 0);
+							projectUser.set_Value(MProjectTask.COLUMNNAME_C_ProjectTask_ID, entity.get_ID());
+							projectUser.set_Value(MProject.COLUMNNAME_AD_User_ID, entity.get_Value(MProjectTask.COLUMNNAME_Responsible_ID));
+							projectUser.save();
+						}
+					}
+				}
+			}
 			if (type == TYPE_AFTER_NEW
 					|| (type == TYPE_AFTER_CHANGE
 							&& columnsValids(entity))) {

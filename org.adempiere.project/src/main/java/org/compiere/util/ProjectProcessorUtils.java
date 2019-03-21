@@ -21,6 +21,7 @@ import java.text.SimpleDateFormat;
 import java.util.List;
 
 import org.adempiere.exceptions.AdempiereException;
+import org.adempiere.model.GenericPO;
 import org.compiere.model.Lookup;
 import org.compiere.model.MColumn;
 import org.compiere.model.MProject;
@@ -230,12 +231,19 @@ public class ProjectProcessorUtils {
 					
 					int  addQueued= 0;
 					//Process Project
-					if (entity.get_Table_ID() == MProject.Table_ID) 
+					if (entity.get_Table_ID() == MProject.Table_ID) { 
 						if (project!= null 
 								&& project.getProjectManager_ID()!=0)
 							if (addQueued(pLog,project.getProjectManager_ID()))
-								addQueued ++; 
-	
+								addQueued ++;
+						
+						List<GenericPO> projectUsers = new Query(entity.getCtx(), "C_ProjectUser", "C_Project_ID = ?", entity.get_TrxName())
+								.setParameters(entity.get_ID())
+								.list();
+						for (GenericPO pUser : projectUsers) 
+							addQueued(pLog,pUser.get_ValueAsInt(MProject.COLUMNNAME_AD_User_ID));
+						
+					}
 					//Process Project Phase
 					if (entity.get_Table_ID() == MProjectPhase.Table_ID) { 
 					
@@ -248,6 +256,12 @@ public class ProjectProcessorUtils {
 								&& project.getProjectManager_ID()!=0)
 							if (addQueued(pLog,project.getProjectManager_ID()))
 								addQueued ++;
+						
+						List<GenericPO> projectUsers = new Query(entity.getCtx(), "C_ProjectUser", "C_ProjectPhase_ID = ?", entity.get_TrxName())
+								.setParameters(entity.get_ID())
+								.list();
+						for (GenericPO pUser : projectUsers) 
+							addQueued(pLog,pUser.get_ValueAsInt(MProject.COLUMNNAME_AD_User_ID));
 					}
 					//Process Project Task
 					if (entity.get_Table_ID() == MProjectTask.Table_ID) { 
@@ -266,6 +280,12 @@ public class ProjectProcessorUtils {
 								&& project.getProjectManager_ID()!=0)
 							if (addQueued(pLog,project.getProjectManager_ID()))
 								addQueued ++;
+						
+						List<GenericPO> projectUsers = new Query(entity.getCtx(), "C_ProjectUser", "C_ProjectTask_ID = ?", entity.get_TrxName())
+								.setParameters(entity.get_ID())
+								.list();
+						for (GenericPO pUser : projectUsers) 
+							addQueued(pLog,pUser.get_ValueAsInt(MProject.COLUMNNAME_AD_User_ID));
 					}
 					
 					//Project Members
