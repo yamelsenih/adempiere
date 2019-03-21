@@ -1,14 +1,12 @@
-/* keylistener.js
 
+/* keylistener.js
 {{IS_NOTE
 	Purpose:
 		zkforge.KeyListener
 	Description:
 		Keylistener component for ZK.
 }}IS_NOTE
-
 Copyright 2007 by Easit AB. All rights reserved.
-
 {{IS_RIGHT
 	This program is distributed under GPL Version 2.0 in the hope that
 	it will be useful, but WITHOUT ANY WARRANTY.
@@ -54,7 +52,7 @@ zkforge.KeyListener = zk.$extends(zul.Widget, {
 	keyDown: function(evt) {
 		if (!evt) evt = window.event;
 
-		var keycode = evt.keyCode, zkcode; //zkcode used to search z.ctkeys
+		var keycode = evt.keyCode, zkcode=''; //zkcode used to search z.ctkeys
 		switch (keycode) {
 			case 13: //ENTER
 				zkcode = 'K';
@@ -95,19 +93,10 @@ zkforge.KeyListener = zk.$extends(zul.Widget, {
 				this.tabIndex = 0;
 			}
 
+			evt.preventDefault();
+			
 			zAu.send(new zk.Event(zk.Widget.$(this), 'onCtrlKey', {keyCode: keycode, ctrlKey: evt.ctrlKey, shiftKey: evt.shiftKey, altKey: evt.altKey}, {toServer: true}));
 			
-			// Do not send request directly, otherwise onChange events won't be fired correctly in IE
-			//setTimeout(function () {
-			//	zAu.send(new zk.Event(zk.Widget.$(this), 'onCtrlKey', {keyCode: keycode, ctrlKey: evt.ctrlKey, shiftKey: evt.shiftKey, altKey: evt.altKey}, {toServer: true}), 38);
-			//}, 10);
-
-			evt.stop();
-
-			// Special handling for IE that Event.stop doesn't support
-			if (document.all && window.event && !evt.preventDefault) {
-				evt.keyCode = 0;
-			}
 			return false;
 		}
 		return true;

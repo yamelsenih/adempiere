@@ -19,28 +19,26 @@ import java.util.Map;
 
 import javax.swing.table.AbstractTableModel;
 
-import org.adempiere.webui.theme.ThemeUtils;
 import org.adempiere.webui.LayoutUtils;
-import org.adempiere.webui.dashboard.DashboardPanel;
 import org.adempiere.webui.editor.WEditor;
 import org.adempiere.webui.panel.ADTabPanel;
 import org.adempiere.webui.panel.AbstractADWindowPanel;
 import org.adempiere.webui.panel.IADTabPanel;
+import org.adempiere.webui.theme.ThemeUtils;
 import org.adempiere.webui.util.SortComparator;
 import org.compiere.model.GridField;
 import org.compiere.model.GridTab;
 import org.compiere.model.GridTable;
-import org.compiere.model.MSysConfig;
 import org.compiere.util.CLogger;
 import org.compiere.util.DisplayType;
 import org.compiere.util.Env;
 import org.compiere.util.Msg;
+import org.compiere.util.Util;
 import org.zkforge.keylistener.Keylistener;
 import org.zkoss.zk.au.out.AuFocus;
 import org.zkoss.zk.au.out.AuScript;
 import org.zkoss.zk.ui.AbstractComponent;
 import org.zkoss.zk.ui.Component;
-import org.zkoss.zk.ui.HtmlBasedComponent;
 import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.event.EventListener;
 import org.zkoss.zk.ui.event.Events;
@@ -48,11 +46,11 @@ import org.zkoss.zk.ui.event.KeyEvent;
 import org.zkoss.zk.ui.util.Clients;
 import org.zkoss.zul.Borderlayout;
 import org.zkoss.zul.Center;
-import org.zkoss.zul.South;
 import org.zkoss.zul.Column;
 import org.zkoss.zul.Div;
 import org.zkoss.zul.Paging;
 import org.zkoss.zul.Row;
+import org.zkoss.zul.South;
 import org.zkoss.zul.event.ZulEvents;
 
 /**
@@ -63,7 +61,7 @@ import org.zkoss.zul.event.ZulEvents;
  *    <li>New ADempiere 3.8.0 ZK Theme Light  https://adempiere.atlassian.net/browse/ADEMPIERE-320 
  *
  */
-public class GridPanel extends Borderlayout implements EventListener
+public class GridPanel extends Borderlayout implements EventListener<Event>
 {
 	/**
 	 * generated serial version ID
@@ -152,24 +150,27 @@ public class GridPanel extends Borderlayout implements EventListener
 	{
 		ThemeUtils.addSclass("ad-gridpanel adtab-grid-panel", this);
 		this.windowNo = windowNo;
-		listbox = new Grid();
-		
-		listbox.addEventListener(Events.ON_FOCUS, this);
-		
-		
-		listbox.setOddRowSclass(null);
-		south = new South();
-		this.appendChild(south);
+		init_components();
 
-		center = new Center();
-		center.appendChild(listbox);
-		this.appendChild(center);
-		
-		//default paging size
-		pageSize = MSysConfig.getIntValue(PAGE_SIZE_KEY, 100);
-
-		//default false for better performance
-		modeless = MSysConfig.getBooleanValue(MODE_LESS_KEY, false);
+		listbox.setEmptyMessage(Util.cleanAmp(Msg.getMsg(Env.getCtx(), "Processing")));
+//		listbox = new Grid();
+//		
+//		listbox.addEventListener(Events.ON_FOCUS, this);
+//		
+//		
+//		listbox.setOddRowSclass(null);
+//		south = new South();
+//		this.appendChild(south);
+//
+//		center = new Center();
+//		center.appendChild(listbox);
+//		this.appendChild(center);
+//		
+//		//default paging size
+//		pageSize = MSysConfig.getIntValue(PAGE_SIZE_KEY, 100);
+//
+//		//default false for better performance
+//		modeless = MSysConfig.getBooleanValue(MODE_LESS_KEY, false);
 	}
 
 	/**

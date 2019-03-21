@@ -93,7 +93,7 @@ import org.zkoss.zul.West;
  *		<a href="https://github.com/adempiere/adempiere/issues/1063">
  * 		@see BR [ 1063 ] Null pointer exception in field type Account zk</a>
  */
-public class ADTabPanel extends Div implements Evaluatee, EventListener, DataStatusListener, IADTabPanel, VetoableChangeListener
+public class ADTabPanel extends Div implements Evaluatee, EventListener<Event>, DataStatusListener, IADTabPanel, VetoableChangeListener
 {
 	/**
 	 * generated serial version ID

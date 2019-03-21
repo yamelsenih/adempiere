@@ -25,7 +25,10 @@ import java.util.Map;
 
 import org.adempiere.webui.theme.ThemeUtils;
 import org.zkoss.zk.ui.Component;
+import org.zkoss.zk.ui.IdSpace;
+import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.event.EventListener;
+import org.zkoss.zk.ui.event.Events;
 import org.zkoss.zk.ui.event.Express;
 
 /**
@@ -34,7 +37,8 @@ import org.zkoss.zk.ui.event.Express;
  * @date    Feb 25, 2007
  * @version $Revision: 0.10 $
  */
-public class Grid extends org.zkoss.zul.Grid
+public class Grid extends org.zkoss.zul.Grid implements IdSpace
+
 {
 	private static final long serialVersionUID = -4483759833677794926L;
 	private boolean noStrip = false;
@@ -88,14 +92,10 @@ public class Grid extends org.zkoss.zul.Grid
 			oddRowSclass = scls;
 		super.setOddRowSclass(scls);
 	}
-	public boolean addEventListener(String evtnm, EventListener listener)
-	{
-		return addEventListener((listener instanceof Express) ? 1000 : 0, evtnm, listener);
-	}
 	
-	public boolean addEventListener(int priority, String evtnm, EventListener listener)
+	public boolean addEventListener(int priority, String evtnm, EventListener<? extends Event> listener)
 	{
-		boolean b = super.addEventListener(evtnm, listener);
+		boolean b =  super.addEventListener(priority, evtnm, listener);
 		if (b)
 		{
 			final EventListenerInfo listenerInfo = new EventListenerInfo(priority, listener);
@@ -125,7 +125,7 @@ public class Grid extends org.zkoss.zul.Grid
 		return b;
 	}
 
-	public boolean removeEventListener(String evtnm, EventListener listener)
+	public boolean removeEventListener(String evtnm, EventListener<? extends Event> listener)
 	{
 		boolean b = super.removeEventListener(evtnm, listener);
 		if (b)
@@ -167,13 +167,11 @@ public class Grid extends org.zkoss.zul.Grid
 	 * 
 	 * @author Sachin
 	 */
-	private static class EventListenerInfo
-	{
-		private final int			priority;
-		private final EventListener	listener;
+	private static class EventListenerInfo {
+		private final int priority;
+		private final EventListener<? extends Event> listener;
 
-		private EventListenerInfo(int priority, EventListener listener)
-		{
+		private EventListenerInfo(int priority, EventListener<? extends Event> listener) {
 			this.priority = priority;
 			this.listener = listener;
 		}

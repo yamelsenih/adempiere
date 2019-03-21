@@ -132,7 +132,7 @@ import org.zkoss.zul.Menupopup;
  *		<li> BR [ 1059 ] Error when a process button deletes a record from the window
  */
 public abstract class AbstractADWindowPanel extends AbstractUIPart implements ToolbarListener,
-        EventListener, DataStatusListener, ActionListener, ASyncProcess
+        EventListener<Event>, DataStatusListener, ActionListener, ASyncProcess
 {
     private static final CLogger logger;
 

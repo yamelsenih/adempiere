@@ -58,9 +58,6 @@ import org.zkoss.zul.RendererCtrl;
 import org.zkoss.zul.Row;
 import org.zkoss.zul.RowRenderer;
 import org.zkoss.zul.RowRendererExt;
-import org.zkoss.zhtml.Input;
-import org.zkoss.zhtml.Label;
-import org.zkoss.zhtml.Text;
 
 /**
  * Row renderer for GridTab grid.
@@ -74,7 +71,7 @@ import org.zkoss.zhtml.Text;
  * 		@see FR [ 1697 ] Add definition for change style</a>
  *
  */
-public class GridTabRowRenderer implements RowRenderer<Object[]>, RowRendererExt, RendererCtrl, EventListener {
+public class GridTabRowRenderer implements RowRenderer<Object[]>, RowRendererExt, RendererCtrl, EventListener<Event>  {
 
 	private static final String CURRENT_ROW_STYLE = "border-top: 2px solid #1f9bde; border-bottom: 2px solid #1f9bde";
 	private static final int MAX_TEXT_LENGTH = 60;
@@ -359,7 +356,7 @@ public class GridTabRowRenderer implements RowRenderer<Object[]>, RowRendererExt
 		currentValues = (Object[])data;
 		
 		int columnCount = gridTab.getTableModel().getColumnCount();
-		int rowIndex = row.getParent().getChildren().indexOf(row);
+		int rowIndex = index;
 		if (paging != null && paging.getPageSize() > 0) {
 			rowIndex = (paging.getActivePage() * paging.getPageSize()) + rowIndex;
 		}

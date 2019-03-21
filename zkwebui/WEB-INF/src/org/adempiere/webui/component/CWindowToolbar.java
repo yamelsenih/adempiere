@@ -60,7 +60,7 @@ import org.zkoss.zul.Space;
  * 		<a href="https://github.com/adempiere/adempiere/issues/999">
  * 		@see FR [ 999 ] Add ZK Support for Process Action</a>
  */
-public class CWindowToolbar extends FToolbar implements EventListener
+public class CWindowToolbar extends FToolbar implements EventListener<Event>
 {
     /**
 	 *
