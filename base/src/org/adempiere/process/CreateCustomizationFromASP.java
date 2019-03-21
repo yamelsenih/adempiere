@@ -43,9 +43,10 @@ import org.compiere.model.MWindowCustom;
 import org.compiere.util.DB;
 import org.compiere.util.DisplayType;
 
-/** Generated Process for (Create Customization)
- *  @author ADempiere (generated) 
- *  @version Release 3.9.1
+/** 
+ * 	Create Customization from ASP or Menu
+ *  @author Yamel Senih, ysenih@erpya.com , http://www.erpya.com
+ *  @version Release 3.9.2
  */
 public class CreateCustomizationFromASP extends CreateCustomizationFromASPAbstract {
 
