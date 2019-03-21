@@ -20,15 +20,15 @@ import java.math.BigDecimal;
 import java.sql.Timestamp;
 import org.compiere.util.KeyNamePair;
 
-/** Generated Interface for AD_UserDef_Win
+/** Generated Interface for AD_WindowCustom
  *  @author Adempiere (generated) 
  *  @version Release 3.9.1
  */
-public interface I_AD_UserDef_Win 
+public interface I_AD_WindowCustom 
 {
 
-    /** TableName=AD_UserDef_Win */
-    public static final String Table_Name = "AD_UserDef_Win";
+    /** TableName=AD_WindowCustom */
+    public static final String Table_Name = "AD_WindowCustom";
 
     /** AD_Table_ID=467 */
     public static final int Table_ID = MTable.getTable_ID(Table_Name);
@@ -48,6 +48,21 @@ public interface I_AD_UserDef_Win
 	  * Client/Tenant for this installation.
 	  */
 	public int getAD_Client_ID();
+
+    /** Column name AD_ContextInfo_ID */
+    public static final String COLUMNNAME_AD_ContextInfo_ID = "AD_ContextInfo_ID";
+
+	/** Set Context Info.
+	  * Context Info Maintaining
+	  */
+	public void setAD_ContextInfo_ID (int AD_ContextInfo_ID);
+
+	/** Get Context Info.
+	  * Context Info Maintaining
+	  */
+	public int getAD_ContextInfo_ID();
+
+	public org.spin.model.I_AD_ContextInfo getAD_ContextInfo() throws RuntimeException;
 
     /** Column name AD_Language */
     public static final String COLUMNNAME_AD_Language = "AD_Language";
@@ -90,15 +105,6 @@ public interface I_AD_UserDef_Win
 
 	public org.compiere.model.I_AD_Role getAD_Role() throws RuntimeException;
 
-    /** Column name AD_UserDef_Win_ID */
-    public static final String COLUMNNAME_AD_UserDef_Win_ID = "AD_UserDef_Win_ID";
-
-	/** Set User defined Window	  */
-	public void setAD_UserDef_Win_ID (int AD_UserDef_Win_ID);
-
-	/** Get User defined Window	  */
-	public int getAD_UserDef_Win_ID();
-
     /** Column name AD_User_ID */
     public static final String COLUMNNAME_AD_User_ID = "AD_User_ID";
 
@@ -114,6 +120,15 @@ public interface I_AD_UserDef_Win
 
 	public org.compiere.model.I_AD_User getAD_User() throws RuntimeException;
 
+    /** Column name AD_WindowCustom_ID */
+    public static final String COLUMNNAME_AD_WindowCustom_ID = "AD_WindowCustom_ID";
+
+	/** Set User defined Window	  */
+	public void setAD_WindowCustom_ID (int AD_WindowCustom_ID);
+
+	/** Get User defined Window	  */
+	public int getAD_WindowCustom_ID();
+
     /** Column name AD_Window_ID */
     public static final String COLUMNNAME_AD_Window_ID = "AD_Window_ID";
 
@@ -128,6 +143,17 @@ public interface I_AD_UserDef_Win
 	public int getAD_Window_ID();
 
 	public org.compiere.model.I_AD_Window getAD_Window() throws RuntimeException;
+
+    /** Column name ASP_Level_ID */
+    public static final String COLUMNNAME_ASP_Level_ID = "ASP_Level_ID";
+
+	/** Set ASP Level	  */
+	public void setASP_Level_ID (int ASP_Level_ID);
+
+	/** Get ASP Level	  */
+	public int getASP_Level_ID();
+
+	public org.compiere.model.I_ASP_Level getASP_Level() throws RuntimeException;
 
     /** Column name Created */
     public static final String COLUMNNAME_Created = "Created";
@@ -171,6 +197,15 @@ public interface I_AD_UserDef_Win
 	  */
 	public String getHelp();
 
+    /** Column name HierarchyType */
+    public static final String COLUMNNAME_HierarchyType = "HierarchyType";
+
+	/** Set Hierarchy Type	  */
+	public void setHierarchyType (String HierarchyType);
+
+	/** Get Hierarchy Type	  */
+	public String getHierarchyType();
+
     /** Column name IsActive */
     public static final String COLUMNNAME_IsActive = "IsActive";
 
@@ -203,12 +238,12 @@ public interface I_AD_UserDef_Win
 	/** Set Read Only.
 	  * Field is read only
 	  */
-	public void setIsReadOnly (boolean IsReadOnly);
+	public void setIsReadOnly (String IsReadOnly);
 
 	/** Get Read Only.
 	  * Field is read only
 	  */
-	public boolean isReadOnly();
+	public String getIsReadOnly();
 
     /** Column name IsUserUpdateable */
     public static final String COLUMNNAME_IsUserUpdateable = "IsUserUpdateable";
@@ -216,12 +251,12 @@ public interface I_AD_UserDef_Win
 	/** Set User updatable.
 	  * The field can be updated by the user
 	  */
-	public void setIsUserUpdateable (boolean IsUserUpdateable);
+	public void setIsUserUpdateable (String IsUserUpdateable);
 
 	/** Get User updatable.
 	  * The field can be updated by the user
 	  */
-	public boolean isUserUpdateable();
+	public String getIsUserUpdateable();
 
     /** Column name Name */
     public static final String COLUMNNAME_Name = "Name";
@@ -235,19 +270,6 @@ public interface I_AD_UserDef_Win
 	  * Alphanumeric identifier of the entity
 	  */
 	public String getName();
-
-    /** Column name UUID */
-    public static final String COLUMNNAME_UUID = "UUID";
-
-	/** Set Immutable Universally Unique Identifier.
-	  * Immutable Universally Unique Identifier
-	  */
-	public void setUUID (String UUID);
-
-	/** Get Immutable Universally Unique Identifier.
-	  * Immutable Universally Unique Identifier
-	  */
-	public String getUUID();
 
     /** Column name Updated */
     public static final String COLUMNNAME_Updated = "Updated";
@@ -264,4 +286,30 @@ public interface I_AD_UserDef_Win
 	  * User who updated this records
 	  */
 	public int getUpdatedBy();
+
+    /** Column name UUID */
+    public static final String COLUMNNAME_UUID = "UUID";
+
+	/** Set Immutable Universally Unique Identifier.
+	  * Immutable Universally Unique Identifier
+	  */
+	public void setUUID (String UUID);
+
+	/** Get Immutable Universally Unique Identifier.
+	  * Immutable Universally Unique Identifier
+	  */
+	public String getUUID();
+
+    /** Column name WindowType */
+    public static final String COLUMNNAME_WindowType = "WindowType";
+
+	/** Set WindowType.
+	  * Type or classification of a Window
+	  */
+	public void setWindowType (String WindowType);
+
+	/** Get WindowType.
+	  * Type or classification of a Window
+	  */
+	public String getWindowType();
 }
