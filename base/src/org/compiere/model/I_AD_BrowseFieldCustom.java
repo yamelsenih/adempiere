@@ -30,7 +30,7 @@ public interface I_AD_BrowseFieldCustom
     /** TableName=AD_BrowseFieldCustom */
     public static final String Table_Name = "AD_BrowseFieldCustom";
 
-    /** AD_Table_ID=1000003 */
+    /** AD_Table_ID=54616 */
     public static final int Table_ID = MTable.getTable_ID(Table_Name);
 
     KeyNamePair Model = new KeyNamePair(Table_ID, Table_Name);
@@ -44,10 +44,10 @@ public interface I_AD_BrowseFieldCustom
     /** Column name AD_BrowseCustom_ID */
     public static final String COLUMNNAME_AD_BrowseCustom_ID = "AD_BrowseCustom_ID";
 
-	/** Set User defined Browse	  */
+	/** Set Browse Customization	  */
 	public void setAD_BrowseCustom_ID (int AD_BrowseCustom_ID);
 
-	/** Get User defined Browse	  */
+	/** Get Browse Customization	  */
 	public int getAD_BrowseCustom_ID();
 
 	public org.compiere.model.I_AD_BrowseCustom getAD_BrowseCustom() throws RuntimeException;
@@ -55,10 +55,10 @@ public interface I_AD_BrowseFieldCustom
     /** Column name AD_BrowseFieldCustom_ID */
     public static final String COLUMNNAME_AD_BrowseFieldCustom_ID = "AD_BrowseFieldCustom_ID";
 
-	/** Set User defined Browse Field	  */
+	/** Set Browse Field	  */
 	public void setAD_BrowseFieldCustom_ID (int AD_BrowseFieldCustom_ID);
 
-	/** Get User defined Browse Field	  */
+	/** Get Browse Field	  */
 	public int getAD_BrowseFieldCustom_ID();
 
     /** Column name AD_Browse_Field_ID */
@@ -151,7 +151,7 @@ public interface I_AD_BrowseFieldCustom
 	  */
 	public int getAxis_Column_ID();
 
-	public org.adempiere.model.I_AD_View_Column getAxis_Column() throws RuntimeException;
+	public org.compiere.model.I_AD_Column getAxis_Column() throws RuntimeException;
 
     /** Column name Axis_Parent_Column_ID */
     public static final String COLUMNNAME_Axis_Parent_Column_ID = "Axis_Parent_Column_ID";

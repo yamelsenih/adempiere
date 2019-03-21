@@ -30,7 +30,7 @@ public interface I_AD_ProcessCustom
     /** TableName=AD_ProcessCustom */
     public static final String Table_Name = "AD_ProcessCustom";
 
-    /** AD_Table_ID=1000000 */
+    /** AD_Table_ID=54610 */
     public static final int Table_ID = MTable.getTable_ID(Table_Name);
 
     KeyNamePair Model = new KeyNamePair(Table_ID, Table_Name);
@@ -75,19 +75,6 @@ public interface I_AD_ProcessCustom
 
 	public org.compiere.model.I_AD_Form getAD_Form() throws RuntimeException;
 
-    /** Column name AD_Language */
-    public static final String COLUMNNAME_AD_Language = "AD_Language";
-
-	/** Set Language.
-	  * Language for this entity
-	  */
-	public void setAD_Language (String AD_Language);
-
-	/** Get Language.
-	  * Language for this entity
-	  */
-	public String getAD_Language();
-
     /** Column name AD_Org_ID */
     public static final String COLUMNNAME_AD_Org_ID = "AD_Org_ID";
 
@@ -119,10 +106,10 @@ public interface I_AD_ProcessCustom
     /** Column name AD_ProcessCustom_ID */
     public static final String COLUMNNAME_AD_ProcessCustom_ID = "AD_ProcessCustom_ID";
 
-	/** Set User defined Process	  */
+	/** Set Process Customization	  */
 	public void setAD_ProcessCustom_ID (int AD_ProcessCustom_ID);
 
-	/** Get User defined Process	  */
+	/** Get Process Customization	  */
 	public int getAD_ProcessCustom_ID();
 
     /** Column name AD_Process_ID */
@@ -256,10 +243,14 @@ public interface I_AD_ProcessCustom
     /** Column name HierarchyType */
     public static final String COLUMNNAME_HierarchyType = "HierarchyType";
 
-	/** Set Hierarchy Type	  */
+	/** Set Hierarchy Type.
+	  * Hierarchy Type (Hierarchy: Add, Merge or Overwrite)
+	  */
 	public void setHierarchyType (String HierarchyType);
 
-	/** Get Hierarchy Type	  */
+	/** Get Hierarchy Type.
+	  * Hierarchy Type (Hierarchy: Add, Merge or Overwrite)
+	  */
 	public String getHierarchyType();
 
     /** Column name IsActive */
@@ -275,31 +266,18 @@ public interface I_AD_ProcessCustom
 	  */
 	public boolean isActive();
 
-    /** Column name IsDefault */
-    public static final String COLUMNNAME_IsDefault = "IsDefault";
-
-	/** Set Default.
-	  * Default value
-	  */
-	public void setIsDefault (boolean IsDefault);
-
-	/** Get Default.
-	  * Default value
-	  */
-	public boolean isDefault();
-
     /** Column name IsDirectPrint */
     public static final String COLUMNNAME_IsDirectPrint = "IsDirectPrint";
 
 	/** Set Direct print.
 	  * Print without dialog
 	  */
-	public void setIsDirectPrint (boolean IsDirectPrint);
+	public void setIsDirectPrint (String IsDirectPrint);
 
 	/** Get Direct print.
 	  * Print without dialog
 	  */
-	public boolean isDirectPrint();
+	public String getIsDirectPrint();
 
     /** Column name Name */
     public static final String COLUMNNAME_Name = "Name";

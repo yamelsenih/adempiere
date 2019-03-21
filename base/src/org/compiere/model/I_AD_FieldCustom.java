@@ -67,10 +67,10 @@ public interface I_AD_FieldCustom
     /** Column name AD_FieldCustom_ID */
     public static final String COLUMNNAME_AD_FieldCustom_ID = "AD_FieldCustom_ID";
 
-	/** Set User defined Field	  */
+	/** Set Custom Field	  */
 	public void setAD_FieldCustom_ID (int AD_FieldCustom_ID);
 
-	/** Get User defined Field	  */
+	/** Get Custom Field	  */
 	public int getAD_FieldCustom_ID();
 
     /** Column name AD_FieldDefinition_ID */
@@ -175,10 +175,10 @@ public interface I_AD_FieldCustom
     /** Column name AD_TabCustom_ID */
     public static final String COLUMNNAME_AD_TabCustom_ID = "AD_TabCustom_ID";
 
-	/** Set User defined Tab	  */
+	/** Set Custom Tab	  */
 	public void setAD_TabCustom_ID (int AD_TabCustom_ID);
 
-	/** Get User defined Tab	  */
+	/** Get Custom Tab	  */
 	public int getAD_TabCustom_ID();
 
 	public org.compiere.model.I_AD_TabCustom getAD_TabCustom() throws RuntimeException;
@@ -456,12 +456,12 @@ public interface I_AD_FieldCustom
 	/** Set Updatable.
 	  * Determines, if the field can be updated
 	  */
-	public void setIsUpdateable (String IsUpdateable);
+	public void setIsUpdateable (boolean IsUpdateable);
 
 	/** Get Updatable.
 	  * Determines, if the field can be updated
 	  */
-	public String getIsUpdateable();
+	public boolean isUpdateable();
 
     /** Column name Name */
     public static final String COLUMNNAME_Name = "Name";

@@ -1109,7 +1109,9 @@ public class ASPUtil {
 			process.setAD_PrintFormat_ID(customProcess.getAD_PrintFormat_ID());
 		}
 		//	Direct Print
-		process.setIsDirectPrint(customProcess.isDirectPrint());
+		if(!Util.isEmpty(customProcess.getIsDirectPrint())) {
+			process.setIsDirectPrint(customProcess.getIsDirectPrint().equals("Y"));
+		}
 		//	Smart Browse
 		if(customProcess.getAD_Browse_ID() > 0) {
 			process.setAD_Browse_ID(customProcess.getAD_Browse_ID());
@@ -1238,7 +1240,6 @@ public class ASPUtil {
 				window.setHelp(value);
 			}
 		}
-		window.setIsDefault(customWindow.isDefault());
 		//	Is Read Only
 		if(!Util.isEmpty(customWindow.getWindowType())) {
 			window.setWindowType(customWindow.getWindowType());

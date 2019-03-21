@@ -29,7 +29,7 @@ public class X_AD_ProcessParaCustom extends PO implements I_AD_ProcessParaCustom
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20190224L;
+	private static final long serialVersionUID = 20190321L;
 
     /** Standard Constructor */
     public X_AD_ProcessParaCustom (Properties ctx, int AD_ProcessParaCustom_ID, String trxName)
@@ -37,7 +37,6 @@ public class X_AD_ProcessParaCustom extends PO implements I_AD_ProcessParaCustom
       super (ctx, AD_ProcessParaCustom_ID, trxName);
       /** if (AD_ProcessParaCustom_ID == 0)
         {
-			setAD_ProcessCustom_ID (0);
 			setAD_ProcessParaCustom_ID (0);
 			setAD_Process_Para_ID (0);
         } */
@@ -76,8 +75,8 @@ public class X_AD_ProcessParaCustom extends PO implements I_AD_ProcessParaCustom
 		return (org.compiere.model.I_AD_ProcessCustom)MTable.get(getCtx(), org.compiere.model.I_AD_ProcessCustom.Table_Name)
 			.getPO(getAD_ProcessCustom_ID(), get_TrxName());	}
 
-	/** Set User defined Process.
-		@param AD_ProcessCustom_ID User defined Process	  */
+	/** Set Process Customization.
+		@param AD_ProcessCustom_ID Process Customization	  */
 	public void setAD_ProcessCustom_ID (int AD_ProcessCustom_ID)
 	{
 		if (AD_ProcessCustom_ID < 1) 
@@ -86,8 +85,8 @@ public class X_AD_ProcessParaCustom extends PO implements I_AD_ProcessParaCustom
 			set_ValueNoCheck (COLUMNNAME_AD_ProcessCustom_ID, Integer.valueOf(AD_ProcessCustom_ID));
 	}
 
-	/** Get User defined Process.
-		@return User defined Process	  */
+	/** Get Process Customization.
+		@return Process Customization	  */
 	public int getAD_ProcessCustom_ID () 
 	{
 		Integer ii = (Integer)get_Value(COLUMNNAME_AD_ProcessCustom_ID);
@@ -96,8 +95,8 @@ public class X_AD_ProcessParaCustom extends PO implements I_AD_ProcessParaCustom
 		return ii.intValue();
 	}
 
-	/** Set User defined Process Parameters.
-		@param AD_ProcessParaCustom_ID User defined Process Parameters	  */
+	/** Set Process Parameter.
+		@param AD_ProcessParaCustom_ID Process Parameter	  */
 	public void setAD_ProcessParaCustom_ID (int AD_ProcessParaCustom_ID)
 	{
 		if (AD_ProcessParaCustom_ID < 1) 
@@ -106,8 +105,8 @@ public class X_AD_ProcessParaCustom extends PO implements I_AD_ProcessParaCustom
 			set_ValueNoCheck (COLUMNNAME_AD_ProcessParaCustom_ID, Integer.valueOf(AD_ProcessParaCustom_ID));
 	}
 
-	/** Get User defined Process Parameters.
-		@return User defined Process Parameters	  */
+	/** Get Process Parameter.
+		@return Process Parameter	  */
 	public int getAD_ProcessParaCustom_ID () 
 	{
 		Integer ii = (Integer)get_Value(COLUMNNAME_AD_ProcessParaCustom_ID);

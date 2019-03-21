@@ -30,7 +30,7 @@ public interface I_AD_ProcessParaCustom
     /** TableName=AD_ProcessParaCustom */
     public static final String Table_Name = "AD_ProcessParaCustom";
 
-    /** AD_Table_ID=1000001 */
+    /** AD_Table_ID=54612 */
     public static final int Table_ID = MTable.getTable_ID(Table_Name);
 
     KeyNamePair Model = new KeyNamePair(Table_ID, Table_Name);
@@ -65,10 +65,10 @@ public interface I_AD_ProcessParaCustom
     /** Column name AD_ProcessCustom_ID */
     public static final String COLUMNNAME_AD_ProcessCustom_ID = "AD_ProcessCustom_ID";
 
-	/** Set User defined Process	  */
+	/** Set Process Customization	  */
 	public void setAD_ProcessCustom_ID (int AD_ProcessCustom_ID);
 
-	/** Get User defined Process	  */
+	/** Get Process Customization	  */
 	public int getAD_ProcessCustom_ID();
 
 	public org.compiere.model.I_AD_ProcessCustom getAD_ProcessCustom() throws RuntimeException;
@@ -76,10 +76,10 @@ public interface I_AD_ProcessParaCustom
     /** Column name AD_ProcessParaCustom_ID */
     public static final String COLUMNNAME_AD_ProcessParaCustom_ID = "AD_ProcessParaCustom_ID";
 
-	/** Set User defined Process Parameters	  */
+	/** Set Process Parameter	  */
 	public void setAD_ProcessParaCustom_ID (int AD_ProcessParaCustom_ID);
 
-	/** Get User defined Process Parameters	  */
+	/** Get Process Parameter	  */
 	public int getAD_ProcessParaCustom_ID();
 
     /** Column name AD_Process_Para_ID */

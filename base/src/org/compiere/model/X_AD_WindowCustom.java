@@ -29,7 +29,7 @@ public class X_AD_WindowCustom extends PO implements I_AD_WindowCustom, I_Persis
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20190224L;
+	private static final long serialVersionUID = 20190321L;
 
     /** Standard Constructor */
     public X_AD_WindowCustom (Properties ctx, int AD_WindowCustom_ID, String trxName)
@@ -100,26 +100,6 @@ public class X_AD_WindowCustom extends PO implements I_AD_WindowCustom, I_Persis
 		return ii.intValue();
 	}
 
-	/** AD_Language AD_Reference_ID=106 */
-	public static final int AD_LANGUAGE_AD_Reference_ID=106;
-	/** Set Language.
-		@param AD_Language 
-		Language for this entity
-	  */
-	public void setAD_Language (String AD_Language)
-	{
-
-		set_Value (COLUMNNAME_AD_Language, AD_Language);
-	}
-
-	/** Get Language.
-		@return Language for this entity
-	  */
-	public String getAD_Language () 
-	{
-		return (String)get_Value(COLUMNNAME_AD_Language);
-	}
-
 	public org.compiere.model.I_AD_Role getAD_Role() throws RuntimeException
     {
 		return (org.compiere.model.I_AD_Role)MTable.get(getCtx(), org.compiere.model.I_AD_Role.Table_Name)
@@ -176,8 +156,8 @@ public class X_AD_WindowCustom extends PO implements I_AD_WindowCustom, I_Persis
 		return ii.intValue();
 	}
 
-	/** Set User defined Window.
-		@param AD_WindowCustom_ID User defined Window	  */
+	/** Set Window Customization .
+		@param AD_WindowCustom_ID Window Customization 	  */
 	public void setAD_WindowCustom_ID (int AD_WindowCustom_ID)
 	{
 		if (AD_WindowCustom_ID < 1) 
@@ -186,8 +166,8 @@ public class X_AD_WindowCustom extends PO implements I_AD_WindowCustom, I_Persis
 			set_ValueNoCheck (COLUMNNAME_AD_WindowCustom_ID, Integer.valueOf(AD_WindowCustom_ID));
 	}
 
-	/** Get User defined Window.
-		@return User defined Window	  */
+	/** Get Window Customization .
+		@return Window Customization 	  */
 	public int getAD_WindowCustom_ID () 
 	{
 		Integer ii = (Integer)get_Value(COLUMNNAME_AD_WindowCustom_ID);
@@ -283,14 +263,18 @@ public class X_AD_WindowCustom extends PO implements I_AD_WindowCustom, I_Persis
 		return (String)get_Value(COLUMNNAME_Help);
 	}
 
-	/** HierarchyType AD_Reference_ID=1000000 */
-	public static final int HIERARCHYTYPE_AD_Reference_ID=1000000;
-	/** Overwrite = O */
-	public static final String HIERARCHYTYPE_Overwrite = "O";
+	/** HierarchyType AD_Reference_ID=54117 */
+	public static final int HIERARCHYTYPE_AD_Reference_ID=54117;
+	/** Add = A */
+	public static final String HIERARCHYTYPE_Add = "A";
 	/** Merge = M */
 	public static final String HIERARCHYTYPE_Merge = "M";
+	/** Overwrite = O */
+	public static final String HIERARCHYTYPE_Overwrite = "O";
 	/** Set Hierarchy Type.
-		@param HierarchyType Hierarchy Type	  */
+		@param HierarchyType 
+		Hierarchy Type (Hierarchy: Add, Merge or Overwrite)
+	  */
 	public void setHierarchyType (String HierarchyType)
 	{
 
@@ -298,34 +282,11 @@ public class X_AD_WindowCustom extends PO implements I_AD_WindowCustom, I_Persis
 	}
 
 	/** Get Hierarchy Type.
-		@return Hierarchy Type	  */
+		@return Hierarchy Type (Hierarchy: Add, Merge or Overwrite)
+	  */
 	public String getHierarchyType () 
 	{
 		return (String)get_Value(COLUMNNAME_HierarchyType);
-	}
-
-	/** Set Default.
-		@param IsDefault 
-		Default value
-	  */
-	public void setIsDefault (boolean IsDefault)
-	{
-		set_Value (COLUMNNAME_IsDefault, Boolean.valueOf(IsDefault));
-	}
-
-	/** Get Default.
-		@return Default value
-	  */
-	public boolean isDefault () 
-	{
-		Object oo = get_Value(COLUMNNAME_IsDefault);
-		if (oo != null) 
-		{
-			 if (oo instanceof Boolean) 
-				 return ((Boolean)oo).booleanValue(); 
-			return "Y".equals(oo);
-		}
-		return false;
 	}
 
 	/** IsReadOnly AD_Reference_ID=319 */

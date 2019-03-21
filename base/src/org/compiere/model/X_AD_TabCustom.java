@@ -29,7 +29,7 @@ public class X_AD_TabCustom extends PO implements I_AD_TabCustom, I_Persistent
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20190224L;
+	private static final long serialVersionUID = 20190321L;
 
     /** Standard Constructor */
     public X_AD_TabCustom (Properties ctx, int AD_TabCustom_ID, String trxName)
@@ -155,8 +155,8 @@ public class X_AD_TabCustom extends PO implements I_AD_TabCustom, I_Persistent
 		return ii.intValue();
 	}
 
-	/** Set User defined Tab.
-		@param AD_TabCustom_ID User defined Tab	  */
+	/** Set Custom Tab.
+		@param AD_TabCustom_ID Custom Tab	  */
 	public void setAD_TabCustom_ID (int AD_TabCustom_ID)
 	{
 		if (AD_TabCustom_ID < 1) 
@@ -165,8 +165,8 @@ public class X_AD_TabCustom extends PO implements I_AD_TabCustom, I_Persistent
 			set_ValueNoCheck (COLUMNNAME_AD_TabCustom_ID, Integer.valueOf(AD_TabCustom_ID));
 	}
 
-	/** Get User defined Tab.
-		@return User defined Tab	  */
+	/** Get Custom Tab.
+		@return Custom Tab	  */
 	public int getAD_TabCustom_ID () 
 	{
 		Integer ii = (Integer)get_Value(COLUMNNAME_AD_TabCustom_ID);
@@ -208,8 +208,8 @@ public class X_AD_TabCustom extends PO implements I_AD_TabCustom, I_Persistent
 		return (org.compiere.model.I_AD_WindowCustom)MTable.get(getCtx(), org.compiere.model.I_AD_WindowCustom.Table_Name)
 			.getPO(getAD_WindowCustom_ID(), get_TrxName());	}
 
-	/** Set User defined Window.
-		@param AD_WindowCustom_ID User defined Window	  */
+	/** Set Window Customization .
+		@param AD_WindowCustom_ID Window Customization 	  */
 	public void setAD_WindowCustom_ID (int AD_WindowCustom_ID)
 	{
 		if (AD_WindowCustom_ID < 1) 
@@ -218,8 +218,8 @@ public class X_AD_TabCustom extends PO implements I_AD_TabCustom, I_Persistent
 			set_ValueNoCheck (COLUMNNAME_AD_WindowCustom_ID, Integer.valueOf(AD_WindowCustom_ID));
 	}
 
-	/** Get User defined Window.
-		@return User defined Window	  */
+	/** Get Window Customization .
+		@return Window Customization 	  */
 	public int getAD_WindowCustom_ID () 
 	{
 		Integer ii = (Integer)get_Value(COLUMNNAME_AD_WindowCustom_ID);

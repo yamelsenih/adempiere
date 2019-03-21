@@ -32,8 +32,6 @@ public class MProcessCustom extends X_AD_ProcessCustom {
 	
 	public MProcessCustom(Properties ctx, int AD_ProcessCustom_ID, String trxName) {
 		super(ctx, AD_ProcessCustom_ID, trxName);
-		setIsDefault(false);
-		setIsDirectPrint(false);
 		setShowHelp(null);
 	}
 

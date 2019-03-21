@@ -32,7 +32,6 @@ public class MWindowCustom extends X_AD_WindowCustom {
 	
 	public MWindowCustom(Properties ctx, int AD_WindowCustom_ID, String trxName) {
 		super(ctx, AD_WindowCustom_ID, trxName);
-		setIsDefault(false);
 		setIsReadOnly(null);
 		setIsUserUpdateable(null);
 	}

@@ -64,19 +64,6 @@ public interface I_AD_WindowCustom
 
 	public org.spin.model.I_AD_ContextInfo getAD_ContextInfo() throws RuntimeException;
 
-    /** Column name AD_Language */
-    public static final String COLUMNNAME_AD_Language = "AD_Language";
-
-	/** Set Language.
-	  * Language for this entity
-	  */
-	public void setAD_Language (String AD_Language);
-
-	/** Get Language.
-	  * Language for this entity
-	  */
-	public String getAD_Language();
-
     /** Column name AD_Org_ID */
     public static final String COLUMNNAME_AD_Org_ID = "AD_Org_ID";
 
@@ -123,10 +110,10 @@ public interface I_AD_WindowCustom
     /** Column name AD_WindowCustom_ID */
     public static final String COLUMNNAME_AD_WindowCustom_ID = "AD_WindowCustom_ID";
 
-	/** Set User defined Window	  */
+	/** Set Window Customization 	  */
 	public void setAD_WindowCustom_ID (int AD_WindowCustom_ID);
 
-	/** Get User defined Window	  */
+	/** Get Window Customization 	  */
 	public int getAD_WindowCustom_ID();
 
     /** Column name AD_Window_ID */
@@ -200,10 +187,14 @@ public interface I_AD_WindowCustom
     /** Column name HierarchyType */
     public static final String COLUMNNAME_HierarchyType = "HierarchyType";
 
-	/** Set Hierarchy Type	  */
+	/** Set Hierarchy Type.
+	  * Hierarchy Type (Hierarchy: Add, Merge or Overwrite)
+	  */
 	public void setHierarchyType (String HierarchyType);
 
-	/** Get Hierarchy Type	  */
+	/** Get Hierarchy Type.
+	  * Hierarchy Type (Hierarchy: Add, Merge or Overwrite)
+	  */
 	public String getHierarchyType();
 
     /** Column name IsActive */
@@ -218,19 +209,6 @@ public interface I_AD_WindowCustom
 	  * The record is active in the system
 	  */
 	public boolean isActive();
-
-    /** Column name IsDefault */
-    public static final String COLUMNNAME_IsDefault = "IsDefault";
-
-	/** Set Default.
-	  * Default value
-	  */
-	public void setIsDefault (boolean IsDefault);
-
-	/** Get Default.
-	  * Default value
-	  */
-	public boolean isDefault();
 
     /** Column name IsReadOnly */
     public static final String COLUMNNAME_IsReadOnly = "IsReadOnly";

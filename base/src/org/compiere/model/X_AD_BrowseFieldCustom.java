@@ -29,7 +29,7 @@ public class X_AD_BrowseFieldCustom extends PO implements I_AD_BrowseFieldCustom
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20190224L;
+	private static final long serialVersionUID = 20190321L;
 
     /** Standard Constructor */
     public X_AD_BrowseFieldCustom (Properties ctx, int AD_BrowseFieldCustom_ID, String trxName)
@@ -37,7 +37,6 @@ public class X_AD_BrowseFieldCustom extends PO implements I_AD_BrowseFieldCustom
       super (ctx, AD_BrowseFieldCustom_ID, trxName);
       /** if (AD_BrowseFieldCustom_ID == 0)
         {
-			setAD_BrowseCustom_ID (0);
 			setAD_BrowseFieldCustom_ID (0);
 			setAD_Browse_Field_ID (0);
         } */
@@ -76,8 +75,8 @@ public class X_AD_BrowseFieldCustom extends PO implements I_AD_BrowseFieldCustom
 		return (org.compiere.model.I_AD_BrowseCustom)MTable.get(getCtx(), org.compiere.model.I_AD_BrowseCustom.Table_Name)
 			.getPO(getAD_BrowseCustom_ID(), get_TrxName());	}
 
-	/** Set User defined Browse.
-		@param AD_BrowseCustom_ID User defined Browse	  */
+	/** Set Browse Customization.
+		@param AD_BrowseCustom_ID Browse Customization	  */
 	public void setAD_BrowseCustom_ID (int AD_BrowseCustom_ID)
 	{
 		if (AD_BrowseCustom_ID < 1) 
@@ -86,8 +85,8 @@ public class X_AD_BrowseFieldCustom extends PO implements I_AD_BrowseFieldCustom
 			set_ValueNoCheck (COLUMNNAME_AD_BrowseCustom_ID, Integer.valueOf(AD_BrowseCustom_ID));
 	}
 
-	/** Get User defined Browse.
-		@return User defined Browse	  */
+	/** Get Browse Customization.
+		@return Browse Customization	  */
 	public int getAD_BrowseCustom_ID () 
 	{
 		Integer ii = (Integer)get_Value(COLUMNNAME_AD_BrowseCustom_ID);
@@ -96,8 +95,8 @@ public class X_AD_BrowseFieldCustom extends PO implements I_AD_BrowseFieldCustom
 		return ii.intValue();
 	}
 
-	/** Set User defined Browse Field.
-		@param AD_BrowseFieldCustom_ID User defined Browse Field	  */
+	/** Set Browse Field.
+		@param AD_BrowseFieldCustom_ID Browse Field	  */
 	public void setAD_BrowseFieldCustom_ID (int AD_BrowseFieldCustom_ID)
 	{
 		if (AD_BrowseFieldCustom_ID < 1) 
@@ -106,8 +105,8 @@ public class X_AD_BrowseFieldCustom extends PO implements I_AD_BrowseFieldCustom
 			set_ValueNoCheck (COLUMNNAME_AD_BrowseFieldCustom_ID, Integer.valueOf(AD_BrowseFieldCustom_ID));
 	}
 
-	/** Get User defined Browse Field.
-		@return User defined Browse Field	  */
+	/** Get Browse Field.
+		@return Browse Field	  */
 	public int getAD_BrowseFieldCustom_ID () 
 	{
 		Integer ii = (Integer)get_Value(COLUMNNAME_AD_BrowseFieldCustom_ID);
@@ -126,9 +125,9 @@ public class X_AD_BrowseFieldCustom extends PO implements I_AD_BrowseFieldCustom
 	public void setAD_Browse_Field_ID (int AD_Browse_Field_ID)
 	{
 		if (AD_Browse_Field_ID < 1) 
-			set_ValueNoCheck (COLUMNNAME_AD_Browse_Field_ID, null);
+			set_Value (COLUMNNAME_AD_Browse_Field_ID, null);
 		else 
-			set_ValueNoCheck (COLUMNNAME_AD_Browse_Field_ID, Integer.valueOf(AD_Browse_Field_ID));
+			set_Value (COLUMNNAME_AD_Browse_Field_ID, Integer.valueOf(AD_Browse_Field_ID));
 	}
 
 	/** Get Browse Field.
@@ -225,9 +224,9 @@ public class X_AD_BrowseFieldCustom extends PO implements I_AD_BrowseFieldCustom
 		return ii.intValue();
 	}
 
-	public org.adempiere.model.I_AD_View_Column getAxis_Column() throws RuntimeException
+	public org.compiere.model.I_AD_Column getAxis_Column() throws RuntimeException
     {
-		return (org.adempiere.model.I_AD_View_Column)MTable.get(getCtx(), org.adempiere.model.I_AD_View_Column.Table_Name)
+		return (org.compiere.model.I_AD_Column)MTable.get(getCtx(), org.compiere.model.I_AD_Column.Table_Name)
 			.getPO(getAxis_Column_ID(), get_TrxName());	}
 
 	/** Set Axis Column.

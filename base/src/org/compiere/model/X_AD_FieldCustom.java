@@ -29,7 +29,7 @@ public class X_AD_FieldCustom extends PO implements I_AD_FieldCustom, I_Persiste
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20190224L;
+	private static final long serialVersionUID = 20190321L;
 
     /** Standard Constructor */
     public X_AD_FieldCustom (Properties ctx, int AD_FieldCustom_ID, String trxName)
@@ -40,8 +40,6 @@ public class X_AD_FieldCustom extends PO implements I_AD_FieldCustom, I_Persiste
 			setAD_FieldCustom_ID (0);
 			setAD_Field_ID (0);
 			setAD_TabCustom_ID (0);
-			setIsDisplayed (true);
-// Y
         } */
     }
 
@@ -101,8 +99,8 @@ public class X_AD_FieldCustom extends PO implements I_AD_FieldCustom, I_Persiste
 		return ii.intValue();
 	}
 
-	/** Set User defined Field.
-		@param AD_FieldCustom_ID User defined Field	  */
+	/** Set Custom Field.
+		@param AD_FieldCustom_ID Custom Field	  */
 	public void setAD_FieldCustom_ID (int AD_FieldCustom_ID)
 	{
 		if (AD_FieldCustom_ID < 1) 
@@ -111,8 +109,8 @@ public class X_AD_FieldCustom extends PO implements I_AD_FieldCustom, I_Persiste
 			set_ValueNoCheck (COLUMNNAME_AD_FieldCustom_ID, Integer.valueOf(AD_FieldCustom_ID));
 	}
 
-	/** Get User defined Field.
-		@return User defined Field	  */
+	/** Get Custom Field.
+		@return Custom Field	  */
 	public int getAD_FieldCustom_ID () 
 	{
 		Integer ii = (Integer)get_Value(COLUMNNAME_AD_FieldCustom_ID);
@@ -291,8 +289,8 @@ public class X_AD_FieldCustom extends PO implements I_AD_FieldCustom, I_Persiste
 		return (org.compiere.model.I_AD_TabCustom)MTable.get(getCtx(), org.compiere.model.I_AD_TabCustom.Table_Name)
 			.getPO(getAD_TabCustom_ID(), get_TrxName());	}
 
-	/** Set User defined Tab.
-		@param AD_TabCustom_ID User defined Tab	  */
+	/** Set Custom Tab.
+		@param AD_TabCustom_ID Custom Tab	  */
 	public void setAD_TabCustom_ID (int AD_TabCustom_ID)
 	{
 		if (AD_TabCustom_ID < 1) 
@@ -301,8 +299,8 @@ public class X_AD_FieldCustom extends PO implements I_AD_FieldCustom, I_Persiste
 			set_ValueNoCheck (COLUMNNAME_AD_TabCustom_ID, Integer.valueOf(AD_TabCustom_ID));
 	}
 
-	/** Get User defined Tab.
-		@return User defined Tab	  */
+	/** Get Custom Tab.
+		@return Custom Tab	  */
 	public int getAD_TabCustom_ID () 
 	{
 		Integer ii = (Integer)get_Value(COLUMNNAME_AD_TabCustom_ID);
@@ -708,28 +706,28 @@ public class X_AD_FieldCustom extends PO implements I_AD_FieldCustom, I_Persiste
 		return (String)get_Value(COLUMNNAME_IsSameLine);
 	}
 
-	/** IsUpdateable AD_Reference_ID=319 */
-	public static final int ISUPDATEABLE_AD_Reference_ID=319;
-	/** Yes = Y */
-	public static final String ISUPDATEABLE_Yes = "Y";
-	/** No = N */
-	public static final String ISUPDATEABLE_No = "N";
 	/** Set Updatable.
 		@param IsUpdateable 
 		Determines, if the field can be updated
 	  */
-	public void setIsUpdateable (String IsUpdateable)
+	public void setIsUpdateable (boolean IsUpdateable)
 	{
-
-		set_Value (COLUMNNAME_IsUpdateable, IsUpdateable);
+		set_Value (COLUMNNAME_IsUpdateable, Boolean.valueOf(IsUpdateable));
 	}
 
 	/** Get Updatable.
 		@return Determines, if the field can be updated
 	  */
-	public String getIsUpdateable () 
+	public boolean isUpdateable () 
 	{
-		return (String)get_Value(COLUMNNAME_IsUpdateable);
+		Object oo = get_Value(COLUMNNAME_IsUpdateable);
+		if (oo != null) 
+		{
+			 if (oo instanceof Boolean) 
+				 return ((Boolean)oo).booleanValue(); 
+			return "Y".equals(oo);
+		}
+		return false;
 	}
 
 	/** Set Name.

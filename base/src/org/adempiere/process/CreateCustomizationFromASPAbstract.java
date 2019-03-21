@@ -29,30 +29,30 @@ public abstract class CreateCustomizationFromASPAbstract extends SvrProcess {
 	/** Process Name 	*/
 	private static final String NAME_FOR_PROCESS = "Create Customization";
 	/** Process Id 	*/
-	private static final int ID_FOR_PROCESS = 1000002;
+	private static final int ID_FOR_PROCESS = 54212;
 	/**	Parameter Name for ASP Module	*/
 	public static final String ASP_MODULE_ID = "ASP_Module_ID";
 	/**	Parameter Name for ASP Level	*/
 	public static final String ASP_LEVEL_ID = "ASP_Level_ID";
-	/**	Parameter Name for AllFields	*/
-	public static final String ALLFIELDS = "AllFields";
 	/**	Parameter Name for Hierarchy Type	*/
 	public static final String HIERARCHYTYPE = "HierarchyType";
+	/**	Parameter Name for AllFields	*/
+	public static final String ALLFIELDS = "AllFields";
 	/**	Parameter Value for ASP Module	*/
 	private int moduleId;
 	/**	Parameter Value for ASP Level	*/
 	private int levelId;
-	/**	Parameter Value for AllFields	*/
-	private boolean isAllFields;
 	/**	Parameter Value for Hierarchy Type	*/
 	private String hierarchyType;
+	/**	Parameter Value for AllFields	*/
+	private boolean isAllFields;
 
 	@Override
 	protected void prepare() {
 		moduleId = getParameterAsInt(ASP_MODULE_ID);
 		levelId = getParameterAsInt(ASP_LEVEL_ID);
-		isAllFields = getParameterAsBoolean(ALLFIELDS);
 		hierarchyType = getParameterAsString(HIERARCHYTYPE);
+		isAllFields = getParameterAsBoolean(ALLFIELDS);
 	}
 
 	/**	 Getter Parameter Value for ASP Module	*/
@@ -75,16 +75,6 @@ public abstract class CreateCustomizationFromASPAbstract extends SvrProcess {
 		this.levelId = levelId;
 	}
 
-	/**	 Getter Parameter Value for AllFields	*/
-	protected boolean isAllFields() {
-		return isAllFields;
-	}
-
-	/**	 Setter Parameter Value for AllFields	*/
-	protected void setAllFields(boolean isAllFields) {
-		this.isAllFields = isAllFields;
-	}
-
 	/**	 Getter Parameter Value for Hierarchy Type	*/
 	protected String getHierarchyType() {
 		return hierarchyType;
@@ -93,6 +83,16 @@ public abstract class CreateCustomizationFromASPAbstract extends SvrProcess {
 	/**	 Setter Parameter Value for Hierarchy Type	*/
 	protected void setHierarchyType(String hierarchyType) {
 		this.hierarchyType = hierarchyType;
+	}
+
+	/**	 Getter Parameter Value for AllFields	*/
+	protected boolean isAllFields() {
+		return isAllFields;
+	}
+
+	/**	 Setter Parameter Value for AllFields	*/
+	protected void setAllFields(boolean isAllFields) {
+		this.isAllFields = isAllFields;
 	}
 
 	/**	 Getter Parameter Value for Process ID	*/

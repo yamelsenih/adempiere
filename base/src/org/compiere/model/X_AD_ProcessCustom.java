@@ -29,7 +29,7 @@ public class X_AD_ProcessCustom extends PO implements I_AD_ProcessCustom, I_Pers
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20190224L;
+	private static final long serialVersionUID = 20190321L;
 
     /** Standard Constructor */
     public X_AD_ProcessCustom (Properties ctx, int AD_ProcessCustom_ID, String trxName)
@@ -125,26 +125,6 @@ public class X_AD_ProcessCustom extends PO implements I_AD_ProcessCustom, I_Pers
 		return ii.intValue();
 	}
 
-	/** AD_Language AD_Reference_ID=106 */
-	public static final int AD_LANGUAGE_AD_Reference_ID=106;
-	/** Set Language.
-		@param AD_Language 
-		Language for this entity
-	  */
-	public void setAD_Language (String AD_Language)
-	{
-
-		set_Value (COLUMNNAME_AD_Language, AD_Language);
-	}
-
-	/** Get Language.
-		@return Language for this entity
-	  */
-	public String getAD_Language () 
-	{
-		return (String)get_Value(COLUMNNAME_AD_Language);
-	}
-
 	public org.compiere.model.I_AD_PrintFormat getAD_PrintFormat() throws RuntimeException
     {
 		return (org.compiere.model.I_AD_PrintFormat)MTable.get(getCtx(), org.compiere.model.I_AD_PrintFormat.Table_Name)
@@ -173,8 +153,8 @@ public class X_AD_ProcessCustom extends PO implements I_AD_ProcessCustom, I_Pers
 		return ii.intValue();
 	}
 
-	/** Set User defined Process.
-		@param AD_ProcessCustom_ID User defined Process	  */
+	/** Set Process Customization.
+		@param AD_ProcessCustom_ID Process Customization	  */
 	public void setAD_ProcessCustom_ID (int AD_ProcessCustom_ID)
 	{
 		if (AD_ProcessCustom_ID < 1) 
@@ -183,8 +163,8 @@ public class X_AD_ProcessCustom extends PO implements I_AD_ProcessCustom, I_Pers
 			set_ValueNoCheck (COLUMNNAME_AD_ProcessCustom_ID, Integer.valueOf(AD_ProcessCustom_ID));
 	}
 
-	/** Get User defined Process.
-		@return User defined Process	  */
+	/** Get Process Customization.
+		@return Process Customization	  */
 	public int getAD_ProcessCustom_ID () 
 	{
 		Integer ii = (Integer)get_Value(COLUMNNAME_AD_ProcessCustom_ID);
@@ -392,14 +372,18 @@ public class X_AD_ProcessCustom extends PO implements I_AD_ProcessCustom, I_Pers
 		return (String)get_Value(COLUMNNAME_Help);
 	}
 
-	/** HierarchyType AD_Reference_ID=1000000 */
-	public static final int HIERARCHYTYPE_AD_Reference_ID=1000000;
-	/** Overwrite = O */
-	public static final String HIERARCHYTYPE_Overwrite = "O";
+	/** HierarchyType AD_Reference_ID=54117 */
+	public static final int HIERARCHYTYPE_AD_Reference_ID=54117;
+	/** Add = A */
+	public static final String HIERARCHYTYPE_Add = "A";
 	/** Merge = M */
 	public static final String HIERARCHYTYPE_Merge = "M";
+	/** Overwrite = O */
+	public static final String HIERARCHYTYPE_Overwrite = "O";
 	/** Set Hierarchy Type.
-		@param HierarchyType Hierarchy Type	  */
+		@param HierarchyType 
+		Hierarchy Type (Hierarchy: Add, Merge or Overwrite)
+	  */
 	public void setHierarchyType (String HierarchyType)
 	{
 
@@ -407,58 +391,35 @@ public class X_AD_ProcessCustom extends PO implements I_AD_ProcessCustom, I_Pers
 	}
 
 	/** Get Hierarchy Type.
-		@return Hierarchy Type	  */
+		@return Hierarchy Type (Hierarchy: Add, Merge or Overwrite)
+	  */
 	public String getHierarchyType () 
 	{
 		return (String)get_Value(COLUMNNAME_HierarchyType);
 	}
 
-	/** Set Default.
-		@param IsDefault 
-		Default value
-	  */
-	public void setIsDefault (boolean IsDefault)
-	{
-		set_Value (COLUMNNAME_IsDefault, Boolean.valueOf(IsDefault));
-	}
-
-	/** Get Default.
-		@return Default value
-	  */
-	public boolean isDefault () 
-	{
-		Object oo = get_Value(COLUMNNAME_IsDefault);
-		if (oo != null) 
-		{
-			 if (oo instanceof Boolean) 
-				 return ((Boolean)oo).booleanValue(); 
-			return "Y".equals(oo);
-		}
-		return false;
-	}
-
+	/** IsDirectPrint AD_Reference_ID=319 */
+	public static final int ISDIRECTPRINT_AD_Reference_ID=319;
+	/** Yes = Y */
+	public static final String ISDIRECTPRINT_Yes = "Y";
+	/** No = N */
+	public static final String ISDIRECTPRINT_No = "N";
 	/** Set Direct print.
 		@param IsDirectPrint 
 		Print without dialog
 	  */
-	public void setIsDirectPrint (boolean IsDirectPrint)
+	public void setIsDirectPrint (String IsDirectPrint)
 	{
-		set_Value (COLUMNNAME_IsDirectPrint, Boolean.valueOf(IsDirectPrint));
+
+		set_Value (COLUMNNAME_IsDirectPrint, IsDirectPrint);
 	}
 
 	/** Get Direct print.
 		@return Print without dialog
 	  */
-	public boolean isDirectPrint () 
+	public String getIsDirectPrint () 
 	{
-		Object oo = get_Value(COLUMNNAME_IsDirectPrint);
-		if (oo != null) 
-		{
-			 if (oo instanceof Boolean) 
-				 return ((Boolean)oo).booleanValue(); 
-			return "Y".equals(oo);
-		}
-		return false;
+		return (String)get_Value(COLUMNNAME_IsDirectPrint);
 	}
 
 	/** Set Name.

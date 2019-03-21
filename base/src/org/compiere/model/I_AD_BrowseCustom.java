@@ -30,7 +30,7 @@ public interface I_AD_BrowseCustom
     /** TableName=AD_BrowseCustom */
     public static final String Table_Name = "AD_BrowseCustom";
 
-    /** AD_Table_ID=1000002 */
+    /** AD_Table_ID=54614 */
     public static final int Table_ID = MTable.getTable_ID(Table_Name);
 
     KeyNamePair Model = new KeyNamePair(Table_ID, Table_Name);
@@ -44,10 +44,10 @@ public interface I_AD_BrowseCustom
     /** Column name AD_BrowseCustom_ID */
     public static final String COLUMNNAME_AD_BrowseCustom_ID = "AD_BrowseCustom_ID";
 
-	/** Set User defined Browse	  */
+	/** Set Browse Customization	  */
 	public void setAD_BrowseCustom_ID (int AD_BrowseCustom_ID);
 
-	/** Get User defined Browse	  */
+	/** Get Browse Customization	  */
 	public int getAD_BrowseCustom_ID();
 
     /** Column name AD_Browse_ID */
@@ -68,19 +68,6 @@ public interface I_AD_BrowseCustom
 	  * Client/Tenant for this installation.
 	  */
 	public int getAD_Client_ID();
-
-    /** Column name AD_Language */
-    public static final String COLUMNNAME_AD_Language = "AD_Language";
-
-	/** Set Language.
-	  * Language for this entity
-	  */
-	public void setAD_Language (String AD_Language);
-
-	/** Get Language.
-	  * Language for this entity
-	  */
-	public String getAD_Language();
 
     /** Column name AD_Org_ID */
     public static final String COLUMNNAME_AD_Org_ID = "AD_Org_ID";
@@ -226,10 +213,14 @@ public interface I_AD_BrowseCustom
     /** Column name HierarchyType */
     public static final String COLUMNNAME_HierarchyType = "HierarchyType";
 
-	/** Set Hierarchy Type	  */
+	/** Set Hierarchy Type.
+	  * Hierarchy Type (Hierarchy: Add, Merge or Overwrite)
+	  */
 	public void setHierarchyType (String HierarchyType);
 
-	/** Get Hierarchy Type	  */
+	/** Get Hierarchy Type.
+	  * Hierarchy Type (Hierarchy: Add, Merge or Overwrite)
+	  */
 	public String getHierarchyType();
 
     /** Column name IsActive */
@@ -257,19 +248,6 @@ public interface I_AD_BrowseCustom
 	  * Flag to indicate if is collapsible by default
 	  */
 	public String getIsCollapsibleByDefault();
-
-    /** Column name IsDefault */
-    public static final String COLUMNNAME_IsDefault = "IsDefault";
-
-	/** Set Default.
-	  * Default value
-	  */
-	public void setIsDefault (boolean IsDefault);
-
-	/** Get Default.
-	  * Default value
-	  */
-	public boolean isDefault();
 
     /** Column name IsDeleteable */
     public static final String COLUMNNAME_IsDeleteable = "IsDeleteable";

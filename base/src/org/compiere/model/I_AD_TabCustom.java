@@ -110,10 +110,10 @@ public interface I_AD_TabCustom
     /** Column name AD_TabCustom_ID */
     public static final String COLUMNNAME_AD_TabCustom_ID = "AD_TabCustom_ID";
 
-	/** Set User defined Tab	  */
+	/** Set Custom Tab	  */
 	public void setAD_TabCustom_ID (int AD_TabCustom_ID);
 
-	/** Get User defined Tab	  */
+	/** Get Custom Tab	  */
 	public int getAD_TabCustom_ID();
 
     /** Column name AD_Tab_ID */
@@ -134,10 +134,10 @@ public interface I_AD_TabCustom
     /** Column name AD_WindowCustom_ID */
     public static final String COLUMNNAME_AD_WindowCustom_ID = "AD_WindowCustom_ID";
 
-	/** Set User defined Window	  */
+	/** Set Window Customization 	  */
 	public void setAD_WindowCustom_ID (int AD_WindowCustom_ID);
 
-	/** Get User defined Window	  */
+	/** Get Window Customization 	  */
 	public int getAD_WindowCustom_ID();
 
 	public org.compiere.model.I_AD_WindowCustom getAD_WindowCustom() throws RuntimeException;
