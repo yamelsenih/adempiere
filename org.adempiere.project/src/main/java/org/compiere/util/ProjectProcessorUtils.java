@@ -29,6 +29,7 @@ import org.compiere.model.MProjectPhase;
 import org.compiere.model.MProjectProcessorChange;
 import org.compiere.model.MProjectProcessorQueued;
 import org.compiere.model.MProjectTask;
+import org.compiere.model.MUser;
 import org.compiere.model.PO;
 import org.compiere.model.POInfo;
 import org.compiere.model.Query;
@@ -230,6 +231,7 @@ public class ProjectProcessorUtils {
 			else {
 					
 					int  addQueued= 0;
+					List<GenericPO> projectUsers = null;
 					//Process Project
 					if (entity.get_Table_ID() == MProject.Table_ID) { 
 						if (project!= null 
@@ -237,11 +239,12 @@ public class ProjectProcessorUtils {
 							if (addQueued(pLog,project.getProjectManager_ID()))
 								addQueued ++;
 						
-						List<GenericPO> projectUsers = new Query(entity.getCtx(), "C_ProjectUser", "C_Project_ID = ?", entity.get_TrxName())
-								.setParameters(entity.get_ID())
-								.list();
-						for (GenericPO pUser : projectUsers) 
-							addQueued(pLog,pUser.get_ValueAsInt(MProject.COLUMNNAME_AD_User_ID));
+						projectUsers = new Query(entity.getCtx(), "C_ProjectUser", "C_Project_ID = ? AND "
+																								+ "EXISTS (SELECT 1 "
+																										+ "FROM C_ProjectMember pm "
+																										+ "WHERE pm.C_Project_ID = C_ProjectUser.C_Project_ID AND pm.IsActive = 'Y')", entity.get_TrxName())
+										.setParameters(entity.get_ID())
+										.list();
 						
 					}
 					//Process Project Phase
@@ -257,11 +260,13 @@ public class ProjectProcessorUtils {
 							if (addQueued(pLog,project.getProjectManager_ID()))
 								addQueued ++;
 						
-						List<GenericPO> projectUsers = new Query(entity.getCtx(), "C_ProjectUser", "C_ProjectPhase_ID = ?", entity.get_TrxName())
-								.setParameters(entity.get_ID())
-								.list();
-						for (GenericPO pUser : projectUsers) 
-							addQueued(pLog,pUser.get_ValueAsInt(MProject.COLUMNNAME_AD_User_ID));
+						projectUsers = new Query(entity.getCtx(), "C_ProjectUser", "C_ProjectPhase_ID = ? AND "  
+																									+ "EXISTS (SELECT 1 "  
+																									+ "FROM C_ProjectMember pm "
+																									+ "INNER JOIN C_ProjectPhase pph ON (pm.C_Project_ID = pph.C_Project_ID) "
+																									+ "WHERE pph.C_ProjectPhase_ID = C_ProjectUser.C_ProjectPhase_ID AND pm.IsActive = 'Y')", entity.get_TrxName())
+										.setParameters(entity.get_ID())
+										.list();
 					}
 					//Process Project Task
 					if (entity.get_Table_ID() == MProjectTask.Table_ID) { 
@@ -281,19 +286,37 @@ public class ProjectProcessorUtils {
 							if (addQueued(pLog,project.getProjectManager_ID()))
 								addQueued ++;
 						
-						List<GenericPO> projectUsers = new Query(entity.getCtx(), "C_ProjectUser", "C_ProjectTask_ID = ?", entity.get_TrxName())
-								.setParameters(entity.get_ID())
-								.list();
-						for (GenericPO pUser : projectUsers) 
-							addQueued(pLog,pUser.get_ValueAsInt(MProject.COLUMNNAME_AD_User_ID));
+						projectUsers = new Query(entity.getCtx(), "C_ProjectUser", "C_ProjectTask_ID = ?"
+																								+ "EXISTS (SELECT 1 "  
+																								+ "FROM C_ProjectMember pm "
+																								+ "INNER JOIN C_ProjectPhase pph ON (pm.C_Project_ID = pph.C_Project_ID) "
+																								+ "INNER JOIN C_ProjectTask pt ON (pt.C_ProjectPhase_ID = pph.C_ProjectPhase_ID) "
+																								+ "WHERE pt.C_ProjectTask_ID = C_ProjectUser.C_ProjectTask_ID AND pm.IsActive = 'Y')", entity.get_TrxName())
+										.setParameters(entity.get_ID())
+										.list();
 					}
 					
+					if (projectUsers!=null) {
+						for (GenericPO pUser : projectUsers) {
+							MUser user = MUser.get(entity.getCtx(), pUser.get_ValueAsInt(MProject.COLUMNNAME_AD_User_ID));
+							if ("P".equals(user.get_ValueAsString("ProjectNotification")))
+								addQueued(pLog,user.get_ID());
+						}
+					}
 					//Project Members
 					if (project!=null) {
 						List<MProjectMember> members = MProjectMember.getMembers(project);
-						for (MProjectMember mProjectMember : members) 
-							if (addQueued(pLog,mProjectMember.getAD_User_ID(),mProjectMember.getNotificationType()))
-								addQueued ++;
+						for (MProjectMember mProjectMember : members) {
+							MUser user = (MUser) mProjectMember.getAD_User();
+							if ("M".equals(user.get_ValueAsString("ProjectNotification"))) { 
+								if (addQueued(pLog,mProjectMember.getAD_User_ID(),mProjectMember.getNotificationType(),true))
+									addQueued ++;
+							}
+							else {
+								if (addQueued(pLog,mProjectMember.getAD_User_ID(),mProjectMember.getNotificationType(),false))
+									addQueued ++;
+							}
+						}
 						
 					}
 					//Add Changes
@@ -306,13 +329,16 @@ public class ProjectProcessorUtils {
 		return pLog;
 	}	//MProjectProcessorLog
 	
+	private static boolean addQueued(MProjectProcessorLog pLog, int AD_User_ID, String NotificationType) {
+		return addQueued(pLog, AD_User_ID,NotificationType,true);
+	}
 	/**
 	 * Add Queued
 	 * @param pLog
 	 * @param AD_User_ID
 	 * @return
 	 */
-    private static boolean addQueued(MProjectProcessorLog pLog, int AD_User_ID, String NotificationType) {
+    private static boolean addQueued(MProjectProcessorLog pLog, int AD_User_ID, String NotificationType, boolean createRecord) {
     	MProjectProcessorQueued queued = new MProjectProcessorQueued(pLog, AD_User_ID);
     	if (NotificationType!=null
     			&& !NotificationType.equals(queued.getNotificationType())) 
@@ -323,7 +349,7 @@ public class ProjectProcessorUtils {
     			&& queued.getNotificationType()==null)
 			queued.setNotificationType(MProjectProcessorQueued.NOTIFICATIONTYPE_None);
 	
-		if (queued.is_new()
+		if ((queued.is_new() && createRecord)
 				|| queued.is_Changed())
 			if(!queued.save()) 
 				throw new AdempiereException("@SaveError@ @C_ProjectProcessorQueued_ID@");
