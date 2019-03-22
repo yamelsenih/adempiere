@@ -62,6 +62,7 @@ public class ProjectPhaseGenOrder  extends ProjectPhaseGenOrderAbstract
 	protected String doIt() throws Exception
 	{
 		int documentTypeTargetId = getParameterAsInt(I_C_Order.COLUMNNAME_C_DocType_ID);
+		Timestamp dateOrdered = getParameterAsTimestamp(I_C_Order.COLUMNNAME_DateOrdered);
 		int projectId = 0;
 		int projectPhaseId = 0;
 		int projectTaskId = 0;
@@ -136,6 +137,9 @@ public class ProjectPhaseGenOrder  extends ProjectPhaseGenOrderAbstract
 		//	Task
 		if(projectTaskId > 0) {
 			order.set_ValueOfColumn("C_ProjectTask_ID", projectTaskId);
+		}
+		if(dateOrdered != null) {
+			order.setDateOrdered(dateOrdered);
 		}
 		order.setDescription(order.getDescription() + " - " + name);
 		order.saveEx();
