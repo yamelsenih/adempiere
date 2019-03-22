@@ -475,7 +475,7 @@ public class ASPUtil {
 		//	Save dictionary
 		windowCache.put(getDictionaryKey(windowId), window);
 		//	Old compatibility
-		MTable newTable = MTable.get(context, I_AD_WindowCustom.Table_ID);
+		MTable newTable = MTable.get(context, I_AD_WindowCustom.Table_Name);
 		if(newTable == null
 				|| Util.isEmpty(newTable.getTableName())) {
 			loadWindowTabs(window);
