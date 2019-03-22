@@ -72,6 +72,7 @@ import org.compiere.model.ModelValidationEngine;
 import org.compiere.model.ModelValidator;
 import org.compiere.model.PO;
 import org.compiere.model.Query;
+import org.compiere.model.X_C_CommissionSalesRep;
 import org.compiere.process.DocAction;
 import org.compiere.process.OrderLineCreateShipmentAbstract;
 import org.compiere.process.OrderPOCreateAbstract;
@@ -595,15 +596,27 @@ public class AgencyValidator implements ModelValidator
 		} else if(po instanceof MSContract) {
 			if(timing == TIMING_BEFORE_COMPLETE) {
 				MSContract serviceContract = (MSContract) po;
-				String whereClause =(" S_Contract_ID = ?");				
-				BigDecimal sumPercent = new Query(po.getCtx(), I_C_CommissionSalesRep.Table_Name, whereClause.toString(), po.get_TrxName())
-						.setParameters(serviceContract.getS_Contract_ID())
-						.sum("AmtMultiplier");
-
-				BigDecimal comparepercent = new BigDecimal(100);
-				if(sumPercent.compareTo(comparepercent) != 0){					
-					throw new AdempiereException(Msg.getMsg(Env.getCtx(), "TotalPercentageIsNot100"));
-				}								
+				String whereClause = "S_Contract_ID = ?";
+				X_C_CommissionSalesRep salesRep = new Query(po.getCtx(), I_C_CommissionSalesRep.Table_Name, whereClause, po.get_TrxName())
+					.setParameters(serviceContract.getS_Contract_ID())
+					.setOnlyActiveRecords(true)
+					.<X_C_CommissionSalesRep>first();
+				if(salesRep != null
+						&& salesRep.getC_CommissionSalesRep_ID() > 0) {
+					BigDecimal sumPercent = new Query(po.getCtx(), I_C_CommissionSalesRep.Table_Name, whereClause, po.get_TrxName())
+							.setParameters(serviceContract.getS_Contract_ID())
+							.sum("AmtMultiplier");
+					if(sumPercent.compareTo(Env.ONEHUNDRED) != 0){					
+						throw new AdempiereException(Msg.getMsg(Env.getCtx(), "TotalPercentageIsNot100"));
+					}
+				} else { 
+//					List<MCommissionLine> c = new Query(po.getCtx(), I_C_CommissionLine.Table_Name, whereClause, po.get_TrxName())
+//							.setParameters(serviceContract.getS_Contract_ID())
+//							.setOnlyActiveRecords(true)
+//							.<MCommissionLine>list();
+//					//	Iterate
+//					
+				}
 			}
 		}
 		return null;
