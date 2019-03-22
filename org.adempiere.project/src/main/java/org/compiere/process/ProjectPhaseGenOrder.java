@@ -18,6 +18,7 @@ package org.compiere.process;
 
 
 import java.math.BigDecimal;
+import java.sql.Timestamp;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -188,6 +189,9 @@ public class ProjectPhaseGenOrder  extends ProjectPhaseGenOrderAbstract
 					orderLine.setTax();
 					orderLine.setC_Project_ID(fromProject.getC_Project_ID());
 					orderLine.setC_ProjectPhase_ID(projectLine.getC_ProjectPhase_ID());
+					if(projectLine.get_Value("DatePromised") != null) {
+						orderLine.setDatePromised((Timestamp) projectLine.get_Value("DatePromised"));
+					}
 					if(projectLine.getC_ProjectTask_ID() > 0) {
 						orderLine.setC_ProjectTask_ID(projectLine.getC_ProjectTask_ID());
 					}

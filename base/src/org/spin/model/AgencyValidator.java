@@ -301,17 +301,7 @@ public class AgencyValidator implements ModelValidator
 				MOrderLine orderLine = (MOrderLine) po;
 				int projectPhaseId = orderLine.getC_ProjectPhase_ID();
 				int projectTaskId = orderLine.getC_ProjectTask_ID();
-				if(projectPhaseId > 0) {
-					MProjectPhase projectPhase = new MProjectPhase(orderLine.getCtx(), projectPhaseId, orderLine.get_TrxName());						
-					if(projectPhase.getC_Campaign_ID() != 0)
-						orderLine.set_ValueOfColumn("C_Campaign_ID", projectPhase.getC_Campaign_ID());
-					if(projectPhase.getUser1_ID() != 0)
-						orderLine.set_ValueOfColumn("User1_ID", projectPhase.getUser1_ID());
-					if(projectPhase.getC_Project_ID() != 0)
-						orderLine.set_ValueOfColumn("C_Project_ID", projectPhase.getC_Project_ID());
-					if(projectPhase.get_ValueAsInt("CUST_MediaType_ID") != 0)
-						orderLine.set_ValueOfColumn("CUST_MediaType_ID", projectPhase.get_ValueAsInt("CUST_MediaType_ID"));
-				} else if(projectTaskId > 0) {
+				if(projectTaskId > 0) {
 					MProjectTask projectTask = new MProjectTask(orderLine.getCtx(), projectTaskId,orderLine.get_TrxName());
 					if(projectTask.getC_Campaign_ID() != 0)
 						orderLine.set_ValueOfColumn("C_Campaign_ID", projectTask.getC_Campaign_ID());
@@ -322,6 +312,16 @@ public class AgencyValidator implements ModelValidator
 					MProjectPhase projectPhasefromTask = new MProjectPhase(orderLine.getCtx(), projectTask.getC_ProjectPhase_ID(),orderLine.get_TrxName());
 					if(projectPhasefromTask.getC_Project_ID() != 0)
 					orderLine.set_ValueOfColumn("C_Project_ID", projectPhasefromTask.getC_Project_ID());						
+				} else if(projectPhaseId > 0) {
+					MProjectPhase projectPhase = new MProjectPhase(orderLine.getCtx(), projectPhaseId, orderLine.get_TrxName());						
+					if(projectPhase.getC_Campaign_ID() != 0)
+						orderLine.set_ValueOfColumn("C_Campaign_ID", projectPhase.getC_Campaign_ID());
+					if(projectPhase.getUser1_ID() != 0)
+						orderLine.set_ValueOfColumn("User1_ID", projectPhase.getUser1_ID());
+					if(projectPhase.getC_Project_ID() != 0)
+						orderLine.set_ValueOfColumn("C_Project_ID", projectPhase.getC_Project_ID());
+					if(projectPhase.get_ValueAsInt("CUST_MediaType_ID") != 0)
+						orderLine.set_ValueOfColumn("CUST_MediaType_ID", projectPhase.get_ValueAsInt("CUST_MediaType_ID"));
 				}
 			}else if(po instanceof MOrder) {
 				MOrder order = (MOrder) po;
