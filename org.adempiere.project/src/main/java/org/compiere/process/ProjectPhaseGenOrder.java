@@ -19,7 +19,6 @@ package org.compiere.process;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
@@ -35,6 +34,7 @@ import org.compiere.model.MProjectPhase;
 import org.compiere.model.MProjectTask;
 import org.compiere.model.MUOMConversion;
 import org.compiere.util.Env;
+import org.compiere.util.Util;
 
 
 /**
@@ -64,9 +64,18 @@ public class ProjectPhaseGenOrder  extends ProjectPhaseGenOrderAbstract
 		int projectId = 0;
 		int projectPhaseId = 0;
 		int projectTaskId = 0;
+		String name = null;
+		int productId = 0;
+		int seqNo = 0;
+		String description = null;
+		BigDecimal quantityToOrder = null;
+		BigDecimal priceActual = null;
+		BigDecimal quantityEntered = null;
+		int projectUomId = 0;
+		
+		
 		List<MProjectLine> projectLines = null;
 		List<MProjectTask> tasks = null;
-		HashMap<String, Object> values = new HashMap<String, Object>();
 		log.info("doIt - C_ProjectPhase_ID=" + getRecord_ID());
 		if (getRecord_ID() == 0)
 			throw new IllegalArgumentException("C_ProjectPhase_ID == 0");
@@ -78,16 +87,15 @@ public class ProjectPhaseGenOrder  extends ProjectPhaseGenOrderAbstract
 			projectTaskId = projectTask.getC_ProjectTask_ID();
 			MProjectPhase projectPhase = new MProjectPhase(getCtx(), projectPhaseId, get_TrxName());
 			projectId = projectPhase.getC_Project_ID();
-			values.put("Name", projectTask.getName());
-			values.put("M_Product_ID", projectTask.getM_Product_ID() | 0);
-			values.put("SeqNo", projectTask.getSeqNo());
-			values.put("Description", projectTask.getDescription());
-			values.put("Qty", projectTask.getQty());
-			values.put("C_ProjectPhase_ID", projectTask.getC_ProjectPhase_ID());
-			values.put("PriceActual", projectTask.getPlannedAmt());
+			name = projectTask.getName();
+			productId = projectTask.getM_Product_ID() | 0;
+			seqNo = projectTask.getSeqNo();
+			description = projectTask.getDescription();
+			quantityToOrder = projectTask.getQty();
+			priceActual = projectTask.getPlannedAmt();
 			//	Add UOM
-			values.put("QtyEntered", projectTask.get_Value("QtyEntered"));
-			values.put("C_UOM_ID", projectTask.get_ValueAsInt("C_UOM_ID"));
+			quantityEntered = (BigDecimal) projectTask.get_Value("QtyEntered");
+			projectUomId = projectTask.get_ValueAsInt("C_UOM_ID");
 		
 			projectLines = Arrays.asList(projectTask.getLines());
 		}
@@ -95,17 +103,16 @@ public class ProjectPhaseGenOrder  extends ProjectPhaseGenOrderAbstract
 			MProjectPhase projectPhase = new MProjectPhase (getCtx(), getRecord_ID(), get_TrxName());
 			projectId = projectPhase.getC_Project_ID();
 			projectPhaseId = projectPhase.getC_ProjectPhase_ID();
-			values.put("Name", projectPhase.getName());
-			values.put("M_Product_ID", projectPhase.getM_Product_ID() | 0);
-			values.put("SeqNo", projectPhase.getSeqNo());
-			values.put("Description", projectPhase.getDescription());
-			values.put("Qty", projectPhase.getQty());
-			values.put("C_ProjectPhase_ID", projectPhase.getC_ProjectPhase_ID());
-			values.put("PriceActual", projectPhase.getPlannedAmt());
+			name = projectPhase.getName();
+			productId = projectPhase.getM_Product_ID() | 0;
+			seqNo = projectPhase.getSeqNo();
+			description = projectPhase.getDescription();
+			quantityToOrder = projectPhase.getQty();
+			priceActual = projectPhase.getPlannedAmt();
 			projectLines = projectPhase.getLines();
 			//	Add UOM
-			values.put("QtyEntered", projectPhase.get_Value("QtyEntered"));
-			values.put("C_UOM_ID", projectPhase.get_ValueAsInt("C_UOM_ID"));
+			quantityEntered = (BigDecimal) projectPhase.get_Value("QtyEntered");
+			projectUomId = projectPhase.get_ValueAsInt("C_UOM_ID");
 			tasks = projectPhase.getTasks();
 		}
 		
@@ -129,40 +136,22 @@ public class ProjectPhaseGenOrder  extends ProjectPhaseGenOrderAbstract
 		if(projectTaskId > 0) {
 			order.set_ValueOfColumn("C_ProjectTask_ID", projectTaskId);
 		}
-		order.setDescription(order.getDescription() + " - " + values.get("Name"));
+		order.setDescription(order.getDescription() + " - " + name);
 		order.saveEx();
 		
 		//	Create an order on Phase Level
-		if ((int)values.get("M_Product_ID") != 0) {
-			MProduct product = new MProduct(getCtx(),(int)values.get("M_Product_ID"),get_TrxName());
+		if (productId != 0) {
+			MProduct product = new MProduct(getCtx(), productId,get_TrxName());
 			MOrderLine orderLine = new MOrderLine(order);
-			orderLine.setLine((int)values.get("SeqNo"));
-			StringBuilder stringBuilder = new StringBuilder(values.get("Name").toString());
-			if (values.get("Description") != null && values.get("Description").toString().length() > 0)
-				stringBuilder.append(" - ").append(values.get("Description").toString());
+			orderLine.setLine(seqNo);
+			StringBuilder stringBuilder = new StringBuilder(name);
+			if (!Util.isEmpty(description)) {
+				stringBuilder.append(" - ").append(description);
+			}
 			orderLine.setDescription(stringBuilder.toString());
 			//
-			orderLine.setM_Product_ID((int)values.get("M_Product_ID"), true);
-			BigDecimal quantityToOrder = new BigDecimal(values.get("Qty").toString());
-	        BigDecimal quantityEntrered = (BigDecimal) values.get("QtyEntered");
-	        int uomId = product.getC_UOM_ID();
-			if(uomId > 0
-					&& quantityEntrered != null) {
-				uomId = (int) values.get("C_UOM_ID");
-				if(uomId != product.getC_UOM_ID()) {
-					BigDecimal quantityEntered = MUOMConversion.convertProductTo (getCtx(), product.getM_Product_ID(), uomId, quantityToOrder);
-					if (quantityEntered == null) {
-						quantityEntered = quantityToOrder;
-					}
-					orderLine.setQty(quantityEntered);
-					orderLine.setQtyOrdered(quantityToOrder);
-				} else { 
-					orderLine.setQty(quantityToOrder);
-				}
-			} else { 
-				orderLine.setQty(quantityToOrder);
-			}
-			orderLine.setC_UOM_ID(uomId);
+			orderLine.setM_Product_ID(productId, true);
+			setQuantityToOrder(orderLine, product, projectUomId, quantityEntered, quantityToOrder);
 			orderLine.setPrice();
 			orderLine.setC_Project_ID(fromProject.getC_Project_ID());
 			if(projectPhaseId > 0) {
@@ -171,7 +160,7 @@ public class ProjectPhaseGenOrder  extends ProjectPhaseGenOrderAbstract
 			if(projectTaskId > 0) {
 				orderLine.setC_ProjectTask_ID(projectTaskId);
 			}
- 			BigDecimal price = new BigDecimal(values.get("PriceActual").toString());
+ 			BigDecimal price = priceActual;
 			if (price!= null && price.compareTo(Env.ZERO) != 0)
 				orderLine.setPrice(price);
 			orderLine.setTax();
@@ -189,25 +178,9 @@ public class ProjectPhaseGenOrder  extends ProjectPhaseGenOrderAbstract
 					orderLine.setDescription(projectLine.getDescription());
 					//
 					orderLine.setM_Product_ID(projectLine.getM_Product_ID(), true);
-					MProduct productLine = new MProduct(getCtx(),projectLine.getM_Product_ID(),get_TrxName());
-					int uomLine = productLine.getC_UOM_ID();
-			        BigDecimal quantityToOrder = projectLine.getPlannedQty().subtract(projectLine.getInvoicedQty());
-					if(projectLine.get_ValueAsInt("C_UOM_ID") > 0
-							&& projectLine.get_Value("Qtyentered") != null) {
-						int uomId = projectLine.get_ValueAsInt("C_UOM_ID");
-						if(uomId != productLine.getC_UOM_ID()) {
-							BigDecimal quantityEntered = MUOMConversion.convertProductTo (getCtx(), projectLine.getM_Product_ID(), uomId, quantityToOrder);
-							if (quantityEntered == null) {
-								quantityEntered = quantityToOrder;
-							}
-							orderLine.setQty(quantityEntered);
-							orderLine.setQtyOrdered(quantityToOrder);
-							orderLine.setC_UOM_ID(uomId);
-						}
-					} else { 
-						orderLine.setQty(quantityToOrder);
-						orderLine.setC_UOM_ID(uomLine);
-					}
+					MProduct product = new MProduct(getCtx(),projectLine.getM_Product_ID(),get_TrxName());
+			        BigDecimal toOrder = projectLine.getPlannedQty().subtract(projectLine.getInvoicedQty());
+			        setQuantityToOrder(orderLine, product, projectLine.get_ValueAsInt("C_UOM_ID"), (BigDecimal)projectLine.get_Value("Qtyentered"), toOrder);
 					orderLine.setPrice();
 					if (projectLine.getPlannedPrice() != null && projectLine.getPlannedPrice().compareTo(Env.ZERO) != 0)
 						orderLine.setPrice(projectLine.getPlannedPrice());
@@ -216,7 +189,7 @@ public class ProjectPhaseGenOrder  extends ProjectPhaseGenOrderAbstract
 					orderLine.setC_Project_ID(fromProject.getC_Project_ID());
 					orderLine.setC_ProjectPhase_ID(projectLine.getC_ProjectPhase_ID());
 					if(projectLine.getC_ProjectTask_ID() > 0) {
-						orderLine.setC_ProjectTask_ID(orderLine.getC_ProjectTask_ID());
+						orderLine.setC_ProjectTask_ID(projectLine.getC_ProjectTask_ID());
 					}
 					orderLine.saveEx();
 					count.getAndUpdate(no -> no + 1);
@@ -236,16 +209,12 @@ public class ProjectPhaseGenOrder  extends ProjectPhaseGenOrderAbstract
 					orderLine.setDescription(stringBuilder.toString());
 					orderLine.setM_Product_ID(fromTask.getM_Product_ID(), true);
 					MProduct productLine = new MProduct(getCtx(),fromTask.getM_Product_ID(),get_TrxName());
-					int uomLine = productLine.getC_UOM_ID();
-					
-					orderLine.setQty(fromTask.getQty());
+					setQuantityToOrder(orderLine, productLine, fromTask.get_ValueAsInt("C_UOM_ID"), (BigDecimal)fromTask.get_Value("Qtyentered"), fromTask.getQty());
 					orderLine.setPrice();
 					orderLine.setC_Project_ID(fromProject.getC_Project_ID());
 					orderLine.setC_ProjectPhase_ID(fromTask.getC_ProjectPhase_ID());
 					orderLine.setC_ProjectTask_ID(fromTask.getC_ProjectTask_ID());
 					orderLine.setTax();
-
-					orderLine.setC_UOM_ID(uomLine);
 					orderLine.saveEx();
 					count.getAndUpdate(no -> no + 1);
 				}
@@ -255,5 +224,37 @@ public class ProjectPhaseGenOrder  extends ProjectPhaseGenOrderAbstract
 		}
 		return "@C_Order_ID@ " + order.getDocumentNo() + " (" + count + ")";
 	}	//	doIt
+	
+	/**
+	 * Set line Quantity
+	 * @param orderLine
+	 * @param product
+	 * @param uomToId
+	 * @param quantityEntered
+	 * @param quantityOrdered
+	 */
+	private void setQuantityToOrder(MOrderLine orderLine, MProduct product, int uomToId, BigDecimal quantityEntered, BigDecimal quantityOrdered) {
+		int uomId = product.getC_UOM_ID();
+		if(uomToId > 0
+				&& quantityEntered != null
+				&& quantityEntered != Env.ZERO) {
+			uomId = uomToId;
+			if(uomId != product.getC_UOM_ID()) {
+				BigDecimal convertedQuantity = MUOMConversion.convertProductFrom (getCtx(), product.getM_Product_ID(), uomToId, quantityEntered);
+				if (convertedQuantity == null) {
+					quantityEntered = quantityOrdered;
+				} else {
+					quantityOrdered = convertedQuantity;
+				}
+				orderLine.setQty(quantityEntered);
+				orderLine.setQtyOrdered(quantityOrdered);
+			} else { 
+				orderLine.setQty(quantityOrdered);
+			}
+		} else { 
+			orderLine.setQty(quantityOrdered);
+		}
+		orderLine.setC_UOM_ID(uomId);
+	}
 
 }	//	ProjectPhaseGenOrder
