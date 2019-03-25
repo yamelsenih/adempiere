@@ -72,6 +72,7 @@ import org.compiere.model.ModelValidationEngine;
 import org.compiere.model.ModelValidator;
 import org.compiere.model.PO;
 import org.compiere.model.Query;
+import org.compiere.model.X_C_CommissionSalesRep;
 import org.compiere.process.DocAction;
 import org.compiere.process.OrderLineCreateShipmentAbstract;
 import org.compiere.process.OrderPOCreateAbstract;
@@ -300,17 +301,7 @@ public class AgencyValidator implements ModelValidator
 				MOrderLine orderLine = (MOrderLine) po;
 				int projectPhaseId = orderLine.getC_ProjectPhase_ID();
 				int projectTaskId = orderLine.getC_ProjectTask_ID();
-				if(projectPhaseId > 0) {
-					MProjectPhase projectPhase = new MProjectPhase(orderLine.getCtx(), projectPhaseId, orderLine.get_TrxName());						
-					if(projectPhase.getC_Campaign_ID() != 0)
-						orderLine.set_ValueOfColumn("C_Campaign_ID", projectPhase.getC_Campaign_ID());
-					if(projectPhase.getUser1_ID() != 0)
-						orderLine.set_ValueOfColumn("User1_ID", projectPhase.getUser1_ID());
-					if(projectPhase.getC_Project_ID() != 0)
-						orderLine.set_ValueOfColumn("C_Project_ID", projectPhase.getC_Project_ID());
-					if(projectPhase.get_ValueAsInt("CUST_MediaType_ID") != 0)
-						orderLine.set_ValueOfColumn("CUST_MediaType_ID", projectPhase.get_ValueAsInt("CUST_MediaType_ID"));
-				} else if(projectTaskId > 0) {
+				if(projectTaskId > 0) {
 					MProjectTask projectTask = new MProjectTask(orderLine.getCtx(), projectTaskId,orderLine.get_TrxName());
 					if(projectTask.getC_Campaign_ID() != 0)
 						orderLine.set_ValueOfColumn("C_Campaign_ID", projectTask.getC_Campaign_ID());
@@ -321,6 +312,16 @@ public class AgencyValidator implements ModelValidator
 					MProjectPhase projectPhasefromTask = new MProjectPhase(orderLine.getCtx(), projectTask.getC_ProjectPhase_ID(),orderLine.get_TrxName());
 					if(projectPhasefromTask.getC_Project_ID() != 0)
 					orderLine.set_ValueOfColumn("C_Project_ID", projectPhasefromTask.getC_Project_ID());						
+				} else if(projectPhaseId > 0) {
+					MProjectPhase projectPhase = new MProjectPhase(orderLine.getCtx(), projectPhaseId, orderLine.get_TrxName());						
+					if(projectPhase.getC_Campaign_ID() != 0)
+						orderLine.set_ValueOfColumn("C_Campaign_ID", projectPhase.getC_Campaign_ID());
+					if(projectPhase.getUser1_ID() != 0)
+						orderLine.set_ValueOfColumn("User1_ID", projectPhase.getUser1_ID());
+					if(projectPhase.getC_Project_ID() != 0)
+						orderLine.set_ValueOfColumn("C_Project_ID", projectPhase.getC_Project_ID());
+					if(projectPhase.get_ValueAsInt("CUST_MediaType_ID") != 0)
+						orderLine.set_ValueOfColumn("CUST_MediaType_ID", projectPhase.get_ValueAsInt("CUST_MediaType_ID"));
 				}
 			}else if(po instanceof MOrder) {
 				MOrder order = (MOrder) po;
@@ -595,15 +596,27 @@ public class AgencyValidator implements ModelValidator
 		} else if(po instanceof MSContract) {
 			if(timing == TIMING_BEFORE_COMPLETE) {
 				MSContract serviceContract = (MSContract) po;
-				String whereClause =(" S_Contract_ID = ?");				
-				BigDecimal sumPercent = new Query(po.getCtx(), I_C_CommissionSalesRep.Table_Name, whereClause.toString(), po.get_TrxName())
-						.setParameters(serviceContract.getS_Contract_ID())
-						.sum("AmtMultiplier");
-
-				BigDecimal comparepercent = new BigDecimal(100);
-				if(sumPercent.compareTo(comparepercent) != 0){					
-					throw new AdempiereException(Msg.getMsg(Env.getCtx(), "TotalPercentageIsNot100"));
-				}								
+				String whereClause = "S_Contract_ID = ?";
+				X_C_CommissionSalesRep salesRep = new Query(po.getCtx(), I_C_CommissionSalesRep.Table_Name, whereClause, po.get_TrxName())
+					.setParameters(serviceContract.getS_Contract_ID())
+					.setOnlyActiveRecords(true)
+					.<X_C_CommissionSalesRep>first();
+				if(salesRep != null
+						&& salesRep.getC_CommissionSalesRep_ID() > 0) {
+					BigDecimal sumPercent = new Query(po.getCtx(), I_C_CommissionSalesRep.Table_Name, whereClause, po.get_TrxName())
+							.setParameters(serviceContract.getS_Contract_ID())
+							.sum("AmtMultiplier");
+					if(sumPercent.compareTo(Env.ONEHUNDRED) != 0){					
+						throw new AdempiereException(Msg.getMsg(Env.getCtx(), "TotalPercentageIsNot100"));
+					}
+				} else { 
+//					List<MCommissionLine> c = new Query(po.getCtx(), I_C_CommissionLine.Table_Name, whereClause, po.get_TrxName())
+//							.setParameters(serviceContract.getS_Contract_ID())
+//							.setOnlyActiveRecords(true)
+//							.<MCommissionLine>list();
+//					//	Iterate
+//					
+				}
 			}
 		}
 		return null;
