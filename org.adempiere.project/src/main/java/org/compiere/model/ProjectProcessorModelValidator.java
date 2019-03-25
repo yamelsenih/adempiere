@@ -59,8 +59,9 @@ public class ProjectProcessorModelValidator implements ModelValidator{
 
 			if (type == TYPE_AFTER_CHANGE){
 				if (entity.get_TableName().equals(MProject.Table_Name)) {
-					System.out.println(entity.is_new());
-					if (entity.is_ValueChanged(MProject.COLUMNNAME_ProjectManager_ID)) {
+
+					if (entity.is_ValueChanged(MProject.COLUMNNAME_ProjectManager_ID)
+							&& entity.get_ValueAsInt(MProject.COLUMNNAME_ProjectManager_ID)!=0) {
 						GenericPO projectUser = new Query(entity.getCtx(), "C_ProjectUser", "AD_User_ID = ? AND C_Project_ID = ?", entity.get_TrxName())
 												.setParameters(entity.get_Value(MProject.COLUMNNAME_ProjectManager_ID),entity.get_ID())
 												.first();
@@ -72,7 +73,8 @@ public class ProjectProcessorModelValidator implements ModelValidator{
 						}
 					}
 				}else if (entity.get_TableName().equals(MProjectPhase.Table_Name)) {
-					if (entity.is_ValueChanged(MProjectPhase.COLUMNNAME_Responsible_ID)) {
+					if (entity.is_ValueChanged(MProjectPhase.COLUMNNAME_Responsible_ID)
+							&& entity.get_ValueAsInt(MProjectPhase.COLUMNNAME_Responsible_ID)!=0) {
 						GenericPO projectUser = new Query(entity.getCtx(), "C_ProjectUser", "AD_User_ID = ? AND C_Project_ID = ?", entity.get_TrxName())
 												.setParameters(entity.get_Value(MProjectPhase.COLUMNNAME_Responsible_ID),entity.get_ID())
 												.first();
@@ -84,7 +86,8 @@ public class ProjectProcessorModelValidator implements ModelValidator{
 						}
 					}
 				}else if (entity.get_TableName().equals(MProjectTask.Table_Name)) {
-					if (entity.is_ValueChanged(MProjectTask.COLUMNNAME_Responsible_ID)) {
+					if (entity.is_ValueChanged(MProjectTask.COLUMNNAME_Responsible_ID)
+							&& entity.get_ValueAsInt(MProjectTask.COLUMNNAME_Responsible_ID)!=0) {
 						GenericPO projectUser = new Query(entity.getCtx(), "C_ProjectUser", "AD_User_ID = ? AND C_Project_ID = ?", entity.get_TrxName())
 												.setParameters(entity.get_Value(MProjectTask.COLUMNNAME_Responsible_ID),entity.get_ID())
 												.first();

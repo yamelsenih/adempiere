@@ -350,7 +350,7 @@ public class ProjectProcessorUtils {
 			queued.setNotificationType(MProjectProcessorQueued.NOTIFICATIONTYPE_None);
 	
 		if ((queued.is_new() && createRecord)
-				|| queued.is_Changed())
+				|| (!queued.is_new() && queued.is_Changed()))
 			if(!queued.save()) 
 				throw new AdempiereException("@SaveError@ @C_ProjectProcessorQueued_ID@");
 		
