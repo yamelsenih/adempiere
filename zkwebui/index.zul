@@ -12,6 +12,7 @@ Copyright (C) 2007 Ashley G Ramdass.
 <?link rel="stylesheet" type="text/css" href="theme/default/css/color.css.dsp"?>
 <?link rel="stylesheet" type="text/css" href="theme/default/css/img.css.dsp"?>
 <?script type="text/javascript" defer="defer" src="js/jquery-3.2.1.min.js" ?>
+<?script type="text/javascript" defer="defer" src="js/layout.js" ?>
 <?link rel="stylesheet" type="text/css" href="theme/default/css/theme.css.dsp"?>
 <zk>
 	<script>

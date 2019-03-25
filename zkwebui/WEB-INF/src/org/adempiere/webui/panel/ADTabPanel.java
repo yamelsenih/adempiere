@@ -193,6 +193,8 @@ public class ADTabPanel extends Div implements Evaluatee, EventListener<Event>, 
     private void init()
     {
         initComponents();
+        
+        addEventListener(ON_DEFER_SET_SELECTED_NODE, this);
     }
 
     private void initComponents()
@@ -200,10 +202,10 @@ public class ADTabPanel extends Div implements Evaluatee, EventListener<Event>, 
     	ThemeUtils.addSclass("ad-adtabpanel adtab-content", this);
         grid = new Grid();
         //have problem moving the following out as css class
-        grid.setWidth("100%");
-        grid.setHeight("100%");
-        grid.setVflex(true);
-        grid.setStyle("margin:0; padding:0; position: absolute");
+//        grid.setWidth("100%");
+//        grid.setHeight("100%");
+//        grid.setVflex(true);
+//        grid.setStyle("margin:0; padding:0; position: absolute");
         grid.makeNoStrip();
 
         listPanel = new GridPanel();
@@ -388,6 +390,14 @@ public class ADTabPanel extends Div implements Evaluatee, EventListener<Event>, 
                             }
                         }
 
+            		// Create a group foot
+            		Groupfoot groupfoot = new Groupfoot();
+            		includedTabFooter.put(field.getIncluded_Tab_ID(), groupfoot);
+            		rows.appendChild(groupfoot);
+            		
+            		currentGroup = null;
+
+            		// Start a new row for the next field
                         row = new Row();
                 		continue;
                 	}
@@ -401,9 +411,9 @@ public class ADTabPanel extends Div implements Evaluatee, EventListener<Event>, 
                 			currentFieldGroup = fieldGroup;
                 			if (row.getChildren().size() == 2)
                 			{
-                				row.appendChild(createSpacer());
-                                row.appendChild(createSpacer());
-                                row.appendChild(createSpacer());
+                				row.appendCellChild(createSpacer());
+                                row.appendCellChild(createSpacer());
+                                row.appendCellChild(createSpacer());
                                 rows.appendChild(row);
                                 if (rowList != null)
                     				rowList.add(row);
@@ -479,12 +489,12 @@ public class ADTabPanel extends Div implements Evaluatee, EventListener<Event>, 
                 	{
 	                    if (row.getChildren().size() == 2)
 	                    {
-	                        row.appendChild(createSpacer());
-	                        row.appendChild(createSpacer());
-	                        row.appendChild(createSpacer());
+	                        row.appendCellChild(createSpacer());
+	                        row.appendCellChild(createSpacer());
+	                        row.appendCellChild(createSpacer());
 	                    }
 	                    {
-	                    	row.appendChild(createSpacer());
+	                    	row.appendCellChild(createSpacer());
 	                    }
 	                    rows.appendChild(row);
 	                    if (rowList != null)
@@ -495,7 +505,7 @@ public class ADTabPanel extends Div implements Evaluatee, EventListener<Event>, 
                 else if (row.getChildren().size() == 4)
                 {
                 	//next line if reach max column ( 4 )
-                	row.appendChild(createSpacer());
+                	row.appendCellChild(createSpacer());
                 	rows.appendChild(row);
                     if (rowList != null)
         				rowList.add(row);
@@ -529,12 +539,12 @@ public class ADTabPanel extends Div implements Evaluatee, EventListener<Event>, 
 
 	                    if (label.getDecorator() != null)
 	                    	div.appendChild(label.getDecorator());
-	                    row.appendChild(div);
+	                    row.appendCellChild(div);
                     }
-                    row.appendChild(editor.getComponent());
+                    row.appendCellChild(editor.getComponent());
                     if (field.isLongField()) {
                     	row.setSpans("1,3,1");
-                    	row.appendChild(createSpacer());
+                    	row.appendCellChild(createSpacer());
                     	rows.appendChild(row);
                     	if (rowList != null)
             				rowList.add(row);
@@ -578,7 +588,8 @@ public class ADTabPanel extends Div implements Evaluatee, EventListener<Event>, 
     				//display just a label if we are "heading only"
     				Label label = new Label(field.getHeader());
     				Div div = new Div();
-    				div.setAlign("center");
+                	ThemeUtils.addSclass("ad-heading", div);
+                    div.setAttribute("ComponentType", "Heading");
     				row.appendChild(createSpacer());
     				div.appendChild(label);
     				row.appendChild(div);
@@ -592,8 +603,8 @@ public class ADTabPanel extends Div implements Evaluatee, EventListener<Event>, 
             if (row.getChildren().size() == 2)
             {
                 row.appendCellChild(createSpacer());
-                row.appendChild(createSpacer());
-                row.appendChild(createSpacer());
+                row.appendCellChild(createSpacer());
+                row.appendCellChild(createSpacer());
             }
             rows.appendChild(row);
             if (rowList != null)
@@ -938,6 +949,28 @@ public class ADTabPanel extends Div implements Evaluatee, EventListener<Event>, 
 		}
 	}
 
+	private void activateTabPanel(EmbeddedPanel panel) {
+		
+		if( tabPanels != null ) {
+			
+			panel.group.setVisible(true);
+//			panel.divComponent.setStyle("position: relative; overflow:auto; ");
+
+
+			tabPanels.setVisible(true);
+			tabPanels.setStyle("margin:0; padding:0; border: none; position: relative; ");
+
+//			embeddTabPanel.get(panel.adTabId).setVisible(true);
+//			embeddTabPanel.get(panel.adTabId).setStyle(" margin:0; padding:0; border: none; height: 400px; ");
+			
+//			panel.panelChildren.setVisible(true);
+//			panel.panelChildren.setStyle(" margin:0; padding:0; border: none; height: 400px; ");
+			
+//			panel.embeddedGrid.setVisible(true);
+//			panel.embeddedGrid.setStyle("border: none; height: 400px;  ");
+		}
+	}
+
 	/**
 	 * set focus to first active editor
 	 */
@@ -970,7 +1003,11 @@ public class ADTabPanel extends Div implements Evaluatee, EventListener<Event>, 
      */
     public void onEvent(Event event)
     {
-    	if (event.getTarget() instanceof Tab)
+    	if (event.getTarget() == listPanel.getListbox())
+		{
+			this.switchRowPresentation();
+		}
+    	else if (event.getTarget() instanceof Tab)
     	{
     		Tab tab = (Tab)event.getTarget();
     		for (HorizontalEmbeddedPanel embedded : horizontalIncludedPanel )

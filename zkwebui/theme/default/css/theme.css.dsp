@@ -16,62 +16,59 @@ html,body {
 }
 
 .login-box-body {
-	
-    height: 300px;
-    background-image: url(../images/login-box-bg.png);
-    background-repeat: repeat-y;
-    background-color: transparent;
-    z-index: 1;
-    padding: 0px;
-    margin: 0px;
-    text-align: center;
-    padding-bottom: 5px;
+	width: 500px;
+	height: 300px;
+	background-image: url(../images/login-box-bg.png);
+	background-repeat: repeat-y;
+	background-color: transparent;
+	z-index: 1;
+	padding: 10px;
+	margin: 0;
+	text-align: center;
+	padding-bottom: 5px;
 }
-
 
 .login-box-header {
 	background-image: url(../images/login-box-header.png);
-    background-color: transparent;
-    z-index: 2;
-    height: 30px;
-    width: 500px;
-	
+	background-color: transparent;
+	z-index: 2;
+	height: 54px;
+	width: 500px;
 }
 
 .login-box-header-txt {
 	color: black;
 	font-weight: bold;
 	position: relative;
-	top: 50px !important;
+	top: 30px;
 }
 
 .login-box-header-logo {
-	
-	text-align: -webkit-center !important;
-    position: inherit !important;
-    height: 104px;
+	padding-top: 20px;
+	padding-bottom: 25px;
 }
 
 .login-box-footer {
 	background-image: url(../images/login-box-footer.png);
-    background-position: bottom;
-    background-attachment: scroll;
-    background-repeat: repeat-y;
-    z-index: 2;
-    text-align: -webkit-right;
-    margin-right: 41px;
-    height: 40px;
-    
+	background-position: top right;
+	background-attachment: scroll;
+	background-repeat: repeat-y;
+	z-index: 2;
+	height: 70px;
+	width: 500px;
 }
 
 .login-box-footer-pnl {
-	
+	width: 420px;
+	margin-left: 10px;
+	margin-right: 10px;
+	padding-top: -10px;
 }
 
 .login-label {
 	color: black;
-	text-align: -webkit-right;
-	width: 18%;
+	text-align: right;
+	width: 20%;
 }
 
 .login-field {
@@ -79,30 +76,11 @@ html,body {
 	width: 40%;
 }
 
-.login-field .ad-combobox .z-combobox-input{
-
- width: 100%;
-
-}
- 
-.login-field .ad-textbox{
-
-width: 66%;
-}
-
-
-
-}
 .login-btn {
 	height: 36px;
-	width: 66px;
-	background: -webkit-linear-gradient(top, #336b9b 0%, #336b9b 100%);
+	width: 72px;
 }
-.login-btn, z-button
-{
-           width: 66px;
 
-}
 .login-east-panel, .login-west-panel {
 	width: 1px;
 	background-color: #DDE3EB;
@@ -125,12 +103,6 @@ width: 66%;
 	padding-right: 5px;
 }
 
-.desktop-header-left, z-west {
-
-position: fixed !important;
-
-}
-
 .disableFilter img {
 	opacity: 0.2;
 	filter: progid : DXImageTransform . Microsoft . Alpha(opacity = 20);
@@ -144,19 +116,18 @@ position: fixed !important;
 
 
 .toolbar-button{
-	padding-top: 1px;
-    padding-bottom: 14px;
-    padding-right: 1px;
-    padding-left: 1px;
+	padding-top:7px;
+	padding-bottom:7px;
+	padding-right:0px;
+	padding-left:1px;
 }
-
 
 .toolbar-button img {
 	width: 22px;
-    height: 22px;
-    border-style: inherit;
-    border-width: 1px;
-    border-color: transparent;
+	height: 22px;
+	border-style: solid;
+	border-width: 0px;
+	border-color: transparent;
 }
 
 .embedded-toolbar-button img {
@@ -171,8 +142,8 @@ position: fixed !important;
 .depressed img {
 	border-style: inset;
 	border-width: 1px;
-	border-color: #00000000;;
-	background-color:#00000000;;
+	border-color: #9CBDFF;
+	background-color: #C4DCFB;
 	-moz-border-radius: 5px;
 	-webkit-border-radius: 5px;
 	padding: 0px 1px 0px 1px;
@@ -196,7 +167,7 @@ position: fixed !important;
 <%-- button --%>
 .action-button {
 	height: 15px;
-	width: 49px;
+	width: 48px;
 	padding: 0px;
 }
 
@@ -227,7 +198,6 @@ div.wc-modal, div.wc-modal-none, div.wc-highlighted, div.wc-highlighted-none {
 	padding: 0;
 	border: 0;
 	position: absolute;
-	background-color: #fefefe !important;
 }
 
 .menu-search {
@@ -237,38 +207,11 @@ div.wc-modal, div.wc-modal-none, div.wc-highlighted, div.wc-highlighted-none {
 <%-- adwindow and form --%>
 .adform-content-none {
 	overflow: auto;
-	
 	position: absolute;
 	width: 100%;
 	margin: 3px;
 }
 
-
-
-
-
-.z-west-splitter{
- {
-    width: 8px;
-    height: 8px;
-    background: -webkit-linear-gradient(left, #aaa 0%, #0068c5 100%);
-    background: linear-gradient(to right, #aaa 0%, #a9a9a9 100%);
-    position: absolute;
-    overflow: hidden;
-    cursor: e-resize;
-}
-
-
-
-
- 
-   
- .adwindow-nav-tabbox-tabs-tab-left-unselected:hover{
-  
-    background: -webkit-linear-gradient(top, #ffffff 0%, #ffffff 100%);
-    background: linear-gradient(to bottom, #ffffff 0%, #ffffff 100%);
-    
-}
 .adwindow-status {
 	background-color: #DDE3EB;
 	color:black;
@@ -281,9 +224,6 @@ div.wc-modal, div.wc-modal-none, div.wc-highlighted, div.wc-highlighted-none {
 	background-position: center left;
 --%>
 }
-
-
-
 
 .adwindow-nav {
 	width:110px;
@@ -300,15 +240,13 @@ div.wc-modal, div.wc-modal-none, div.wc-highlighted, div.wc-highlighted-none {
 }
 
 .adwindow-nav-content {
-	background-color: ##E7E7E7;
-	height: -webkit-fill-available !important;
+	background-color: #f0faff;
+	height: 100%;
 	width:110px;
 	-moz-box-shadow: inset 0 0 5px #333;
 	-webkit-box-shadow: inset 0 0 5px#333;
 	box-shadow: inner 0 0 5px #333;
-    overflow: auto !important;
 }
-
 
 .adwindow-toolbar {
 	vertical-align: middle;
@@ -417,9 +355,6 @@ div.wc-modal, div.wc-modal-none, div.wc-highlighted, div.wc-highlighted-none {
 	box-shadow: 0 0 5px #333;
 }
 
-
-
-
 <%-- ad tab --%>
 .adtab-body {
 	position: absolute;
@@ -430,16 +365,6 @@ div.wc-modal, div.wc-modal-none, div.wc-highlighted, div.wc-highlighted-none {
 	border: none;
 }
 
-
-wlogin-layout-center{
-     border: none;
-    background-color: #003764;
- }
-
-
--user-panel-username z-label{
-     background-color: #FEFEFE;
-}
 .adtab-content {
 	margin: 0;
 	padding: 0;
@@ -458,19 +383,12 @@ wlogin-layout-center{
 	width: 100%;
 	height: 100%;
 }
-.ad-grid .z-grid {
-  border-left: 3px solid #ffffff !important;
 
-}
 .adtab-grid {
 	width: 100%;
 	position: absolute;
-	
 
 }
-
-
-
 
 .adtab-tabpanels {
 	width: 80%;
@@ -502,9 +420,6 @@ wlogin-layout-center{
 	color:black;
 	font-weight: bold;
 }
-
-
-
 
 .status-info {
 	padding-right: 10px;
@@ -551,7 +466,9 @@ wlogin-layout-center{
 
 
 
-
+.form-button{
+	width: 99%;
+}
 
 <%-- Combobox --%>
 .z-combobox-disd {
@@ -562,17 +479,14 @@ wlogin-layout-center{
 	color: black !important; cursor: default !important;
 }
 
-.
 .z-combobox-text-disd {
 	background-color: #ECEAE4 !important;
 }
-
 
 <%-- Button --%>
 .z-button-disd {
 	color: black; cursor: default; opacity: .6; -moz-opacity: .6; -khtml-opacity: .6; filter: alpha(opacity=60);
 }
-
 
 <%-- highlight focus form element --%>
 input:focus, textarea:focus, .z-combobox-inp:focus, z-datebox-inp:focus {
@@ -629,7 +543,7 @@ div.z-vfiletree-body td.menu-tree-cell {
 }
 
 tr.z-row td.z-row-inner{
-	background-color : #FEFEFE;
+	background-color : #FAFAFA;
 	margin-left:4px;
 	margin-right:4px;
 	border-bottom: 0px solid #DDE3EB;
@@ -655,7 +569,17 @@ tr.z-row td.z-row-inner{
 }
 
 
+input[type="checkbox"]  {
 
+	border: 1px solid #bbbbbb;
+	box-shadow: 0 1px 2px rgba(0,0,0,0.05), inset 0px -15px 10px -12px rgba(0,0,0,0.05);
+	padding: 9px;
+	display: inline-block;
+	position: relative;
+	appearance: none;
+	-webkit-appearance: initial !important;
+
+}
 
 input[type="checkbox"] :active, input[type="checkbox"]:checked :active {
 	box-shadow: 0 1px 2px rgba(0,0,0,0.05), inset 0px 1px 3px rgba(0,0,0,0.1);
@@ -669,8 +593,6 @@ input[type="checkbox"]:checked  {
 	background   : url('../images/zul/input/check.png')
 
 }
- 
-
 input[type="checkbox"]:disabled {
     border: 1px solid #f0f0f0 !important;
     background: f0f0f0;
@@ -688,8 +610,6 @@ input[type="checkbox"]:checked :after {
     bottom: 8px;
 }
 
-
-
 .z-tab-close {
     background-image: url(../images/zul/tab/tab-close.png);
     background-repeat: no-repeat;
@@ -702,5 +622,3 @@ input[type="checkbox"]:checked :after {
     top: 1px;
     z-index: 15;
 }
-
-

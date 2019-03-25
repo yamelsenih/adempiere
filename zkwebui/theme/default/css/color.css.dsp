@@ -565,7 +565,6 @@ color: #FFF!important;
     overflow: auto;
     width: 100%;
     height: 100%;
-    position: absolute;
     visibility: inherit;
   
   
@@ -869,29 +868,16 @@ tr.cells td {
 div.z-grid {
 	background-color:#f7f7f7;
 	border:none;
-
 	-moz-box-shadow: 1px 1px 4px gray;
 	-webkit-box-shadow: 1px 1px 4px gray;
 	box-shadow: 1px 1px 4px #F0F0F0;
-	
-	
 	box-shadow: 1px 1px 4px #ffffff !important;
 	border-left: 3px solid rgb(0, 155, 222);
 	 width: 99.1% !important;
-	 height: 50% !important;
-	 
-   
-    
-    
-    
-	
 }
 .z-grid-body {
    color:#FEFEFE;
    overflow: auto !important;
-    
-   
-   
 }
 
 .z-grid-body table {
@@ -1039,9 +1025,7 @@ td.z-group-inner {
 
 
 .z-center{
-    border: none;
-     height: 100%!important;
-    
+    border: none;    
 }
 
 .z-borderlayout {
@@ -1057,10 +1041,7 @@ td.z-group-inner {
 .z-north-body{
     background-color: #fefefe;
     overflow: auto !important;
-        line-height: 21px;
-
-    
-
+    line-height: 21px;
 }
 
 .z-north-splitter{
@@ -1098,7 +1079,7 @@ td.z-group-inner {
 	border:none;
 	 
 }	
-desktop-header-right, z-center {
+desktop-header-right {
 
     background-color: transparent;
     border: none;
@@ -1112,10 +1093,7 @@ desktop-header-right, z-center {
 
 .z-hbox, .z-vbox {
     border-spacing: 0;
-    
     height: 100% !important;
-    
-    
     
  } 
 .z-hbox td{

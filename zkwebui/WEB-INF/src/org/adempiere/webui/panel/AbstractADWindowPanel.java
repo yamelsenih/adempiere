@@ -824,7 +824,7 @@ public abstract class AbstractADWindowPanel extends AbstractUIPart implements To
 
 			m_lock = new Menuitem(Msg.translate(Env.getCtx(), "Lock"));
 			m_popup.appendChild(m_lock);
-			m_lock.addEventListener(Events.ON_CLICK, new EventListener()
+			m_lock.addEventListener(Events.ON_CLICK, new EventListener<Event>()
 			{
 				public void onEvent(Event event) throws Exception
 				{
@@ -837,7 +837,7 @@ public abstract class AbstractADWindowPanel extends AbstractUIPart implements To
 
 			m_access = new Menuitem(Msg.translate(Env.getCtx(), "RecordAccessDialog"));
 			m_popup.appendChild(m_access);
-			m_access.addEventListener(Events.ON_CLICK, new EventListener()
+			m_access.addEventListener(Events.ON_CLICK, new EventListener<Event>()
 			{
 				public void onEvent(Event event) throws Exception
 				{

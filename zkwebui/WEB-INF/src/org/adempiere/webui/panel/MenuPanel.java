@@ -53,7 +53,7 @@ import org.zkoss.zul.Treerow;
  * @date    Feb 25, 2007
  * @version $Revision: 0.10 $
  */
-public class MenuPanel extends Panel implements EventListener
+public class MenuPanel extends Panel implements EventListener<Event>
 {
     /**
 	 * 
