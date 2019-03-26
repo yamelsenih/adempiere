@@ -14,48 +14,19 @@
  * All Rights Reserved.                                                       *
  * Contributor(s): Yamel Senih www.erpya.com                                  *
  *****************************************************************************/
-package org.spin.util.support.mq;
+package org.spin.util;
 
-import java.io.InputStream;
+import java.util.Properties;
+
+import org.compiere.print.ReportEngine;
 
 /**
- * @author Yamel Senih, ySenih@erpya.com, ERPCyA http://www.erpya.com
- *		<a href="https://github.com/adempiere/adempiere/issues/2109">
- * 		@see FR [ 2109 ] Add App Registration ADempiere</a>
+ * 	@author Yamel Senih, ysenih@erpya.com, ERPCyA http://www.erpya.com
  */
-public interface IMessageQueue {
-
-	/**
-	 * Get message Type
-	 */
-	public int getType();
-	
-	/**
-	 * Get Message Object
-	 * @return
-	 */
-	public Object getMessage();
-	
-	/**
-	 * Get Message as text
-	 * @return
-	 */
-	public String getMessageAsText();
-	
-	/**
-	 * Get Message as InputStream
-	 * @return
-	 */
-	public InputStream getMessageAsInputStream();
-	
-	/**
-	 * Get File Name
-	 * @return
-	 */
-	public String getFileName();
-	
-	/**	Text	*/
-	public static final int TEXT = 0;
-	/**	File	*/
-	public static final int FILE = 1;
-}
+public class ReportExportAppRegistered extends ReportExport {
+		
+	public ReportExportAppRegistered(Properties ctx, ReportEngine reportEngine) {
+		super(ctx, reportEngine);
+		addExportFormat(new SendReportToQueue(getCtx(), reportEngine));
+	}	
+}	//	AbstractReportExport
