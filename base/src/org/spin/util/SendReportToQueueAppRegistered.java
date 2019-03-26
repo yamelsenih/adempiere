@@ -1,7 +1,8 @@
 /******************************************************************************
  * Product: Adempiere ERP & CRM Smart Business Solution                       *
  * This program is free software; you can redistribute it and/or modify it    *
- * under the terms version 2 of the GNU General Public License as published   *
+ * under the terms version 2 or later of the                                  *
+ * GNU General Public License as published                                    *
  * by the Free Software Foundation. This program is distributed in the hope   *
  * that it will be useful, but WITHOUT ANY WARRANTY; without even the implied *
  * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.           *
@@ -23,9 +24,9 @@ import org.compiere.print.ReportEngine;
 /**
  * 	@author Yamel Senih, ysenih@erpya.com, ERPCyA http://www.erpya.com
  */
-public class ReportExportAppRegistered extends ReportExport {
+public class SendReportToQueueAppRegistered extends ReportExport {
 		
-	public ReportExportAppRegistered(Properties ctx, ReportEngine reportEngine) {
+	public SendReportToQueueAppRegistered(Properties ctx, ReportEngine reportEngine) {
 		super(ctx, reportEngine);
 		addExportFormat(new SendReportToQueue(getCtx(), reportEngine));
 	}	
