@@ -286,7 +286,7 @@ public class ProjectProcessorUtils {
 							if (addQueued(pLog,project.getProjectManager_ID()))
 								addQueued ++;
 						
-						projectUsers = new Query(entity.getCtx(), "C_ProjectUser", "C_ProjectTask_ID = ?"
+						projectUsers = new Query(entity.getCtx(), "C_ProjectUser", "C_ProjectTask_ID = ? AND "
 																								+ "EXISTS (SELECT 1 "  
 																								+ "FROM C_ProjectMember pm "
 																								+ "INNER JOIN C_ProjectPhase pph ON (pm.C_Project_ID = pph.C_Project_ID) "
