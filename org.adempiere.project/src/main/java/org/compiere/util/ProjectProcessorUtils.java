@@ -286,7 +286,7 @@ public class ProjectProcessorUtils {
 							if (addQueued(pLog,project.getProjectManager_ID()))
 								addQueued ++;
 						
-						projectUsers = new Query(entity.getCtx(), "C_ProjectUser", "C_ProjectTask_ID = ?"
+						projectUsers = new Query(entity.getCtx(), "C_ProjectUser", "C_ProjectTask_ID = ? AND "
 																								+ "EXISTS (SELECT 1 "  
 																								+ "FROM C_ProjectMember pm "
 																								+ "INNER JOIN C_ProjectPhase pph ON (pm.C_Project_ID = pph.C_Project_ID) "
@@ -350,7 +350,7 @@ public class ProjectProcessorUtils {
 			queued.setNotificationType(MProjectProcessorQueued.NOTIFICATIONTYPE_None);
 	
 		if ((queued.is_new() && createRecord)
-				|| queued.is_Changed())
+				|| (!queued.is_new() && queued.is_Changed()))
 			if(!queued.save()) 
 				throw new AdempiereException("@SaveError@ @C_ProjectProcessorQueued_ID@");
 		
