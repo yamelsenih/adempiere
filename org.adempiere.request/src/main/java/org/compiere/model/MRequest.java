@@ -1039,6 +1039,15 @@ public class MRequest extends X_R_Request
 				subject = mailText.getMailHeader();
 				//	Message
 				message = mailText.getMailText(true);
+				StringBuffer localMessage = new StringBuffer();
+				for (int i = 0; i < list.size(); i++) {
+					String columnName = (String)list.get(i);
+					localMessage.append(Env.NL).append(Msg.getElement(getCtx(), columnName))
+						.append(": ").append(get_DisplayValue(columnName, false))
+						.append(" -> ").append(get_DisplayValue(columnName, true));
+				}
+				//	
+				message += localMessage.toString();
 			}
 		}
 		if(Util.isEmpty(subject)
