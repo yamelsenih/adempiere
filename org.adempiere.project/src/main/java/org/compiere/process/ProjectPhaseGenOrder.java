@@ -133,10 +133,32 @@ public class ProjectPhaseGenOrder  extends ProjectPhaseGenOrderAbstract
 		//	Phase
 		if(projectPhaseId > 0) {
 			order.set_ValueOfColumn("C_ProjectPhase_ID", projectPhaseId);
+			MProjectPhase phase = new MProjectPhase(getCtx(), projectPhaseId, get_TrxName());
+			if(phase.get_ValueAsBoolean(I_C_Order.COLUMNNAME_IsDropShip)) {
+				int dropShipBPartnerId = phase.get_ValueAsInt(I_C_Order.COLUMNNAME_DropShip_BPartner_ID);
+				int dropShipBPartnerLocationId = phase.get_ValueAsInt(I_C_Order.COLUMNNAME_DropShip_Location_ID);
+				if(dropShipBPartnerId > 0
+						&& dropShipBPartnerLocationId > 0) {
+					order.setIsDropShip(phase.get_ValueAsBoolean(I_C_Order.COLUMNNAME_IsDropShip));
+					order.setDropShip_BPartner_ID(dropShipBPartnerId);
+					order.setDropShip_Location_ID(dropShipBPartnerLocationId);
+				}
+			}
 		}
 		//	Task
 		if(projectTaskId > 0) {
 			order.set_ValueOfColumn("C_ProjectTask_ID", projectTaskId);
+			MProjectTask task = new MProjectTask(getCtx(), projectTaskId, get_TrxName());
+			if(task.get_ValueAsBoolean(I_C_Order.COLUMNNAME_IsDropShip)) {
+				int dropShipBPartnerId = task.get_ValueAsInt(I_C_Order.COLUMNNAME_DropShip_BPartner_ID);
+				int dropShipBPartnerLocationId = task.get_ValueAsInt(I_C_Order.COLUMNNAME_DropShip_Location_ID);
+				if(dropShipBPartnerId > 0
+						&& dropShipBPartnerLocationId > 0) {
+					order.setIsDropShip(task.get_ValueAsBoolean(I_C_Order.COLUMNNAME_IsDropShip));
+					order.setDropShip_BPartner_ID(dropShipBPartnerId);
+					order.setDropShip_Location_ID(dropShipBPartnerLocationId);
+				}
+			}
 		}
 		if(dateOrdered != null) {
 			order.setDateOrdered(dateOrdered);
