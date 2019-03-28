@@ -296,14 +296,14 @@ public class LoginPanel extends Window implements EventListener<Event>
         txtPassword.setId("txtPassword");
         txtPassword.setType("password");
         //txtPassword.setCols(25);
-        //txtPassword.setWidth("220px");
+        txtPassword.setWidth("220px");
 
         lstLanguage = new Combobox();
         lstLanguage.setAutocomplete(true);
         lstLanguage.setAutodrop(true);
         lstLanguage.setId("lstLanguage");
         lstLanguage.addEventListener(Events.ON_SELECT, this);
-        //lstLanguage.setWidth("220px");
+        lstLanguage.setWidth("220px");
 
         // Update Language List
         lstLanguage.getItems().clear();

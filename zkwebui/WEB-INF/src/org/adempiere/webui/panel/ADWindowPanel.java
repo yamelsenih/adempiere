@@ -156,7 +156,7 @@ public class ADWindowPanel extends AbstractADWindowPanel
     	        west.setAutoscroll(true);
     	        west.setHflex("true");
     	        west.setVflex("true");
-    	        ThemeUtils.addSclass("ad-adwindowpanel-nav ad-adwindowpanel-nav-left", west);
+    	        ThemeUtils.addSclass("adwindow-nav adwindow-left-nav", west);
     	        adTab.setTabplacement(IADTab.LEFT);
     	        adTab.getTabSelectionComponent().setParent(west);
 
@@ -173,7 +173,7 @@ public class ADWindowPanel extends AbstractADWindowPanel
 		        east.setSplittable(false);
 		        east.setAutoscroll(true);
 		        east.setHflex("true");
-		        ThemeUtils.addSclass("ad-adwindowpanel-nav ad-adwindowpanel-nav-right", east);
+		        ThemeUtils.addSclass("adwindow-nav adwindow-right-nav", east);
 		        adTab.setTabplacement(IADTab.RIGHT);
 		        adTab.getTabSelectionComponent().setParent(east);
 
@@ -183,7 +183,7 @@ public class ADWindowPanel extends AbstractADWindowPanel
     	        	east.setCollapsible(true);
     	        }
         	}
-	        ThemeUtils.addSclass("ad-adwindowpanel-nav-content", (HtmlBasedComponent) adTab.getTabSelectionComponent());
+	        ThemeUtils.addSclass("adwindow-nav-content", (HtmlBasedComponent) adTab.getTabSelectionComponent());
         }
 
         contentArea = new Center();
