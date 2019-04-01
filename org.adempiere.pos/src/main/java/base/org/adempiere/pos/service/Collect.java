@@ -630,19 +630,19 @@ public class Collect {
 		BigDecimal otherPayments = Env.ZERO;
 		//	Iterate Payments methods
 		for(CollectDetail collectDetail : collectDetails) {
-			if(collectDetail.getPayAmt() == null
-					|| !(collectDetail.getPayAmt().doubleValue() > 0))
+			if(collectDetail.getConvertedPayAmt() == null
+					|| !(collectDetail.getConvertedPayAmt().doubleValue() > 0))
 				addErrorMsg("@POS.validatePayment.ZeroAmount@");
 			else if(collectDetail.getTenderType().equals(X_C_Payment.TENDERTYPE_Cash)) {	//	For Cash
-				cashPayment = cashPayment.add(collectDetail.getPayAmt());
+				cashPayment = cashPayment.add(collectDetail.getConvertedPayAmt());
 			} else if(collectDetail.getTenderType().equals(X_C_Payment.TENDERTYPE_Account)) {
-				otherPayments = otherPayments.add(collectDetail.getPayAmt());
+				otherPayments = otherPayments.add(collectDetail.getConvertedPayAmt());
 			} else if(collectDetail.getTenderType().equals(X_C_Payment.TENDERTYPE_DirectDebit)) {	//	For Direct Debit
-				otherPayments = otherPayments.add(collectDetail.getPayAmt());
+				otherPayments = otherPayments.add(collectDetail.getConvertedPayAmt());
 			} else if(collectDetail.getTenderType().equals(X_C_Payment.TENDERTYPE_Check)) {	//	For Check
-				otherPayments = otherPayments.add(collectDetail.getPayAmt());
+				otherPayments = otherPayments.add(collectDetail.getConvertedPayAmt());
 			} else if(collectDetail.getTenderType().equals(X_C_Payment.TENDERTYPE_CreditCard)) {	//	For Credit
-				otherPayments = otherPayments.add(collectDetail.getPayAmt());
+				otherPayments = otherPayments.add(collectDetail.getConvertedPayAmt());
 				//	Valid Expedition
 //				String mmyy = collectDetail.getCreditCardExpMM() + collectDetail.getCreditCardExpYY();
 //				String processError = MPaymentValidate.validateCreditCardExp(mmyy);
@@ -661,11 +661,11 @@ public class Collect {
 				if(collectDetail.getC_Invoice_ID() == 0 )
 					addErrorMsg("@POS.CreditMemoNotSelected@");
 				BigDecimal amtCreditMemo = collectDetail.getOpenAmtCreditMemo();
-				if(collectDetail.getPayAmt().compareTo(amtCreditMemo) > 0){
+				if(collectDetail.getConvertedPayAmt().compareTo(amtCreditMemo) > 0){
 					addErrorMsg("@POS.OpenAmountCreditMemo@ < @POS.PayAmt@ ");
 					collectDetail.setPayAmt(amtCreditMemo);
 				}
-				otherPayments = otherPayments.add(collectDetail.getPayAmt());
+				otherPayments = otherPayments.add(collectDetail.getConvertedPayAmt());
 				
 			} else {
 				addErrorMsg("@POS.validatePayment.UnsupportedPaymentType@");
