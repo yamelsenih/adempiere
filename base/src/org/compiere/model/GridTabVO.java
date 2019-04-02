@@ -173,8 +173,8 @@ public class GridTabVO implements Evaluatee, Serializable {
 		vo.Parent_Column_ID = tab.getParent_Column_ID();   // Parent tab link column
 
 		// TODO: see it
-		//if (tab.getString("IsSecurityEnabled").equals("Y"))
-			//vo.IsSecurityEnabled = true;
+		if (table.isSecurityEnabled())
+			vo.IsSecurityEnabled = true;
 		if (table.isDeleteable())
 			vo.IsDeleteable = true;
 		if (table.isHighVolume())
@@ -228,14 +228,6 @@ public class GridTabVO implements Evaluatee, Serializable {
 		//local only or remote fail for vpn profile
 		mTabVO.Fields = new ArrayList<GridFieldVO>();
 		for(MField field : ASPUtil.getInstance(mTabVO.ctx).getWindowFields(mTabVO.AD_Tab_ID)) {
-			if(!field.isActive()
-					|| !field.isDisplayed()) {
-				MColumn column = MColumn.get(mTabVO.ctx, field.getAD_Column_ID());
-				if(!column.isKey()
-						&& !column.isParent()) {
-					continue;
-				}
-			}
 			GridFieldVO voF = GridFieldVO.create (mTabVO.ctx, 
 					mTabVO.WindowNo, mTabVO.TabNo, 
 					mTabVO.AD_Window_ID, mTabVO.AD_Tab_ID, 
