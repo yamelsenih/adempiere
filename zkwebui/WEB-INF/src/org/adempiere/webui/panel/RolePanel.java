@@ -126,7 +126,7 @@ public class RolePanel extends Window implements EventListener, Deferrable
     {
     	Div div = new Div();
     	div.setSclass(ITheme.LOGIN_BOX_HEADER_CLASS);
-        	Label label = new Label("Login");  //TODO - localization
+    	Label label = new Label("Login");
         	label.setSclass(ITheme.LOGIN_BOX_HEADER_TXT_CLASS);
         		div.appendChild(label);
     	this.appendChild(div);
@@ -179,7 +179,7 @@ public class RolePanel extends Window implements EventListener, Deferrable
         table.appendChild(tr);
     	td = new Td();
     	tr.appendChild(td);
-    	td.setSclass(ITheme.LOGIN_FIELD_CLASS);
+    	td.setSclass(ITheme.LOGIN_LABEL_CLASS);
         td.appendChild(lblOrganisation.rightAlign());
     	td = new Td();
     	td.setSclass(ITheme.LOGIN_FIELD_CLASS);
@@ -191,7 +191,7 @@ public class RolePanel extends Window implements EventListener, Deferrable
         table.appendChild(tr);
     	td = new Td();
     	tr.appendChild(td);
-    	td.setSclass(ITheme.LOGIN_FIELD_CLASS);
+    	td.setSclass(ITheme.LOGIN_LABEL_CLASS);
         td.appendChild(lblWarehouse.rightAlign());
     	td = new Td();
     	td.setSclass(ITheme.LOGIN_FIELD_CLASS);
