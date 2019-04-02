@@ -580,7 +580,7 @@ public abstract class SmallViewController implements SmallViewEditable, Vetoable
 						// a value, don't change it.
 						Object defaultValue = field.getDefault();
 						if (defaultValue != null 
-								&& (field.getOldValue() == null || !defaultValue.equals(field.getOldValue())) 
+								&& (field.getOldValue() == null || !defaultValue.equals(field.getOldValue()) || (DisplayType.isNumeric(field.getVO().displayType))) 
 								&& (value == null || !value.equals(defaultValue))) {
 							// Set the context and fire events if there is a change in value.
 							// Setting the field value to null fires events even if the field is
@@ -613,7 +613,7 @@ public abstract class SmallViewController implements SmallViewEditable, Vetoable
 											|| DisplayType.isDate(fieldTo.getVO().displayType)))) {
 								Object defaultValueTo = fieldTo.getDefault();
 								if (defaultValueTo != null 
-										&& (fieldTo.getOldValue() == null || !defaultValueTo.equals(fieldTo.getOldValue())) 
+										&& (fieldTo.getOldValue() == null || !defaultValueTo.equals(fieldTo.getOldValue()) || DisplayType.isNumeric(fieldTo.getVO().displayType)) 
 										&& (valueTo == null || !valueTo.equals(defaultValueTo))) {
 									fieldTo.setValue(defaultValueTo, false);  // Not inserting - overwriting the current value
 									valueSet = true;
