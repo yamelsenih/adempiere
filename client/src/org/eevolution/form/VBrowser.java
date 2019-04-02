@@ -256,6 +256,7 @@ public class VBrowser extends Browser implements ActionListener, ListSelectionLi
 	 */
 	protected void executeQuery() {
 		//	FR [ 245 ]
+		reloadDependents();
 		String errorMsg = searchPanel.validateParameters();
 		if (errorMsg == null) {
 			if (getAD_Window_ID() > 1)
@@ -273,11 +274,7 @@ public class VBrowser extends Browser implements ActionListener, ListSelectionLi
 			}
 
 			loadedOK = initBrowser();
-
-			Env.setContext(Env.getCtx(), 0, "currWindowNo", getWindowNo());
-			if (processParameterPanel != null)
-				processParameterPanel.refreshContext();
-
+			
 			if (m_worker != null && m_worker.isAlive())
 				return;
 			//	
@@ -298,6 +295,15 @@ public class VBrowser extends Browser implements ActionListener, ListSelectionLi
 					"FillMandatory", Msg.parseTranslation(Env.getCtx(), errorMsg));
 		}
 	} // executeQuery
+	
+	/**
+	 * Reload dependents
+	 */
+	private void reloadDependents() {
+		Env.setContext(Env.getCtx(), 0, "currWindowNo", getWindowNo());
+		if (processParameterPanel != null)
+			processParameterPanel.refreshContext();
+	}
 	
 	/**
 	 * General Init
