@@ -234,6 +234,12 @@ public class MProcess extends X_AD_Process
 				+ "				AND ce.AD_Tab_ID IS NULL "
 				+ "				AND ce.AD_Field_ID IS NULL "
 				+ "				AND ce.ASP_Status = 'H')"	//	Hide
+				+ " OR EXISTS(SELECT 1 FROM ASP_Level l "
+				+ "					INNER JOIN ASP_ClientLevel cl ON(cl.ASP_Level_ID = l.ASP_Level_ID) "
+				+ "				WHERE cl.AD_Client_ID = " + client.getAD_Client_ID()
+				+ "				AND l.IsActive = 'Y' "
+				+ "				AND cl.IsActive = 'Y' "
+				+ "				AND l.Type = 'C') "	//	Show
 				+ ") ";
 		}
 		retValue = getParametersAsList(aSPFilter);
