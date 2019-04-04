@@ -23,7 +23,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 import java.util.logging.Level;
@@ -1170,44 +1169,6 @@ public class MOrder extends X_C_Order implements DocAction
 			m_processMsg = "@PeriodClosed@";
 			return DocAction.STATUS_Invalid;
 		}
-
-		// Just one line per product and ASI
-		List<MOrderLine> orderLinesOuterLoop = Arrays.asList(getLines(true, MOrderLine.COLUMNNAME_M_Product_ID));
-		List<MOrderLine> orderLinesInnerLoop = Arrays.asList(getLines(true, MOrderLine.COLUMNNAME_M_Product_ID));
-		ArrayList<MOrderLine> orderLinesToSave    = new ArrayList<MOrderLine>();
-		ArrayList<MOrderLine> orderLinesToDelete  = new ArrayList<MOrderLine>();
-		for (MOrderLine orderLineOuterLoop : orderLinesOuterLoop) {
-			for (MOrderLine orderLineInnerLoop : orderLinesInnerLoop) {
-				if(orderLineInnerLoop.getC_Charge_ID() > 0) {
-					continue;
-				}
-				if (orderLineInnerLoop.getC_OrderLine_ID()==orderLineOuterLoop.getC_OrderLine_ID())
-					continue;  // same Orderline
-				if (orderLinesToSave.contains(orderLineInnerLoop) || orderLinesToDelete.contains(orderLineInnerLoop))
-					continue;  // Orderline already in array to delete or in array to save
-				if (orderLineInnerLoop.getM_Product_ID()==orderLineOuterLoop.getM_Product_ID() &&
-						orderLineInnerLoop.getM_AttributeSetInstance_ID()==orderLineOuterLoop.getM_AttributeSetInstance_ID()) {
-					// Product ID and ASI match -> add quantities
-					orderLineOuterLoop.setQtyEntered(orderLineInnerLoop.getQtyEntered().add(orderLineOuterLoop.getQtyEntered()));
-					orderLineOuterLoop.setQtyOrdered(orderLineInnerLoop.getQtyOrdered().add(orderLineOuterLoop.getQtyOrdered()));
-
-					orderLineInnerLoop.setQtyEntered(Env.ZERO);
-					orderLineInnerLoop.setQtyReserved(Env.ZERO);
-					orderLineInnerLoop.setQtyOrdered(Env.ZERO);
-					orderLineInnerLoop.setLineNetAmt(Env.ZERO);
-
-					orderLinesToDelete.add(orderLineInnerLoop);
-				}
-			}
-			if (!orderLinesToSave.contains(orderLineOuterLoop) && !orderLinesToDelete.contains(orderLineOuterLoop))
-				orderLinesToSave.add(orderLineOuterLoop);  // Orderline to be saved
-		}
-		orderLinesToDelete.forEach(orderLineToDelete -> {
-			orderLineToDelete.deleteEx(true);
-		});
-		orderLinesToSave.forEach(orderLineToSave -> {
-			orderLineToSave.saveEx();
-		});
 		
 		//	Lines
 		MOrderLine[] lines = getLines(true, MOrderLine.COLUMNNAME_M_Product_ID);
@@ -1344,7 +1305,6 @@ public class MOrder extends X_C_Order implements DocAction
 				Util.assume(ol.getQtyReserved().compareTo(ol.getQtyOrdered()) == 0 || ol.getM_Product_ID() == 0 || dt.isProposal(), 
 						"After prepareIt, reservations do not equal quantities ordered.");
 		}*/
-
 		return DocAction.STATUS_InProgress;
 	}	//	prepareIt
 	
@@ -1946,12 +1906,9 @@ public class MOrder extends X_C_Order implements DocAction
 			}
 		}
 		//	Manually Process Invoice
-		String docAction = invoice.isSOTrx()?DocAction.ACTION_Complete:DocAction.ACTION_Prepare;
-		invoice.processIt(docAction);
+		invoice.processIt(DocAction.ACTION_Complete);
 		invoice.saveEx(get_TrxName());
 		setC_CashLine_ID(invoice.getC_CashLine_ID());
-		if (docAction.equals(DocAction.ACTION_Prepare) && DOCSTATUS_InProgress.equals(invoice.getDocStatus()))
-			return invoice;
 		if (!DOCSTATUS_Completed.equals(invoice.getDocStatus()))
 		{
 			m_processMsg = "@C_Invoice_ID@: " + invoice.getProcessMsg();
