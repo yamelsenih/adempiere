@@ -128,7 +128,7 @@ public class MWindow extends X_AD_Window
 		StringBuffer whereClause = new StringBuffer(COLUMNNAME_AD_Window_ID + " = ?");
 		if (client.isUseASP()) {
 			String aSPFilter =
-					" AND (   AD_Tab_ID IN ( "
+					" AND ((   AD_Tab_ID IN ( "
 					// Just ASP subscribed tabs for client "
 					+ "              SELECT t.AD_Tab_ID "
 					+ "                FROM ASP_Tab t, ASP_Window w, ASP_Level l, ASP_ClientLevel cl "
@@ -159,7 +159,15 @@ public class MWindow extends X_AD_Window
 					+ "             AND ce.IsActive = 'Y' "
 					+ "             AND ce.AD_Tab_ID IS NOT NULL "
 					+ "             AND ce.AD_Field_ID IS NULL "
-					+ "             AND ce.ASP_Status = 'H')"; // Hide
+					+ "             AND ce.ASP_Status = 'H')"
+					//	Just Customization
+					+ " OR EXISTS(SELECT 1 FROM ASP_Level l "
+					+ "					INNER JOIN ASP_ClientLevel cl ON(cl.ASP_Level_ID = l.ASP_Level_ID) "
+					+ "				WHERE cl.AD_Client_ID = " + client.getAD_Client_ID()
+					+ "				AND l.IsActive = 'Y' "
+					+ "				AND cl.IsActive = 'Y' "
+					+ "				AND l.Type = 'C') "	//	Show
+					+ ")"; // Hide
 			whereClause.append(aSPFilter);
 		}
 		//	Get from query
