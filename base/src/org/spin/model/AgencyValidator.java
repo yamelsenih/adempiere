@@ -16,10 +16,13 @@
 package org.spin.model;
 
 import java.math.BigDecimal;
+import java.math.MathContext;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.adempiere.exceptions.AdempiereException;
 import org.compiere.model.I_AD_Image;
@@ -632,6 +635,8 @@ public class AgencyValidator implements ModelValidator
 		MInOut inOut = new MInOut(order, 0, expenseReport.getDateReport());
 		inOut.setM_Warehouse_ID(order.getM_Warehouse_ID());
 		inOut.saveEx();
+		AtomicReference<BigDecimal> totalOrdered = new AtomicReference<BigDecimal>(Env.ZERO);
+		AtomicReference<BigDecimal> totalDelivered = new AtomicReference<BigDecimal>(Env.ZERO);
 		lines.entrySet().stream().forEach(linesSet -> {
 			MOrderLine orderLine = new MOrderLine(expenseReport.getCtx(), linesSet.getKey(), expenseReport.get_TrxName());
 			BigDecimal toDeliver = linesSet.getValue();
@@ -639,13 +644,22 @@ public class AgencyValidator implements ModelValidator
 			inOutLine.setOrderLine(orderLine, 0, toDeliver);
 			inOutLine.setQty(toDeliver);
 		    inOutLine.saveEx();
+		    totalOrdered.updateAndGet(amount -> amount.add(orderLine.getLineNetAmt()));
+		    totalDelivered.updateAndGet(amount -> amount.add(orderLine.getPriceActual().multiply(toDeliver)));
 		});
 		//	Complete In/Out
 		inOut.setDocStatus(MInOut.DOCSTATUS_Drafted);
 		inOut.processIt(MInOut.ACTION_Complete);
 		inOut.saveEx();
 		//	Generate Delivery for Commission
-		generateInOutFromCommissionOrder(order);
+		if(totalOrdered.get() != null
+				&& totalOrdered.get().compareTo(Env.ZERO) > 0
+				&& totalDelivered.get() != null
+				&& totalDelivered.get().compareTo(Env.ZERO) > 0) {
+			//	Calculate Percentage
+			BigDecimal multiplier = Env.ONE.divide(totalOrdered.get(), MathContext.DECIMAL128).multiply(totalDelivered.get());
+			generateInOutFromCommissionOrder(order, multiplier);
+		}
 	}
 	
 	/**
@@ -740,8 +754,9 @@ public class AgencyValidator implements ModelValidator
 	/**
 	 * Generate Delivery from commission Order that are generated from order
 	 * @param order
+	 * @param multiplier
 	 */
-	private void generateInOutFromCommissionOrder(MOrder order) {
+	private void generateInOutFromCommissionOrder(MOrder order, BigDecimal multiplier) {
 		new Query(order.getCtx(), I_C_Order.Table_Name, 
 				"DocStatus = 'CO' "
 				+ "AND EXISTS(SELECT 1 FROM C_CommissionRun cr "
@@ -755,12 +770,30 @@ public class AgencyValidator implements ModelValidator
 			.<MOrder>list()
 			.stream().forEach(commissionOrder -> {
 				for(MOrderLine line : commissionOrder.getLines()) {
-					ProcessBuilder.create(order.getCtx())
-						.process(OrderLineCreateShipmentAbstract.getProcessId())
-						.withRecordId(I_C_OrderLine.Table_ID, line.getC_OrderLine_ID())
-						.withParameter(OrderLineCreateShipmentAbstract.DOCACTION, DocAction.ACTION_Complete)
-						.withoutTransactionClose()
-					.execute(order.get_TrxName());
+					MInOut shipment = new MInOut(commissionOrder, 0, commissionOrder.getDateOrdered());
+					shipment.setM_Warehouse_ID(line.getM_Warehouse_ID());
+					shipment.setMovementDate(line.getDatePromised());
+					shipment.saveEx();
+					//	Add Line
+					BigDecimal qtyToDeliver = line.getQtyOrdered().multiply(multiplier);
+					MInOutLine sline = new MInOutLine(shipment);
+					sline.setOrderLine(line, 0, qtyToDeliver);
+					sline.setQtyEntered(qtyToDeliver);
+					sline.setC_UOM_ID(line.getC_UOM_ID());
+					sline.setQty(qtyToDeliver);
+					sline.setM_Warehouse_ID(line.getM_Warehouse_ID());
+					sline.saveEx();
+					//	Process It
+					if (!shipment.processIt(DocAction.ACTION_Complete)) {
+						log.warning("Failed: " + shipment);
+					}
+					shipment.saveEx();
+//					ProcessBuilder.create(order.getCtx())
+//						.process(OrderLineCreateShipmentAbstract.getProcessId())
+//						.withRecordId(I_C_OrderLine.Table_ID, line.getC_OrderLine_ID())
+//						.withParameter(OrderLineCreateShipmentAbstract.DOCACTION, DocAction.ACTION_Complete)
+//						.withoutTransactionClose()
+//					.execute(order.get_TrxName());
 				}
 			});
 	}
