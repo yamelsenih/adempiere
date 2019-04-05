@@ -35,8 +35,9 @@ public class OpenILoanToDate extends OpenILoanToDateAbstract {
 	@Override
 	protected void prepare() {
 		super.prepare();
-		StringBuffer whereClause = new StringBuffer(" AND am.DocStatus = 'CO'");
-		whereClause.append("AND (am.DateInvoiced > ? OR am.DateInvoiced IS NULL)");
+		StringBuffer whereClause = new StringBuffer(" WHERE am.DocStatus = 'CO'");
+		whereClause.append(" AND am.DateDoc <= ?");
+		whereClause.append(" AND (am.DateInvoiced > ? OR am.DateInvoiced IS NULL)");
 		//	Add parameters
 		if(getBPartnerId() > 0) {
 			whereClause.append(" AND am.C_BPartner_ID = ?");
@@ -112,6 +113,7 @@ public class OpenILoanToDate extends OpenILoanToDateAbstract {
 		//	Prepare statement
 		PreparedStatement pstmtInsert = DB.prepareStatement (sql.toString(), get_TrxName());
 		int i = 1;
+		pstmtInsert.setTimestamp(i++, getDateTo());
 		pstmtInsert.setTimestamp(i++, getDateTo());
 		pstmtInsert.setTimestamp(i++, getDateTo());
 		pstmtInsert.setTimestamp(i++, getDateTo());
