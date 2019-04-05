@@ -273,8 +273,8 @@ public class WPOSActionPanel extends WPOSSubPanel
 	public void onEvent(Event e) throws Exception {
 		try {
             if(e.getName().equals(Events.ON_CHANGE)){
-                if(lookupProduct.getSelectedRecord() >= 0) {
-                  lookupProduct.setText(String.valueOf(lookupProduct.getSelectedRecord()));
+                if(lookupProduct.getSelectedProductId() >= 0) {
+                  lookupProduct.setText(String.valueOf(lookupProduct.getSelectedProductId()));
                     lookupProduct.captureProduct();
                 }
             }
