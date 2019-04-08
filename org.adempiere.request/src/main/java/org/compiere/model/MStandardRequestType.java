@@ -33,6 +33,8 @@ import java.util.Properties;
 
 /**
  * Standard Request Type
+ * @author Carlos Parada, cparada@erpya.com, www.erpya.com
+ * 		<li> Add Standard Request Type Filter 
  */
 public class MStandardRequestType extends X_R_StandardRequestType {
     private List<MStandardRequest> standardRequests = new ArrayList<>();
@@ -180,13 +182,15 @@ public class MStandardRequestType extends X_R_StandardRequestType {
     {
         if (isValidFromTo()         // Valid the Effective Date
         &&  isValidSOTrx(entity , getIsSOTrx())                 // Valid Sales Transaction context
-        &&  isValidWhereCondition(entity, getWhereClause()))    // Valid Where Condition
+        &&  isValidWhereCondition(entity, getWhereClause())
+        //Valid Request Type
+        &&  isValidRequestType(entity))    // Valid Where Condition
             return true;
         else
             return false;
     }
 
-    /**
+	/**
      * Validate if Create Request for Document
      * @param entity
      * @param documentTypeId
@@ -291,4 +295,17 @@ public class MStandardRequestType extends X_R_StandardRequestType {
         return instance != null && instance.get_ID() > 0;
 
     }
+    
+    /**
+     * Valid Request Type
+     * @param entity
+     * @return
+     */
+    private boolean isValidRequestType(PO entity) {
+    	if (entity.get_ColumnIndex(COLUMNNAME_R_StandardRequestType_ID) != -1) {
+    		if (entity.get_ValueAsInt(COLUMNNAME_R_StandardRequestType_ID)!=get_ID())
+    			return false;
+    	}
+		return true;
+	}
 }

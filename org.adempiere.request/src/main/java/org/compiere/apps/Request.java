@@ -79,24 +79,24 @@ public class Request {
         whereClause.append("(AD_Table_ID=").append(tableId).append(" AND Record_ID=").append(recordId).append(")");
 
         if (tableId == MUser.Table_ID)
-            whereClause.append(" OR AD_User_ID=").append(recordId)
-                    .append(" OR SalesRep_ID=").append(recordId);
+            whereClause.append(" OR R_Request.AD_User_ID=").append(recordId)
+                    .append(" OR R_Request.SalesRep_ID=").append(recordId);
         else if (tableId == I_C_BPartner.Table_ID)
-            whereClause.append(" OR C_BPartner_ID=").append(recordId);
+            whereClause.append(" OR R_Request.C_BPartner_ID=").append(recordId);
         else if (tableId == I_C_Order.Table_ID)
-            whereClause.append(" OR C_Order_ID=").append(recordId);
+            whereClause.append(" OR R_Request.C_Order_ID=").append(recordId);
         else if (tableId == I_C_Invoice.Table_ID)
-            whereClause.append(" OR C_Invoice_ID=").append(recordId);
+            whereClause.append(" OR R_Request.C_Invoice_ID=").append(recordId);
         else if (tableId == I_C_Payment.Table_ID)
-            whereClause.append(" OR C_Payment_ID=").append(recordId);
+            whereClause.append(" OR R_Request.C_Payment_ID=").append(recordId);
         else if (tableId == I_M_Product.Table_ID)
-            whereClause.append(" OR M_Product_ID=").append(recordId);
+            whereClause.append(" OR R_Request.M_Product_ID=").append(recordId);
         else if (tableId == I_C_Project.Table_ID)
-            whereClause.append(" OR C_Project_ID=").append(recordId);
+            whereClause.append(" OR R_Request.C_Project_ID=").append(recordId);
         else if (tableId == I_C_Campaign.Table_ID)
-            whereClause.append(" OR C_Campaign_ID=").append(recordId);
+            whereClause.append(" OR R_Request.C_Campaign_ID=").append(recordId);
         else if (tableId == I_A_Asset.Table_ID)
-            whereClause.append(" OR A_Asset_ID=").append(recordId);
+            whereClause.append(" OR R_Request.A_Asset_ID=").append(recordId);
     }
 
     protected void defineGridTab (GridTab gridTab)
@@ -145,16 +145,16 @@ public class Request {
         if (requestList != null && requestList.size() > 0)
             return requestList;
 
-        String sql = "SELECT r.R_Request_ID,r.DocumentNo,coalesce  (r.Summary,'')," +
+        String sql = "SELECT R_Request.R_Request_ID,R_Request.DocumentNo,coalesce  (R_Request.Summary,'')," +
                 "COALESCE(rt.Name,' '),COALESCE(rg.Name,' '),COALESCE(rc.Name,' '), COALESCE(rs.Name,' ')," +
-                "COALESCE(rrep.Name,' ') , r.Processed , r.DateNextAction " +
-                "FROM R_Request r " +
-                "JOIN R_RequestType rt ON (r.R_RequestType_ID = rt.R_RequestType_ID) " +
-                "LEFT JOIN R_Group rg ON (r.R_Group_ID = rg.R_Group_ID) " +
-                "LEFT JOIN R_Category rc ON (r.R_Category_ID = rc.R_Category_ID) " +
-                "LEFT JOIN R_Status rs ON (r.R_Status_ID = rs.R_Status_ID) " +
-                "LEFT JOIN AD_User rrep ON (r.SalesRep_ID = rrep.AD_User_ID) " +
-                "WHERE " + whereClause + "ORDER BY R_Request_ID";
+                "COALESCE(rrep.Name,' ') , R_Request.Processed , R_Request.DateNextAction " +
+                "FROM R_Request  " +
+                "JOIN R_RequestType rt ON (R_Request.R_RequestType_ID = rt.R_RequestType_ID) " +
+                "LEFT JOIN R_Group rg ON (R_Request.R_Group_ID = rg.R_Group_ID) " +
+                "LEFT JOIN R_Category rc ON (R_Request.R_Category_ID = rc.R_Category_ID) " +
+                "LEFT JOIN R_Status rs ON (R_Request.R_Status_ID = rs.R_Status_ID) " +
+                "LEFT JOIN AD_User rrep ON (R_Request.SalesRep_ID = rrep.AD_User_ID) " +
+                "WHERE " + whereClause + "ORDER BY R_Request.R_Request_ID";
 
         PreparedStatement pstmt = null;
         ResultSet rs = null;
