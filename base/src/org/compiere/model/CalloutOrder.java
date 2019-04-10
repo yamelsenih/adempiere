@@ -272,7 +272,7 @@ public class CalloutOrder extends CalloutEngine
 			+ " COALESCE(p.M_PriceList_ID,g.M_PriceList_ID) AS M_PriceList_ID, p.PaymentRule,p.POReference,"
 			+ " p.SO_Description,p.IsDiscountPrinted,"
 			+ " p.InvoiceRule,p.DeliveryRule,p.FreightCostRule,DeliveryViaRule,"
-			+ " p.SO_CreditLimit, p.SO_CreditLimit-p.SO_CreditUsed AS CreditAvailable,"
+			+ " p.SO_CreditLimit, p.SO_CreditLimit + CASE WHEN p.IsCreditExtension = 'Y' AND p.DateFrom <= ? THEN COALESCE(p.ExtendedAmt,0) ELSE 0 END -p.SO_CreditUsed AS CreditAvailable,"
 			+ " lship.C_BPartner_Location_ID,c.AD_User_ID,"
 			+ " COALESCE(p.PO_PriceList_ID,g.PO_PriceList_ID) AS PO_PriceList_ID, p.PaymentRulePO,p.PO_PaymentTerm_ID," 
 			+ " lbill.C_BPartner_Location_ID AS Bill_Location_ID, p.SOCreditStatus, "
@@ -290,7 +290,9 @@ public class CalloutOrder extends CalloutEngine
 		try
 		{
 			pstmt = DB.prepareStatement(sql, null);
-			pstmt.setInt(1, C_BPartner_ID.intValue());
+			pstmt.setTimestamp(1 ,Env.getContextAsDate(ctx, "#Date"));
+			pstmt.setInt(2, C_BPartner_ID.intValue());
+			
 			rs = pstmt.executeQuery();
 			if (rs.next())
 			{
@@ -474,7 +476,7 @@ public class CalloutOrder extends CalloutEngine
 			+ "p.M_PriceList_ID,p.PaymentRule,p.POReference,"
 			+ "p.SO_Description,p.IsDiscountPrinted,"
 			+ "p.InvoiceRule,p.DeliveryRule,p.FreightCostRule,DeliveryViaRule,"
-			+ "p.SO_CreditLimit, p.SO_CreditLimit-p.SO_CreditUsed AS CreditAvailable,"
+			+ "p.SO_CreditLimit, p.SO_CreditLimit + CASE WHEN p.IsCreditExtension = 'Y' AND p.DateFrom <= ? THEN COALESCE(p.ExtendedAmt,0) ELSE 0 END -p.SO_CreditUsed AS CreditAvailable,"
 			+ "c.AD_User_ID,"
 			+ "p.PO_PriceList_ID, p.PaymentRulePO, p.PO_PaymentTerm_ID,"
 			+ "lbill.C_BPartner_Location_ID AS Bill_Location_ID "
@@ -489,7 +491,9 @@ public class CalloutOrder extends CalloutEngine
 		try
 		{
 			pstmt = DB.prepareStatement(sql, null);
-			pstmt.setInt(1, bill_BPartner_ID.intValue());
+			pstmt.setTimestamp(1, Env.getContextAsDate(ctx, "#Date"));
+			pstmt.setInt(2, bill_BPartner_ID.intValue());
+			
 			rs = pstmt.executeQuery();
 			if (rs.next())
 			{

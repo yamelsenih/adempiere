@@ -258,7 +258,7 @@ public class CalloutInOut extends CalloutEngine
 		String sql = "SELECT p.AD_Language,p.C_PaymentTerm_ID,"
 			+ "p.M_PriceList_ID,p.PaymentRule,p.POReference,"
 			+ "p.SO_Description,p.IsDiscountPrinted,"
-			+ "p.SO_CreditLimit-p.SO_CreditUsed AS CreditAvailable,"
+			+ "p.SO_CreditLimit + CASE WHEN p.IsCreditExtension = 'Y' AND p.DateFrom <= ? THEN COALESCE(p.ExtendedAmt,0) ELSE 0 END - p.SO_CreditUsed AS CreditAvailable,"
 			+ "l.C_BPartner_Location_ID,c.AD_User_ID "
 			+ "FROM C_BPartner p, C_BPartner_Location l, AD_User c "
 			+ "WHERE l.IsActive='Y' AND p.C_BPartner_ID=l.C_BPartner_ID(+)"
@@ -270,7 +270,8 @@ public class CalloutInOut extends CalloutEngine
 		try
 		{
 			pstmt = DB.prepareStatement(sql, null);
-			pstmt.setInt(1, C_BPartner_ID.intValue());
+			pstmt.setTimestamp(1, Env.getContextAsDate(ctx, "#Date"));
+			pstmt.setInt(2, C_BPartner_ID.intValue());
 			rs = pstmt.executeQuery();
 			if (rs.next())
 			{

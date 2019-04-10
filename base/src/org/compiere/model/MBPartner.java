@@ -28,6 +28,7 @@ import org.compiere.util.CLogger;
 import org.compiere.util.DB;
 import org.compiere.util.Env;
 import org.compiere.util.Msg;
+import org.compiere.util.TimeUtil;
 
 /**
  *	Business Partner Model
@@ -1072,4 +1073,26 @@ public class MBPartner extends X_C_BPartner
 //	}	//	afterDelete
 	//	End Yamel Senih
 
+	@Override
+	public BigDecimal getSO_CreditLimit() {
+		BigDecimal SO_CreditLimit = null;
+		
+		if (get_ValueAsBoolean("IsCreditExtension")) {
+			Timestamp dateFromExtension = (Timestamp) get_Value("DateFrom");
+			Timestamp now= Env.getContextAsDate(getCtx(), "#Date");
+			BigDecimal extendedAmt = get_Value("ExtendedAmt")==null ? Env.ZERO : (BigDecimal) get_Value("ExtendedAmt");
+			if (dateFromExtension!=null
+					&& now !=null) {
+				if (now.after(dateFromExtension)
+						|| TimeUtil.isSameDay(dateFromExtension, now)) {
+					SO_CreditLimit =super.getSO_CreditLimit().add(extendedAmt); 
+				}
+			}
+		}
+		
+		if (SO_CreditLimit==null)
+			SO_CreditLimit =super.getSO_CreditLimit(); 
+		
+		return SO_CreditLimit;
+	}
 }	//	MBPartner

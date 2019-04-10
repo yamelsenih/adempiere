@@ -138,7 +138,7 @@ public class CalloutInvoice extends CalloutEngine
 		String sql = "SELECT p.AD_Language,p.C_PaymentTerm_ID,"
 			+ " COALESCE(p.M_PriceList_ID,g.M_PriceList_ID) AS M_PriceList_ID, p.PaymentRule,p.POReference,"
 			+ " p.SO_Description,p.IsDiscountPrinted,"
-			+ " p.SO_CreditLimit, p.SO_CreditLimit-p.SO_CreditUsed AS CreditAvailable,"
+			+ " p.SO_CreditLimit, p.SO_CreditLimit + CASE WHEN p.IsCreditExtension = 'Y' AND p.DateFrom <= ? THEN COALESCE(p.ExtendedAmt,0) ELSE 0 END - p.SO_CreditUsed AS CreditAvailable,"
 			+ " l.C_BPartner_Location_ID,c.AD_User_ID,"
 			+ " COALESCE(p.PO_PriceList_ID,g.PO_PriceList_ID) AS PO_PriceList_ID, p.PaymentRulePO,p.PO_PaymentTerm_ID " 
 			+ "FROM C_BPartner p"
@@ -153,7 +153,8 @@ public class CalloutInvoice extends CalloutEngine
 		try
 		{
 			pstmt = DB.prepareStatement(sql, null);
-			pstmt.setInt(1, C_BPartner_ID.intValue());
+			pstmt.setTimestamp(1, Env.getContextAsDate(ctx, "#Date"));
+			pstmt.setInt(2, C_BPartner_ID.intValue());
 			rs = pstmt.executeQuery();
 			//
 			if (rs.next())
