@@ -48,7 +48,7 @@ public class RequestModelValidator implements ModelValidator {
 
         standardRequestTypes = new Query(Env.getCtx(), MStandardRequestType.Table_Name, null, null)
                 .setOnlyActiveRecords(true)
-                .setClient_ID()
+                //.setClient_ID()
                 .setOrderBy(MStandardRequestType.COLUMNNAME_AD_Table_ID + "," + MStandardRequestType.COLUMNNAME_C_DocType_ID)
                 .list();
 
