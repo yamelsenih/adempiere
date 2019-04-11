@@ -23,10 +23,9 @@
 		<debug-js>false</debug-js>
 	</client-config>
 
-	<!--
+
 		<language-config> <addon-uri>/WEB-INF/lang-addon.xml</addon-uri>
 		</language-config>
-	-->
 
 	<system-config>
 		<id-generator-class>org.adempiere.webui.AdempiereIdGenerator</id-generator-class>
@@ -34,7 +33,7 @@
 	
 	<!-- Using the event thread is deprecated in ZK7 but its a lot of work to change the modal windows to spearate threads -->
 	<system-config>
-    	<disable-event-thread>false</disable-event-thread>
+    	<disable-event-thread>true</disable-event-thread>
 	</system-config>
 
 	<desktop-config>
@@ -74,7 +73,7 @@
 	<!-- Set to true in production environments -->
 	<library-property>
                 <name>org.zkoss.web.classWebResource.cache</name>
-                <value>false</value>
+                <value>true</value>
 	</library-property>
 
 	<!-- Set to true in production environments -->

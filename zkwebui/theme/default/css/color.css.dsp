@@ -1040,8 +1040,6 @@ td.z-group-inner {
 }
 .z-north-body{
     background-color: #fefefe;
-    overflow: auto !important;
-    line-height: 21px;
 }
 
 .z-north-splitter{
