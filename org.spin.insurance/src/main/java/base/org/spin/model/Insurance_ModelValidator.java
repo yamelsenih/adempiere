@@ -16,11 +16,17 @@
  *****************************************************************************/
 package org.spin.model;
 
+import java.util.List;
+
 import org.compiere.model.MBPartner;
 import org.compiere.model.MClient;
+import org.compiere.model.MDocType;
+import org.compiere.model.MOrder;
+import org.compiere.model.MRequest;
 import org.compiere.model.ModelValidationEngine;
 import org.compiere.model.ModelValidator;
 import org.compiere.model.PO;
+import org.compiere.model.Query;
 import org.eevolution.model.X_HR_EmployeeInsurance;
 
 /**
@@ -33,6 +39,7 @@ public class Insurance_ModelValidator implements ModelValidator{
 	@Override
 	public void initialize(ModelValidationEngine engine, MClient client) {
 		engine.addModelChange(X_HR_EmployeeInsurance.Table_Name, this);
+		engine.addDocValidate(MOrder.Table_Name, this);
 	}
 
 	@Override
@@ -62,7 +69,27 @@ public class Insurance_ModelValidator implements ModelValidator{
 
 	@Override
 	public String docValidate(PO po, int timing) {
-		return null;
+		String result = null;
+		if (po.get_Table_ID()==MOrder.Table_ID) {
+			if (timing == TIMING_BEFORE_COMPLETE) {
+				
+				MOrder order = (MOrder) po;
+				MDocType docType = (MDocType) order.getC_DocType();
+				if (docType.getDocSubTypeSO() != null 
+						&& !docType.getDocSubTypeSO().equals(MDocType.DOCSUBTYPESO_Proposal)
+							&& !docType.getDocSubTypeSO().equals(MDocType.DOCSUBTYPESO_Quotation)) {
+					List<MRequest> listRequest = new Query(order.getCtx(), MRequest.Table_Name, "Processed = 'N' AND C_BPartner_ID = ?", order.get_TrxName())
+													.setParameters(order.getC_BPartner_ID())
+													.list();
+					for (MRequest mRequest : listRequest) 
+						result = (result == null ? "" : result) + mRequest.getSummary() +"\n";
+					
+					if (result!=null)
+						result = "@R_Request_ID@ @No@ @Processed@ \n" + result;
+				}
+			}
+		}
+		return result;
 	}
 
 }
