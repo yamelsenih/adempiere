@@ -23,6 +23,7 @@ import org.compiere.model.MClient;
 import org.compiere.model.MDocType;
 import org.compiere.model.MOrder;
 import org.compiere.model.MRequest;
+import org.compiere.model.MStandardRequest;
 import org.compiere.model.ModelValidationEngine;
 import org.compiere.model.ModelValidator;
 import org.compiere.model.PO;
@@ -40,6 +41,7 @@ public class Insurance_ModelValidator implements ModelValidator{
 	public void initialize(ModelValidationEngine engine, MClient client) {
 		engine.addModelChange(X_HR_EmployeeInsurance.Table_Name, this);
 		engine.addDocValidate(MOrder.Table_Name, this);
+		engine.addModelChange(MRequest.Table_Name, this);
 	}
 
 	@Override
@@ -54,14 +56,23 @@ public class Insurance_ModelValidator implements ModelValidator{
 
 	@Override
 	public String modelChange(PO po, int type) throws Exception {
-
-		if (po.get_Table_ID()==X_HR_EmployeeInsurance.Table_ID) {
-			if (type == TYPE_BEFORE_NEW) {
+		if (type == TYPE_BEFORE_NEW) {
+			
+			if (po.get_Table_ID()==X_HR_EmployeeInsurance.Table_ID) {
 				if (po.get_ValueAsInt("Ref_BPartner_ID")!=0) {
 					MBPartner bPartner = new MBPartner(po.getCtx(), po.get_ValueAsInt("Ref_BPartner_ID"), po.get_TrxName());
 					po.set_ValueOfColumn(X_HR_EmployeeInsurance.COLUMNNAME_SponsorName, bPartner.getName());
 				}else
 					return "@IsMandatory@ @Ref_BPartner_ID@";
+			}
+			
+			if (po.get_Table_ID()==MRequest.Table_ID) {
+				MStandardRequest sr = new MStandardRequest(po.getCtx(), po.get_ValueAsInt("R_StandardRequest_ID"), po.get_TrxName());
+				if (sr.get_ID()>0) {
+					po.set_ValueOfColumn("IsPromissoryNote", sr.get_ValueAsBoolean("IsPromissoryNote"));
+					po.set_ValueOfColumn("IsPostPaidPayment", sr.get_ValueAsBoolean("IsPostPaidPayment"));
+					
+				}
 			}
 		}
 		return null;

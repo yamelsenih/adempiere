@@ -161,6 +161,9 @@ public class MStandardRequestType extends X_R_StandardRequestType {
                     }
                     if (standardRequest.getConfidentialTypeEntry() != null)
                         request.setConfidentialTypeEntry(standardRequest.getConfidentialTypeEntry());
+                    
+                    //Set Standard Request 
+                    request.set_Value("R_StandardRequest_ID", standardRequest.getR_StandardRequest_ID());
                     request.saveEx();
                     relatedRequests.put(standardRequest.getR_StandardRequest_ID(), request);
                     requests.add(request);
