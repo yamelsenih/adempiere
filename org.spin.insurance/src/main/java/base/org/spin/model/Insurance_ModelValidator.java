@@ -82,7 +82,7 @@ public class Insurance_ModelValidator implements ModelValidator{
 	public String docValidate(PO po, int timing) {
 		String result = null;
 		if (po.get_Table_ID()==MOrder.Table_ID) {
-			if (timing == TIMING_BEFORE_COMPLETE) {
+			if (timing == TIMING_BEFORE_PREPARE) {
 				
 				MOrder order = (MOrder) po;
 				MDocType docType = (MDocType) order.getC_DocType();
