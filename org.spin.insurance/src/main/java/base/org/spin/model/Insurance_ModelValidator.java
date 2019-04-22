@@ -71,7 +71,6 @@ public class Insurance_ModelValidator implements ModelValidator{
 				if (sr.get_ID()>0) {
 					po.set_ValueOfColumn("IsPromissoryNote", sr.get_ValueAsBoolean("IsPromissoryNote"));
 					po.set_ValueOfColumn("IsPostPaidPayment", sr.get_ValueAsBoolean("IsPostPaidPayment"));
-					
 				}
 			}
 		}
@@ -89,9 +88,11 @@ public class Insurance_ModelValidator implements ModelValidator{
 				if (docType.getDocSubTypeSO() != null 
 						&& !docType.getDocSubTypeSO().equals(MDocType.DOCSUBTYPESO_Proposal)
 							&& !docType.getDocSubTypeSO().equals(MDocType.DOCSUBTYPESO_Quotation)) {
-					List<MRequest> listRequest = new Query(order.getCtx(), MRequest.Table_Name, "Processed = 'N' AND C_BPartner_ID = ?", order.get_TrxName())
-													.setParameters(order.getC_BPartner_ID())
-													.list();
+					List<MRequest> listRequest = new Query(order.getCtx(), MRequest.Table_Name, "Processed = 'N' AND "
+																								+ "C_BPartner_ID = ? AND "
+																								+ "(C_Order_ID IS NULL OR (C_Order_ID IS NOT NULL AND C_Order_ID = ?)) ", order.get_TrxName())
+																								.setParameters(order.getC_BPartner_ID(),order.getC_Order_ID())
+																								.list();
 					for (MRequest mRequest : listRequest) 
 						result = (result == null ? "" : result) + mRequest.getSummary() +"\n";
 					
