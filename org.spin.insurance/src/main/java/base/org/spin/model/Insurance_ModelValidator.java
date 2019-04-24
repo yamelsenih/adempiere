@@ -16,8 +16,10 @@
  *****************************************************************************/
 package org.spin.model;
 
+import java.math.BigDecimal;
 import java.util.List;
 
+import org.adempiere.model.GenericPO;
 import org.compiere.model.MBPartner;
 import org.compiere.model.MClient;
 import org.compiere.model.MDocType;
@@ -28,6 +30,8 @@ import org.compiere.model.ModelValidationEngine;
 import org.compiere.model.ModelValidator;
 import org.compiere.model.PO;
 import org.compiere.model.Query;
+import org.compiere.util.DB;
+import org.compiere.util.Env;
 import org.eevolution.model.X_HR_EmployeeInsurance;
 
 /**
@@ -90,18 +94,72 @@ public class Insurance_ModelValidator implements ModelValidator{
 							&& !docType.getDocSubTypeSO().equals(MDocType.DOCSUBTYPESO_Quotation)) {
 					List<MRequest> listRequest = new Query(order.getCtx(), MRequest.Table_Name, "Processed = 'N' AND "
 																								+ "C_BPartner_ID = ? AND "
-																								+ "(C_Order_ID IS NULL OR (C_Order_ID IS NOT NULL AND C_Order_ID = ?)) ", order.get_TrxName())
-																								.setParameters(order.getC_BPartner_ID(),order.getC_Order_ID())
+																								+ "EXISTS (SELECT 1 "
+																										+ "FROM R_StandardRequest sr "
+																										+ "INNER JOIN C_BPartner bp ON (sr.R_StandardRequestType_ID = bp.R_StandardRequestType_ID) "
+																										+ "WHERE sr.R_StandardRequest_ID = R_Request.R_StandardRequest_ID )", order.get_TrxName())
+																								.setParameters(order.getC_BPartner_ID())
 																								.list();
 					for (MRequest mRequest : listRequest) 
 						result = (result == null ? "" : result) + mRequest.getSummary() +"\n";
 					
 					if (result!=null)
 						result = "@R_Request_ID@ @No@ @Processed@ \n" + result;
+					
+					List<PO> requestOrders = new Query(order.getCtx(), "R_Request_Order", "C_Order_ID = ? ", order.get_TrxName())
+													.setParameters(order.getC_Order_ID())
+													.setOrderBy("Created")
+													.list();
+					BigDecimal remainAmt = order.getGrandTotal();
+					for (PO requestOrder : requestOrders) {
+						BigDecimal requestBalance = getOpenBalance(requestOrder.get_ValueAsInt("R_Request_ID"));
+						remainAmt = remainAmt.subtract(requestBalance);
+						if (requestBalance.compareTo(Env.ZERO)==0) 
+							requestOrder.set_ValueOfColumn("Amount", Env.ZERO);
+						else{
+							int diff =remainAmt.compareTo(Env.ZERO);
+							switch (diff) {
+							case 0: //Warranty Balance equals to Sales Order
+								requestOrder.set_ValueOfColumn("Amount", requestBalance);
+								break;
+							case 1: //Warranty Balance minor than Sales Order	
+								requestOrder.set_ValueOfColumn("Amount", requestBalance);
+								break;
+							case -1:
+								requestOrder.set_ValueOfColumn("Amount", remainAmt.add(requestBalance));
+								break;
+
+							default:
+								break;
+							}
+						}
+						requestOrder.save();
+					}
+					
+					if (result==null 
+							&& remainAmt.compareTo(Env.ZERO)>0)
+						result = "@Error@ \n @GrandTotal@ > @Warranty@ " ;
+					
+					
 				}
 			}
 		}
 		return result;
 	}
 
+	private BigDecimal getOpenBalance(int R_Request_ID) {
+		
+		String sql = "SELECT COALESCE(r.PromissoryNoteAmt,0) - COALESCE(SUM(CASE WHEN o.DocStatus IN ('CO','CL') THEN ro.Amount ELSE 0 END),0) "
+					+ "FROM R_Request_Order ro "
+					+ "LEFT JOIN C_Order o ON (ro.C_Order_ID = o.C_Order_ID) "
+					+ "INNER JOIN R_Request r ON (ro.R_Request_ID = r.R_Request_ID) "
+					+ "WHERE  ro.R_Request_ID = ? "
+					+ "GROUP BY r.PromissoryNoteAmt ";
+		BigDecimal openAmt  = DB.getSQLValueBD(null, sql, R_Request_ID);
+		
+		if (openAmt == null)
+			openAmt = Env.ZERO;
+		
+		return openAmt;
+	}
 }
