@@ -79,7 +79,7 @@ public class OpenILoanToDate extends OpenILoanToDateAbstract {
 						+ "C_DocType_ID, DocumentNo, DateDoc, FM_Product_ID, C_BPartner_ID, IsSOTrx, Status, FM_Account_ID, "
 						+ "C_Currency_ID, AccountNo, FeesQty, PaymentFrequency, PayDate, CapitalAmt, InterestAmt, TaxAmt, "
 						+ "FeeAmt, CurrentCapitalAmt, CurrentInterestAmt, CurrentTaxAmt, CurrentDunningAmt, CurrentDunningTaxAmt, CurrentFeeAmt, "
-						+ "OpenFeesQty, PaidFeesQty, CurrentDueFeeAmt, DueFeesQty, PayAmt, DateTo, AD_PInstance_ID) "
+						+ "OpenFeesQty, PaidFeesQty, CurrentDueFeeAmt, DueFeesQty, PayAmt, C_Invoice_ID, DateInvoiced, DateTo, AD_PInstance_ID) "
 				//	Source
 				+ "SELECT am.AD_Client_ID, am.AD_Org_ID, am.IsActive, am.Created, am.CreatedBy, am.Updated, am.UpdatedBy, am.FM_Agreement_ID, am.FM_AgreementType_ID, "
 				+ "am.C_DocType_ID, am.DocumentNo, am.DateDoc, am.FM_Product_ID, am.C_BPartner_ID, am.IsSOTrx, am.Status, am.FM_Account_ID, "
@@ -96,7 +96,7 @@ public class OpenILoanToDate extends OpenILoanToDateAbstract {
 				+ "SUM(CASE WHEN am.DateInvoiced <= ? THEN 1 ELSE 0 END) PaidFeesQty, "
 				+ "SUM(CASE WHEN (am.DateInvoiced IS NULL OR am.DateInvoiced > ?) AND am.DueDate <= ? THEN COALESCE(am.CurrentFeeAmt, 0) ELSE 0 END) AS CurrentDueFeeAmt, "
 				+ "SUM(CASE WHEN (am.DateInvoiced IS NULL OR am.DateInvoiced > ?) AND am.DueDate <= ? THEN 1 ELSE 0 END) AS DueFeesQty, "
-				+ "SUM(CASE WHEN am.DateInvoiced <= ? THEN COALESCE(am.CurrentFeeAmt, 0) ELSE 0 END) AS PayAmt, ?, " + getAD_PInstance_ID() + " "
+				+ "SUM(CASE WHEN am.DateInvoiced <= ? THEN COALESCE(am.CurrentFeeAmt, 0) ELSE 0 END) AS PayAmt, i.C_Invoice_ID, i.DateInvoiced, ?, " + getAD_PInstance_ID() + " "
 				+ "FROM RV_FM_LoanAmortization am "
 				+ "INNER JOIN FM_Account ac ON(ac.FM_Account_ID = am.FM_Account_ID) "
 				+ "LEFT JOIN (SELECT t.FM_Amortization_ID, "
@@ -108,13 +108,20 @@ public class OpenILoanToDate extends OpenILoanToDateAbstract {
 				+ "	AND EXISTS(SELECT 1 FROM FM_Batch b WHERE b.FM_Batch_ID = t.FM_Batch_ID AND b.DocStatus NOT IN('DR', 'IP', 'IN') AND b.DateDoc <= ? AND b.TotalAmt >= 0) "
 				+ "	GROUP BY t.FM_Amortization_ID) AS ca ON(ca.FM_Amortization_ID = am.FM_Amortization_ID) "
 				+ "LEFT JOIN FM_Transaction dt ON(dt.FM_Transaction_ID = ca.DunningTransaction_ID) "
-				+ "LEFT JOIN FM_Transaction dtt ON(dtt.FM_Transaction_ID = ca.DunningTaxTransaction_ID) ");
+				+ "LEFT JOIN FM_Transaction dtt ON(dtt.FM_Transaction_ID = ca.DunningTaxTransaction_ID) "
+				+ "LEFT JOIN (SELECT am.FM_Account_ID, MAX(i.C_Invoice_ID) AS C_Invoice_ID, MAX(i.DateInvoiced) AS DateInvoiced "
+				+ "	FROM C_Invoice i "
+				+ "	INNER JOIN C_InvoiceLine il ON(il.C_Invoice_ID = i.C_Invoice_ID) "
+				+ "	INNER JOIN FM_Amortization am ON(am.FM_Amortization_ID = il.FM_Amortization_ID) "
+				+ "	WHERE i.DocStatus IN('CO', 'CL') "
+				+ "	AND i.DateInvoiced <= ? "
+				+ "GROUP BY am.FM_Account_ID) i ON(i.FM_Account_ID = am.FM_Account_ID) ");
 		//	Add Where Clause
 		sql.append(whereClause);
 		sql.append(
 				"GROUP BY am.AD_Client_ID, am.AD_Org_ID, am.IsActive, am.Created, am.CreatedBy, am.Updated, am.UpdatedBy, am.FM_Agreement_ID, "
 				+ "am.FM_AgreementType_ID, am.C_DocType_ID, am.DocumentNo, am.DateDoc, am.DocStatus, am.FM_Product_ID, am.C_BPartner_ID, am.IsSOTrx, "
-				+ "am.Status, am.FM_Account_ID, am.C_Currency_ID, am.AccountNo, ac.FeesQty, ac.PaymentFrequency, ac.PayDate, ac.CapitalAmt, ac.InterestAmt, ac.TaxAmt");
+				+ "am.Status, am.FM_Account_ID, am.C_Currency_ID, am.AccountNo, ac.FeesQty, ac.PaymentFrequency, ac.PayDate, ac.CapitalAmt, ac.InterestAmt, ac.TaxAmt, i.C_Invoice_ID, i.DateInvoiced");
 	}
 
 	@Override
@@ -124,6 +131,7 @@ public class OpenILoanToDate extends OpenILoanToDateAbstract {
 		//	Prepare statement
 		PreparedStatement pstmtInsert = DB.prepareStatement (sql.toString(), get_TrxName());
 		int i = 1;
+		pstmtInsert.setTimestamp(i++, getDateTo());
 		pstmtInsert.setTimestamp(i++, getDateTo());
 		pstmtInsert.setTimestamp(i++, getDateTo());
 		pstmtInsert.setTimestamp(i++, getDateTo());
