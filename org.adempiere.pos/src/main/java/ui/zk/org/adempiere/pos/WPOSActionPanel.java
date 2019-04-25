@@ -39,6 +39,7 @@ import org.adempiere.webui.component.Rows;
 import org.adempiere.webui.panel.InfoProductPanel;
 import org.adempiere.webui.window.FDialog;
 import org.compiere.model.MPOSKey;
+import org.compiere.model.MProduct;
 import org.compiere.util.CLogger;
 import org.compiere.util.Env;
 import org.compiere.util.Msg;
@@ -434,6 +435,7 @@ public class WPOSActionPanel extends WPOSSubPanel
 				fieldProductName.setText(value);
 				try {
 					posPanel.setAddQty(true);
+					lookupProduct.setText(new MProduct(ctx, productId, null).getName());
 					findProduct(true);
 				} catch (Exception exception) {
 					FDialog.error(0, this, exception.getLocalizedMessage());
