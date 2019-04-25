@@ -88,16 +88,27 @@ public class OpenILoanToDate extends OpenILoanToDateAbstract {
 				+ "SUM(CASE WHEN (am.DateInvoiced IS NULL OR am.DateInvoiced > ?) THEN COALESCE(am.CapitalAmt, 0) ELSE 0 END) AS CurrentCapitalAmt, "
 				+ "SUM(CASE WHEN (am.DateInvoiced IS NULL OR am.DateInvoiced > ?) THEN COALESCE(am.InterestAmt, 0) ELSE 0 END) AS CurrentInterestAmt, "
 				+ "SUM(CASE WHEN (am.DateInvoiced IS NULL OR am.DateInvoiced > ?) THEN COALESCE(am.TaxAmt, 0) ELSE 0 END) AS CurrentTaxAmt, "
-				+ "SUM(CASE WHEN (am.DateInvoiced IS NULL OR am.DateInvoiced > ?) THEN COALESCE(am.CurrentDunningAmt, 0) ELSE 0 END) AS CurrentDunningAmt, "
-				+ "SUM(CASE WHEN (am.DateInvoiced IS NULL OR am.DateInvoiced > ?) THEN COALESCE(am.CurrentDunningTaxAmt, 0) ELSE 0 END) AS CurrentDunningTaxAmt, "
-				+ "SUM(CASE WHEN (am.DateInvoiced IS NULL OR am.DateInvoiced > ?) THEN COALESCE(am.CurrentFeeAmt, 0) ELSE 0 END) AS CurrentFeeAmt, "
+				+ "SUM(CASE WHEN (am.DateInvoiced IS NULL OR am.DateInvoiced > ?) THEN COALESCE(dt.Amount, 0) ELSE 0 END) AS CurrentDunningAmt, "
+				+ "SUM(CASE WHEN (am.DateInvoiced IS NULL OR am.DateInvoiced > ?) THEN COALESCE(dtt.Amount, 0) ELSE 0 END) AS CurrentDunningTaxAmt, "
+				+ "SUM(CASE WHEN (am.DateInvoiced IS NULL OR am.DateInvoiced > ?) THEN "
+				+ "		COALESCE(am.CapitalAmt, 0) + COALESCE(am.InterestAmt, 0) + COALESCE(am.TaxAmt, 0) + COALESCE(dt.Amount, 0) + COALESCE(dtt.Amount, 0) ELSE 0 END) AS CurrentFeeAmt, "
 				+ "SUM(CASE WHEN (am.DateInvoiced IS NULL OR am.DateInvoiced > ?) THEN 1 ELSE 0 END) OpenFeesQty, "
 				+ "SUM(CASE WHEN am.DateInvoiced <= ? THEN 1 ELSE 0 END) PaidFeesQty, "
 				+ "SUM(CASE WHEN (am.DateInvoiced IS NULL OR am.DateInvoiced > ?) AND am.DueDate <= ? THEN COALESCE(am.CurrentFeeAmt, 0) ELSE 0 END) AS CurrentDueFeeAmt, "
 				+ "SUM(CASE WHEN (am.DateInvoiced IS NULL OR am.DateInvoiced > ?) AND am.DueDate <= ? THEN 1 ELSE 0 END) AS DueFeesQty, "
 				+ "SUM(CASE WHEN am.DateInvoiced <= ? THEN COALESCE(am.CurrentFeeAmt, 0) ELSE 0 END) AS PayAmt, ?, " + getAD_PInstance_ID() + " "
 				+ "FROM RV_FM_LoanAmortization am "
-				+ "INNER JOIN FM_Account ac ON(ac.FM_Account_ID = am.FM_Account_ID) ");
+				+ "INNER JOIN FM_Account ac ON(ac.FM_Account_ID = am.FM_Account_ID) "
+				+ "LEFT JOIN (SELECT t.FM_Amortization_ID, "
+				+ "		MAX(CASE WHEN tt.Type = 'LDD' THEN t.FM_Transaction_ID ELSE 0 END) AS DunningTransaction_ID, "
+				+ "		MAX(CASE WHEN tt.Type = 'LDT' THEN t.FM_Transaction_ID ELSE 0 END) AS DunningTaxTransaction_ID "
+				+ "	FROM FM_Transaction t "
+				+ "	INNER JOIN FM_TransactionType tt ON(tt.FM_TransactionType_ID = t.FM_TransactionType_ID) "
+				+ "	WHERE tt.Type IN('LDD', 'LDT') "
+				+ "	AND EXISTS(SELECT 1 FROM FM_Batch b WHERE b.FM_Batch_ID = t.FM_Batch_ID AND b.DocStatus NOT IN('DR', 'IP', 'IN') AND b.DateDoc <= ? AND b.TotalAmt >= 0) "
+				+ "	GROUP BY t.FM_Amortization_ID) AS ca ON(ca.FM_Amortization_ID = am.FM_Amortization_ID) "
+				+ "LEFT JOIN FM_Transaction dt ON(dt.FM_Transaction_ID = ca.DunningTransaction_ID) "
+				+ "LEFT JOIN FM_Transaction dtt ON(dtt.FM_Transaction_ID = ca.DunningTaxTransaction_ID) ");
 		//	Add Where Clause
 		sql.append(whereClause);
 		sql.append(
@@ -113,6 +124,7 @@ public class OpenILoanToDate extends OpenILoanToDateAbstract {
 		//	Prepare statement
 		PreparedStatement pstmtInsert = DB.prepareStatement (sql.toString(), get_TrxName());
 		int i = 1;
+		pstmtInsert.setTimestamp(i++, getDateTo());
 		pstmtInsert.setTimestamp(i++, getDateTo());
 		pstmtInsert.setTimestamp(i++, getDateTo());
 		pstmtInsert.setTimestamp(i++, getDateTo());
