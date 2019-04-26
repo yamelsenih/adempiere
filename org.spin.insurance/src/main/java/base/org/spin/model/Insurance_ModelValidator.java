@@ -88,7 +88,7 @@ public class Insurance_ModelValidator implements ModelValidator{
 			if (timing == TIMING_BEFORE_PREPARE) {
 				
 				MOrder order = (MOrder) po;
-				MDocType docType = (MDocType) order.getC_DocType();
+				MDocType docType = (MDocType) order.getC_DocTypeTarget();
 				if (docType.getDocSubTypeSO() != null 
 						&& !docType.getDocSubTypeSO().equals(MDocType.DOCSUBTYPESO_Proposal)
 							&& !docType.getDocSubTypeSO().equals(MDocType.DOCSUBTYPESO_Quotation)) {
