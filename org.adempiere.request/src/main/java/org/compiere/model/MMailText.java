@@ -29,6 +29,8 @@ import org.compiere.util.Util;
  *	Cannot be cached as it holds PO/BPartner/User to parse
  *  @author Jorg Janke
  *  @version $Id: MMailText.java,v 1.3 2006/07/30 00:51:03 jjanke Exp $
+ *  @author Yamel Senih, ysenih@erpya.com, ERPCyA http://www.erpya.com
+ * 		@see Add support to multiple Entities fos parse values</a>
  */
 public class MMailText extends X_R_MailText
 {
