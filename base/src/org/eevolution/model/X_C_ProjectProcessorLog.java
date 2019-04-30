@@ -23,14 +23,14 @@ import org.compiere.model.*;
 
 /** Generated Model for C_ProjectProcessorLog
  *  @author Adempiere (generated) 
- *  @version Release 3.9.1 - $Id$ */
+ *  @version Release 3.9.0 - $Id$ */
 public class X_C_ProjectProcessorLog extends PO implements I_C_ProjectProcessorLog, I_Persistent 
 {
 
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20190109L;
+	private static final long serialVersionUID = 20180118L;
 
     /** Standard Constructor */
     public X_C_ProjectProcessorLog (Properties ctx, int C_ProjectProcessorLog_ID, String trxName)
@@ -41,7 +41,6 @@ public class X_C_ProjectProcessorLog extends PO implements I_C_ProjectProcessorL
 			setC_ProjectProcessor_ID (0);
 			setC_ProjectProcessorLog_ID (0);
 			setIsError (false);
-// N
         } */
     }
 
@@ -96,9 +95,7 @@ public class X_C_ProjectProcessorLog extends PO implements I_C_ProjectProcessorL
 			.getPO(getC_ProjectProcessor_ID(), get_TrxName());	}
 
 	/** Set Project Processor.
-		@param C_ProjectProcessor_ID 
-		Processor for Project
-	  */
+		@param C_ProjectProcessor_ID Project Processor	  */
 	public void setC_ProjectProcessor_ID (int C_ProjectProcessor_ID)
 	{
 		if (C_ProjectProcessor_ID < 1) 
@@ -108,8 +105,7 @@ public class X_C_ProjectProcessorLog extends PO implements I_C_ProjectProcessorL
 	}
 
 	/** Get Project Processor.
-		@return Processor for Project
-	  */
+		@return Project Processor	  */
 	public int getC_ProjectProcessor_ID () 
 	{
 		Integer ii = (Integer)get_Value(COLUMNNAME_C_ProjectProcessor_ID);
@@ -153,32 +149,6 @@ public class X_C_ProjectProcessorLog extends PO implements I_C_ProjectProcessorL
 	public String getDescription () 
 	{
 		return (String)get_Value(COLUMNNAME_Description);
-	}
-
-	/** EventChangeLog AD_Reference_ID=53238 */
-	public static final int EVENTCHANGELOG_AD_Reference_ID=53238;
-	/** Insert = I */
-	public static final String EVENTCHANGELOG_Insert = "I";
-	/** Delete = D */
-	public static final String EVENTCHANGELOG_Delete = "D";
-	/** Update = U */
-	public static final String EVENTCHANGELOG_Update = "U";
-	/** Set Event Change Log.
-		@param EventChangeLog 
-		Type of Event in Change Log
-	  */
-	public void setEventChangeLog (String EventChangeLog)
-	{
-
-		set_Value (COLUMNNAME_EventChangeLog, EventChangeLog);
-	}
-
-	/** Get Event Change Log.
-		@return Type of Event in Change Log
-	  */
-	public String getEventChangeLog () 
-	{
-		return (String)get_Value(COLUMNNAME_EventChangeLog);
 	}
 
 	/** Set Error.

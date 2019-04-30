@@ -22,7 +22,7 @@ import org.compiere.util.KeyNamePair;
 
 /** Generated Interface for C_Project
  *  @author Adempiere (generated) 
- *  @version Release 3.9.1
+ *  @version Release 3.9.0
  */
 public interface I_C_Project 
 {
@@ -90,8 +90,6 @@ public interface I_C_Project
 	  */
 	public int getAD_OrgTrx_ID();
 
-	public org.compiere.model.I_AD_Org getAD_OrgTrx() throws RuntimeException;
-
     /** Column name AD_User_ID */
     public static final String COLUMNNAME_AD_User_ID = "AD_User_ID";
 
@@ -106,19 +104,6 @@ public interface I_C_Project
 	public int getAD_User_ID();
 
 	public org.compiere.model.I_AD_User getAD_User() throws RuntimeException;
-
-    /** Column name AlertMessage */
-    public static final String COLUMNNAME_AlertMessage = "AlertMessage";
-
-	/** Set Alert Message.
-	  * Message of the Alert
-	  */
-	public void setAlertMessage (String AlertMessage);
-
-	/** Get Alert Message.
-	  * Message of the Alert
-	  */
-	public String getAlertMessage();
 
     /** Column name C_Activity_ID */
     public static final String COLUMNNAME_C_Activity_ID = "C_Activity_ID";
@@ -381,19 +366,6 @@ public interface I_C_Project
 	  */
 	public int getCreatedBy();
 
-    /** Column name CreateFrom */
-    public static final String COLUMNNAME_CreateFrom = "CreateFrom";
-
-	/** Set Create lines from.
-	  * Process which will generate a new document lines based on an existing document
-	  */
-	public void setCreateFrom (String CreateFrom);
-
-	/** Get Create lines from.
-	  * Process which will generate a new document lines based on an existing document
-	  */
-	public String getCreateFrom();
-
     /** Column name C_SalesRegion_ID */
     public static final String COLUMNNAME_C_SalesRegion_ID = "C_SalesRegion_ID";
 
@@ -451,41 +423,15 @@ public interface I_C_Project
     /** Column name DateFinishSchedule */
     public static final String COLUMNNAME_DateFinishSchedule = "DateFinishSchedule";
 
-	/** Set Finish Schedule.
+	/** Set Date Finish Schedule.
 	  * Scheduled Finish date for this Order
 	  */
 	public void setDateFinishSchedule (Timestamp DateFinishSchedule);
 
-	/** Get Finish Schedule.
+	/** Get Date Finish Schedule.
 	  * Scheduled Finish date for this Order
 	  */
 	public Timestamp getDateFinishSchedule();
-
-    /** Column name DateLastAction */
-    public static final String COLUMNNAME_DateLastAction = "DateLastAction";
-
-	/** Set Date last action.
-	  * Date this request was last acted on
-	  */
-	public void setDateLastAction (Timestamp DateLastAction);
-
-	/** Get Date last action.
-	  * Date this request was last acted on
-	  */
-	public Timestamp getDateLastAction();
-
-    /** Column name DateLastAlert */
-    public static final String COLUMNNAME_DateLastAlert = "DateLastAlert";
-
-	/** Set Last Alert.
-	  * Date when last alert were sent
-	  */
-	public void setDateLastAlert (Timestamp DateLastAlert);
-
-	/** Get Last Alert.
-	  * Date when last alert were sent
-	  */
-	public Timestamp getDateLastAlert();
 
     /** Column name DateStart */
     public static final String COLUMNNAME_DateStart = "DateStart";
@@ -503,12 +449,12 @@ public interface I_C_Project
     /** Column name DateStartSchedule */
     public static final String COLUMNNAME_DateStartSchedule = "DateStartSchedule";
 
-	/** Set Start Schedule.
+	/** Set Date Start Schedule.
 	  * Scheduled start date for this Order
 	  */
 	public void setDateStartSchedule (Timestamp DateStartSchedule);
 
-	/** Get Start Schedule.
+	/** Get Date Start Schedule.
 	  * Scheduled start date for this Order
 	  */
 	public Timestamp getDateStartSchedule();
@@ -525,19 +471,6 @@ public interface I_C_Project
 	  * Optional short description of the record
 	  */
 	public String getDescription();
-
-    /** Column name DueType */
-    public static final String COLUMNNAME_DueType = "DueType";
-
-	/** Set Due type.
-	  * Status of the next action for this Request
-	  */
-	public void setDueType (String DueType);
-
-	/** Get Due type.
-	  * Status of the next action for this Request
-	  */
-	public String getDueType();
 
     /** Column name DurationUnit */
     public static final String COLUMNNAME_DurationUnit = "DurationUnit";

@@ -18,12 +18,13 @@ package org.eevolution.model;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
-import org.compiere.model.*;
+
+import org.compiere.model.MTable;
 import org.compiere.util.KeyNamePair;
 
 /** Generated Interface for C_ProjectStatus
  *  @author Adempiere (generated) 
- *  @version Release 3.9.1
+ *  @version Release 3.9.0
  */
 public interface I_C_ProjectStatus 
 {
@@ -82,12 +83,12 @@ public interface I_C_ProjectStatus
     public static final String COLUMNNAME_C_ProjectStatus_ID = "C_ProjectStatus_ID";
 
 	/** Set Project Status.
-	  * Status for Project, Phase or Task
+	  * Project Status
 	  */
 	public void setC_ProjectStatus_ID (int C_ProjectStatus_ID);
 
 	/** Get Project Status.
-	  * Status for Project, Phase or Task
+	  * Project Status
 	  */
 	public int getC_ProjectStatus_ID();
 
@@ -240,19 +241,6 @@ public interface I_C_ProjectStatus
  lowest number comes first
 	  */
 	public int getSeqNo();
-
-    /** Column name TimeoutDays */
-    public static final String COLUMNNAME_TimeoutDays = "TimeoutDays";
-
-	/** Set Timeout in Days.
-	  * Timeout in Days to change Status automatically
-	  */
-	public void setTimeoutDays (int TimeoutDays);
-
-	/** Get Timeout in Days.
-	  * Timeout in Days to change Status automatically
-	  */
-	public int getTimeoutDays();
 
     /** Column name Updated */
     public static final String COLUMNNAME_Updated = "Updated";

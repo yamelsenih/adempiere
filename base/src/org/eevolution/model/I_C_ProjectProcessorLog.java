@@ -23,7 +23,7 @@ import org.compiere.util.KeyNamePair;
 
 /** Generated Interface for C_ProjectProcessorLog
  *  @author Adempiere (generated) 
- *  @version Release 3.9.1
+ *  @version Release 3.9.0
  */
 public interface I_C_ProjectProcessorLog 
 {
@@ -79,14 +79,10 @@ public interface I_C_ProjectProcessorLog
     /** Column name C_ProjectProcessor_ID */
     public static final String COLUMNNAME_C_ProjectProcessor_ID = "C_ProjectProcessor_ID";
 
-	/** Set Project Processor.
-	  * Processor for Project
-	  */
+	/** Set Project Processor	  */
 	public void setC_ProjectProcessor_ID (int C_ProjectProcessor_ID);
 
-	/** Get Project Processor.
-	  * Processor for Project
-	  */
+	/** Get Project Processor	  */
 	public int getC_ProjectProcessor_ID();
 
 	public org.eevolution.model.I_C_ProjectProcessor getC_ProjectProcessor() throws RuntimeException;
@@ -128,19 +124,6 @@ public interface I_C_ProjectProcessorLog
 	  * Optional short description of the record
 	  */
 	public String getDescription();
-
-    /** Column name EventChangeLog */
-    public static final String COLUMNNAME_EventChangeLog = "EventChangeLog";
-
-	/** Set Event Change Log.
-	  * Type of Event in Change Log
-	  */
-	public void setEventChangeLog (String EventChangeLog);
-
-	/** Get Event Change Log.
-	  * Type of Event in Change Log
-	  */
-	public String getEventChangeLog();
 
     /** Column name IsActive */
     public static final String COLUMNNAME_IsActive = "IsActive";

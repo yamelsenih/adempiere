@@ -26,14 +26,14 @@ import org.compiere.util.KeyNamePair;
 
 /** Generated Model for C_Project
  *  @author Adempiere (generated) 
- *  @version Release 3.9.1 - $Id$ */
+ *  @version Release 3.9.0 - $Id$ */
 public class X_C_Project extends PO implements I_C_Project, I_Persistent 
 {
 
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20190212L;
+	private static final long serialVersionUID = 20171102L;
 
     /** Standard Constructor */
     public X_C_Project (Properties ctx, int C_Project_ID, String trxName)
@@ -120,11 +120,6 @@ public class X_C_Project extends PO implements I_C_Project, I_Persistent
 		return ii.intValue();
 	}
 
-	public org.compiere.model.I_AD_Org getAD_OrgTrx() throws RuntimeException
-    {
-		return (org.compiere.model.I_AD_Org)MTable.get(getCtx(), org.compiere.model.I_AD_Org.Table_Name)
-			.getPO(getAD_OrgTrx_ID(), get_TrxName());	}
-
 	/** Set Trx Organization.
 		@param AD_OrgTrx_ID 
 		Performing or initiating organization
@@ -174,23 +169,6 @@ public class X_C_Project extends PO implements I_C_Project, I_Persistent
 		if (ii == null)
 			 return 0;
 		return ii.intValue();
-	}
-
-	/** Set Alert Message.
-		@param AlertMessage 
-		Message of the Alert
-	  */
-	public void setAlertMessage (String AlertMessage)
-	{
-		set_Value (COLUMNNAME_AlertMessage, AlertMessage);
-	}
-
-	/** Get Alert Message.
-		@return Message of the Alert
-	  */
-	public String getAlertMessage () 
-	{
-		return (String)get_Value(COLUMNNAME_AlertMessage);
 	}
 
 	public org.compiere.model.I_C_Activity getC_Activity() throws RuntimeException
@@ -626,23 +604,6 @@ public class X_C_Project extends PO implements I_C_Project, I_Persistent
 		return (String)get_Value(COLUMNNAME_C_ProjectType_ID);
 	}
 
-	/** Set Create lines from.
-		@param CreateFrom 
-		Process which will generate a new document lines based on an existing document
-	  */
-	public void setCreateFrom (String CreateFrom)
-	{
-		set_Value (COLUMNNAME_CreateFrom, CreateFrom);
-	}
-
-	/** Get Create lines from.
-		@return Process which will generate a new document lines based on an existing document
-	  */
-	public String getCreateFrom () 
-	{
-		return (String)get_Value(COLUMNNAME_CreateFrom);
-	}
-
 	public org.compiere.model.I_C_SalesRegion getC_SalesRegion() throws RuntimeException
     {
 		return (org.compiere.model.I_C_SalesRegion)MTable.get(getCtx(), org.compiere.model.I_C_SalesRegion.Table_Name)
@@ -722,7 +683,7 @@ public class X_C_Project extends PO implements I_C_Project, I_Persistent
 		return (Timestamp)get_Value(COLUMNNAME_DateFinish);
 	}
 
-	/** Set Finish Schedule.
+	/** Set Date Finish Schedule.
 		@param DateFinishSchedule 
 		Scheduled Finish date for this Order
 	  */
@@ -731,46 +692,12 @@ public class X_C_Project extends PO implements I_C_Project, I_Persistent
 		set_Value (COLUMNNAME_DateFinishSchedule, DateFinishSchedule);
 	}
 
-	/** Get Finish Schedule.
+	/** Get Date Finish Schedule.
 		@return Scheduled Finish date for this Order
 	  */
 	public Timestamp getDateFinishSchedule () 
 	{
 		return (Timestamp)get_Value(COLUMNNAME_DateFinishSchedule);
-	}
-
-	/** Set Date last action.
-		@param DateLastAction 
-		Date this request was last acted on
-	  */
-	public void setDateLastAction (Timestamp DateLastAction)
-	{
-		set_Value (COLUMNNAME_DateLastAction, DateLastAction);
-	}
-
-	/** Get Date last action.
-		@return Date this request was last acted on
-	  */
-	public Timestamp getDateLastAction () 
-	{
-		return (Timestamp)get_Value(COLUMNNAME_DateLastAction);
-	}
-
-	/** Set Last Alert.
-		@param DateLastAlert 
-		Date when last alert were sent
-	  */
-	public void setDateLastAlert (Timestamp DateLastAlert)
-	{
-		set_Value (COLUMNNAME_DateLastAlert, DateLastAlert);
-	}
-
-	/** Get Last Alert.
-		@return Date when last alert were sent
-	  */
-	public Timestamp getDateLastAlert () 
-	{
-		return (Timestamp)get_Value(COLUMNNAME_DateLastAlert);
 	}
 
 	/** Set Date Start.
@@ -790,7 +717,7 @@ public class X_C_Project extends PO implements I_C_Project, I_Persistent
 		return (Timestamp)get_Value(COLUMNNAME_DateStart);
 	}
 
-	/** Set Start Schedule.
+	/** Set Date Start Schedule.
 		@param DateStartSchedule 
 		Scheduled start date for this Order
 	  */
@@ -799,7 +726,7 @@ public class X_C_Project extends PO implements I_C_Project, I_Persistent
 		set_Value (COLUMNNAME_DateStartSchedule, DateStartSchedule);
 	}
 
-	/** Get Start Schedule.
+	/** Get Date Start Schedule.
 		@return Scheduled start date for this Order
 	  */
 	public Timestamp getDateStartSchedule () 
@@ -822,32 +749,6 @@ public class X_C_Project extends PO implements I_C_Project, I_Persistent
 	public String getDescription () 
 	{
 		return (String)get_Value(COLUMNNAME_Description);
-	}
-
-	/** DueType AD_Reference_ID=222 */
-	public static final int DUETYPE_AD_Reference_ID=222;
-	/** Overdue = 3 */
-	public static final String DUETYPE_Overdue = "3";
-	/** Due = 5 */
-	public static final String DUETYPE_Due = "5";
-	/** Scheduled = 7 */
-	public static final String DUETYPE_Scheduled = "7";
-	/** Set Due type.
-		@param DueType 
-		Status of the next action for this Request
-	  */
-	public void setDueType (String DueType)
-	{
-
-		set_Value (COLUMNNAME_DueType, DueType);
-	}
-
-	/** Get Due type.
-		@return Status of the next action for this Request
-	  */
-	public String getDueType () 
-	{
-		return (String)get_Value(COLUMNNAME_DueType);
 	}
 
 	/** DurationUnit AD_Reference_ID=299 */
