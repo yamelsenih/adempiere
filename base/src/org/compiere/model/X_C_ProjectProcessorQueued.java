@@ -22,14 +22,14 @@ import java.util.Properties;
 
 /** Generated Model for C_ProjectProcessorQueued
  *  @author Adempiere (generated) 
- *  @version Release 3.9.1 - $Id$ */
+ *  @version Release 3.9.2 - $Id$ */
 public class X_C_ProjectProcessorQueued extends PO implements I_C_ProjectProcessorQueued, I_Persistent 
 {
 
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20190212L;
+	private static final long serialVersionUID = 20190503L;
 
     /** Standard Constructor */
     public X_C_ProjectProcessorQueued (Properties ctx, int C_ProjectProcessorQueued_ID, String trxName)
