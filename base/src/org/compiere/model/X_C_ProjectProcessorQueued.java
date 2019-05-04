@@ -29,7 +29,7 @@ public class X_C_ProjectProcessorQueued extends PO implements I_C_ProjectProcess
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20190502L;
+	private static final long serialVersionUID = 20190212L;
 
     /** Standard Constructor */
     public X_C_ProjectProcessorQueued (Properties ctx, int C_ProjectProcessorQueued_ID, String trxName)
