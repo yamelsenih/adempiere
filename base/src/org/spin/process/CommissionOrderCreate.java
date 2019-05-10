@@ -25,6 +25,7 @@ import org.compiere.model.MCommissionAmt;
 import org.compiere.model.MCommissionRun;
 import org.compiere.model.MOrder;
 import org.compiere.model.MOrderLine;
+import org.compiere.model.MProduct;
 import org.compiere.util.Env;
 import org.compiere.util.Msg;
 
@@ -61,8 +62,9 @@ public class CommissionOrderCreate extends CommissionOrderCreateAbstract {
 		MCommission commissionDefinition = new MCommission (getCtx(), commissionRun.getC_Commission_ID(), get_TrxName());
 		if (commissionDefinition.getC_Commission_ID() == 0)
 			throw new IllegalArgumentException("@C_Commission_ID@ @NotFound@");
-		if (commissionDefinition.getC_Charge_ID() == 0)
-			throw new IllegalArgumentException("@C_Commission_ID@ - (@C_Charge_ID@) @NotFound@");
+		if (commissionDefinition.getC_Charge_ID() == 0
+				&& commissionDefinition.get_ValueAsInt("M_Product_ID") == 0)
+			throw new IllegalArgumentException("@C_Commission_ID@ - (@M_Product_ID@ / @C_Charge_ID@) @NotFound@");
 		//	
 		orders = new Hashtable<>();
 		//	Get lines
@@ -70,7 +72,7 @@ public class CommissionOrderCreate extends CommissionOrderCreateAbstract {
 			.filter(commissionAmt -> commissionAmt.getCommissionAmt() != null 
 				&& commissionAmt.getCommissionAmt().compareTo(Env.ZERO) > 0).forEach(commissionAmt -> {
 			MOrder order = getOrder(commissionDefinition, commissionRun, commissionAmt);
-			createOrderLine(commissionAmt, order, commissionDefinition.getC_Charge_ID());
+			createOrderLine(commissionAmt, order, commissionDefinition.getC_Charge_ID(), commissionDefinition.get_ValueAsInt("M_Product_ID"));
 		});
 		//	Process orders
 		if(orders.size() > 0) {
@@ -144,11 +146,17 @@ public class CommissionOrderCreate extends CommissionOrderCreateAbstract {
 	 * @param order
 	 * @param chargeId
 	 */
-	private void createOrderLine(MCommissionAmt commissionAmt, MOrder order, int chargeId) {
+	private void createOrderLine(MCommissionAmt commissionAmt, MOrder order, int chargeId, int productId) {
 		//	Create Invoice Line
  		MOrderLine orderLine = new MOrderLine(order);
-		orderLine.setC_Charge_ID(chargeId);
-		orderLine.setQty(Env.ONE);
+ 		if(productId > 0) {
+ 			MProduct product = MProduct.get(getCtx(), productId);
+ 			orderLine.setProduct(product);
+ 			
+ 		} else {
+ 			orderLine.setC_Charge_ID(chargeId);
+ 		}
+ 		orderLine.setQty(Env.ONE);
 		orderLine.setPrice(commissionAmt.getCommissionAmt());
 		orderLine.setTax();
 		orderLine.saveEx();

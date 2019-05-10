@@ -21,7 +21,6 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.adempiere.exceptions.AdempiereException;
@@ -77,7 +76,6 @@ import org.compiere.model.PO;
 import org.compiere.model.Query;
 import org.compiere.model.X_C_CommissionSalesRep;
 import org.compiere.process.DocAction;
-import org.compiere.process.OrderLineCreateShipmentAbstract;
 import org.compiere.process.OrderPOCreateAbstract;
 import org.compiere.util.CLogger;
 import org.compiere.util.DB;
