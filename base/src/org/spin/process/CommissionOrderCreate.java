@@ -79,6 +79,7 @@ public class CommissionOrderCreate extends CommissionOrderCreateAbstract {
 			orders.entrySet().stream().forEach(orderSet ->{
 				MOrder order = orderSet.getValue();
 				order.processIt(getDocAction());
+				order.saveEx();
 			});
 		}
 		//
@@ -111,6 +112,7 @@ public class CommissionOrderCreate extends CommissionOrderCreateAbstract {
 		order.setSalesRep_ID(getAD_User_ID());	//	caller
 		order.setDateOrdered(getDateOrdered());
 		order.setDocStatus(MOrder.DOCSTATUS_Drafted);
+		order.setDocAction(MOrder.DOCACTION_Complete);
 		//
 		if (commissionDefinition.getC_Currency_ID() != order.getC_Currency_ID()) {
 			throw new IllegalArgumentException("@CommissionAPInvoiceCurrency@");	//	TODO Translate it: CommissionAPInvoice - Currency of PO Price List not Commission Currency
