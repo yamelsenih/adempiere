@@ -136,6 +136,13 @@ public class OrderPOCreate extends OrderPOCreateAbstract {
 		} else {
 			purchaseOrder = createFromProductPOInfo(salesOrder, salesOrderLines);
 		}
+		String documentAction = getParameterAsString(MOrder.COLUMNNAME_DocAction);
+		if(!Util.isEmpty(documentAction)
+				&& (documentAction.equals(MOrder.DOCACTION_Complete)
+						|| documentAction.equals(MOrder.DOCACTION_Prepare))) {
+			purchaseOrder.processIt(documentAction);
+			purchaseOrder.saveEx();
+		}
 		//	Set Reference to PO
 		if (counter == 1 && purchaseOrder != null) {
 			salesOrder.setLink_Order_ID(purchaseOrder.getC_Order_ID());
@@ -257,6 +264,7 @@ public class OrderPOCreate extends OrderPOCreateAbstract {
 		purchaseOrder.setUser2_ID(salesOrder.getUser2_ID());
 		purchaseOrder.setUser3_ID(salesOrder.getUser3_ID());
 		purchaseOrder.setUser4_ID(salesOrder.getUser4_ID());
+		purchaseOrder.setDocAction(MOrder.DOCACTION_Complete);
 		//
 		purchaseOrder.saveEx();
 		return purchaseOrder;
