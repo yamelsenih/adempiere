@@ -26,6 +26,7 @@ import org.compiere.model.MCommissionRun;
 import org.compiere.model.MDocType;
 import org.compiere.model.MInvoice;
 import org.compiere.model.MInvoiceLine;
+import org.compiere.model.MProduct;
 import org.compiere.util.Env;
 
 /**
@@ -64,8 +65,9 @@ public class CommissionAPInvoice extends CommissionAPInvoiceAbstract {
 		MCommission commissionDefinition = new MCommission (getCtx(), commissionRun.getC_Commission_ID(), get_TrxName());
 		if (commissionDefinition.getC_Commission_ID() == 0)
 			throw new IllegalArgumentException("@C_Commission_ID@ @NotFound@");
-		if (commissionDefinition.getC_Charge_ID() == 0)
-			throw new IllegalArgumentException("@C_Commission_ID@ - (@C_Charge_ID@) @NotFound@");
+		if (commissionDefinition.getC_Charge_ID() == 0
+				&& commissionDefinition.get_ValueAsInt("M_Product_ID") == 0)
+			throw new IllegalArgumentException("@C_Commission_ID@ - (@M_Product_ID@ / @C_Charge_ID@) @NotFound@");
 		//	
 		invoices = new Hashtable<>();
 		//	Get lines
@@ -73,7 +75,7 @@ public class CommissionAPInvoice extends CommissionAPInvoiceAbstract {
 			.filter(commissionAmt -> commissionAmt.getCommissionAmt() != null 
 				&& commissionAmt.getCommissionAmt().compareTo(Env.ZERO) > 0).forEach(commissionAmt -> {
 			MInvoice invoice = getInvoice(commissionDefinition, commissionRun, commissionAmt);
-			createInvoiceLine(commissionAmt, invoice, commissionDefinition.getC_Charge_ID());
+			createInvoiceLine(commissionAmt, invoice, commissionDefinition.getC_Charge_ID(), commissionDefinition.get_ValueAsInt("M_Product_ID"));
 		});
 		//
 		return "@Created@ " + created + (generatedDocuments.length() > 0? " [" + generatedDocuments + "]": "");
@@ -112,10 +114,16 @@ public class CommissionAPInvoice extends CommissionAPInvoiceAbstract {
 	 * @param invoice
 	 * @param chargeId
 	 */
-	private void createInvoiceLine(MCommissionAmt commissionAmt, MInvoice invoice, int chargeId) {
+	private void createInvoiceLine(MCommissionAmt commissionAmt, MInvoice invoice, int chargeId, int productId) {
 		//	Create Invoice Line
  		MInvoiceLine iLine = new MInvoiceLine(invoice);
-		iLine.setC_Charge_ID(chargeId);
+ 		if(productId > 0) {
+ 			MProduct product = MProduct.get(getCtx(), productId);
+ 			iLine.setProduct(product);
+ 			
+ 		} else {
+ 			iLine.setC_Charge_ID(chargeId);
+ 		}
  		iLine.setQty(1);
  		iLine.setPrice(commissionAmt.getCommissionAmt());
 		iLine.setTax();
