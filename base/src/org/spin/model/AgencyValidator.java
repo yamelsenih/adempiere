@@ -51,6 +51,7 @@ import org.compiere.model.MInOut;
 import org.compiere.model.MInOutLine;
 import org.compiere.model.MInvoice;
 import org.compiere.model.MInvoiceLine;
+import org.compiere.model.MMailText;
 import org.compiere.model.MOrder;
 import org.compiere.model.MOrderLine;
 import org.compiere.model.MPriceList;
@@ -157,6 +158,8 @@ public class AgencyValidator implements ModelValidator
 					lineQuantity.setIsPurchaseQty(true);
 				}
 			} else if(po instanceof MAttachment) {
+				ArrayList<String> messageList = new ArrayList<>();
+				StringBuffer messageToSend = new StringBuffer();
 				MAttachment attachment = (MAttachment) po;
 				if(attachment.getAD_Table_ID() == I_R_Request.Table_ID) {
 					MAttachmentEntry[] entries = attachment.getEntries();
@@ -171,9 +174,6 @@ public class AgencyValidator implements ModelValidator
 						}
 						//	Add or match
 						for(MAttachmentEntry entry : entries) {
-							if(!entry.isGraphic()) {
-								continue;
-							}
 							if(requestEntries == null) {
 								entryToAdd.add(entry);
 							} else {
@@ -191,15 +191,30 @@ public class AgencyValidator implements ModelValidator
 						}
 						//	Add Request Update
 						for(MAttachmentEntry entry : entryToAdd) {
-							MImage image = new MImage(attachment.getCtx(), 0, attachment.get_TrxName());
-							image.setBinaryData(entry.getData());
-							image.setName(entry.getName());
-							image.saveEx();
-							//	
 							MRequestUpdate update = new MRequestUpdate(request);
-							update.setResult(Msg.parseTranslation(attachment.getCtx(), "@AD_Image_ID@ @Added@: ") + entry.getName());
-							update.set_ValueOfColumn(I_AD_Image.COLUMNNAME_AD_Image_ID, image.getAD_Image_ID());
+							String message = "@File@ @Added@: ";
+							if(entry.isGraphic()) {
+								MImage image = new MImage(attachment.getCtx(), 0, attachment.get_TrxName());
+								image.setBinaryData(entry.getData());
+								image.setName(entry.getName());
+								image.saveEx();
+								update.set_ValueOfColumn(I_AD_Image.COLUMNNAME_AD_Image_ID, image.getAD_Image_ID());
+								message = "@AD_Image_ID@ @Added@: ";
+							}
+							String translatedMessage = Msg.parseTranslation(attachment.getCtx(), message) + entry.getName();
+							update.setResult(translatedMessage);
+							//	
 							update.saveEx();
+							if(messageToSend.length() > 0) {
+								messageToSend.append(Env.NL);
+							}
+							messageToSend.append(translatedMessage);
+						}
+						//	Notify
+						if(messageToSend.length() > 0) {
+							messageList.add(I_R_Request.COLUMNNAME_Result);
+							request.setResult(messageToSend.toString());
+							request.sendNotices(messageList, MMailText.EVENTTYPE_AutomaticTaskNewActivityNotice);
 						}
 					}
 				}
