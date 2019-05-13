@@ -365,6 +365,16 @@ public class AgencyValidator implements ModelValidator
 						order.setC_Project_ID(projectId);
 					}
 				}
+
+				if(order.getRef_Order_ID() > 0){
+
+					MOrder refOrder = (MOrder) order.getRef_Order();
+
+					if(refOrder.getUser3_ID() > 0){
+						order.setUser1_ID(refOrder.getUser3_ID());
+						order.setUser3_ID(refOrder.getUser1_ID());
+					}
+				}
 			}
 		} else if(type == TYPE_AFTER_CHANGE) {
 			if (po instanceof MBPartner
