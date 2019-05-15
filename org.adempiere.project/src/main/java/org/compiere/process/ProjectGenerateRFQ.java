@@ -274,6 +274,9 @@ public class ProjectGenerateRFQ extends ProjectGenerateRFQAbstract
 			projectPhaseId = entity.get_ValueAsInt(I_C_ProjectTask.COLUMNNAME_C_ProjectPhase_ID);
 		} else if(entity instanceof MProjectPhase) {
 			projectPhaseId = entity.get_ValueAsInt(I_C_ProjectPhase.COLUMNNAME_C_ProjectPhase_ID);
+		} else if(entity instanceof MProjectLine) {
+			projectPhaseId = entity.get_ValueAsInt(I_C_ProjectPhase.COLUMNNAME_C_ProjectPhase_ID);
+			projectTaskId = entity.get_ValueAsInt(I_C_ProjectTask.COLUMNNAME_C_ProjectTask_ID);
 		}
 		//	Validate
 		if(projectPhaseId > 0) {

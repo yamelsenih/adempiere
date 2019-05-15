@@ -339,7 +339,7 @@ public class AgencyValidator implements ModelValidator
 					if(projectPhase.get_ValueAsInt("CUST_MediaType_ID") != 0)
 						orderLine.set_ValueOfColumn("CUST_MediaType_ID", projectPhase.get_ValueAsInt("CUST_MediaType_ID"));
 				}
-			}else if(po instanceof MOrder) {
+			} else if(po instanceof MOrder) {
 				MOrder order = (MOrder) po;
 				int orderprojectId = order.getC_Project_ID();
 				if(orderprojectId > 0) {					
@@ -610,6 +610,14 @@ public class AgencyValidator implements ModelValidator
 							invoice.set_ValueOfColumn("S_Contract_ID", parentProject.get_ValueAsInt("S_Contract_ID"));
 							invoice.saveEx();
 						}
+					}
+				}
+				//	Validate IsAllowToInvoice
+				if(invoice.isSOTrx()
+						&& invoice.getC_Order_ID() > 0) {
+					MOrder order = (MOrder) invoice.getC_Order();
+					if(!order.get_ValueAsBoolean("IsAllowToInvoice")) {
+						throw new AdempiereException("@C_Order_ID@ " + order.getDocumentNo() + " @IsAllowToInvoiceRequired@");
 					}
 				}
 			} else if(timing == TIMING_AFTER_COMPLETE) {
