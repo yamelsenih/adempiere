@@ -613,11 +613,20 @@ public class AgencyValidator implements ModelValidator
 					}
 				}
 				//	Validate IsAllowToInvoice
-				if(invoice.isSOTrx()
-						&& invoice.getC_Order_ID() > 0) {
+				if(invoice.getC_Order_ID() > 0) {
 					MOrder order = (MOrder) invoice.getC_Order();
-					if(!order.get_ValueAsBoolean("IsAllowToInvoice")) {
-						throw new AdempiereException("@C_Order_ID@ " + order.getDocumentNo() + " @IsAllowToInvoiceRequired@");
+					//	Set Project Phase and Task
+					if(order.get_ValueAsInt(I_C_ProjectPhase.COLUMNNAME_C_ProjectPhase_ID) > 0) {
+						invoice.set_ValueOfColumn(I_C_ProjectPhase.COLUMNNAME_C_ProjectPhase_ID, order.get_ValueAsInt(I_C_ProjectPhase.COLUMNNAME_C_ProjectPhase_ID));
+					}
+					if(order.get_ValueAsInt(I_C_ProjectTask.COLUMNNAME_C_ProjectTask_ID) > 0) {
+						invoice.set_ValueOfColumn(I_C_ProjectTask.COLUMNNAME_C_ProjectTask_ID, order.get_ValueAsInt(I_C_ProjectTask.COLUMNNAME_C_ProjectTask_ID));
+					}
+					invoice.saveEx();
+					if(invoice.isSOTrx()) {
+						if(!order.get_ValueAsBoolean("IsAllowToInvoice")) {
+							throw new AdempiereException("@C_Order_ID@ " + order.getDocumentNo() + " @IsAllowToInvoiceRequired@");
+						}
 					}
 				}
 			} else if(timing == TIMING_AFTER_COMPLETE) {
