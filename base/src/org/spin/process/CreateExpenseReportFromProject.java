@@ -65,6 +65,7 @@ public class CreateExpenseReportFromProject extends CreateExpenseReportFromProje
 			expenseLine.setDateExpense(getDateReport());
 			expenseLine.setIsTimeReport(false);
 			expenseLine.setIsInvoiced(false);
+			expenseLine.setC_Currency_ID(expenseReport.getC_Currency_ID());
 			//	Validate product
 			expenseLine.setM_Product_ID(expenseProductId);
 			expenseLine.setQty(qty);
