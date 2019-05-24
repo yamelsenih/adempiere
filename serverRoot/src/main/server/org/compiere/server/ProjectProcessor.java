@@ -386,7 +386,7 @@ public class ProjectProcessor extends AdempiereServer
 	 * Process Project Due
 	 */
 	private void processDueAlert() {
-		if (m_model.getOverdueAlertDays()!=0) {
+		//if (m_model.getOverdueAlertDays()!=0) {
 			String whereClauseGeneral = "";
 			String whereClause = ""; 
 			isScheduled =true;
@@ -450,14 +450,14 @@ public class ProjectProcessor extends AdempiereServer
 					.setAlertMessageColumn("@C_ProjectTask_ID@ @IsDue@")
 					.setParameters(params)
 					.processScheduleChanges();
-		}
+		//}
 	}	//processDueAlert
 	
 	/**
 	 * Process Project Due
 	 */
 	private void processOverDueAlert() {
-		if (m_model.getOverdueAssignDays()!=0) {
+		//if (m_model.getOverdueAssignDays()!=0) {
 			String whereClauseGeneral = "";
 			String whereClause = ""; 
 			isScheduled = true;
@@ -523,7 +523,7 @@ public class ProjectProcessor extends AdempiereServer
 					.setAlertMessageColumn("@C_ProjectTask_ID@ @OverDue@")
 					.setParameters(params)
 					.processScheduleChanges();
-		}
+		//}
 	}	//processOverDueAlert
 	
 	/**
