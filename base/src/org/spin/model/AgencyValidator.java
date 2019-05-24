@@ -157,6 +157,22 @@ public class AgencyValidator implements ModelValidator
 					lineQuantity.setIsOfferQty(true);
 					lineQuantity.setIsPurchaseQty(true);
 				}
+
+				if(lineQuantity.is_ValueChanged("BestResponseAmt")){
+
+					String sql = "select coalesce(q.margin,0)" +
+							" from c_rfqresponselineqty q" +
+							" join c_rfqresponseline l on q.c_rfqresponseline_id = l.c_rfqresponseline_id" +
+							" join c_rfqresponse h on l.c_rfqresponse_id = h.c_rfqresponse_id" +
+							" where h.isselectedwinner = 'Y' and c_rfqlineqty_id = " + lineQuantity.get_ID();
+
+					BigDecimal margin = DB.getSQLValueBDEx(lineQuantity.get_TrxName(), sql);
+
+					if(margin.compareTo(Env.ZERO) > 0)
+						lineQuantity.setMargin(margin);
+
+				}
+
 			} else if(po instanceof MAttachment) {
 				ArrayList<String> messageList = new ArrayList<>();
 				StringBuffer messageToSend = new StringBuffer();
