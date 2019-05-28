@@ -222,12 +222,10 @@ public class AgencyValidator implements ModelValidator
 							//	
 							update.saveEx();
 							//	Add attachment to update
-							if(!entry.isGraphic()) {
-								MAttachment updateAttachment = update.createAttachment();
-								updateAttachment.addEntry(entry);
-								updateAttachment.addTextMsg(translatedMessage);
-								updateAttachment.saveEx();
-							}
+							MAttachment updateAttachment = update.createAttachment();
+							updateAttachment.addEntry(entry);
+							updateAttachment.addTextMsg(translatedMessage);
+							updateAttachment.saveEx();
 							if(messageToSend.length() > 0) {
 								messageToSend.append(Env.NL);
 							}
