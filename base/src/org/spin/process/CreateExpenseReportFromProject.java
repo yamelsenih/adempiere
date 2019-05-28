@@ -77,6 +77,12 @@ public class CreateExpenseReportFromProject extends CreateExpenseReportFromProje
 				expenseLine.setC_Project_ID(order.getC_Project_ID());
 			}
 			expenseLine.setC_OrderLine_ID(orderLineId);
+			if(orderLine.getC_ProjectPhase_ID() > 0) {
+				expenseLine.setC_ProjectPhase_ID(orderLine.getC_ProjectPhase_ID());
+			}
+			if(orderLine.getC_ProjectTask_ID() > 0) {
+				expenseLine.setC_ProjectTask_ID(orderLine.getC_ProjectTask_ID());
+			}
 			if(linkOrderLineId > 0) {
 				MOrderLine linkOrderLine = new MOrderLine(getCtx(), linkOrderLineId, get_TrxName());
 				MOrder linkOrder = linkOrderLine.getParent();
