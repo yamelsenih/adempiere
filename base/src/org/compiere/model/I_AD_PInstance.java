@@ -22,7 +22,7 @@ import org.compiere.util.KeyNamePair;
 
 /** Generated Interface for AD_PInstance
  *  @author Adempiere (generated) 
- *  @version Release 3.9.1
+ *  @version Release 3.9.2
  */
 public interface I_AD_PInstance 
 {
@@ -104,6 +104,21 @@ public interface I_AD_PInstance
 	public int getAD_Process_ID();
 
 	public org.compiere.model.I_AD_Process getAD_Process() throws RuntimeException;
+
+    /** Column name AD_Session_ID */
+    public static final String COLUMNNAME_AD_Session_ID = "AD_Session_ID";
+
+	/** Set Session.
+	  * User Session Online or Web
+	  */
+	public void setAD_Session_ID (int AD_Session_ID);
+
+	/** Get Session.
+	  * User Session Online or Web
+	  */
+	public int getAD_Session_ID();
+
+	public org.compiere.model.I_AD_Session getAD_Session() throws RuntimeException;
 
     /** Column name AD_User_ID */
     public static final String COLUMNNAME_AD_User_ID = "AD_User_ID";
@@ -215,19 +230,6 @@ public interface I_AD_PInstance
 	  */
 	public int getResult();
 
-    /** Column name UUID */
-    public static final String COLUMNNAME_UUID = "UUID";
-
-	/** Set Immutable Universally Unique Identifier.
-	  * Immutable Universally Unique Identifier
-	  */
-	public void setUUID (String UUID);
-
-	/** Get Immutable Universally Unique Identifier.
-	  * Immutable Universally Unique Identifier
-	  */
-	public String getUUID();
-
     /** Column name Updated */
     public static final String COLUMNNAME_Updated = "Updated";
 
@@ -243,4 +245,17 @@ public interface I_AD_PInstance
 	  * User who updated this records
 	  */
 	public int getUpdatedBy();
+
+    /** Column name UUID */
+    public static final String COLUMNNAME_UUID = "UUID";
+
+	/** Set Immutable Universally Unique Identifier.
+	  * Immutable Universally Unique Identifier
+	  */
+	public void setUUID (String UUID);
+
+	/** Get Immutable Universally Unique Identifier.
+	  * Immutable Universally Unique Identifier
+	  */
+	public String getUUID();
 }
