@@ -20,12 +20,15 @@ package org.spin.process;
 import org.adempiere.exceptions.AdempiereException;
 import org.compiere.model.I_C_Commission;
 import org.compiere.model.I_C_CommissionType;
+import org.compiere.model.I_C_Project;
 import org.compiere.model.MCommission;
 import org.compiere.model.MCommissionRun;
 import org.compiere.model.MDocType;
+import org.compiere.model.MProject;
 import org.compiere.model.Query;
 import org.compiere.util.Msg;
 
+import com.eevolution.model.I_S_Contract;
 import com.eevolution.model.X_S_Contract;
 
 /** Generated Process for (Create Commission from Contract)
@@ -46,20 +49,39 @@ public class CreateCommissionFromContract extends CreateCommissionFromContractAb
 			throw new AdempiereException("@S_Contract_ID@ @NotFound@");
 		}
 		X_S_Contract contract = new X_S_Contract(getCtx(), contractId, get_TrxName());
+		//	Get from project
+		new Query(getCtx(), I_C_Project.Table_Name, I_S_Contract.Table_Name + " = ?", get_TrxName())
+			.setClient_ID()
+			.setOnlyActiveRecords(true)
+			.setParameters(contractId)
+			.setOrderBy(I_C_Project.COLUMNNAME_DateStart)
+			.<MProject>list().forEach(project -> {
+				createCommissionForProject(contract, project);
+			});
+		return getDocumentResult();
+	}
+	
+	/**
+	 * Create commission for a specific project
+	 * @param project
+	 */
+	private void createCommissionForProject(X_S_Contract contract, MProject project) {
 		//	Generate
 		new Query(getCtx(), I_C_Commission.Table_Name, I_C_CommissionType.COLUMNNAME_C_CommissionType_ID + " = ? ", get_TrxName())
 			.setOnlyActiveRecords(true)
 			.setParameters(getCommissionTypeId())
 			.<MCommission>list().forEach(commissionDefinition -> {
 				if(getDocTypeId() <= 0) {
-					setDocTypeId(MDocType.getDocType(MDocType.DOCBASETYPE_SalesCommission, contract.getAD_Org_ID()));
+					setDocTypeId(MDocType.getDocType(MDocType.DOCBASETYPE_SalesCommission, project.getAD_Org_ID()));
 				}
 				MCommissionRun commissionRun = new MCommissionRun(commissionDefinition);
 				commissionRun.setDateDoc(getDateDoc());
 				commissionRun.setC_DocType_ID(getDocTypeId());
-				commissionRun.setDescription(Msg.parseTranslation(getCtx(), "@Generate@: @S_Contract_ID@ - " + contract.getDocumentNo()));
-				commissionRun.set_ValueOfColumn("S_Contract_ID", contract.getS_Contract_ID());
-				commissionRun.setAD_Org_ID(contract.getAD_Org_ID());
+				commissionRun.setDescription(Msg.parseTranslation(getCtx(), "@Generate@: @S_Contract_ID@ - " + contract.getDocumentNo() + " @C_Project_ID@: " + project.getValue()));
+				commissionRun.setAD_Org_ID(project.getAD_Org_ID());
+				commissionRun.set_ValueOfColumn(I_S_Contract.COLUMNNAME_S_Contract_ID, contract.getS_Contract_ID());
+				commissionRun.set_ValueOfColumn(I_C_Project.COLUMNNAME_C_Project_ID, project.getC_Project_ID());
+				commissionRun.addFilterValues(I_C_Project.COLUMNNAME_C_Project_ID, project.getC_Project_ID());
 				commissionRun.saveEx();
 				//	Process commission
 				commissionRun.setDocStatus(MCommissionRun.DOCSTATUS_Drafted);
@@ -70,7 +92,6 @@ public class CreateCommissionFromContract extends CreateCommissionFromContractAb
 					throw new AdempiereException(commissionRun.getProcessMsg());
 				}
 		});
-		return getDocumentResult();
 	}
 	
 	/**
