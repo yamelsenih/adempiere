@@ -17,6 +17,8 @@
 
 package org.spin.process;
 
+import java.util.ArrayList;
+
 import org.adempiere.exceptions.AdempiereException;
 import org.compiere.model.I_C_Commission;
 import org.compiere.model.I_C_CommissionType;
@@ -29,7 +31,9 @@ import org.compiere.model.Query;
 import org.compiere.util.Msg;
 
 import com.eevolution.model.I_S_Contract;
+import com.eevolution.model.MSContract;
 import com.eevolution.model.X_S_Contract;
+import java.util.List;
 
 /** Generated Process for (Create Commission from Contract)
  *  @author ADempiere (generated) 
@@ -44,28 +48,60 @@ public class CreateCommissionFromContract extends CreateCommissionFromContractAb
 	
 	@Override
 	protected String doIt() throws Exception {
-		int contractId = getRecord_ID();
-		if(contractId <= 0) {
-			throw new AdempiereException("@S_Contract_ID@ @NotFound@");
+		if(getRecord_ID() <= 0) {
+			generateCommissionForAll();
+		} else if(getTable_ID() == I_S_Contract.Table_ID) {
+			generateCommissionForContract(new MSContract(getCtx(), getRecord_ID(), get_TrxName()));
+		} else if(getTable_ID() == I_C_Project.Table_ID) {
+			generateCommissionForProject(new MProject(getCtx(), getRecord_ID(), get_TrxName()));
 		}
-		X_S_Contract contract = new X_S_Contract(getCtx(), contractId, get_TrxName());
+		return getDocumentResult();
+	}
+	
+	/**
+	 * generate commission for all contract of customer
+	 */
+	private void generateCommissionForAll() {
+		List<Object> parameters = new ArrayList<>();
+		String whereClause = I_S_Contract.COLUMNNAME_DocStatus + " = ?";
+		parameters.add(X_S_Contract.DOCSTATUS_Completed);
+		if(getBPartnerId() > 0) {
+			whereClause = " AND " + I_S_Contract.COLUMNNAME_C_BPartner_ID + " = ?";
+			parameters.add(getBPartnerId());
+		}
+		new Query(getCtx(), I_S_Contract.Table_Name, whereClause, get_TrxName())
+			.setClient_ID()
+			.setOnlyActiveRecords(true)
+			.setParameters(parameters)
+			.setOrderBy(I_S_Contract.COLUMNNAME_DateDoc)
+			.<MSContract>list().forEach(contract -> {
+				generateCommissionForContract(contract);
+		});
+	}
+	
+	/**
+	 * Generate Commission for a specific contract
+	 * @param contract
+	 */
+	private void generateCommissionForContract(X_S_Contract contract) {
 		//	Get from project
 		new Query(getCtx(), I_C_Project.Table_Name, I_S_Contract.COLUMNNAME_S_Contract_ID + " = ?", get_TrxName())
 			.setClient_ID()
 			.setOnlyActiveRecords(true)
-			.setParameters(contractId)
+			.setParameters(contract.getS_Contract_ID())
 			.setOrderBy(I_C_Project.COLUMNNAME_DateStart)
 			.<MProject>list().forEach(project -> {
-				createCommissionForProject(contract, project);
-			});
-		return getDocumentResult();
+				generateCommissionForProject(project);
+		});
 	}
+	
 	
 	/**
 	 * Create commission for a specific project
 	 * @param project
 	 */
-	private void createCommissionForProject(X_S_Contract contract, MProject project) {
+	private void generateCommissionForProject(MProject project) {
+		X_S_Contract contract = new X_S_Contract(getCtx(), project.get_ValueAsInt("I_S_Contract.COLUMNNAME_S_Contract_ID"), get_TrxName());
 		//	Generate
 		new Query(getCtx(), I_C_Commission.Table_Name, I_C_CommissionType.COLUMNNAME_C_CommissionType_ID + " = ? ", get_TrxName())
 			.setOnlyActiveRecords(true)
@@ -92,6 +128,8 @@ public class CreateCommissionFromContract extends CreateCommissionFromContractAb
 				} else {
 					throw new AdempiereException(commissionRun.getProcessMsg());
 				}
+				//	Add to log
+				addLog(commissionRun.getC_CommissionRun_ID(), null, null, "@C_Project_ID@: " + project.getValue() + " @C_CommissionRun_ID@: " + commissionRun.getDocumentNo() + " @Created@");
 		});
 	}
 	

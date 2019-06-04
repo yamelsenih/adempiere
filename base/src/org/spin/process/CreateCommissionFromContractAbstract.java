@@ -20,7 +20,7 @@ package org.spin.process;
 import java.sql.Timestamp;
 import org.compiere.process.SvrProcess;
 
-/** Generated Process for (Create Commission from Contract)
+/** Generated Process for (Crear Comisión desde Contrato)
  *  @author ADempiere (generated) 
  *  @version Release 3.9.1
  */
@@ -28,27 +28,32 @@ public abstract class CreateCommissionFromContractAbstract extends SvrProcess {
 	/** Process Value 	*/
 	private static final String VALUE_FOR_PROCESS = "CreateCommissionFromContract";
 	/** Process Name 	*/
-	private static final String NAME_FOR_PROCESS = "Create Commission from Contract";
+	private static final String NAME_FOR_PROCESS = "Crear Comisión desde Contrato";
 	/** Process Id 	*/
-	private static final int ID_FOR_PROCESS = 2000042;
+	private static final int ID_FOR_PROCESS = 2000045;
 	/**	Parameter Name for Commission Type	*/
 	public static final String C_COMMISSIONTYPE_ID = "C_CommissionType_ID";
 	/**	Parameter Name for Document Type	*/
 	public static final String C_DOCTYPE_ID = "C_DocType_ID";
 	/**	Parameter Name for Document Date	*/
 	public static final String DATEDOC = "DateDoc";
+	/**	Parameter Name for Business Partner 	*/
+	public static final String C_BPARTNER_ID = "C_BPartner_ID";
 	/**	Parameter Value for Commission Type	*/
 	private int commissionTypeId;
 	/**	Parameter Value for Document Type	*/
 	private int docTypeId;
 	/**	Parameter Value for Document Date	*/
 	private Timestamp dateDoc;
+	/**	Parameter Value for Business Partner 	*/
+	private int bPartnerId;
 
 	@Override
 	protected void prepare() {
 		commissionTypeId = getParameterAsInt(C_COMMISSIONTYPE_ID);
 		docTypeId = getParameterAsInt(C_DOCTYPE_ID);
 		dateDoc = getParameterAsTimestamp(DATEDOC);
+		bPartnerId = getParameterAsInt(C_BPARTNER_ID);
 	}
 
 	/**	 Getter Parameter Value for Commission Type	*/
@@ -79,6 +84,16 @@ public abstract class CreateCommissionFromContractAbstract extends SvrProcess {
 	/**	 Setter Parameter Value for Document Date	*/
 	protected void setDateDoc(Timestamp dateDoc) {
 		this.dateDoc = dateDoc;
+	}
+
+	/**	 Getter Parameter Value for Business Partner 	*/
+	protected int getBPartnerId() {
+		return bPartnerId;
+	}
+
+	/**	 Setter Parameter Value for Business Partner 	*/
+	protected void setBPartnerId(int bPartnerId) {
+		this.bPartnerId = bPartnerId;
 	}
 
 	/**	 Getter Parameter Value for Process ID	*/
