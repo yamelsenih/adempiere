@@ -30,9 +30,39 @@ public abstract class ProjectGenOrderAbstract extends SvrProcess {
 	private static final String NAME_FOR_PROCESS = "Generate Order";
 	/** Process Id 	*/
 	private static final int ID_FOR_PROCESS = 164;
+	/**	Parameter Name for SO Sub Type	*/
+	public static final String DOCSUBTYPESO = "DocSubTypeSO";
+	/**	Parameter Name for Document Type	*/
+	public static final String C_DOCTYPE_ID = "C_DocType_ID";
+	/**	Parameter Value for SO Sub Type	*/
+	private String docSubTypeSO;
+	/**	Parameter Value for Document Type	*/
+	private int docTypeId;
 
 	@Override
 	protected void prepare() {
+		docSubTypeSO = getParameterAsString(DOCSUBTYPESO);
+		docTypeId = getParameterAsInt(C_DOCTYPE_ID);
+	}
+
+	/**	 Getter Parameter Value for SO Sub Type	*/
+	protected String getDocSubTypeSO() {
+		return docSubTypeSO;
+	}
+
+	/**	 Setter Parameter Value for SO Sub Type	*/
+	protected void setDocSubTypeSO(String docSubTypeSO) {
+		this.docSubTypeSO = docSubTypeSO;
+	}
+	
+	/**	 Getter Parameter Value for Document Type	*/
+	protected int getDocTypeId() {
+		return docTypeId;
+	}
+
+	/**	 Setter Parameter Value for Document Type	*/
+	protected void setDocTypeId(int docTypeId) {
+		this.docTypeId = docTypeId;
 	}
 
 	/**	 Getter Parameter Value for Process ID	*/

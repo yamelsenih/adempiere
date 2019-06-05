@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<Migrations>
+  <Migration EntityType="D" Name="Allow only Sales Prices Lists and Versions #2194" ReleaseNo="" SeqNo="904470">
+    <Comments>#2194 Project Window: Allow only Sales Prices Lists and Sales Prices List Versions
+https://github.com/adempiere/adempiere/issues/2194</Comments>
+    <Step SeqNo="10" StepType="AD">
+      <PO AD_Table_ID="108" Action="I" Record_ID="52654" Table="AD_Val_Rule">
+        <Data AD_Column_ID="192" Column="Type">S</Data>
+        <Data AD_Column_ID="188" Column="Name">Active Sales Price List</Data>
+        <Data AD_Column_ID="189" Column="Description">Only Active Sales Price Lists</Data>
+        <Data AD_Column_ID="387" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="388" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="187" Column="AD_Val_Rule_ID">52654</Data>
+        <Data AD_Column_ID="7715" Column="EntityType">D</Data>
+        <Data AD_Column_ID="587" Column="UpdatedBy">100</Data>
+        <Data AD_Column_ID="585" Column="CreatedBy">100</Data>
+        <Data AD_Column_ID="84460" Column="UUID" isNewNull="true"/>
+        <Data AD_Column_ID="586" Column="Updated">2018-12-10 19:03:17.073</Data>
+        <Data AD_Column_ID="583" Column="IsActive">true</Data>
+        <Data AD_Column_ID="584" Column="Created">2018-12-10 19:03:17.073</Data>
+        <Data AD_Column_ID="193" Column="Code">M_PriceList_ID IN (SELECT M_PriceList_ID FROM M_PriceList pl WHERE pl.isactive='Y' AND  pl.issopricelist='Y')</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="20" StepType="AD">
+      <PO AD_Table_ID="108" Action="I" Record_ID="52655" Table="AD_Val_Rule">
+        <Data AD_Column_ID="192" Column="Type">S</Data>
+        <Data AD_Column_ID="586" Column="Updated">2018-12-10 19:03:45.897</Data>
+        <Data AD_Column_ID="583" Column="IsActive">true</Data>
+        <Data AD_Column_ID="584" Column="Created">2018-12-10 19:03:45.897</Data>
+        <Data AD_Column_ID="193" Column="Code">M_PriceList_Version_ID IN (SELECT M_PriceList_Version_ID FROM M_PriceList_Version plv INNER JOIN M_PriceList pl on (plv.M_PriceList_ID=pl.M_PriceList_ID) WHERE  plv.isactive='Y' AND pl.isactive='Y' AND  pl.issopricelist='Y' )</Data>
+        <Data AD_Column_ID="188" Column="Name">Active Sales Price List Version</Data>
+        <Data AD_Column_ID="189" Column="Description">Only Active Sales Price Lists and Active Sales Price List Versions</Data>
+        <Data AD_Column_ID="387" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="388" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="187" Column="AD_Val_Rule_ID">52655</Data>
+        <Data AD_Column_ID="7715" Column="EntityType">D</Data>
+        <Data AD_Column_ID="587" Column="UpdatedBy">100</Data>
+        <Data AD_Column_ID="585" Column="CreatedBy">100</Data>
+        <Data AD_Column_ID="84460" Column="UUID" isNewNull="true"/>
+      </PO>
+    </Step>
+    <Step SeqNo="30" StepType="AD">
+      <PO AD_Table_ID="101" Action="U" Record_ID="91408" Table="AD_Column">
+        <Data AD_Column_ID="115" Column="AD_Val_Rule_ID" isOldNull="true">52654</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="40" StepType="AD">
+      <PO AD_Table_ID="101" Action="U" Record_ID="5753" Table="AD_Column">
+        <Data AD_Column_ID="115" Column="AD_Val_Rule_ID" isOldNull="true">52655</Data>
+      </PO>
+    </Step>
+  </Migration>
+</Migrations>

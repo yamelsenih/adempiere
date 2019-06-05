@@ -26,14 +26,14 @@ import org.compiere.util.KeyNamePair;
 
 /** Generated Model for C_ProjectTask
  *  @author Adempiere (generated) 
- *  @version Release 3.9.2 - $Id$ */
+ *  @version Release 3.9.1 - $Id$ */
 public class X_C_ProjectTask extends PO implements I_C_ProjectTask, I_Persistent 
 {
 
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20190503L;
+	private static final long serialVersionUID = 20181220L;
 
     /** Standard Constructor */
     public X_C_ProjectTask (Properties ctx, int C_ProjectTask_ID, String trxName)
@@ -80,6 +80,26 @@ public class X_C_ProjectTask extends PO implements I_C_ProjectTask, I_Persistent
         .append(get_ID()).append("]");
       return sb.toString();
     }
+
+	/** Set Actual Amount.
+		@param ActualAmt 
+		The actual amount
+	  */
+	public void setActualAmt (BigDecimal ActualAmt)
+	{
+		set_Value (COLUMNNAME_ActualAmt, ActualAmt);
+	}
+
+	/** Get Actual Amount.
+		@return The actual amount
+	  */
+	public BigDecimal getActualAmt () 
+	{
+		BigDecimal bd = (BigDecimal)get_Value(COLUMNNAME_ActualAmt);
+		if (bd == null)
+			 return Env.ZERO;
+		return bd;
+	}
 
 	public org.compiere.model.I_AD_Org getAD_OrgTrx() throws RuntimeException
     {
@@ -223,6 +243,23 @@ public class X_C_ProjectTask extends PO implements I_C_ProjectTask, I_Persistent
 		if (bd == null)
 			 return Env.ZERO;
 		return bd;
+	}
+
+	/** Set Copy From.
+		@param CopyFrom 
+		Copy From Record
+	  */
+	public void setCopyFrom (String CopyFrom)
+	{
+		set_Value (COLUMNNAME_CopyFrom, CopyFrom);
+	}
+
+	/** Get Copy From.
+		@return Copy From Record
+	  */
+	public String getCopyFrom () 
+	{
+		return (String)get_Value(COLUMNNAME_CopyFrom);
 	}
 
 	public org.compiere.model.I_C_Order getC_Order() throws RuntimeException
@@ -383,6 +420,34 @@ public class X_C_ProjectTask extends PO implements I_C_ProjectTask, I_Persistent
 	public int getC_ProjectTask_ID () 
 	{
 		Integer ii = (Integer)get_Value(COLUMNNAME_C_ProjectTask_ID);
+		if (ii == null)
+			 return 0;
+		return ii.intValue();
+	}
+
+	public org.compiere.model.I_C_RfQLine getC_RfQLine() throws RuntimeException
+    {
+		return (org.compiere.model.I_C_RfQLine)MTable.get(getCtx(), org.compiere.model.I_C_RfQLine.Table_Name)
+			.getPO(getC_RfQLine_ID(), get_TrxName());	}
+
+	/** Set RfQ Line.
+		@param C_RfQLine_ID 
+		Request for Quotation Line
+	  */
+	public void setC_RfQLine_ID (int C_RfQLine_ID)
+	{
+		if (C_RfQLine_ID < 1) 
+			set_Value (COLUMNNAME_C_RfQLine_ID, null);
+		else 
+			set_Value (COLUMNNAME_C_RfQLine_ID, Integer.valueOf(C_RfQLine_ID));
+	}
+
+	/** Get RfQ Line.
+		@return Request for Quotation Line
+	  */
+	public int getC_RfQLine_ID () 
+	{
+		Integer ii = (Integer)get_Value(COLUMNNAME_C_RfQLine_ID);
 		if (ii == null)
 			 return 0;
 		return ii.intValue();
@@ -930,6 +995,66 @@ public class X_C_ProjectTask extends PO implements I_C_ProjectTask, I_Persistent
 		return false;
 	}
 
+	/** Set Line Amount.
+		@param LineNetAmt 
+		Line Extended Amount (Quantity * Actual Price) without Freight and Charges
+	  */
+	public void setLineNetAmt (BigDecimal LineNetAmt)
+	{
+		set_Value (COLUMNNAME_LineNetAmt, LineNetAmt);
+	}
+
+	/** Get Line Amount.
+		@return Line Extended Amount (Quantity * Actual Price) without Freight and Charges
+	  */
+	public BigDecimal getLineNetAmt () 
+	{
+		BigDecimal bd = (BigDecimal)get_Value(COLUMNNAME_LineNetAmt);
+		if (bd == null)
+			 return Env.ZERO;
+		return bd;
+	}
+
+	/** Set Margin %.
+		@param Margin 
+		Margin for a product as a percentage
+	  */
+	public void setMargin (BigDecimal Margin)
+	{
+		set_Value (COLUMNNAME_Margin, Margin);
+	}
+
+	/** Get Margin %.
+		@return Margin for a product as a percentage
+	  */
+	public BigDecimal getMargin () 
+	{
+		BigDecimal bd = (BigDecimal)get_Value(COLUMNNAME_Margin);
+		if (bd == null)
+			 return Env.ZERO;
+		return bd;
+	}
+
+	/** Set Margin Amount.
+		@param MarginAmt 
+		Difference between actual and limit price multiplied by the quantity
+	  */
+	public void setMarginAmt (BigDecimal MarginAmt)
+	{
+		set_Value (COLUMNNAME_MarginAmt, MarginAmt);
+	}
+
+	/** Get Margin Amount.
+		@return Difference between actual and limit price multiplied by the quantity
+	  */
+	public BigDecimal getMarginAmt () 
+	{
+		BigDecimal bd = (BigDecimal)get_Value(COLUMNNAME_MarginAmt);
+		if (bd == null)
+			 return Env.ZERO;
+		return bd;
+	}
+
 	public org.compiere.model.I_M_Product getM_Product() throws RuntimeException
     {
 		return (org.compiere.model.I_M_Product)MTable.get(getCtx(), org.compiere.model.I_M_Product.Table_Name)
@@ -953,6 +1078,31 @@ public class X_C_ProjectTask extends PO implements I_C_ProjectTask, I_Persistent
 	public int getM_Product_ID () 
 	{
 		Integer ii = (Integer)get_Value(COLUMNNAME_M_Product_ID);
+		if (ii == null)
+			 return 0;
+		return ii.intValue();
+	}
+
+	public org.compiere.model.I_M_ProductionBatch getM_ProductionBatch() throws RuntimeException
+    {
+		return (org.compiere.model.I_M_ProductionBatch)MTable.get(getCtx(), org.compiere.model.I_M_ProductionBatch.Table_Name)
+			.getPO(getM_ProductionBatch_ID(), get_TrxName());	}
+
+	/** Set Production Batch.
+		@param M_ProductionBatch_ID Production Batch	  */
+	public void setM_ProductionBatch_ID (int M_ProductionBatch_ID)
+	{
+		if (M_ProductionBatch_ID < 1) 
+			set_Value (COLUMNNAME_M_ProductionBatch_ID, null);
+		else 
+			set_Value (COLUMNNAME_M_ProductionBatch_ID, Integer.valueOf(M_ProductionBatch_ID));
+	}
+
+	/** Get Production Batch.
+		@return Production Batch	  */
+	public int getM_ProductionBatch_ID () 
+	{
+		Integer ii = (Integer)get_Value(COLUMNNAME_M_ProductionBatch_ID);
 		if (ii == null)
 			 return 0;
 		return ii.intValue();
@@ -1069,6 +1219,46 @@ public class X_C_ProjectTask extends PO implements I_C_ProjectTask, I_Persistent
 		if (ii == null)
 			 return 0;
 		return ii.intValue();
+	}
+
+	/** Set Price.
+		@param PriceEntered 
+		Price Entered - the price based on the selected/base UoM
+	  */
+	public void setPriceEntered (BigDecimal PriceEntered)
+	{
+		set_Value (COLUMNNAME_PriceEntered, PriceEntered);
+	}
+
+	/** Get Price.
+		@return Price Entered - the price based on the selected/base UoM
+	  */
+	public BigDecimal getPriceEntered () 
+	{
+		BigDecimal bd = (BigDecimal)get_Value(COLUMNNAME_PriceEntered);
+		if (bd == null)
+			 return Env.ZERO;
+		return bd;
+	}
+
+	/** Set List Price.
+		@param PriceList 
+		List Price
+	  */
+	public void setPriceList (BigDecimal PriceList)
+	{
+		set_Value (COLUMNNAME_PriceList, PriceList);
+	}
+
+	/** Get List Price.
+		@return List Price
+	  */
+	public BigDecimal getPriceList () 
+	{
+		BigDecimal bd = (BigDecimal)get_Value(COLUMNNAME_PriceList);
+		if (bd == null)
+			 return Env.ZERO;
+		return bd;
 	}
 
 	/** PriorityRule AD_Reference_ID=154 */

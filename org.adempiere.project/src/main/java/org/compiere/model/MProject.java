@@ -38,6 +38,9 @@ import org.eevolution.model.X_I_Project;
  *  <a href="https://github.com/adempiere/adempiere/issues/1478">
  *  <li>Add support to create request based on Standard Request Type setting on Project Type #1478
  *	@version $Id: MProject.java,v 1.2 2006/07/30 00:51:02 jjanke Exp $
+ *	@author Carlos Parada, cparada@erpya.com, ERPCyA http://www.erpya.com
+ *  	<a href="https://github.com/adempiere/adempiere/issues/2117">
+ *		@see FR [ 2117 ] Add Support to Price List on Project</a>
  */
 public class MProject extends X_C_Project
 {
@@ -333,8 +336,14 @@ public class MProject extends X_C_Project
 	 */
 	public int getM_PriceList_ID()
 	{
-		if (getM_PriceList_Version_ID() == 0)
+		//FR [ 2117 ]
+		if (super.get_ValueAsInt("M_PriceList_ID") == 0 
+				&& getM_PriceList_Version_ID() == 0)
 			return 0;
+		
+		if (super.get_ValueAsInt("M_PriceList_ID") != 0)
+			m_M_PriceList_ID = super.get_ValueAsInt("M_PriceList_ID");
+		
 		if (m_M_PriceList_ID > 0)
 			return m_M_PriceList_ID;
 		//
@@ -487,7 +496,7 @@ public class MProject extends X_C_Project
 
 	/**
 	 *	Set Project Type and Category.
-	 * 	If Service Project copy Projet Type Phase/Tasks
+	 * 	If Service Project copy Project Type Phase/Tasks
 	 *	@param type project type
 	 */
 	public void setProjectType (MProjectType type)
@@ -495,7 +504,6 @@ public class MProject extends X_C_Project
 		if (type == null)
 			return;
 		setC_ProjectType_ID(Integer.toString(type.getC_ProjectType_ID()));
-		setProjectCategory(type.getProjectCategory());
 		createRequest(type);
 		copyPhasesFrom(type);
 	}	//	setProjectType
@@ -564,6 +572,9 @@ public class MProject extends X_C_Project
 			if (pl != null && pl.get_ID() != 0)
 				setC_Currency_ID(pl.getC_Currency_ID());
 		}
+		
+		if (is_ValueChanged("C_ProjectCategory_ID"))
+			setProjectCategory(getC_ProjectCategory().getProjectCategory());
 		
 		return true;
 	}	//	beforeSave

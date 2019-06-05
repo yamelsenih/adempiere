@@ -70,8 +70,15 @@ public class MProductPricing
 		useVendorBreak = thereAreVendorBreakRecords > 0;
 	}	//	MProductPricing
 
+	public MProductPricing(int productId, int partnerId, int productBOMId,
+			   BigDecimal quantity, boolean isSOTrx, String trxName){
+		this(productId, partnerId,
+				   quantity, isSOTrx, trxName);
+		this.productBOMId=productBOMId;
+	}
 	private int 		productId;
 	private int 		partnerId;
+	private int			productBOMId = 0;
 	private BigDecimal 	quantity = Env.ONE;
 	private boolean 	isSOTrx = true;
 	//
@@ -162,9 +169,9 @@ public class MProductPricing
 		if (productId == 0 || priceListVersionId == 0)
 			return false;
 		//
-		String sql = "SELECT bomPriceStd(p.M_Product_ID,pv.M_PriceList_Version_ID) AS PriceStd,"	//	1
-			+ " bomPriceList(p.M_Product_ID,pv.M_PriceList_Version_ID) AS PriceList,"		//	2
-			+ " bomPriceLimit(p.M_Product_ID,pv.M_PriceList_Version_ID) AS PriceLimit,"	//	3
+		String sql = "SELECT bomPriceStd(p.M_Product_ID,pv.M_PriceList_Version_ID," + productBOMId + ") AS PriceStd,"	//	1
+			+ " bomPriceList(p.M_Product_ID,pv.M_PriceList_Version_ID," + productBOMId + ") AS PriceList,"		//	2
+			+ " bomPriceLimit(p.M_Product_ID,pv.M_PriceList_Version_ID," + productBOMId + ") AS PriceLimit,"	//	3
 			+ " p.C_UOM_ID,pv.ValidFrom,pl.C_Currency_ID,p.M_Product_Category_ID,"	//	4..7
 			+ " pl.EnforcePriceLimit, pl.IsTaxIncluded "	// 8..9
 			+ "FROM M_Product p"
@@ -238,9 +245,9 @@ public class MProductPricing
 		}
 
 		//	Get Prices for Price List
-		String sql = "SELECT bomPriceStd(p.M_Product_ID,pv.M_PriceList_Version_ID) AS PriceStd,"	//	1
-			+ " bomPriceList(p.M_Product_ID,pv.M_PriceList_Version_ID) AS PriceList,"		//	2
-			+ " bomPriceLimit(p.M_Product_ID,pv.M_PriceList_Version_ID) AS PriceLimit,"	//	3
+		String sql = "SELECT bomPriceStd(p.M_Product_ID,pv.M_PriceList_Version_ID," + productBOMId + ") AS PriceStd,"	//	1
+			+ " bomPriceList(p.M_Product_ID,pv.M_PriceList_Version_ID," + productBOMId + ") AS PriceList,"		//	2
+			+ " bomPriceLimit(p.M_Product_ID,pv.M_PriceList_Version_ID," + productBOMId + ") AS PriceLimit,"	//	3
 			+ " p.C_UOM_ID,pv.ValidFrom,pl.C_Currency_ID,p.M_Product_Category_ID,pl.EnforcePriceLimit "	// 4..8
 			+ "FROM M_Product p"
 			+ " INNER JOIN M_ProductPrice pp ON (p.M_Product_ID=pp.M_Product_ID)"
@@ -317,9 +324,9 @@ public class MProductPricing
 		if (productId == 0 || priceListId == 0)
 			return false;
 		//
-		String sql = "SELECT bomPriceStd(p.M_Product_ID,pv.M_PriceList_Version_ID) AS PriceStd,"	//	1
-			+ " bomPriceList(p.M_Product_ID,pv.M_PriceList_Version_ID) AS PriceList,"		//	2
-			+ " bomPriceLimit(p.M_Product_ID,pv.M_PriceList_Version_ID) AS PriceLimit,"	//	3
+		String sql = "SELECT bomPriceStd(p.M_Product_ID,pv.M_PriceList_Version_ID," + productBOMId + ") AS PriceStd,"	//	1
+			+ " bomPriceList(p.M_Product_ID,pv.M_PriceList_Version_ID," + productBOMId + ") AS PriceList,"		//	2
+			+ " bomPriceLimit(p.M_Product_ID,pv.M_PriceList_Version_ID," + productBOMId + ") AS PriceLimit,"	//	3
 			+ " p.C_UOM_ID,pv.ValidFrom,pl.C_Currency_ID,p.M_Product_Category_ID,"	//	4..7
 			+ " pl.EnforcePriceLimit, pl.IsTaxIncluded "	// 8..9
 			+ "FROM M_Product p"
@@ -928,4 +935,12 @@ public class MProductPricing
 		return calculated;
 	}	//	isCalculated
 	
+	public void setProductBOMId(int productBOMId) {
+		this.productBOMId = productBOMId;
+		calculated = false;
+	}
+	
+	public int getProductBOMId() {
+		return productBOMId;
+	}
 }	//	MProductPrice

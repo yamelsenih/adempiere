@@ -19,7 +19,7 @@ package org.compiere.process;
 
 
 
-/** Generated Process for (Generate Order)
+/** Generated Process for (Generate Sales Order)
  *  @author ADempiere (generated) 
  *  @version Release 3.9.0
  */
@@ -27,12 +27,27 @@ public abstract class ProjectPhaseGenOrderAbstract extends SvrProcess {
 	/** Process Value 	*/
 	private static final String VALUE_FOR_PROCESS = "C_ProjectPhase_Generate";
 	/** Process Name 	*/
-	private static final String NAME_FOR_PROCESS = "Generate Order";
+	private static final String NAME_FOR_PROCESS = "Generate Sales Order";
 	/** Process Id 	*/
 	private static final int ID_FOR_PROCESS = 216;
+	/**	Parameter Name for SO Sub Type	*/
+	public static final String DOCSUBTYPESO = "DocSubTypeSO";
+	/**	Parameter Value for SO Sub Type	*/
+	private String docSubTypeSO;
 
 	@Override
 	protected void prepare() {
+		docSubTypeSO = getParameterAsString(DOCSUBTYPESO);
+	}
+
+	/**	 Getter Parameter Value for SO Sub Type	*/
+	protected String getDocSubTypeSO() {
+		return docSubTypeSO;
+	}
+
+	/**	 Setter Parameter Value for SO Sub Type	*/
+	protected void setDocSubTypeSO(String docSubTypeSO) {
+		this.docSubTypeSO = docSubTypeSO;
 	}
 
 	/**	 Getter Parameter Value for Process ID	*/

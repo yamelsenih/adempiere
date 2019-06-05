@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<Migrations>
+  <Migration EntityType="D" Name="se eliminan los Callouts de Contrato" ReleaseNo="3.9.1" SeqNo="3000010">
+    <Comments>Se eliminan los callouts para no mostrar los errores, cuando se estabilice se tendrá que revertir el XML
+http://project.erpya.com:8080/projects/agencia-de-publicidad/work_packages/2483/activity</Comments>
+    <Step SeqNo="10" StepType="AD">
+      <PO AD_Table_ID="101" Action="U" Record_ID="89097" Table="AD_Column">
+        <Data AD_Column_ID="1692" Column="Callout" isNewNull="true" oldValue="org.eevolution.model.CalloutContract.priceList"/>
+      </PO>
+    </Step>
+    <Step SeqNo="20" StepType="AD">
+      <PO AD_Table_ID="101" Action="U" Record_ID="89124" Table="AD_Column">
+        <Data AD_Column_ID="1692" Column="Callout" isNewNull="true" oldValue="org.eevolution.model.CalloutContract.tax"/>
+      </PO>
+    </Step>
+    <Step SeqNo="30" StepType="AD">
+      <PO AD_Table_ID="101" Action="U" Record_ID="89132" Table="AD_Column">
+        <Data AD_Column_ID="1692" Column="Callout" isNewNull="true" oldValue="org.eevolution.model.CalloutContract.qty; org.eevolution.model.CalloutContract.amt"/>
+      </PO>
+    </Step>
+    <Step SeqNo="40" StepType="AD">
+      <PO AD_Table_ID="101" Action="U" Record_ID="89157" Table="AD_Column">
+        <Data AD_Column_ID="1692" Column="Callout" isNewNull="true" oldValue="org.eevolution.model.CalloutContract.qty; org.eevolution.model.CalloutContract.amt"/>
+      </PO>
+    </Step>
+    <Step SeqNo="50" StepType="AD">
+      <PO AD_Table_ID="101" Action="U" Record_ID="89160" Table="AD_Column">
+        <Data AD_Column_ID="1692" Column="Callout" isNewNull="true" oldValue="org.eevolution.model.CalloutContract.qty; org.eevolution.model.CalloutContract.amt"/>
+      </PO>
+    </Step>
+    <Step SeqNo="60" StepType="AD">
+      <PO AD_Table_ID="101" Action="U" Record_ID="89143" Table="AD_Column">
+        <Data AD_Column_ID="1692" Column="Callout" isNewNull="true" oldValue="org.eevolution.model.CalloutContract.qty"/>
+      </PO>
+    </Step>
+    <Step SeqNo="70" StepType="AD">
+      <PO AD_Table_ID="101" Action="U" Record_ID="89145" Table="AD_Column">
+        <Data AD_Column_ID="1692" Column="Callout" isNewNull="true" oldValue="org.eevolution.model.CalloutContract.product"/>
+      </PO>
+    </Step>
+    <Step SeqNo="80" StepType="AD">
+      <PO AD_Table_ID="101" Action="U" Record_ID="89300" Table="AD_Column">
+        <Data AD_Column_ID="1692" Column="Callout" isNewNull="true" oldValue="org.eevolution.model.CalloutContract.product"/>
+      </PO>
+    </Step>
+    <Step SeqNo="90" StepType="AD">
+      <PO AD_Table_ID="101" Action="U" Record_ID="89126" Table="AD_Column">
+        <Data AD_Column_ID="1692" Column="Callout" isNewNull="true" oldValue="org.eevolution.model.CalloutContract.charge"/>
+      </PO>
+    </Step>
+    <Step SeqNo="100" StepType="AD">
+      <PO AD_Table_ID="101" Action="U" Record_ID="89152" Table="AD_Column">
+        <Data AD_Column_ID="1692" Column="Callout" isNewNull="true" oldValue="org.eevolution.model.CalloutContract.amt"/>
+      </PO>
+    </Step>
+    <Step SeqNo="110" StepType="AD">
+      <PO AD_Table_ID="101" Action="U" Record_ID="89154" Table="AD_Column">
+        <Data AD_Column_ID="1692" Column="Callout" isNewNull="true" oldValue="org.eevolution.model.CalloutContract.amt"/>
+      </PO>
+    </Step>
+    <Step SeqNo="120" StepType="AD">
+      <PO AD_Table_ID="101" Action="U" Record_ID="89165" Table="AD_Column">
+        <Data AD_Column_ID="1692" Column="Callout" isNewNull="true" oldValue="org.eevolution.model.CalloutAssignment.product; org.eevolution.model.CalloutContract.amt; org.eevolution.model.CalloutContract.qty"/>
+      </PO>
+    </Step>
+  </Migration>
+</Migrations>
