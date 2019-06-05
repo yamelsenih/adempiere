@@ -36,6 +36,7 @@ import org.compiere.model.I_C_OrderLine;
 import org.compiere.model.I_C_Project;
 import org.compiere.model.I_C_ProjectPhase;
 import org.compiere.model.I_C_ProjectTask;
+import org.compiere.model.I_C_RfQResponse;
 import org.compiere.model.I_R_Request;
 import org.compiere.model.I_S_TimeExpense;
 import org.compiere.model.MAttachment;
@@ -66,6 +67,7 @@ import org.compiere.model.MRequestType;
 import org.compiere.model.MRequestUpdate;
 import org.compiere.model.MRfQLine;
 import org.compiere.model.MRfQLineQty;
+import org.compiere.model.MRfQResponse;
 import org.compiere.model.MStatus;
 import org.compiere.model.MTimeExpense;
 import org.compiere.model.MTimeExpenseLine;
@@ -115,6 +117,7 @@ public class AgencyValidator implements ModelValidator
 		engine.addModelChange(MBPartner.Table_Name, this);
 		engine.addModelChange(MRequest.Table_Name, this);
 		engine.addModelChange(MRfQLineQty.Table_Name, this);
+		engine.addModelChange(MRfQResponse.Table_Name, this);
 		engine.addModelChange(MAttachment.Table_Name, this);
 		engine.addDocValidate(MOrder.Table_Name, this);
 		engine.addDocValidate(I_S_TimeExpense.Table_Name, this);
@@ -173,6 +176,16 @@ public class AgencyValidator implements ModelValidator
 
 				}
 
+			} else if(po instanceof MRfQResponse) {
+				MRfQResponse response = (MRfQResponse) po;
+				if(response.is_ValueChanged(I_C_RfQResponse.COLUMNNAME_IsComplete)) {
+					//	Validate PDF File
+					if(response.isComplete()) {
+						if(response.getPdfAttachment() == null) {
+							throw new AdempiereException(Msg.getMsg(Env.getCtx(), "AttachmentNotFound"));
+						}
+					}
+				}
 			} else if(po instanceof MAttachment) {
 				ArrayList<String> messageList = new ArrayList<>();
 				StringBuffer messageToSend = new StringBuffer();
