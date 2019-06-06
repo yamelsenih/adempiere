@@ -171,8 +171,10 @@ public class AgencyValidator implements ModelValidator
 
 					BigDecimal margin = DB.getSQLValueBDEx(lineQuantity.get_TrxName(), sql);
 
-					if(margin.compareTo(Env.ZERO) > 0)
+					if(margin != null
+							&& margin.compareTo(Env.ZERO) > 0) {
 						lineQuantity.setMargin(margin);
+					}
 
 				}
 
