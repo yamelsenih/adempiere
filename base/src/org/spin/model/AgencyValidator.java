@@ -388,16 +388,8 @@ public class AgencyValidator implements ModelValidator
 				int serviceContractId = order.get_ValueAsInt("S_Contract_ID");
 				if(serviceContractId > 0) {
 					MSContract serviceContract = new MSContract(order.getCtx(), serviceContractId, order.get_TrxName());
-					//	Get first contract
-					int projectId = new Query(order.getCtx(), I_C_Project.Table_Name, "S_Contract_ID = ?", po.get_TrxName())
-						.setParameters(serviceContract.getS_Contract_ID())
-						.setOnlyActiveRecords(true)
-						.firstId();
 					if(serviceContract.getUser1_ID() > 0) {
 						order.setUser1_ID(serviceContract.getUser1_ID());
-					}
-					if(projectId > 0) {
-						order.setC_Project_ID(projectId);
 					}
 				}
 
