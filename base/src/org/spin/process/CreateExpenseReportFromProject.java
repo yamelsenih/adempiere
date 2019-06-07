@@ -46,7 +46,19 @@ public class CreateExpenseReportFromProject extends CreateExpenseReportFromProje
 			int orderLineId = getSelectionAsInt(key, "SOL_C_OrderLine_ID");
 			int linkOrderLineId = getSelectionAsInt(key, "SOL_Link_OrderLine_ID");
 			int expenseProductId = getSelectionAsInt(key, "SOL_M_Product_ID");
+			boolean isReleaseOrderBalance = getSelectionAsBoolean(key, "SOL_IsReleaseOrderBalance");
+			BigDecimal qty = getSelectionAsBigDecimal(key, "SOL_QtyToDeliver");
 			MOrderLine orderLine = new MOrderLine(getCtx(), orderLineId, get_TrxName());
+			if(isReleaseOrderBalance) {
+				BigDecimal qtyDelivered = orderLine.getQtyDelivered();
+				BigDecimal qtyOrdered = orderLine.getQtyOrdered();
+				if(qtyDelivered == null) {
+					qtyDelivered = Env.ZERO;
+				}
+				BigDecimal qtyAvailable = qtyOrdered.subtract(qtyDelivered);
+				orderLine.set_ValueOfColumn("ReleasedQty", qtyAvailable.subtract(qty));
+				orderLine.saveEx();
+			}
 			MOrder order = orderLine.getParent();
 			//	Create new
 			if(expenseReport == null) {
@@ -54,7 +66,6 @@ public class CreateExpenseReportFromProject extends CreateExpenseReportFromProje
 				createExpenseReport(order);
 			}
 			//	Set Quantity
-			BigDecimal qty = getSelectionAsBigDecimal(key, "SOL_QtyToDeliver");
 			BigDecimal priceActual = getSelectionAsBigDecimal(key, "SOL_PriceActual");
 			if(priceActual == null
 					|| priceActual == Env.ZERO) {
