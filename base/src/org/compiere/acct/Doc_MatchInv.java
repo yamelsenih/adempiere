@@ -153,8 +153,17 @@ public class Doc_MatchInv extends Doc
 			return fact;
 		}
 		**/
-		if (!m_receiptLine.getM_Product().isStocked())
+		if (!m_receiptLine.getM_Product().isStocked()) {
+			/** Commitment release										****/
+			if (as.isAccrual() && as.isCreatePOCommitment()) {
+				fact = Doc_Order.getCommitmentRelease(as, this, 
+					getQty(), m_invoiceLine.getC_InvoiceLine_ID(), Env.ONE);
+				if (fact == null)
+					return null;
+				facts.add(fact);
+			}	//	Commitment
 			return facts;
+		}
 		
 		//  NotInvoicedReceipt      DR
 		//  From Receipt
