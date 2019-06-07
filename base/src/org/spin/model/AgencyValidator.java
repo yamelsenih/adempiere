@@ -772,7 +772,7 @@ public class AgencyValidator implements ModelValidator
 			//	Validate
 			if(preOrder != null
 					&& preOrder.getC_Order_ID() > 0) {
-				BigDecimal consumeAmount = DB.getSQLValueBD(sourceOrder.get_TrxName(), "SELECT SUM(GrandTotal) "
+				BigDecimal consumeAmount = DB.getSQLValueBD(sourceOrder.get_TrxName(), "SELECT SUM(TotalLines) "
 						+ "FROM C_Order o "
 						+ "WHERE o.DocStatus IN('CO') "
 						+ "AND o.PreOrder_ID = ? "
@@ -782,12 +782,26 @@ public class AgencyValidator implements ModelValidator
 				if(consumeAmount == null) {
 					consumeAmount = Env.ZERO;
 				}
-				consumeAmount = consumeAmount.add(sourceOrder.getGrandTotal());
-				if(consumeAmount.compareTo(preOrder.getGrandTotal()) > 0) {
+				BigDecimal releasedAmount = DB.getSQLValueBD(sourceOrder.get_TrxName(), "SELECT SUM(ol.ReleasedQty * ol.PriceActual) "
+						+ "FROM C_Order o "
+						+ "INNER JOIN C_OrderLine ol ON(ol.C_Order_ID = o.C_Order_ID) "
+						+ "WHERE o.DocStatus IN('CO') "
+						+ "AND COALESCE(ol.ReleasedQty, 0) > 0"
+						+ "AND o.PreOrder_ID = ? "
+						+ "AND o.IsSOTrx = '" + (sourceOrder.isSOTrx()? "Y": "N") + "' "
+						+ "AND EXISTS(SELECT 1 FROM C_DocType dt WHERE dt.C_DocType_ID = o.C_DocType_ID AND dt.IsConsumePreOrder = 'Y')", preOrder.getC_Order_ID());
+				//	Validate
+				if(releasedAmount == null) {
+					releasedAmount = Env.ZERO;
+				}
+				//	Subtract Released Amount
+				consumeAmount = consumeAmount.subtract(releasedAmount);
+				consumeAmount = consumeAmount.add(sourceOrder.getTotalLines());
+				if(consumeAmount.compareTo(preOrder.getTotalLines()) > 0) {
 					DecimalFormat format = DisplayType.getNumberFormat(DisplayType.Amount);
 					throw new AdempiereException("[@ConsumedAmt@] > @PreOrderAmt@ (@PreOrderAmt@ = " 
-							+ format.format(preOrder.getGrandTotal()) + ", @ConsumedAmt@ = " + format.format(consumeAmount) 
-							+ Env.NL + "@amount.difference@ = " + format.format(preOrder.getGrandTotal().subtract(consumeAmount)) + ")");
+							+ format.format(preOrder.getTotalLines()) + ", @ConsumedAmt@ = " + format.format(consumeAmount) 
+							+ Env.NL + "@amount.difference@ = " + format.format(preOrder.getTotalLines().subtract(consumeAmount)) + ")");
 				}
 				//	Generate document
 				if(reverseDocumentTypeId > 0) {

@@ -100,6 +100,16 @@ public class CreateExpenseReportFromProject extends CreateExpenseReportFromProje
 				if(!linkOrder.getDocStatus().equals(MOrder.ACTION_Complete)) {
 					throw new AdempiereException("@Link_OrderLine_ID@ @InvoiceCreateDocNotCompleted@");
 				}
+				if(isReleaseOrderBalance) {
+					BigDecimal qtyDelivered = linkOrderLine.getQtyDelivered();
+					BigDecimal qtyOrdered = linkOrderLine.getQtyOrdered();
+					if(qtyDelivered == null) {
+						qtyDelivered = Env.ZERO;
+					}
+					BigDecimal qtyAvailable = qtyOrdered.subtract(qtyDelivered);
+					linkOrderLine.set_ValueOfColumn("ReleasedQty", qtyAvailable.subtract(qty));
+					linkOrderLine.saveEx();
+				}
 				expenseLine.set_ValueOfColumn("Link_OrderLine_ID", linkOrderLineId);
 			}
 			expenseLine.saveEx();
