@@ -23,8 +23,10 @@ import org.compiere.model.MBPartner;
 import org.compiere.model.MCommission;
 import org.compiere.model.MCommissionAmt;
 import org.compiere.model.MCommissionRun;
+import org.compiere.model.MCurrency;
 import org.compiere.model.MOrder;
 import org.compiere.model.MOrderLine;
+import org.compiere.model.MPriceList;
 import org.compiere.model.MProduct;
 import org.compiere.util.Env;
 import org.compiere.util.Msg;
@@ -109,12 +111,21 @@ public class CommissionOrderCreate extends CommissionOrderCreateAbstract {
 		}
 		MBPartner businessPartner = MBPartner.get(getCtx(), bPartnerId);
 		order.setBPartner(businessPartner);
+		//	Set default price list
+		int currencyId = commissionRun.get_ValueAsInt("C_Currency_ID");
+		if(currencyId == 0) {
+			currencyId = commissionDefinition.getC_Currency_ID();
+		}
+		MPriceList defaultPriceList = MPriceList.getDefault(getCtx(), isSOTrx(), MCurrency.get(getCtx(), currencyId).getISO_Code());
+		if(defaultPriceList != null) {
+			order.setM_PriceList_ID(defaultPriceList.getM_PriceList_ID());
+		}
 		order.setSalesRep_ID(getAD_User_ID());	//	caller
 		order.setDateOrdered(getDateOrdered());
 		order.setDocStatus(MOrder.DOCSTATUS_Drafted);
 		order.setDocAction(MOrder.DOCACTION_Complete);
 		//
-		if (commissionDefinition.getC_Currency_ID() != order.getC_Currency_ID()) {
+		if (currencyId != order.getC_Currency_ID()) {
 			throw new IllegalArgumentException("@CommissionAPInvoiceCurrency@");	//	TODO Translate it: CommissionAPInvoice - Currency of PO Price List not Commission Currency
 		}
 		order.setDescription(Msg.parseTranslation(getCtx(), "@Generate@: @C_CommissionRun_ID@ " + commissionRun.getDocumentNo()));

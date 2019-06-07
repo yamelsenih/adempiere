@@ -44,6 +44,7 @@ public class MCommissionDetail extends X_C_CommissionDetail
 	
 	/**	Parent Commission Amount	*/
 	private MCommissionAmt parent = null;
+	private int currencyId = 0;
 
 	/**
 	 * 	Default Constructor
@@ -118,9 +119,8 @@ public class MCommissionDetail extends X_C_CommissionDetail
 	 */
 	public void setConvertedAmt (Timestamp date)
 	{
-		BigDecimal amt = MConversionRate.convertBase(getCtx(), 
-			getActualAmt(), getC_Currency_ID(), date, 0, 	//	type
-			getAD_Client_ID(), getAD_Org_ID());
+		BigDecimal amt = MConversionRate.convert(getCtx(), getActualAmt(), getC_Currency_ID(), getCurrencyId(), 
+				date, 0, getAD_Client_ID(), getAD_Org_ID());
 		if (amt != null)
 			setConvertedAmt(amt);
 	}	//	setConvertedAmt
@@ -133,6 +133,30 @@ public class MCommissionDetail extends X_C_CommissionDetail
 	}
 	
 	/**
+	 * Get Currency ID
+	 * @return
+	 */
+	private int getCurrencyId() {
+		getParent();
+		if(parent.getC_CommissionAmt_ID() <= 0
+				|| parent.getC_CommissionLine_ID() <= 0) {
+			return 0;
+		}
+		if(currencyId> 0) {
+			return currencyId;
+		}
+		MCommissionRun commissionRun = (MCommissionRun) parent.getC_CommissionRun();
+		currencyId = commissionRun.get_ValueAsInt("C_Currency_ID");
+		if(currencyId == 0) {
+			currencyId = commissionRun.getC_Commission().getC_Currency_ID();
+		}
+		if(currencyId == 0) {
+			currencyId = MClient.get(getCtx()).getC_Currency_ID();
+		}
+		return currencyId;
+	}
+	
+	/**
 	 * Calculate commission for line
 	 */
 	public void calculateCommission(boolean isPercentage, BigDecimal amtMultiplier) {
@@ -141,8 +165,8 @@ public class MCommissionDetail extends X_C_CommissionDetail
 				|| parent.getC_CommissionLine_ID() <= 0) {
 			return;
 		}
-		//	Scale
-		int stdPrecision = MCurrency.getStdPrecision(getCtx(), MClient.get(getCtx()).getC_Currency_ID());
+		//	
+		int stdPrecision = MCurrency.getStdPrecision(getCtx(), getCurrencyId());
 		//	Calculate
 		MCommissionLine commissionLine = new MCommissionLine(getCtx(), parent.getC_CommissionLine_ID(), get_TrxName());
 		BigDecimal convertedAmt = getConvertedAmt();
