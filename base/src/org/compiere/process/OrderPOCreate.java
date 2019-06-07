@@ -260,6 +260,8 @@ public class OrderPOCreate extends OrderPOCreateAbstract {
 		purchaseOrder.setC_Activity_ID(salesOrder.getC_Activity_ID());
 		purchaseOrder.setC_Campaign_ID(salesOrder.getC_Campaign_ID());
 		purchaseOrder.setC_Project_ID(salesOrder.getC_Project_ID());
+		//	Yamel Senih, Add support to project phase
+		purchaseOrder.set_ValueOfColumn("C_ProjectPhase_ID", salesOrder.get_ValueAsInt("C_ProjectPhase_ID"));
 		purchaseOrder.setUser1_ID(salesOrder.getUser1_ID());
 		purchaseOrder.setUser2_ID(salesOrder.getUser2_ID());
 		purchaseOrder.setUser3_ID(salesOrder.getUser3_ID());

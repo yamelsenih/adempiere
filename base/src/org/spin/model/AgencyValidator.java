@@ -317,9 +317,6 @@ public class AgencyValidator implements ModelValidator
 						if(order.isDropShip()) {
 							linkSourceOrder.set_ValueOfColumn("IsDirectInvoice", order.get_ValueAsBoolean("IsDirectInvoice"));
 						}
-						if(order.get_ValueAsInt("C_ProjectPhase_ID") > 0) {
-							linkSourceOrder.set_ValueOfColumn("C_ProjectPhase_ID", order.get_ValueAsInt("C_ProjectPhase_ID"));
-						}
 						linkSourceOrder.saveEx();
 					}
 				}
@@ -844,6 +841,7 @@ public class AgencyValidator implements ModelValidator
 					if(sourceOrder.get_ValueAsInt("PreOrder_ID") <= 0) {
 						sourceOrder.set_ValueOfColumn("PreOrder_ID", preOrder.getC_Order_ID());
 					}
+					sourceOrder.saveEx();
 				}
 			}
 		}
