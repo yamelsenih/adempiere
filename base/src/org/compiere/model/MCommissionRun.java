@@ -1269,7 +1269,9 @@ public class MCommissionRun extends X_C_CommissionRun implements DocAction, DocO
 				}
 			}
 		}
-		//		
+		//	Add exclusion
+		sqlWhere.append(getExclusionWhere(commission.getDocBasisType(), commissionLine, commissionLineList, commissionType));
+		//	Validate currency
 		if(isCustom(commission.getDocBasisType())) {
 			if (!commission.isListDetails()) {
 				String columnName = getSQLColumnName("h.C_Currency_ID", commissionType);
@@ -1278,7 +1280,6 @@ public class MCommissionRun extends X_C_CommissionRun implements DocAction, DocO
 				}
 			}
 		} else {
-			sqlWhere.append(getExclusionWhere(commission.getDocBasisType(), commissionLine, commissionLineList, commissionType));
 			sqlWhere.append(" GROUP BY ").append("h.C_Currency_ID");
 		}
 		//	Add Where Clause
