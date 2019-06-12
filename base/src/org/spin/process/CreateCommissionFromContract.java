@@ -101,7 +101,7 @@ public class CreateCommissionFromContract extends CreateCommissionFromContractAb
 	 * @param project
 	 */
 	private void generateCommissionForProject(MProject project) {
-		X_S_Contract contract = new X_S_Contract(getCtx(), project.get_ValueAsInt("I_S_Contract.COLUMNNAME_S_Contract_ID"), get_TrxName());
+		X_S_Contract contract = new X_S_Contract(getCtx(), project.get_ValueAsInt(I_S_Contract.COLUMNNAME_S_Contract_ID), get_TrxName());
 		//	Generate
 		new Query(getCtx(), I_C_Commission.Table_Name, I_C_CommissionType.COLUMNNAME_C_CommissionType_ID + " = ? ", get_TrxName())
 			.setOnlyActiveRecords(true)
@@ -118,6 +118,7 @@ public class CreateCommissionFromContract extends CreateCommissionFromContractAb
 				commissionRun.set_ValueOfColumn(I_S_Contract.COLUMNNAME_S_Contract_ID, contract.getS_Contract_ID());
 				commissionRun.set_ValueOfColumn(I_C_Project.COLUMNNAME_C_Project_ID, project.getC_Project_ID());
 				//	Set filter value a project
+				commissionRun.addFilterValues(I_S_Contract.COLUMNNAME_S_Contract_ID, contract.getS_Contract_ID());
 				commissionRun.addFilterValues(I_C_Project.COLUMNNAME_C_Project_ID, project.getC_Project_ID());
 				commissionRun.saveEx();
 				//	Process commission
