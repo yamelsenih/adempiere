@@ -1475,6 +1475,8 @@ public class MCommissionRun extends X_C_CommissionRun implements DocAction, DocO
 		List<String> invoiceCollectionType = new ArrayList<String>();
 		//	
 		for(MCommissionLine line : lines) {
+			if(!line.isActive())
+				continue;
 			//	ignore current line
 			if(line.getC_CommissionLine_ID() == currentLine.getC_CommissionLine_ID())
 				continue;
