@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.logging.Level;
+import java.util.stream.Collectors;
 
 import org.adempiere.exceptions.AdempiereException;
 import org.adempiere.model.MView;
@@ -1307,31 +1308,63 @@ public class MCommissionRun extends X_C_CommissionRun implements DocAction, DocO
 	 */
 	private String processCommissionLine(MBPartner salesRep, MCommission commission, boolean isPercentage, BigDecimal amtMultiplier) {
 		//	
-		List<MCommissionLine>commissionLineList = Arrays.asList(commission.getLines());
+		List<MCommissionLine> commissionLineList = Arrays.asList(commission.getLines());
 		long count = 0;
 		//	Validate for orders
 		if(get_ValueAsInt("C_Order_ID") > 0) {
 			MOrder order = new MOrder(getCtx(), get_ValueAsInt("C_Order_ID"), get_TrxName());
 			if(!order.isSOTrx()) {
-				count = commissionLineList.stream()
+				List<MCommissionLine> commissionLinesToProcess = commissionLineList.stream()
 					.filter(commissionLine -> commissionLine.get_ValueAsInt("C_Order_ID") == get_ValueAsInt("C_Order_ID"))
-					.count();
-				//	Validate
+					.collect(Collectors.toList());
+				commissionLinesToProcess.forEach(commissionLine -> {
+					processLine(salesRep, commission, commissionLinesToProcess, commissionLine, isPercentage, amtMultiplier);
+				});
+				count = commissionLinesToProcess.size();
 			}
 		}
 		//	Run
-		if(count > 0) {
-			commissionLineList.stream()
-				.filter(commissionLine -> commissionLine.get_ValueAsInt("C_Order_ID") == get_ValueAsInt("C_Order_ID"))
-				.forEach(commissionLine -> {
-					processLine(salesRep, commission, commissionLineList, commissionLine, isPercentage, amtMultiplier);
-			});
-		} else {
-			commissionLineList.stream()
-				.filter(commissionLine -> commissionLine.get_ValueAsInt("C_Order_ID") <= 0)
-				.forEach(commissionLine -> {
-					processLine(salesRep, commission, commissionLineList, commissionLine, isPercentage, amtMultiplier);
-			});
+		if(count == 0) {
+			if(get_ValueAsInt("C_Order_ID") > 0) {
+				MOrder order = new MOrder(getCtx(), get_ValueAsInt("C_Order_ID"), get_TrxName());
+				if(!order.isSOTrx()) {
+					List<MCommissionLine> commissionLinesToProcess = commissionLineList
+							.stream()
+							.filter(commissionLine -> commissionLine.get_ValueAsInt("Vendor_ID") == order.getC_BPartner_ID())
+							.collect(Collectors.toList());
+					commissionLinesToProcess.forEach(commissionLine -> {
+						processLine(salesRep, commission, commissionLinesToProcess, commissionLine, isPercentage, amtMultiplier);
+					});
+				}
+			} else if(get_ValueAsInt("C_Invoice_ID") > 0) {
+				MInvoice invoice = new MInvoice(getCtx(), get_ValueAsInt("C_Invoice_ID"), get_TrxName());
+				if(!invoice.isSOTrx()) {
+					List<MCommissionLine> commissionLinesToProcess = commissionLineList
+							.stream()
+							.filter(commissionLine -> commissionLine.get_ValueAsInt("Vendor_ID") == invoice.getC_BPartner_ID())
+							.collect(Collectors.toList());
+					commissionLinesToProcess.forEach(commissionLine -> {
+						processLine(salesRep, commission, commissionLinesToProcess, commissionLine, isPercentage, amtMultiplier);
+					});
+				}
+			} else if(get_ValueAsInt("S_Contract_ID") > 0
+					&& amtMultiplier == null) {
+				List<MCommissionLine> commissionLinesToProcess = commissionLineList
+						.stream()
+						.filter(commissionLine -> commissionLine.get_ValueAsInt("SplitBPartner_ID") == salesRep.getC_BPartner_ID())
+						.collect(Collectors.toList());
+				commissionLinesToProcess.forEach(commissionLine -> {
+					processLine(salesRep, commission, commissionLinesToProcess, commissionLine, isPercentage, amtMultiplier);
+				});
+			} else {
+				//	For all
+				List<MCommissionLine> commissionLinesForOrders = commissionLineList.stream()
+						.filter(commissionLine -> commissionLine.get_ValueAsInt("C_Order_ID") <= 0)
+						.collect(Collectors.toList());
+				commissionLinesForOrders.forEach(commissionLine -> {
+						processLine(salesRep, commission, commissionLinesForOrders, commissionLine, isPercentage, amtMultiplier);
+				});
+			}
 		}
 		//	Save Last Run
 		commission.setDateLastRun(getDateDoc());
