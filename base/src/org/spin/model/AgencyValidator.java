@@ -46,12 +46,14 @@ import org.compiere.model.MClient;
 import org.compiere.model.MCommission;
 import org.compiere.model.MCommissionLine;
 import org.compiere.model.MCommissionRun;
+import org.compiere.model.MConversionType;
 import org.compiere.model.MDocType;
 import org.compiere.model.MImage;
 import org.compiere.model.MInOut;
 import org.compiere.model.MInOutLine;
 import org.compiere.model.MInvoice;
 import org.compiere.model.MInvoiceLine;
+import org.compiere.model.MMailText;
 import org.compiere.model.MOrder;
 import org.compiere.model.MOrderLine;
 import org.compiere.model.MPriceList;
@@ -170,8 +172,10 @@ public class AgencyValidator implements ModelValidator
 
 					BigDecimal margin = DB.getSQLValueBDEx(lineQuantity.get_TrxName(), sql);
 
-					if(margin.compareTo(Env.ZERO) > 0)
+					if(margin != null
+							&& margin.compareTo(Env.ZERO) > 0) {
 						lineQuantity.setMargin(margin);
+					}
 
 				}
 
@@ -371,14 +375,15 @@ public class AgencyValidator implements ModelValidator
 				}
 			} else if(po instanceof MOrder) {
 				MOrder order = (MOrder) po;
-				/*int orderprojectId = order.getC_Project_ID();
-				if(orderprojectId > 0) {					
-					MProject project = new MProject(order.getCtx(), orderprojectId,order.get_TrxName());
+				int orderprojectId = order.getC_Project_ID();
+				if(orderprojectId > 0) {
+					if(order.getC_ConversionType_ID() <= 0) order.setC_ConversionType_ID(MConversionType.TYPE_SPOT);
+					/*MProject project = new MProject(order.getCtx(), orderprojectId,order.get_TrxName());
 					// Validates Customer Approved
 					if(!project.get_ValueAsBoolean("IsCustomerApproved")) {
 						throw new AdempiereException(Msg.parseTranslation(Env.getCtx(), "@CustomerApprovedRequired@"));
-					}
-				}*/
+					}*/
+				}
 				// Validates Order Has ProjectPorcentaje 
 				int serviceContractId = order.get_ValueAsInt("S_Contract_ID");
 				if(serviceContractId > 0) {
@@ -467,10 +472,10 @@ public class AgencyValidator implements ModelValidator
 						throw new AdempiereException(Msg.parseTranslation(Env.getCtx(), "@C_Project_ID@ @NotFound@"));
 					}
 					//	Document type IsCustomerApproved = Y and order IsCustomerApproved Y and order isAttachment() = N and project IsCustomerApproved = N
-					MProject project = new MProject(order.getCtx(), order.getC_Project_ID(), null);
+					/*MProject project = new MProject(order.getCtx(), order.getC_Project_ID(), null);
 					if (!project.get_ValueAsBoolean("IsCustomerApproved")) {
 						throw new AdempiereException(Msg.parseTranslation(Env.getCtx(), "@CustomerApprovedRequired@ @C_Project_ID@"));
-					}
+					}*/
 				}
 				//	Validate Document Type for commission
 				if(documentType.get_ValueAsInt("C_CommissionType_ID") > 0) {
