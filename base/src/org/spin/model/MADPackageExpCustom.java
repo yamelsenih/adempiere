@@ -161,7 +161,7 @@ public class MADPackageExpCustom extends X_AD_Package_Exp_Custom {
 		//	
 		Constructor<?> constructor = clazz.getDeclaredConstructor(new Class[]{});
 		//	new instance
-		exporterHandler = (GenericPOHandler) constructor.newInstance(new Object[] {this});
+		exporterHandler = (GenericPOHandler) constructor.newInstance(new Object[] {});
 	}
 	
 	/**
