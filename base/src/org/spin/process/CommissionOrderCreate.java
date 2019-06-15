@@ -142,6 +142,11 @@ public class CommissionOrderCreate extends CommissionOrderCreateAbstract {
 		if(commissionRun.get_ValueAsInt("S_Contract_ID") > 0) {
 			order.set_ValueOfColumn("S_Contract_ID", commissionRun.get_ValueAsInt("S_Contract_ID"));
 		}
+		//	Add Project Reference to Split
+		if(order.getC_Project_ID() == 0
+				&& commissionRun.get_ValueAsInt("C_Project_ID") > 0) {
+			order.setC_Project_ID(commissionRun.get_ValueAsInt("C_Project_ID"));
+		}
 		//	Set commission Run
 		order.set_ValueOfColumn("C_CommissionRun_ID", commissionRun.getC_CommissionRun_ID());
 		//		
