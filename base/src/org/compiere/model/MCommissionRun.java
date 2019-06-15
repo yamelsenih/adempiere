@@ -1352,6 +1352,7 @@ public class MCommissionRun extends X_C_CommissionRun implements DocAction, DocO
 				List<MCommissionLine> commissionLinesToProcess = commissionLineList
 						.stream()
 						.filter(commissionLine -> commissionLine.get_ValueAsInt("SplitBPartner_ID") == salesRep.getC_BPartner_ID())
+						.filter(commissionLine -> commissionLine.get_ValueAsInt("S_Contract_ID") == get_ValueAsInt("S_Contract_ID") || commissionLine.get_ValueAsInt("S_Contract_ID") == 0)
 						.collect(Collectors.toList());
 				commissionLinesToProcess.forEach(commissionLine -> {
 					processLine(salesRep, commission, commissionLinesToProcess, commissionLine, isPercentage, amtMultiplier);
