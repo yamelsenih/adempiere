@@ -53,7 +53,6 @@ import org.compiere.model.MInOut;
 import org.compiere.model.MInOutLine;
 import org.compiere.model.MInvoice;
 import org.compiere.model.MInvoiceLine;
-import org.compiere.model.MMailText;
 import org.compiere.model.MOrder;
 import org.compiere.model.MOrderLine;
 import org.compiere.model.MPriceList;
@@ -526,6 +525,19 @@ public class AgencyValidator implements ModelValidator
 					}
 					reverseOrder.saveEx();
 				});
+				//	For Purchases (Drop Ship)
+				if(order.isSOTrx()) {
+					new Query(order.getCtx(), I_C_Order.Table_Name, "C_Order_ID = ? "
+							+ "AND DocStatus = 'CO'", order.get_TrxName())
+						.setOnlyActiveRecords(true)
+						.setParameters(order.getLink_Order_ID())
+						.<MOrder>list().forEach(reverseOrder -> {
+						if(!reverseOrder.processIt(MOrder.DOCACTION_Void)) {
+							throw new AdempiereException(reverseOrder.getProcessMsg());
+						}
+						reverseOrder.saveEx();
+					});
+				}
 			} if(timing == TIMING_BEFORE_COMPLETE) {
 //	
 				if(order.isSOTrx()) {
