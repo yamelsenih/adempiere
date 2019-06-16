@@ -24,9 +24,11 @@ import javax.xml.transform.sax.TransformerHandler;
 
 import org.adempiere.pipo.PackOut;
 import org.adempiere.pipo.handler.GenericPOHandler;
+import org.compiere.model.I_AD_Package_Exp;
+import org.compiere.model.I_AD_Package_Exp_Detail;
+import org.compiere.model.MPackageExp;
+import org.compiere.model.MPackageExpDetail;
 import org.compiere.model.Query;
-import org.spin.model.I_AD_Package_Exp_Custom;
-import org.spin.model.MADPackageExpCustom;
 import org.xml.sax.SAXException;
 
 /**
@@ -42,13 +44,23 @@ public class PackOutExporter extends GenericPOHandler {
 			packOut.setLocalContext(ctx);
 		}
 		//	Exporter of Exporter
-		List<MADPackageExpCustom> exporterList = new Query(ctx, I_AD_Package_Exp_Custom.Table_Name, null, null)
+		List<MPackageExp> packageList = new Query(ctx, I_AD_Package_Exp.Table_Name, null, null)
 			.setOnlyActiveRecords(true)
 			.setClient_ID()
 			.list();
 		//	Export menu
-		for(MADPackageExpCustom exporter : exporterList) {
-			packOut.createGenericPO(document, exporter);
+		for(MPackageExp packageExporter : packageList) {
+			packOut.createGenericPO(document, packageExporter);
+			//	Get Detail
+			List<MPackageExpDetail> packageDetailList = new Query(ctx, I_AD_Package_Exp_Detail.Table_Name, I_AD_Package_Exp_Detail.COLUMNNAME_AD_Package_Exp_ID + " = ?", null)
+					.setParameters(packageExporter.getAD_Package_Exp_ID())
+					.setOnlyActiveRecords(true)
+					.setClient_ID()
+					.list();
+			//	Export
+			for(MPackageExpDetail packageDetail : packageDetailList) {
+				packOut.createGenericPO(document, packageDetail);
+			}
 		}
 	}
 }
