@@ -33,7 +33,7 @@ import org.xml.sax.SAXException;
  * Custom Exporter of Exporter
  * @author Yamel Senih, ySenih@erpya.com, ERPCyA http://www.erpya.com
  */
-public class ExporterOfExporter extends GenericPOHandler {
+public class PackOutExporter extends GenericPOHandler {
 	@Override
 	public void create(Properties ctx, TransformerHandler document) throws SAXException {
 		PackOut packOut = (PackOut) ctx.get("PackOutProcess");
