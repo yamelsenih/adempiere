@@ -24,8 +24,6 @@ import java.util.Properties;
 import javax.xml.transform.sax.TransformerHandler;
 
 import org.adempiere.pipo.PackOut;
-import org.compiere.model.I_AD_Tree;
-import org.compiere.model.I_C_BPartner;
 import org.compiere.model.I_C_Element;
 import org.compiere.model.I_C_ElementValue;
 import org.compiere.model.MElement;
@@ -61,8 +59,6 @@ public class AccountSchemaExporter extends ClientExporterHandler {
 			.setClient_ID()
 			.list();
 		parentsToExclude = new ArrayList<String>();
-		parentsToExclude.add(I_AD_Tree.Table_Name);
-		parentsToExclude.add(I_C_BPartner.Table_Name);
 		//	Export menu
 		for(MElement elementExporter : elementList) {
 			if(elementExporter.getC_Element_ID() < PackOut.MAX_OFFICIAL_ID) {
