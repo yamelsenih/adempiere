@@ -32,7 +32,7 @@ import org.compiere.model.Query;
 import org.xml.sax.SAXException;
 
 /**
- * Custom Exporter of Exporter
+ * Custom Exporter of Packout
  * @author Yamel Senih, ySenih@erpya.com, ERPCyA http://www.erpya.com
  */
 public class PackOutExporter extends GenericPOHandler {
