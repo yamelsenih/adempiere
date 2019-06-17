@@ -37,6 +37,7 @@ public class ClientExporterHandler extends GenericPOHandler {
 	 */
 	public void cleanOfficialReference(PO entity) {
 		POInfo poInfo = POInfo.getPOInfo(entity.getCtx(), entity.get_Table_ID(), null);
+		entity.setAD_Org_ID(0);
 		for(int index = 0; index < poInfo.getColumnCount(); index++) {
 			//	No SQL
 			if(poInfo.isVirtualColumn(index)) {
