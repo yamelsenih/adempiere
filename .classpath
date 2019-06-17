@@ -315,8 +315,51 @@
 	<classpathentry kind="lib" path="zkwebui/WEB-INF/lib/ext/jxl.jar"/>
 	<classpathentry kind="lib" path="zkwebui/WEB-INF/lib/zkforge/timelinez.jar"/>
 	<classpathentry kind="lib" path="tools/lib/slf4j-api-1.6.0.jar"/>
-	<classpathentry kind="lib" path="/adempiere/org.adempiere.webservice/WEB-INF/lib/generated_xmlbeans.jar"/>
-	<classpathentry kind="lib" path="/Custom-WS-AGROSILOS/WEB-INF/lib/xfire-all-1.2.6.jar"/>
-	<classpathentry kind="lib" path="/adempiere/tools/lib/mariadb-java-client.jar"/>
+	<classpathentry kind="lib" path="tools/lib/mariadb-java-client.jar"/>
+	<classpathentry kind="lib" path="org.adempiere.webservice/WEB-INF/lib/activation-1.1.jar"/>
+	<classpathentry kind="lib" path="org.adempiere.webservice/WEB-INF/lib/ant-1.5.jar"/>
+	<classpathentry kind="lib" path="org.adempiere.webservice/WEB-INF/lib/avalon-framework-4.1.3.jar"/>
+	<classpathentry kind="lib" path="org.adempiere.webservice/WEB-INF/lib/classworlds-1.1-alpha-2.jar"/>
+	<classpathentry kind="lib" path="org.adempiere.webservice/WEB-INF/lib/commons-attributes-api-2.1.jar"/>
+	<classpathentry kind="lib" path="org.adempiere.webservice/WEB-INF/lib/commons-beanutils-1.6.jar"/>
+	<classpathentry kind="lib" path="org.adempiere.webservice/WEB-INF/lib/commons-codec-1.3.jar"/>
+	<classpathentry kind="lib" path="org.adempiere.webservice/WEB-INF/lib/commons-collections-2.1.jar"/>
+	<classpathentry kind="lib" path="org.adempiere.webservice/WEB-INF/lib/commons-digester-1.7.jar"/>
+	<classpathentry kind="lib" path="org.adempiere.webservice/WEB-INF/lib/commons-httpclient-3.0.jar"/>
+	<classpathentry kind="lib" path="org.adempiere.webservice/WEB-INF/lib/commons-logging-1.0.4.jar"/>
+	<classpathentry kind="lib" path="org.adempiere.webservice/WEB-INF/lib/dom4j-1.6.jar"/>
+	<classpathentry kind="lib" path="org.adempiere.webservice/WEB-INF/lib/generated_xmlbeans-sources.jar"/>
+	<classpathentry kind="lib" path="org.adempiere.webservice/WEB-INF/lib/generated_xmlbeans.jar"/>
+	<classpathentry kind="lib" path="org.adempiere.webservice/WEB-INF/lib/jaxen-1.1-beta-9.jar"/>
+	<classpathentry kind="lib" path="org.adempiere.webservice/WEB-INF/lib/jboss-1.0.jar"/>
+	<classpathentry kind="lib" path="org.adempiere.webservice/WEB-INF/lib/jcommon-1.0.0.jar"/>
+	<classpathentry kind="lib" path="org.adempiere.webservice/WEB-INF/lib/jdom-1.0.jar"/>
+	<classpathentry kind="lib" path="org.adempiere.webservice/WEB-INF/lib/jdtcore-3.1.0.jar"/>
+	<classpathentry kind="lib" path="org.adempiere.webservice/WEB-INF/lib/jsr173_1.0_api.jar"/>
+	<classpathentry kind="lib" path="org.adempiere.webservice/WEB-INF/lib/junit-3.8.1.jar"/>
+	<classpathentry kind="lib" path="org.adempiere.webservice/WEB-INF/lib/log4j-1.2.12.jar"/>
+	<classpathentry kind="lib" path="org.adempiere.webservice/WEB-INF/lib/logkit-1.0.1.jar"/>
+	<classpathentry kind="lib" path="org.adempiere.webservice/WEB-INF/lib/mail-1.4.jar"/>
+	<classpathentry kind="lib" path="org.adempiere.webservice/WEB-INF/lib/plexus-container-default-1.0-alpha-8.jar"/>
+	<classpathentry kind="lib" path="org.adempiere.webservice/WEB-INF/lib/plexus-utils-1.0.0.jar"/>
+	<classpathentry kind="lib" path="org.adempiere.webservice/WEB-INF/lib/plexus-utils-1.0.4.jar"/>
+	<classpathentry kind="lib" path="org.adempiere.webservice/WEB-INF/lib/qdox-1.5.jar"/>
+	<classpathentry kind="lib" path="org.adempiere.webservice/WEB-INF/lib/spring-1.2.6.jar"/>
+	<classpathentry kind="lib" path="org.adempiere.webservice/WEB-INF/lib/stax-1.1.2-dev.jar"/>
+	<classpathentry kind="lib" path="org.adempiere.webservice/WEB-INF/lib/stax-api-1.0.jar"/>
+	<classpathentry kind="lib" path="org.adempiere.webservice/WEB-INF/lib/stax-utils-20040917.jar"/>
+	<classpathentry kind="lib" path="org.adempiere.webservice/WEB-INF/lib/wagon-provider-api-1.0-alpha-5.jar"/>
+	<classpathentry kind="lib" path="org.adempiere.webservice/WEB-INF/lib/wsdl4j-1.5.2.jar"/>
+	<classpathentry kind="lib" path="org.adempiere.webservice/WEB-INF/lib/wstx-asl-2.9.3.jar"/>
+	<classpathentry kind="lib" path="org.adempiere.webservice/WEB-INF/lib/xbean-spring-2.8.jar"/>
+	<classpathentry kind="lib" path="org.adempiere.webservice/WEB-INF/lib/xbean.jar"/>
+	<classpathentry kind="lib" path="org.adempiere.webservice/WEB-INF/lib/xercesImpl-2.4.0.jar"/>
+	<classpathentry kind="lib" path="org.adempiere.webservice/WEB-INF/lib/xfire-all-1.2.6-sources.jar"/>
+	<classpathentry kind="lib" path="org.adempiere.webservice/WEB-INF/lib/xfire-all-1.2.6.jar"/>
+	<classpathentry kind="lib" path="org.adempiere.webservice/WEB-INF/lib/xml-apis-1.3.02.jar"/>
+	<classpathentry kind="lib" path="org.adempiere.webservice/WEB-INF/lib/xml-resolver-1.1.jar"/>
+	<classpathentry kind="lib" path="org.adempiere.webservice/WEB-INF/lib/xmlbeans-2.4.0-sources.jar"/>
+	<classpathentry kind="lib" path="org.adempiere.webservice/WEB-INF/lib/xmlParserAPIs-2.6.2.jar"/>
+	<classpathentry kind="lib" path="org.adempiere.webservice/WEB-INF/lib/XmlSchema-1.0.3.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
