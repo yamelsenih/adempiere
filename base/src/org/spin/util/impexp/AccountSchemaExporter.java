@@ -69,7 +69,7 @@ public class AccountSchemaExporter extends ClientExporterHandler {
 				continue;
 			}
 			cleanOfficialReference(elementExporter);
-			packOut.createGenericPO(document, elementExporter);
+			packOut.createGenericPO(document, elementExporter, true, parentsToExclude);
 			//	Export element Value
 			List<MElementValue> elementValueList = new Query(ctx, I_C_ElementValue.Table_Name, I_C_ElementValue.COLUMNNAME_C_Element_ID + " = ? "
 					+ "AND EXISTS(SELECT 1 "
