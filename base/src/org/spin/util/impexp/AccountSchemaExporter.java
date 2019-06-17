@@ -41,7 +41,7 @@ public class AccountSchemaExporter extends ClientExporterHandler {
 	/**	Parents for no added	*/
 	private List<String> parentsToExclude;
 	/**	Default Tree	*/
-	private int defaultTreeId ;
+	private int defaultTreeId;
 	/**	Packout	*/
 	private PackOut packOut;
 	@Override
@@ -53,6 +53,10 @@ public class AccountSchemaExporter extends ClientExporterHandler {
 		}
 		//	Default Tree
 		defaultTreeId = MTree.getDefaultTreeIdFromTableId(Env.getAD_Client_ID(ctx), I_C_ElementValue.Table_ID);
+		//	Export Tree
+		MTree tree = MTree.get(ctx, defaultTreeId, null);
+		cleanOfficialReference(tree);
+		packOut.createGenericPO(document, tree);
 		//	Export Account Elements
 		List<MElement> elementList = new Query(ctx, I_C_Element.Table_Name, null, null)
 			.setOnlyActiveRecords(true)
