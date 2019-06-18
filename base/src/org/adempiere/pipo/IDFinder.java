@@ -29,6 +29,7 @@ import java.util.Properties;
 import org.adempiere.exceptions.DBException;
 import org.adempiere.pipo.exception.NonUniqueIDLookupException;
 import org.compiere.model.I_AD_Element;
+import org.compiere.model.I_AD_TreeNode;
 import org.compiere.util.CLogger;
 import org.compiere.util.DB;
 import org.compiere.util.Util;
@@ -206,6 +207,82 @@ public final class IDFinder
 		sql = sql.append(" Order By ").append(tableName).append("_ID");
 		
 		return getUUID(sql.toString(), params, key.toString(), trxName);
+	}
+	
+	/**
+	 * Get UUID from ID
+	 * @param tableName
+	 * @param nodeId
+	 * @param clientId
+	 * @param trxName
+	 * @return
+	 */
+	public static String getUUIDFromNodeId(String tableName, int treeId, int nodeId, String trxName) {
+		if (nodeId <= 0)
+			return null;
+		
+		//construct cache key
+		StringBuffer key = new StringBuffer();
+		key.append(tableName)
+			.append(".")
+		 	.append("Node_ID")
+			.append("=")
+			.append(nodeId)
+			.append(" AND ")
+			.append(tableName)
+			.append(".")
+			.append("AD_Tree_ID")
+			.append("=")
+			.append(treeId);
+		
+		ArrayList<Object> params = new ArrayList<Object>();
+		StringBuffer sql = new StringBuffer ("select ")
+		 	.append(I_AD_Element.COLUMNNAME_UUID)
+			.append(" from ")
+		 	.append(tableName)
+		 	.append(" where ")
+		 	.append("Node_ID")
+		 	.append(" = ?")
+		 	.append(" and ")
+		 	.append("AD_Tree_ID")
+		 	.append(" = ?");
+		params.add(nodeId);
+		params.add(treeId);
+		//	Get
+		return getUUID(sql.toString(), params, key.toString(), trxName);
+	}
+	
+	/**
+	 * Get ID from Node UUID
+	 * @param tableName
+	 * @param value
+	 * @param clientId
+	 * @param trxName
+	 * @return
+	 */
+	public static int getIdFromNodeUUID(String tableName, String value, String trxName) {
+		if (Util.isEmpty(value))
+			return 0;
+		
+		//construct cache key
+		StringBuffer key = new StringBuffer();
+		key.append(tableName)
+			.append(".")
+		 	.append(I_AD_Element.COLUMNNAME_UUID)
+			.append("=")
+			.append(value);
+		
+		ArrayList<Object> params = new ArrayList<Object>();
+		StringBuffer sql = new StringBuffer ("select ")
+		 	.append(I_AD_TreeNode.COLUMNNAME_Node_ID)
+			.append(" from ")
+		 	.append(tableName)
+		 	.append(" where ")
+		 	.append(I_AD_Element.COLUMNNAME_UUID)
+		 	.append(" = ?");
+		params.add(value);
+		//	Get
+		return getID(sql.toString(), params, key.toString(), false, trxName);
 	}
 	
 	/**
