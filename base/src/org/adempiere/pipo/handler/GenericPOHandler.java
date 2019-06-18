@@ -21,7 +21,6 @@ import java.util.Properties;
 
 import javax.xml.transform.sax.TransformerHandler;
 
-import org.adempiere.model.GenericPO;
 import org.adempiere.pipo.AbstractElementHandler;
 import org.adempiere.pipo.AttributeFiller;
 import org.adempiere.pipo.Element;
@@ -371,14 +370,9 @@ public class GenericPOHandler extends AbstractElementHandler {
 			PoFiller filler = new PoFiller(poInfo, atts);
 			parameters.add(filler.getValueFromType(keyColumn));
 		}
-		PO entity = new Query(ctx, poInfo.getTableName(), "UUID = ? OR (" + keyColumnNames + ")", trxName)
+		return new Query(ctx, poInfo.getTableName(), "UUID = ? OR (" + keyColumnNames + ")", trxName)
 				.setParameters(parameters)
 				.first();
-		//	Create by default
-		if(entity == null) {
-			entity = new GenericPO(poInfo.getTableName(), ctx, -1, trxName);
-		}
-		return entity;
 	}
 	
 	/**
