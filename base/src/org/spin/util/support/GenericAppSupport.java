@@ -14,39 +14,27 @@
  * All Rights Reserved.                                                       *
  * Contributor(s): Yamel Senih www.erpya.com                                  *
  *****************************************************************************/
-package org.spin.model;
-
-import java.sql.ResultSet;
-import java.util.Properties;
+package org.spin.util.support;
 
 /**
  * @author Yamel Senih, ySenih@erpya.com, ERPCyA http://www.erpya.com
- *		<a href="https://github.com/adempiere/adempiere/issues/2109">
- * 		@see FR [ 2109 ] Add App Registration ADempiere</a>
+ *		Add for generic app example
  */
-public class MADAppRegistrationPara extends X_AD_AppRegistration_Para {
+public class GenericAppSupport implements IAppSupport {
 
+	@Override
+	public String testConnection() {
+		return "Ok";
+	}
 
-	private static final long serialVersionUID = -1171525387615789574L;
-
-	public MADAppRegistrationPara(Properties ctx, int AD_AppRegistration_Para_ID, String trxName) {
+	@Override
+	public void setAppRegistrationId(int registrationId) {
 		
-		super(ctx, AD_AppRegistration_Para_ID, trxName);
 	}
 
-	public MADAppRegistrationPara(Properties ctx, ResultSet rs, String trxName) {
-		super(ctx, rs, trxName);
+	@Override
+	public int getAppRegistrationId() {
+		return 0;
 	}
-	
-	/**
-	 * Set values from default parameter
-	 * @param defaultParameter
-	 */
-	public void setDefaultParameter(MADAppSupportPara defaultParameter) {
-		setAD_AppSupport_Para_ID(defaultParameter.getAD_AppSupport_Para_ID());
-		setDescription(defaultParameter.getDescription());
-		setParameterType(defaultParameter.getParameterType());
-		setParameterName(defaultParameter.getParameterName());
-		setParameterValue(defaultParameter.getParameterDefault());
-	}
+
 }

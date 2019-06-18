@@ -21,32 +21,21 @@ import java.util.Properties;
 
 /**
  * @author Yamel Senih, ySenih@erpya.com, ERPCyA http://www.erpya.com
- *		<a href="https://github.com/adempiere/adempiere/issues/2109">
- * 		@see FR [ 2109 ] Add App Registration ADempiere</a>
+ *		Add for handle social media for user
  */
-public class MADAppRegistrationPara extends X_AD_AppRegistration_Para {
+public class MADUserSocialMedia extends X_AD_UserSocialMedia {
 
-
-	private static final long serialVersionUID = -1171525387615789574L;
-
-	public MADAppRegistrationPara(Properties ctx, int AD_AppRegistration_Para_ID, String trxName) {
-		
-		super(ctx, AD_AppRegistration_Para_ID, trxName);
+	public MADUserSocialMedia(Properties ctx, int AD_UserSocialMedia_ID, String trxName) {
+		super(ctx, AD_UserSocialMedia_ID, trxName);
 	}
 
-	public MADAppRegistrationPara(Properties ctx, ResultSet rs, String trxName) {
+	public MADUserSocialMedia(Properties ctx, ResultSet rs, String trxName) {
 		super(ctx, rs, trxName);
 	}
-	
+
 	/**
-	 * Set values from default parameter
-	 * @param defaultParameter
+	 * 
 	 */
-	public void setDefaultParameter(MADAppSupportPara defaultParameter) {
-		setAD_AppSupport_Para_ID(defaultParameter.getAD_AppSupport_Para_ID());
-		setDescription(defaultParameter.getDescription());
-		setParameterType(defaultParameter.getParameterType());
-		setParameterName(defaultParameter.getParameterName());
-		setParameterValue(defaultParameter.getParameterDefault());
-	}
+	private static final long serialVersionUID = -7151089570474994623L;
+
 }

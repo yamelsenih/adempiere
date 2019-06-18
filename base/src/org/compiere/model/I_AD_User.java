@@ -374,6 +374,19 @@ public interface I_AD_User
 	  */
 	public String getHasRole();
 
+    /** Column name ImageURL */
+    public static final String COLUMNNAME_ImageURL = "ImageURL";
+
+	/** Set Image URL.
+	  * URL of  image
+	  */
+	public void setImageURL (String ImageURL);
+
+	/** Get Image URL.
+	  * URL of  image
+	  */
+	public String getImageURL();
+
     /** Column name IsActive */
     public static final String COLUMNNAME_IsActive = "IsActive";
 
@@ -399,6 +412,19 @@ public interface I_AD_User
 	  * The user/contact has full access to Business Partner information and resources
 	  */
 	public boolean isFullBPAccess();
+
+    /** Column name IsIncludeOwnChanges */
+    public static final String COLUMNNAME_IsIncludeOwnChanges = "IsIncludeOwnChanges";
+
+	/** Set Notify me my own changes.
+	  * I want to be notified of changes that I make myself
+	  */
+	public void setIsIncludeOwnChanges (boolean IsIncludeOwnChanges);
+
+	/** Get Notify me my own changes.
+	  * I want to be notified of changes that I make myself
+	  */
+	public boolean isIncludeOwnChanges();
 
     /** Column name IsInPayroll */
     public static final String COLUMNNAME_IsInPayroll = "IsInPayroll";
@@ -577,6 +603,15 @@ public interface I_AD_User
 	  * Additional information on the status of this lead/opportunity
 	  */
 	public String getLeadStatusDescription();
+
+    /** Column name Logo_ID */
+    public static final String COLUMNNAME_Logo_ID = "Logo_ID";
+
+	/** Set Logo	  */
+	public void setLogo_ID (int Logo_ID);
+
+	/** Get Logo	  */
+	public int getLogo_ID();
 
     /** Column name Name */
     public static final String COLUMNNAME_Name = "Name";
