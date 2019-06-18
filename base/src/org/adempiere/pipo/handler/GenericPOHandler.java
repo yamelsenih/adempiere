@@ -84,6 +84,7 @@ public class GenericPOHandler extends AbstractElementHandler {
 			recordId = getIdFromUUID(ctx, tableName, uuid);
 		}
 		PO entity = null;
+		boolean isTranslation = false;
 		//	Multy-Key
 		if(poInfo.hasKeyColumn()) {
 			entity = getCreatePO(ctx, tableId, recordId, getTrxName(ctx));
@@ -151,18 +152,8 @@ public class GenericPOHandler extends AbstractElementHandler {
 			beforeSave(entity);
 			entity.saveEx(getTrxName(ctx));
 			int originalId = entity.get_ID();
-			if(!poInfo.hasKeyColumn()) {
-				if(tableName.endsWith("_Trl")) {
-					originalId = entity.get_ValueAsInt(tableName.replaceAll("_Trl", "") + "_ID");
-				} else {
-					MTable table = MTable.get(ctx, tableName);
-					for(String keyColumn : table.getKeyColumns()) {
-						originalId = entity.get_ValueAsInt(keyColumn);
-						if(originalId > 0) {
-							break;
-						}
-					}
-				}
+			if(isTranslation) {
+				originalId = entity.get_ValueAsInt(tableName.replaceAll("_Trl", "") + "_ID");
 			}
 			recordLog (ctx, 1, entity.get_ValueAsString(I_AD_Element.COLUMNNAME_UUID), getTagName(entity), originalId,
 						backupId, objectStatus,
