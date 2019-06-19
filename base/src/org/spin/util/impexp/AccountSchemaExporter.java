@@ -28,6 +28,7 @@ import org.compiere.model.I_C_AcctSchema;
 import org.compiere.model.I_C_AcctSchema_Default;
 import org.compiere.model.I_C_AcctSchema_Element;
 import org.compiere.model.I_C_AcctSchema_GL;
+import org.compiere.model.I_C_Currency;
 import org.compiere.model.I_C_Element;
 import org.compiere.model.I_C_ElementValue;
 import org.compiere.model.I_C_ValidCombination;
@@ -73,6 +74,7 @@ public class AccountSchemaExporter extends ClientExporterHandler {
 			.setClient_ID()
 			.list();
 		parentsToExclude = new ArrayList<String>();
+		parentsToExclude.add(I_C_Currency.Table_Name);
 		//	Export menu
 		for(MElement elementExporter : elementList) {
 			if(elementExporter.getC_Element_ID() < PackOut.MAX_OFFICIAL_ID) {
@@ -109,9 +111,9 @@ public class AccountSchemaExporter extends ClientExporterHandler {
 			.setClient_ID()
 			.list();
 		for(MAcctSchema accountSchema : accountSchemaList) {
-			if(accountSchema.getC_AcctSchema_ID() < PackOut.MAX_OFFICIAL_ID) {
-				continue;
-			}
+//			if(accountSchema.getC_AcctSchema_ID() < PackOut.MAX_OFFICIAL_ID) {
+//				continue;
+//			}
 			cleanOfficialReference(accountSchema);
 			packOut.createGenericPO(document, accountSchema, true, parentsToExclude);
 			//	Element Account Schema
@@ -121,12 +123,11 @@ public class AccountSchemaExporter extends ClientExporterHandler {
 				.setClient_ID()
 				.list();
 			for(MAcctSchemaElement elementAccountSchema : elementAccountSchemaList) {
-				if(elementAccountSchema.getC_AcctSchema_Element_ID() < PackOut.MAX_OFFICIAL_ID) {
-					continue;
-				}
+//				if(elementAccountSchema.getC_AcctSchema_Element_ID() < PackOut.MAX_OFFICIAL_ID) {
+//					continue;
+//				}
 				cleanOfficialReference(elementAccountSchema);
 				elementAccountSchema.setAD_Org_ID(0);
-				elementAccountSchema.setOrg_ID(0);
 				elementAccountSchema.set_ValueOfColumn(I_C_AcctSchema_Element.COLUMNNAME_C_BPartner_ID, null);
 				elementAccountSchema.set_ValueOfColumn(I_C_AcctSchema_Element.COLUMNNAME_M_Product_ID, null);
 				elementAccountSchema.set_ValueOfColumn(I_C_AcctSchema_Element.COLUMNNAME_C_Project_ID, null);
@@ -148,7 +149,7 @@ public class AccountSchemaExporter extends ClientExporterHandler {
 				packOut.createGenericPO(document, generalLedger, true, parentsToExclude);
 			}
 			//	Element Account Schema
-			List<MAcctSchemaDefault> defaultAccountSchemaList = new Query(ctx, I_C_AcctSchema_Default.Table_Name, I_C_AcctSchema_Default.COLUMNNAME_C_AcctSchema_ID, null)
+			List<MAcctSchemaDefault> defaultAccountSchemaList = new Query(ctx, I_C_AcctSchema_Default.Table_Name, I_C_AcctSchema_Default.COLUMNNAME_C_AcctSchema_ID + " = ?", null)
 				.setParameters(accountSchema.getC_AcctSchema_ID())
 				.setOnlyActiveRecords(true)
 				.setClient_ID()
@@ -158,7 +159,7 @@ public class AccountSchemaExporter extends ClientExporterHandler {
 				packOut.createGenericPO(document, defaultAccountSchema, true, parentsToExclude);
 			}
 			//	Valid Combination
-			List<MAccount> validCombinationList = new Query(ctx, I_C_ValidCombination.Table_Name, I_C_ValidCombination.COLUMNNAME_C_AcctSchema_ID, null)
+			List<MAccount> validCombinationList = new Query(ctx, I_C_ValidCombination.Table_Name, I_C_ValidCombination.COLUMNNAME_C_AcctSchema_ID + " = ?", null)
 					.setParameters(accountSchema.getC_AcctSchema_ID())
 					.setOnlyActiveRecords(true)
 					.setClient_ID()
