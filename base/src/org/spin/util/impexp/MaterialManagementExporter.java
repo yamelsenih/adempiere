@@ -24,6 +24,8 @@ import java.util.Properties;
 import javax.xml.transform.sax.TransformerHandler;
 
 import org.adempiere.pipo.PackOut;
+import org.compiere.model.I_AD_Tree;
+import org.compiere.model.I_C_Currency;
 import org.compiere.model.I_C_UOM_Conversion;
 import org.compiere.model.I_M_Locator;
 import org.compiere.model.I_M_Product;
@@ -58,6 +60,8 @@ public class MaterialManagementExporter extends ClientExporterHandler {
 			packOut.setLocalContext(ctx);
 		}
 		parentsToExclude = new ArrayList<String>();
+		parentsToExclude.add(I_C_Currency.Table_Name);
+		parentsToExclude.add(I_AD_Tree.Table_Name);
 		//	Default Tree
 		defaultTreeId = MTree.getDefaultTreeIdFromTableId(Env.getAD_Client_ID(ctx), I_M_Product.Table_ID);
 		//	Export Tree
