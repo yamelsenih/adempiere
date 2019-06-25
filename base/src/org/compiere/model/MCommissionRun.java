@@ -1310,32 +1310,34 @@ public class MCommissionRun extends X_C_CommissionRun implements DocAction, DocO
 		//	
 		List<MCommissionLine> commissionLineList = Arrays.asList(commission.getLines());
 		long count = 0;
+		MOrder order = null;
 		//	Validate for orders
 		if(get_ValueAsInt("C_Order_ID") > 0) {
-			MOrder order = new MOrder(getCtx(), get_ValueAsInt("C_Order_ID"), get_TrxName());
-			if(!order.isSOTrx()) {
-				List<MCommissionLine> commissionLinesToProcess = commissionLineList.stream()
-					.filter(commissionLine -> commissionLine.get_ValueAsInt("C_Order_ID") == get_ValueAsInt("C_Order_ID"))
-					.collect(Collectors.toList());
-				commissionLinesToProcess.forEach(commissionLine -> {
-					processLine(salesRep, commission, commissionLinesToProcess, commissionLine, isPercentage, amtMultiplier);
-				});
-				count = commissionLinesToProcess.size();
-			}
+			order = new MOrder(getCtx(), get_ValueAsInt("C_Order_ID"), get_TrxName());
+		}
+		//	Validate order
+		if(order != null
+				&& !order.isSOTrx()) {
+			List<MCommissionLine> commissionLinesToProcess = commissionLineList.stream()
+				.filter(commissionLine -> commissionLine.get_ValueAsInt("C_Order_ID") == get_ValueAsInt("C_Order_ID"))
+				.collect(Collectors.toList());
+			commissionLinesToProcess.forEach(commissionLine -> {
+				processLine(salesRep, commission, commissionLinesToProcess, commissionLine, isPercentage, amtMultiplier);
+			});
+			count = commissionLinesToProcess.size();
 		}
 		//	Run
 		if(count == 0) {
-			if(get_ValueAsInt("C_Order_ID") > 0) {
-				MOrder order = new MOrder(getCtx(), get_ValueAsInt("C_Order_ID"), get_TrxName());
-				if(!order.isSOTrx()) {
-					List<MCommissionLine> commissionLinesToProcess = commissionLineList
-							.stream()
-							.filter(commissionLine -> commissionLine.get_ValueAsInt("Vendor_ID") == order.getC_BPartner_ID())
-							.collect(Collectors.toList());
-					commissionLinesToProcess.forEach(commissionLine -> {
-						processLine(salesRep, commission, commissionLinesToProcess, commissionLine, isPercentage, amtMultiplier);
-					});
-				}
+			if(order != null
+					&& !order.isSOTrx()) {
+				int bPartnerId = order.getC_BPartner_ID();
+				List<MCommissionLine> commissionLinesToProcess = commissionLineList
+						.stream()
+						.filter(commissionLine -> commissionLine.get_ValueAsInt("Vendor_ID") == bPartnerId)
+						.collect(Collectors.toList());
+				commissionLinesToProcess.forEach(commissionLine -> {
+					processLine(salesRep, commission, commissionLinesToProcess, commissionLine, isPercentage, amtMultiplier);
+				});
 			} else if(get_ValueAsInt("C_Invoice_ID") > 0) {
 				MInvoice invoice = new MInvoice(getCtx(), get_ValueAsInt("C_Invoice_ID"), get_TrxName());
 				if(!invoice.isSOTrx()) {
