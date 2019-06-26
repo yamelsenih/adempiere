@@ -14,7 +14,7 @@
  * All Rights Reserved.                                                       *
  * Contributor(s): Raul Muñoz www.erpya.com                                   *
  *****************************************************************************/
-package org.spin.apps.form;
+package org.spin.form;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
@@ -69,7 +69,6 @@ import org.compiere.util.Util;
 import org.compiere.util.ValueNamePair;
 import org.eevolution.model.I_DD_Order;
 import org.eevolution.model.MWMInOutBound;
-import org.spin.form.OutBoundOrder;
 import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.event.EventListener;
 import org.zkoss.zk.ui.event.Events;
