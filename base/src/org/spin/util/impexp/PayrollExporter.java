@@ -27,12 +27,32 @@ import org.adempiere.pipo.PackOut;
 import org.compiere.model.Query;
 import org.eevolution.model.I_HR_Attribute;
 import org.eevolution.model.I_HR_Concept;
+import org.eevolution.model.I_HR_Concept_Category;
+import org.eevolution.model.I_HR_Concept_Type;
+import org.eevolution.model.I_HR_Department;
+import org.eevolution.model.I_HR_Job;
+import org.eevolution.model.I_HR_List;
+import org.eevolution.model.I_HR_ListLine;
+import org.eevolution.model.I_HR_ListType;
+import org.eevolution.model.I_HR_ListVersion;
 import org.eevolution.model.I_HR_Payroll;
 import org.eevolution.model.I_HR_PayrollConcept;
+import org.eevolution.model.I_HR_SalaryStructure;
+import org.eevolution.model.I_HR_SalaryStructureLine;
 import org.eevolution.model.MHRAttribute;
 import org.eevolution.model.MHRConcept;
+import org.eevolution.model.MHRConceptCategory;
+import org.eevolution.model.MHRConceptType;
+import org.eevolution.model.MHRDepartment;
+import org.eevolution.model.MHRJob;
 import org.eevolution.model.MHRPayroll;
 import org.eevolution.model.MHRPayrollConcept;
+import org.eevolution.model.MHRSalaryStructure;
+import org.eevolution.model.MHRSalaryStructureLine;
+import org.eevolution.model.X_HR_List;
+import org.eevolution.model.X_HR_ListLine;
+import org.eevolution.model.X_HR_ListType;
+import org.eevolution.model.X_HR_ListVersion;
 import org.spin.model.I_HR_ProcessReport;
 import org.spin.model.I_HR_ProcessReportLine;
 import org.spin.model.I_HR_ProcessReportPayroll;
@@ -50,6 +70,8 @@ import org.xml.sax.SAXException;
  * @author Yamel Senih, ySenih@erpya.com, ERPCyA http://www.erpya.com
  */
 public class PayrollExporter extends ClientExporterHandler {
+	
+	private List<String> parentsToExclude = new ArrayList<String>();
 	@Override
 	public void create(Properties ctx, TransformerHandler document) throws SAXException {
 		PackOut packOut = (PackOut) ctx.get("PackOutProcess");
@@ -57,9 +79,179 @@ public class PayrollExporter extends ClientExporterHandler {
 			packOut = new PackOut();
 			packOut.setLocalContext(ctx);
 		}
-		//	add here exclusion tables
-		List<String> parentsToExclude = new ArrayList<String>();
-		//	Export element Value
+		//	Payroll Definition
+		createPayroll(ctx, document, packOut);
+		//	Payroll Report
+		createPayrollReport(ctx, document, packOut);
+		//	Create Employee Setup
+		
+	}
+	
+	public void createEmployeeSetup(Properties ctx, TransformerHandler document, PackOut packOut) throws SAXException {
+		//	Structure
+		List<MHRSalaryStructure> salaryStructureList = new Query(ctx, I_HR_SalaryStructure.Table_Name, null, null)
+				.setOnlyActiveRecords(true)
+				.setClient_ID()
+				.setOrderBy(I_HR_SalaryStructure.COLUMNNAME_Value)
+				.list();
+		//	Export
+		for(MHRSalaryStructure salaryStructure : salaryStructureList) {
+			if(salaryStructure.get_ID() < PackOut.MAX_OFFICIAL_ID) {
+				continue;
+			}
+			//	Remove default
+			cleanOfficialReference(salaryStructure);
+			packOut.createGenericPO(document, salaryStructure, true, parentsToExclude);
+			List<MHRSalaryStructureLine> salaryStructureLineList = new Query(ctx, I_HR_SalaryStructureLine.Table_Name, I_HR_SalaryStructureLine.COLUMNNAME_HR_SalaryStructure_ID + " = ?", null)
+					.setOnlyActiveRecords(true)
+					.setParameters(salaryStructure.getHR_SalaryStructure_ID())
+					.setClient_ID()
+					.setOrderBy(I_HR_SalaryStructureLine.COLUMNNAME_Amount)
+					.list();
+			//	Export
+			for(MHRSalaryStructureLine salaryStructureLine : salaryStructureLineList) {
+				if(salaryStructureLine.get_ID() < PackOut.MAX_OFFICIAL_ID) {
+					continue;
+				}
+				//	Remove default
+				cleanOfficialReference(salaryStructureLine);
+				packOut.createGenericPO(document, salaryStructureLine, true, parentsToExclude);
+			}
+		}
+	}
+	
+	/**
+	 * Create Payroll export
+	 * @param ctx
+	 * @param document
+	 * @param packOut
+	 * @throws SAXException
+	 */
+	public void createPayroll(Properties ctx, TransformerHandler document, PackOut packOut) throws SAXException {
+		//	Concept Category
+		List<MHRDepartment> departmentList = new Query(ctx, I_HR_Department.Table_Name, null, null)
+				.setOnlyActiveRecords(true)
+				.setClient_ID()
+				.setOrderBy(I_HR_Department.COLUMNNAME_Value)
+				.list();
+		//	Export
+		for(MHRDepartment department : departmentList) {
+			if(department.get_ID() < PackOut.MAX_OFFICIAL_ID) {
+				continue;
+			}
+			//	Remove default
+			cleanOfficialReference(department);
+			packOut.createGenericPO(document, department, true, parentsToExclude);
+		}
+		//	Concept Category
+		List<MHRJob> jobList = new Query(ctx, I_HR_Job.Table_Name, null, null)
+				.setOnlyActiveRecords(true)
+				.setClient_ID()
+				.setOrderBy(I_HR_Job.COLUMNNAME_Value)
+				.list();
+		//	Export
+		for(MHRJob job : jobList) {
+			if(job.get_ID() < PackOut.MAX_OFFICIAL_ID) {
+				continue;
+			}
+			//	Remove default
+			cleanOfficialReference(job);
+			packOut.createGenericPO(document, job, true, parentsToExclude);
+		}
+		//	Concept Category
+		List<MHRConceptCategory> conceptCategoryList = new Query(ctx, I_HR_Concept_Category.Table_Name, null, null)
+				.setOnlyActiveRecords(true)
+				.setClient_ID()
+				.setOrderBy(I_HR_Concept_Category.COLUMNNAME_Value)
+				.list();
+		//	Export
+		for(MHRConceptCategory conceptCategory : conceptCategoryList) {
+			if(conceptCategory.get_ID() < PackOut.MAX_OFFICIAL_ID) {
+				continue;
+			}
+			//	Remove default
+			cleanOfficialReference(conceptCategory);
+			packOut.createGenericPO(document, conceptCategory, true, parentsToExclude);
+		}
+		//	List Type
+		List<X_HR_ListType> listTypeDefinitionList = new Query(ctx, I_HR_ListType.Table_Name, null, null)
+				.setOnlyActiveRecords(true)
+				.setClient_ID()
+				.setOrderBy(I_HR_ListType.COLUMNNAME_Value)
+				.list();
+		//	Export
+		for(X_HR_ListType listType : listTypeDefinitionList) {
+			if(listType.get_ID() < PackOut.MAX_OFFICIAL_ID) {
+				continue;
+			}
+			//	Remove default
+			cleanOfficialReference(listType);
+			packOut.createGenericPO(document, listType, true, parentsToExclude);
+			//	List
+			List<X_HR_List> listDefinitionList = new Query(ctx, I_HR_List.Table_Name, I_HR_List.COLUMNNAME_HR_ListType_ID + " = ?", null)
+					.setOnlyActiveRecords(true)
+					.setParameters(listType.getHR_ListType_ID())
+					.setClient_ID()
+					.setOrderBy(I_HR_List.COLUMNNAME_Value)
+					.list();
+			//	Export
+			for(X_HR_List listDefinition : listDefinitionList) {
+				if(listDefinition.get_ID() < PackOut.MAX_OFFICIAL_ID) {
+					continue;
+				}
+				//	Remove default
+				cleanOfficialReference(listDefinition);
+				packOut.createGenericPO(document, listDefinition, true, parentsToExclude);
+				//	List Version
+				List<X_HR_ListVersion> listVersionList = new Query(ctx, I_HR_ListVersion.Table_Name, I_HR_ListVersion.COLUMNNAME_HR_List_ID + " = ?", null)
+						.setOnlyActiveRecords(true)
+						.setParameters(listDefinition.getHR_List_ID())
+						.setClient_ID()
+						.setOrderBy(I_HR_ListVersion.COLUMNNAME_ValidFrom)
+						.list();
+				//	Export
+				for(X_HR_ListVersion listVersion : listVersionList) {
+					if(listVersion.get_ID() < PackOut.MAX_OFFICIAL_ID) {
+						continue;
+					}
+					//	Remove default
+					cleanOfficialReference(listVersion);
+					packOut.createGenericPO(document, listVersion, true, parentsToExclude);
+					//	List Line
+					List<X_HR_ListLine> listLineList = new Query(ctx, I_HR_ListLine.Table_Name, I_HR_ListLine.COLUMNNAME_HR_ListVersion_ID + " = ?", null)
+							.setOnlyActiveRecords(true)
+							.setParameters(listVersion.getHR_ListVersion_ID())
+							.setClient_ID()
+							.setOrderBy(I_HR_ListLine.COLUMNNAME_MinValue)
+							.list();
+					//	Export
+					for(X_HR_ListLine listLine : listLineList) {
+						if(listLine.get_ID() < PackOut.MAX_OFFICIAL_ID) {
+							continue;
+						}
+						//	Remove default
+						cleanOfficialReference(listLine);
+						packOut.createGenericPO(document, listLine, true, parentsToExclude);
+					}
+				}
+			}
+		}
+		//	Concept Group
+		List<MHRConceptType> conceptTypeList = new Query(ctx, I_HR_Concept_Type.Table_Name, null, null)
+				.setOnlyActiveRecords(true)
+				.setClient_ID()
+				.setOrderBy(I_HR_Concept_Type.COLUMNNAME_Value)
+				.list();
+		//	Export
+		for(MHRConceptType conceptType : conceptTypeList) {
+			if(conceptType.get_ID() < PackOut.MAX_OFFICIAL_ID) {
+				continue;
+			}
+			//	Remove default
+			cleanOfficialReference(conceptType);
+			packOut.createGenericPO(document, conceptType, true, parentsToExclude);
+		}
+		//	Export Concepts
 		List<MHRConcept> conceptList = new Query(ctx, I_HR_Concept.Table_Name, null, null)
 				.setOnlyActiveRecords(true)
 				.setClient_ID()
@@ -67,27 +259,32 @@ public class PayrollExporter extends ClientExporterHandler {
 				.list();
 		//	Export
 		for(MHRConcept concept : conceptList) {
-			if(concept.getHR_Concept_ID() < PackOut.MAX_OFFICIAL_ID) {
+			if(concept.get_ID() < PackOut.MAX_OFFICIAL_ID) {
 				continue;
 			}
 			//	Remove default bank account
 			cleanOfficialReference(concept);
 			packOut.createGenericPO(document, concept, true, parentsToExclude);
-			//	Export attribute
-			List<MHRAttribute> attributeList = new Query(ctx, I_HR_Attribute.Table_Name, I_HR_Attribute.COLUMNNAME_HR_Concept_ID + " = ?", null)
-					.setParameters(concept.getHR_Concept_ID())
-					.setOnlyActiveRecords(true)
-					.setClient_ID()
-					.setOrderBy(I_HR_Attribute.COLUMNNAME_ValidFrom)
-					.list();
-			//	Export
-			for(MHRAttribute attribute : attributeList) {
-				if(attribute.getHR_Attribute_ID() < PackOut.MAX_OFFICIAL_ID) {
-					continue;
+			//	Only No employee
+			if(!concept.isEmployee()) {
+				//	Export attribute
+				List<MHRAttribute> attributeList = new Query(ctx, I_HR_Attribute.Table_Name, I_HR_Attribute.COLUMNNAME_HR_Concept_ID + " = ?", null)
+						.setParameters(concept.getHR_Concept_ID())
+						.setOnlyActiveRecords(true)
+						.setClient_ID()
+						.setOrderBy(I_HR_Attribute.COLUMNNAME_ValidFrom)
+						.list();
+				//	Export
+				for(MHRAttribute attribute : attributeList) {
+					if(attribute.get_ID() < PackOut.MAX_OFFICIAL_ID) {
+						continue;
+					}
+					//	Remove default bank account
+					cleanOfficialReference(attribute);
+					attribute.set_ValueOfColumn(MHRAttribute.COLUMNNAME_HR_Employee_ID, null);
+					attribute.set_ValueOfColumn(MHRAttribute.COLUMNNAME_AD_OrgTrx_ID, null);
+					packOut.createGenericPO(document, attribute, true, parentsToExclude);
 				}
-				//	Remove default bank account
-				cleanOfficialReference(attribute);
-				packOut.createGenericPO(document, attribute, true, parentsToExclude);
 			}
 		}
 		//	Export Payroll Definition
@@ -98,7 +295,7 @@ public class PayrollExporter extends ClientExporterHandler {
 				.list();
 		//	Export Payroll
 		for(MHRPayroll payroll : payrollList) {
-			if(payroll.getHR_Payroll_ID() < PackOut.MAX_OFFICIAL_ID) {
+			if(payroll.get_ID() < PackOut.MAX_OFFICIAL_ID) {
 				continue;
 			}
 			//	Remove default values
@@ -113,7 +310,7 @@ public class PayrollExporter extends ClientExporterHandler {
 					.list();
 			//	Export
 			for(MHRPayrollConcept payrollConcept : payrollConceptList) {
-				if(payrollConcept.getHR_Payroll_ID() < PackOut.MAX_OFFICIAL_ID) {
+				if(payrollConcept.get_ID() < PackOut.MAX_OFFICIAL_ID) {
 					continue;
 				}
 				//	Remove default values
@@ -121,6 +318,16 @@ public class PayrollExporter extends ClientExporterHandler {
 				packOut.createGenericPO(document, payrollConcept, true, parentsToExclude);
 			}
 		}
+	}
+	
+	/**
+	 * Create Payroll Report
+	 * @param ctx
+	 * @param document
+	 * @param packOut
+	 * @throws SAXException
+	 */
+	public void createPayrollReport(Properties ctx, TransformerHandler document, PackOut packOut) throws SAXException {
 		//	Export Payroll Definition
 		List<MHRProcessReport> reportList = new Query(ctx, I_HR_ProcessReport.Table_Name, null, null)
 				.setOnlyActiveRecords(true)
@@ -128,7 +335,7 @@ public class PayrollExporter extends ClientExporterHandler {
 				.setOrderBy(I_HR_ProcessReport.COLUMNNAME_Name)
 				.list();
 		for(MHRProcessReport report : reportList) {
-			if(report.getHR_ProcessReport_ID() < PackOut.MAX_OFFICIAL_ID) {
+			if(report.get_ID() < PackOut.MAX_OFFICIAL_ID) {
 				continue;
 			}
 			//	Remove default values
@@ -143,7 +350,7 @@ public class PayrollExporter extends ClientExporterHandler {
 					.list();
 			//	Export
 			for(MHRProcessReportLine processReportLine : processReportLineList) {
-				if(processReportLine.getHR_ProcessReportLine_ID() < PackOut.MAX_OFFICIAL_ID) {
+				if(processReportLine.get_ID() < PackOut.MAX_OFFICIAL_ID) {
 					continue;
 				}
 				//	Remove default values
@@ -158,7 +365,7 @@ public class PayrollExporter extends ClientExporterHandler {
 						.list();
 				//	Export
 				for(MHRProcessReportSource processReportSource : processReportSourceList) {
-					if(processReportSource.getHR_ProcessReportSource_ID() < PackOut.MAX_OFFICIAL_ID) {
+					if(processReportSource.get_ID() < PackOut.MAX_OFFICIAL_ID) {
 						continue;
 					}
 					//	Remove default values
@@ -174,7 +381,7 @@ public class PayrollExporter extends ClientExporterHandler {
 					.list();
 			//	Export
 			for(MHRProcessReportPayroll processReportPayroll : processReportPayrollList) {
-				if(processReportPayroll.getHR_ProcessReportPayroll_ID() < PackOut.MAX_OFFICIAL_ID) {
+				if(processReportPayroll.get_ID() < PackOut.MAX_OFFICIAL_ID) {
 					continue;
 				}
 				//	Remove default values
@@ -189,7 +396,7 @@ public class PayrollExporter extends ClientExporterHandler {
 					.list();
 			//	Export
 			for(MHRProcessReportTemplate processReportTemplate : processReportTemplateList) {
-				if(processReportTemplate.getHR_ProcessReportTemplate_ID() < PackOut.MAX_OFFICIAL_ID) {
+				if(processReportTemplate.get_ID() < PackOut.MAX_OFFICIAL_ID) {
 					continue;
 				}
 				//	Remove default values
