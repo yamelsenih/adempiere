@@ -26,29 +26,57 @@ import javax.xml.transform.sax.TransformerHandler;
 import org.adempiere.pipo.PackOut;
 import org.compiere.model.Query;
 import org.eevolution.model.I_HR_Attribute;
+import org.eevolution.model.I_HR_CareerLevel;
 import org.eevolution.model.I_HR_Concept;
 import org.eevolution.model.I_HR_Concept_Category;
 import org.eevolution.model.I_HR_Concept_Type;
+import org.eevolution.model.I_HR_Degree;
 import org.eevolution.model.I_HR_Department;
+import org.eevolution.model.I_HR_Designation;
+import org.eevolution.model.I_HR_EmployeeType;
+import org.eevolution.model.I_HR_Grade;
+import org.eevolution.model.I_HR_InsuranceType;
 import org.eevolution.model.I_HR_Job;
+import org.eevolution.model.I_HR_JobEducation;
+import org.eevolution.model.I_HR_JobOpening;
+import org.eevolution.model.I_HR_JobOpeningHistory;
+import org.eevolution.model.I_HR_JobType;
 import org.eevolution.model.I_HR_List;
 import org.eevolution.model.I_HR_ListLine;
 import org.eevolution.model.I_HR_ListType;
 import org.eevolution.model.I_HR_ListVersion;
 import org.eevolution.model.I_HR_Payroll;
 import org.eevolution.model.I_HR_PayrollConcept;
+import org.eevolution.model.I_HR_Race;
+import org.eevolution.model.I_HR_Relationship;
+import org.eevolution.model.I_HR_SalaryRange;
 import org.eevolution.model.I_HR_SalaryStructure;
 import org.eevolution.model.I_HR_SalaryStructureLine;
+import org.eevolution.model.I_HR_SkillType;
 import org.eevolution.model.MHRAttribute;
+import org.eevolution.model.MHRCareerLevel;
 import org.eevolution.model.MHRConcept;
 import org.eevolution.model.MHRConceptCategory;
 import org.eevolution.model.MHRConceptType;
+import org.eevolution.model.MHRDegree;
 import org.eevolution.model.MHRDepartment;
+import org.eevolution.model.MHRDesignation;
+import org.eevolution.model.MHREmployeeType;
+import org.eevolution.model.MHRGrade;
+import org.eevolution.model.MHRInsuranceType;
 import org.eevolution.model.MHRJob;
+import org.eevolution.model.MHRJobEducation;
+import org.eevolution.model.MHRJobOpenings;
+import org.eevolution.model.MHRJobType;
 import org.eevolution.model.MHRPayroll;
 import org.eevolution.model.MHRPayrollConcept;
+import org.eevolution.model.MHRRace;
+import org.eevolution.model.MHRRelationship;
+import org.eevolution.model.MHRSalaryRange;
 import org.eevolution.model.MHRSalaryStructure;
 import org.eevolution.model.MHRSalaryStructureLine;
+import org.eevolution.model.MHRSkillType;
+import org.eevolution.model.X_HR_JobOpeningHistory;
 import org.eevolution.model.X_HR_List;
 import org.eevolution.model.X_HR_ListLine;
 import org.eevolution.model.X_HR_ListType;
@@ -79,14 +107,117 @@ public class PayrollExporter extends ClientExporterHandler {
 			packOut = new PackOut();
 			packOut.setLocalContext(ctx);
 		}
+		//	Create Employee Setup
+		createEmployeeSetup(ctx, document, packOut);
+		//	Recruitment
+		createRecruitment(ctx, document, packOut);
 		//	Payroll Definition
 		createPayroll(ctx, document, packOut);
 		//	Payroll Report
 		createPayrollReport(ctx, document, packOut);
-		//	Create Employee Setup
-		
 	}
 	
+	
+	public void createRecruitment(Properties ctx, TransformerHandler document, PackOut packOut) throws SAXException {
+		//	Career Level
+		List<MHRCareerLevel> careerLevelList = new Query(ctx, I_HR_CareerLevel.Table_Name, null, null)
+				.setOnlyActiveRecords(true)
+				.setClient_ID()
+				.setOrderBy(I_HR_CareerLevel.COLUMNNAME_Value)
+				.list();
+		//	Export
+		for(MHRCareerLevel careerLevel : careerLevelList) {
+			if(careerLevel.get_ID() < PackOut.MAX_OFFICIAL_ID) {
+				continue;
+			}
+			//	Remove default
+			cleanOfficialReference(careerLevel);
+			packOut.createGenericPO(document, careerLevel, true, parentsToExclude);
+		}
+		//	Job Education
+		List<MHRJobEducation> jobEducationList = new Query(ctx, I_HR_JobEducation.Table_Name, null, null)
+				.setOnlyActiveRecords(true)
+				.setClient_ID()
+				.setOrderBy(I_HR_JobEducation.COLUMNNAME_Value)
+				.list();
+		//	Export
+		for(MHRJobEducation jobEducation : jobEducationList) {
+			if(jobEducation.get_ID() < PackOut.MAX_OFFICIAL_ID) {
+				continue;
+			}
+			//	Remove default
+			cleanOfficialReference(jobEducation);
+			packOut.createGenericPO(document, jobEducation, true, parentsToExclude);
+		}
+		//	Job Type
+		List<MHRJobType> jobTypeList = new Query(ctx, I_HR_JobType.Table_Name, null, null)
+				.setOnlyActiveRecords(true)
+				.setClient_ID()
+				.setOrderBy(I_HR_JobType.COLUMNNAME_Value)
+				.list();
+		//	Export
+		for(MHRJobType jobType : jobTypeList) {
+			if(jobType.get_ID() < PackOut.MAX_OFFICIAL_ID) {
+				continue;
+			}
+			//	Remove default
+			cleanOfficialReference(jobType);
+			packOut.createGenericPO(document, jobType, true, parentsToExclude);
+		}
+		//	Salary Range
+		List<MHRSalaryRange> salaryRangeList = new Query(ctx, I_HR_SalaryRange.Table_Name, null, null)
+				.setOnlyActiveRecords(true)
+				.setClient_ID()
+				.setOrderBy(I_HR_SalaryRange.COLUMNNAME_Value)
+				.list();
+		//	Export
+		for(MHRSalaryRange salaryRange : salaryRangeList) {
+			if(salaryRange.get_ID() < PackOut.MAX_OFFICIAL_ID) {
+				continue;
+			}
+			//	Remove default
+			cleanOfficialReference(salaryRange);
+			packOut.createGenericPO(document, salaryRange, true, parentsToExclude);
+		}
+		//	Job Openings
+		List<MHRJobOpenings> jobOpeningsList = new Query(ctx, I_HR_JobOpening.Table_Name, null, null)
+				.setOnlyActiveRecords(true)
+				.setClient_ID()
+				.setOrderBy(I_HR_JobOpening.COLUMNNAME_Value)
+				.list();
+		//	Export
+		for(MHRJobOpenings jobOpening : jobOpeningsList) {
+			if(jobOpening.get_ID() < PackOut.MAX_OFFICIAL_ID) {
+				continue;
+			}
+			//	Remove default
+			cleanOfficialReference(jobOpening);
+			packOut.createGenericPO(document, jobOpening, true, parentsToExclude);
+			List<X_HR_JobOpeningHistory> jobOpeningHistoryList = new Query(ctx, I_HR_JobOpeningHistory.Table_Name, I_HR_JobOpeningHistory.COLUMNNAME_HR_JobOpening_ID + " = ?", null)
+					.setOnlyActiveRecords(true)
+					.setParameters(jobOpening.getHR_JobOpening_ID())
+					.setClient_ID()
+					.setOrderBy(I_HR_JobOpeningHistory.COLUMNNAME_DateTrx)
+					.list();
+			//	Export
+			for(X_HR_JobOpeningHistory jobOpeningHistory : jobOpeningHistoryList) {
+				if(jobOpeningHistory.get_ID() < PackOut.MAX_OFFICIAL_ID) {
+					continue;
+				}
+				//	Remove default
+				cleanOfficialReference(jobOpeningHistory);
+				packOut.createGenericPO(document, jobOpeningHistory, true, parentsToExclude);
+			}
+		}
+	}
+	
+	/**
+	 * Create Employee Setup
+	 * @param ctx
+	 * @param document
+	 * @param packOut
+	 * @throws SAXException
+	 */
 	public void createEmployeeSetup(Properties ctx, TransformerHandler document, PackOut packOut) throws SAXException {
 		//	Structure
 		List<MHRSalaryStructure> salaryStructureList = new Query(ctx, I_HR_SalaryStructure.Table_Name, null, null)
@@ -94,7 +225,7 @@ public class PayrollExporter extends ClientExporterHandler {
 				.setClient_ID()
 				.setOrderBy(I_HR_SalaryStructure.COLUMNNAME_Value)
 				.list();
-		//	Export
+		//	Salary Structure
 		for(MHRSalaryStructure salaryStructure : salaryStructureList) {
 			if(salaryStructure.get_ID() < PackOut.MAX_OFFICIAL_ID) {
 				continue;
@@ -117,6 +248,126 @@ public class PayrollExporter extends ClientExporterHandler {
 				cleanOfficialReference(salaryStructureLine);
 				packOut.createGenericPO(document, salaryStructureLine, true, parentsToExclude);
 			}
+		}
+		//	Designation
+		List<MHRDesignation> designationList = new Query(ctx, I_HR_Designation.Table_Name, null, null)
+				.setOnlyActiveRecords(true)
+				.setClient_ID()
+				.setOrderBy(I_HR_Designation.COLUMNNAME_Value)
+				.list();
+		//	Export
+		for(MHRDesignation designation : designationList) {
+			if(designation.get_ID() < PackOut.MAX_OFFICIAL_ID) {
+				continue;
+			}
+			//	Remove default
+			cleanOfficialReference(designation);
+			packOut.createGenericPO(document, designation, true, parentsToExclude);
+		}
+		//	Degree
+		List<MHRDegree> degreeList = new Query(ctx, I_HR_Degree.Table_Name, null, null)
+				.setOnlyActiveRecords(true)
+				.setClient_ID()
+				.setOrderBy(I_HR_Degree.COLUMNNAME_Value)
+				.list();
+		//	Export
+		for(MHRDegree degree : degreeList) {
+			if(degree.get_ID() < PackOut.MAX_OFFICIAL_ID) {
+				continue;
+			}
+			//	Remove default
+			cleanOfficialReference(degree);
+			packOut.createGenericPO(document, degree, true, parentsToExclude);
+		}
+		//	Insurance Type
+		List<MHRInsuranceType> insuranceTypeList = new Query(ctx, I_HR_InsuranceType.Table_Name, null, null)
+				.setOnlyActiveRecords(true)
+				.setClient_ID()
+				.setOrderBy(I_HR_InsuranceType.COLUMNNAME_Value)
+				.list();
+		//	Export
+		for(MHRInsuranceType insuranceType : insuranceTypeList) {
+			if(insuranceType.get_ID() < PackOut.MAX_OFFICIAL_ID) {
+				continue;
+			}
+			//	Remove default
+			cleanOfficialReference(insuranceType);
+			packOut.createGenericPO(document, insuranceType, true, parentsToExclude);
+		}
+		//	Skill Type
+		List<MHRSkillType> skillTypeList = new Query(ctx, I_HR_SkillType.Table_Name, null, null)
+				.setOnlyActiveRecords(true)
+				.setClient_ID()
+				.setOrderBy(I_HR_SkillType.COLUMNNAME_Value)
+				.list();
+		//	Export
+		for(MHRSkillType skillType : skillTypeList) {
+			if(skillType.get_ID() < PackOut.MAX_OFFICIAL_ID) {
+				continue;
+			}
+			//	Remove default
+			cleanOfficialReference(skillType);
+			packOut.createGenericPO(document, skillType, true, parentsToExclude);
+		}
+		//	Race
+		List<MHRRace> raceList = new Query(ctx, I_HR_Race.Table_Name, null, null)
+				.setOnlyActiveRecords(true)
+				.setClient_ID()
+				.setOrderBy(I_HR_Race.COLUMNNAME_Value)
+				.list();
+		//	Export
+		for(MHRRace race : raceList) {
+			if(race.get_ID() < PackOut.MAX_OFFICIAL_ID) {
+				continue;
+			}
+			//	Remove default
+			cleanOfficialReference(race);
+			packOut.createGenericPO(document, race, true, parentsToExclude);
+		}
+		//	Grade
+		List<MHRGrade> gradeList = new Query(ctx, I_HR_Grade.Table_Name, null, null)
+				.setOnlyActiveRecords(true)
+				.setClient_ID()
+				.setOrderBy(I_HR_Grade.COLUMNNAME_Value)
+				.list();
+		//	Export
+		for(MHRGrade grade : gradeList) {
+			if(grade.get_ID() < PackOut.MAX_OFFICIAL_ID) {
+				continue;
+			}
+			//	Remove default
+			cleanOfficialReference(grade);
+			packOut.createGenericPO(document, grade, true, parentsToExclude);
+		}
+		//	Employee Type
+		List<MHREmployeeType> employeeTypeList = new Query(ctx, I_HR_EmployeeType.Table_Name, null, null)
+				.setOnlyActiveRecords(true)
+				.setClient_ID()
+				.setOrderBy(I_HR_EmployeeType.COLUMNNAME_Value)
+				.list();
+		//	Export
+		for(MHREmployeeType employeeType : employeeTypeList) {
+			if(employeeType.get_ID() < PackOut.MAX_OFFICIAL_ID) {
+				continue;
+			}
+			//	Remove default
+			cleanOfficialReference(employeeType);
+			packOut.createGenericPO(document, employeeType, true, parentsToExclude);
+		}
+		//	Employee Relation
+		List<MHRRelationship> relationshipList = new Query(ctx, I_HR_Relationship.Table_Name, null, null)
+				.setOnlyActiveRecords(true)
+				.setClient_ID()
+				.setOrderBy(I_HR_Relationship.COLUMNNAME_Value)
+				.list();
+		//	Export
+		for(MHRRelationship relationship : relationshipList) {
+			if(relationship.get_ID() < PackOut.MAX_OFFICIAL_ID) {
+				continue;
+			}
+			//	Remove default
+			cleanOfficialReference(relationship);
+			packOut.createGenericPO(document, relationship, true, parentsToExclude);
 		}
 	}
 	
