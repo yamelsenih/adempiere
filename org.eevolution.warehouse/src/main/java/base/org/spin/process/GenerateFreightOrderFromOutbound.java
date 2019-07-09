@@ -68,7 +68,7 @@ public class GenerateFreightOrderFromOutbound extends GenerateFreightOrderFromOu
 		freightOrder.processIt(getDocAction());
 		freightOrder.saveEx();
 		addLog(freightOrder.getDD_Freight_ID(), freightOrder.getDateDoc(), null, "@DD_Freight_ID@ @Created@: " + freightOrder.getDocumentInfo());
-		return freightOrder.getDateDoc(), null, "@DD_Freight_ID@ @Created@: " + freightOrder.getDocumentInfo();
+		return "@DD_Freight_ID@ @Created@: " + freightOrder.getDocumentInfo();
 	}
 	
 	/**
