@@ -21,17 +21,17 @@ import java.math.BigDecimal;
 import java.sql.Timestamp;
 import org.compiere.process.SvrProcess;
 
-/** Generated Process for (Generate Freight Order from Outbound Order)
+/** Generated Process for (Generate Freight Order)
  *  @author ADempiere (generated) 
- *  @version Release 3.9.0
+ *  @version Release 3.9.2
  */
 public abstract class GenerateFreightOrderFromOutboundAbstract extends SvrProcess {
 	/** Process Value 	*/
 	private static final String VALUE_FOR_PROCESS = "GenerateFreightOrderFromOutbound";
 	/** Process Name 	*/
-	private static final String NAME_FOR_PROCESS = "Generate Freight Order from Outbound Order";
+	private static final String NAME_FOR_PROCESS = "Generate Freight Order";
 	/** Process Id 	*/
-	private static final int ID_FOR_PROCESS = 1000003;
+	private static final int ID_FOR_PROCESS = 54161;
 	/**	Parameter Name for In & Out Bound Order	*/
 	public static final String WM_INOUTBOUND_ID = "WM_InOutBound_ID";
 	/**	Parameter Name for Shipper	*/
@@ -47,7 +47,7 @@ public abstract class GenerateFreightOrderFromOutboundAbstract extends SvrProces
 	/**	Parameter Name for Business Partner 	*/
 	public static final String C_BPARTNER_ID = "C_BPartner_ID";
 	/**	Parameter Name for Document Type	*/
-	public static final String C_DOCTYPE_ID = "C_DocType_ID";
+	public static final String C_DOCTYPETARGET_ID = "C_DocTypeTarget_ID";
 	/**	Parameter Name for Document Action	*/
 	public static final String DOCACTION = "DocAction";
 	/**	Parameter Name for Document Date	*/
@@ -69,7 +69,7 @@ public abstract class GenerateFreightOrderFromOutboundAbstract extends SvrProces
 	/**	Parameter Value for Business Partner 	*/
 	private int bPartnerId;
 	/**	Parameter Value for Document Type	*/
-	private int docTypeId;
+	private int docTypeTargetId;
 	/**	Parameter Value for Document Action	*/
 	private String docAction;
 	/**	Parameter Value for Document Date	*/
@@ -86,7 +86,7 @@ public abstract class GenerateFreightOrderFromOutboundAbstract extends SvrProces
 		freightId = getParameterAsInt(M_FREIGHT_ID);
 		freightAmt = getParameterAsBigDecimal(FREIGHTAMT);
 		bPartnerId = getParameterAsInt(C_BPARTNER_ID);
-		docTypeId = getParameterAsInt(C_DOCTYPE_ID);
+		docTypeTargetId = getParameterAsInt(C_DOCTYPETARGET_ID);
 		docAction = getParameterAsString(DOCACTION);
 		dateDoc = getParameterAsTimestamp(DATEDOC);
 		dateOrdered = getParameterAsTimestamp(DATEORDERED);
@@ -163,13 +163,13 @@ public abstract class GenerateFreightOrderFromOutboundAbstract extends SvrProces
 	}
 
 	/**	 Getter Parameter Value for Document Type	*/
-	protected int getDocTypeId() {
-		return docTypeId;
+	protected int getDocTypeTargetId() {
+		return docTypeTargetId;
 	}
 
 	/**	 Setter Parameter Value for Document Type	*/
-	protected void setDocTypeId(int docTypeId) {
-		this.docTypeId = docTypeId;
+	protected void setDocTypeTargetId(int docTypeTargetId) {
+		this.docTypeTargetId = docTypeTargetId;
 	}
 
 	/**	 Getter Parameter Value for Document Action	*/

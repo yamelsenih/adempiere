@@ -43,6 +43,11 @@ import java.util.Properties;
 public class MDDFreight extends X_DD_Freight implements DocAction {
 
     /**
+	 * 
+	 */
+	private static final long serialVersionUID = 8891918444096994591L;
+
+	/**
      * Constructor Freight Order
      * @param ctx
      * @param freightId
@@ -70,6 +75,24 @@ public class MDDFreight extends X_DD_Freight implements DocAction {
     /**	Just Prepared Flag			*/
     private boolean 		justPrepared = false;
 
+	/**
+	 * Set Document Type
+	 */
+	public void setC_DocType_ID() {
+		String sql = "SELECT C_DocType_ID FROM C_DocType "
+			+ "WHERE AD_Client_ID = ? AND AD_Org_ID IN (0," + getAD_Org_ID()
+			+ ") AND DocBaseType = ? "
+			+ " AND IsActive = 'Y' "
+			+ "ORDER BY AD_Org_ID, IsDefault DESC";
+		int documentTypeId = DB.getSQLValue(get_TrxName(), sql, getAD_Client_ID(), "FMO");
+		if (documentTypeId <= 0) {
+			log.severe ("Not found for AD_Client_ID=" + getAD_Client_ID () + ", DocBaseType=FMO");
+		} else {
+			log.fine("(APS) - " + "FMO");
+			setC_DocType_ID(documentTypeId);
+		}
+	}	//	setC_DocTypeTarget_ID
+    
     /**
      * 	Get Lines
      *	@return Freightlines
@@ -93,6 +116,15 @@ public class MDDFreight extends X_DD_Freight implements DocAction {
             line.deleteEx(true);
         }
         return true;
+    }
+    
+    @Override
+    protected boolean beforeSave(boolean newRecord) {
+    	if(newRecord
+    			&& getC_DocType_ID() == 0) {
+    		setC_DocType_ID();
+    	}
+    	return true;
     }
 
     @Override
