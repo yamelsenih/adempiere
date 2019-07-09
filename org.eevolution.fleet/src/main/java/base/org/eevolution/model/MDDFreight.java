@@ -25,6 +25,7 @@ import org.compiere.model.ModelValidationEngine;
 import org.compiere.model.ModelValidator;
 import org.compiere.model.Query;
 import org.compiere.process.DocAction;
+import org.compiere.process.DocOptions;
 import org.compiere.process.DocumentEngine;
 import org.compiere.util.DB;
 import org.compiere.util.Msg;
@@ -40,7 +41,7 @@ import java.util.Properties;
  * Domain Model for Freight Order
  * @author victor.perez@e-evolution.com, http://www.e-evolution.com , http://github.com/e-Evolution
  */
-public class MDDFreight extends X_DD_Freight implements DocAction {
+public class MDDFreight extends X_DD_Freight implements DocAction, DocOptions {
 
     /**
 	 * 
@@ -290,6 +291,33 @@ public class MDDFreight extends X_DD_Freight implements DocAction {
 
         return false;
     }
+    
+	@Override
+	public int customizeValidActions(String docStatus, Object processing,
+			String orderType, String isSOTrx, int AD_Table_ID,
+			String[] docAction, String[] options, int index) {
+		//	Valid Document Action
+		if (AD_Table_ID == Table_ID) {
+			if (docStatus.equals(DocumentEngine.STATUS_Drafted)
+					|| docStatus.equals(DocumentEngine.STATUS_InProgress)
+					|| docStatus.equals(DocumentEngine.STATUS_Invalid)) {
+					options[index++] = DocumentEngine.ACTION_Prepare;
+				}
+				//	Complete                    ..  CO
+				else if (docStatus.equals(DocumentEngine.STATUS_Completed)) {
+					
+					options[index++] = DocumentEngine.ACTION_Void;
+					options[index++] = DocumentEngine.ACTION_ReActivate;
+					options[index++] = DocumentEngine.ACTION_Close;
+					
+				} else if (docStatus.equals(DocumentEngine.STATUS_Closed)) {
+					options[index++] = DocumentEngine.ACTION_None;
+				}
+			
+		}
+		
+		return index;
+	}
 
     @Override
     public boolean reverseAccrualIt() {
