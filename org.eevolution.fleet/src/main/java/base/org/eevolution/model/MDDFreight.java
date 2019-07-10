@@ -25,6 +25,7 @@ import org.compiere.model.ModelValidationEngine;
 import org.compiere.model.ModelValidator;
 import org.compiere.model.Query;
 import org.compiere.process.DocAction;
+import org.compiere.process.DocOptions;
 import org.compiere.process.DocumentEngine;
 import org.compiere.util.DB;
 import org.compiere.util.Msg;
@@ -40,9 +41,14 @@ import java.util.Properties;
  * Domain Model for Freight Order
  * @author victor.perez@e-evolution.com, http://www.e-evolution.com , http://github.com/e-Evolution
  */
-public class MDDFreight extends X_DD_Freight implements DocAction {
+public class MDDFreight extends X_DD_Freight implements DocAction, DocOptions {
 
     /**
+	 * 
+	 */
+	private static final long serialVersionUID = 8891918444096994591L;
+
+	/**
      * Constructor Freight Order
      * @param ctx
      * @param freightId
@@ -70,6 +76,24 @@ public class MDDFreight extends X_DD_Freight implements DocAction {
     /**	Just Prepared Flag			*/
     private boolean 		justPrepared = false;
 
+	/**
+	 * Set Document Type
+	 */
+	public void setC_DocType_ID() {
+		String sql = "SELECT C_DocType_ID FROM C_DocType "
+			+ "WHERE AD_Client_ID = ? AND AD_Org_ID IN (0," + getAD_Org_ID()
+			+ ") AND DocBaseType = ? "
+			+ " AND IsActive = 'Y' "
+			+ "ORDER BY AD_Org_ID, IsDefault DESC";
+		int documentTypeId = DB.getSQLValue(get_TrxName(), sql, getAD_Client_ID(), "FMO");
+		if (documentTypeId <= 0) {
+			log.severe ("Not found for AD_Client_ID=" + getAD_Client_ID () + ", DocBaseType=FMO");
+		} else {
+			log.fine("(APS) - " + "FMO");
+			setC_DocType_ID(documentTypeId);
+		}
+	}	//	setC_DocTypeTarget_ID
+    
     /**
      * 	Get Lines
      *	@return Freightlines
@@ -93,6 +117,15 @@ public class MDDFreight extends X_DD_Freight implements DocAction {
             line.deleteEx(true);
         }
         return true;
+    }
+    
+    @Override
+    protected boolean beforeSave(boolean newRecord) {
+    	if(newRecord
+    			&& getC_DocType_ID() == 0) {
+    		setC_DocType_ID();
+    	}
+    	return true;
     }
 
     @Override
@@ -258,6 +291,33 @@ public class MDDFreight extends X_DD_Freight implements DocAction {
 
         return false;
     }
+    
+	@Override
+	public int customizeValidActions(String docStatus, Object processing,
+			String orderType, String isSOTrx, int AD_Table_ID,
+			String[] docAction, String[] options, int index) {
+		//	Valid Document Action
+		if (AD_Table_ID == Table_ID) {
+			if (docStatus.equals(DocumentEngine.STATUS_Drafted)
+					|| docStatus.equals(DocumentEngine.STATUS_InProgress)
+					|| docStatus.equals(DocumentEngine.STATUS_Invalid)) {
+					options[index++] = DocumentEngine.ACTION_Prepare;
+				}
+				//	Complete                    ..  CO
+				else if (docStatus.equals(DocumentEngine.STATUS_Completed)) {
+					
+					options[index++] = DocumentEngine.ACTION_Void;
+					options[index++] = DocumentEngine.ACTION_ReActivate;
+					options[index++] = DocumentEngine.ACTION_Close;
+					
+				} else if (docStatus.equals(DocumentEngine.STATUS_Closed)) {
+					options[index++] = DocumentEngine.ACTION_None;
+				}
+			
+		}
+		
+		return index;
+	}
 
     @Override
     public boolean reverseAccrualIt() {
