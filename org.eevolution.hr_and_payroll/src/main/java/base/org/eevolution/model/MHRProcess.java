@@ -2620,7 +2620,7 @@ public class MHRProcess extends X_HR_Process implements DocAction , DocumentReve
 	 * @param to
 	 * @return
 	 */
-	public double getIncidence(String conceptValue, String workShiftValue, Timestamp from, Timestamp to) {
+	public double getIncidenceSum(String conceptValue, String workShiftValue, Timestamp from, Timestamp to) {
 		return TNAUtil.getIncidenceSum(getCtx(), conceptValue, workShiftValue, partnerId, from, to, get_TrxName());
 	} // getIncidence
 	
@@ -2631,7 +2631,7 @@ public class MHRProcess extends X_HR_Process implements DocAction , DocumentReve
 	 * @param to
 	 * @return
 	 */
-	public double getIncidence(String conceptValue, Timestamp from, Timestamp to) {
+	public double getIncidenceSum(String conceptValue, Timestamp from, Timestamp to) {
 		return TNAUtil.getIncidenceSum(getCtx(), conceptValue, null, partnerId, from, to, get_TrxName());
 	} // getIncidence
 

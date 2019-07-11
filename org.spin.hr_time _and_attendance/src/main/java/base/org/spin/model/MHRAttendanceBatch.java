@@ -21,14 +21,19 @@ import java.sql.ResultSet;
 import java.sql.Timestamp;
 import java.util.List;
 import java.util.Properties;
+
+import org.adempiere.exceptions.AdempiereException;
 import org.compiere.model.*;
 import org.compiere.process.DocAction;
 import org.compiere.process.DocOptions;
 import org.compiere.process.DocumentEngine;
 import org.compiere.util.DB;
 import org.compiere.util.Env;
+import org.compiere.util.Msg;
 import org.compiere.util.TimeUtil;
 import org.compiere.util.Util;
+import org.eevolution.model.MHREmployee;
+import org.eevolution.model.MHRWorkGroup;
 import org.eevolution.model.MHRWorkShift;
 
 /**
@@ -159,7 +164,7 @@ public class MHRAttendanceBatch extends X_HR_AttendanceBatch implements DocActio
 			m_processMsg = "@PeriodClosed@";
 			return DocAction.STATUS_Invalid;
 		}
-		//	Validate and prepare atendance
+		//	Validate and prepare attendance
 		m_processMsg = processShiftIncidence();
 		if (m_processMsg != null) {
 			return DocAction.STATUS_Invalid;
@@ -360,6 +365,7 @@ public class MHRAttendanceBatch extends X_HR_AttendanceBatch implements DocActio
 	 * @return
 	 */
 	private String processShiftIncidence() {
+		validateWorkShift();
 		StringBuffer errorMessage = new StringBuffer();
 		//	 Validate pair
 		int attendanceQuantity = getLines(false).size();
@@ -387,6 +393,51 @@ public class MHRAttendanceBatch extends X_HR_AttendanceBatch implements DocActio
 		}
 		//	default
 		return null;
+	}
+	
+	/**
+	 * Get work shift for employee from:
+	 * - Shift Schedule for a Work Group
+	 * - Work Group add to employee configuration
+	 * - Shift Work add to employee configuration
+	 */
+	private void validateWorkShift() {
+		MHREmployee employee = MHREmployee.getById(getCtx(), getHR_Employee_ID());
+		int workShiftId = 0;
+		int shiftScheduleId = 0;
+		if(employee.getHR_WorkGroup_ID() > 0) {
+			MHRWorkGroup workGroup = MHRWorkGroup.getById(getCtx(), employee.getHR_WorkGroup_ID(), get_TrxName());
+			if(workGroup.isShiftAllocation()) {
+				workShiftId = workGroup.getHR_WorkShift_ID();
+				if(workShiftId == 0
+						&& workGroup.getHR_ShiftGroup_ID() > 0) {
+					MHRWorkShift workShift = MHRWorkShift.getDefaultFromGroup(getCtx(), workGroup.getHR_ShiftGroup_ID(), get_TrxName());
+					if(workShift != null) {
+						workShiftId = workShift.getHR_WorkShift_ID();
+					}
+				}
+			} else {
+				MHRShiftSchedule shiftSchedule = MHRShiftSchedule.getScheduleFromWorkGroup(getCtx(), workGroup.getHR_WorkGroup_ID(), getDateDoc(), get_TableName());
+				if(shiftSchedule != null) {
+					workShiftId = shiftSchedule.getHR_WorkShift_ID();
+					shiftScheduleId = shiftSchedule.getHR_ShiftSchedule_ID();
+				}
+			}
+		} else if(employee.getHR_ShiftGroup_ID() > 0) {
+			MHRWorkShift workShift = MHRWorkShift.getDefaultFromGroup(getCtx(), employee.getHR_ShiftGroup_ID(), get_TrxName());
+			if(workShift != null) {
+				workShiftId = workShift.getHR_WorkShift_ID();
+			}
+		}
+		//	Validate work shift
+		if(workShiftId == 0) {
+			throw new AdempiereException("@HR_WorkShift_ID@ @NotFound@");
+		}
+		//	Set
+		setHR_WorkShift_ID(workShiftId);
+		if(shiftScheduleId > 0) {
+			setHR_ShiftSchedule_ID(shiftScheduleId);
+		}
 	}
 	
 	/**
@@ -488,20 +539,53 @@ public class MHRAttendanceBatch extends X_HR_AttendanceBatch implements DocActio
 	public boolean voidIt()
 	{
 		log.info("voidIt - " + toString());
-		return closeIt();
+		// Before Void
+		m_processMsg = ModelValidationEngine.get().fireDocValidate(this,ModelValidator.TIMING_BEFORE_VOID);
+		if (m_processMsg != null)
+			return false;
+		addDescription(Msg.getMsg(getCtx(), "Voided"));
+		// After Void
+		m_processMsg = ModelValidationEngine.get().fireDocValidate(this,ModelValidator.TIMING_AFTER_VOID);
+		if (m_processMsg != null)
+			return false;
+
+		setProcessed(true);
+        setDocAction(DOCACTION_None);
+		return true;
 	}	//	voidIt
+	
+	/**
+     *  Add to Description
+     *  @param description text
+     */
+    public void addDescription (String description) {
+        String desc = getDescription();
+        if (desc == null)
+            setDescription(description);
+        else
+            setDescription(desc + " | " + description);
+    }   //  addDescription
 	
 	/**
 	 * 	Close Document.
 	 * 	Cancel not delivered Qunatities
 	 * 	@return true if success 
 	 */
-	public boolean closeIt()
-	{
+	public boolean closeIt() {
 		log.info("closeIt - " + toString());
-
-		//	Close Not delivered Qty
+		// Before Close
+		m_processMsg = ModelValidationEngine.get().fireDocValidate(this,ModelValidator.TIMING_BEFORE_CLOSE);
+		if (m_processMsg != null)
+			return false;
+		
+		setProcessed(true);
 		setDocAction(DOCACTION_None);
+		
+		// After Close
+		m_processMsg = ModelValidationEngine.get().fireDocValidate(this,ModelValidator.TIMING_AFTER_CLOSE);
+		if (m_processMsg != null)
+			return false;
+
 		return true;
 	}	//	closeIt
 	
@@ -512,6 +596,17 @@ public class MHRAttendanceBatch extends X_HR_AttendanceBatch implements DocActio
 	public boolean reverseCorrectIt()
 	{
 		log.info("reverseCorrectIt - " + toString());
+		// Before reverseCorrect
+		m_processMsg = ModelValidationEngine.get().fireDocValidate(this,ModelValidator.TIMING_BEFORE_REVERSECORRECT);
+		if (m_processMsg != null)
+			return false;
+		//	Void It
+		voidIt();
+		// After reverseCorrect
+		m_processMsg = ModelValidationEngine.get().fireDocValidate(this,ModelValidator.TIMING_AFTER_REVERSECORRECT);
+		if (m_processMsg != null)
+			return false;
+
 		return false;
 	}	//	reverseCorrectionIt
 	
@@ -522,6 +617,17 @@ public class MHRAttendanceBatch extends X_HR_AttendanceBatch implements DocActio
 	public boolean reverseAccrualIt()
 	{
 		log.info("reverseAccrualIt - " + toString());
+		// Before reverseAccrual
+		m_processMsg = ModelValidationEngine.get().fireDocValidate(this,ModelValidator.TIMING_BEFORE_REVERSEACCRUAL);
+		if (m_processMsg != null)
+			return false;
+		//	Void It
+		voidIt();
+		// After reverseAccrual
+		m_processMsg = ModelValidationEngine.get().fireDocValidate(this,ModelValidator.TIMING_AFTER_REVERSEACCRUAL);
+		if (m_processMsg != null)
+			return false;
+
 		return false;
 	}	//	reverseAccrualIt
 	
@@ -532,7 +638,16 @@ public class MHRAttendanceBatch extends X_HR_AttendanceBatch implements DocActio
 	public boolean reActivateIt()
 	{
 		log.info("reActivateIt - " + toString());
-		deleteMovements();
+		// Before reActivate
+		m_processMsg = ModelValidationEngine.get().fireDocValidate(this,ModelValidator.TIMING_BEFORE_REACTIVATE);
+		if (m_processMsg != null)
+			return false;
+		// After reActivate
+		m_processMsg = ModelValidationEngine.get().fireDocValidate(this,ModelValidator.TIMING_AFTER_REACTIVATE);
+		if (m_processMsg != null)
+			return false;
+		
+		setDocAction(DOCACTION_Complete);
 		setProcessed(false);
 		return true;
 	}	//	reActivateIt
