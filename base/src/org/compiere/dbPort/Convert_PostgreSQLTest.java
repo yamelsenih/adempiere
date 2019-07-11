@@ -277,32 +277,50 @@ public final class Convert_PostgreSQLTest extends TestCase{
 		
 		//	Main RowNum
 		sql = "SELECT M_Warehouse_ID FROM M_Warehouse w WHERE AD_Client_ID=11 AND ROWNUM = 5896 AND AD_Org_ID <> 0";
-		sqe = "SELECT M_Warehouse_ID FROM M_Warehouse w WHERE AD_Client_ID=11  AND AD_Org_ID <> 0 LIMIT 5896";
+		sqe = "SELECT M_Warehouse_ID FROM M_Warehouse w WHERE AD_Client_ID=11 AND AD_Org_ID <> 0 LIMIT 5896";
 		r = convert.convert(sql);
 		assertEquals(sqe, r[0]);
 		
 		
 		//	Main RowNum <=
 		sql = "SELECT M_Warehouse_ID FROM M_Warehouse w WHERE AD_Client_ID=11 AND ROWNUM <= 5896 AND AD_Org_ID <> 0";
-		sqe = "SELECT M_Warehouse_ID FROM M_Warehouse w WHERE AD_Client_ID=11  AND AD_Org_ID <> 0 LIMIT 5896";
+		sqe = "SELECT M_Warehouse_ID FROM M_Warehouse w WHERE AD_Client_ID=11 AND AD_Org_ID <> 0 LIMIT 5896";
 		r = convert.convert(sql);
 		assertEquals(sqe, r[0]);
 
 		//	Main  AND RowNum >= 50
 		sql = "SELECT M_Warehouse_ID FROM M_Warehouse w WHERE AD_Client_ID=11 AND ROWNUM >= 5896 AND AD_Org_ID <> 0";
-		sqe = "SELECT M_Warehouse_ID FROM M_Warehouse w WHERE AD_Client_ID=11  AND AD_Org_ID <> 0 OFFSET 5896";
+		sqe = "SELECT M_Warehouse_ID FROM M_Warehouse w WHERE AD_Client_ID=11 AND AD_Org_ID <> 0 OFFSET 5896";
 		r = convert.convert(sql);
 		assertEquals(sqe, r[0]);
 		
 		//	Main  AND RowNum >= 10 AND RowNum <= 30
 		sql = "SELECT M_Warehouse_ID FROM M_Warehouse w WHERE AD_Client_ID=11 AND ROWNUM <= 30 AND ROWNUM >= 10 AND AD_Org_ID <> 0";
-		sqe = "SELECT M_Warehouse_ID FROM M_Warehouse w WHERE AD_Client_ID=11   AND AD_Org_ID <> 0 LIMIT 30 OFFSET 10";
+		sqe = "SELECT M_Warehouse_ID FROM M_Warehouse w WHERE AD_Client_ID=11 AND AD_Org_ID <> 0 LIMIT 30 OFFSET 10";
 		r = convert.convert(sql);
 		assertEquals(sqe, r[0]);
 		
 		//	Main  AND RowNum >= 10 AND RowNum <= 30
 		sql = "SELECT AD_Table_ID, Record_ID, Created, TrxName FROM AD_ChangeLog WHERE ROWNUM >= 30 ORDER BY Created";
 		sqe = "SELECT AD_Table_ID, Record_ID, Created, TrxName FROM AD_ChangeLog ORDER BY Created OFFSET 30";
+		r = convert.convert(sql);
+		assertEquals(sqe, r[0]);
+
+		//	Main RowNum <= 5
+		sql = "SELECT COUNT(*) FROM AD_Role WHERE ROWNUM <= 5";
+		sqe = "SELECT COUNT(*) FROM AD_Role  LIMIT 5";
+		r = convert.convert(sql);
+		assertEquals(sqe, r[0]);
+
+		//	Main RowNum <= 5 AND RowNum >= 3
+		sql = "SELECT COUNT(*) FROM AD_Role WHERE ROWNUM <= 5 AND ROWNUM >= 3";
+		sqe = "SELECT COUNT(*) FROM AD_Role LIMIT 5 OFFSET 3";
+		r = convert.convert(sql);
+		assertEquals(sqe, r[0]);
+		
+		//	Main RowNum >= 3
+		sql = "SELECT COUNT(*) FROM AD_Role WHERE ROWNUM >= 3";
+		sqe = "SELECT COUNT(*) FROM AD_Role  OFFSET 3";
 		r = convert.convert(sql);
 		assertEquals(sqe, r[0]);
 		

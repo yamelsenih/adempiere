@@ -300,12 +300,12 @@ public class Convert_PostgreSQL extends Convert_SQL92 {
 
 			String subselect = select.substring(s_start, s_end);
 			//	RowNum <= ? / RowNum = ?
-			Matcher matcherSmallerThanWithAnd = Pattern.compile("(?i)AND ROWNUM\\s?<?=\\s?(\\d+)",REGEX_FLAGS).matcher(subselect);
-			Matcher matcherSmallerThanWithWhere = Pattern.compile("(?i)WHERE ROWNUM\\s?<?=\\s?(\\d+)\\s",REGEX_FLAGS).matcher(subselect);
+			Matcher matcherSmallerThanWithAnd = Pattern.compile("(?i)AND ROWNUM\\s?<?=\\s?(\\d+)\\s*",REGEX_FLAGS).matcher(subselect);
+			Matcher matcherSmallerThanWithWhere = Pattern.compile("(?i)WHERE ROWNUM\\s?<?=\\s?(\\d+)\\s*",REGEX_FLAGS).matcher(subselect);
 			Matcher matcherSmallerThanWithWhereAnd = Pattern.compile("(?i)WHERE ROWNUM\\s?<?=\\s?(\\d+)\\sAND",REGEX_FLAGS).matcher(subselect);
 			//	RowNum >= ? / RowNum > ?
 			Matcher matcherGreaterThanWithAnd = Pattern.compile("(?i)AND ROWNUM\\s?>?=\\s?(\\d+)",REGEX_FLAGS).matcher(subselect);
-			Matcher matcherGreaterThanWithWhere = Pattern.compile("(?i)WHERE ROWNUM\\s?>?=\\s?(\\d+)\\s",REGEX_FLAGS).matcher(subselect);
+			Matcher matcherGreaterThanWithWhere = Pattern.compile("(?i)WHERE ROWNUM\\s?>?=\\s?(\\d+)\\s*",REGEX_FLAGS).matcher(subselect);
 			Matcher matcherGreaterThanWithWhereAnd = Pattern.compile("(?i)WHERE ROWNUM\\s?>?=\\s?(\\d+)\\sAND",REGEX_FLAGS).matcher(subselect);
 			if(matcherSmallerThanWithAnd.find()) {
 				String onlyGroup = matcherSmallerThanWithAnd.group();
@@ -344,12 +344,12 @@ public class Convert_PostgreSQL extends Convert_SQL92 {
 		if (retValue == null)
 			retValue = sqlStatement;
 		//	RowNum <= ? / RowNum = ?
-		Matcher matcherSmallerThanWithAnd = Pattern.compile("(?i)AND ROWNUM\\s?<?=\\s?(\\d+)",REGEX_FLAGS).matcher(retValue);
-		Matcher matcherSmallerThanWithWhere = Pattern.compile("(?i)WHERE ROWNUM\\s?<?=\\s?(\\d+)\\s",REGEX_FLAGS).matcher(retValue);
+		Matcher matcherSmallerThanWithAnd = Pattern.compile("(?i)AND ROWNUM\\s?<?=\\s?(\\d+)\\s*",REGEX_FLAGS).matcher(retValue);
+		Matcher matcherSmallerThanWithWhere = Pattern.compile("(?i)WHERE ROWNUM\\s?<?=\\s?(\\d+)\\s*",REGEX_FLAGS).matcher(retValue);
 		Matcher matcherSmallerThanWithWhereAnd = Pattern.compile("(?i)WHERE ROWNUM\\s?<?=\\s?(\\d+)\\sAND",REGEX_FLAGS).matcher(retValue);
 		//	RowNum >= ? / RowNum > ?
-		Matcher matcherGreaterThanWithAnd = Pattern.compile("(?i)AND ROWNUM\\s?>?=\\s?(\\d+)",REGEX_FLAGS).matcher(retValue);
-		Matcher matcherGreaterThanWithWhere = Pattern.compile("(?i)WHERE ROWNUM\\s?>?=\\s?(\\d+)\\s",REGEX_FLAGS).matcher(retValue);
+		Matcher matcherGreaterThanWithAnd = Pattern.compile("(?i)AND ROWNUM\\s?>?=\\s?(\\d+)\\s*",REGEX_FLAGS).matcher(retValue);
+		Matcher matcherGreaterThanWithWhere = Pattern.compile("(?i)WHERE ROWNUM\\s?>?=\\s?(\\d+)\\s*",REGEX_FLAGS).matcher(retValue);
 		Matcher matcherGreaterThanWithWhereAnd = Pattern.compile("(?i)WHERE ROWNUM\\s?>?=\\s?(\\d+)\\sAND",REGEX_FLAGS).matcher(retValue);
 		if(matcherSmallerThanWithAnd.find()) {
 			String onlyGroup = matcherSmallerThanWithAnd.group();
