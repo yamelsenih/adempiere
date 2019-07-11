@@ -22,11 +22,9 @@ import java.sql.Timestamp;
 import java.util.Hashtable;
 
 import org.compiere.model.MBPartner;
-import org.compiere.model.MCurrency;
 import org.compiere.model.MDocType;
 import org.compiere.model.MInvoice;
 import org.compiere.model.MInvoiceLine;
-import org.compiere.model.MPriceList;
 import org.compiere.model.MProduct;
 import org.compiere.model.MUOMConversion;
 import org.compiere.util.Env;
@@ -118,14 +116,8 @@ public class CreateInvoiceFromServiceContract extends CreateInvoiceFromServiceCo
 		MBPartner businessPartner = MBPartner.get(getCtx(), bPartnerId);
 		invoice.setBPartner(businessPartner);
 		invoice.setSalesRep_ID(getAD_User_ID());	//	caller
-		int currencyId = invoice.getC_Currency_ID();
-		if(currencyId == 0) {
-			currencyId = contract.getC_Currency_ID();
-		}
-		MPriceList defaultPriceList = MPriceList.getDefault(getCtx(), true, MCurrency.get(getCtx(), currencyId).getISO_Code());
-		if(defaultPriceList != null) {
-			invoice.setM_PriceList_ID(defaultPriceList.getM_PriceList_ID());
-		}
+		invoice.setC_Currency_ID(contract.getC_Currency_ID());
+		invoice.setM_PriceList_ID(contract.getM_PriceList_ID());
 		if(contractLine.getC_BPartner_Location_ID() > 0) {
 			invoice.setC_BPartner_Location_ID(contractLine.getC_BPartner_Location_ID());
 		}
