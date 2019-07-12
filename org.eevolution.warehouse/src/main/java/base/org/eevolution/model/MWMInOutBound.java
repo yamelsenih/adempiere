@@ -40,6 +40,7 @@ import org.compiere.model.ModelValidationEngine;
 import org.compiere.model.ModelValidator;
 import org.compiere.model.Query;
 import org.compiere.process.DocAction;
+import org.compiere.process.DocOptions;
 import org.compiere.process.DocumentEngine;
 import org.compiere.util.CLogger;
 import org.compiere.util.Env;
@@ -50,7 +51,7 @@ import org.compiere.util.Util;
  * @author victor.perez@e-evoluton.com, e-Evolution
  *
  */
-public class MWMInOutBound extends X_WM_InOutBound implements DocAction
+public class MWMInOutBound extends X_WM_InOutBound implements DocAction, DocOptions
 {
 
 
@@ -241,6 +242,33 @@ public class MWMInOutBound extends X_WM_InOutBound implements DocAction
 		m_justPrepared = true;
 		return DocAction.STATUS_InProgress;
 	}	//	prepareIt
+	
+	@Override
+	public int customizeValidActions(String docStatus, Object processing,
+			String orderType, String isSOTrx, int AD_Table_ID,
+			String[] docAction, String[] options, int index) {
+		//	Valid Document Action
+		if (AD_Table_ID == Table_ID) {
+			if (docStatus.equals(DocumentEngine.STATUS_Drafted)
+					|| docStatus.equals(DocumentEngine.STATUS_InProgress)
+					|| docStatus.equals(DocumentEngine.STATUS_Invalid)) {
+					options[index++] = DocumentEngine.ACTION_Prepare;
+				}
+				//	Complete                    ..  CO
+				else if (docStatus.equals(DocumentEngine.STATUS_Completed)) {
+					
+					options[index++] = DocumentEngine.ACTION_Void;
+					options[index++] = DocumentEngine.ACTION_ReActivate;
+					options[index++] = DocumentEngine.ACTION_Close;
+					
+				} else if (docStatus.equals(DocumentEngine.STATUS_Closed)) {
+					options[index++] = DocumentEngine.ACTION_None;
+				}
+			
+		}
+		
+		return index;
+	}
 	
 	/**************************************************************************
 	 * 	Before Save
