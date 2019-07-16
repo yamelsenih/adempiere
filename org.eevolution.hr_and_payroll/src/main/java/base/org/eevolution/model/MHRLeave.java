@@ -21,6 +21,8 @@ import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.Timestamp;
 import java.util.Properties;
+
+import org.adempiere.exceptions.AdempiereException;
 import org.compiere.model.*;
 import org.compiere.process.DocAction;
 import org.compiere.process.DocOptions;
@@ -181,6 +183,8 @@ public class MHRLeave extends X_HR_Leave implements DocAction, DocOptions {
 			m_processMsg = "@PeriodClosed@";
 			return DocAction.STATUS_Invalid;
 		}
+		//	Validate Employee
+		validateEmployee();
 		//	Add up Amounts
 		m_processMsg = ModelValidationEngine.get().fireDocValidate(this, ModelValidator.TIMING_AFTER_PREPARE);
 		if (m_processMsg != null)
@@ -190,6 +194,26 @@ public class MHRLeave extends X_HR_Leave implements DocAction, DocOptions {
 			setDocAction(DOCACTION_Complete);
 		return DocAction.STATUS_InProgress;
 	}	//	prepareIt
+	
+	/**
+	 * Validate Employee
+	 */
+	private void validateEmployee() {
+		MBPartner businessPartner = (MBPartner) getC_BPartner();
+		MHREmployee employee = null;
+		if(getHR_Employee_ID() > 0) {
+			employee = MHREmployee.getById(getCtx(), getHR_Employee_ID());
+		} else {
+			employee = MHREmployee.getActiveEmployee(getCtx(), businessPartner.getC_BPartner_ID(), get_TrxName());
+		}
+		//	Validate null
+		if(employee == null) {
+			throw new AdempiereException("@HR_Employee_ID@ @NotFound@: " + businessPartner.getValue() + " - " + businessPartner.getName());
+		}
+		//	
+		setHR_Employee_ID(employee.getHR_Employee_ID());
+		saveEx();
+	}
 	
 	/**
 	 * 	Approve Document

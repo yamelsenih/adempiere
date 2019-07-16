@@ -150,6 +150,8 @@ public class MHRIncidence extends X_HR_Incidence implements DocAction, DocOption
 			time = (durationInMillis / (double)(1000 * 60));
 		} else if(timeUnit.equals(X_HR_ShiftIncidence.TIMEUNIT_Hour)) {
 			time = (durationInMillis / (double)(1000 * 60 * 60));
+		} else if(timeUnit.equals(X_HR_ShiftIncidence.TIMEUNIT_Day)) {
+			time = (durationInMillis / (double)(1000 * 60 * 60 * 24));
 		}
 		//	Return
 		return time;
