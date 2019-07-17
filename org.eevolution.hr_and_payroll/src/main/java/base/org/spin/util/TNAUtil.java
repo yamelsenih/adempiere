@@ -18,11 +18,20 @@ package org.spin.util;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Properties;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicReference;
 
+import org.compiere.model.Query;
 import org.compiere.util.DB;
+import org.compiere.util.TimeUtil;
 import org.compiere.util.Util;
+import org.eevolution.model.I_HR_Leave;
 import org.eevolution.model.MHRConcept;
+import org.eevolution.model.MHRLeave;
+import org.eevolution.model.MHRLeaveType;
 import org.eevolution.model.MHRWorkShift;
 import org.spin.model.I_HR_Incidence;
 
@@ -113,5 +122,162 @@ public class TNAUtil {
 					.append(" WHERE ").append(whereClause);
 		BigDecimal value = DB.getSQLValueBDEx(trxName, sql.toString(), params);
 		return value.doubleValue();
+	}
+	
+	/**
+	 * Get leave time between two dates
+	 * @param ctx
+	 * @param businessPartnerId
+	 * @param leaveTypeValue
+	 * @param from
+	 * @param to
+	 * @param trxName
+	 * @return
+	 */
+	public static long getLeaveTimeBetween(Properties ctx, int businessPartnerId, String leaveTypeValue, Timestamp from, Timestamp to, boolean excludeOverlapedTime, String trxName) {
+		List<MHRLeave> leaveList = getLeaveListBetween(ctx, businessPartnerId, leaveTypeValue, from, to, trxName);
+		AtomicLong timeBetween = new AtomicLong();
+		AtomicLong overlapedTime = new AtomicLong();
+		AtomicReference<Timestamp> startDate = new AtomicReference<>();
+		AtomicReference<Timestamp> endDate = new AtomicReference<>();
+		leaveList.stream()
+		.sorted(Comparator.comparing(MHRLeave::getStartDate))
+		.forEach(leave -> {
+			timeBetween.addAndGet(TimeUtil.getMillisecondsBetween(leave.getStartDate(), leave.getEndDate()));
+			Timestamp lastStartDate = startDate.getAndSet(leave.getStartDate());
+			Timestamp lastEndDate = endDate.getAndSet(leave.getEndDate());
+			//	Validate
+			if(lastStartDate != null
+					&& lastEndDate != null) {
+				if(TimeUtil.isValid(lastStartDate, lastEndDate, leave.getStartDate())) {
+					Timestamp endDateForOverlap = lastEndDate;
+					if(lastEndDate.getTime() > leave.getEndDate().getTime()) {
+						endDateForOverlap = leave.getEndDate();
+					}
+					overlapedTime.addAndGet(TimeUtil.getMillisecondsBetween(leave.getStartDate(), endDateForOverlap));
+				}
+			}
+		});
+		//	Return time
+		if(excludeOverlapedTime) {
+			return timeBetween.get() - overlapedTime.get();
+		}
+		return timeBetween.get();
+	}
+	
+	/**
+	 * Get Hours of leave it can returned a double
+	 * @param ctx
+	 * @param businessPartnerId
+	 * @param leaveTypeValue
+	 * @param from
+	 * @param to
+	 * @param excludeOverlapedTime
+	 * @param trxName
+	 * @return
+	 */
+	public static double getLeaveHoursBetween(Properties ctx, int businessPartnerId, String leaveTypeValue, Timestamp from, Timestamp to, boolean excludeOverlapedTime, String trxName) {
+		return TimeUtil.getHoursFromDuration(getLeaveTimeBetween(ctx, businessPartnerId, leaveTypeValue, from, to, excludeOverlapedTime, trxName));
+	}
+	
+	/**
+	 * Get Leave minutes
+	 * @param ctx
+	 * @param businessPartnerId
+	 * @param leaveTypeValue
+	 * @param from
+	 * @param to
+	 * @param excludeOverlapedTime
+	 * @param trxName
+	 * @return
+	 */
+	public static int getLeaveMinutesBetween(Properties ctx, int businessPartnerId, String leaveTypeValue, Timestamp from, Timestamp to, boolean excludeOverlapedTime, String trxName) {
+		return TimeUtil.getMinutesFromDuration(getLeaveTimeBetween(ctx, businessPartnerId, leaveTypeValue, from, to, excludeOverlapedTime, trxName));
+	}
+	
+	/**
+	 * Get days from leave
+	 * @param ctx
+	 * @param businessPartnerId
+	 * @param leaveTypeValue
+	 * @param from
+	 * @param to
+	 * @param excludeOverlapedTime
+	 * @param trxName
+	 * @return
+	 */
+	public static int getLeaveDaysBetween(Properties ctx, int businessPartnerId, String leaveTypeValue, Timestamp from, Timestamp to, boolean excludeOverlapedTime, String trxName) {
+		return TimeUtil.getDaysFromDuration(getLeaveTimeBetween(ctx, businessPartnerId, leaveTypeValue, from, to, excludeOverlapedTime, trxName));
+	}
+	
+	/**
+	 * Get Leave list between two dates
+	 * @param ctx
+	 * @param businessPartnerId
+	 * @param leaveTypeValue
+	 * @param from
+	 * @param to
+	 * @param trxName
+	 * @return
+	 */
+	public static List<MHRLeave> getLeaveListBetween(Properties ctx, int businessPartnerId, String leaveTypeValue, Timestamp from, Timestamp to, String trxName) {
+		String optionalWhereClause = "";
+		List<Object> parameters = new ArrayList<>();
+		parameters.add(businessPartnerId);
+		parameters.add(from);
+		parameters.add(to);
+		if(!Util.isEmpty(leaveTypeValue)) {
+			MHRLeaveType leaveType = MHRLeaveType.getByValue(ctx, leaveTypeValue, trxName);
+			if(leaveType != null) {
+				optionalWhereClause = " AND " + I_HR_Leave.COLUMNNAME_HR_LeaveType_ID + " = ?";
+				parameters.add(leaveType.getHR_LeaveType_ID());
+			}
+		}
+		return new Query(ctx, I_HR_Leave.Table_Name, "DocStatus IN('CO')"
+				+ " AND C_BPartner_ID = ?"
+				+ " AND StartDate <= ? AND EndDate >= ?"
+				+ optionalWhereClause, trxName)
+				.setParameters(parameters)
+				.setOnlyActiveRecords(true)
+				.setOrderBy(I_HR_Leave.COLUMNNAME_StartDate)
+				.<MHRLeave>list();
+	}
+	
+	/**
+	 * Get Leave list for a attendance time
+	 * A example for leave from 9:30 AM to 12:00 M
+	 * <li>[(8:00)-----------------------------------------------------------------------------(12:00)]
+	 * <li>[(Leave)-------(9:30)---------------------------------------------------------------(12:00)]
+	 * <li>[(Attendance)--(9:30)-----------------(10:00)----------------------------------------------]
+	 * <li>Range for evaluate: From 8:00 ~ 12:00
+	 * <li>Range for create incidence: 8:30 ~ 12:00
+	 * <li>Attendance Time is: (9:30 - 8:30) = 1 Hour
+	 * @param ctx
+	 * @param businessPartnerId
+	 * @param leaveTypeValue
+	 * @param attendanceTime
+	 * @param trxName
+	 * @return
+	 */
+	public static List<MHRLeave> getLeaveListAttendanceTime(Properties ctx, int businessPartnerId, String leaveTypeValue, Timestamp attendanceTime, String trxName) {
+		String optionalWhereClause = "";
+		List<Object> parameters = new ArrayList<>();
+		parameters.add(businessPartnerId);
+		parameters.add(attendanceTime);
+		if(!Util.isEmpty(leaveTypeValue)) {
+			MHRLeaveType leaveType = MHRLeaveType.getByValue(ctx, leaveTypeValue, trxName);
+			if(leaveType != null) {
+				optionalWhereClause = " AND " + I_HR_Leave.COLUMNNAME_HR_LeaveType_ID + " = ?";
+				parameters.add(leaveType.getHR_LeaveType_ID());
+			}
+		}
+		return new Query(ctx, I_HR_Leave.Table_Name, "DocStatus IN('CO')"
+				+ " AND C_BPartner_ID = ?"
+				+ " AND ? BETWEEN StartDate AND EndDate"
+				+ optionalWhereClause, trxName)
+				.setParameters(parameters)
+				.setOnlyActiveRecords(true)
+				.setOrderBy(I_HR_Leave.COLUMNNAME_StartDate)
+				.<MHRLeave>list();
 	}
 }

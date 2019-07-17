@@ -239,7 +239,6 @@ public class MHRAttendanceBatch extends X_HR_AttendanceBatch implements DocActio
 	 */
 	private BigDecimal processAttendance() {
 		//	Get Worked time
-		MHRWorkShift workShift = MHRWorkShift.getById(getCtx(), getHR_WorkShift_ID());
 		List<MHRShiftIncidence> shiftIncidenceList = MHRShiftIncidence.getShiftIncidenceList(getCtx(), workShift.getHR_WorkShift_ID(), X_HR_ShiftIncidence.EVENTTYPE_Attendance, getDateDoc());
 		BigDecimal attendanceHours = Env.ZERO;
 		for(MHRShiftIncidence shiftIncidence : shiftIncidenceList) {
@@ -291,7 +290,6 @@ public class MHRAttendanceBatch extends X_HR_AttendanceBatch implements DocActio
 	 */
 	private void processLeave(BigDecimal attendanceHours) {
 		//	Get Worked time
-		MHRWorkShift workShift = MHRWorkShift.getById(getCtx(), getHR_WorkShift_ID());
 		List<MHRShiftIncidence> shiftIncidenceList = MHRShiftIncidence.getShiftIncidenceList(getCtx(), workShift.getHR_WorkShift_ID(), X_HR_ShiftIncidence.EVENTTYPE_Attendance, getDateDoc());
 		//	Get from work shift
 		BigDecimal noOfHours = workShift.getNoOfHours();
@@ -303,7 +301,7 @@ public class MHRAttendanceBatch extends X_HR_AttendanceBatch implements DocActio
 		if(leaveHours.signum() <= 0) {
 			return;
 		}
-		//	Duration in millis
+		//	Duration in milliseconds
 		final long durationInMillis = leaveHours.longValue() * (1000 * 60 * 60);
 		//	Create record
 		shiftIncidenceList.stream().forEach(shiftIncidence -> {
@@ -329,22 +327,10 @@ public class MHRAttendanceBatch extends X_HR_AttendanceBatch implements DocActio
 	 * Load variables
 	 */
 	private void loadBatchVariables() {
+		validateEmployee();
 		MBPartner businessPartner = (MBPartner) getC_BPartner();
-		MHREmployee employee = null;
-		if(getHR_Employee_ID() > 0) {
-			employee = MHREmployee.getById(getCtx(), getHR_Employee_ID());
-		} else {
-			employee = MHREmployee.getActiveEmployee(getCtx(), businessPartner.getC_BPartner_ID(), get_TrxName());
-		}
-		//	Validate null
-		if(employee == null) {
-			throw new AdempiereException("@HR_Employee_ID@ @NotFound@: " + businessPartner.getValue() + " - " + businessPartner.getName());
-		}
-		//	
-		setHR_Employee_ID(employee.getHR_Employee_ID());
-		saveEx();
 		List<MHRAttendanceRecord> attendanceList = getLines(false);
-		this.firstAttendance = attendanceList.get(0);
+		this.firstAttendance = attendanceList.stream().findFirst().get();
 		this.lastAttendance = attendanceList.get(attendanceList.size() - 1);
 		//	
 		setHR_Employee_ID(employee.getHR_Employee_ID());
@@ -353,8 +339,12 @@ public class MHRAttendanceBatch extends X_HR_AttendanceBatch implements DocActio
 			MHRPayroll employeePayroll = MHRPayroll.getById(getCtx(), employee.getHR_Payroll_ID(), get_TrxName());
 			employeePayrollValue = employeePayroll.getValue();
 		}
-		MHRWorkShift workShift = MHRWorkShift.getById(getCtx(), getHR_WorkShift_ID());
+		workShift = MHRWorkShift.getById(getCtx(), getHR_WorkShift_ID());
 		//	
+		scriptCtx.put("_HR_FirstAttendanceRecord", firstAttendance);
+		scriptCtx.put("_HR_LastAttendanceRecord", lastAttendance);
+		scriptCtx.put("_FirstAttendanceTime", firstAttendance.getAttendanceTime());
+		scriptCtx.put("_LastAttendanceTime", lastAttendance.getAttendanceTime());
 		scriptCtx.put("_DateStart", employee.getStartDate());
 		scriptCtx.put("_DateEnd", employee.getEndDate());
 		scriptCtx.put("_C_BPartner_ID", businessPartner.getC_BPartner_ID());
@@ -369,6 +359,22 @@ public class MHRAttendanceBatch extends X_HR_AttendanceBatch implements DocActio
 		scriptCtx.put("_HR_ShiftSchedule_ID", getHR_ShiftSchedule_ID());
 		scriptCtx.put("process", this);
 		scriptCtx.put("_HR_WorkShift", workShift);
+		scriptCtx.put("_ShiftFromTime", workShift.getShiftFromTime());
+		scriptCtx.put("_ShiftToTime", workShift.getShiftToTime());
+		scriptCtx.put("_BreakStartTime", workShift.getBreakStartTime());
+		scriptCtx.put("_BreakEndTime", workShift.getBreakEndTime());
+		BigDecimal breakHoursNo = workShift.getBreakHoursNo();
+		BigDecimal hoursNo = workShift.getNoOfHours();
+		if(breakHoursNo == null) {
+			breakHoursNo = Env.ZERO;
+		}
+		if(hoursNo == null) {
+			hoursNo = Env.ZERO;
+		}
+		scriptCtx.put("_BreakHoursNo", breakHoursNo.doubleValue());
+		scriptCtx.put("_NoOfHours", hoursNo.doubleValue());
+		scriptCtx.put("_ExpectedShiftFromTime", TimeUtil.getDayTime(getDateDoc(), workShift.getShiftFromTime()));
+		scriptCtx.put("_ExpectedShiftToTime", TimeUtil.getDayTime(getDateDoc(), workShift.getShiftToTime()));
 	}
 	
 	/**
@@ -383,7 +389,7 @@ public class MHRAttendanceBatch extends X_HR_AttendanceBatch implements DocActio
 			if(attendanceHours != null
 					&& attendanceHours.doubleValue() >= workShift.getNoOfHours().doubleValue()) {
 				//	
-				int firstHours = TimeUtil.getHoursBetween(TimeUtil.getDay(firstAttendance.getAttendanceTime()), firstAttendance.getAttendanceTime());
+				int firstHours = (int) TimeUtil.getHoursBetween(TimeUtil.getDay(firstAttendance.getAttendanceTime()), firstAttendance.getAttendanceTime());
 				//	
 				Timestamp beginningTime = TimeUtil.addDuration(firstAttendance.getAttendanceTime(), TimeUtil.DURATIONUNIT_Hour, 
 						workShift.getNoOfHours()
@@ -467,8 +473,6 @@ public class MHRAttendanceBatch extends X_HR_AttendanceBatch implements DocActio
 		//	Objects
 		scriptCtx.put("_HR_ShiftIncidence", shiftIncidence);
 		scriptCtx.put("_HR_Concept", MHRConcept.getById(getCtx(), shiftIncidence.getHR_Concept_ID(), get_TrxName()));
-		scriptCtx.put("_HR_FirstAttendanceRecord", firstAttendance);
-		scriptCtx.put("_HR_LastAttendanceRecord", lastAttendance);
 		scriptCtx.put("_EventType", shiftIncidence.getEventType());
 		scriptCtx.put("_TimeFrom", shiftIncidence.getTimeFrom());
 		scriptCtx.put("_TimeTo", shiftIncidence.getTimeTo());
@@ -525,8 +529,8 @@ public class MHRAttendanceBatch extends X_HR_AttendanceBatch implements DocActio
 				incidence.setQty(new BigDecimal(result));
 			}
 		} catch (Exception e) {
-			throw new AdempiereException("@HR_Employee_ID@ : " + employee.getC_BPartner().getName() + " " + employee.getC_BPartner().getName2() 
-			+ " \n @HR_Concept_ID@ " + workShift.getValue() + " -> " + workShift.getName()
+			throw new AdempiereException("@HR_Employee_ID@ : " + employee.getC_BPartner().getValue() + " " + employee.getC_BPartner().getName() 
+			+ " \n @HR_WorkShift_ID@ " + workShift.getValue() + " -> " + workShift.getName()
 			+ " \n @AD_Rule_ID@=" + rule.getValue() + "\n  @Script@: " + rule.getScript() + " \n @Error@" + Env.NL + e.getLocalizedMessage());
 		}
 	}
@@ -642,6 +646,46 @@ public class MHRAttendanceBatch extends X_HR_AttendanceBatch implements DocActio
 		return TNAUtil.getIncidenceSum(getCtx(), conceptValue, null, getC_BPartner_ID(), from, to, get_TrxName());
 	} // getIncidence
 	
+	/***********************************************************************************
+	 * Helper methods for get time from employee leave                                 *
+	 **********************************************************************************/
+	
+	/**
+	 * Helper method: get hours of leave with from and to date
+	 * @param leaveTypeValue
+	 * @param from
+	 * @param to
+	 * @param excludeOverlapedTime
+	 * @return
+	 */
+	public double getLeaveHoursBetween(String leaveTypeValue, Timestamp from, Timestamp to, boolean excludeOverlapedTime) {
+		return TNAUtil.getLeaveHoursBetween(getCtx(), getC_BPartner_ID(), leaveTypeValue, from, to, excludeOverlapedTime, get_TrxName());
+	}
+	
+	/**
+	 * Helper method: get minutes of leave with from and to date
+	 * @param leaveTypeValue
+	 * @param from
+	 * @param to
+	 * @param excludeOverlapedTime
+	 * @return
+	 */
+	public int getLeaveMinutesBetween(String leaveTypeValue, Timestamp from, Timestamp to, boolean excludeOverlapedTime) {
+		return TNAUtil.getLeaveMinutesBetween(getCtx(), getC_BPartner_ID(), leaveTypeValue, from, to, excludeOverlapedTime, get_TrxName());
+	}
+	
+	/**
+	 * Helper method: get days of leave with from and to date
+	 * @param leaveTypeValue
+	 * @param from
+	 * @param to
+	 * @param excludeOverlapedTime
+	 * @return
+	 */
+	public int getLeaveDaysBetween(String leaveTypeValue, Timestamp from, Timestamp to, boolean excludeOverlapedTime) {
+		return TNAUtil.getLeaveDaysBetween(getCtx(), getC_BPartner_ID(), leaveTypeValue, from, to, excludeOverlapedTime, get_TrxName());
+	}
+	
 	/**
 	 * Process Shift Incidence
 	 * @return
@@ -722,6 +766,25 @@ public class MHRAttendanceBatch extends X_HR_AttendanceBatch implements DocActio
 		if(shiftScheduleId > 0) {
 			setHR_ShiftSchedule_ID(shiftScheduleId);
 		}
+	}
+	
+	/**
+	 * Validate Employee
+	 */
+	private void validateEmployee() {
+		MBPartner businessPartner = (MBPartner) getC_BPartner();
+		if(getHR_Employee_ID() > 0) {
+			employee = MHREmployee.getById(getCtx(), getHR_Employee_ID());
+		} else {
+			employee = MHREmployee.getActiveEmployee(getCtx(), businessPartner.getC_BPartner_ID(), get_TrxName());
+		}
+		//	Validate null
+		if(employee == null) {
+			throw new AdempiereException("@HR_Employee_ID@ @NotFound@: " + businessPartner.getValue() + " - " + businessPartner.getName());
+		}
+		//	
+		setHR_Employee_ID(employee.getHR_Employee_ID());
+		saveEx();
 	}
 	
 	/**
