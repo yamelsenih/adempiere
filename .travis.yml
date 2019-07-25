@@ -12,3 +12,13 @@ jobs:
   include:
   - stage: Main Build Test
     script: ant build
+deploy:
+  provider: releases
+  api_key: $GITHUB_TOKEN_KEY
+  file:
+  	- "releases/README.md"
+  	- "releases/file.txt"
+  skip_cleanup: true
+  on:
+     tags: false
+     branch: hotfix/ERP-Test  
