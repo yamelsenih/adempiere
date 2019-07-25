@@ -271,7 +271,7 @@ public class MAttachmentEntry
 	public boolean isGraphic()
 	{
 		String m_lowname = m_name.toLowerCase();
-		return m_lowname.endsWith(".gif") || m_lowname.endsWith(".jpg") || m_lowname.endsWith(".png");
+		return m_lowname.endsWith(".gif") || m_lowname.endsWith(".jpg") || m_lowname.endsWith(".jpeg") || m_lowname.endsWith(".png");
 	}	//	isGraphic
 	
 	
