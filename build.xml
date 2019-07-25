@@ -6,9 +6,10 @@
         http://www.erpya.com
     </description>
   <!-- set global properties for this build -->
+  <property name="adempiere_build" location="utils_dev/build.xml"/>
+  <!-- 
   <property name="env_directory" location="adempiere/Adempiere/utils"/>
   <property name="AD_directory" location="adempiere/Adempiere"/>
-  <property name="adempiere_build" location="utils_dev/build.xml"/>
   <property name="myEnvironment_CI" location="adempiere/Adempiere/utils/myEnvironment_CI.sh"/>
   <property name="myEnvironment" location="adempiere/Adempiere/utils/myEnvironment.sh"/>
   <property name="RUN_DBRestore" location="adempiere/Adempiere/utils/RUN_DBRestore.sh"/>
@@ -17,7 +18,7 @@
   <property name="RUN_silentsetup" location="adempiere/Adempiere/RUN_silentsetup.sh"/>
   <property name="AdempierePropertiesFrom" location="adempiere/Adempiere/utils/adempiereProperties_CI.properties"/>
   <property name="AdempierePropertiesTo" location="adempiere/Adempiere/Adempiere.properties"/>
-  
+   -->
   
   
   <target name="build">

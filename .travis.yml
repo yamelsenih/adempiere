@@ -4,6 +4,10 @@ jdk:
 os:
 - linux
 sudo: required
+addons:
+  apt:
+    packages:
+      ant
 jobs:
   include:
   - stage: Main Build Test
