@@ -289,6 +289,12 @@ public class MHRAttendanceBatch extends X_HR_AttendanceBatch implements DocActio
 	 * @param attendanceHours
 	 */
 	private void processLeave(BigDecimal attendanceHours) {
+		scriptCtx.remove("_LeaveDurationInMillis");
+		scriptCtx.remove("_LeaveHours");
+		scriptCtx.remove("_LeaveMinutes");
+		scriptCtx.remove("_AttendanceDurationInMillis");
+		scriptCtx.remove("_AttendanceHours");
+		scriptCtx.remove("_AttendanceMinutes");
 		//	Get Worked time
 		List<MHRShiftIncidence> shiftIncidenceList = MHRShiftIncidence.getShiftIncidenceList(getCtx(), workShift.getHR_WorkShift_ID(), X_HR_ShiftIncidence.EVENTTYPE_Attendance, getDateDoc());
 		//	Get from work shift
@@ -303,6 +309,15 @@ public class MHRAttendanceBatch extends X_HR_AttendanceBatch implements DocActio
 		}
 		//	Duration in milliseconds
 		final long durationInMillis = leaveHours.longValue() * (1000 * 60 * 60);
+		final long attendanceDrationInMillis = attendanceHours.longValue() * (1000 * 60 * 60);
+		//	Leave
+		scriptCtx.put("_LeaveDurationInMillis", durationInMillis);
+		scriptCtx.put("_LeaveHours", leaveHours.doubleValue());
+		scriptCtx.put("_LeaveMinutes", TimeUtil.getMinutesFromDuration(durationInMillis));
+		//	Attendance
+		scriptCtx.put("_AttendanceDurationInMillis", attendanceDrationInMillis);
+		scriptCtx.put("_AttendanceHours", attendanceHours.doubleValue());
+		scriptCtx.put("_AttendanceMinutes", TimeUtil.getMinutesFromDuration(attendanceDrationInMillis));
 		//	Create record
 		shiftIncidenceList.stream().forEach(shiftIncidence -> {
 			//	Create Incidence
