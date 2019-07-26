@@ -15,7 +15,7 @@ jobs:
 deploy:
   provider: releases
   api_key: $GITHUB_TOKEN_KEY
-  file: "releases/README.md"
+  file: "/home/travis/build/erpcya/adempiere/adempiere/install/Adempiere_392LTS.tar.gz"
   skip_cleanup: true
   on:
     tags: true
