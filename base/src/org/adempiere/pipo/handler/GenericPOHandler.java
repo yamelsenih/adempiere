@@ -276,15 +276,6 @@ public class GenericPOHandler extends AbstractElementHandler {
 		if(tableId <= 0) {
 			return;
 		}
-		//	Validate if was processed
-		String key = tableId + "|" + recordId;
-		MTable table = MTable.get(ctx, tableId);
-		if(!table.getTableName().endsWith("_Trl")) {
-			if (list.contains(key)) {
-				return;
-			}
-		}
-		list.add(key);
 		//	Instance PO
 		if(entity == null) {
 			entity = getCreatePO(ctx, tableId, recordId, null);
@@ -292,6 +283,12 @@ public class GenericPOHandler extends AbstractElementHandler {
 		if(entity == null) {
 			return;
 		}
+		//	Validate if was processed
+		String key = entity.get_UUID();
+		if (list.contains(key)) {
+			return;
+		}
+		list.add(key);
 		//	Create parents
 		if(includeParents) {
 			createParent(ctx, document, entity, excludedParentList);
