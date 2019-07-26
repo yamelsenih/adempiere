@@ -23,7 +23,6 @@ import java.util.Properties;
 
 import javax.xml.transform.sax.TransformerHandler;
 
-import org.adempiere.exceptions.AdempiereException;
 import org.adempiere.model.I_AD_Browse_Access;
 import org.adempiere.model.X_AD_Browse_Access;
 import org.adempiere.pipo.PackOut;
@@ -51,14 +50,11 @@ import org.compiere.model.MFormAccess;
 import org.compiere.model.MProcessAccess;
 import org.compiere.model.MRecordAccess;
 import org.compiere.model.MRole;
-import org.compiere.model.MRoleIncluded;
 import org.compiere.model.MRoleOrgAccess;
 import org.compiere.model.MTableAccess;
-import org.compiere.model.MUserRoles;
 import org.compiere.model.MWindowAccess;
 import org.compiere.model.Query;
 import org.compiere.model.X_AD_Document_Action_Access;
-import org.compiere.model.X_AD_Package_Exp_Detail;
 import org.compiere.model.X_AD_Role_Included;
 import org.compiere.model.X_AD_Task_Access;
 import org.compiere.util.Env;
