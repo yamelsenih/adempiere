@@ -36,6 +36,7 @@ import org.compiere.model.I_AD_Role_Included;
 import org.compiere.model.I_AD_Role_OrgAccess;
 import org.compiere.model.I_AD_Table_Access;
 import org.compiere.model.I_AD_Task_Access;
+import org.compiere.model.I_AD_TreeNodeBP;
 import org.compiere.model.I_AD_User_Roles;
 import org.compiere.model.I_AD_Window_Access;
 import org.compiere.model.I_AD_Workflow_Access;
@@ -63,12 +64,17 @@ import org.compiere.model.MRole;
 import org.compiere.model.MRoleOrgAccess;
 import org.compiere.model.MTableAccess;
 import org.compiere.model.MWindowAccess;
+import org.compiere.model.PO;
 import org.compiere.model.Query;
 import org.compiere.model.X_AD_Document_Action_Access;
 import org.compiere.model.X_AD_Role_Included;
 import org.compiere.model.X_AD_Task_Access;
 import org.compiere.util.Env;
 import org.compiere.wf.MWorkflowAccess;
+import org.eevolution.model.I_DD_CompatibilityGroup;
+import org.eevolution.model.I_DD_VehicleType;
+import org.eevolution.model.MDDCompatibilityGroup;
+import org.eevolution.model.MDDVehicleType;
 import org.spin.model.I_AD_Dashboard_Access;
 import org.spin.model.X_AD_Dashboard_Access;
 import org.xml.sax.SAXException;
@@ -77,7 +83,7 @@ import org.xml.sax.SAXException;
  * Custom Exporter of Account Schema
  * @author Yamel Senih, ySenih@erpya.com, ERPCyA http://www.erpya.com
  */
-public class GeneralExporter extends ClientExporterHandler {
+public class FleetExporter extends ClientExporterHandler {
 	/**	Parents for no added	*/
 	private List<String> parentsToExclude;
 	/**	Packout	*/
@@ -90,50 +96,50 @@ public class GeneralExporter extends ClientExporterHandler {
 			packOut.setLocalContext(ctx);
 		}
 		parentsToExclude = new ArrayList<String>();
-		parentsToExclude.add(I_C_Currency.Table_Name);
-		parentsToExclude.add(I_GL_Category.Table_Name);
-		parentsToExclude.add(I_AD_User_Roles.Table_Name);
-		//	Export Account Elements
-		List<MDocType> documentTypeList = new Query(ctx, I_C_DocType.Table_Name, null, null)
+		createFleetManagement(ctx, document, parentsToExclude);
+	}
+	
+	private void createFleetManagement(Properties ctx, TransformerHandler document, List<String> parentsToExclude) throws SAXException {
+		//	BP Group
+		List<MDDCompatibilityGroup> compatibilityGroupList = new Query(ctx, I_DD_CompatibilityGroup.Table_Name, null, null)
 			.setOnlyActiveRecords(true)
 			.setClient_ID()
 			.list();
-		//	Export menu
-		for(MDocType documentTypeExporter : documentTypeList) {
-			if(documentTypeExporter.getC_DocType_ID() < PackOut.MAX_OFFICIAL_ID) {
+		//	Export BP
+		for(MDDCompatibilityGroup compatibilityGroup : compatibilityGroupList) {
+			if(compatibilityGroup.getDD_CompatibilityGroup_ID() < PackOut.MAX_OFFICIAL_ID) {
 				continue;
 			}
-			cleanOfficialReference(documentTypeExporter);
-			packOut.createGenericPO(document, documentTypeExporter, true, parentsToExclude);
+			cleanOfficialReference(compatibilityGroup);
+			packOut.createGenericPO(document, compatibilityGroup, true, parentsToExclude);
 		}
-		//	Role
-		List<MRole> roleList = new Query(ctx, I_AD_Role.Table_Name, null, null)
-				.setOnlyActiveRecords(true)
-				.setClient_ID()
-				.list();
-		//	Export menu
-		for(MRole role : roleList) {
-			if(role.getAD_Role_ID() < PackOut.MAX_OFFICIAL_ID) {
-				continue;
-			}
-			cleanOfficialReference(role);
-			createRole(ctx, role, document, parentsToExclude);
-		}
-		//	Charge List
-		List<MCharge> chargeList = new Query(ctx, I_C_Charge.Table_Name, null, null)
+		
+		//	BP List
+		List<PO> vehicleGroupList = new Query(ctx, "DD_VehicleGroup", null, null)
 			.setOnlyActiveRecords(true)
 			.setClient_ID()
 			.list();
-		//	Export menu
-		for(MCharge charge : chargeList) {
-			if(charge.getC_Charge_ID() < PackOut.MAX_OFFICIAL_ID) {
+		//	Export BP
+		for(PO vehicleGroup : vehicleGroupList) {
+			if(vehicleGroup.get_ID() < PackOut.MAX_OFFICIAL_ID) {
 				continue;
 			}
-			cleanOfficialReference(charge);
-			packOut.createGenericPO(document, charge, true, parentsToExclude);
+			cleanOfficialReference(vehicleGroup);
+			packOut.createGenericPO(document, vehicleGroup, true, parentsToExclude);
 		}
-		//	BP
-		createBusinessPartners(ctx, document, parentsToExclude);
+		//	BP Group
+		List<MDDVehicleType> vehicleTypeList = new Query(ctx, I_DD_VehicleType.Table_Name, null, null)
+			.setOnlyActiveRecords(true)
+			.setClient_ID()
+			.list();
+		//	Export BP
+		for(MDDVehicleType vehicleType : vehicleTypeList) {
+			if(vehicleType.getDD_VehicleType_ID() < PackOut.MAX_OFFICIAL_ID) {
+				continue;
+			}
+			cleanOfficialReference(vehicleType);
+			packOut.createGenericPO(document, vehicleType, true, parentsToExclude);
+		}
 	}
 	
 	/**
