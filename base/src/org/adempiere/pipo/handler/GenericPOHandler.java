@@ -150,7 +150,7 @@ public class GenericPOHandler extends AbstractElementHandler {
 				continue;
 			}
 			//	Verify reference
-			if(poInfo.isColumnLookup(index)) {
+			if(isLookup(poInfo.getColumnDisplayType(index))) {
 				String parentNameUuid = AttributeFiller.getUUIDAttribute(columnName);
 				String parentUuid = atts.getValue(parentNameUuid);
 				if(!Util.isEmpty(parentUuid)) {
@@ -533,7 +533,7 @@ public class GenericPOHandler extends AbstractElementHandler {
 	 * @return
 	 */
 	private String getParentTableName(Properties ctx, int columnId, int displayType) {
-		if(!DisplayType.isLookup(displayType)) {
+		if(!isLookup(displayType)) {
 			return null;
 		}
 		//	Validate list
@@ -547,6 +547,19 @@ public class GenericPOHandler extends AbstractElementHandler {
 		}
 		//	Default
 		return info.TableName;
+	}
+	
+	/**
+	 * Is lookup include location
+	 * @param displayType
+	 * @return
+	 */
+	private boolean isLookup(int displayType) {
+		return DisplayType.isLookup(displayType)
+				|| DisplayType.Account == displayType
+				|| DisplayType.Location == displayType
+				|| DisplayType.Locator == displayType
+				|| DisplayType.PAttribute == displayType;
 	}
 	
 	/**
