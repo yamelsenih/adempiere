@@ -75,11 +75,6 @@ public class CalloutLeaveAssign extends CalloutEngine {
         if (leaveAssign.getTotalLeaves() == 0) {
             leaveAssign.setTotalLeaves(leaveType.getNoOfLeavesAllocated());
             leaveAssign.setBalance(leaveType.getNoOfLeavesAllocated());
-        } else {
-            I_HR_LeaveAssign leaveAssignByType = MHRLeaveAssign.getByLeaveType((MHRLeaveType) leaveType);
-            leaveAssign.setUsedLeaves(leaveAssignByType.getUsedLeaves());
-            leaveAssign.setTotalLeaves(leaveAssignByType.getTotalLeaves());
-            leaveAssign.setBalance(leaveAssignByType.getBalance());
         }
         return "";
     }

@@ -280,4 +280,29 @@ public class TNAUtil {
 				.setOrderBy(I_HR_Leave.COLUMNNAME_StartDate)
 				.<MHRLeave>list();
 	}
+	
+	/**
+	 * Get Duration for TimeUtil from TimeUnit
+	 * @param timeUnit
+	 * @return
+	 */
+	public static String getDurationUnitFromTimeUnit(String timeUnit) {
+		if(Util.isEmpty(timeUnit)) {
+			return null;
+		}
+		//	
+		if(timeUnit.equals(MHRLeaveType.TIMEUNIT_Minute)) {
+			return TimeUtil.DURATIONUNIT_Minute;
+		} else if(timeUnit.equals(MHRLeaveType.TIMEUNIT_Hour)) {
+			return TimeUtil.DURATIONUNIT_Hour;
+		} else if(timeUnit.equals(MHRLeaveType.TIMEUNIT_Day)) {
+			return TimeUtil.DURATIONUNIT_Day;
+		} else if(timeUnit.equals(MHRLeaveType.TIMEUNIT_Month)) {
+			return TimeUtil.DURATIONUNIT_Month;
+		} else if(timeUnit.equals(MHRLeaveType.TIMEUNIT_Year)) {
+			return TimeUtil.DURATIONUNIT_Year;
+		} else {
+			return null;
+		}
+	}
 }

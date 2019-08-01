@@ -248,6 +248,19 @@ public interface I_HR_LeaveType
 	  */
 	public String getLeaveCreditTimeType();
 
+    /** Column name LeaveDurationTime */
+    public static final String COLUMNNAME_LeaveDurationTime = "LeaveDurationTime";
+
+	/** Set Leave Duration Time.
+	  * Leave Duration Time
+	  */
+	public void setLeaveDurationTime (BigDecimal LeaveDurationTime);
+
+	/** Get Leave Duration Time.
+	  * Leave Duration Time
+	  */
+	public BigDecimal getLeaveDurationTime();
+
     /** Column name MaxContinousLeaves */
     public static final String COLUMNNAME_MaxContinousLeaves = "MaxContinousLeaves";
 
@@ -325,6 +338,45 @@ public interface I_HR_LeaveType
 	  * Number of Leaves Allocated
 	  */
 	public int getNoOfLeavesAllocated();
+
+    /** Column name TimeFrom */
+    public static final String COLUMNNAME_TimeFrom = "TimeFrom";
+
+	/** Set Time (From).
+	  * Starting Time
+	  */
+	public void setTimeFrom (Timestamp TimeFrom);
+
+	/** Get Time (From).
+	  * Starting Time
+	  */
+	public Timestamp getTimeFrom();
+
+    /** Column name TimeTo */
+    public static final String COLUMNNAME_TimeTo = "TimeTo";
+
+	/** Set Time (To).
+	  * Ending Time
+	  */
+	public void setTimeTo (Timestamp TimeTo);
+
+	/** Get Time (To).
+	  * Ending Time
+	  */
+	public Timestamp getTimeTo();
+
+    /** Column name TimeUnit */
+    public static final String COLUMNNAME_TimeUnit = "TimeUnit";
+
+	/** Set Time Unit.
+	  * The unit of time for grouping chart data.
+	  */
+	public void setTimeUnit (String TimeUnit);
+
+	/** Get Time Unit.
+	  * The unit of time for grouping chart data.
+	  */
+	public String getTimeUnit();
 
     /** Column name Updated */
     public static final String COLUMNNAME_Updated = "Updated";

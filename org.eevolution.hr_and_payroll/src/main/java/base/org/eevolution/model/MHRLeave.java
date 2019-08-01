@@ -28,7 +28,10 @@ import org.compiere.process.DocAction;
 import org.compiere.process.DocOptions;
 import org.compiere.process.DocumentEngine;
 import org.compiere.util.DB;
+import org.compiere.util.Env;
 import org.compiere.util.Msg;
+import org.compiere.util.TimeUtil;
+import org.spin.util.TNAUtil;
 
 /** Generated Model for HR_Leave
  *  @author Adempiere (generated) 
@@ -138,8 +141,37 @@ public class MHRLeave extends X_HR_Leave implements DocAction, DocOptions {
 			if(getC_DocType_ID() == 0) {
 				setC_DocType_ID();
 			}
+			setLeaveTime();
 		}
 		return super.beforeSave(newRecord);
+	}
+	
+	/**
+	 * Set leave Time from document date and leave type
+	 */
+	private void setLeaveTime() {
+		//	Default Used
+		if(getNoOfLeavesCredited() <= 0) {
+			setNoOfLeavesCredited(1);
+		}
+		if(getStartDate() == null) {
+			MHRLeaveType leaveType = MHRLeaveType.getById(getCtx(), getHR_LeaveType_ID(), get_TrxName());
+			//	Set Start and End Date
+			if(leaveType.getTimeFrom() != null
+					&& leaveType.getTimeTo() != null) {
+				setStartDate(TimeUtil.getDayTime(getDateDoc(), leaveType.getTimeFrom()));
+				setEndDate(TimeUtil.getDayTime(getDateDoc(), leaveType.getTimeTo()));
+			} else {	//	Get from Time Unit
+				setStartDate(getDateDoc());
+				//	Add duration
+				BigDecimal leaveDuration = leaveType.getLeaveDurationTime();
+				if(leaveDuration == null) {
+					leaveDuration = Env.ONE;
+				}
+				Timestamp endDate = TimeUtil.addDuration(getDateDoc(), TNAUtil.getDurationUnitFromTimeUnit(leaveType.getTimeUnit()), leaveDuration);
+				setEndDate(endDate);
+			}
+		}
 	}
 	
 	/**
@@ -259,8 +291,8 @@ public class MHRLeave extends X_HR_Leave implements DocAction, DocOptions {
 		if (!isApproved())
 			approveIt();
 		log.info(toString());
-		//
-		
+		//	Reload Leave balance 
+		addAllocatedLeave();
 		//	User Validation
 		String valid = ModelValidationEngine.get().fireDocValidate(this, ModelValidator.TIMING_AFTER_COMPLETE);
 		if (valid != null)
@@ -275,6 +307,39 @@ public class MHRLeave extends X_HR_Leave implements DocAction, DocOptions {
 		setDocAction(DOCACTION_Close);
 		return DocAction.STATUS_Completed;
 	}	//	completeIt
+	
+	/**
+	 * Reload Leave balance
+	 */
+	private void addAllocatedLeave() {
+		if(getHR_LeaveAssign_ID() > 0) {
+			MHRLeaveAssign leaveAssign = new MHRLeaveAssign(getCtx(), getHR_LeaveAssign_ID(), get_TrxName());
+			leaveAssign.addNoOfLeavesAllocated(1);
+			leaveAssign.saveEx();
+		}
+	}
+	
+	/**
+	 * Remove Leave balance
+	 */
+	private void removeAllocatedLeave() {
+		if(getHR_LeaveAssign_ID() > 0) {
+			MHRLeaveAssign leaveAssign = new MHRLeaveAssign(getCtx(), getHR_LeaveAssign_ID(), get_TrxName());
+			leaveAssign.addNoOfLeavesAllocated(-1);
+			leaveAssign.saveEx();
+		}
+	}
+	
+	/**
+	 * Add Used Leave
+	 */
+	private void addUsedLeave() {
+		if(getHR_LeaveAssign_ID() > 0) {
+			MHRLeaveAssign leaveAssign = new MHRLeaveAssign(getCtx(), getHR_LeaveAssign_ID(), get_TrxName());
+			leaveAssign.addUsedLeave(1);
+			leaveAssign.saveEx();
+		}
+	}
 	
 	/**
 	 * 	Set the definite document number after completed
@@ -310,6 +375,7 @@ public class MHRLeave extends X_HR_Leave implements DocAction, DocOptions {
 		if (m_processMsg != null)
 			return false;
 		addDescription(Msg.getMsg(getCtx(), "Voided"));
+		removeAllocatedLeave();
 		// After Void
 		m_processMsg = ModelValidationEngine.get().fireDocValidate(this,ModelValidator.TIMING_AFTER_VOID);
 		if (m_processMsg != null)
@@ -346,7 +412,8 @@ public class MHRLeave extends X_HR_Leave implements DocAction, DocOptions {
 		
 		setProcessed(true);
 		setDocAction(DOCACTION_None);
-		
+		//	Add Used Leave
+		addUsedLeave();
 		// After Close
 		m_processMsg = ModelValidationEngine.get().fireDocValidate(this,ModelValidator.TIMING_AFTER_CLOSE);
 		if (m_processMsg != null)
