@@ -41,18 +41,8 @@ public class CalloutLeaveAssign extends CalloutEngine {
         if (isCalloutActive() || value == null)
             return "";
         I_HR_LeaveAssign leaveAssign = GridTabWrapper.create(mTab, I_HR_LeaveAssign.class);
-        
-        int total = 0;
-        int balance = 0;
-        int totalLeaves = leaveAssign.getTotalLeaves();
-        int noOfLeavesAllocated = leaveAssign.getNoOfLeavesAllocated();
-        int balanceLeaves = leaveAssign.getBalance();
-        if (totalLeaves != 0) {
-            total = totalLeaves + noOfLeavesAllocated;
-            balance = balanceLeaves + noOfLeavesAllocated;
-            leaveAssign.setTotalLeaves(total);
-            leaveAssign.setBalance(balance);
-        }
+        leaveAssign.setTotalLeaves(leaveAssign.getNoOfLeavesAllocated());
+        leaveAssign.setBalance(leaveAssign.getTotalLeaves() - leaveAssign.getUsedLeaves());
         return "";
     }    //	planned
 
@@ -71,11 +61,9 @@ public class CalloutLeaveAssign extends CalloutEngine {
 
         I_HR_LeaveAssign leaveAssign = GridTabWrapper.create(mTab, I_HR_LeaveAssign.class);
         I_HR_LeaveType leaveType = leaveAssign.getHR_LeaveType();
-
-        if (leaveAssign.getTotalLeaves() == 0) {
-            leaveAssign.setTotalLeaves(leaveType.getNoOfLeavesAllocated());
-            leaveAssign.setBalance(leaveType.getNoOfLeavesAllocated());
-        }
+        leaveAssign.setTotalLeaves(leaveType.getNoOfLeavesAllocated());
+        leaveAssign.setBalance(leaveType.getNoOfLeavesAllocated());
+        leaveAssign.setNoOfLeavesAllocated(leaveType.getNoOfLeavesAllocated());
         return "";
     }
 

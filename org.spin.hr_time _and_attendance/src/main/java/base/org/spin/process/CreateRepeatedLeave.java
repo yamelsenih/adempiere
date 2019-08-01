@@ -15,59 +15,59 @@
  * or via info@adempiere.net or http://www.adempiere.net/license.html         *
  *****************************************************************************/
 
-package org.eevolution.process;
+package org.spin.process;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.adempiere.exceptions.AdempiereException;
+import org.compiere.model.Query;
 import org.compiere.util.DisplayType;
 import org.compiere.util.Env;
 import org.compiere.util.TimeUtil;
 import org.compiere.util.Util;
+import org.eevolution.model.I_HR_LeaveAssign;
+import org.eevolution.model.I_HR_LeaveType;
 import org.eevolution.model.MHRLeave;
 import org.eevolution.model.MHRLeaveAssign;
 import org.eevolution.model.MHRLeaveType;
 import org.spin.util.TNAUtil;
 
-
 /** 
- * 	Create Leave from Employee allocation for leave Type
- * 	@author Yamel Senih, ysenih@erpya.com, ERPCyA http://www.erpya.com
+ * Create Leave from Employee allocation for leave Type automatically
+ * @author Yamel Senih, ysenih@erpya.com, ERPCyA http://www.erpya.com
  */
-public class LeaveCreditManual extends LeaveCreditManualAbstract {
+public class CreateRepeatedLeave extends CreateRepeatedLeaveAbstract {
 
+	/**	Records created	*/
+	private int created = 0;
 	@Override
 	protected String doIt() throws Exception {
-		if(getNoOfLeavesAllocated() <= 0) {
-			return "";
-		}
-		MHRLeaveAssign assignedLeave = new MHRLeaveAssign(getCtx(), getRecord_ID(), get_TrxName());
-		MHRLeaveType leaveType = MHRLeaveType.getById(getCtx(), assignedLeave.getHR_LeaveType_ID(), get_TrxName());
-		Timestamp validFrom = assignedLeave.getValidFrom();
-		boolean isFromPreviousLeave = false;
-		//	
-		if(getValidFrom() != null) {
-			if(TimeUtil.isValid(validFrom, assignedLeave.getValidTo(), getValidFrom())) {
-				throw new AdempiereException("@Invalid@ @ValidFrom@");
-			}
-			validFrom = getValidFrom();
-		} else {	//	Get from last leave
-			validFrom = assignedLeave.getDateLastRun();
-			isFromPreviousLeave = true;
-		}
-		//
-		if(validFrom == null) {
-			validFrom = assignedLeave.getValidFrom();
+		List<Object> parameters = new ArrayList<>();
+		StringBuffer whereClause = new StringBuffer(I_HR_LeaveType.COLUMNNAME_IsLeaveRepeated).append(" = ").append(" ?");
+		parameters.add(true);
+		if(getLeaveTypeId() > 0) {
+			parameters.add(getLeaveTypeId());
+			whereClause.append(" AND ").append(I_HR_LeaveType.COLUMNNAME_HR_LeaveType_ID).append(" = ").append(" ?");
 		}
 		//	
-		int leaveToUse = assignedLeave.getBalance();
-		if(getNoOfLeavesAllocated() < leaveToUse) {
-			leaveToUse = getNoOfLeavesAllocated();
-		}
-		if(leaveToUse == 0) {
-			throw new AdempiereException("@HR_LeaveAssign_ID@ @Used@");
-		}
+		new Query(getCtx(), I_HR_LeaveType.Table_Name, whereClause.toString(), get_TrxName())
+			.setParameters(parameters)
+			.setClient_ID()
+			.setOnlyActiveRecords(true)
+			.<MHRLeaveType>list().forEach(leaveType -> {
+				processLeaveType(leaveType);
+			});
+		return "@Created@: " + created;
+	}
+	
+	/**
+	 * Process Leave Type
+	 * @param leaveType
+	 */
+	private void processLeaveType(MHRLeaveType leaveType) {
 		String durationType = TNAUtil.getDurationUnitFromTimeUnit(leaveType.getTimeUnit());
 		//	Create
 		if(Util.isEmpty(durationType)) {
@@ -81,30 +81,42 @@ public class LeaveCreditManual extends LeaveCreditManualAbstract {
 				|| leaveDuration.compareTo(Env.ZERO) <= 0) {
 			leaveDuration = Env.ONE;
 		}
-		if(isFromPreviousLeave) {
-			validFrom = TimeUtil.addDuration(validFrom, durationType, leaveDuration);
-		}
-		//	
-		for(int i = 0; i < leaveToUse; i++) {
+		List<MHRLeaveAssign> leaveAssigList = new Query(getCtx(), I_HR_LeaveAssign.Table_Name, "HR_LeaveType_ID = ? "
+				+ "AND ValidFrom <= ? "
+				+ "AND (ValidTo >= ? OR ValidFrom IS NULL) "
+				+ "AND (DateLastRun < ? OR DateLastRun IS NULL)", get_TrxName())
+			.setParameters(leaveType.getHR_LeaveType_ID(), getDateDoc(), getDateDoc(), getDateDoc())
+			.setClient_ID()
+			.setOnlyActiveRecords(true)
+			.<MHRLeaveAssign>list();
+		for(MHRLeaveAssign assignedLeave : leaveAssigList) {
+			Timestamp dateLastRun = assignedLeave.getDateLastRun();
+			if(dateLastRun == null) {
+				dateLastRun = assignedLeave.getValidFrom();
+			}
+			//	Validate
+			Timestamp validationDate = TimeUtil.addDuration(dateLastRun, durationType, leaveDuration);
+			if(!TimeUtil.isSameDay(validationDate, getDateDoc())) {
+				continue;
+			}
+			//	Increase valid from
 			MHRLeave leave = new MHRLeave(getCtx(), 0, get_TrxName());
 			leave.setHR_LeaveType_ID(leaveType.getHR_LeaveType_ID());
 			leave.setHR_LeaveAssign_ID(assignedLeave.getHR_LeaveAssign_ID());
 			leave.setHR_LeaveReason_ID(getLeaveReasonId());
-			leave.setDateDoc(validFrom);
+			leave.setDateDoc(getDateDoc());
 			leave.setC_BPartner_ID(assignedLeave.getC_BPartner_ID());
 			//	Save
 			leave.saveEx();
 			//	Process
-			if(!leave.processIt(getDocAction())) {
+			if(!leave.processIt(MHRLeave.DOCACTION_Prepare)) {
 				throw new AdempiereException(leave.getProcessMsg());
 			}
 			leave.saveEx();
 			addLog("@HR_Leave_ID@ " + leave.getDocumentNo() + " @DateDoc@: " + DisplayType.getDateFormat(DisplayType.Date).format(leave.getDateDoc()));
-			//	Increase valid from
-			validFrom = TimeUtil.addDuration(validFrom, durationType, leaveDuration);
+			assignedLeave.setDateLastRun(leave.getEndDate());
+			assignedLeave.saveEx();
 		}
-		assignedLeave.setDateLastRun(validFrom);
-		assignedLeave.saveEx();
-		return "@Created@: " + leaveToUse;
+		created++;
 	}
 }

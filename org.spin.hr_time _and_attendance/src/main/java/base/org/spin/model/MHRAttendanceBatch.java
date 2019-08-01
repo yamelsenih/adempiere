@@ -194,6 +194,7 @@ public class MHRAttendanceBatch extends X_HR_AttendanceBatch implements DocActio
 		if (m_processMsg != null) {
 			return DocAction.STATUS_Invalid;
 		}
+		
 		//	Add up Amounts
 		m_processMsg = ModelValidationEngine.get().fireDocValidate(this, ModelValidator.TIMING_AFTER_PREPARE);
 		if (m_processMsg != null)
@@ -296,7 +297,7 @@ public class MHRAttendanceBatch extends X_HR_AttendanceBatch implements DocActio
 		scriptCtx.remove("_AttendanceHours");
 		scriptCtx.remove("_AttendanceMinutes");
 		//	Get Worked time
-		List<MHRShiftIncidence> shiftIncidenceList = MHRShiftIncidence.getShiftIncidenceList(getCtx(), workShift.getHR_WorkShift_ID(), X_HR_ShiftIncidence.EVENTTYPE_Attendance, getDateDoc());
+		List<MHRShiftIncidence> shiftIncidenceList = MHRShiftIncidence.getShiftIncidenceList(getCtx(), workShift.getHR_WorkShift_ID(), X_HR_ShiftIncidence.EVENTTYPE_Leave, getDateDoc());
 		//	Get from work shift
 		BigDecimal noOfHours = workShift.getNoOfHours();
 		if(noOfHours == null) {
@@ -342,11 +343,12 @@ public class MHRAttendanceBatch extends X_HR_AttendanceBatch implements DocActio
 	 * Load variables
 	 */
 	private void loadBatchVariables() {
-		validateEmployee();
 		MBPartner businessPartner = (MBPartner) getC_BPartner();
 		List<MHRAttendanceRecord> attendanceList = getLines(false);
-		this.firstAttendance = attendanceList.stream().findFirst().get();
-		this.lastAttendance = attendanceList.get(attendanceList.size() - 1);
+		if(!isLeave()) {
+			this.firstAttendance = attendanceList.stream().findFirst().get();
+			this.lastAttendance = attendanceList.get(attendanceList.size() - 1);
+		}
 		//	
 		setHR_Employee_ID(employee.getHR_Employee_ID());
 		String employeePayrollValue = null;
@@ -358,8 +360,12 @@ public class MHRAttendanceBatch extends X_HR_AttendanceBatch implements DocActio
 		//	
 		scriptCtx.put("_HR_FirstAttendanceRecord", firstAttendance);
 		scriptCtx.put("_HR_LastAttendanceRecord", lastAttendance);
-		scriptCtx.put("_FirstAttendanceTime", firstAttendance.getAttendanceTime());
-		scriptCtx.put("_LastAttendanceTime", lastAttendance.getAttendanceTime());
+		if(firstAttendance != null) {
+			scriptCtx.put("_FirstAttendanceTime", firstAttendance.getAttendanceTime());
+		}
+		if(lastAttendance != null) {
+			scriptCtx.put("_LastAttendanceTime", lastAttendance.getAttendanceTime());
+		}
 		scriptCtx.put("_DateStart", employee.getStartDate());
 		scriptCtx.put("_DateEnd", employee.getEndDate());
 		scriptCtx.put("_C_BPartner_ID", businessPartner.getC_BPartner_ID());
@@ -706,30 +712,36 @@ public class MHRAttendanceBatch extends X_HR_AttendanceBatch implements DocActio
 	 * @return
 	 */
 	private String processShiftIncidence() {
+		validateEmployee();
 		validateWorkShift();
 		StringBuffer errorMessage = new StringBuffer();
 		//	 Validate pair
 		int attendanceQuantity = getLines(false).size();
-		if(attendanceQuantity == 0) {
-			return "@NoLines@";
-		}
 		if(attendanceQuantity % 2 != 0) {
 			errorMessage.append("@TNA.AttendanceNotPair@");
 		}
+		setIsLeave(attendanceQuantity == 0);
+		saveEx();
 		//	For Quantity
-		MHRWorkShift workShift = MHRWorkShift.getById(getCtx(), getHR_WorkShift_ID());
-		if(workShift.getMinAttendanceRequire() > 0) {
-			if(attendanceQuantity < workShift.getMinAttendanceRequire()) {
-				errorMessage.append("@MinAttendanceRequire@");
+		if(!isLeave()) {
+			MHRWorkShift workShift = MHRWorkShift.getById(getCtx(), getHR_WorkShift_ID());
+			if(workShift.getMinAttendanceRequire() > 0) {
+				if(attendanceQuantity < workShift.getMinAttendanceRequire()) {
+					errorMessage.append("@MinAttendanceRequire@");
+				}
 			}
 		}
 		deleteMovements();
 		//	
 		loadBatchVariables();
-		//	
-		BigDecimal attendanceHours = processAttendance();
-		processLeave(attendanceHours);
-		processIncidence(attendanceHours);
+		//	validate leave
+		if(isLeave()) {
+			processLeave(Env.ZERO);
+		} else {
+			BigDecimal attendanceHours = processAttendance();
+			processLeave(attendanceHours);
+			processIncidence(attendanceHours);
+		}
 		//	Return Message
 		if(errorMessage.length() > 0) {
 			return errorMessage.toString();
