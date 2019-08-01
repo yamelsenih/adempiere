@@ -463,12 +463,12 @@ public class AgencyValidator implements ModelValidator
 						}
 					}
 					//	Validate User1_ID
-					if(order.get_ValueAsInt("S_Contract_ID") > 0) {
+					if(order.get_ValueAsInt("S_Contract_ID") > 0 && order.getRef_Order_ID() <= 0) {
 						int user1Id = DB.getSQLValue(order.get_TrxName(), "SELECT p.User1_ID "
 								+ "FROM S_ContractParties p "
 								+ "WHERE S_Contract_ID = ? "
 								+ "AND EXISTS(SELECT 1 FROM AD_User u WHERE u.AD_User_ID = p.AD_User_ID AND u.C_BPartner_ID = ?)", order.get_ValueAsInt("S_Contract_ID"), order.getC_BPartner_ID());
-						//	
+						//
 						if(user1Id > 0) {
 							order.setUser1_ID(user1Id);
 							order.saveEx();
