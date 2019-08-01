@@ -17,10 +17,12 @@
 /** Generated Model - DO NOT CHANGE */
 package org.eevolution.model;
 
+import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.Timestamp;
 import java.util.Properties;
 import org.compiere.model.*;
+import org.compiere.util.Env;
 import org.compiere.util.KeyNamePair;
 
 /** Generated Model for HR_LeaveType
@@ -32,7 +34,7 @@ public class X_HR_LeaveType extends PO implements I_HR_LeaveType, I_Persistent
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20190622L;
+	private static final long serialVersionUID = 20190731L;
 
     /** Standard Constructor */
     public X_HR_LeaveType (Properties ctx, int HR_LeaveType_ID, String trxName)
@@ -347,6 +349,8 @@ public class X_HR_LeaveType extends PO implements I_HR_LeaveType, I_Persistent
 	public static final String LEAVECREDITTIMETYPE_BeginingOfTheMonth = "BP";
 	/** End Of The Month = EP */
 	public static final String LEAVECREDITTIMETYPE_EndOfTheMonth = "EP";
+	/** Variable Date = VD */
+	public static final String LEAVECREDITTIMETYPE_VariableDate = "VD";
 	/** Set Leave Credit Time Type.
 		@param LeaveCreditTimeType 
 		Leave Credit Time Type
@@ -363,6 +367,26 @@ public class X_HR_LeaveType extends PO implements I_HR_LeaveType, I_Persistent
 	public String getLeaveCreditTimeType () 
 	{
 		return (String)get_Value(COLUMNNAME_LeaveCreditTimeType);
+	}
+
+	/** Set Leave Duration Time.
+		@param LeaveDurationTime 
+		Leave Duration Time
+	  */
+	public void setLeaveDurationTime (BigDecimal LeaveDurationTime)
+	{
+		set_Value (COLUMNNAME_LeaveDurationTime, LeaveDurationTime);
+	}
+
+	/** Get Leave Duration Time.
+		@return Leave Duration Time
+	  */
+	public BigDecimal getLeaveDurationTime () 
+	{
+		BigDecimal bd = (BigDecimal)get_Value(COLUMNNAME_LeaveDurationTime);
+		if (bd == null)
+			 return Env.ZERO;
+		return bd;
 	}
 
 	/** Set Maximum continous leaves.
@@ -488,6 +512,74 @@ public class X_HR_LeaveType extends PO implements I_HR_LeaveType, I_Persistent
 		if (ii == null)
 			 return 0;
 		return ii.intValue();
+	}
+
+	/** Set Time (From).
+		@param TimeFrom 
+		Starting Time
+	  */
+	public void setTimeFrom (Timestamp TimeFrom)
+	{
+		set_Value (COLUMNNAME_TimeFrom, TimeFrom);
+	}
+
+	/** Get Time (From).
+		@return Starting Time
+	  */
+	public Timestamp getTimeFrom () 
+	{
+		return (Timestamp)get_Value(COLUMNNAME_TimeFrom);
+	}
+
+	/** Set Time (To).
+		@param TimeTo 
+		Ending Time
+	  */
+	public void setTimeTo (Timestamp TimeTo)
+	{
+		set_Value (COLUMNNAME_TimeTo, TimeTo);
+	}
+
+	/** Get Time (To).
+		@return Ending Time
+	  */
+	public Timestamp getTimeTo () 
+	{
+		return (Timestamp)get_Value(COLUMNNAME_TimeTo);
+	}
+
+	/** TimeUnit AD_Reference_ID=53376 */
+	public static final int TIMEUNIT_AD_Reference_ID=53376;
+	/** Day = D */
+	public static final String TIMEUNIT_Day = "D";
+	/** Week = W */
+	public static final String TIMEUNIT_Week = "W";
+	/** Month = M */
+	public static final String TIMEUNIT_Month = "M";
+	/** Quarter = Q */
+	public static final String TIMEUNIT_Quarter = "Q";
+	/** Year = Y */
+	public static final String TIMEUNIT_Year = "Y";
+	/** Hour = H */
+	public static final String TIMEUNIT_Hour = "H";
+	/** Minute = I */
+	public static final String TIMEUNIT_Minute = "I";
+	/** Set Time Unit.
+		@param TimeUnit 
+		The unit of time for grouping chart data.
+	  */
+	public void setTimeUnit (String TimeUnit)
+	{
+
+		set_Value (COLUMNNAME_TimeUnit, TimeUnit);
+	}
+
+	/** Get Time Unit.
+		@return The unit of time for grouping chart data.
+	  */
+	public String getTimeUnit () 
+	{
+		return (String)get_Value(COLUMNNAME_TimeUnit);
 	}
 
 	/** Set Immutable Universally Unique Identifier.

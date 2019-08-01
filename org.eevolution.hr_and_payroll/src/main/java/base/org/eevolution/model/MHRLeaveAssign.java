@@ -47,4 +47,30 @@ public class MHRLeaveAssign extends X_HR_LeaveAssign {
     public MHRLeaveAssign(Properties ctx, ResultSet rs, String trxName) {
         super(ctx, rs, trxName);
     }
+    
+    /**
+     * Add Used Balance
+     * @param usedLeave
+     */
+    public void addUsedLeave(int usedLeave) {
+    	setUsedLeaves(getUsedLeaves() + usedLeave);
+    }
+    
+    /**
+     * Add Allocated Balance
+     * @param noOfLeavestoAdd
+     */
+    public void addNoOfLeavesAllocated(int noOfLeavestoAdd) {
+    	setNoOfLeavesAllocated(getNoOfLeavesAllocated() + noOfLeavestoAdd);
+    }
+    
+    @Override
+    protected boolean afterSave(boolean newRecord, boolean success) {
+		if(is_ValueChanged(COLUMNNAME_NoOfLeavesAllocated)) {
+			setTotalLeaves(getTotalLeaves() + getNoOfLeavesAllocated());
+		}
+		//	Calculate balance
+		setBalance(getTotalLeaves() - getUsedLeaves());
+    	return true;
+    }
 }

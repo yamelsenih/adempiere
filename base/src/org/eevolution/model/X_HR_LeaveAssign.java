@@ -32,7 +32,7 @@ public class X_HR_LeaveAssign extends PO implements I_HR_LeaveAssign, I_Persiste
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20190622L;
+	private static final long serialVersionUID = 20190731L;
 
     /** Standard Constructor */
     public X_HR_LeaveAssign (Properties ctx, int HR_LeaveAssign_ID, String trxName)
@@ -190,9 +190,9 @@ public class X_HR_LeaveAssign extends PO implements I_HR_LeaveAssign, I_Persiste
 	public void setHR_LeaveType_ID (int HR_LeaveType_ID)
 	{
 		if (HR_LeaveType_ID < 1) 
-			set_Value (COLUMNNAME_HR_LeaveType_ID, null);
+			set_ValueNoCheck (COLUMNNAME_HR_LeaveType_ID, null);
 		else 
-			set_Value (COLUMNNAME_HR_LeaveType_ID, Integer.valueOf(HR_LeaveType_ID));
+			set_ValueNoCheck (COLUMNNAME_HR_LeaveType_ID, Integer.valueOf(HR_LeaveType_ID));
 	}
 
 	/** Get Leave Type.
@@ -212,7 +212,7 @@ public class X_HR_LeaveAssign extends PO implements I_HR_LeaveAssign, I_Persiste
 	  */
 	public void setNoOfLeavesAllocated (int NoOfLeavesAllocated)
 	{
-		set_Value (COLUMNNAME_NoOfLeavesAllocated, Integer.valueOf(NoOfLeavesAllocated));
+		set_ValueNoCheck (COLUMNNAME_NoOfLeavesAllocated, Integer.valueOf(NoOfLeavesAllocated));
 	}
 
 	/** Get Number of Leaves Allocated.
