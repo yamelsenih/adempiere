@@ -65,4 +65,12 @@ public class MHRLeaveAssign extends X_HR_LeaveAssign {
 		setBalance(getTotalLeaves() - getUsedLeaves());
     	return true;
     }
+
+	@Override
+	public String toString() {
+		return "MHRLeaveAssign [getHR_LeaveAssign_ID()=" + getHR_LeaveAssign_ID() + ", getHR_LeaveType()="
+				+ MHRLeaveType.getById(getCtx(), getHR_LeaveType_ID(), get_TrxName()) + "]";
+	}
+    
+    
 }

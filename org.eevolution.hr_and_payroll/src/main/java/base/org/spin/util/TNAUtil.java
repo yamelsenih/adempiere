@@ -305,4 +305,29 @@ public class TNAUtil {
 			return null;
 		}
 	}
+	
+	/**
+	 * Get Duration for TimeUtil from Frequency Type
+	 * @param frequencyType
+	 * @return
+	 */
+	public static String getDurationUnitFromFrequencyType(String frequencyType) {
+		if(Util.isEmpty(frequencyType)) {
+			return null;
+		}
+		//	
+		if(frequencyType.equals(MHRLeaveType.FREQUENCYTYPE_Minute)) {
+			return TimeUtil.DURATIONUNIT_Minute;
+		} else if(frequencyType.equals(MHRLeaveType.FREQUENCYTYPE_Hour)) {
+			return TimeUtil.DURATIONUNIT_Hour;
+		} else if(frequencyType.equals(MHRLeaveType.FREQUENCYTYPE_Day)) {
+			return TimeUtil.DURATIONUNIT_Day;
+		} else if(frequencyType.equals(MHRLeaveType.FREQUENCYTYPE_Monthly)) {
+			return TimeUtil.DURATIONUNIT_Month;
+		} else if(frequencyType.equals(MHRLeaveType.FREQUENCYTYPE_Yearly)) {
+			return TimeUtil.DURATIONUNIT_Year;
+		} else {
+			return null;
+		}
+	}
 }

@@ -29,9 +29,11 @@ import org.compiere.util.Env;
 import org.compiere.util.TimeUtil;
 import org.compiere.util.Util;
 import org.eevolution.model.I_HR_LeaveAssign;
+import org.eevolution.model.I_HR_LeaveReason;
 import org.eevolution.model.I_HR_LeaveType;
 import org.eevolution.model.MHRLeave;
 import org.eevolution.model.MHRLeaveAssign;
+import org.eevolution.model.MHRLeaveReason;
 import org.eevolution.model.MHRLeaveType;
 import org.spin.util.TNAUtil;
 
@@ -52,6 +54,16 @@ public class CreateRepeatedLeave extends CreateRepeatedLeaveAbstract {
 			parameters.add(getLeaveTypeId());
 			whereClause.append(" AND ").append(I_HR_LeaveType.COLUMNNAME_HR_LeaveType_ID).append(" = ").append(" ?");
 		}
+		if(getLeaveReasonId() == 0) {
+			MHRLeaveReason leaveReason = new Query(getCtx(), I_HR_LeaveReason.Table_Name, null, get_TrxName())
+				.setClient_ID()
+				.setOnlyActiveRecords(true)
+				.first();
+			if(leaveReason == null) {
+				throw new AdempiereException("@HR_LeaveReason_ID@ @NotFound@");
+			}
+			setLeaveReasonId(leaveReason.getHR_LeaveReason_ID());
+		}
 		//	
 		new Query(getCtx(), I_HR_LeaveType.Table_Name, whereClause.toString(), get_TrxName())
 			.setParameters(parameters)
@@ -68,10 +80,10 @@ public class CreateRepeatedLeave extends CreateRepeatedLeaveAbstract {
 	 * @param leaveType
 	 */
 	private void processLeaveType(MHRLeaveType leaveType) {
-		String durationType = TNAUtil.getDurationUnitFromTimeUnit(leaveType.getTimeUnit());
+		String durationType = TNAUtil.getDurationUnitFromFrequencyType(leaveType.getFrequencyType());
 		//	Create
 		if(Util.isEmpty(durationType)) {
-			throw new AdempiereException("@Invalid@ @TimeUnit@");
+			return;
 		}
 		if(durationType.equals(TimeUtil.DURATIONUNIT_Hour)) {
 			durationType = TimeUtil.DURATIONUNIT_Day;
@@ -83,7 +95,7 @@ public class CreateRepeatedLeave extends CreateRepeatedLeaveAbstract {
 		}
 		List<MHRLeaveAssign> leaveAssigList = new Query(getCtx(), I_HR_LeaveAssign.Table_Name, "HR_LeaveType_ID = ? "
 				+ "AND ValidFrom <= ? "
-				+ "AND (ValidTo >= ? OR ValidFrom IS NULL) "
+				+ "AND (ValidTo >= ? OR ValidTo IS NULL) "
 				+ "AND (DateLastRun < ? OR DateLastRun IS NULL)", get_TrxName())
 			.setParameters(leaveType.getHR_LeaveType_ID(), getDateDoc(), getDateDoc(), getDateDoc())
 			.setClient_ID()
@@ -94,6 +106,7 @@ public class CreateRepeatedLeave extends CreateRepeatedLeaveAbstract {
 			if(dateLastRun == null) {
 				dateLastRun = assignedLeave.getValidFrom();
 			}
+			dateLastRun = TimeUtil.getDay(dateLastRun);
 			//	Validate
 			Timestamp validationDate = TimeUtil.addDuration(dateLastRun, durationType, leaveDuration);
 			if(!TimeUtil.isSameDay(validationDate, getDateDoc())) {
@@ -116,7 +129,7 @@ public class CreateRepeatedLeave extends CreateRepeatedLeaveAbstract {
 			addLog("@HR_Leave_ID@ " + leave.getDocumentNo() + " @DateDoc@: " + DisplayType.getDateFormat(DisplayType.Date).format(leave.getDateDoc()));
 			assignedLeave.setDateLastRun(leave.getEndDate());
 			assignedLeave.saveEx();
+			created++;
 		}
-		created++;
 	}
 }

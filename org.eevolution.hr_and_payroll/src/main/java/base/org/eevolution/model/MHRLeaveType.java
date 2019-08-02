@@ -135,4 +135,10 @@ public class MHRLeaveType extends X_HR_LeaveType {
    				.collect(Collectors.toList());
    		return  leaveTypeList;
    	}
+
+	@Override
+	public String toString() {
+		return "MHRLeaveType [getHR_LeaveType_ID()=" + getHR_LeaveType_ID() + ", getName()=" + getName()
+				+ ", getValue()=" + getValue() + "]";
+	}
 }
