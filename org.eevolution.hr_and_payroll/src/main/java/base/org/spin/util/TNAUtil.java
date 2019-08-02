@@ -26,6 +26,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import org.compiere.model.Query;
 import org.compiere.util.DB;
+import org.compiere.util.Env;
 import org.compiere.util.TimeUtil;
 import org.compiere.util.Util;
 import org.eevolution.model.I_HR_Leave;
@@ -208,6 +209,27 @@ public class TNAUtil {
 	 */
 	public static int getLeaveDaysBetween(Properties ctx, int businessPartnerId, String leaveTypeValue, Timestamp from, Timestamp to, boolean excludeOverlapedTime, String trxName) {
 		return TimeUtil.getDaysFromDuration(getLeaveTimeBetween(ctx, businessPartnerId, leaveTypeValue, from, to, excludeOverlapedTime, trxName));
+	}
+	
+	/**
+	 * Verify is a leave is encashment
+	 * @param ctx
+	 * @param leaveTypeValue
+	 * @param trxName
+	 * @return
+	 */
+	public static boolean isLeaveAllowedEncashment(Properties ctx, String leaveTypeValue, String trxName) {
+		MHRLeaveType leaveType = MHRLeaveType.getByValue(ctx, leaveTypeValue, trxName);
+		return leaveType != null && leaveType.isAllowedEncashment();
+	}
+	
+	/**
+	 * Verify is a leave is encashment
+	 * @param leaveTypeValue
+	 * @return
+	 */
+	public static boolean isLeaveAllowedEncashment(String leaveTypeValue) {
+		return isLeaveAllowedEncashment(Env.getCtx(), leaveTypeValue, null);
 	}
 	
 	/**

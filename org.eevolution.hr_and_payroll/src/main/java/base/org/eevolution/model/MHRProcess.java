@@ -118,6 +118,8 @@ public class MHRProcess extends X_HR_Process implements DocAction , DocumentReve
 			+ Env.NL + "import org.compiere.model.*;"
 			+ Env.NL + "import org.adempiere.model.*;"
 			+ Env.NL + "import org.compiere.util.*;"
+			+ Env.NL + "import org.spin.model.*;"
+			+ Env.NL + "import org.spin.util.*;"
 			+ Env.NL + "import java.util.*;" 
 			+ Env.NL + "import java.math.*;"
 			+ Env.NL + "import java.sql.*;");
