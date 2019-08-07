@@ -55,6 +55,7 @@ import org.compiere.model.MInvoice;
 import org.compiere.model.MInvoiceLine;
 import org.compiere.model.MOrder;
 import org.compiere.model.MOrderLine;
+import org.compiere.model.MOrgInfo;
 import org.compiere.model.MPriceList;
 import org.compiere.model.MPriceListVersion;
 import org.compiere.model.MProduct;
@@ -929,6 +930,9 @@ public class AgencyValidator implements ModelValidator
 		 * @param
 		 */
 		private void createCommissionForOrder(MOrder order, int commissionTypeId, boolean splitDocuments) {
+			if(MOrgInfo.get(order.getCtx(), order.getAD_Org_ID(), order.get_TrxName()).get_ValueAsBoolean("IsExcludeOfCommission")) {
+				return;
+			}
 			removeLineFromCommission(order, commissionTypeId);
 			new Query(order.getCtx(), I_C_Commission.Table_Name, I_C_CommissionType.COLUMNNAME_C_CommissionType_ID + " = ? "
 					+ "AND IsSplitDocuments = ?", order.get_TrxName())
@@ -990,6 +994,9 @@ public class AgencyValidator implements ModelValidator
 		 * @param
 		 */
 		private void createCommissionForInvoice(MInvoice invoice, int commissionTypeId, boolean splitDocuments) {
+			if(MOrgInfo.get(invoice.getCtx(), invoice.getAD_Org_ID(), invoice.get_TrxName()).get_ValueAsBoolean("IsExcludeOfCommission")) {
+				return;
+			}
 			removeLineFromCommission(invoice, commissionTypeId);
 			new Query(invoice.getCtx(), I_C_Commission.Table_Name, I_C_CommissionType.COLUMNNAME_C_CommissionType_ID + " = ? "
 					+ "AND IsSplitDocuments = ?", invoice.get_TrxName())
