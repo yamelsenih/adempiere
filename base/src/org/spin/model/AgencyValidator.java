@@ -88,6 +88,7 @@ import org.compiere.util.Msg;
 import org.eevolution.service.dsl.ProcessBuilder;
 import org.spin.process.CommissionOrderCreateAbstract;
 
+import com.eevolution.model.I_S_Contract;
 import com.eevolution.model.MSContract;
 
 
@@ -253,7 +254,7 @@ public class AgencyValidator implements ModelValidator
 						}
 					}
 				}
-			}else if(po instanceof MOrder) {
+			} else if(po instanceof MOrder) {
 				MOrder order = (MOrder) po;
 				MBPartner bPartner = (MBPartner) order.getC_BPartner();
 				if (bPartner.get_ValueAsBoolean("IsMandatoryOrderReference")) {
@@ -262,6 +263,14 @@ public class AgencyValidator implements ModelValidator
 								|| (order.get_ValueAsString("POReference") == null || order.get_ValueAsString("POReference") == "" ))) {
 							throw new AdempiereException(Msg.getMsg(Env.getCtx(), "LinkOrderNotFound"));
 						}
+					}
+				}
+			} else if(po instanceof MSContract) {
+				MSContract contract = (MSContract) po;
+				if(contract.is_ValueChanged(I_S_Contract.COLUMNNAME_M_PriceList_ID)) {
+					if(contract.getM_PriceList_ID() > 0) {
+						MPriceList priceList = MPriceList.get(contract.getCtx(), contract.getM_PriceList_ID(), contract.get_TrxName());
+						contract.setC_Currency_ID(priceList.getC_Currency_ID());
 					}
 				}
 			}
@@ -386,12 +395,9 @@ public class AgencyValidator implements ModelValidator
 					MOrder order = (MOrder) po;
 					int orderprojectId = order.getC_Project_ID();
 					if(orderprojectId > 0) {
-						if(order.getC_ConversionType_ID() <= 0) order.setC_ConversionType_ID(MConversionType.TYPE_SPOT);
-						/*MProject project = new MProject(order.getCtx(), orderprojectId,order.get_TrxName());
-					// Validates Customer Approved
-					if(!project.get_ValueAsBoolean("IsCustomerApproved")) {
-						throw new AdempiereException(Msg.parseTranslation(Env.getCtx(), "@CustomerApprovedRequired@"));
-					}*/
+						if(order.getC_ConversionType_ID() <= 0) {
+							order.setC_ConversionType_ID(MConversionType.TYPE_SPOT);
+						}
 					}
 					// Validates Order Has ProjectPorcentaje 
 					int serviceContractId = order.get_ValueAsInt("S_Contract_ID");
@@ -430,14 +436,6 @@ public class AgencyValidator implements ModelValidator
 						}
 					}
 				}
-				/*else if(po instanceof MOrder) {
-				MOrder order = (MOrder) po;
-				// When the new Order is Purchase Order
-				if(!order.isSOTrx()){
-					int orderID =	order.getC_Order_ID();
-
-				}
-			}*/
 			}
 		}
 			//
@@ -730,13 +728,6 @@ public class AgencyValidator implements ModelValidator
 								if(sumPercent.compareTo(Env.ONEHUNDRED) != 0){					
 									throw new AdempiereException(Msg.getMsg(Env.getCtx(), "TotalPercentageIsNot100"));
 								}
-							} else { 
-								//					List<MCommissionLine> c = new Query(po.getCtx(), I_C_CommissionLine.Table_Name, whereClause, po.get_TrxName())
-								//							.setParameters(serviceContract.getS_Contract_ID())
-								//							.setOnlyActiveRecords(true)
-								//							.<MCommissionLine>list();
-								//					//	Iterate
-								//					
 							}
 				}
 			}

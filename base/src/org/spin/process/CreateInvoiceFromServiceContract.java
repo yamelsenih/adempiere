@@ -25,6 +25,7 @@ import org.compiere.model.MBPartner;
 import org.compiere.model.MDocType;
 import org.compiere.model.MInvoice;
 import org.compiere.model.MInvoiceLine;
+import org.compiere.model.MPriceList;
 import org.compiere.model.MProduct;
 import org.compiere.model.MUOMConversion;
 import org.compiere.util.Env;
@@ -116,14 +117,12 @@ public class CreateInvoiceFromServiceContract extends CreateInvoiceFromServiceCo
 		MBPartner businessPartner = MBPartner.get(getCtx(), bPartnerId);
 		invoice.setBPartner(businessPartner);
 		invoice.setSalesRep_ID(getAD_User_ID());	//	caller
-		invoice.setC_Currency_ID(contract.getC_Currency_ID());
+		MPriceList priceList = MPriceList.get(getCtx(), contract.getM_PriceList_ID(), get_TrxName());
+		invoice.setC_Currency_ID(priceList.getC_Currency_ID());
 		invoice.setM_PriceList_ID(contract.getM_PriceList_ID());
 		if(contractLine.getC_BPartner_Location_ID() > 0) {
 			invoice.setC_BPartner_Location_ID(contractLine.getC_BPartner_Location_ID());
 		}
-		//
-		if (contract.getC_Currency_ID() != invoice.getC_Currency_ID())
-			throw new IllegalArgumentException("@InvoiceCurrencyMismatch@");	//	TODO Translate it: CommissionAPInvoice - Currency of PO Price List not Commission Currency
 		//		
 		invoice.saveEx();
 		invoices.put(businessPartner.getC_BPartner_ID(), invoice);
