@@ -488,11 +488,6 @@ public class AgencyValidator implements ModelValidator
 						if(order.getC_Project_ID() <= 0) {
 							throw new AdempiereException(Msg.parseTranslation(Env.getCtx(), "@C_Project_ID@ @NotFound@"));
 						}
-						//	Document type IsCustomerApproved = Y and order IsCustomerApproved Y and order isAttachment() = N and project IsCustomerApproved = N
-						/*MProject project = new MProject(order.getCtx(), order.getC_Project_ID(), null);
-					if (!project.get_ValueAsBoolean("IsCustomerApproved")) {
-						throw new AdempiereException(Msg.parseTranslation(Env.getCtx(), "@CustomerApprovedRequired@ @C_Project_ID@"));
-					}*/
 					}
 					//	Validate Document Type for commission
 					if(documentType.get_ValueAsInt("C_CommissionType_ID") > 0) {
@@ -565,7 +560,8 @@ public class AgencyValidator implements ModelValidator
 								MPriceListVersion priceListVersion = new MPriceListVersion(priceList.getCtx(), priceList.getM_PriceList_ID(), priceList.get_TrxName());
 								MProduct product = new MProduct (orderLine.getCtx(), orderLine.getM_Product_ID(), orderLine.get_TrxName());
 								MProductPrice productPrice = new MProductPrice(orderLine.getCtx(), priceListVersion.getM_PriceList_Version_ID(), product.getM_Product_ID(), orderLine.get_TrxName());
-								if (!productPrice.get_ValueAsBoolean("IsIncludedContract")) {
+								if (!productPrice.get_ValueAsBoolean("IsIncludedContract")
+										&& !orderLine.get_ValueAsBoolean("IsBonusProduct")) {
 									BigDecimal priceEntered = orderLine.getPriceEntered();						
 									if( priceEntered.compareTo(BigDecimal.ZERO) == 0) {
 										throw new AdempiereException(Msg.parseTranslation(Env.getCtx(), "@PriceEntereddontBeZero@"));
