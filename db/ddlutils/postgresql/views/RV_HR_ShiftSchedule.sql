@@ -32,13 +32,13 @@ INNER JOIN HR_Year y ON(y.HR_Calendar_ID = c.HR_Calendar_ID)
 INNER JOIN HR_Period p ON(p.HR_Year_ID = y.HR_Year_ID)
 INNER JOIN HR_ShiftGroup sg ON(sg.AD_Client_ID = p.AD_Client_ID)
 LEFT JOIN HR_WorkShift ws ON(ws.HR_ShiftGroup_ID = sg.HR_ShiftGroup_ID)
-WHERE (ws.HR_WorkShift_ID IS NULL OR (CASE 
- 		WHEN ws.OnSunday = 'Y' AND sg.OnSunday = 'N' AND extract(dow from p.StartDate) = 0 THEN 'Y'
-		WHEN ws.OnMonday = 'Y' AND sg.OnMonday = 'N' AND extract(dow from p.StartDate) = 1 THEN 'Y'
- 		WHEN ws.OnTuesday = 'Y' AND sg.OnTuesday = 'N' AND extract(dow from p.StartDate) = 2 THEN 'Y'
- 		WHEN ws.OnWednesday = 'Y' AND sg.OnWednesday = 'N' AND extract(dow from p.StartDate) = 3 THEN 'Y'
- 		WHEN ws.OnThursday = 'Y' AND sg.OnThursday = 'N' AND extract(dow from p.StartDate) = 4 THEN 'Y'
- 		WHEN ws.OnFriday = 'Y' AND sg.OnFriday = 'N' AND extract(dow from p.StartDate) = 5 THEN 'Y'
- 		WHEN ws.OnSaturday = 'Y' AND sg.OnSaturday = 'N' AND extract(dow from p.StartDate) = 6 THEN 'Y'
+WHERE (ws.HR_WorkShift_ID IS NULL OR ((CASE 
+ 		WHEN ws.OnSunday = 'Y' AND extract(dow from p.StartDate) = 0 THEN 'Y'
+		WHEN ws.OnMonday = 'Y' AND extract(dow from p.StartDate) = 1 THEN 'Y'
+ 		WHEN ws.OnTuesday = 'Y' AND extract(dow from p.StartDate) = 2 THEN 'Y'
+ 		WHEN ws.OnWednesday = 'Y' AND extract(dow from p.StartDate) = 3 THEN 'Y'
+ 		WHEN ws.OnThursday = 'Y' AND extract(dow from p.StartDate) = 4 THEN 'Y'
+ 		WHEN ws.OnFriday = 'Y' AND extract(dow from p.StartDate) = 5 THEN 'Y'
+ 		WHEN ws.OnSaturday = 'Y' AND extract(dow from p.StartDate) = 6 THEN 'Y'
  		ELSE 'N'
-	END) = 'Y')
+	END) = 'Y' AND ws.IsActive = 'Y'))
