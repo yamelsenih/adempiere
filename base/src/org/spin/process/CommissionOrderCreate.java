@@ -116,18 +116,18 @@ public class CommissionOrderCreate extends CommissionOrderCreateAbstract {
 		if(currencyId == 0) {
 			currencyId = commissionDefinition.getC_Currency_ID();
 		}
-		MPriceList defaultPriceList = MPriceList.getDefault(getCtx(), isSOTrx(), MCurrency.get(getCtx(), currencyId).getISO_Code());
+		MCurrency currency = MCurrency.get(getCtx(), currencyId);
+		MPriceList defaultPriceList = MPriceList.getDefault(getCtx(), isSOTrx(), currency.getISO_Code());
 		if(defaultPriceList != null) {
 			order.setM_PriceList_ID(defaultPriceList.getM_PriceList_ID());
+		} else {
+			throw new IllegalArgumentException("@DefaultPriceListCurrencyNotFound@ (@C_Currency_ID@: " + currency.getISO_Code() + ")");	//	TODO Translate it: CommissionAPInvoice - Currency of PO Price List not Commission Currency
 		}
 		order.setSalesRep_ID(getAD_User_ID());	//	caller
 		order.setDateOrdered(getDateOrdered());
 		order.setDocStatus(MOrder.DOCSTATUS_Drafted);
 		order.setDocAction(MOrder.DOCACTION_Complete);
 		//
-		if (currencyId != order.getC_Currency_ID()) {
-			throw new IllegalArgumentException("@CommissionAPInvoiceCurrency@");	//	TODO Translate it: CommissionAPInvoice - Currency of PO Price List not Commission Currency
-		}
 		order.setDescription(Msg.parseTranslation(getCtx(), "@Generate@: @C_CommissionRun_ID@ " + commissionRun.getDocumentNo()));
 		//	
 		if(commissionRun.get_ValueAsInt("C_Order_ID") > 0) {
