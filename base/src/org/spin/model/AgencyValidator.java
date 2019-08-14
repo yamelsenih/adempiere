@@ -16,7 +16,6 @@
 package org.spin.model;
 
 import java.math.BigDecimal;
-import java.math.MathContext;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Hashtable;
@@ -762,16 +761,69 @@ public class AgencyValidator implements ModelValidator
 			inOut.processIt(MInOut.ACTION_Complete);
 			inOut.saveEx();
 			//	Generate Delivery for Commission
-			if(totalOrdered.get() != null
-					&& totalOrdered.get().compareTo(Env.ZERO) > 0
-					&& totalDelivered.get() != null
-					&& totalDelivered.get().compareTo(Env.ZERO) > 0) {
-				//	Calculate Percentage
-				BigDecimal multiplier = Env.ONE.divide(totalOrdered.get(), MathContext.DECIMAL128).multiply(totalDelivered.get());
-				generateInOutFromCommissionOrder(order, multiplier);
-			}
+//			if(totalOrdered.get() != null
+//					&& totalOrdered.get().compareTo(Env.ZERO) > 0
+//					&& totalDelivered.get() != null
+//					&& totalDelivered.get().compareTo(Env.ZERO) > 0) {
+//				//	Calculate Percentage
+//				BigDecimal multiplier = Env.ONE.divide(totalOrdered.get(), MathContext.DECIMAL128).multiply(totalDelivered.get());
+//				generateInOutFromCommissionOrder(order, multiplier);
+//			}
 		}
 
+		/**
+		 * Reverse Previous commission
+		 * @param sourceInvoice
+		 */
+		private void reversePreviousCommissionOrders(MInvoice sourceInvoice) {
+			new Query(sourceInvoice.getCtx(), I_C_Order.Table_Name, 
+					"DocStatus = 'CO' "
+							+ "AND EXISTS(SELECT 1 FROM C_CommissionRun cr "
+							+ "WHERE cr.C_CommissionRun_ID = C_Order.C_CommissionRun_ID "
+							+ "AND EXISTS(SELECT 1 FROM C_InvoiceLine il "
+							+ "	INNER JOIN C_OrderLine ol ON(ol.C_OrderLine_ID = il.C_OrderLine_ID) "
+							+ "	WHERE il.C_Invoice_ID = ? "
+							+ "	AND ol.C_Order_ID = cr.C_Order_ID))", sourceInvoice.get_TrxName())
+			.setOnlyActiveRecords(true)
+			.setParameters(sourceInvoice.getC_Invoice_ID())
+			.<MOrder>list()
+			.stream().forEach(commissionOrder -> {
+				MOrder reverseOrder = new MOrder(commissionOrder.getCtx(), 0, commissionOrder.get_TrxName());
+				PO.copyValues(commissionOrder, reverseOrder);
+				reverseOrder.setDocumentNo(null);
+				reverseOrder.setDateOrdered(sourceInvoice.getDateInvoiced());
+				reverseOrder.setDatePromised(sourceInvoice.getDateInvoiced());
+				reverseOrder.setPOReference(commissionOrder.getDocumentNo());
+				reverseOrder.addDescription(Msg.parseTranslation(commissionOrder.getCtx(), "@Generated@ [@C_Order_ID@ " + commissionOrder.getDocumentNo()) + "]");
+				reverseOrder.setDocStatus(MOrder.DOCSTATUS_Drafted);
+				reverseOrder.setDocAction(MOrder.DOCACTION_Complete);
+				reverseOrder.setTotalLines(Env.ZERO);
+				reverseOrder.setGrandTotal(Env.ZERO);
+				reverseOrder.setIsSOTrx(commissionOrder.isSOTrx());
+				reverseOrder.setRef_Order_ID(-1);
+				reverseOrder.setIsDropShip(false);
+				reverseOrder.setDropShip_BPartner_ID(0);
+				reverseOrder.setDropShip_Location_ID(0);
+				reverseOrder.setDropShip_User_ID(0);
+				reverseOrder.set_ValueOfColumn("ConsumptionOrder_ID", null);
+				reverseOrder.set_ValueOfColumn("PreOrder_ID", null);
+				reverseOrder.saveEx();
+				//	Add Line
+				for(MOrderLine commissionOrderLine : commissionOrder.getLines(true, null)) {
+					MOrderLine reverseOrderLine = new MOrderLine(reverseOrder);
+					PO.copyValues(commissionOrderLine, reverseOrderLine);
+					reverseOrderLine.setOrder(reverseOrder);
+					reverseOrderLine.setQty(reverseOrderLine.getQtyOrdered().negate());
+					reverseOrderLine.setProcessed(true);
+					reverseOrderLine.saveEx();
+				}
+				reverseOrder.setDocStatus(MOrder.DOCSTATUS_Closed);
+				reverseOrder.setDocAction(MOrder.DOCACTION_None);
+				reverseOrder.setProcessed(true);
+				reverseOrder.saveEx();
+			});
+		}
+		
 		/**
 		 * Reverse amount of pre-purchase order from a purchase order
 		 * @param sourceOrder
@@ -881,47 +933,47 @@ public class AgencyValidator implements ModelValidator
 		 * @param order
 		 * @param multiplier
 		 */
-		private void generateInOutFromCommissionOrder(MOrder order, BigDecimal multiplier) {
-			new Query(order.getCtx(), I_C_Order.Table_Name, 
-					"DocStatus = 'CO' "
-							+ "AND EXISTS(SELECT 1 FROM C_CommissionRun cr "
-							+ "WHERE cr.C_CommissionRun_ID = C_Order.C_CommissionRun_ID "
-							+ "AND cr.C_Order_ID = ?) "
-							+ "AND EXISTS(SELECT 1 FROM C_OrderLine ol "
-							+ "WHERE ol.C_Order_ID = C_Order.C_Order_ID "
-							+ "AND ol.QtyOrdered > COALESCE(QtyDelivered, 0))", order.get_TrxName())
-			.setOnlyActiveRecords(true)
-			.setParameters(order.getC_Order_ID())
-			.<MOrder>list()
-			.stream().forEach(commissionOrder -> {
-				for(MOrderLine line : commissionOrder.getLines()) {
-					MInOut shipment = new MInOut(commissionOrder, 0, commissionOrder.getDateOrdered());
-					shipment.setM_Warehouse_ID(line.getM_Warehouse_ID());
-					shipment.setMovementDate(line.getDatePromised());
-					shipment.saveEx();
-					//	Add Line
-					BigDecimal qtyToDeliver = line.getQtyOrdered().multiply(multiplier);
-					MInOutLine sline = new MInOutLine(shipment);
-					sline.setOrderLine(line, 0, qtyToDeliver);
-					sline.setQtyEntered(qtyToDeliver);
-					sline.setC_UOM_ID(line.getC_UOM_ID());
-					sline.setQty(qtyToDeliver);
-					sline.setM_Warehouse_ID(line.getM_Warehouse_ID());
-					sline.saveEx();
-					//	Process It
-					if (!shipment.processIt(DocAction.ACTION_Complete)) {
-						log.warning("Failed: " + shipment);
-					}
-					shipment.saveEx();
-					//					ProcessBuilder.create(order.getCtx())
-					//						.process(OrderLineCreateShipmentAbstract.getProcessId())
-					//						.withRecordId(I_C_OrderLine.Table_ID, line.getC_OrderLine_ID())
-					//						.withParameter(OrderLineCreateShipmentAbstract.DOCACTION, DocAction.ACTION_Complete)
-					//						.withoutTransactionClose()
-					//					.execute(order.get_TrxName());
-				}
-			});
-		}
+//		private void generateInOutFromCommissionOrder(MOrder order, BigDecimal multiplier) {
+//			new Query(order.getCtx(), I_C_Order.Table_Name, 
+//					"DocStatus = 'CO' "
+//							+ "AND EXISTS(SELECT 1 FROM C_CommissionRun cr "
+//							+ "WHERE cr.C_CommissionRun_ID = C_Order.C_CommissionRun_ID "
+//							+ "AND cr.C_Order_ID = ?) "
+//							+ "AND EXISTS(SELECT 1 FROM C_OrderLine ol "
+//							+ "WHERE ol.C_Order_ID = C_Order.C_Order_ID "
+//							+ "AND ol.QtyOrdered > COALESCE(QtyDelivered, 0))", order.get_TrxName())
+//			.setOnlyActiveRecords(true)
+//			.setParameters(order.getC_Order_ID())
+//			.<MOrder>list()
+//			.stream().forEach(commissionOrder -> {
+//				for(MOrderLine line : commissionOrder.getLines()) {
+//					MInOut shipment = new MInOut(commissionOrder, 0, commissionOrder.getDateOrdered());
+//					shipment.setM_Warehouse_ID(line.getM_Warehouse_ID());
+//					shipment.setMovementDate(line.getDatePromised());
+//					shipment.saveEx();
+//					//	Add Line
+//					BigDecimal qtyToDeliver = line.getQtyOrdered().multiply(multiplier);
+//					MInOutLine sline = new MInOutLine(shipment);
+//					sline.setOrderLine(line, 0, qtyToDeliver);
+//					sline.setQtyEntered(qtyToDeliver);
+//					sline.setC_UOM_ID(line.getC_UOM_ID());
+//					sline.setQty(qtyToDeliver);
+//					sline.setM_Warehouse_ID(line.getM_Warehouse_ID());
+//					sline.saveEx();
+//					//	Process It
+//					if (!shipment.processIt(DocAction.ACTION_Complete)) {
+//						log.warning("Failed: " + shipment);
+//					}
+//					shipment.saveEx();
+//					//					ProcessBuilder.create(order.getCtx())
+//					//						.process(OrderLineCreateShipmentAbstract.getProcessId())
+//					//						.withRecordId(I_C_OrderLine.Table_ID, line.getC_OrderLine_ID())
+//					//						.withParameter(OrderLineCreateShipmentAbstract.DOCACTION, DocAction.ACTION_Complete)
+//					//						.withoutTransactionClose()
+//					//					.execute(order.get_TrxName());
+//				}
+//			});
+//		}
 
 		/**
 		 * Create a commission based on rules defined and get result inside order line 
@@ -1051,6 +1103,8 @@ public class AgencyValidator implements ModelValidator
 					throw new AdempiereException(commissionRun.getProcessMsg());
 				}
 			});
+			//	Reverse previous commission
+			reversePreviousCommissionOrders(invoice);
 		}
 
 		/**
