@@ -813,6 +813,7 @@ public class AgencyValidator implements ModelValidator
 					MOrderLine reverseOrderLine = new MOrderLine(reverseOrder);
 					PO.copyValues(commissionOrderLine, reverseOrderLine);
 					reverseOrderLine.setOrder(reverseOrder);
+					reverseOrderLine.setC_Order_ID(reverseOrder.getC_Order_ID());
 					reverseOrderLine.setQty(reverseOrderLine.getQtyOrdered().negate());
 					reverseOrderLine.setProcessed(true);
 					reverseOrderLine.saveEx();
@@ -820,7 +821,9 @@ public class AgencyValidator implements ModelValidator
 				reverseOrder.setDocStatus(MOrder.DOCSTATUS_Closed);
 				reverseOrder.setDocAction(MOrder.DOCACTION_None);
 				reverseOrder.setProcessed(true);
+				reverseOrder.calculateTaxTotal();
 				reverseOrder.saveEx();
+				reverseOrder.processIt(MOrder.ACTION_Post);
 			});
 		}
 		
