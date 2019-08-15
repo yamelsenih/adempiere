@@ -34,6 +34,7 @@ public class CreateAttendance extends CreateAttendanceAbstract {
 	@Override
 	protected String doIt() throws Exception {
 		int created = 0;
+		MHRAttendanceBatch attendanceBatch = null;
 		//	Loop for keys
 		for(Integer key : getSelectionKeys()) {
 			int employeeId = getSelectionAsInt(key, "EE_HR_Employee_ID");
@@ -50,7 +51,7 @@ public class CreateAttendance extends CreateAttendanceAbstract {
 			}
 			//	Add default
 			MHRWorkShift workShift = MHRWorkShift.getById(getCtx(), workShiftId);
-			MHRAttendanceBatch attendanceBatch = new MHRAttendanceBatch(getCtx(), 0, get_TrxName());
+			attendanceBatch = new MHRAttendanceBatch(getCtx(), 0, get_TrxName());
 			MHREmployee employee = MHREmployee.getById(getCtx(), employeeId);
 			//	Set Employee
 			attendanceBatch.setC_BPartner_ID(employee.getC_BPartner_ID());
@@ -127,7 +128,7 @@ public class CreateAttendance extends CreateAttendanceAbstract {
 			processDocument(attendanceBatch);
 			created++;
 		}
-		return "@Created@ " + created;
+		return "@Created@ " + created + (created == 1? " [@HR_AttendanceBatch_ID@ " + attendanceBatch.getDocumentNo() + "]": "");
 	}
 	
 	/**

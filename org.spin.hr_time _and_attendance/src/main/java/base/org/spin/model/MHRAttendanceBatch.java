@@ -757,6 +757,9 @@ public class MHRAttendanceBatch extends X_HR_AttendanceBatch implements DocActio
 	 * - Shift Work add to employee configuration
 	 */
 	private void validateWorkShift() {
+		if(getHR_WorkShift_ID() > 0) {
+			return;
+		}
 		MHREmployee employee = MHREmployee.getById(getCtx(), getHR_Employee_ID());
 		int workShiftId = 0;
 		int shiftScheduleId = 0;
