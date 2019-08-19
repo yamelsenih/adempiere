@@ -103,6 +103,19 @@ public interface I_HR_LeaveAssign
 	  */
 	public int getCreatedBy();
 
+    /** Column name DateLastRun */
+    public static final String COLUMNNAME_DateLastRun = "DateLastRun";
+
+	/** Set Date last run.
+	  * Date the process was last run.
+	  */
+	public void setDateLastRun (Timestamp DateLastRun);
+
+	/** Get Date last run.
+	  * Date the process was last run.
+	  */
+	public Timestamp getDateLastRun();
+
     /** Column name HR_Employee_ID */
     public static final String COLUMNNAME_HR_Employee_ID = "HR_Employee_ID";
 

@@ -23,7 +23,7 @@ import org.compiere.util.KeyNamePair;
 
 /** Generated Interface for HR_AttendanceBatch
  *  @author Adempiere (generated) 
- *  @version Release 3.9.0
+ *  @version Release 3.9.2
  */
 public interface I_HR_AttendanceBatch 
 {
@@ -177,10 +177,10 @@ public interface I_HR_AttendanceBatch
     /** Column name HR_AttendanceBatch_ID */
     public static final String COLUMNNAME_HR_AttendanceBatch_ID = "HR_AttendanceBatch_ID";
 
-	/** Set Attendance Batch ID	  */
+	/** Set Attendance Batch	  */
 	public void setHR_AttendanceBatch_ID (int HR_AttendanceBatch_ID);
 
-	/** Get Attendance Batch ID	  */
+	/** Get Attendance Batch	  */
 	public int getHR_AttendanceBatch_ID();
 
     /** Column name HR_Employee_ID */
@@ -249,6 +249,32 @@ public interface I_HR_AttendanceBatch
 	  * Indicates if this document requires approval
 	  */
 	public boolean isApproved();
+
+    /** Column name IsAttendanceGenerated */
+    public static final String COLUMNNAME_IsAttendanceGenerated = "IsAttendanceGenerated";
+
+	/** Set Attendance Generated.
+	  * Attendance Generated automatically
+	  */
+	public void setIsAttendanceGenerated (boolean IsAttendanceGenerated);
+
+	/** Get Attendance Generated.
+	  * Attendance Generated automatically
+	  */
+	public boolean isAttendanceGenerated();
+
+    /** Column name IsLeave */
+    public static final String COLUMNNAME_IsLeave = "IsLeave";
+
+	/** Set Leave.
+	  * This document is generated from a leave
+	  */
+	public void setIsLeave (boolean IsLeave);
+
+	/** Get Leave.
+	  * This document is generated from a leave
+	  */
+	public boolean isLeave();
 
     /** Column name Processed */
     public static final String COLUMNNAME_Processed = "Processed";

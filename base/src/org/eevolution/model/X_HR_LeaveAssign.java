@@ -32,7 +32,7 @@ public class X_HR_LeaveAssign extends PO implements I_HR_LeaveAssign, I_Persiste
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20190731L;
+	private static final long serialVersionUID = 20190801L;
 
     /** Standard Constructor */
     public X_HR_LeaveAssign (Properties ctx, int HR_LeaveAssign_ID, String trxName)
@@ -120,6 +120,23 @@ public class X_HR_LeaveAssign extends PO implements I_HR_LeaveAssign, I_Persiste
 		if (ii == null)
 			 return 0;
 		return ii.intValue();
+	}
+
+	/** Set Date last run.
+		@param DateLastRun 
+		Date the process was last run.
+	  */
+	public void setDateLastRun (Timestamp DateLastRun)
+	{
+		set_Value (COLUMNNAME_DateLastRun, DateLastRun);
+	}
+
+	/** Get Date last run.
+		@return Date the process was last run.
+	  */
+	public Timestamp getDateLastRun () 
+	{
+		return (Timestamp)get_Value(COLUMNNAME_DateLastRun);
 	}
 
 	public org.eevolution.model.I_HR_Employee getHR_Employee() throws RuntimeException

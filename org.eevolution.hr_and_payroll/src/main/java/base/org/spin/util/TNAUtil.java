@@ -26,6 +26,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import org.compiere.model.Query;
 import org.compiere.util.DB;
+import org.compiere.util.Env;
 import org.compiere.util.TimeUtil;
 import org.compiere.util.Util;
 import org.eevolution.model.I_HR_Leave;
@@ -211,6 +212,27 @@ public class TNAUtil {
 	}
 	
 	/**
+	 * Verify is a leave is encashment
+	 * @param ctx
+	 * @param leaveTypeValue
+	 * @param trxName
+	 * @return
+	 */
+	public static boolean isLeaveAllowedEncashment(Properties ctx, String leaveTypeValue, String trxName) {
+		MHRLeaveType leaveType = MHRLeaveType.getByValue(ctx, leaveTypeValue, trxName);
+		return leaveType != null && leaveType.isAllowedEncashment();
+	}
+	
+	/**
+	 * Verify is a leave is encashment
+	 * @param leaveTypeValue
+	 * @return
+	 */
+	public static boolean isLeaveAllowedEncashment(String leaveTypeValue) {
+		return isLeaveAllowedEncashment(Env.getCtx(), leaveTypeValue, null);
+	}
+	
+	/**
 	 * Get Leave list between two dates
 	 * @param ctx
 	 * @param businessPartnerId
@@ -300,6 +322,31 @@ public class TNAUtil {
 		} else if(timeUnit.equals(MHRLeaveType.TIMEUNIT_Month)) {
 			return TimeUtil.DURATIONUNIT_Month;
 		} else if(timeUnit.equals(MHRLeaveType.TIMEUNIT_Year)) {
+			return TimeUtil.DURATIONUNIT_Year;
+		} else {
+			return null;
+		}
+	}
+	
+	/**
+	 * Get Duration for TimeUtil from Frequency Type
+	 * @param frequencyType
+	 * @return
+	 */
+	public static String getDurationUnitFromFrequencyType(String frequencyType) {
+		if(Util.isEmpty(frequencyType)) {
+			return null;
+		}
+		//	
+		if(frequencyType.equals(MHRLeaveType.FREQUENCYTYPE_Minute)) {
+			return TimeUtil.DURATIONUNIT_Minute;
+		} else if(frequencyType.equals(MHRLeaveType.FREQUENCYTYPE_Hour)) {
+			return TimeUtil.DURATIONUNIT_Hour;
+		} else if(frequencyType.equals(MHRLeaveType.FREQUENCYTYPE_Day)) {
+			return TimeUtil.DURATIONUNIT_Day;
+		} else if(frequencyType.equals(MHRLeaveType.FREQUENCYTYPE_Monthly)) {
+			return TimeUtil.DURATIONUNIT_Month;
+		} else if(frequencyType.equals(MHRLeaveType.FREQUENCYTYPE_Yearly)) {
 			return TimeUtil.DURATIONUNIT_Year;
 		} else {
 			return null;

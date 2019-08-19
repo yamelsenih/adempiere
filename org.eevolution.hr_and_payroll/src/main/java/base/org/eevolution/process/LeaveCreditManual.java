@@ -17,10 +17,12 @@
 
 package org.eevolution.process;
 
+import java.math.BigDecimal;
 import java.sql.Timestamp;
 
 import org.adempiere.exceptions.AdempiereException;
-import org.compiere.util.DB;
+import org.compiere.util.DisplayType;
+import org.compiere.util.Env;
 import org.compiere.util.TimeUtil;
 import org.compiere.util.Util;
 import org.eevolution.model.MHRLeave;
@@ -43,6 +45,7 @@ public class LeaveCreditManual extends LeaveCreditManualAbstract {
 		MHRLeaveAssign assignedLeave = new MHRLeaveAssign(getCtx(), getRecord_ID(), get_TrxName());
 		MHRLeaveType leaveType = MHRLeaveType.getById(getCtx(), assignedLeave.getHR_LeaveType_ID(), get_TrxName());
 		Timestamp validFrom = assignedLeave.getValidFrom();
+		boolean isFromPreviousLeave = false;
 		//	
 		if(getValidFrom() != null) {
 			if(TimeUtil.isValid(validFrom, assignedLeave.getValidTo(), getValidFrom())) {
@@ -50,14 +53,20 @@ public class LeaveCreditManual extends LeaveCreditManualAbstract {
 			}
 			validFrom = getValidFrom();
 		} else {	//	Get from last leave
-			validFrom = DB.getSQLValueTSEx(get_TrxName(), "SELECT DateDoc "
-					+ "FROM HR_Leave "
-					+ "WHERE HR_LeaveAssign_ID = ? "
-					+ "ORDER BY DateDoc DESC", assignedLeave.getHR_LeaveAssign_ID());
+			validFrom = assignedLeave.getDateLastRun();
+			isFromPreviousLeave = true;
 		}
 		//
 		if(validFrom == null) {
 			validFrom = assignedLeave.getValidFrom();
+		}
+		//	
+		int leaveToUse = assignedLeave.getBalance();
+		if(getNoOfLeavesAllocated() < leaveToUse) {
+			leaveToUse = getNoOfLeavesAllocated();
+		}
+		if(leaveToUse == 0) {
+			throw new AdempiereException("@HR_LeaveAssign_ID@ @Used@");
 		}
 		String durationType = TNAUtil.getDurationUnitFromTimeUnit(leaveType.getTimeUnit());
 		//	Create
@@ -67,8 +76,16 @@ public class LeaveCreditManual extends LeaveCreditManualAbstract {
 		if(durationType.equals(TimeUtil.DURATIONUNIT_Hour)) {
 			durationType = TimeUtil.DURATIONUNIT_Day;
 		}
+		BigDecimal leaveDuration = leaveType.getLeaveDurationTime();
+		if(leaveDuration == null
+				|| leaveDuration.compareTo(Env.ZERO) <= 0) {
+			leaveDuration = Env.ONE;
+		}
+		if(isFromPreviousLeave) {
+			validFrom = TimeUtil.addDuration(validFrom, durationType, leaveDuration);
+		}
 		//	
-		for(int i = 0; i < getNoOfLeavesAllocated(); i++) {
+		for(int i = 0; i < leaveToUse; i++) {
 			MHRLeave leave = new MHRLeave(getCtx(), 0, get_TrxName());
 			leave.setHR_LeaveType_ID(leaveType.getHR_LeaveType_ID());
 			leave.setHR_LeaveAssign_ID(assignedLeave.getHR_LeaveAssign_ID());
@@ -82,9 +99,12 @@ public class LeaveCreditManual extends LeaveCreditManualAbstract {
 				throw new AdempiereException(leave.getProcessMsg());
 			}
 			leave.saveEx();
+			addLog("@HR_Leave_ID@ " + leave.getDocumentNo() + " @DateDoc@: " + DisplayType.getDateFormat(DisplayType.Date).format(leave.getDateDoc()));
 			//	Increase valid from
-			validFrom = TimeUtil.addDuration(validFrom, durationType, i);
+			validFrom = TimeUtil.addDuration(validFrom, durationType, leaveDuration);
 		}
-		return "";
+		assignedLeave.setDateLastRun(validFrom);
+		assignedLeave.saveEx();
+		return "@Created@: " + leaveToUse;
 	}
 }

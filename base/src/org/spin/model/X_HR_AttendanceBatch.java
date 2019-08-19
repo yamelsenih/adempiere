@@ -25,14 +25,14 @@ import org.compiere.util.KeyNamePair;
 
 /** Generated Model for HR_AttendanceBatch
  *  @author Adempiere (generated) 
- *  @version Release 3.9.0 - $Id$ */
+ *  @version Release 3.9.2 - $Id$ */
 public class X_HR_AttendanceBatch extends PO implements I_HR_AttendanceBatch, I_Persistent 
 {
 
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20181004L;
+	private static final long serialVersionUID = 20190801L;
 
     /** Standard Constructor */
     public X_HR_AttendanceBatch (Properties ctx, int HR_AttendanceBatch_ID, String trxName)
@@ -51,7 +51,6 @@ public class X_HR_AttendanceBatch extends PO implements I_HR_AttendanceBatch, I_
 			setDocumentNo (null);
 			setHR_AttendanceBatch_ID (0);
 			setHR_Employee_ID (0);
-			setHR_WorkShift_ID (0);
 			setIsApproved (false);
 // N
 			setProcessed (false);
@@ -294,8 +293,8 @@ public class X_HR_AttendanceBatch extends PO implements I_HR_AttendanceBatch, I_
         return new KeyNamePair(get_ID(), getDocumentNo());
     }
 
-	/** Set Attendance Batch ID.
-		@param HR_AttendanceBatch_ID Attendance Batch ID	  */
+	/** Set Attendance Batch.
+		@param HR_AttendanceBatch_ID Attendance Batch	  */
 	public void setHR_AttendanceBatch_ID (int HR_AttendanceBatch_ID)
 	{
 		if (HR_AttendanceBatch_ID < 1) 
@@ -304,8 +303,8 @@ public class X_HR_AttendanceBatch extends PO implements I_HR_AttendanceBatch, I_
 			set_ValueNoCheck (COLUMNNAME_HR_AttendanceBatch_ID, Integer.valueOf(HR_AttendanceBatch_ID));
 	}
 
-	/** Get Attendance Batch ID.
-		@return Attendance Batch ID	  */
+	/** Get Attendance Batch.
+		@return Attendance Batch	  */
 	public int getHR_AttendanceBatch_ID () 
 	{
 		Integer ii = (Integer)get_Value(COLUMNNAME_HR_AttendanceBatch_ID);
@@ -410,6 +409,54 @@ public class X_HR_AttendanceBatch extends PO implements I_HR_AttendanceBatch, I_
 	public boolean isApproved () 
 	{
 		Object oo = get_Value(COLUMNNAME_IsApproved);
+		if (oo != null) 
+		{
+			 if (oo instanceof Boolean) 
+				 return ((Boolean)oo).booleanValue(); 
+			return "Y".equals(oo);
+		}
+		return false;
+	}
+
+	/** Set Attendance Generated.
+		@param IsAttendanceGenerated 
+		Attendance Generated automatically
+	  */
+	public void setIsAttendanceGenerated (boolean IsAttendanceGenerated)
+	{
+		set_Value (COLUMNNAME_IsAttendanceGenerated, Boolean.valueOf(IsAttendanceGenerated));
+	}
+
+	/** Get Attendance Generated.
+		@return Attendance Generated automatically
+	  */
+	public boolean isAttendanceGenerated () 
+	{
+		Object oo = get_Value(COLUMNNAME_IsAttendanceGenerated);
+		if (oo != null) 
+		{
+			 if (oo instanceof Boolean) 
+				 return ((Boolean)oo).booleanValue(); 
+			return "Y".equals(oo);
+		}
+		return false;
+	}
+
+	/** Set Leave.
+		@param IsLeave 
+		This document is generated from a leave
+	  */
+	public void setIsLeave (boolean IsLeave)
+	{
+		set_Value (COLUMNNAME_IsLeave, Boolean.valueOf(IsLeave));
+	}
+
+	/** Get Leave.
+		@return This document is generated from a leave
+	  */
+	public boolean isLeave () 
+	{
+		Object oo = get_Value(COLUMNNAME_IsLeave);
 		if (oo != null) 
 		{
 			 if (oo instanceof Boolean) 

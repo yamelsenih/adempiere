@@ -56,21 +56,21 @@ public class MHRLeaveAssign extends X_HR_LeaveAssign {
     	setUsedLeaves(getUsedLeaves() + usedLeave);
     }
     
-    /**
-     * Add Allocated Balance
-     * @param noOfLeavestoAdd
-     */
-    public void addNoOfLeavesAllocated(int noOfLeavestoAdd) {
-    	setNoOfLeavesAllocated(getNoOfLeavesAllocated() + noOfLeavestoAdd);
-    }
-    
     @Override
-    protected boolean afterSave(boolean newRecord, boolean success) {
+    protected boolean beforeSave(boolean newRecord) {
 		if(is_ValueChanged(COLUMNNAME_NoOfLeavesAllocated)) {
-			setTotalLeaves(getTotalLeaves() + getNoOfLeavesAllocated());
+			setTotalLeaves(getNoOfLeavesAllocated());
 		}
 		//	Calculate balance
 		setBalance(getTotalLeaves() - getUsedLeaves());
     	return true;
     }
+
+	@Override
+	public String toString() {
+		return "MHRLeaveAssign [getHR_LeaveAssign_ID()=" + getHR_LeaveAssign_ID() + ", getHR_LeaveType()="
+				+ MHRLeaveType.getById(getCtx(), getHR_LeaveType_ID(), get_TrxName()) + "]";
+	}
+    
+    
 }

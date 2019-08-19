@@ -292,7 +292,7 @@ public class MHRLeave extends X_HR_Leave implements DocAction, DocOptions {
 			approveIt();
 		log.info(toString());
 		//	Reload Leave balance 
-		addAllocatedLeave();
+		addUsedLeave();
 		//	User Validation
 		String valid = ModelValidationEngine.get().fireDocValidate(this, ModelValidator.TIMING_AFTER_COMPLETE);
 		if (valid != null)
@@ -309,34 +309,23 @@ public class MHRLeave extends X_HR_Leave implements DocAction, DocOptions {
 	}	//	completeIt
 	
 	/**
-	 * Reload Leave balance
-	 */
-	private void addAllocatedLeave() {
-		if(getHR_LeaveAssign_ID() > 0) {
-			MHRLeaveAssign leaveAssign = new MHRLeaveAssign(getCtx(), getHR_LeaveAssign_ID(), get_TrxName());
-			leaveAssign.addNoOfLeavesAllocated(1);
-			leaveAssign.saveEx();
-		}
-	}
-	
-	/**
-	 * Remove Leave balance
-	 */
-	private void removeAllocatedLeave() {
-		if(getHR_LeaveAssign_ID() > 0) {
-			MHRLeaveAssign leaveAssign = new MHRLeaveAssign(getCtx(), getHR_LeaveAssign_ID(), get_TrxName());
-			leaveAssign.addNoOfLeavesAllocated(-1);
-			leaveAssign.saveEx();
-		}
-	}
-	
-	/**
 	 * Add Used Leave
 	 */
 	private void addUsedLeave() {
 		if(getHR_LeaveAssign_ID() > 0) {
 			MHRLeaveAssign leaveAssign = new MHRLeaveAssign(getCtx(), getHR_LeaveAssign_ID(), get_TrxName());
 			leaveAssign.addUsedLeave(1);
+			leaveAssign.saveEx();
+		}
+	}
+	
+	/**
+	 * Remove leave
+	 */
+	private void removeUsedLeave() {
+		if(getHR_LeaveAssign_ID() > 0) {
+			MHRLeaveAssign leaveAssign = new MHRLeaveAssign(getCtx(), getHR_LeaveAssign_ID(), get_TrxName());
+			leaveAssign.addUsedLeave(-1);
 			leaveAssign.saveEx();
 		}
 	}
@@ -375,7 +364,7 @@ public class MHRLeave extends X_HR_Leave implements DocAction, DocOptions {
 		if (m_processMsg != null)
 			return false;
 		addDescription(Msg.getMsg(getCtx(), "Voided"));
-		removeAllocatedLeave();
+		removeUsedLeave();
 		// After Void
 		m_processMsg = ModelValidationEngine.get().fireDocValidate(this,ModelValidator.TIMING_AFTER_VOID);
 		if (m_processMsg != null)
@@ -412,8 +401,6 @@ public class MHRLeave extends X_HR_Leave implements DocAction, DocOptions {
 		
 		setProcessed(true);
 		setDocAction(DOCACTION_None);
-		//	Add Used Leave
-		addUsedLeave();
 		// After Close
 		m_processMsg = ModelValidationEngine.get().fireDocValidate(this,ModelValidator.TIMING_AFTER_CLOSE);
 		if (m_processMsg != null)
