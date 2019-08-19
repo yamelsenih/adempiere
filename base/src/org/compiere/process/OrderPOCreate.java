@@ -292,6 +292,7 @@ public class OrderPOCreate extends OrderPOCreateAbstract {
 				poLine.setQtyOrdered(line.getQtyOrdered());
 				poLine.setDescription(line.getDescription());
 				poLine.setDatePromised(line.getDatePromised());
+				poLine.set_ValueOfColumn("IsBonusProduct", line.get_Value("IsBonusProduct"));
 				poLine.setPrice();
 				poLine.saveEx();
 				//	Set link to source
