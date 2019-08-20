@@ -236,7 +236,7 @@ public class ProjectProcessorUtils {
 					if (entity.get_Table_ID() == MProject.Table_ID) { 
 						if (project!= null 
 								&& project.getProjectManager_ID()!=0)
-							if (addQueued(pLog,project.getProjectManager_ID()))
+							if (addQueued(pLog, entity.getUpdatedBy(), project.getProjectManager_ID()))
 								addQueued ++;
 						
 						projectUsers = new Query(entity.getCtx(), "C_ProjectUser", "C_Project_ID = ? AND "
@@ -252,12 +252,12 @@ public class ProjectProcessorUtils {
 					
 						if (projectPhase!= null 
 								&& projectPhase.getResponsible_ID()!=0)
-							if (addQueued(pLog,projectPhase.getResponsible_ID()))
+							if (addQueued(pLog, entity.getUpdatedBy(), projectPhase.getResponsible_ID()))
 								addQueued ++;
 						
 						if (project!= null 
 								&& project.getProjectManager_ID()!=0)
-							if (addQueued(pLog,project.getProjectManager_ID()))
+							if (addQueued(pLog, entity.getUpdatedBy(), project.getProjectManager_ID()))
 								addQueued ++;
 						
 						projectUsers = new Query(entity.getCtx(), "C_ProjectUser", "C_ProjectPhase_ID = ? AND "  
@@ -273,17 +273,17 @@ public class ProjectProcessorUtils {
 						
 						if (projectTask!= null 
 								&& projectTask.getResponsible_ID()!=0)
-							if (addQueued(pLog,projectTask.getResponsible_ID()))
+							if (addQueued(pLog, entity.getUpdatedBy(), projectTask.getResponsible_ID()))
 								addQueued ++;
 						
 						if (projectPhase!= null 
 								&& projectPhase.getResponsible_ID()!=0)
-							if (addQueued(pLog,projectPhase.getResponsible_ID()))
+							if (addQueued(pLog, entity.getUpdatedBy(), projectPhase.getResponsible_ID()))
 								addQueued ++;
 						
 						if (project!= null 
 								&& project.getProjectManager_ID()!=0)
-							if (addQueued(pLog,project.getProjectManager_ID()))
+							if (addQueued(pLog, entity.getUpdatedBy(), project.getProjectManager_ID()))
 								addQueued ++;
 						
 						projectUsers = new Query(entity.getCtx(), "C_ProjectUser", "C_ProjectTask_ID = ? AND "
@@ -300,7 +300,7 @@ public class ProjectProcessorUtils {
 						for (GenericPO pUser : projectUsers) {
 							MUser user = MUser.get(entity.getCtx(), pUser.get_ValueAsInt(MProject.COLUMNNAME_AD_User_ID));
 							if ("P".equals(user.get_ValueAsString("ProjectNotification")))
-								addQueued(pLog,user.get_ID());
+								addQueued(pLog, entity.getUpdatedBy(), user.get_ID());
 						}
 					}
 					//Project Members
@@ -309,11 +309,11 @@ public class ProjectProcessorUtils {
 						for (MProjectMember mProjectMember : members) {
 							MUser user = (MUser) mProjectMember.getAD_User();
 							if ("M".equals(user.get_ValueAsString("ProjectNotification"))) { 
-								if (addQueued(pLog,mProjectMember.getAD_User_ID(),mProjectMember.getNotificationType(),true))
+								if (addQueued(pLog, entity.getUpdatedBy(), mProjectMember.getAD_User_ID(),mProjectMember.getNotificationType(),true))
 									addQueued ++;
 							}
 							else {
-								if (addQueued(pLog,mProjectMember.getAD_User_ID(),mProjectMember.getNotificationType(),false))
+								if (addQueued(pLog, entity.getUpdatedBy(), mProjectMember.getAD_User_ID(),mProjectMember.getNotificationType(),false))
 									addQueued ++;
 							}
 						}
@@ -329,17 +329,19 @@ public class ProjectProcessorUtils {
 		return pLog;
 	}	//MProjectProcessorLog
 	
-	private static boolean addQueued(MProjectProcessorLog pLog, int AD_User_ID, String NotificationType) {
-		return addQueued(pLog, AD_User_ID,NotificationType,true);
-	}
 	/**
 	 * Add Queued
 	 * @param pLog
-	 * @param AD_User_ID
+	 * @param userId
 	 * @return
 	 */
-    private static boolean addQueued(MProjectProcessorLog pLog, int AD_User_ID, String NotificationType, boolean createRecord) {
-    	MProjectProcessorQueued queued = new MProjectProcessorQueued(pLog, AD_User_ID);
+    private static boolean addQueued(MProjectProcessorLog pLog, int updatedById, int userId, String NotificationType, boolean createRecord) {
+    	MUser user = MUser.get(pLog.getCtx(), userId);
+    	if(user.getAD_User_ID() == updatedById
+    			&& !user.isIncludeOwnChanges()) {
+    		return false;
+    	}
+    	MProjectProcessorQueued queued = new MProjectProcessorQueued(pLog, userId);
     	if (NotificationType!=null
     			&& !NotificationType.equals(queued.getNotificationType())) 
     		queued.setNotificationType(NotificationType);
@@ -361,11 +363,11 @@ public class ProjectProcessorUtils {
     /**
      * Add Queued
      * @param pLog
-     * @param AD_User_ID
+     * @param userId
      * @return
      */
-    private static boolean addQueued(MProjectProcessorLog pLog, int AD_User_ID) {
-    	return addQueued(pLog, AD_User_ID, null);
+    private static boolean addQueued(MProjectProcessorLog pLog, int updatedById, int userId) {
+    	return addQueued(pLog, updatedById, userId, null, false);
     }
     
     /**
