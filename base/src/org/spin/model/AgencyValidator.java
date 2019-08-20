@@ -26,6 +26,7 @@ import org.adempiere.exceptions.AdempiereException;
 import org.compiere.model.I_AD_Image;
 import org.compiere.model.I_C_BPartner;
 import org.compiere.model.I_C_Commission;
+import org.compiere.model.I_C_CommissionLine;
 import org.compiere.model.I_C_CommissionRun;
 import org.compiere.model.I_C_CommissionSalesRep;
 import org.compiere.model.I_C_CommissionType;
@@ -35,6 +36,7 @@ import org.compiere.model.I_C_OrderLine;
 import org.compiere.model.I_C_Project;
 import org.compiere.model.I_C_ProjectPhase;
 import org.compiere.model.I_C_ProjectTask;
+import org.compiere.model.I_C_RfQ;
 import org.compiere.model.I_C_RfQResponse;
 import org.compiere.model.I_R_Request;
 import org.compiere.model.I_S_TimeExpense;
@@ -340,6 +342,8 @@ public class AgencyValidator implements ModelValidator
 								linkSourceOrder.set_ValueOfColumn("IsDirectInvoice", order.get_ValueAsBoolean("IsDirectInvoice"));
 							}
 							linkSourceOrder.saveEx();
+							//	Copy commission from RFQ Response
+							copyCommissionFromFRQResponse(order.get_ValueAsInt(I_C_RfQ.COLUMNNAME_C_RfQ_ID), linkSourceOrder);
 						}
 					}
 				} else if(po instanceof MProjectTask) {
@@ -441,6 +445,30 @@ public class AgencyValidator implements ModelValidator
 			//
 			return null;
 		}	//	modelChange
+
+		/**
+		 * Copy commission from RFQ Response to Purchase Order	
+		 * @param RFQ reference
+		 * @param linkSourceOrder
+		 */
+		private void copyCommissionFromFRQResponse(int rFQId, MOrder linkSourceOrder) {
+			new Query(linkSourceOrder.getCtx(), I_C_CommissionLine.Table_Name, 
+					"EXISTS(SELECT 1 FROM C_RfQResponse rr "
+					+ "		WHERE rr.C_RfQResponse_ID = C_CommissionLine.C_RfQResponse_ID "
+					+ "		AND rr.C_RfQ_ID = ? "
+					+ "		AND rr.IsSelectedWinner = 'Y' "
+					+ "		AND rr.IsComplete = 'Y')", linkSourceOrder.get_TrxName())
+				.setParameters(rFQId)
+				.setOnlyActiveRecords(true)
+				.<MCommissionLine>list()
+				.forEach(commissionLine -> {
+					MCommissionLine lineToAdd = new MCommissionLine(commissionLine.getCtx(),0, commissionLine.get_TrxName());
+					PO.copyValues(commissionLine, lineToAdd);
+					lineToAdd.set_ValueOfColumn(I_C_RfQResponse.COLUMNNAME_C_RfQResponse_ID, null);
+					lineToAdd.set_ValueOfColumn(I_C_Order.COLUMNNAME_C_Order_ID, linkSourceOrder.getC_Order_ID());
+					lineToAdd.saveEx();
+				});
+		}
 
 		@Override
 		public String docValidate (PO po, int timing) {
