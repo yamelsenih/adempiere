@@ -164,12 +164,11 @@ public class AccountSchemaExporter extends ClientExporterHandler {
 					.setOnlyActiveRecords(true)
 					.setClient_ID()
 					.list();
-				for(MAccount validCombination : validCombinationList) {
-					cleanOfficialReference(validCombination);
-					validCombination.setAD_Org_ID(0);
-					packOut.createGenericPO(document, validCombination, true, parentsToExclude);
-				}
-			
+			for(MAccount validCombination : validCombinationList) {
+				cleanOfficialReference(validCombination);
+				validCombination.setAD_Org_ID(0);
+				packOut.createGenericPO(document, validCombination, true, parentsToExclude);
+			}
 		}
 	}
 	

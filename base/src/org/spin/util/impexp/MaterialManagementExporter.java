@@ -23,18 +23,28 @@ import java.util.Properties;
 
 import javax.xml.transform.sax.TransformerHandler;
 
+import org.adempiere.model.MProductClass;
+import org.adempiere.model.MProductClassification;
+import org.adempiere.model.MProductGroup;
 import org.adempiere.pipo.PackOut;
 import org.compiere.model.I_AD_Tree;
 import org.compiere.model.I_C_Currency;
+import org.compiere.model.I_C_UOM;
 import org.compiere.model.I_C_UOM_Conversion;
 import org.compiere.model.I_M_Locator;
 import org.compiere.model.I_M_Product;
 import org.compiere.model.I_M_ProductPrice;
+import org.compiere.model.I_M_Product_Category;
+import org.compiere.model.I_M_Product_Class;
+import org.compiere.model.I_M_Product_Classification;
+import org.compiere.model.I_M_Product_Group;
 import org.compiere.model.I_M_Warehouse;
 import org.compiere.model.MLocator;
 import org.compiere.model.MProduct;
+import org.compiere.model.MProductCategory;
 import org.compiere.model.MProductPrice;
 import org.compiere.model.MTree;
+import org.compiere.model.MUOM;
 import org.compiere.model.MUOMConversion;
 import org.compiere.model.MWarehouse;
 import org.compiere.model.Query;
@@ -88,7 +98,7 @@ public class MaterialManagementExporter extends ClientExporterHandler {
 			}
 			//	Remove default bank account
 			cleanOfficialReference(product);
-			exportMenuElementValue(product, document);
+			exportMenuProduct(product, document);
 		}
 		//	Warehouse
 		List<MWarehouse> warehouseList = new Query(ctx, I_M_Warehouse.Table_Name, null, null)
@@ -111,7 +121,78 @@ public class MaterialManagementExporter extends ClientExporterHandler {
 			for(MLocator locator : locatorList) {
 				packOut.createGenericPO(document, locator);
 			}
-		}	
+		}
+		createProductsForeign(ctx, document, parentsToExclude);
+	}
+	
+	/**
+	 * Export product foreign tables
+	 * @param ctx
+	 * @param document
+	 * @param parentsToExclude
+	 * @throws SAXException
+	 */
+	private void createProductsForeign(Properties ctx, TransformerHandler document, List<String> parentsToExclude) throws SAXException {
+		//	Product class
+		List<MProductClass> productClassList = new Query(ctx, I_M_Product_Class.Table_Name, null, null)
+				.setOnlyActiveRecords(true)
+				.setClient_ID()
+				.list();
+		//	Export
+		for(MProductClass productClass : productClassList) {
+			if(productClass.get_ID() < PackOut.MAX_OFFICIAL_ID) {
+				continue;
+			}
+			packOut.createGenericPO(document, productClass);
+		}		
+		//	Product classification
+		List<MProductClassification> productClassificationList = new Query(ctx, I_M_Product_Classification.Table_Name, null, null)
+				.setOnlyActiveRecords(true)
+				.setClient_ID()
+				.list();
+		//	Export
+		for(MProductClassification productClassification : productClassificationList) {
+			if(productClassification.get_ID() < PackOut.MAX_OFFICIAL_ID) {
+				continue;
+			}
+			packOut.createGenericPO(document, productClassification);
+		}
+		//	Product group
+		List<MProductGroup> productGroupList = new Query(ctx, I_M_Product_Group.Table_Name, null, null)
+				.setOnlyActiveRecords(true)
+				.setClient_ID()
+				.list();
+		//	Export
+		for(MProductGroup productGroup : productGroupList) {
+			if(productGroup.get_ID() < PackOut.MAX_OFFICIAL_ID) {
+				continue;
+			}
+			packOut.createGenericPO(document, productGroup);
+		}
+		//	Product category
+		List<MProductCategory> productCategoryList = new Query(ctx, I_M_Product_Category.Table_Name, null, null)
+				.setOnlyActiveRecords(true)
+				.setClient_ID()
+				.list();
+		//	Export
+		for(MProductCategory productCategory : productCategoryList) {
+			if(productCategory.get_ID() < PackOut.MAX_OFFICIAL_ID) {
+				continue;
+			}
+			packOut.createGenericPO(document, productCategory);
+		}
+		//	Product class
+		List<MUOM> uomList = new Query(ctx, I_C_UOM.Table_Name, null, null)
+				.setOnlyActiveRecords(true)
+				.setClient_ID()
+				.list();
+		//	Export
+		for(MUOM uom : uomList) {
+			if(uom.get_ID() < PackOut.MAX_OFFICIAL_ID) {
+				continue;
+			}
+			packOut.createGenericPO(document, uom);
+		}
 	}
 	
 	/**
@@ -120,7 +201,7 @@ public class MaterialManagementExporter extends ClientExporterHandler {
 	 * @param document
 	 * @throws SAXException
 	 */
-	private void exportMenuElementValue(MProduct product, TransformerHandler document) throws SAXException {
+	private void exportMenuProduct(MProduct product, TransformerHandler document) throws SAXException {
 		//	Export current
 		packOut.createGenericPO(document, product, true, parentsToExclude);
 		if(product.isSummary()) {
@@ -143,7 +224,7 @@ public class MaterialManagementExporter extends ClientExporterHandler {
 				}
 				//	Remove default bank account
 				cleanOfficialReference(productChild);
-				exportMenuElementValue(productChild, document);
+				exportMenuProduct(productChild, document);
 			}
 		}
 		product.set_ValueOfColumn("M_Locator_ID", null);

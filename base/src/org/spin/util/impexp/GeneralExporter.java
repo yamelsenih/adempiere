@@ -34,6 +34,8 @@ import org.compiere.model.I_AD_Record_Access;
 import org.compiere.model.I_AD_Role;
 import org.compiere.model.I_AD_Role_Included;
 import org.compiere.model.I_AD_Role_OrgAccess;
+import org.compiere.model.I_AD_Sequence;
+import org.compiere.model.I_AD_Sequence_No;
 import org.compiere.model.I_AD_Table_Access;
 import org.compiere.model.I_AD_Task_Access;
 import org.compiere.model.I_AD_User_Roles;
@@ -43,9 +45,12 @@ import org.compiere.model.I_C_BP_Group;
 import org.compiere.model.I_C_BPartner;
 import org.compiere.model.I_C_BPartner_Location;
 import org.compiere.model.I_C_Charge;
+import org.compiere.model.I_C_ChargeType;
+import org.compiere.model.I_C_ChargeType_DocType;
 import org.compiere.model.I_C_Currency;
 import org.compiere.model.I_C_DocType;
 import org.compiere.model.I_C_Location;
+import org.compiere.model.I_C_NonBusinessDay;
 import org.compiere.model.I_C_PaymentTerm;
 import org.compiere.model.I_GL_Category;
 import org.compiere.model.MBPGroup;
@@ -56,6 +61,7 @@ import org.compiere.model.MColumnAccess;
 import org.compiere.model.MDocType;
 import org.compiere.model.MFormAccess;
 import org.compiere.model.MLocation;
+import org.compiere.model.MNonBusinessDay;
 import org.compiere.model.MPaymentTerm;
 import org.compiere.model.MProcessAccess;
 import org.compiere.model.MRecordAccess;
@@ -67,6 +73,8 @@ import org.compiere.model.Query;
 import org.compiere.model.X_AD_Document_Action_Access;
 import org.compiere.model.X_AD_Role_Included;
 import org.compiere.model.X_AD_Task_Access;
+import org.compiere.model.X_C_ChargeType;
+import org.compiere.model.X_C_ChargeType_DocType;
 import org.compiere.util.Env;
 import org.compiere.wf.MWorkflowAccess;
 import org.spin.model.I_AD_Dashboard_Access;
@@ -93,6 +101,8 @@ public class GeneralExporter extends ClientExporterHandler {
 		parentsToExclude.add(I_C_Currency.Table_Name);
 		parentsToExclude.add(I_GL_Category.Table_Name);
 		parentsToExclude.add(I_AD_User_Roles.Table_Name);
+		parentsToExclude.add(I_AD_Sequence.Table_Name);
+		parentsToExclude.add(I_AD_Sequence_No.Table_Name);
 		//	Export Account Elements
 		List<MDocType> documentTypeList = new Query(ctx, I_C_DocType.Table_Name, null, null)
 			.setOnlyActiveRecords(true)
@@ -119,6 +129,52 @@ public class GeneralExporter extends ClientExporterHandler {
 			cleanOfficialReference(role);
 			createRole(ctx, role, document, parentsToExclude);
 		}
+		//	Charge Type List
+		List<X_C_ChargeType> chargeTypeList = new Query(ctx, I_C_ChargeType.Table_Name, null, null)
+			.setOnlyActiveRecords(true)
+			.setClient_ID()
+			.list();
+		//	Export menu
+		for(X_C_ChargeType chargeType : chargeTypeList) {
+			if(chargeType.getC_ChargeType_ID() < PackOut.MAX_OFFICIAL_ID) {
+				continue;
+			}
+			cleanOfficialReference(chargeType);
+			packOut.createGenericPO(document, chargeType, true, parentsToExclude);
+			//	Charge List
+			List<X_C_ChargeType_DocType> chargeTypeDocumentTypeList = new Query(ctx, I_C_ChargeType_DocType.Table_Name, I_C_ChargeType_DocType.COLUMNNAME_C_ChargeType_ID + " = ?", null)
+				.setOnlyActiveRecords(true)
+				.setClient_ID()
+				.setParameters(chargeType.getC_ChargeType_ID())
+				.list();
+			//	Export menu
+			for(X_C_ChargeType_DocType chargeTypeDocumentType : chargeTypeDocumentTypeList) {
+				if(chargeTypeDocumentType.getC_DocType_ID() < PackOut.MAX_OFFICIAL_ID) {
+					continue;
+				}
+				MDocType documentType = MDocType.get(chargeTypeDocumentType.getCtx(), chargeTypeDocumentType.getC_DocType_ID());
+				if(documentType.getC_DocTypeInvoice_ID() < PackOut.MAX_OFFICIAL_ID) {
+					documentType.set_ValueOfColumn("C_DocTypeInvoice_ID", null);
+				}
+				if(documentType.getC_DocTypeDifference_ID() < PackOut.MAX_OFFICIAL_ID) {
+					documentType.set_ValueOfColumn("C_DocTypeDifference_ID", null);
+				}
+				if(documentType.getC_DocTypeShipment_ID() < PackOut.MAX_OFFICIAL_ID) {
+					documentType.set_ValueOfColumn("C_DocTypeShipment_ID", null);
+				}
+				if(documentType.getC_DocTypePayment_ID() < PackOut.MAX_OFFICIAL_ID) {
+					documentType.set_ValueOfColumn("C_DocTypePayment_ID", null);
+				}
+				if(documentType.getC_DocTypeProforma_ID() < PackOut.MAX_OFFICIAL_ID) {
+					documentType.set_ValueOfColumn("C_DocTypeProforma_ID", null);
+				}
+				cleanOfficialReference(documentType);
+				packOut.createGenericPO(document, documentType, true, parentsToExclude);
+				//	
+				cleanOfficialReference(chargeTypeDocumentType);
+				packOut.createGenericPO(document, chargeTypeDocumentType, true, parentsToExclude);
+			}
+		}
 		//	Charge List
 		List<MCharge> chargeList = new Query(ctx, I_C_Charge.Table_Name, null, null)
 			.setOnlyActiveRecords(true)
@@ -134,6 +190,30 @@ public class GeneralExporter extends ClientExporterHandler {
 		}
 		//	BP
 		createBusinessPartners(ctx, document, parentsToExclude);
+		createCalendar(ctx, document, parentsToExclude);
+	}
+	
+	/**
+	 * Export Calendar
+	 * @param ctx
+	 * @param document
+	 * @param parentsToExclude
+	 * @throws SAXException
+	 */
+	private void createCalendar(Properties ctx, TransformerHandler document, List<String> parentsToExclude) throws SAXException {
+		//	Charge List
+		List<MNonBusinessDay> nonBusinessDayList = new Query(ctx, I_C_NonBusinessDay.Table_Name, null, null)
+			.setOnlyActiveRecords(true)
+			.setClient_ID()
+			.list();
+		//	Export menu
+		for(MNonBusinessDay nonBusinessDay : nonBusinessDayList) {
+			if(nonBusinessDay.getC_NonBusinessDay_ID() < PackOut.MAX_OFFICIAL_ID) {
+				continue;
+			}
+			cleanOfficialReference(nonBusinessDay);
+			packOut.createGenericPO(document, nonBusinessDay, true, parentsToExclude);
+		}
 	}
 	
 	/**
