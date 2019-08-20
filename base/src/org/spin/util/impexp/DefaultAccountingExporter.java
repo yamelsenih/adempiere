@@ -81,6 +81,9 @@ public class DefaultAccountingExporter extends ClientExporterHandler {
 				.list();
 		//	Export
 		for(MProductCategoryAcct productCategoryAcct : productCategoryAcctList) {
+			if(productCategoryAcct.getM_Product_Category_ID() < PackOut.MAX_OFFICIAL_ID) {
+				continue;
+			}
 			packOut.createGenericPO(document, productCategoryAcct);
 		}
 		
@@ -91,6 +94,9 @@ public class DefaultAccountingExporter extends ClientExporterHandler {
 				.list();
 		//	Export
 		for(X_M_Product_Acct productAcct : productAcctList) {
+			if(productAcct.getM_Product_ID() < PackOut.MAX_OFFICIAL_ID) {
+				continue;
+			}
 			packOut.createGenericPO(document, productAcct);
 		}
 	}
