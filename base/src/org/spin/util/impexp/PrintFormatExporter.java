@@ -80,7 +80,7 @@ public class PrintFormatExporter extends ClientExporterHandler {
 			//	Export
 			for(MPrintFormatItem printFormatItem : printFormatItemList) {
 				if(printFormatItem.getAD_PrintFormatItem_ID() < PackOut.MAX_OFFICIAL_ID
-						|| printFormatItem.getAD_PrintFormatChild_ID() < PackOut.MAX_OFFICIAL_ID) {
+						|| (printFormatItem.getAD_PrintFormatChild_ID() > 0 && printFormatItem.getAD_PrintFormatChild_ID() < PackOut.MAX_OFFICIAL_ID)) {
 					continue;
 				}
 				packOut.createGenericPO(document, printFormatItem, true, parentsToExclude);
