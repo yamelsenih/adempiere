@@ -48,6 +48,7 @@ import org.compiere.model.MCommission;
 import org.compiere.model.MCommissionLine;
 import org.compiere.model.MCommissionRun;
 import org.compiere.model.MConversionType;
+import org.compiere.model.MCurrency;
 import org.compiere.model.MDocType;
 import org.compiere.model.MImage;
 import org.compiere.model.MInOut;
@@ -344,6 +345,20 @@ public class AgencyValidator implements ModelValidator
 							linkSourceOrder.saveEx();
 							//	Copy commission from RFQ Response
 							copyCommissionFromFRQResponse(order.get_ValueAsInt(I_C_RfQ.COLUMNNAME_C_RfQ_ID), linkSourceOrder);
+						}
+					}
+					//	For counter document
+					if(order.getRef_Order_ID() > 0
+							&& !order.isProcessed()) {
+						MOrder sourceOrder = (MOrder) order.getRef_Order();
+						if(sourceOrder.getC_Currency_ID() != order.getC_Currency_ID()) {
+							MCurrency currency = MCurrency.get(sourceOrder.getCtx(), sourceOrder.getC_Currency_ID());
+							MPriceList defaultPriceList = MPriceList.getDefault(sourceOrder.getCtx(), order.isSOTrx(), currency.getISO_Code());
+							if(defaultPriceList != null) {
+								order.setM_PriceList_ID(defaultPriceList.getM_PriceList_ID());
+							} else {
+								throw new IllegalArgumentException("@DefaultPriceListCurrencyNotFound@ (@C_Currency_ID@: " + currency.getISO_Code() + ")");	//	TODO Translate it: CommissionAPInvoice - Currency of PO Price List not Commission Currency
+							}
 						}
 					}
 				} else if(po instanceof MProjectTask) {
