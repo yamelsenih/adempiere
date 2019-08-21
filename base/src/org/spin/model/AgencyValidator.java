@@ -357,7 +357,7 @@ public class AgencyValidator implements ModelValidator
 							if(defaultPriceList != null) {
 								order.setM_PriceList_ID(defaultPriceList.getM_PriceList_ID());
 							} else {
-								throw new IllegalArgumentException("@DefaultPriceListCurrencyNotFound@ (@C_Currency_ID@: " + currency.getISO_Code() + ")");	//	TODO Translate it: CommissionAPInvoice - Currency of PO Price List not Commission Currency
+								throw new IllegalArgumentException("@DefaultPriceListCurrencyNotFound@ (@C_Currency_ID@: " + currency.getISO_Code() + ")");
 							}
 						}
 					}
@@ -505,14 +505,35 @@ public class AgencyValidator implements ModelValidator
 					}
 					//	Validate User1_ID
 					if(order.get_ValueAsInt("S_Contract_ID") > 0 && order.getRef_Order_ID() <= 0) {
-						int user1Id = DB.getSQLValue(order.get_TrxName(), "SELECT p.User1_ID "
-								+ "FROM S_ContractParties p "
-								+ "WHERE S_Contract_ID = ? "
-								+ "AND EXISTS(SELECT 1 FROM AD_User u WHERE u.AD_User_ID = p.AD_User_ID AND u.C_BPartner_ID = ?)", order.get_ValueAsInt("S_Contract_ID"), order.getC_BPartner_ID());
-						//
-						if(user1Id > 0) {
-							order.setUser1_ID(user1Id);
-							order.saveEx();
+						//	For Split Order
+						if(order.get_ValueAsInt(I_C_CommissionRun.COLUMNNAME_C_CommissionRun_ID) > 0) {
+							MCommissionRun commissionRun = new MCommissionRun(order.getCtx(), order.get_ValueAsInt(I_C_CommissionRun.COLUMNNAME_C_CommissionRun_ID), order.get_TrxName());
+							if(commissionRun.get_ValueAsInt(I_S_Contract.COLUMNNAME_S_Contract_ID) > 0) {
+								MSContract contract = new MSContract(order.getCtx(), commissionRun.get_ValueAsInt(I_S_Contract.COLUMNNAME_S_Contract_ID), order.get_TrxName());
+								order.setAD_Org_ID(contract.getAD_Org_ID());
+								if(contract.getUser1_ID() > 0) {
+									order.setUser1_ID(contract.getUser1_ID());
+								}
+								//	Get brand from business partner
+								int user1Id = DB.getSQLValue(order.get_TrxName(), "SELECT p.User1_ID "
+										+ "FROM S_ContractParties p "
+										+ "WHERE S_Contract_ID = ? "
+										+ "AND EXISTS(SELECT 1 FROM AD_User u WHERE u.AD_User_ID = p.AD_User_ID AND u.C_BPartner_ID = ?)", contract.getS_Contract_ID(), order.getC_BPartner_ID());
+								//
+								if(user1Id > 0) {
+									order.setUser3_ID(user1Id);
+								}
+							}
+						} else {
+							int user1Id = DB.getSQLValue(order.get_TrxName(), "SELECT p.User1_ID "
+									+ "FROM S_ContractParties p "
+									+ "WHERE S_Contract_ID = ? "
+									+ "AND EXISTS(SELECT 1 FROM AD_User u WHERE u.AD_User_ID = p.AD_User_ID AND u.C_BPartner_ID = ?)", order.get_ValueAsInt("S_Contract_ID"), order.getC_BPartner_ID());
+							//
+							if(user1Id > 0) {
+								order.setUser1_ID(user1Id);
+								order.saveEx();
+							}
 						}
 					}
 					// Document type IsCustomerApproved = Y and order IsCustomerApproved = N
