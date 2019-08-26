@@ -222,6 +222,8 @@ public class ProjectPhaseGenOrder  extends ProjectPhaseGenOrderAbstract
 						orderLine.setC_ProjectTask_ID(projectLine.getC_ProjectTask_ID());
 					}
 					orderLine.set_ValueOfColumn("IsBonusProduct", projectLine.get_Value("IsBonusProduct"));
+					orderLine.set_ValueOfColumn("EndDate", projectLine.get_Value("EndDate"));
+					orderLine.set_ValueOfColumn("Reference", projectLine.get_Value("Reference"));
 					orderLine.saveEx();
 					count.getAndUpdate(no -> no + 1);
 				});    //	for all lines
@@ -247,6 +249,8 @@ public class ProjectPhaseGenOrder  extends ProjectPhaseGenOrderAbstract
 					orderLine.setC_ProjectTask_ID(fromTask.getC_ProjectTask_ID());
 					orderLine.setTax();
 					orderLine.set_ValueOfColumn("IsBonusProduct", fromTask.get_Value("IsBonusProduct"));
+					orderLine.set_ValueOfColumn("EndDate", fromTask.get_Value("EndDate"));
+					orderLine.set_ValueOfColumn("Reference", fromTask.get_Value("Reference"));
 					orderLine.saveEx();
 					count.getAndUpdate(no -> no + 1);
 				}
