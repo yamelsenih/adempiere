@@ -40,6 +40,7 @@ import org.compiere.model.MInOut;
 import org.compiere.model.MInOutLine;
 import org.compiere.model.MOrder;
 import org.compiere.model.MOrderLine;
+import org.compiere.model.MPeriod;
 import org.compiere.model.MProduct;
 import org.compiere.model.ModelValidationEngine;
 import org.compiere.model.ModelValidator;
@@ -206,14 +207,13 @@ public class MWMInOutBound extends X_WM_InOutBound implements DocAction, DocOpti
 		m_processMsg = ModelValidationEngine.get().fireDocValidate(this, ModelValidator.TIMING_BEFORE_PREPARE);
 		if (m_processMsg != null)
 			return DocAction.STATUS_Invalid;
-		//	MDocType dt = MDocType.get(getCtx(), getC_DocType_ID());
-
+		
+		MDocType documentType = MDocType.get(getCtx(), getC_DocType_ID());
 		//	Std Period open?
-		/*if (!MPeriod.isOpen(getCtx(), getDateAcct(), dt.getDocBaseType(), getAD_Org_ID()))
-		{
+		if (!MPeriod.isOpen(getCtx(), getDateTrx(), documentType.getDocBaseType(), getAD_Org_ID())){
 			m_processMsg = "@PeriodClosed@";
 			return DocAction.STATUS_Invalid;
-		}*/
+		}
 		
 		//	Lines
 		List<MWMInOutBoundLine> lines = getLines(true, MWMInOutBoundLine.COLUMNNAME_Line);
