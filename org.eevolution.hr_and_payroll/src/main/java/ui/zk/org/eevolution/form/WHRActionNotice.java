@@ -364,7 +364,7 @@ public class WHRActionNotice extends HRActionNotice implements IFormController,
 						fieldDate.setValue(movementFound.getServiceDate());
 					}
 				}
-
+				resetFields();
 				if (concept.getColumnType().equals(X_HR_Concept.COLUMNTYPE_Quantity)) { // Concept Type
 					fieldQty.setVisible(true);
 					fieldQty.setReadWrite(true);
@@ -449,6 +449,14 @@ public class WHRActionNotice extends HRActionNotice implements IFormController,
 		miniTable.autoSize();
 	}
 
+	private void resetFields() {
+		fieldText.setValue("");
+		fieldQty.setValue(0);
+		fieldAmount.setValue(0);
+		fieldDate.setValue("");
+		fieldTextLookup.setValue("");
+	}
+	
 	/**************************************************************************
 	 * Action Listener
 	 * 
