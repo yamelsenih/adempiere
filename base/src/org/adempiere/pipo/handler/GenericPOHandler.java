@@ -34,6 +34,8 @@ import org.compiere.model.I_AD_EntityType;
 import org.compiere.model.I_AD_Ref_List;
 import org.compiere.model.I_AD_Tree;
 import org.compiere.model.I_AD_TreeNode;
+import org.compiere.model.I_C_ElementValue;
+import org.compiere.model.MElement;
 import org.compiere.model.MLookupFactory;
 import org.compiere.model.MLookupInfo;
 import org.compiere.model.MSysConfig;
@@ -43,6 +45,7 @@ import org.compiere.model.PO;
 import org.compiere.model.POInfo;
 import org.compiere.model.Query;
 import org.compiere.model.X_AD_Table;
+import org.compiere.model.X_C_ElementValue;
 import org.compiere.util.DisplayType;
 import org.compiere.util.Env;
 import org.compiere.util.Util;
@@ -741,12 +744,20 @@ public class GenericPOHandler extends AbstractElementHandler {
 		if (!MTree.hasTree(tableId)) {
 			return;
 		}
-		int treeId = MTree.getDefaultTreeIdFromTableId(entity.getAD_Client_ID(), tableId);
+		String treeNodeTableName = MTree.getNodeTableName(tableId);
+		int elementId = 0;
+		if (tableId == X_C_ElementValue.Table_ID) {
+			elementId = entity.get_ValueAsInt("C_Element_ID");
+			if (elementId != 0) {
+				MElement element = new MElement(entity.getCtx(), elementId, entity.get_TrxName());
+				treeNodeTableName = MTree.getNodeTableName(tableId, element.getElementType());
+			}
+		}
+		int treeId = MTree.getDefaultTreeIdFromTableId(entity.getAD_Client_ID(), tableId, entity.get_ValueAsInt(I_C_ElementValue.COLUMNNAME_C_Element_ID));
 		if(treeId < 0) {
 			return;
 		}
 		//	Get Node Table Name
-		String treeNodeTableName = MTree.getNodeTableName(tableId);
 		if(Util.isEmpty(treeNodeTableName)) {
 			return;
 		}

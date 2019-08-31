@@ -62,12 +62,6 @@ public class AccountSchemaExporter extends ClientExporterHandler {
 			packOut = new PackOut();
 			packOut.setLocalContext(ctx);
 		}
-		//	Default Tree
-		defaultTreeId = MTree.getDefaultTreeIdFromTableId(Env.getAD_Client_ID(ctx), I_C_ElementValue.Table_ID);
-		//	Export Tree
-		MTree tree = MTree.get(ctx, defaultTreeId, null);
-		cleanOfficialReference(tree);
-		packOut.createGenericPO(document, tree);
 		//	Export Account Elements
 		List<MElement> elementList = new Query(ctx, I_C_Element.Table_Name, null, null)
 			.setOnlyActiveRecords(true)
@@ -80,6 +74,12 @@ public class AccountSchemaExporter extends ClientExporterHandler {
 			if(elementExporter.getC_Element_ID() < PackOut.MAX_OFFICIAL_ID) {
 				continue;
 			}
+			//	Default Tree
+			defaultTreeId = MTree.getDefaultTreeIdFromTableId(Env.getAD_Client_ID(ctx), I_C_ElementValue.Table_ID, elementExporter.getC_Element_ID());
+			//	Export Tree
+			MTree tree = MTree.get(ctx, defaultTreeId, null);
+			cleanOfficialReference(tree);
+			packOut.createGenericPO(document, tree);
 			cleanOfficialReference(elementExporter);
 			packOut.createGenericPO(document, elementExporter, true, parentsToExclude);
 			//	Export element Value

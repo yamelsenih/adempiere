@@ -122,7 +122,7 @@ public class MaterialManagementExporter extends ClientExporterHandler {
 				packOut.createGenericPO(document, locator);
 			}
 		}
-		createProductsForeign(ctx, document, parentsToExclude);
+//		createProductsForeign(ctx, document, parentsToExclude);
 	}
 	
 	/**
