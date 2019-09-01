@@ -972,9 +972,10 @@ public class MTree extends X_AD_Tree
 		//	Load for Custom Tree
 		else if(getTreeType().equals(TREETYPE_CustomTree)) {
 			boolean base = Env.isBaseLanguage(p_ctx, fromClause);
+			boolean translation = !base && MTable.hasTranslation(fromClause);
 			sourceTable = "t";
 			String recordClause = "";
-			if (base){
+			if (!translation){
 				sqlNode.append("SELECT t." + fromClause + "_ID, ")
 					.append("COALESCE(t.Name, '') AS Name, COALESCE(t.Description, '') AS Description, t.IsSummary, " + color + " AS Action ")
 					.append(recordClause.length() > 0 ? ", " + recordClause : "")
