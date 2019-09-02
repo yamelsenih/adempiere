@@ -3,7 +3,7 @@
  * Copyright (C) 2006-2017 ADempiere Foundation, All Rights Reserved.         *
  * This program is free software, you can redistribute it and/or modify it    *
  * under the terms version 2 of the GNU General Public License as published   *
- * or (at your option) any later version.									  *
+ * or (at your option) any later version.										*
  * by the Free Software Foundation. This program is distributed in the hope   *
  * that it will be useful, but WITHOUT ANY WARRANTY, without even the implied *
  * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.           *
@@ -14,33 +14,39 @@
  * For the text or an alternative of this public license, you may reach us    *
  * or via info@adempiere.net or http://www.adempiere.net/license.html         *
  *****************************************************************************/
-package org.compiere.process;
 
-import java.util.List;
+package org.spin.process;
 
-import org.compiere.model.PO;
+import org.compiere.process.SvrProcess;
 
-/**
- * Created by eEvolution author Victor Perez <victor.perez@e-evolution.com> on 25/01/15.
- * @author Yamel Senih, ysenih@erpya.com, ERPCyA http://www.erpya.com
- * Improve definition
+/** Generated Process for (Process Lines from Selection)
+ *  @author ADempiere (generated) 
+ *  @version Release 3.9.2
  */
-public interface IPrintDocument {
-    /**
-     * Each document
-     * @param document
-     * @param printFormatId
-     * @param windowNo
-     * @param askPrint
-     */
-	public void print (PO document, int printFormatId, int windowNo, boolean askPrint);
-    
-	/**
-	 * Print a Document List
-	 * @param documentList
-	 * @param printFormatId
-	 * @param windowNo
-	 * @param askPrint
-	 */
-    public void print (List<PO> documentList, int printFormatId, int windowNo, boolean askPrint);
+public abstract class RFQCreateFromRequisitionAbstract extends SvrProcess {
+	/** Process Value 	*/
+	private static final String VALUE_FOR_PROCESS = "RFQ_CreateFromRequisitionProcess";
+	/** Process Name 	*/
+	private static final String NAME_FOR_PROCESS = "Process Lines from Selection";
+	/** Process Id 	*/
+	private static final int ID_FOR_PROCESS = 54275;
+
+	@Override
+	protected void prepare() {
+	}
+
+	/**	 Getter Parameter Value for Process ID	*/
+	public static final int getProcessId() {
+		return ID_FOR_PROCESS;
+	}
+
+	/**	 Getter Parameter Value for Process Value	*/
+	public static final String getProcessValue() {
+		return VALUE_FOR_PROCESS;
+	}
+
+	/**	 Getter Parameter Value for Process Name	*/
+	public static final String getProcessName() {
+		return NAME_FOR_PROCESS;
+	}
 }
