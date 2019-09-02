@@ -60,9 +60,9 @@ public class VPrintDocument implements IPrintDocument {
 
                     //	Engine
                     PrintInfo info = new PrintInfo(document.get_TableName(), document.get_Table_ID(), document.get_ValueAsInt(keyColumnName));
-                    ReportEngine re = new ReportEngine(Env.getCtx(), format, query, info);
-                    re.print();
-                    new Viewer(re);
+                    ReportEngine reportEngine = new ReportEngine(Env.getCtx(), format, query, info, document.get_TrxName());
+                    reportEngine.print();
+                    new Viewer(reportEngine);
                 } catch (Exception e) {
 
                 } finally {
@@ -103,9 +103,9 @@ public class VPrintDocument implements IPrintDocument {
 
                     //	Engine
                     PrintInfo info = new PrintInfo(document.get_TableName(), document.get_Table_ID(), document.get_ValueAsInt(keyColumnName));
-                    ReportEngine re = new ReportEngine(Env.getCtx(), format, query, info);
-                    re.print();
-                    new Viewer(re);
+                    ReportEngine reportEngine = new ReportEngine(Env.getCtx(), format, query, info, document.get_TrxName());
+                    reportEngine.print();
+                    new Viewer(reportEngine);
                 } catch (Exception e) {
                 	
                 }

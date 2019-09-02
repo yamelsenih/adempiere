@@ -60,7 +60,7 @@ public class WPrintDocument implements IPrintDocument {
                             document.get_TableName(),
                             document.get_Table_ID(),
                             document.get_ValueAsInt(keyColumnName));
-                    ReportEngine reportEngine = new ReportEngine(Env.getCtx(), format, query, info);
+                    ReportEngine reportEngine = new ReportEngine(Env.getCtx(), format, query, info, document.get_TrxName());
                     if (reportEngine != null) {
                         SimplePDFViewer win = new SimplePDFViewer(format.getName(), new FileInputStream(reportEngine.getPDF()));
                         SessionManager.getAppDesktop().showWindow(win, "center");
@@ -102,7 +102,7 @@ public class WPrintDocument implements IPrintDocument {
                             document.get_TableName(),
                             document.get_Table_ID(),
                             document.get_ValueAsInt(keyColumnName));
-                    ReportEngine reportEngine = new ReportEngine(Env.getCtx(), format, query, info);
+                    ReportEngine reportEngine = new ReportEngine(Env.getCtx(), format, query, info, document.get_TrxName());
                     if (reportEngine != null) {
                         SimplePDFViewer win = new SimplePDFViewer(format.getName(), new FileInputStream(reportEngine.getPDF()));
                         SessionManager.getAppDesktop().showWindow(win, "center");

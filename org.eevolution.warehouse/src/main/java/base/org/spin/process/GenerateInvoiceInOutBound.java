@@ -18,16 +18,16 @@
 package org.spin.process;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
 
-import org.compiere.model.MDocType;
 import org.compiere.model.MInvoice;
 import org.compiere.model.MInvoiceLine;
 import org.compiere.model.MOrder;
 import org.compiere.model.MOrderLine;
+import org.compiere.model.PO;
 import org.compiere.model.Query;
-import org.compiere.print.MPrintFormat;
 import org.eevolution.model.MWMInOutBound;
 import org.eevolution.model.MWMInOutBoundLine;
 
@@ -148,16 +148,13 @@ public class GenerateInvoiceInOutBound extends GenerateInvoiceInOutBoundAbstract
 			created++;
 			addToMessage(invoice.getDocumentNo());
 		});
+		List<PO> invoiceList = new ArrayList<PO>();
+		
 		//	Print invoices
 		invoices.entrySet().stream().filter(entry -> entry != null).forEach(entry -> {
-			MInvoice invoice = entry.getValue();
-			MDocType documentType = MDocType.get(getCtx(), invoice.getC_DocTypeTarget_ID());
-			if(documentType.getAD_PrintFormat_ID() != 0) {
-				MPrintFormat printFormat = MPrintFormat.get(getCtx(), documentType.getAD_PrintFormat_ID(), false);
-				if(printFormat != null) {
-					printDocument(entry.getValue(), printFormat.getName());
-				}
-			}
+			invoiceList.add(entry.getValue());
 		});
+		//	
+		printDocument(invoiceList, true);
 	}
 }
