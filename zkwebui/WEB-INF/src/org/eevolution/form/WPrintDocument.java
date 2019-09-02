@@ -16,14 +16,15 @@
  * Sponsors: e-Evolution Consultants (http://www.e-evolution.com/)            *
  *****************************************************************************/
 
-
 package org.eevolution.form;
 
 import org.compiere.process.IPrintDocument;
 import org.adempiere.webui.session.SessionManager;
 import org.adempiere.webui.window.FDialog;
 import org.adempiere.webui.window.SimplePDFViewer;
+import org.compiere.model.I_AD_Table;
 import org.compiere.model.MQuery;
+import org.compiere.model.MTable;
 import org.compiere.model.PO;
 import org.compiere.model.PrintInfo;
 import org.compiere.print.MPrintFormat;
@@ -35,18 +36,21 @@ import java.io.FileInputStream;
 
 /**
  * Created by eEvolution author Victor Perez <victor.perez@e-evolution.com> on 25/01/15.
+ * @author Yamel Senih, ysenih@erpya.com, ERPCyA http://www.erpya.com
+ * Improve definition
  */
 public class WPrintDocument implements IPrintDocument {
 
-    public void print(PO document, String printFormantName, int windowNo) {
+    public void print(PO document, int printFormatId, int windowNo, boolean askPrint, boolean batchPrintMode) {
         boolean retValue = true;
-        if (FDialog.ask(windowNo, SessionManager.getAppDesktop().getComponent(), "PrintShipments")) {
+        String tableName = MTable.get(Env.getCtx(), document.get_Table_ID()).get_Translation(I_AD_Table.COLUMNNAME_Name);
+        if (FDialog.ask(windowNo, SessionManager.getAppDesktop().getComponent(), "Print", tableName)) {
             do {
                 try {
                     String keyColumnName = document.get_KeyColumns()[0];
                     MPrintFormat format = MPrintFormat.get(
                             Env.getCtx(),
-                            MPrintFormat.getPrintFormat_ID(printFormantName, document.get_Table_ID(), 0),
+                            printFormatId,
                             false);
                     MQuery query = new MQuery(document.get_TableName());
                     query.addRestriction(keyColumnName, MQuery.EQUAL, document.get_ValueAsInt(keyColumnName));
@@ -56,14 +60,14 @@ public class WPrintDocument implements IPrintDocument {
                             document.get_TableName(),
                             document.get_Table_ID(),
                             document.get_ValueAsInt(keyColumnName));
-                    ReportEngine re = new ReportEngine(Env.getCtx(), format, query, info);
-                    if (re != null) {
-                        SimplePDFViewer win = new SimplePDFViewer(printFormantName, new FileInputStream(re.getPDF()));
+                    ReportEngine reportEngine = new ReportEngine(Env.getCtx(), format, query, info);
+                    if (reportEngine != null) {
+                        SimplePDFViewer win = new SimplePDFViewer(format.getName(), new FileInputStream(reportEngine.getPDF()));
                         SessionManager.getAppDesktop().showWindow(win, "center");
                     }
 
                 } catch (Exception e) {
-
+                	
                 } finally {
                     retValue = FDialog.ask(windowNo, SessionManager.getAppDesktop().getComponent(), Msg.getMsg(Env.getCtx(), "PrintoutOK?"));
                 }

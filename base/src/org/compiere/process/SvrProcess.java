@@ -29,10 +29,12 @@ import java.util.Properties;
 import java.util.logging.Level;
 
 import org.adempiere.exceptions.AdempiereException;
+import org.compiere.model.MDocType;
 import org.compiere.model.MPInstance;
 import org.compiere.model.MProcess;
 import org.compiere.model.MProcessPara;
 import org.compiere.model.PO;
+import org.compiere.print.MPrintFormat;
 import org.compiere.util.CLogger;
 import org.compiere.util.DB;
 import org.compiere.util.DisplayType;
@@ -905,12 +907,41 @@ public abstract class SvrProcess implements ProcessCall
 	}
 
 	/**
+	 * Old compatibility
+	 * @param document
+	 * @param printFormantName
+	 */
+	public void printDocument(PO document, String printFormantName) {
+		printDocument(document, MPrintFormat.getPrintFormat_ID(printFormantName, document.get_Table_ID(), 0), true, false);
+	}
+	
+	/**
+	 * Print document with document type print format
+	 * @param document
+	 * @param askPrint
+	 * @param batchPrintMode
+	 */
+	public void printDocument(PO document, boolean askPrint, boolean batchPrintMode) {
+		int documentTypeId = document.get_ValueAsInt("C_DocType_ID");
+		if(documentTypeId == 0) {
+			documentTypeId = document.get_ValueAsInt("C_DocTypeTarget_ID");
+		}
+		//	Validate before print
+		if(documentTypeId != 0) {
+			MDocType documentType = MDocType.get(getCtx(), documentTypeId);
+			if(documentType.getAD_PrintFormat_ID() != 0) {
+				printDocument(documentType, documentType.getAD_PrintFormat_ID(), askPrint, batchPrintMode);
+			}
+		}
+	}
+	
+	/**
 	 * Print Document
 	 *
 	 * @param document
 	 * @param printFormantName
 	 */
-	public void printDocument(PO document, String printFormantName) {
+	private void printDocument(PO document, int printFormatId, boolean askPrint, boolean batchPrintMode) {
 		IPrintDocument printDocument;
 		//	OK to print shipments
 		if (Ini.isClient()) {
@@ -936,7 +967,7 @@ public abstract class SvrProcess implements ProcessCall
 				throw new AdempiereException(e);
 			}
 		}
-		printDocument.print(document, printFormantName, getProcessInfo().getWindowNo());
+		printDocument.print(document, printFormatId, getProcessInfo().getWindowNo(), askPrint, batchPrintMode);
 	}
 	
 	/**

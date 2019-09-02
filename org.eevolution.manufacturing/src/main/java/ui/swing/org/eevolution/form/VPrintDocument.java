@@ -21,7 +21,9 @@ package org.eevolution.form;
 import org.compiere.process.IPrintDocument;
 import org.compiere.apps.ADialog;
 import org.compiere.apps.ADialogDialog;
+import org.compiere.model.I_AD_Table;
 import org.compiere.model.MQuery;
+import org.compiere.model.MTable;
 import org.compiere.model.PO;
 import org.compiere.model.PrintInfo;
 import org.compiere.print.MPrintFormat;
@@ -36,12 +38,15 @@ import java.awt.Cursor;
 
 /**
  * Created by eEvolution author Victor Perez <victor.perez@e-evolution.com> on 25/01/15.
+ * @author Yamel Senih, ysenih@erpya.com, ERPCyA http://www.erpya.com
+ * Improve definition
  */
 public class VPrintDocument implements IPrintDocument {
     @Override
-    public void print(PO document, String printFormantName, int windowNo) {
+    public void print(PO document, int printFormatId, int windowNo, boolean askPrint, boolean batchPrintMode) {
         JFrame window = Env.getWindow(windowNo);
-        if (ADialog.ask(windowNo, window, "PrintShipments")) {
+        String tableName = MTable.get(Env.getCtx(), document.get_Table_ID()).get_Translation(I_AD_Table.COLUMNNAME_Name);
+        if (ADialog.ask(windowNo, window, "Print", tableName)) {
             window.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
             int retValue = ADialogDialog.A_CANCEL;    //	see also ProcessDialog.printShipments/Invoices
             do {
@@ -49,7 +54,7 @@ public class VPrintDocument implements IPrintDocument {
                     String keyColumnName = document.get_KeyColumns()[0];
                     MPrintFormat format = MPrintFormat.get(
                             Env.getCtx(),
-                            MPrintFormat.getPrintFormat_ID(printFormantName, document.get_Table_ID(), 0),
+                            printFormatId,
                             false);
                     MQuery query = new MQuery(document.get_TableName());
                     query.addRestriction(keyColumnName, MQuery.EQUAL, document.get_ValueAsInt(keyColumnName));
