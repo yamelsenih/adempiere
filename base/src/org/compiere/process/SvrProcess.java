@@ -912,7 +912,7 @@ public abstract class SvrProcess implements ProcessCall
 	 * @param printFormantName
 	 */
 	public void printDocument(PO document, String printFormantName) {
-		printDocument(document, MPrintFormat.getPrintFormat_ID(printFormantName, document.get_Table_ID(), 0), true, false);
+		printDocument(document, MPrintFormat.getPrintFormat_ID(printFormantName, document.get_Table_ID(), 0), true);
 	}
 	
 	/**
@@ -921,7 +921,19 @@ public abstract class SvrProcess implements ProcessCall
 	 * @param askPrint
 	 * @param batchPrintMode
 	 */
-	public void printDocument(PO document, boolean askPrint, boolean batchPrintMode) {
+	public void printDocument(PO document, boolean askPrint) {
+		int printFormatId = getPrintFormatId(document);
+		if(printFormatId != 0) {
+			printDocument(document, printFormatId, askPrint);
+		}
+	}
+	
+	/**
+	 * Get Print format from document
+	 * @param document
+	 * @return
+	 */
+	private int getPrintFormatId(PO document) {
 		int documentTypeId = document.get_ValueAsInt("C_DocType_ID");
 		if(documentTypeId == 0) {
 			documentTypeId = document.get_ValueAsInt("C_DocTypeTarget_ID");
@@ -929,10 +941,9 @@ public abstract class SvrProcess implements ProcessCall
 		//	Validate before print
 		if(documentTypeId != 0) {
 			MDocType documentType = MDocType.get(getCtx(), documentTypeId);
-			if(documentType.getAD_PrintFormat_ID() != 0) {
-				printDocument(documentType, documentType.getAD_PrintFormat_ID(), askPrint, batchPrintMode);
-			}
+			return documentType.getAD_PrintFormat_ID();
 		}
+		return 0;
 	}
 	
 	/**
@@ -941,7 +952,37 @@ public abstract class SvrProcess implements ProcessCall
 	 * @param document
 	 * @param printFormantName
 	 */
-	private void printDocument(PO document, int printFormatId, boolean askPrint, boolean batchPrintMode) {
+	public void printDocument(PO document, int printFormatId, boolean askPrint) {
+		getPrintDocumentImplementation().print(document, printFormatId, getProcessInfo().getWindowNo(), askPrint);
+	}
+	
+	/**
+	 * Print document without print format
+	 * @param documentList
+	 * @param askPrint
+	 */
+	public void printDocument(List<PO> documentList, boolean askPrint) {
+		int printFormatId = getPrintFormatId(documentList.get(0));
+		if(printFormatId != 0) {
+			printDocument(documentList, printFormatId, askPrint);
+		}
+	}
+	
+	/**
+	 * Print a list
+	 * @param documentList
+	 * @param printFormatId
+	 * @param askPrint
+	 */
+	public void printDocument(List<PO> documentList, int printFormatId, boolean askPrint) {
+		getPrintDocumentImplementation().print(documentList, printFormatId, getProcessInfo().getWindowNo(), askPrint);
+	}
+	
+	/**
+	 * Get print document implementation
+	 * @return
+	 */
+	private IPrintDocument getPrintDocumentImplementation() {
 		IPrintDocument printDocument;
 		//	OK to print shipments
 		if (Ini.isClient()) {
@@ -967,7 +1008,7 @@ public abstract class SvrProcess implements ProcessCall
 				throw new AdempiereException(e);
 			}
 		}
-		printDocument.print(document, printFormatId, getProcessInfo().getWindowNo(), askPrint, batchPrintMode);
+		return printDocument;
 	}
 	
 	/**

@@ -33,6 +33,7 @@ import org.compiere.util.Env;
 import org.compiere.util.Msg;
 
 import java.io.FileInputStream;
+import java.util.List;
 
 /**
  * Created by eEvolution author Victor Perez <victor.perez@e-evolution.com> on 25/01/15.
@@ -41,10 +42,9 @@ import java.io.FileInputStream;
  */
 public class WPrintDocument implements IPrintDocument {
 
-    public void print(PO document, int printFormatId, int windowNo, boolean askPrint, boolean batchPrintMode) {
+    public void print(PO document, int printFormatId, int windowNo, boolean askPrint) {
         boolean retValue = true;
-        String tableName = MTable.get(Env.getCtx(), document.get_Table_ID()).get_Translation(I_AD_Table.COLUMNNAME_Name);
-        if (FDialog.ask(windowNo, SessionManager.getAppDesktop().getComponent(), "Print", tableName)) {
+        if (FDialog.ask(windowNo, SessionManager.getAppDesktop().getComponent(), "PrintDocument", document.get_LabelValue())) {
             do {
                 try {
                     String keyColumnName = document.get_KeyColumns()[0];
@@ -75,4 +75,42 @@ public class WPrintDocument implements IPrintDocument {
             } while (!retValue);
         }
     }
+
+	@Override
+	public void print(List<PO> documentList, int printFormatId, int windowNo, boolean askPrint) {
+		StringBuffer documentLabels = new StringBuffer();
+		documentList.stream().forEach(document -> {
+			if(documentLabels.length() > 0) {
+				documentLabels.append(Env.NL);
+			}
+			//	Add to String
+			documentLabels.append(document.get_LabelValue());
+		});
+		if (FDialog.ask(windowNo, SessionManager.getAppDesktop().getComponent(), "PrintAllDocuments", documentLabels.toString())) {
+        	documentList.stream().forEach(document -> {
+        		try {
+                    String keyColumnName = document.get_KeyColumns()[0];
+                    MPrintFormat format = MPrintFormat.get(
+                            Env.getCtx(),
+                            printFormatId,
+                            false);
+                    MQuery query = new MQuery(document.get_TableName());
+                    query.addRestriction(keyColumnName, MQuery.EQUAL, document.get_ValueAsInt(keyColumnName));
+
+                    //	Engine
+                    PrintInfo info = new PrintInfo(
+                            document.get_TableName(),
+                            document.get_Table_ID(),
+                            document.get_ValueAsInt(keyColumnName));
+                    ReportEngine reportEngine = new ReportEngine(Env.getCtx(), format, query, info);
+                    if (reportEngine != null) {
+                        SimplePDFViewer win = new SimplePDFViewer(format.getName(), new FileInputStream(reportEngine.getPDF()));
+                        SessionManager.getAppDesktop().showWindow(win, "center");
+                    }
+                } catch (Exception e) {
+                	
+                }
+        	});
+        }
+	}
 }

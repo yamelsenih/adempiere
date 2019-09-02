@@ -18,23 +18,23 @@
 
 package org.eevolution.form;
 
-import org.compiere.process.IPrintDocument;
+import java.awt.Cursor;
+import java.util.List;
+
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+
 import org.compiere.apps.ADialog;
 import org.compiere.apps.ADialogDialog;
-import org.compiere.model.I_AD_Table;
 import org.compiere.model.MQuery;
-import org.compiere.model.MTable;
 import org.compiere.model.PO;
 import org.compiere.model.PrintInfo;
 import org.compiere.print.MPrintFormat;
 import org.compiere.print.ReportEngine;
 import org.compiere.print.Viewer;
+import org.compiere.process.IPrintDocument;
 import org.compiere.util.Env;
 import org.compiere.util.Msg;
-
-import javax.swing.JFrame;
-import javax.swing.JOptionPane;
-import java.awt.Cursor;
 
 /**
  * Created by eEvolution author Victor Perez <victor.perez@e-evolution.com> on 25/01/15.
@@ -43,10 +43,9 @@ import java.awt.Cursor;
  */
 public class VPrintDocument implements IPrintDocument {
     @Override
-    public void print(PO document, int printFormatId, int windowNo, boolean askPrint, boolean batchPrintMode) {
+    public void print(PO document, int printFormatId, int windowNo, boolean askPrint) {
         JFrame window = Env.getWindow(windowNo);
-        String tableName = MTable.get(Env.getCtx(), document.get_Table_ID()).get_Translation(I_AD_Table.COLUMNNAME_Name);
-        if (ADialog.ask(windowNo, window, "Print", tableName)) {
+        if (ADialog.ask(windowNo, window, "PrintDocument", document.get_LabelValue())) {
             window.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
             int retValue = ADialogDialog.A_CANCEL;    //	see also ProcessDialog.printShipments/Invoices
             do {
@@ -78,4 +77,40 @@ public class VPrintDocument implements IPrintDocument {
             window.setCursor(Cursor.getDefaultCursor());
         }
     }
+
+	@Override
+	public void print(List<PO> documentList, int printFormatId, int windowNo, boolean askPrint) {
+		JFrame window = Env.getWindow(windowNo);
+		StringBuffer documentLabels = new StringBuffer();
+		documentList.stream().forEach(document -> {
+			if(documentLabels.length() > 0) {
+				documentLabels.append(Env.NL);
+			}
+			//	Add to String
+			documentLabels.append(document.get_LabelValue());
+		});
+        if (ADialog.ask(windowNo, window, "PrintAllDocuments", documentLabels.toString())) {
+            window.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+            documentList.stream().forEach(document -> {
+            	try {
+                    String keyColumnName = document.get_KeyColumns()[0];
+                    MPrintFormat format = MPrintFormat.get(
+                            Env.getCtx(),
+                            printFormatId,
+                            false);
+                    MQuery query = new MQuery(document.get_TableName());
+                    query.addRestriction(keyColumnName, MQuery.EQUAL, document.get_ValueAsInt(keyColumnName));
+
+                    //	Engine
+                    PrintInfo info = new PrintInfo(document.get_TableName(), document.get_Table_ID(), document.get_ValueAsInt(keyColumnName));
+                    ReportEngine re = new ReportEngine(Env.getCtx(), format, query, info);
+                    re.print();
+                    new Viewer(re);
+                } catch (Exception e) {
+                	
+                }
+            });
+            window.setCursor(Cursor.getDefaultCursor());
+        }
+	}
 }

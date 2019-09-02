@@ -16,6 +16,8 @@
  *****************************************************************************/
 package org.compiere.process;
 
+import java.util.List;
+
 import org.compiere.model.PO;
 
 /**
@@ -24,5 +26,21 @@ import org.compiere.model.PO;
  * Improve definition
  */
 public interface IPrintDocument {
-    public void print (PO document, int printFormatId, int windowNo, boolean askPrint, boolean batchPrintMode);
+    /**
+     * Each document
+     * @param document
+     * @param printFormatId
+     * @param windowNo
+     * @param askPrint
+     */
+	public void print (PO document, int printFormatId, int windowNo, boolean askPrint);
+    
+	/**
+	 * Print a Document List
+	 * @param documentList
+	 * @param printFormatId
+	 * @param windowNo
+	 * @param askPrint
+	 */
+    public void print (List<PO> documentList, int printFormatId, int windowNo, boolean askPrint);
 }
