@@ -83,7 +83,7 @@ public class GenerateInvoiceInOutBound extends GenerateInvoiceInOutBoundAbstract
 				return;
 			}
 
-			BigDecimal qtyInvoiced = outboundLine.getMovementQty().subtract(orderLine.getQtyInvoiced());
+			BigDecimal qtyInvoiced = outboundLine.getMovementQty();
 			MInvoice invoice = getInvoice(orderLine, outboundLine.getParent());
 			MInvoiceLine invoiceLine = new MInvoiceLine(outboundLine.getCtx(), 0 , outboundLine.get_TrxName());
 			invoiceLine.setC_Invoice_ID(invoice.getC_Invoice_ID());
