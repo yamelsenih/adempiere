@@ -66,29 +66,31 @@ public class MHRContract extends X_HR_Contract {
    	/**
    	 * Get/Load Contract [CACHED]
    	 * @param ctx context
-   	 * @param degreeId
+   	 * @param contractId
    	 * @return activity or null
    	 */
-   	public static MHRContract getById(Properties ctx, int degreeId, String trxName) {
-   		if (degreeId <= 0)
+   	public static MHRContract getById(Properties ctx, int contractId, String trxName) {
+   		if (contractId <= 0)
    			return null;
 
-   		MHRContract degree = contractCacheIds.get(degreeId);
-   		if (degree != null && degree.get_ID() > 0)
-   			return degree;
+   		MHRContract contract = contractCacheIds.get(contractId);
+   		if (contract != null && contract.get_ID() > 0) {
+   			contract.set_TrxName(trxName);
+   			return contract;
+   		}
 
-   		degree = new Query(ctx , Table_Name , COLUMNNAME_HR_Contract_ID + "=?" , trxName)
+   		contract = new Query(ctx , Table_Name , COLUMNNAME_HR_Contract_ID + "=?" , trxName)
    				.setClient_ID()
-   				.setParameters(degreeId)
+   				.setParameters(contractId)
    				.first();
-   		if (degree != null && degree.get_ID() > 0)
+   		if (contract != null && contract.get_ID() > 0)
    		{
    			int clientId = Env.getAD_Client_ID(ctx);
-   			String key = clientId + "#" + degree.getValue();
-   			contractCacheValues.put(key, degree);
-   			contractCacheIds.put(degree.get_ID(), degree);
+   			String key = clientId + "#" + contract.getValue();
+   			contractCacheValues.put(key, contract);
+   			contractCacheIds.put(contract.get_ID(), contract);
    		}
-   		return degree;
+   		return contract;
    	}
 
    	/**

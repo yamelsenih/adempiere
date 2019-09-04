@@ -99,8 +99,10 @@ public class MHRConcept extends X_HR_Concept {
             return null;
         //
         MHRConcept concept = cache.get(conceptId);
-        if (concept != null)
-            return concept;
+        if (concept != null) {
+        	concept.set_TrxName(trxName);
+        	return concept;
+        }
         //
         concept = new MHRConcept(ctx, conceptId, trxName);
         if (concept.get_ID() == conceptId)

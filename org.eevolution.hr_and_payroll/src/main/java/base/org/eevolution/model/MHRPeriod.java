@@ -34,6 +34,7 @@ public class MHRPeriod extends X_HR_Period
 		MHRPeriod period = s_cache.get(periodId);
 		if (period != null)
 		{
+			period.set_TrxName(trxName);
 			return period;
 		}
 		// Try Load

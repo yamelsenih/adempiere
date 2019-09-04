@@ -132,8 +132,10 @@ public class MHRPayroll extends X_HR_Payroll {
             return null;
 
         MHRPayroll payroll = payrollCacheIds.get(payrollId);
-        if (payroll != null && payroll.get_ID() > 0)
-            return payroll;
+        if (payroll != null && payroll.get_ID() > 0) {
+        	payroll.set_TrxName(trxName);
+        	return payroll;
+        }
 
         payroll = new Query(ctx , Table_Name , MHRPayroll.COLUMNNAME_HR_Payroll_ID + "=?", trxName)
                 .setClient_ID()
