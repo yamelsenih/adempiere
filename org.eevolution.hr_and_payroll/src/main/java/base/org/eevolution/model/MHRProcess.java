@@ -1038,6 +1038,7 @@ public class MHRProcess extends X_HR_Process implements DocAction , DocumentReve
 				+  Msg.parseTranslation(getCtx(), " @BPName@ ") + partner.getName() +  " " + partner.getName2());
 		partnerId = partner.get_ID();
 		employee = MHREmployee.getActiveEmployee(getCtx(), partnerId, get_TrxName());
+		businessPartner = partner;
 		if(employee == null) {
 			return;
 		}
