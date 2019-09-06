@@ -71,6 +71,16 @@ public class MRule extends X_AD_Rule
 			s_cache.put (key, retValue);
 		return retValue;
 	}	//	get
+	
+	/**
+	 * 	Get Rule from Cache
+	 *	@param ctx context
+	 *	@param ruleValue case sensitive rule Value
+	 *	@return Rule
+	 */
+	public static MRule get (Properties ctx, String ruleValue) {
+		return get (ctx, ruleValue, null);
+	}
 
 	/**
 	 * 	Get Rule from Cache
@@ -78,7 +88,7 @@ public class MRule extends X_AD_Rule
 	 *	@param ruleValue case sensitive rule Value
 	 *	@return Rule
 	 */
-	public static MRule get (Properties ctx, String ruleValue)
+	public static MRule get (Properties ctx, String ruleValue, String trxName)
 	{
 		if (ruleValue == null)
 			return null;
@@ -91,7 +101,7 @@ public class MRule extends X_AD_Rule
 		}
 		//
 		final String whereClause = "Value=?";
-		MRule retValue = new Query(ctx,I_AD_Rule.Table_Name,whereClause,null)
+		MRule retValue = new Query(ctx,I_AD_Rule.Table_Name,whereClause, trxName)
 		.setParameters(ruleValue)
 		.setOnlyActiveRecords(true)
 		.first();

@@ -100,6 +100,7 @@ public class MHRProcess extends X_HR_Process implements DocAction , DocumentReve
 	public MHRPayrollConcept[] payrollConcepts;
 	/** The employee being processed */
 	private MHREmployee employee;
+	private MBPartner businessPartner;
 	/** the context for rules */
 	HashMap<String, Object> scriptCtx = new HashMap<String, Object>();
 	/* stack of concepts executing rules - to check loop in recursion */
@@ -763,7 +764,7 @@ public class MHRProcess extends X_HR_Process implements DocAction , DocumentReve
 	 */
 	private Object executeScript(MHRConcept concept , int ruleId, String columnType)
 	{
-		MRule rule = MRule.get(getCtx(), ruleId);
+		MRule rule = MRule.get(getCtx(), ruleId, get_TrxName());
 		Object result = null;
 		description = null;
 		try {
@@ -806,7 +807,7 @@ public class MHRProcess extends X_HR_Process implements DocAction , DocumentReve
 			result = engine.getResult(false);
 			description = engine.getDescription();
 		} catch (Exception e) {
-			throw new AdempiereException("@HR_Employee_ID@ : " + employee.getC_BPartner().getName() + " " + employee.getC_BPartner().getName2() 
+			throw new AdempiereException("@HR_Employee_ID@ : " + businessPartner.getName() + " " + businessPartner.getName2() 
 			+ " \n @HR_Concept_ID@ " + concept.getValue() + " -> " + concept.getName()
 			+ " \n @AD_Rule_ID@=" + rule.getValue() + "\n  Script : " + rule.getScript() + " \n Execution error : \n" + e.getLocalizedMessage());
 		}
@@ -1037,10 +1038,9 @@ public class MHRProcess extends X_HR_Process implements DocAction , DocumentReve
 		if(employee == null) {
 			return;
 		}
-		String employeePayrollValue = null;
+		MHRPayroll employeePayroll = null;
 		if(employee.getHR_Payroll_ID() != 0) {
-			MHRPayroll employeePayroll = MHRPayroll.getById(getCtx(), employee.getHR_Payroll_ID(), get_TrxName());
-			employeePayrollValue = employeePayroll.getValue();
+			employeePayroll = MHRPayroll.getById(getCtx(), employee.getHR_Payroll_ID(), get_TrxName());
 		}
 		Timestamp employeeValidFrom = dateFrom;
 		Timestamp employeeValidTo = dateTo;
@@ -1071,12 +1071,12 @@ public class MHRProcess extends X_HR_Process implements DocAction , DocumentReve
 		scriptCtx.put("_HR_Employee_ID", employee.getHR_Employee_ID());
 		scriptCtx.put("_C_BPartner", partner);
 		scriptCtx.put("_HR_Employee", employee);
-		scriptCtx.put("_HR_Employee_Payroll_Value", employeePayrollValue);
+		scriptCtx.put("_HR_Employee_Payroll_Value", employeePayroll.getValue());
 		//	Get Employee valid from and to
 		scriptCtx.put("_HR_Employee_ValidFrom", employeeValidFrom);
 		scriptCtx.put("_HR_Employee_ValidTo", employeeValidTo);
 		if(employee.getHR_Payroll_ID() > 0) {
-			MHRContract contract = MHRContract.getById(getCtx(), employee.getHR_Payroll().getHR_Contract_ID(), get_TrxName());
+			MHRContract contract = MHRContract.getById(getCtx(), employeePayroll.getHR_Contract_ID(), get_TrxName());
 			scriptCtx.put("_HR_Employee_Contract", contract);
 		}
 		//	
@@ -1279,7 +1279,7 @@ public class MHRProcess extends X_HR_Process implements DocAction , DocumentReve
 	 * @return
 	 */
 	private MHRMovement createMovement(MHRConcept concept, MHRAttribute attribute, boolean isPrinted) {
-		I_HR_Period payrollPeriod = getHR_Period();
+		MHRPeriod payrollPeriod = MHRPeriod.getById(getCtx(), getHR_Period_ID(), get_TrxName());
 		MHRMovement movement = new MHRMovement (getCtx(), 0, get_TrxName());
 		movement.setAD_Org_ID(employee.getAD_Org_ID());
 		movement.setSeqNo(concept.getSeqNo());
@@ -1298,7 +1298,7 @@ public class MHRProcess extends X_HR_Process implements DocAction , DocumentReve
 		movement.setValidTo(dateTo);
 		movement.setIsPrinted(isPrinted);
 		movement.setIsManual(concept.isManual());
-		movement.setC_BP_Group_ID(employee.getC_BPartner().getC_BP_Group_ID());
+		movement.setC_BP_Group_ID(businessPartner.getC_BP_Group_ID());
 		movement.setEmployee(employee);
 		return movement;
 
