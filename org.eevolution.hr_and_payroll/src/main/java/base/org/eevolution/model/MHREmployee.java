@@ -69,13 +69,18 @@ public class MHREmployee extends X_HR_Employee
 				.first();
 	}
 
+	@Deprecated
+	public static MHREmployee getById(Properties ctx, int employeeId) {
+		return getById(ctx, employeeId, null);
+	}
+	
 	/**
 	 * Get Employee by Id
 	 * @param ctx
 	 * @param employeeId
 	 * @return
 	 */
-	public static MHREmployee getById(Properties ctx, int employeeId)
+	public static MHREmployee getById(Properties ctx, int employeeId, String trxName)
 	{
 		if (employeeId <= 0)
 			return null;
@@ -84,7 +89,7 @@ public class MHREmployee extends X_HR_Employee
 		if (employee != null)
 			return employee;
 
-		employee = new MHREmployee(ctx, employeeId, null);
+		employee = new MHREmployee(ctx, employeeId, trxName);
 		if (employee.get_ID() == employeeId)
 			employeeCache.put(employeeId, employee);
 		else
@@ -101,7 +106,7 @@ public class MHREmployee extends X_HR_Employee
 	@Deprecated
 	public static MHREmployee get(Properties ctx, int employeeId)
 	{
-		return getById(ctx, employeeId);
+		return getById(ctx, employeeId, null);
 	}
 
 

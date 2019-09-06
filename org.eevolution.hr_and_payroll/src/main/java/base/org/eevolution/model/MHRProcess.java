@@ -51,7 +51,6 @@ import org.compiere.process.DocumentReversalEnabled;
 import org.compiere.util.CLogger;
 import org.compiere.util.DB;
 import org.compiere.util.Env;
-import org.compiere.util.Msg;
 import org.compiere.util.TimeUtil;
 import org.compiere.util.Util;
 import org.eevolution.service.HRProcessActionMsg;
@@ -896,7 +895,7 @@ public class MHRProcess extends X_HR_Process implements DocAction , DocumentReve
 			scriptCtx.put("_CostCollector", costCollector);
 			try {
 				result = executeScript(concept , attribute.getAD_Rule_ID(), attribute.getColumnType());
-				logger.info(Msg.parseTranslation(getCtx(), "@ScriptResult@ -> @HR_Concept_ID@ @Name@ ") + concept.getName() + " = " + result);
+				logger.info("Script Result -> Concept Name " + concept.getName() + " = " + result);
 			}
 			finally {
 				scriptCtx.remove("_CostCollector");
@@ -938,11 +937,10 @@ public class MHRProcess extends X_HR_Process implements DocAction , DocumentReve
 	{
 		scriptCtx.clear();
 		//	
-		logger.info("info data - " +
-				Msg.parseTranslation(getCtx(), "@HR_Process_ID@ ") +getHR_Process_ID()+
-				Msg.parseTranslation(getCtx(), ", @HR_Period_ID@ :") +getHR_Period_ID()+
-				Msg.parseTranslation(getCtx(), ", @HR_Payroll_ID@ : ") +getHR_Payroll_ID()+
-				Msg.parseTranslation(getCtx(), ", @HR_Department_ID@ : ") + getHR_Department_ID());
+		logger.info("info data - HR_Process_ID " + getHR_Process_ID() +  
+				", HR_Period_ID :" + getHR_Period_ID() +
+				", HR_Payroll_ID : " + getHR_Payroll_ID()+
+				", HR_Department_ID : " + getHR_Department_ID());
 		
 		MHRPeriod payrollPeriod;
 		
@@ -1013,7 +1011,7 @@ public class MHRProcess extends X_HR_Process implements DocAction , DocumentReve
 		// Save period & finish
 		if (getHR_Period_ID() > 0) {
 			payrollPeriod.setProcessed(true);
-			payrollPeriod.saveEx();
+			payrollPeriod.saveEx(get_TrxName());
 		}
 	}
 
@@ -1033,9 +1031,8 @@ public class MHRProcess extends X_HR_Process implements DocAction , DocumentReve
 	 */
 	private void  calculateMovements(MBPartner partner, MHRPeriod payrollPeriod)
 	{
-		logger.info(Msg.parseTranslation(getCtx() , "@HR_Employee_ID@ # ") 
-				+ Msg.parseTranslation(getCtx() , " @BPValue@ ") + partner.getValue() 
-				+  Msg.parseTranslation(getCtx(), " @BPName@ ") + partner.getName() +  " " + partner.getName2());
+		logger.info("Employee_ID #  BPValue " + partner.getValue() 
+				+  " BPName " + partner.getName() +  " " + partner.getName2());
 		partnerId = partner.get_ID();
 		employee = MHREmployee.getActiveEmployee(getCtx(), partnerId, get_TrxName());
 		businessPartner = partner;
@@ -1075,12 +1072,12 @@ public class MHRProcess extends X_HR_Process implements DocAction , DocumentReve
 		scriptCtx.put("_HR_Employee_ID", employee.getHR_Employee_ID());
 		scriptCtx.put("_C_BPartner", partner);
 		scriptCtx.put("_HR_Employee", employee);
-		scriptCtx.put("_HR_Employee_Payroll_Value", employeePayroll.getValue());
 		//	Get Employee valid from and to
 		scriptCtx.put("_HR_Employee_ValidFrom", employeeValidFrom);
 		scriptCtx.put("_HR_Employee_ValidTo", employeeValidTo);
 		if(employee.getHR_Payroll_ID() > 0) {
 			MHRContract contract = MHRContract.getById(getCtx(), employeePayroll.getHR_Contract_ID(), get_TrxName());
+			scriptCtx.put("_HR_Employee_Payroll_Value", employeePayroll.getValue());
 			scriptCtx.put("_HR_Employee_Contract", contract);
 		}
 		//	
@@ -1164,7 +1161,7 @@ public class MHRProcess extends X_HR_Process implements DocAction , DocumentReve
 	{
 		// RE-Process, delete movement except concept type Incidence
 		int no = DB.executeUpdateEx("DELETE FROM HR_Movement m WHERE HR_Process_ID=? AND IsManual<>?", new Object[]{getHR_Process_ID(), true}, get_TrxName());
-		logger.info(Msg.parseTranslation(getCtx() , "@HR_Movement_ID@ @Deleted@ #") + no);
+		logger.info("Movement @Deleted@ #" + no);
 		return  no;
 	}
 
@@ -1179,7 +1176,7 @@ public class MHRProcess extends X_HR_Process implements DocAction , DocumentReve
 	 * @return
 	 */
 	private void createMovementFromConcept(MHRConcept concept, boolean isPrinted) {
-		logger.info("Calculating -> "+ Msg.parseTranslation(getCtx(), " @HR_Concept_ID@ "+ concept.getValue() + " -> " + concept.getName()));
+		logger.info("Calculating -> " + " Concept:  "+ concept.getValue() + " -> " + concept.getName());
 		columnType = concept.getColumnType();
 		MHRAttribute attribute = MHRAttribute.getByConceptAndEmployee(concept , employee, getHR_Payroll_ID(),  dateFrom ,dateTo);
 		if (attribute == null || concept.isManual())
@@ -1188,17 +1185,17 @@ public class MHRProcess extends X_HR_Process implements DocAction , DocumentReve
 			return;
 		}
 
-		logger.info(Msg.parseTranslation(getCtx(), "@HR_Concept_ID@ : ") + concept.getName());
+		logger.info("Concept: " + concept.getName());
 		MHRMovement movement = createMovement(concept, attribute, isPrinted);
 		if (MHRConcept.TYPE_RuleEngine.equals(concept.getType()))
 		{
-			logger.info(Msg.parseTranslation(getCtx() , "@Processing@ -> @AD_Rule_ID@ @To@ @HR_Concept_ID@ ") + concept.getValue());
+			logger.info("Processing -> Rule To Concept " + concept.getValue());
 			if (activeConceptRule.contains(concept)) {
 				throw new AdempiereException("Recursion loop detected in concept " + concept.getValue());
 			}
 			activeConceptRule.add(concept);
 			Object result = executeScript(concept , attribute.getAD_Rule_ID(), attribute.getColumnType());
-			logger.info(Msg.parseTranslation(getCtx(), "@ScriptResult@ -> @HR_Concept_ID@ @Name@ ") + concept.getName() + " = " + result);
+			logger.info("Script Result -> Concept Name " + concept.getName() + " = " + result);
 			activeConceptRule.remove(concept);
 			movement.setColumnValue(result); // double rounded in MHRMovement.setColumnValue
 			if (description != null)
@@ -2521,10 +2518,10 @@ public class MHRProcess extends X_HR_Process implements DocAction , DocumentReve
 		scriptCtx.put("_Department", getHR_Department_ID());
 
 		logger.info("info data - " +
-				Msg.parseTranslation(getCtx(), "@HR_Process_ID@ ") +getHR_Process_ID()+
-				Msg.parseTranslation(getCtx(), ", @HR_Period_ID@ :") +getHR_Period_ID()+
-				Msg.parseTranslation(getCtx(), ", @HR_Payroll_ID@ : ") +getHR_Payroll_ID()+
-				Msg.parseTranslation(getCtx(), ", @HR_Department_ID@ : ") + getHR_Department_ID());
+				"HR_Process_ID " + getHR_Process_ID()+
+				", HR_Period_ID :" + getHR_Period_ID()+
+				", HR_Payroll_ID : " + getHR_Payroll_ID()+
+				", HR_Department_ID : " + getHR_Department_ID());
 
 		scriptCtx.put("_From", dateFrom);
 		scriptCtx.put("_To", dateTo);

@@ -883,9 +883,9 @@ public class MHRMovement extends X_HR_Movement
 	@Override
 	protected boolean beforeSave(boolean newRecord)
 	{
-		MHREmployee employee  = MHREmployee.getActiveEmployee(Env.getCtx(), getC_BPartner_ID(), get_TrxName());
-		if (employee != null) {
-			setAD_Org_ID(employee.getAD_Org_ID());
+		if(getHR_Employee_ID() != 0) {
+			MHREmployee employee = MHREmployee.getById(getCtx(), getHR_Employee_ID(), get_TrxName());
+			setAD_Org_ID(employee.getAD_OrgTrx_ID());
 		}
 		return true;
 	}

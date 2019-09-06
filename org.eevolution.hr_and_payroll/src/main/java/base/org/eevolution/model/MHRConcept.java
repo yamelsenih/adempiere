@@ -139,8 +139,10 @@ public class MHRConcept extends X_HR_Concept {
         int AD_Client_ID = Env.getAD_Client_ID(ctx);
         final String key = AD_Client_ID + "#" + conceptValue;
         MHRConcept concept = cacheValue.get(key);
-        if (concept != null)
-            return concept;
+        if (concept != null) {
+        	concept.set_TrxName(trxName);
+        	return concept;
+        }
 
         final String whereClause = COLUMNNAME_Value + "=? AND AD_Client_ID IN (?,?)";
         concept = new Query(ctx, Table_Name, whereClause, trxName)
@@ -210,7 +212,7 @@ public class MHRConcept extends X_HR_Concept {
         String sql = " HR_Expense_Acct FROM HR_Concept c " +
                 " INNER JOIN HR_Concept_Acct ca ON (c.HR_Concept_ID=ca.HR_Concept_ID)" +
                 " WHERE c.HR_Concept_ID " + getHR_Concept_ID();
-        int result = DB.getSQLValue("ConceptCR", sql);
+        int result = DB.getSQLValue(get_TrxName(), sql);
         if (result > 0)
             return result;
         return 0;
@@ -220,7 +222,7 @@ public class MHRConcept extends X_HR_Concept {
         String sql = " HR_Revenue_Acct FROM HR_Concept c " +
                 " INNER JOIN HR_Concept_Acct ca ON (c.HR_Concept_ID=ca.HR_Concept_ID)" +
                 " WHERE c.HR_Concept_ID " + getHR_Concept_ID();
-        int result = DB.getSQLValue("ConceptCR", sql);
+        int result = DB.getSQLValue(get_TrxName(), sql);
         if (result > 0)
             return result;
         return 0;
