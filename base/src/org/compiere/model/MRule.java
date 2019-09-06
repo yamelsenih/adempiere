@@ -60,17 +60,38 @@ public class MRule extends X_AD_Rule
 	 *	@param AD_Rule_ID id
 	 *	@return MRule
 	 */
-	public static MRule get (Properties ctx, int AD_Rule_ID)
+	public static MRule get (Properties ctx, int AD_Rule_ID) {
+		return get(ctx, AD_Rule_ID, null);
+	}
+	
+	/**
+	 * 	Get Rule from Cache
+	 *	@param ctx context
+	 *	@param AD_Rule_ID id
+	 *	@return MRule
+	 */
+	public static MRule get (Properties ctx, int AD_Rule_ID, String trxName)
 	{
 		Integer key = new Integer (AD_Rule_ID);
 		MRule retValue = (MRule) s_cache.get (key);
 		if (retValue != null)
 			return retValue;
-		retValue = new MRule (ctx, AD_Rule_ID, null);
+		}
+		retValue = new MRule (ctx, AD_Rule_ID, trxName);
 		if (retValue.get_ID () != 0)
 			s_cache.put (key, retValue);
 		return retValue;
 	}	//	get
+	
+	/**
+	 * 	Get Rule from Cache
+	 *	@param ctx context
+	 *	@param ruleValue case sensitive rule Value
+	 *	@return Rule
+	 */
+	public static MRule get (Properties ctx, String ruleValue) {
+		return get (ctx, ruleValue, null);
+	}
 
 	/**
 	 * 	Get Rule from Cache
@@ -78,7 +99,7 @@ public class MRule extends X_AD_Rule
 	 *	@param ruleValue case sensitive rule Value
 	 *	@return Rule
 	 */
-	public static MRule get (Properties ctx, String ruleValue)
+	public static MRule get (Properties ctx, String ruleValue, String trxName)
 	{
 		if (ruleValue == null)
 			return null;
@@ -91,7 +112,7 @@ public class MRule extends X_AD_Rule
 		}
 		//
 		final String whereClause = "Value=?";
-		MRule retValue = new Query(ctx,I_AD_Rule.Table_Name,whereClause,null)
+		MRule retValue = new Query(ctx,I_AD_Rule.Table_Name,whereClause, trxName)
 		.setParameters(ruleValue)
 		.setOnlyActiveRecords(true)
 		.first();

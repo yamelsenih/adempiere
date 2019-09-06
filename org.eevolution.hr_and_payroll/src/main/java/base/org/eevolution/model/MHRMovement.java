@@ -301,7 +301,7 @@ public class MHRMovement extends X_HR_Movement
 		StringBuffer sql = new StringBuffer("SELECT COALESCE(SUM(")
 								.append(fieldName).append("),0) FROM ").append(MHRMovement.Table_Name)
 								.append(" WHERE ").append(whereClause);
-		BigDecimal value = DB.getSQLValueBDEx(null, sql.toString(), params);
+		BigDecimal value = DB.getSQLValueBDEx(trxName, sql.toString(), params);
 		return value.doubleValue();
 		
 	} // getConcept
@@ -385,7 +385,7 @@ public class MHRMovement extends X_HR_Movement
 		StringBuffer sql = new StringBuffer("SELECT COALESCE(AVG(")
 								.append(fieldName).append("),0) FROM ").append(MHRMovement.Table_Name)
 								.append(" WHERE ").append(whereClause);
-		BigDecimal value = DB.getSQLValueBDEx(null, sql.toString(), params);
+		BigDecimal value = DB.getSQLValueBDEx(trxName, sql.toString(), params);
 		return value.doubleValue();
 		
 	} // getConcept
@@ -482,7 +482,7 @@ public class MHRMovement extends X_HR_Movement
 		StringBuffer sql = new StringBuffer("SELECT COALESCE(SUM(")
 					.append(fieldName).append("),0) FROM ").append(MHRMovement.Table_Name)
 					.append(" WHERE ").append(whereClause);
-		BigDecimal value = DB.getSQLValueBDEx(null, sql.toString(), params);
+		BigDecimal value = DB.getSQLValueBDEx(trxName, sql.toString(), params);
 		return value.doubleValue();
 
 	} // getConcept
@@ -705,7 +705,7 @@ public class MHRMovement extends X_HR_Movement
 		StringBuffer sql = new StringBuffer("SELECT COALESCE(AVG(")
 					.append(fieldName).append("),0) FROM ").append(MHRMovement.Table_Name)
 					.append(" WHERE ").append(whereClause);
-		BigDecimal value = DB.getSQLValueBDEx(null, sql.toString(), params);
+		BigDecimal value = DB.getSQLValueBDEx(trxName, sql.toString(), params);
 		return value.doubleValue();
 
 	} // getConcept
@@ -899,13 +899,17 @@ public class MHRMovement extends X_HR_Movement
 		setAD_Org_ID(employee.getAD_Org_ID());
 		setHR_Department_ID(employee.getHR_Department_ID());
 		setHR_Job_ID(employee.getHR_Job_ID());
-		setC_Activity_ID(employee.getC_Activity_ID() > 0 ?  employee.getC_Activity_ID() : employee.getHR_Department().getC_Activity_ID());
+		int activityId = employee.getC_Activity_ID();
+		if(activityId == 0) {
+			activityId = MHRDepartment.getById(employee.getCtx(), employee.getHR_Department_ID(), employee.get_TrxName()).getC_Activity_ID();
+		}
+		setC_Activity_ID(activityId);
 		setHR_Employee_ID(employee.getHR_Employee_ID());
 		setHR_EmployeeType_ID(employee.getHR_EmployeeType_ID());
 		setHR_SkillType_ID(employee.getHR_SkillType_ID());
 		setHR_Payroll_ID(employee.getHR_Payroll_ID());
 		setC_Project_ID(employee.getC_Project_ID());
 		if (employee.getHR_Payroll_ID() > 0)
-			setHR_Contract_ID(employee.getHR_Payroll().getHR_Contract_ID());
+			setHR_Contract_ID(MHRPayroll.getById(employee.getCtx(), employee.getHR_Payroll_ID(), employee.get_TrxName()).getHR_Contract_ID());
 	}
 }	//	HRMovement
