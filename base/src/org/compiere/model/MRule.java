@@ -76,7 +76,6 @@ public class MRule extends X_AD_Rule
 		MRule retValue = (MRule) s_cache.get (key);
 		if (retValue != null)
 			return retValue;
-		}
 		retValue = new MRule (ctx, AD_Rule_ID, trxName);
 		if (retValue.get_ID () != 0)
 			s_cache.put (key, retValue);
