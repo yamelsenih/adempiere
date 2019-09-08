@@ -19,6 +19,7 @@ package org.eevolution.model;
 import java.io.File;
 import java.math.BigDecimal;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -52,6 +53,7 @@ import org.compiere.util.CLogger;
 import org.compiere.util.DB;
 import org.compiere.util.Env;
 import org.compiere.util.TimeUtil;
+import org.compiere.util.Trx;
 import org.compiere.util.Util;
 import org.eevolution.service.HRProcessActionMsg;
 import org.spin.util.TNAUtil;
@@ -487,6 +489,14 @@ public class MHRProcess extends X_HR_Process implements DocAction , DocumentReve
 		saveEx();
 
 		return  reversal;
+	}
+	
+	private void commit() {
+		try {
+			Trx.get(get_TrxName(), false).commit(true);
+		} catch (SQLException e) {
+			new AdempiereException(e.getMessage());
+		}
 	}
 
 	/**
@@ -998,6 +1008,7 @@ public class MHRProcess extends X_HR_Process implements DocAction , DocumentReve
 		//	
 		for(MBPartner employee : MHREmployee.getEmployees(this)) {
 			calculateMovements(employee, payrollPeriod);
+			commit();
 			//	Validate action
 			if(actionScope.isProcessScope()
 					&& actionScope.isBreakRunning()) {
