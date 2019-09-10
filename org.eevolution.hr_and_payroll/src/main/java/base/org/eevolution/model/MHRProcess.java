@@ -272,7 +272,7 @@ public class MHRProcess extends X_HR_Process implements DocAction , DocumentReve
 			deleteMovements();
 			throw new AdempiereException(exception);
 		}
-		
+		commit();
 		processMsg = ModelValidationEngine.get().fireDocValidate(this, ModelValidator.TIMING_AFTER_PREPARE);
 		if (processMsg != null)
 			return DocAction.STATUS_Invalid;
@@ -309,6 +309,7 @@ public class MHRProcess extends X_HR_Process implements DocAction , DocumentReve
 		{
 			return DocAction.STATUS_Invalid;
 		}
+		commit();
 		//
 		setProcessed(true);	
 		setDocAction(DOCACTION_Close);
@@ -573,7 +574,8 @@ public class MHRProcess extends X_HR_Process implements DocAction , DocumentReve
 
 		setProcessed(false);
 		setDocAction(DOCACTION_Complete);
-				
+		commit();
+
 		// After reActivate
 		processMsg = ModelValidationEngine.get().fireDocValidate(this,ModelValidator.TIMING_AFTER_REACTIVATE);
 		if (processMsg != null)
@@ -2403,7 +2405,7 @@ public class MHRProcess extends X_HR_Process implements DocAction , DocumentReve
 		to.setPosted (false);
 		to.setProcessed (false);
 		to.setProcessing(false);
-		to.saveEx();
+		to.saveEx(trxName);
 		//	Lines
 		if (to.copyLinesFrom(from) == 0)
 			throw new IllegalStateException("Could not create Payroll Lines");
