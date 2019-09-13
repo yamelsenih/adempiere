@@ -24,22 +24,23 @@ import java.sql.Timestamp;
 import java.util.Vector;
 import java.util.logging.Level;
 
-import org.compiere.apps.ProcessCtl;
 import org.compiere.minigrid.IDColumn;
 import org.compiere.minigrid.IMiniTable;
 import org.compiere.model.MAcctSchemaGL;
 import org.compiere.model.MElementValue;
-import org.compiere.model.MPInstance;
-import org.compiere.model.MPInstancePara;
 import org.compiere.model.MPeriod;
-import org.compiere.process.ProcessInfo;
+import org.compiere.report.TrialBalance;
 import org.compiere.util.CLogger;
 import org.compiere.util.DB;
 import org.compiere.util.Env;
 import org.compiere.util.Msg;
+import org.eevolution.service.dsl.ProcessBuilder;
 
 /**
  * @author Nikunj Panelia
+ * @author Yamel Senih, ysenih@erpcya.com, ERPCyA http://www.erpcya.com
+ *		<li> FR [ 2797 ] Error Trial Balance
+ *		@see https://github.com/adempiere/adempiere/issues/2797
  */
 public class TrialBalanceDrill
 {
@@ -75,7 +76,6 @@ public class TrialBalanceDrill
 	static protected int			col_Account_ID			= 69936; 									//	GL_JournalLine.Account_ID;
 	static protected int			col_User1_ID			= 69948; 									//	GL_JournalLine.Account_ID;
 	static protected int			ReferenceID_of_User1_ID	= 134;
-	private final static int		processID				= 310;
 	
 	protected int 		RETAIN_EARNING_ELEMENT_ID	= 0;
 	protected String	RETAIN_EARNING_ELEMENT_VALUE= "";
@@ -289,48 +289,24 @@ public class TrialBalanceDrill
 	/**
 	 * Execute Trial Balance Process
 	 */
-	protected void executeTrialBalanceProcess(int column, String selectedIdList)
-	{
-		MPInstance mpInstance = new MPInstance(Env.getCtx(), processID, 0);
-		mpInstance.saveEx();
+	protected void executeTrialBalanceProcess(int column, String selectedIdList) {
+		ProcessBuilder worker = ProcessBuilder.create(Env.getCtx())
+			.process(TrialBalance.getProcessId())
+			.withTitle(TrialBalance.getProcessName())
+			.withPrintPreview();
 		
-		MPInstancePara para = null;
-		para = new MPInstancePara(mpInstance, 10);
-		para.setParameter("C_AcctSchema_ID", c_AcctSchema_ID );
-		para.save();
-		
-		if (column == 7 || column == 8)
-		{
-			para = new MPInstancePara(mpInstance, 70);
-			para.setParameter("DateAcct", yearFrom.getStartDate());
-			para.setP_Date_To(period.getEndDate());
-			para.save();
+		worker.withParameter("C_AcctSchema_ID", c_AcctSchema_ID);
+		if (column == 7 || column == 8) {
+			worker.withParameter("DateAcct", yearFrom.getStartDate());
+			worker.withParameter("DateAcct_To", period.getEndDate());
+		} else {
+			worker.withParameter("Period_ID", period.getC_Period_ID());
 		}
-		else
-		{
-			para = new MPInstancePara(mpInstance, 20);
-			para.setParameter("Period_ID", period.getC_Period_ID());
-			para.save();
-		}
-
-		
-		para = new MPInstancePara(mpInstance, 30);
-		para.setParameter("AD_Org_ID", m_AD_Org_ID);
-		para.save();
-		
-		para = new MPInstancePara(mpInstance, 40);
-		para.setParameter("PostingType", (column == 4 || column == 7) ? "A" : "B");
-		para.save();
-		
-		para = new MPInstancePara(mpInstance, 60);
-		para.setParameter("seletedID",selectedIdList);
-		para.save();
-
-		ProcessInfo pInfo = new ProcessInfo("Trial Balance Drill Report", processID);
-		pInfo.setAD_PInstance_ID(mpInstance.getAD_PInstance_ID());
-		pInfo.setReportType("H");
-		
-		ProcessCtl worker = new ProcessCtl(null, 0, pInfo, null);
-		worker.run();
+		worker.withParameter("AD_Org_ID", m_AD_Org_ID);
+		worker.withParameter("PostingType", (column == 4 || column == 7) ? "A" : "B");
+		worker.withParameter("SeletedID", selectedIdList);
+		worker.withReportExportFormat("H");
+		//	
+		worker.execute();
 	} // executeTrialBalanceProcess
 }
