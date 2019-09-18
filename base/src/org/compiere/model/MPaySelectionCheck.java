@@ -339,7 +339,6 @@ public final class MPaySelectionCheck extends X_C_PaySelectionCheck
 				payment.setDateTrx(paySelectionCheck.getParent().getPayDate());
 				payment.setDateAcct(payment.getDateTrx()); // globalqss [ 2030685 ]
 				payment.setC_BPartner_ID(paySelectionCheck.getC_BPartner_ID());
-				payment.setDocumentNo(paySelectionCheck.getDocumentNo());
 				if (!paySelectionCheck.getPaymentRule().equals(PAYMENTRULE_Check)) {
 					payment.setDocumentNo(paySelectionCheck.getDocumentNo());
 				}
