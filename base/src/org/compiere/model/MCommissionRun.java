@@ -1351,14 +1351,26 @@ public class MCommissionRun extends X_C_CommissionRun implements DocAction, DocO
 				}
 			} else if(get_ValueAsInt("S_Contract_ID") > 0
 					&& amtMultiplier == null) {
-				List<MCommissionLine> commissionLinesToProcess = commissionLineList
+				List<MCommissionLine> commissionLinesFromProjectToProcess = commissionLineList
 						.stream()
 						.filter(commissionLine -> commissionLine.get_ValueAsInt("SplitBPartner_ID") == salesRep.getC_BPartner_ID())
 						.filter(commissionLine -> commissionLine.get_ValueAsInt("S_Contract_ID") == get_ValueAsInt("S_Contract_ID") || commissionLine.get_ValueAsInt("S_Contract_ID") == 0)
+						.filter(commissionLine -> commissionLine.get_ValueAsInt("C_Project_ID") == get_ValueAsInt("C_Project_ID"))
 						.collect(Collectors.toList());
-				commissionLinesToProcess.forEach(commissionLine -> {
-					processLine(salesRep, commission, commissionLinesToProcess, commissionLine, isPercentage, amtMultiplier);
-				});
+				if(!commissionLinesFromProjectToProcess.isEmpty()) {
+					commissionLinesFromProjectToProcess.forEach(commissionLine -> {
+						processLine(salesRep, commission, commissionLinesFromProjectToProcess, commissionLine, isPercentage, amtMultiplier);
+					});
+				} else {
+					List<MCommissionLine> commissionLinesToProcess = commissionLineList
+							.stream()
+							.filter(commissionLine -> commissionLine.get_ValueAsInt("SplitBPartner_ID") == salesRep.getC_BPartner_ID())
+							.filter(commissionLine -> commissionLine.get_ValueAsInt("S_Contract_ID") == get_ValueAsInt("S_Contract_ID") || commissionLine.get_ValueAsInt("S_Contract_ID") == 0)
+							.collect(Collectors.toList());
+					commissionLinesToProcess.forEach(commissionLine -> {
+						processLine(salesRep, commission, commissionLinesToProcess, commissionLine, isPercentage, amtMultiplier);
+					});
+				}
 			} else {
 				//	For all
 				List<MCommissionLine> commissionLinesForOrders = commissionLineList.stream()
