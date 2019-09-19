@@ -58,11 +58,11 @@ public class BankStatementPayment extends BankStatementPaymentAbstract {
 			}
 			//	
 			int chargeId = getParameterAsInt("C_Charge_ID");
+			int bPartnerId = getParameterAsInt("C_BPartner_ID");
 			int created = 0;
 			for(int key : getSelectionKeys()) {
 				int bankStatementLineId = getSelectionAsInt(key, "BSL_C_BankStatementLine_ID");
 				MBankStatementLine bankStatementLine = new MBankStatementLine(getCtx(), bankStatementLineId, get_TrxName());
-				int bPartnerId = 0;
 				if(transactionType.equals("B")) {
 					MBank bank = MBank.get(getCtx(), bankStatementLine.getParent().getBankAccount().getC_Bank_ID());
 					if(bank.getC_BPartner_ID() == 0) {
@@ -238,7 +238,7 @@ public class BankStatementPayment extends BankStatementPaymentAbstract {
 		} else {
 			throw new AdempiereException("@C_Invoice_ID@ / @C_BPartner_ID@ @NotFound@");
 		}
-//		payment
+		payment.setIsUnidentifiedPayment(isUnidentified);
 		payment.saveEx();
 		//
 		payment.processIt(MPayment.DOCACTION_Complete);

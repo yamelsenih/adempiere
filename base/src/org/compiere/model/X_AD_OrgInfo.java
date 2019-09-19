@@ -486,6 +486,31 @@ public class X_AD_OrgInfo extends PO implements I_AD_OrgInfo, I_Persistent
 		return ii.intValue();
 	}
 
+	public org.compiere.model.I_C_BPartner getUnidentifiedBPartner() throws RuntimeException
+    {
+		return (org.compiere.model.I_C_BPartner)MTable.get(getCtx(), org.compiere.model.I_C_BPartner.Table_Name)
+			.getPO(getUnidentifiedBPartner_ID(), get_TrxName());	}
+
+	/** Set Business Partner (Unidentified Payments).
+		@param UnidentifiedBPartner_ID Business Partner (Unidentified Payments)	  */
+	public void setUnidentifiedBPartner_ID (int UnidentifiedBPartner_ID)
+	{
+		if (UnidentifiedBPartner_ID < 1) 
+			set_Value (COLUMNNAME_UnidentifiedBPartner_ID, null);
+		else 
+			set_Value (COLUMNNAME_UnidentifiedBPartner_ID, Integer.valueOf(UnidentifiedBPartner_ID));
+	}
+
+	/** Get Business Partner (Unidentified Payments).
+		@return Business Partner (Unidentified Payments)	  */
+	public int getUnidentifiedBPartner_ID () 
+	{
+		Integer ii = (Integer)get_Value(COLUMNNAME_UnidentifiedBPartner_ID);
+		if (ii == null)
+			 return 0;
+		return ii.intValue();
+	}
+
 	/** Set Immutable Universally Unique Identifier.
 		@param UUID 
 		Immutable Universally Unique Identifier
