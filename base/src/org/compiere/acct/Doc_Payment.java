@@ -153,6 +153,8 @@ public class Doc_Payment extends Doc
 				acct = MCharge.getAccount(getC_Charge_ID(), as, getAmount());
 			else if (prepayment)
 				acct = getAccount(Doc.ACCTTYPE_V_Prepayment, as);
+			else if(unidentified)
+				acct = getAccount(Doc.ACCTTYPE_BankUnidentified, as);
 			else
 				acct = getAccount(Doc.ACCTTYPE_PaymentSelect, as);
 			FactLine fl = fact.createLine(null, acct,
