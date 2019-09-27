@@ -844,6 +844,7 @@ public class AgencyValidator implements ModelValidator
 					"DocStatus = 'CO' "
 							+ "AND EXISTS(SELECT 1 FROM C_CommissionRun cr "
 							+ "WHERE cr.C_CommissionRun_ID = C_Order.C_CommissionRun_ID "
+							+ "AND cr.C_Invoice_ID IS NULL "
 							+ "AND EXISTS(SELECT 1 FROM C_InvoiceLine il "
 							+ "	INNER JOIN C_OrderLine ol ON(ol.C_OrderLine_ID = il.C_OrderLine_ID) "
 							+ "	WHERE il.C_Invoice_ID = ? "
@@ -888,6 +889,8 @@ public class AgencyValidator implements ModelValidator
 				reverseOrder.calculateTaxTotal();
 				reverseOrder.saveEx();
 				reverseOrder.processIt(MOrder.ACTION_Post);
+				commissionOrder.setDocStatus(MOrder.DOCSTATUS_Closed);
+				commissionOrder.saveEx();
 			});
 		}
 		
