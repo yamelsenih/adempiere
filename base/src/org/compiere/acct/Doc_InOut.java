@@ -323,7 +323,7 @@ public class Doc_InOut extends Doc
 					if (m_Reversal_ID != 0 && m_Reversal_ID < get_ID())
 						multiplier = multiplier.negate();
 					Fact factcomm = Doc_Order.getCommitmentSalesRelease(as, this, 
-						line.getQty(), line.get_ID(), multiplier);
+						line.getQty().abs(), line.get_ID(), multiplier);
 					if (factcomm != null)
 						facts.add(factcomm);
 				}
