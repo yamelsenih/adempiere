@@ -1134,6 +1134,7 @@ public class AgencyValidator implements ModelValidator
 					commissionRun.set_ValueOfColumn("C_Order_ID", invoice.getC_Order_ID());
 				}
 				commissionRun.set_ValueOfColumn("C_Invoice_ID", invoice.getC_Invoice_ID());
+				commissionRun.set_ValueOfColumn("C_Currency_ID", invoice.getC_Currency_ID());
 				commissionRun.setAD_Org_ID(invoice.getAD_Org_ID());
 				commissionRun.saveEx();
 				//	Process commission
