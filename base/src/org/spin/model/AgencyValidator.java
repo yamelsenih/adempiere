@@ -88,6 +88,7 @@ import org.compiere.util.DB;
 import org.compiere.util.DisplayType;
 import org.compiere.util.Env;
 import org.compiere.util.Msg;
+import org.compiere.util.Util;
 import org.eevolution.service.dsl.ProcessBuilder;
 import org.spin.process.CommissionOrderCreateAbstract;
 
@@ -263,7 +264,7 @@ public class AgencyValidator implements ModelValidator
 				if (bPartner.get_ValueAsBoolean("IsMandatoryOrderReference")) {
 					if (order.get_ValueAsBoolean("IsAllowToInvoice")) {
 						if (order.isSOTrx() && (order.getLink_Order_ID() <= 0  
-								|| (order.get_ValueAsString("POReference") == null || order.get_ValueAsString("POReference") == "" ))) {
+								|| (Util.isEmpty(order.getPOReference())))) {
 							throw new AdempiereException(Msg.getMsg(Env.getCtx(), "LinkOrderNotFound"));
 						}
 					}
@@ -523,6 +524,14 @@ public class AgencyValidator implements ModelValidator
 								if(user1Id > 0) {
 									order.setUser3_ID(user1Id);
 								}
+							}
+							//	Set allows to invoice
+							if(commissionRun.get_ValueAsInt("C_Invoice_ID") != 0) {
+								order.set_ValueOfColumn("IsAllowToInvoice", true);
+								if(Util.isEmpty(order.getPOReference())) {
+									order.setPOReference("-");
+								}
+								order.saveEx();
 							}
 						} else {
 							int user1Id = DB.getSQLValue(order.get_TrxName(), "SELECT p.User1_ID "
