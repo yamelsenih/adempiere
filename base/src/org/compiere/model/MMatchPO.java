@@ -907,7 +907,6 @@ public class MMatchPO extends X_M_MatchPO implements IDocumentLine
 
 	@Override
 	public BigDecimal getPriceActual() {
-		MOrderLine ol = getOrderLine();
 		return MConversionRate.convertBase(getCtx(), getOrderLine().getPriceActual(),getC_Currency_ID(),
 				getDateAcct(), getC_ConversionType_ID(),
 				getAD_Client_ID(), getAD_Org_ID());

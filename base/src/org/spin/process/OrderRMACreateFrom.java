@@ -40,9 +40,12 @@ public class OrderRMACreateFrom extends OrderRMACreateFromAbstract {
 	protected String doIt() throws Exception {
 		// Valid Record Identifier
 		if(getRecord_ID() == 0)
-			return "@Record_ID@ @NotFound@";
+			return "@C_Order_ID@ @NotFound@";
 		//	Get Shipment
 		MOrder order = new MOrder(getCtx(), getRecord_ID(), get_TrxName());
+		if(order.isProcessed()) {
+			return "@C_Order_ID@ @Processed@";
+		}
 		AtomicInteger created = new AtomicInteger(0);
 		AtomicBoolean isHeaderUpdated = new AtomicBoolean(false);
 		List<Integer> recordIds =  getSelectionKeys();

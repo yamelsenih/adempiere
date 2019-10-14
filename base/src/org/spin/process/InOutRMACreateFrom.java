@@ -72,11 +72,14 @@ public class InOutRMACreateFrom extends InOutRMACreateFromAbstract {
 	protected String doIt() throws Exception {
 		// Valid Record Identifier
 		if(getRecord_ID() == 0)
-			return "@Record_ID@ @NotFound@";
-		AtomicInteger referenceId = new AtomicInteger(0);
-		AtomicInteger 	created = new AtomicInteger(0);
+			return "@M_InOut_ID@ @NotFound@";
 		//	Get Shipment
 		MInOut inout = new MInOut(getCtx(), getRecord_ID(), get_TrxName());
+		if(inout.isProcessed()) {
+			return "@M_InOut_ID@ @Processed@";
+		}
+		AtomicInteger referenceId = new AtomicInteger(0);
+		AtomicInteger 	created = new AtomicInteger(0);
 		log.config(inout + ", C_Locator_ID=" + getLocatorId());
 		//	Get Default Locator
 		MLocator defaultLocator = MLocator.getDefault((MWarehouse) inout.getM_Warehouse());
