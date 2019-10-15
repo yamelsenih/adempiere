@@ -738,7 +738,7 @@ public class MOrderLine extends X_C_OrderLine implements IDocumentLine
 	 * @param inOutLineReference
 	 */
 	public void setRef_InOutLine(MInOutLine inOutLineReference) {
-		set_ValueOfColumn("Ref_InOutLine_ID", inOutLineReference.getM_InOutLine_ID());
+		setRef_InOutLine_ID(inOutLineReference.getM_InOutLine_ID());
 		//	Charge
 		if(inOutLineReference.getC_Charge_ID() != 0) {
 			setC_Charge_ID(inOutLineReference.getC_Charge_ID());
