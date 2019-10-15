@@ -29,7 +29,7 @@ public abstract class OrderRMACreateFromAbstract extends SvrProcess {
 	/** Process Name 	*/
 	private static final String NAME_FOR_PROCESS = "Order (RMA) Create From";
 	/** Process Id 	*/
-	private static final int ID_FOR_PROCESS = 1000009;
+	private static final int ID_FOR_PROCESS = 54321;
 
 	@Override
 	protected void prepare() {

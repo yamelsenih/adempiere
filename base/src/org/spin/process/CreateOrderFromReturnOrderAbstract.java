@@ -30,7 +30,7 @@ public abstract class CreateOrderFromReturnOrderAbstract extends SvrProcess {
 	/** Process Name 	*/
 	private static final String NAME_FOR_PROCESS = "Create Order From Return Order";
 	/** Process Id 	*/
-	private static final int ID_FOR_PROCESS = 1000012;
+	private static final int ID_FOR_PROCESS = 54323;
 	/**	Parameter Name for Date Ordered	*/
 	public static final String DATEORDERED = "DateOrdered";
 	/**	Parameter Name for Target Document Type	*/

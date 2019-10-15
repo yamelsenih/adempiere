@@ -19,7 +19,7 @@ package org.spin.process;
 
 import org.compiere.process.SvrProcess;
 
-/** Generated Process for (Return (RMA) Create From)
+/** Generated Process for (Material Return Create From Return Order)
  *  @author ADempiere (generated) 
  *  @version Release 3.9.2
  */
@@ -27,9 +27,9 @@ public abstract class InOutRMACreateFromAbstract extends SvrProcess {
 	/** Process Value 	*/
 	private static final String VALUE_FOR_PROCESS = "SBP_InOutCreateFromRMA";
 	/** Process Name 	*/
-	private static final String NAME_FOR_PROCESS = "Return (RMA) Create From";
+	private static final String NAME_FOR_PROCESS = "Material Return Create From Return Order";
 	/** Process Id 	*/
-	private static final int ID_FOR_PROCESS = 1000010;
+	private static final int ID_FOR_PROCESS = 54325;
 	/**	Parameter Name for Locator	*/
 	public static final String M_LOCATOR_ID = "M_Locator_ID";
 	/**	Parameter Value for Locator	*/
