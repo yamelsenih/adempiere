@@ -18,6 +18,8 @@
 package org.spin.process;
 
 import java.sql.Timestamp;
+
+import org.compiere.model.MProcess;
 import org.compiere.process.SvrProcess;
 
 /** Generated Process for (Create Purchase Order)
@@ -26,11 +28,11 @@ import org.compiere.process.SvrProcess;
  */
 public abstract class CommissionOrderCreateAbstract extends SvrProcess {
 	/** Process Value 	*/
-	private static final String VALUE_FOR_PROCESS = "C_CommissionRun_CreatOrder";
+	private static final String VALUE_FOR_PROCESS = "C_CommissionRun_CreateOrder";
 	/** Process Name 	*/
 	private static final String NAME_FOR_PROCESS = "Create Purchase Order";
 	/** Process Id 	*/
-	private static final int ID_FOR_PROCESS = 2000043;
+	private static final int ID_FOR_PROCESS = MProcess.getProcess_ID(VALUE_FOR_PROCESS, null);
 	/**	Parameter Name for Sales Transaction	*/
 	public static final String ISSOTRX = "IsSOTrx";
 	/**	Parameter Name for Document Type	*/
