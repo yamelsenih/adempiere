@@ -160,9 +160,19 @@ public class ProjectPhaseGenOrder  extends ProjectPhaseGenOrderAbstract
 				}
 			}
 		}
-		if(dateOrdered != null) {
+
+		if (dateOrdered != null) {
 			order.setDateOrdered(dateOrdered);
 		}
+
+		for (MProjectLine pLine : projectLines) {
+
+			Timestamp datePromised = (Timestamp) pLine.get_Value("DatePromised");
+
+			if (datePromised.compareTo(order.getDateOrdered()) < 0)
+				throw new AdempiereException("@DatePromisedProjectLine@");
+		}
+
 		order.setDescription(order.getDescription() + " - " + name);
 		order.saveEx();
 		
