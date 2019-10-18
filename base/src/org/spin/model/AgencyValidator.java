@@ -847,8 +847,9 @@ public class AgencyValidator implements ModelValidator
 		/**
 		 * Reverse Previous commission
 		 * @param sourceInvoice
+		 * @param reverseAmount
 		 */
-		private void reversePreviousCommissionOrders(MInvoice sourceInvoice) {
+		private void reversePreviousCommissionOrders(MInvoice sourceInvoice, BigDecimal reverseAmount) {
 			new Query(sourceInvoice.getCtx(), I_C_Order.Table_Name, 
 					"DocStatus = 'CO' "
 							+ "AND EXISTS(SELECT 1 FROM C_CommissionRun cr "
@@ -883,15 +884,21 @@ public class AgencyValidator implements ModelValidator
 				reverseOrder.set_ValueOfColumn("PreOrder_ID", null);
 				reverseOrder.saveEx();
 				//	Add Line
-				for(MOrderLine commissionOrderLine : commissionOrder.getLines(true, null)) {
-					MOrderLine reverseOrderLine = new MOrderLine(reverseOrder);
-					PO.copyValues(commissionOrderLine, reverseOrderLine);
-					reverseOrderLine.setOrder(reverseOrder);
-					reverseOrderLine.setC_Order_ID(reverseOrder.getC_Order_ID());
-					reverseOrderLine.setQty(reverseOrderLine.getQtyOrdered().negate());
-					reverseOrderLine.setProcessed(true);
-					reverseOrderLine.saveEx();
+				MOrderLine commissionOrderLine = commissionOrder.getLines(true, null)[0];
+				MOrderLine reverseOrderLine = new MOrderLine(reverseOrder);
+				PO.copyValues(commissionOrderLine, reverseOrderLine);
+				reverseOrderLine.setOrder(reverseOrder);
+				reverseOrderLine.setC_Order_ID(reverseOrder.getC_Order_ID());
+				//	Set from reverse amount
+				if(commissionOrderLine.getQtyOrdered().signum() < 0) {
+					reverseOrderLine.setQty(Env.ONE.negate());
+				} else {
+					reverseOrderLine.setQty(Env.ONE);
 				}
+				//	Set amount
+				reverseOrderLine.setPrice(reverseAmount);
+				reverseOrderLine.setProcessed(true);
+				reverseOrderLine.saveEx();
 				reverseOrder.setDocStatus(MOrder.DOCSTATUS_Closed);
 				reverseOrder.setDocAction(MOrder.DOCACTION_None);
 				reverseOrder.setProcessed(true);
@@ -1129,6 +1136,7 @@ public class AgencyValidator implements ModelValidator
 				return;
 			}
 			removeLineFromCommission(invoice, commissionTypeId);
+			AtomicReference<BigDecimal> reverseAmount = new AtomicReference<BigDecimal>(Env.ZERO);
 			new Query(invoice.getCtx(), I_C_Commission.Table_Name, I_C_CommissionType.COLUMNNAME_C_CommissionType_ID + " = ? "
 					+ "AND IsSplitDocuments = ?", invoice.get_TrxName())
 			.setOnlyActiveRecords(true)
@@ -1166,6 +1174,7 @@ public class AgencyValidator implements ModelValidator
 							.withParameter(CommissionOrderCreateAbstract.C_DOCTYPE_ID, commissionDefinition.get_ValueAsInt("C_DocTypeOrder_ID"))
 							.withoutTransactionClose()
 							.execute(invoice.get_TrxName());
+							reverseAmount.updateAndGet(reverse -> reverse.add(commissionRun.getGrandTotal()));
 						} else {
 							commissionRun.getCommissionAmtList().stream()
 							.filter(commissionAmt -> commissionAmt.getCommissionAmt() != null 
@@ -1184,7 +1193,7 @@ public class AgencyValidator implements ModelValidator
 				}
 			});
 			//	Reverse previous commission
-			reversePreviousCommissionOrders(invoice);
+			reversePreviousCommissionOrders(invoice, reverseAmount.get());
 		}
 
 		/**
