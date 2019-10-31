@@ -24,6 +24,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import org.adempiere.exceptions.AdempiereException;
 import org.compiere.model.I_AD_Image;
+import org.compiere.model.I_AD_Record_Access;
 import org.compiere.model.I_C_BPartner;
 import org.compiere.model.I_C_Commission;
 import org.compiere.model.I_C_CommissionLine;
@@ -65,6 +66,7 @@ import org.compiere.model.MProductPrice;
 import org.compiere.model.MProject;
 import org.compiere.model.MProjectPhase;
 import org.compiere.model.MProjectTask;
+import org.compiere.model.MRecordAccess;
 import org.compiere.model.MRequest;
 import org.compiere.model.MRequestType;
 import org.compiere.model.MRequestUpdate;
@@ -89,6 +91,8 @@ import org.compiere.util.DisplayType;
 import org.compiere.util.Env;
 import org.compiere.util.Msg;
 import org.compiere.util.Util;
+import org.eevolution.model.I_C_ProjectMember;
+import org.eevolution.model.MProjectMember;
 import org.eevolution.service.dsl.ProcessBuilder;
 import org.spin.process.CommissionOrderCreateAbstract;
 
@@ -123,6 +127,7 @@ public class AgencyValidator implements ModelValidator
 		engine.addModelChange(MRfQLineQty.Table_Name, this);
 		engine.addModelChange(MRfQResponse.Table_Name, this);
 		engine.addModelChange(MAttachment.Table_Name, this);
+		engine.addModelChange(I_C_ProjectMember.Table_Name, this);
 		engine.addDocValidate(MOrder.Table_Name, this);
 		engine.addDocValidate(I_S_TimeExpense.Table_Name, this);
 		engine.addDocValidate(MTimeExpense.Table_Name, this);
@@ -437,6 +442,14 @@ public class AgencyValidator implements ModelValidator
 							order.setUser3_ID(refOrder.getUser1_ID());
 						}
 					}
+				} else if(po instanceof MProjectMember) {
+					MProjectMember projectMember = (MProjectMember) po;
+					MRecordAccess accessForUser = new MRecordAccess(projectMember.getCtx(), -1, I_C_Project.Table_ID, projectMember.getC_Project_ID(), projectMember.get_TrxName());
+					accessForUser.set_ValueOfColumn(I_C_ProjectMember.COLUMNNAME_AD_User_ID, projectMember.getAD_User_ID());
+					accessForUser.setIsExclude(false);
+					accessForUser.setIsReadOnly(false);
+					accessForUser.setIsDependentEntities(true);
+					accessForUser.saveEx();
 				}
 			} else if(type == TYPE_AFTER_CHANGE) {
 				if (po instanceof MBPartner
@@ -457,10 +470,19 @@ public class AgencyValidator implements ModelValidator
 					}
 				}
 			}
+		} else if(type == TYPE_BEFORE_DELETE) {
+			if(po instanceof MProjectMember) {
+				MProjectMember projectMember = (MProjectMember) po;
+				new Query(projectMember.getCtx(), I_AD_Record_Access.Table_Name, "AD_User_ID = ? AND AD_Table_ID = ? AND Record_ID = ?", projectMember.get_TrxName())
+					.setParameters(projectMember.getAD_User_ID(), I_C_Project.Table_ID, projectMember.getC_Project_ID())
+					.<MProjectMember>list()
+					.stream()
+					.forEach(access -> access.deleteEx(true));
+			}
 		}
-			//
-			return null;
-		}	//	modelChange
+		//
+		return null;
+	}	//	modelChange
 
 		/**
 		 * Copy commission from RFQ Response to Purchase Order	

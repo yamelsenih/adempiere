@@ -1003,7 +1003,11 @@ public final class MRole extends X_AD_Role
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
 		String sql = "SELECT * FROM AD_Record_Access "
-			+ "WHERE AD_Role_ID=? AND IsActive='Y' ORDER BY AD_Table_ID";
+				+ "WHERE AD_Role_ID=? AND IsActive='Y' ORDER BY AD_Table_ID";
+		if(MColumn.getColumn_ID("AD_Record_Access", "AD_User_ID") != 0) {
+			sql = "SELECT * FROM AD_Record_Access "
+					+ "WHERE (AD_Role_ID=? OR AD_User_ID = " + Env.getAD_User_ID(getCtx()) + ") AND IsActive='Y' ORDER BY AD_Table_ID";
+		}
 		try
 		{
 			pstmt = DB.prepareStatement(sql, get_TrxName());
