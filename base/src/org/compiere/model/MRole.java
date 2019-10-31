@@ -994,41 +994,27 @@ public final class MRole extends X_AD_Role
 	 * 	Load Record Access
 	 *	@param reload reload
 	 */
-	private void loadRecordAccess(boolean reload)
-	{
+	private void loadRecordAccess(boolean reload) {
 		if (!(reload || m_recordAccess == null || m_recordDependentAccess == null))
 			return;
 		ArrayList<MRecordAccess> list = new ArrayList<MRecordAccess>();
 		ArrayList<MRecordAccess> dependent = new ArrayList<MRecordAccess>();
-		PreparedStatement pstmt = null;
-		ResultSet rs = null;
-		String sql = "SELECT * FROM AD_Record_Access "
-				+ "WHERE AD_Role_ID=? AND IsActive='Y' ORDER BY AD_Table_ID";
+		String whereClause = "AD_Role_ID=?";
 		if(MColumn.getColumn_ID("AD_Record_Access", "AD_User_ID") != 0) {
-			sql = "SELECT * FROM AD_Record_Access "
-					+ "WHERE (AD_Role_ID=? OR AD_User_ID = " + Env.getAD_User_ID(getCtx()) + ") AND IsActive='Y' ORDER BY AD_Table_ID";
+			whereClause = "(AD_Role_ID=? OR AD_User_ID = " + m_AD_User_ID + ")";
 		}
-		try
-		{
-			pstmt = DB.prepareStatement(sql, get_TrxName());
-			pstmt.setInt(1, getAD_Role_ID());
-			rs = pstmt.executeQuery();
-			while (rs.next())
-			{
-				MRecordAccess ra = new MRecordAccess(getCtx(), rs, get_TrxName());
-				list.add(ra);
-				if (ra.isDependentEntities())
-					dependent.add(ra);
-			} 
-		}
-		catch (Exception e)
-		{
-			log.log(Level.SEVERE, sql, e);
-		}
-		finally
-		{
-			DB.close(rs, pstmt);
-		}
+		//	Add standard access
+		new Query(getCtx(), I_AD_Record_Access.Table_Name, whereClause, get_TrxName())
+			.setParameters(getAD_Role_ID())
+			.setOnlyActiveRecords(true)
+			.setOrderBy(I_AD_Record_Access.COLUMNNAME_AD_Table_ID)
+			.<MRecordAccess>list()
+			.forEach(access -> {
+				list.add(access);
+				if (access.isDependentEntities()) {
+					dependent.add(access);
+				}
+			});	
 		m_recordAccess = new MRecordAccess[list.size()];
 		list.toArray(m_recordAccess);
 		m_recordDependentAccess = new MRecordAccess[dependent.size()];

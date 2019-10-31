@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<Migrations>
+  <Migration EntityType="CUST" Name="Add Project Access for user" ReleaseNo="3.9.2" SeqNo="904550">
+    <Step DBType="Postgres" Parse="Y" SeqNo="10" StepType="SQL">
+      <SQLStatement>ALTER TABLE AD_Record_Access DROP CONSTRAINT "ad_record_access_pkey";
+ALTER TABLE AD_Record_Access ALTER COLUMN AD_Role_ID SET DEFAULT NULL;
+ALTER TABLE AD_Record_Access ADD COLUMN AD_User_ID NUMERIC DEFAULT NULL;
+CREATE UNIQUE INDEX UK_Role_AD_Record_Access ON AD_Record_Access USING BTREE (AD_Role_ID, AD_Table_ID, Record_ID);
+CREATE UNIQUE INDEX UK_User_AD_Record_Access ON AD_Record_Access USING BTREE (AD_User_ID, AD_Table_ID, Record_ID);</SQLStatement>
+    </Step>
+    <Step SeqNo="20" StepType="AD">
+      <PO AD_Table_ID="101" Action="U" Record_ID="8592" Table="AD_Column">
+        <Data AD_Column_ID="124" Column="IsMandatory" oldValue="true">false</Data>
+        <Data AD_Column_ID="120" Column="IsParent" oldValue="true">false</Data>
+      </PO>
+    </Step>
+  </Migration>
+</Migrations>
