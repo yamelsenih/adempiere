@@ -640,21 +640,8 @@ public class AgencyValidator implements ModelValidator
 								}	
 							}
 						}
-					} else {
-
-						if (documentType.get_ValueAsBoolean("IsValidateSO")) {
-
-							if(order.getLink_Order_ID() > 0){
-
-								MOrder linkOrder = (MOrder) order.getLink_Order();
-
-								if(!linkOrder.getDocStatus().equalsIgnoreCase(MOrder.STATUS_Completed))
-									throw new AdempiereException(Msg.parseTranslation(Env.getCtx(), "@Link_Order_ID@" + ": " + "@CreateShipment.OrderNotCompleted@"));
-
-							} else throw new AdempiereException(Msg.parseTranslation(Env.getCtx(), "@Link_Order_ID@" + ": " + "@NotFound@"));
-						}
-					}//
-				} 
+					}
+				}
 			} else if(po instanceof MCommissionRun) {
 				MCommissionRun commissionRun = (MCommissionRun) po;
 				if(timing == TIMING_AFTER_VOID) {
