@@ -1193,7 +1193,7 @@ public class AgencyValidator implements ModelValidator
 				}
 			});
 			//	Reverse previous commission
-			reversePreviousCommissionOrders(invoice, reverseAmount.get());
+			reversePreviousCommissionOrders(invoice, reverseAmount.get().negate());
 		}
 
 		/**
