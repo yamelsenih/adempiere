@@ -459,7 +459,8 @@ public class AgencyValidator implements ModelValidator
 			} else if(po instanceof MUserRoles) {
 				MUserRoles userRoles = (MUserRoles) po;
 				MUser user = MUser.get(userRoles.getCtx(), userRoles.getAD_User_ID());
-				if(user.isProjectMember()) {
+				if(user.isProjectMember()
+						&& !user.isProjectManager()) {
 					addAccessToUser(userRoles.getCtx(), 0, user.getAD_User_ID(), userRoles.get_TrxName());
 				}
 			}
