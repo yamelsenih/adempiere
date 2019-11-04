@@ -454,10 +454,7 @@ public class AgencyValidator implements ModelValidator
 				removeAccessToMember((MProjectMember) po);
 			}
 		} else if(type == TYPE_AFTER_NEW) {
-			if(po instanceof MProject) {
-				MProject project = (MProject) po;
-				addAccessToUser(project.getCtx(), project.getC_Project_ID(), po.getCreatedBy(), project.get_TrxName());
-			} else if(po instanceof MProjectMember) {
+			if(po instanceof MProjectMember) {
 				addAccessToMember((MProjectMember) po);
 			} else if(po instanceof MUserRoles) {
 				MUserRoles userRoles = (MUserRoles) po;
