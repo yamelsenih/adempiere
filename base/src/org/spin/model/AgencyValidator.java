@@ -460,7 +460,7 @@ public class AgencyValidator implements ModelValidator
 				MUserRoles userRoles = (MUserRoles) po;
 				MUser user = MUser.get(userRoles.getCtx(), userRoles.getAD_User_ID());
 				if(user.isProjectMember()
-						&& !user.isProjectManager()) {
+						&& !user.get_ValueAsBoolean("IsProjectAdmin")) {
 					addAccessToUser(userRoles.getCtx(), 0, user.getAD_User_ID(), userRoles.get_TrxName());
 				}
 			}
@@ -501,6 +501,10 @@ public class AgencyValidator implements ModelValidator
 	 * @param projectMember
 	 */
 	private void addAccessToMember(MProjectMember projectMember) {
+		MUser user = MUser.get(projectMember.getCtx(), projectMember.getAD_User_ID());
+		if(user.get_ValueAsBoolean("IsProjectAdmin")) {
+			return;
+		}
 		MRecordAccess accessForUser = new MRecordAccess(projectMember.getCtx(), -1, I_C_Project.Table_ID, projectMember.getC_Project_ID(), projectMember.get_TrxName());
 		accessForUser.set_ValueOfColumn(I_C_ProjectMember.COLUMNNAME_AD_User_ID, projectMember.getAD_User_ID());
 		accessForUser.setIsExclude(false);
@@ -537,6 +541,10 @@ public class AgencyValidator implements ModelValidator
 	 * @param projectMember
 	 */
 	private void removeAccessToMember(MProjectMember projectMember) {
+		MUser user = MUser.get(projectMember.getCtx(), projectMember.getAD_User_ID());
+		if(user.get_ValueAsBoolean("IsProjectAdmin")) {
+			return;
+		}
 		new Query(projectMember.getCtx(), I_AD_Record_Access.Table_Name, "AD_User_ID = ? AND AD_Table_ID = ? AND Record_ID = ?", projectMember.get_TrxName())
 		.setParameters(projectMember.getAD_User_ID(), I_C_Project.Table_ID, projectMember.getC_Project_ID())
 		.<MRecordAccess>list()
