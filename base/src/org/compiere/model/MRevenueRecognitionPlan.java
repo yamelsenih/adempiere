@@ -16,6 +16,7 @@
  *****************************************************************************/
 package org.compiere.model;
 
+import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.util.Properties;
 
@@ -103,4 +104,18 @@ public class MRevenueRecognitionPlan extends X_C_RevenueRecognition_Plan
 		}
 		return success;
 	}	//	afterSave
+	
+	/**
+	 * Update Recognized Amount
+	 */
+	public void updateRecognizedAmount() {
+		BigDecimal recognizedAmt = new Query(getCtx(), I_C_RevenueRecognition_Run.Table_Name, I_C_RevenueRecognition_Run.COLUMNNAME_C_RevenueRecognition_Plan_ID + " = ?", get_TrxName())
+			.setParameters(getC_RevenueRecognition_Plan_ID())
+			.sum(I_C_RevenueRecognition_Run.COLUMNNAME_RecognizedAmt);
+		if(recognizedAmt == null) {
+			recognizedAmt = Env.ZERO;
+		}
+		setRecognizedAmt(recognizedAmt);
+		saveEx();
+	}
 }	//	MRevenueRecognitionPlan

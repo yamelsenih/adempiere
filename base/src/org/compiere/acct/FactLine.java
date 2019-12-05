@@ -23,6 +23,9 @@ import java.sql.SQLException;
 import java.util.Properties;
 import java.util.logging.Level;
 
+import org.compiere.model.I_C_Invoice;
+import org.compiere.model.I_C_Order;
+import org.compiere.model.I_C_RevenueRecognition_Plan;
 import org.compiere.model.MAccount;
 import org.compiere.model.MAcctSchema;
 import org.compiere.model.MAcctSchemaElement;
@@ -32,6 +35,7 @@ import org.compiere.model.MFactAcct;
 import org.compiere.model.MMatchInv;
 import org.compiere.model.MMovement;
 import org.compiere.model.MRevenueRecognitionPlan;
+import org.compiere.model.Query;
 import org.compiere.model.X_C_AcctSchema_Element;
 import org.compiere.model.X_Fact_Acct;
 import org.compiere.util.DB;
@@ -946,14 +950,16 @@ public final class FactLine extends X_Fact_Acct
 				setUser4_ID (m_acct.getUser4_ID());
 			
 			//  Revenue Recognition for AR Invoices
-			if (m_doc.getDocumentType().equals(Doc.DOCTYPE_ARInvoice) 
+			if ((m_doc.getDocumentType().equals(Doc.DOCTYPE_ARInvoice) 
+					|| m_doc.getDocumentType().equals(Doc.DOCTYPE_POrder) 
+					|| m_doc.getDocumentType().equals(Doc.DOCTYPE_SOrder)) 
 				&& m_docLine != null 
 				&& m_docLine.getC_RevenueRecognition_ID() != 0)
 			{
 				int AD_User_ID = 0;
 				setAccount_ID (
 					createRevenueRecognition (
-						m_docLine.getC_RevenueRecognition_ID(), m_docLine.get_ID(),
+						m_docLine.getC_RevenueRecognition_ID(), m_doc.get_Table_ID(), m_docLine.get_ID(),
 						getAD_Client_ID(), getAD_Org_ID(), AD_User_ID, 
 						getAccount_ID(), getC_SubAcct_ID(),
 						getM_Product_ID(), getC_BPartner_ID(), getAD_OrgTrx_ID(),
@@ -967,55 +973,6 @@ public final class FactLine extends X_Fact_Acct
 		}
 		return true;
 	}	//	beforeSave
-
-	/**************************************************************************
-	 *  Revenue Recognition.
-	 *  Called from FactLine.save
-	 *  <p>
-	 *  Create Revenue recognition plan and return Unearned Revenue account
-	 *  to be used instead of Revenue Account. If not found, it returns
-	 *  the revenue account.
-	 *
-	 *  @param C_RevenueRecognition_ID revenue recognition
-	 *  @param C_InvoiceLine_ID invoice line
-	 *  @param AD_Client_ID client
-	 *  @param AD_Org_ID org
-	 *  @param AD_User_ID user
-	 *  @param Account_ID of Revenue Account
-	 *  @param C_SubAcct_ID sub account
-	 *  @param M_Product_ID product
-	 *  @param C_BPartner_ID bpartner
-	 *  @param AD_OrgTrx_ID trx org
-	 *  @param C_LocFrom_ID loc from
-	 *  @param C_LocTo_ID loc to
-	 *  @param C_SRegion_ID sales region
-	 *  @param C_Project_ID project
-	 *  @param C_Campaign_ID campaign
-	 *  @param C_Activity_ID activity
-	 *  @param User1_ID user1
-	 *  @param User2_ID user2
-	 *  @param UserElement1_ID user element 1
-	 *  @param UserElement2_ID user element 2
-	 *  @return Account_ID for Unearned Revenue or Revenue Account if not found
-	 */
-	@Deprecated
-	private int createRevenueRecognition (
-			int C_RevenueRecognition_ID, int C_InvoiceLine_ID,
-			int AD_Client_ID, int AD_Org_ID, int AD_User_ID,
-			int Account_ID, int C_SubAcct_ID,
-			int M_Product_ID, int C_BPartner_ID, int AD_OrgTrx_ID,
-			int C_LocFrom_ID, int C_LocTo_ID, int C_SRegion_ID, int C_Project_ID,
-			int	C_Campaign_ID, int C_Activity_ID,
-			int User1_ID, int User2_ID, int UserElement1_ID, int UserElement2_ID)
-	{
-		return createRevenueRecognition(C_RevenueRecognition_ID , C_InvoiceLine_ID,
-				AD_Client_ID , AD_Org_ID , AD_User_ID ,
-				Account_ID , C_SubAcct_ID ,
-				M_Product_ID , C_BPartner_ID , AD_OrgTrx_ID ,
-				C_LocFrom_ID , C_LocTo_ID , C_SRegion_ID , C_Project_ID , C_Campaign_ID , C_Activity_ID ,
-				User1_ID, User2_ID , 0 , 0 , UserElement1_ID , UserElement2_ID);
-	}
-
 	
 	/**************************************************************************
 	 *  Revenue Recognition.
@@ -1026,7 +983,7 @@ public final class FactLine extends X_Fact_Acct
 	 *  the revenue account.
 	 *
 	 *  @param C_RevenueRecognition_ID revenue recognition
-	 *  @param C_InvoiceLine_ID invoice line
+	 *  @param lineId invoice line
 	 *  @param AD_Client_ID client
 	 *  @param AD_Org_ID org
 	 *  @param AD_User_ID user
@@ -1050,7 +1007,7 @@ public final class FactLine extends X_Fact_Acct
 	 *  @return Account_ID for Unearned Revenue or Revenue Account if not found
 	 */
 	private int createRevenueRecognition (
-		int C_RevenueRecognition_ID, int C_InvoiceLine_ID,
+		int C_RevenueRecognition_ID, int tableId, int lineId,
 		int AD_Client_ID, int AD_Org_ID, int AD_User_ID, 
 		int Account_ID, int C_SubAcct_ID,
 		int M_Product_ID, int C_BPartner_ID, int AD_OrgTrx_ID,
@@ -1109,11 +1066,26 @@ public final class FactLine extends X_Fact_Acct
 			log.severe ("UnearnedRevenue_Acct not found");
 			return Account_ID;
 		}
+		String column = null;
+		if(tableId == I_C_Invoice.Table_ID) {
+			column = "C_InvoiceLine_ID";
+		} else if(tableId == I_C_Order.Table_ID) {
+			column = "C_OrderLine_ID";
+		}
+		//	Detele olds
+		new Query(getCtx(), I_C_RevenueRecognition_Plan.Table_Name, "C_RevenueRecognition_ID = ? AND " + column + " = ?", get_TrxName())
+			.setParameters(C_RevenueRecognition_ID, lineId)
+			.<MRevenueRecognitionPlan>list()
+			.forEach(revenuePlan -> revenuePlan.deleteEx(true));
 
 		MRevenueRecognitionPlan plan = new MRevenueRecognitionPlan(getCtx(), 0, null);
 		plan.setC_RevenueRecognition_ID (C_RevenueRecognition_ID);
 		plan.setC_AcctSchema_ID (getC_AcctSchema_ID());
-		plan.setC_InvoiceLine_ID (C_InvoiceLine_ID);
+		if(tableId == I_C_Invoice.Table_ID) {
+			plan.setC_InvoiceLine_ID (lineId);
+		} else if(tableId == I_C_Order.Table_ID) {
+			plan.set_ValueOfColumn("C_OrderLine_ID", lineId);
+		}
 		plan.setUnEarnedRevenue_Acct (UnearnedRevenue_Acct);
 		plan.setP_Revenue_Acct (P_Revenue_Acct);
 		plan.setC_Currency_ID (getC_Currency_ID());
