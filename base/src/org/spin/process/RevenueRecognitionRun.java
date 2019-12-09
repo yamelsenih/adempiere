@@ -22,11 +22,13 @@ import java.math.MathContext;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.compiere.model.I_C_RevenueRecognition_Plan;
+import org.compiere.model.I_C_RevenueRecognition_Run;
 import org.compiere.model.MOrder;
 import org.compiere.model.MOrderLine;
 import org.compiere.model.MRevenueRecognition;
 import org.compiere.model.MRevenueRecognitionPlan;
 import org.compiere.model.MRevenueRecognitionRun;
+import org.compiere.model.PO;
 import org.compiere.model.Query;
 import org.compiere.util.Env;
 
@@ -47,6 +49,8 @@ public class RevenueRecognitionRun extends RevenueRecognitionRunAbstract {
 			.stream()
 			.filter(revenuePlan -> revenuePlan.get_ValueAsInt("C_OrderLine_ID") != 0)
 			.forEach(revenuePlan -> {
+				//	Create Reverse for all lines
+				createReversal(revenuePlan);
 				MOrderLine orderLine = new MOrderLine(getCtx(), revenuePlan.get_ValueAsInt("C_OrderLine_ID"), get_TrxName());
 				MOrder order = orderLine.getParent();
 				if(order.getC_Project_ID() != 0) {
@@ -77,4 +81,22 @@ public class RevenueRecognitionRun extends RevenueRecognitionRunAbstract {
 		}
 		return "@Created@: " + created;
 	}
+	
+	/**
+	 * Creat4e Reversal for it
+	 * @param revenuePlan
+	 */
+	private void createReversal(MRevenueRecognitionPlan revenuePlan) {
+		new Query(getCtx(), I_C_RevenueRecognition_Run.Table_Name, "C_RevenueRecognition_Plan_ID = ?", get_TrxName())
+		.setParameters(revenuePlan.getC_RevenueRecognition_Plan_ID())
+		.<MRevenueRecognitionRun>list()
+		.forEach(revenueRun -> {
+			MRevenueRecognitionRun reverse = new MRevenueRecognitionRun(getCtx(), 0, get_TrxName());
+			PO.copyValues(revenueRun, reverse);
+			reverse.setGL_Journal_ID(-1);
+			reverse.setRecognizedAmt(reverse.getRecognizedAmt().negate());
+			reverse.saveEx();
+		});
+	}
+	
 }
