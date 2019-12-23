@@ -42,7 +42,6 @@ import org.compiere.model.MOrderLine;
 import org.compiere.model.MRevenueRecognition;
 import org.compiere.model.MRevenueRecognitionPlan;
 import org.compiere.model.MRevenueRecognitionRun;
-import org.compiere.model.PO;
 import org.compiere.model.Query;
 import org.compiere.util.Env;
 import org.compiere.util.Msg;
@@ -76,7 +75,8 @@ public class RevenueRecognitionGLJournal extends RevenueRecognitionGLJournalAbst
 						+ "|" + orderLine.getUser1_ID()
 						+ "|" + orderLine.getUser2_ID()
 						+ "|" + orderLine.getUser3_ID()
-						+ "|" + orderLine.getUser4_ID();
+						+ "|" + orderLine.getUser4_ID()
+						+ "|" + orderLine.getC_BPartner_ID();
 				List<MRevenueRecognitionRun> revenueRunList = mapForJournal.get(key);
 				if(revenueRunList == null) {
 					revenueRunList = new ArrayList<MRevenueRecognitionRun>();
@@ -101,7 +101,7 @@ public class RevenueRecognitionGLJournal extends RevenueRecognitionGLJournalAbst
 		mapForJournal.entrySet().stream().forEach(entry -> {
 			List<MRevenueRecognitionRun> runList = entry.getValue();
 			MRevenueRecognitionPlan revenuePlan = (MRevenueRecognitionPlan) runList.stream().findFirst().get().getC_RevenueRecognition_Plan();
-			PO source = new MOrderLine(getCtx(), revenuePlan.get_ValueAsInt("C_OrderLine_ID"), get_TrxName());
+			MOrderLine source = new MOrderLine(getCtx(), revenuePlan.get_ValueAsInt("C_OrderLine_ID"), get_TrxName());
 	        I_C_ValidCombination unEarnedRevenueCombination = revenuePlan.getUnEarnedRevenue_A();
 	        I_C_ValidCombination productRevenueCombination = revenuePlan.getP_Revenue_A();
 	        MJournal journal = createJournal(journalBatch, accountingSchema, currency, conversionTypeId);
@@ -180,7 +180,7 @@ public class RevenueRecognitionGLJournal extends RevenueRecognitionGLJournalAbst
      * @param recognizedAmount
      * @param lineNo
      */
-    private MJournalLine createJournalLine(MJournal journal, I_C_ValidCombination combination, MCurrency currency, PO source, BigDecimal recognizedAmount, AtomicInteger lineNo) {
+    private MJournalLine createJournalLine(MJournal journal, I_C_ValidCombination combination, MCurrency currency, MOrderLine source, BigDecimal recognizedAmount, AtomicInteger lineNo) {
         MJournalLine journalLine = new MJournalLine(journal);
         journalLine.setLine(lineNo.getAndUpdate(no -> no + 10));
         journalLine.setAccount_ID(combination.getAccount_ID());
@@ -201,26 +201,29 @@ public class RevenueRecognitionGLJournal extends RevenueRecognitionGLJournalAbst
             journalDescriptionLine.append(" @RecognizedAmt@ ").append(recognizedAmount.abs().toString());
         }
         journalLine.setDescription(Msg.parseTranslation(getCtx(), journalDescriptionLine.toString()));
-        if(source.get_ValueAsInt("C_Project_ID") != 0) {
-        	journalLine.setC_Project_ID(source.get_ValueAsInt("C_Project_ID"));
+        if(source.getC_Project_ID() != 0) {
+        	journalLine.setC_Project_ID(source.getC_Project_ID());
         }
-        if(source.get_ValueAsInt("C_Activity_ID") != 0) {
-        	journalLine.setC_Activity_ID(source.get_ValueAsInt("C_Activity_ID"));
+        if(source.getC_Activity_ID() != 0) {
+        	journalLine.setC_Activity_ID(source.getC_Activity_ID());
         }
-        if(source.get_ValueAsInt("C_Campaign_ID") != 0) {
-        	journalLine.setC_Campaign_ID(source.get_ValueAsInt("C_Campaign_ID"));
+        if(source.getC_Campaign_ID() != 0) {
+        	journalLine.setC_Campaign_ID(source.getC_Campaign_ID());
         }
-        if(source.get_ValueAsInt("User1_ID") != 0) {
-        	journalLine.setUser1_ID(source.get_ValueAsInt("User1_ID"));
+        if(source.getUser1_ID() != 0) {
+        	journalLine.setUser1_ID(source.getUser1_ID());
         }
-        if(source.get_ValueAsInt("User2_ID") != 0) {
-        	journalLine.setUser2_ID(source.get_ValueAsInt("User2_ID"));
+        if(source.getUser2_ID() != 0) {
+        	journalLine.setUser2_ID(source.getUser2_ID());
         }
-        if(source.get_ValueAsInt("User3_ID") != 0) {
-        	journalLine.setUser3_ID(source.get_ValueAsInt("User3_ID"));
+        if(source.getUser3_ID() != 0) {
+        	journalLine.setUser3_ID(source.getUser3_ID());
         }
-        if(source.get_ValueAsInt("User4_ID") != 0) {
-        	journalLine.setUser4_ID(source.get_ValueAsInt("User4_ID"));
+        if(source.getUser4_ID() != 0) {
+        	journalLine.setUser4_ID(source.getUser4_ID());
+        }
+        if(source.getC_BPartner_ID() != 0) {
+        	journalLine.setC_BPartner_ID(source.getC_BPartner_ID());
         }
         journalLine.saveEx();
         return journalLine;
