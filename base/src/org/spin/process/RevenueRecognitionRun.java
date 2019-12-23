@@ -83,7 +83,7 @@ public class RevenueRecognitionRun extends RevenueRecognitionRunAbstract {
 	}
 	
 	/**
-	 * Creat4e Reversal for it
+	 * Create Reversal for it
 	 * @param revenuePlan
 	 */
 	private void createReversal(MRevenueRecognitionPlan revenuePlan) {
@@ -98,5 +98,4 @@ public class RevenueRecognitionRun extends RevenueRecognitionRunAbstract {
 			reverse.saveEx();
 		});
 	}
-	
 }
