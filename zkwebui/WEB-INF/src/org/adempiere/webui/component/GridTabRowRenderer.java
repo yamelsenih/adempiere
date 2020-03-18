@@ -13,6 +13,7 @@
 package org.adempiere.webui.component;
 
 import java.sql.Timestamp;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -56,6 +57,8 @@ import org.zkoss.zul.RendererCtrl;
 import org.zkoss.zul.Row;
 import org.zkoss.zul.RowRenderer;
 import org.zkoss.zul.RowRendererExt;
+
+import jxl.write.NumberFormat;
 
 /**
  * Row renderer for GridTab grid.
@@ -326,6 +329,7 @@ public class GridTabRowRenderer implements RowRenderer, RowRendererExt, Renderer
 		
 
 		GridTableListModel model = (GridTableListModel) grid.getModel();
+		model.updateComponent(currentRowIndex);
 		model.setEditing(false);
 	}
 
@@ -507,8 +511,15 @@ public class GridTabRowRenderer implements RowRenderer, RowRendererExt, Renderer
 				
 				if (currentDiv.getComponent() instanceof NumberBox) {
 					componentUuId = ((Component)((Component)((Component)((Component)currentDiv.getComponent().getChildren().get(0)).getChildren().get(0)).getChildren().get(0)).getChildren().get(0)).getUuid();
+					NumberBox text = (NumberBox) currentDiv.getComponent();
+					String value = text.getValue().toString();
+					text.getDecimalbox().setSelectionRange(0, value.length());
 				}
-				
+
+				if (currentDiv.getComponent() instanceof Textbox) {
+					Textbox text = (Textbox) currentDiv.getComponent();
+					text.setSelectionRange(0, text.getMaxlength());
+				}
 				Clients.evalJavaScript("$('#"+currentDiv.getAnchorInput().getUuid()+"')."
 						+ "keyup(function(event) {"
 						+"if (event.keyCode == 13) {"
@@ -610,17 +621,34 @@ public class GridTabRowRenderer implements RowRenderer, RowRendererExt, Renderer
 				Component c = toFocus.getComponent();
 				if (c instanceof Textbox) {
 					((Textbox)c).focus();
+					String value = ((Textbox)c).getValue().toString();
+					((Textbox)c).setSelectionRange(0, value.length());
 				}
 				else if (c instanceof NumberBox) {
 					((NumberBox)c).focus();
+					DecimalFormat decimalFormat = new DecimalFormat("###,###.000");
+ 					String value = decimalFormat.format(((NumberBox)c).getDecimalbox().getValue());
+ 					((NumberBox)c).getDecimalbox().setSelectionRange(0, value.length());
 				}
 				else if (c instanceof Decimalbox) {
+					DecimalFormat decimalFormat = new DecimalFormat("###,###.###");
+ 					String value = decimalFormat.format(((Decimalbox)c).getValue());
 					((Decimalbox)c).focus();
+					((Decimalbox)c).setSelectionRange(0, value.length());
 				}
 				else if (c instanceof EditorBox) {
 					c = ((EditorBox)c).getTextbox();
 					((Textbox) c).focus();
+					String value = ((Textbox) c).getValue().toString();
+					((Textbox) c).setSelectionRange(0, value.length());
 				}
+				else if (c instanceof Combobox) {
+					((Combobox) c).setSelectionRange(0, ((Combobox) c).getValue().length());
+				}
+				else if (c instanceof Datebox) {
+					((Datebox) c).setSelectionRange(0, ((Datebox) c).getValue().toString().length());
+				}
+				
 				Clients.response(new AuFocus(c));
 			} 
 //		}
