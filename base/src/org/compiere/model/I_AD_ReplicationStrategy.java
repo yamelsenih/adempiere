@@ -156,6 +156,19 @@ public interface I_AD_ReplicationStrategy
 	  */
 	public boolean isActive();
 
+    /** Column name IsValidateError */
+    public static final String COLUMNNAME_IsValidateError = "IsValidateError";
+
+	/** Set Validate Error.
+	  * Use this flag for revert operation if exist a error
+	  */
+	public void setIsValidateError (boolean IsValidateError);
+
+	/** Get Validate Error.
+	  * Use this flag for revert operation if exist a error
+	  */
+	public boolean isValidateError();
+
     /** Column name Name */
     public static final String COLUMNNAME_Name = "Name";
 
