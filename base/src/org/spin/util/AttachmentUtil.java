@@ -278,7 +278,7 @@ public class AttachmentUtil {
 		} else if(archiveId > 0) {
 			attachmentReference = MADAttachmentReference.getByArchiveId(context, fileHandlerId, archiveId, transactionName);
 		} else if(!Util.isEmpty(fileName)) {
-			attachmentReference = MADAttachmentReference.getByAttachmentId(context, fileHandlerId, 0, fileName, transactionName);
+			attachmentReference = MADAttachmentReference.getByFileName(context, fileHandlerId, fileName, transactionName);
 		}
 		return attachmentReference;
 	}
