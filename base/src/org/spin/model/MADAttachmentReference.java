@@ -186,6 +186,38 @@ public class MADAttachmentReference extends X_AD_AttachmentReference {
 	}
 	
 	/**
+	 * Get/Load Attachment Reference from Attachment [CACHED]
+	 * @param ctx context
+	 * @param fileHandlerId
+	 * @param fileName
+	 * @param trxName
+	 * @return activity or null
+	 */
+	public static MADAttachmentReference getByFileName(Properties ctx, int fileHandlerId, String fileName, String trxName) {
+		if (Util.isEmpty(fileName))
+			return null;
+		String key = "Attachment#" + fileHandlerId + "|FileName|" + fileName;
+		MADAttachmentReference attachmentReference = attachmentReferenceCacheExternCall.get(key);
+		if (attachmentReference != null && attachmentReference.get_ID() > 0)
+			return attachmentReference;
+
+		attachmentReference = new Query(ctx , Table_Name , COLUMNNAME_FileHandler_ID + " = ? "
+				+ "AND " + COLUMNNAME_AD_Attachment_ID + " IS NULL "
+				+ "AND " + COLUMNNAME_AD_Archive_ID + " IS NULL "
+				+ "AND " + COLUMNNAME_AD_Image_ID + " IS NULL "
+				+ "AND " + COLUMNNAME_FileName + " = ?", trxName)
+				.setClient_ID()
+				.setParameters(fileHandlerId, fileName)
+				.first();
+		if (attachmentReference != null && attachmentReference.get_ID() > 0) {
+			attachmentReferenceCacheUuids.put(attachmentReference.getUUID(), attachmentReference);
+			attachmentReferenceCacheIds.put(attachmentReference.getAD_AttachmentReference_ID(), attachmentReference);
+			attachmentReferenceCacheExternCall.put(key, attachmentReference);
+		}
+		return attachmentReference;
+	}
+	
+	/**
 	 * Reset cache for attachment Id
 	 * @param fileHandlerId
 	 * @param attachmentId
