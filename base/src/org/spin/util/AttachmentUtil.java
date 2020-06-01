@@ -61,12 +61,14 @@ public class AttachmentUtil {
 	private String imageFolder;
 	private String attachmentFolder;
 	private String archiveFolder;
+	private String resourceFolder;
 	private String tmpFolder;
 	
 	private final String BASE_FOLDER_PARAMETER = "BaseFolder";
 	private final String IMAGE_FOLDER_PARAMETER = "ImageFolder";
 	private final String ATTACHMENT_FOLDER_PARAMETER = "AttachmentFolder";
 	private final String ARCHIVE_FOLDER_PARAMETER = "ArchiveFolder";
+	private final String RESOURCE_FOLDER_PARAMETER = "reSOURCEFolder";
 	private final String TMP_FOLDER_PARAMETER = "TmpFolder";
 	
 	/**
@@ -467,9 +469,8 @@ public class AttachmentUtil {
 			validForlder = addSubFolder(baseFolder, imageFolder);
 		} else if(attachmentReference.getAD_Archive_ID() > 0) {
 			validForlder = addSubFolder(baseFolder, archiveFolder);
-		}
-		if(Util.isEmpty(validForlder)) {
-			validForlder = "";
+		} else {
+			validForlder = addSubFolder(baseFolder, resourceFolder);
 		}
 		return validForlder;
 	}
@@ -553,6 +554,10 @@ public class AttachmentUtil {
 		attachmentFolder = getValidFolder(registration.getParameterValue(ATTACHMENT_FOLDER_PARAMETER));
 		if(Util.isEmpty(attachmentFolder)) {
 			attachmentFolder = "Attachments";
+		}
+		resourceFolder = getValidFolder(registration.getParameterValue(RESOURCE_FOLDER_PARAMETER));
+		if(Util.isEmpty(resourceFolder)) {
+			resourceFolder = "Resources";
 		}
 		archiveFolder = getValidFolder(registration.getParameterValue(ARCHIVE_FOLDER_PARAMETER));
 		if(Util.isEmpty(archiveFolder)) {
