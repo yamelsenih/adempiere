@@ -976,6 +976,32 @@ public class MInvoiceLine extends X_C_InvoiceLine implements DocumentReversalLin
 		return no == 1;
 	}	//	updateHeaderTax
 
+	
+	 /**
+     * Retrieves the inOutLine Id associated with the Invoice Line
+     * @return InOut Line ID
+     */
+    public int getInOutLineId() {
+    	int inOutLineId = getM_InOutLine_ID();
+    	//	Validate
+    	if(inOutLineId <= 0) {
+    		if(getParent().isSOTrx()) {
+    			inOutLineId = DB.getSQLValue(get_TrxName(), 
+    					"SELECT il.M_InOutLine_ID "
+    					+ "FROM M_InOutLine il "
+    					+ "WHERE il.C_OrderLine_ID = ? "
+    					+ "AND EXISTS(SELECT 1 FROM "
+    					+ "						M_InOut i "
+    					+ "						WHERE i.M_InOut_ID = il.M_InOut_ID "
+    					+ "						AND i.DocStatus IN('CO', 'CL'))", getC_OrderLine_ID());
+    		}
+        	//	
+        	if(inOutLineId == -1) {
+        		inOutLineId = 0;
+        	}
+    	}
+    	return inOutLineId;
+    }
 
 	/**************************************************************************
 	 * 	Allocate Landed Costs
@@ -983,17 +1009,8 @@ public class MInvoiceLine extends X_C_InvoiceLine implements DocumentReversalLin
 	 */
 	public String allocateLandedCosts()
 	{
-		//if (isProcessed())
-		//	return "Processed";
-		if (getParent().isProcessed())
-			MPeriod.testPeriodOpen(getCtx(), getParent().getDateAcct(), getParent().getC_DocTypeTarget_ID(), getAD_Org_ID());
-		if (getParent().isProcessed()) {
-			MFactAcct.deleteEx(MInvoice.Table_ID, getParent().get_ID(), get_TrxName());
-			//
-			// Update Invoice
-			getParent().setPosted(false);
-			getParent().saveEx();
-		}
+		if (isProcessed())
+			return "Processed";
 		MLandedCost[] lcs = MLandedCost.getLandedCosts(this);
 		if (lcs.length == 0)
 			return "";
