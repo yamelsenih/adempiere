@@ -582,7 +582,7 @@ public class CPOS {
 		if (hasBPartner())
 			return partner.getValue() 
 					+ " - " + partner.getName() 
-					+ (!Util.isEmpty(partner.getName2())? " " + partner.getName2(): "s");
+					+ (!Util.isEmpty(partner.getName2())? " " + partner.getName2(): "");
 		return null;
 	}
 	
