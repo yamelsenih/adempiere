@@ -226,4 +226,12 @@ public class MFMAmortization extends X_FM_Amortization {
 		return getAmortizationList(financialAccountId, "IsPaid = 'N'", trxName);
 	}
 
+	@Override
+	public String toString() {
+		return "MFMAmortization [getCapitalAmt()=" + getCapitalAmt() + ", getDescription()=" + getDescription()
+				+ ", getDueDate()=" + getDueDate() + ", getEndDate()=" + getEndDate() + ", getFM_Account_ID()="
+				+ getFM_Account_ID() + ", getFM_Amortization_ID()=" + getFM_Amortization_ID() + ", isInvoiced()="
+				+ isInvoiced() + ", isPaid()=" + isPaid() + ", getPeriodNo()=" + getPeriodNo() + ", getTaxAmt()="
+				+ getTaxAmt() + "]";
+	}
 }

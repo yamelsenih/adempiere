@@ -22,6 +22,7 @@ import java.util.List;
 
 import org.adempiere.exceptions.AdempiereException;
 import org.spin.model.MFMAgreement;
+import org.spin.model.MFMAmortization;
 import org.spin.model.MFMBatch;
 import org.spin.model.MFMFunctionalSetting;
 import org.spin.model.MFMTransaction;
@@ -75,6 +76,9 @@ public class LoanInterestProcess extends AbstractFunctionalSetting {
 		}
 		//	Iterate
 		for (AmortizationValue row : amortizationList) {
+			//	Update Amortization
+			MFMAmortization amortization = new MFMAmortization(getCtx(), row.getAmortizationId(), trxName);
+			//	
 			MFMTransaction transaction = batch.addTransaction(interestType.getFM_TransactionType_ID(), row.getInterestAmtFee());
 			if(transaction != null) {
 				transaction.set_ValueOfColumn("FM_Amortization_ID", row.getAmortizationId());
