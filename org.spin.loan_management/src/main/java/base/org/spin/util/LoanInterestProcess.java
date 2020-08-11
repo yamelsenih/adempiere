@@ -16,13 +16,16 @@
  *****************************************************************************/
 package org.spin.util;
 
+import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.List;
 
 import org.adempiere.exceptions.AdempiereException;
+import org.compiere.util.Env;
+import org.spin.model.MFMAccount;
 import org.spin.model.MFMAgreement;
-import org.spin.model.MFMAmortization;
+import org.spin.model.MFMAmortizationSummary;
 import org.spin.model.MFMBatch;
 import org.spin.model.MFMFunctionalSetting;
 import org.spin.model.MFMTransaction;
@@ -74,10 +77,14 @@ public class LoanInterestProcess extends AbstractFunctionalSetting {
 		if(amortizationList == null) {
 			return null;
 		}
+		BigDecimal capitalAmount = Env.ZERO;
+		BigDecimal interestAmount = Env.ZERO;
+		BigDecimal interestTaxAmount = Env.ZERO;
 		//	Iterate
 		for (AmortizationValue row : amortizationList) {
-			//	Update Amortization
-			MFMAmortization amortization = new MFMAmortization(getCtx(), row.getAmortizationId(), trxName);
+			capitalAmount = capitalAmount.add(row.getCapitalAmtFee());
+			interestAmount = interestAmount.add(row.getInterestAmtFee());
+			interestTaxAmount = interestTaxAmount.add(row.getTaxAmtFee());
 			//	
 			MFMTransaction transaction = batch.addTransaction(interestType.getFM_TransactionType_ID(), row.getInterestAmtFee());
 			if(transaction != null) {
@@ -93,6 +100,16 @@ public class LoanInterestProcess extends AbstractFunctionalSetting {
 				}
 			}
 		}
+		List<MFMAccount> accounts = MFMAccount.getAccountFromAgreement(agreement);
+		MFMAccount account = null;
+		if (accounts.isEmpty()){
+			account = new MFMAccount(agreement);
+			account.saveEx();
+		} else {
+			account = accounts.get(0);
+		}
+		//	Set Interest
+		MFMAmortizationSummary.setCurrentInterest(getCtx(), account.getFM_Account_ID(), batch.getDateDoc(), capitalAmount, interestAmount, interestTaxAmount, trxName);
 		return null;
 	}
 }

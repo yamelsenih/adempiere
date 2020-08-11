@@ -16,12 +16,17 @@
  *****************************************************************************/
 package org.spin.util;
 
+import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.List;
 
 import org.adempiere.exceptions.AdempiereException;
+import org.compiere.model.MCurrency;
+import org.compiere.util.Env;
+import org.spin.model.MFMAccount;
 import org.spin.model.MFMAgreement;
+import org.spin.model.MFMAmortizationSummary;
 import org.spin.model.MFMBatch;
 import org.spin.model.MFMFunctionalSetting;
 import org.spin.model.MFMTransaction;
@@ -73,8 +78,15 @@ public class LoanDunningProcess extends AbstractFunctionalSetting {
 		if(amortizationList == null) {
 			return null;
 		}
+		BigDecimal capitalAmount = Env.ZERO;
+		BigDecimal dunningAmount = Env.ZERO;
+		BigDecimal dunningTaxAmount = Env.ZERO;
 		//	Iterate
 		for (AmortizationValue row : amortizationList) {
+			capitalAmount = capitalAmount.add(row.getCapitalAmtFee());
+			dunningAmount = dunningAmount.add(row.getDunningInterestAmount());
+			dunningTaxAmount = dunningTaxAmount.add(row.getDunningTaxAmt());
+			//	
 			MFMTransaction transaction = batch.addTransaction(dunningType.getFM_TransactionType_ID(), row.getDunningInterestAmount());
 			if(transaction != null) {
 				transaction.set_ValueOfColumn("FM_Amortization_ID", row.getAmortizationId());
@@ -89,6 +101,16 @@ public class LoanDunningProcess extends AbstractFunctionalSetting {
 				}
 			}
 		}
+		List<MFMAccount> accounts = MFMAccount.getAccountFromAgreement(agreement);
+		MFMAccount account = null;
+		if (accounts.isEmpty()){
+			account = new MFMAccount(agreement);
+			account.saveEx();
+		} else {
+			account = accounts.get(0);
+		}
+		//	Set Interest
+		MFMAmortizationSummary.setCurrentDunning(getCtx(), account.getFM_Account_ID(), batch.getDateDoc(), capitalAmount, dunningAmount, dunningTaxAmount, trxName);
 		return null;
 	}
 }
