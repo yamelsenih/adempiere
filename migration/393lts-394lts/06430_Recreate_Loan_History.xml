@@ -26,7 +26,8 @@ INNER JOIN FM_Account a ON(a.FM_Account_ID = b.FM_Account_ID)
 INNER JOIN FM_Transaction t ON(t.FM_Batch_ID = b.FM_Batch_ID)
 INNER JOIN FM_TransactionType tt ON(tt.FM_TransactionType_ID = t.FM_TransactionType_ID)
 WHERE tt.Type IN('LCC', 'LIN', 'LIT', 'LDD', 'LDT')
-AND b.DocStatus IN('CO', 'CL')
+AND b.DocStatus IN('CO', 'CL', 'RE')
+AND b.TotalAmt >= 0
 GROUP BY 2, 3, 4, 5, 6, 7, 8, 9, 10, 11</SQLStatement>
     </Step>
   </Migration>
