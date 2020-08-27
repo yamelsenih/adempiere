@@ -20,12 +20,13 @@ import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.adempiere.exceptions.AdempiereException;
-import org.compiere.model.MCurrency;
 import org.compiere.util.Env;
 import org.spin.model.MFMAccount;
 import org.spin.model.MFMAgreement;
+import org.spin.model.MFMAmortization;
 import org.spin.model.MFMAmortizationSummary;
 import org.spin.model.MFMBatch;
 import org.spin.model.MFMFunctionalSetting;
@@ -74,33 +75,19 @@ public class LoanDunningProcess extends AbstractFunctionalSetting {
 			return null;
 		}
 		//	Else
+		@SuppressWarnings("unchecked")
 		List<AmortizationValue> amortizationList = (List<AmortizationValue>) returnValues.get("AMORTIZATION_LIST");
 		if(amortizationList == null) {
 			return null;
 		}
-		BigDecimal capitalAmount = Env.ZERO;
-		BigDecimal dunningAmount = Env.ZERO;
-		BigDecimal dunningTaxAmount = Env.ZERO;
-		//	Iterate
-		for (AmortizationValue row : amortizationList) {
-			capitalAmount = capitalAmount.add(row.getCapitalAmtFee());
-			dunningAmount = dunningAmount.add(row.getDunningInterestAmount());
-			dunningTaxAmount = dunningTaxAmount.add(row.getDunningTaxAmt());
-			//	
-			MFMTransaction transaction = batch.addTransaction(dunningType.getFM_TransactionType_ID(), row.getDunningInterestAmount());
-			if(transaction != null) {
-				transaction.set_ValueOfColumn("FM_Amortization_ID", row.getAmortizationId());
-				transaction.saveEx();
-			}
-			if(dunningTaxType != null
-					&& row.getDunningTaxAmt() != null) {
-				transaction = batch.addTransaction(dunningTaxType.getFM_TransactionType_ID(), row.getDunningTaxAmt());
-				if(transaction != null) {
-					transaction.set_ValueOfColumn("FM_Amortization_ID", row.getAmortizationId());
-					transaction.saveEx();
-				}
-			}
-		}
+		AtomicReference<BigDecimal> capitalAmount = new AtomicReference<BigDecimal>(Env.ZERO);
+		AtomicReference<BigDecimal> dunningAmount = new AtomicReference<BigDecimal>(Env.ZERO);
+		AtomicReference<BigDecimal> dunningTaxAmount = new AtomicReference<BigDecimal>(Env.ZERO);
+		amortizationList.forEach(amortization -> {
+			capitalAmount.updateAndGet(amount -> amount.add(amortization.getCapitalAmtFee()));
+			dunningAmount.updateAndGet(amount -> amount.add(amortization.getDunningInterestAmount()));
+			dunningTaxAmount.updateAndGet(amount -> amount.add(amortization.getDunningTaxAmt()));
+		});
 		List<MFMAccount> accounts = MFMAccount.getAccountFromAgreement(agreement);
 		MFMAccount account = null;
 		if (accounts.isEmpty()){
@@ -109,8 +96,31 @@ public class LoanDunningProcess extends AbstractFunctionalSetting {
 		} else {
 			account = accounts.get(0);
 		}
-		//	Set Interest
-		MFMAmortizationSummary.setCurrentDunning(getCtx(), account.getFM_Account_ID(), batch.getDateDoc(), capitalAmount, dunningAmount, dunningTaxAmount, trxName);
+		//	Iterate
+		for (AmortizationValue amortizationReferencia : amortizationList) {
+			//	
+			MFMTransaction transaction = batch.addTransaction(dunningType.getFM_TransactionType_ID(), amortizationReferencia.getDunningInterestAmount());
+			if(transaction != null) {
+				transaction.set_ValueOfColumn("FM_Amortization_ID", amortizationReferencia.getAmortizationId());
+				transaction.saveEx();
+			}
+			if(dunningTaxType != null
+					&& amortizationReferencia.getDunningTaxAmt() != null) {
+				transaction = batch.addTransaction(dunningTaxType.getFM_TransactionType_ID(), amortizationReferencia.getDunningTaxAmt());
+				if(transaction != null) {
+					transaction.set_ValueOfColumn("FM_Amortization_ID", amortizationReferencia.getAmortizationId());
+					transaction.saveEx();
+				}
+			}
+			//	Summary for Amortization
+			MFMAmortization amortization = new MFMAmortization(getCtx(), amortizationReferencia.getAmortizationId(), trxName);
+			amortization.setCurrentCapitalAmt(capitalAmount.get());
+			amortization.setCurrentDunningAmt(dunningAmount.get());
+			amortization.setCurrentDunningTaxAmt(dunningTaxAmount.get());
+			amortization.saveEx();
+			//	Set Interest
+			MFMAmortizationSummary.setCurrentDunning(getCtx(), account.getFM_Account_ID(), amortizationReferencia.getAmortizationId(), batch.getDateDoc(), capitalAmount.get(), dunningAmount.get(), dunningTaxAmount.get(), trxName);
+		}
 		return null;
 	}
 }

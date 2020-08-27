@@ -20,11 +20,13 @@ import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.adempiere.exceptions.AdempiereException;
 import org.compiere.util.Env;
 import org.spin.model.MFMAccount;
 import org.spin.model.MFMAgreement;
+import org.spin.model.MFMAmortization;
 import org.spin.model.MFMAmortizationSummary;
 import org.spin.model.MFMBatch;
 import org.spin.model.MFMFunctionalSetting;
@@ -73,33 +75,19 @@ public class LoanInterestProcess extends AbstractFunctionalSetting {
 			return null;
 		}
 		//	Else
+		@SuppressWarnings("unchecked")
 		List<AmortizationValue> amortizationList = (List<AmortizationValue>) returnValues.get("AMORTIZATION_LIST");
 		if(amortizationList == null) {
 			return null;
 		}
-		BigDecimal capitalAmount = Env.ZERO;
-		BigDecimal interestAmount = Env.ZERO;
-		BigDecimal interestTaxAmount = Env.ZERO;
-		//	Iterate
-		for (AmortizationValue row : amortizationList) {
-			capitalAmount = capitalAmount.add(row.getCapitalAmtFee());
-			interestAmount = interestAmount.add(row.getInterestAmtFee());
-			interestTaxAmount = interestTaxAmount.add(row.getTaxAmtFee());
-			//	
-			MFMTransaction transaction = batch.addTransaction(interestType.getFM_TransactionType_ID(), row.getInterestAmtFee());
-			if(transaction != null) {
-				transaction.set_ValueOfColumn("FM_Amortization_ID", row.getAmortizationId());
-				transaction.saveEx();
-			}
-			if(interestTaxType != null
-					&& row.getTaxAmtFee() != null) {
-				transaction = batch.addTransaction(interestTaxType.getFM_TransactionType_ID(), row.getTaxAmtFee());
-				if(transaction != null) {
-					transaction.set_ValueOfColumn("FM_Amortization_ID", row.getAmortizationId());
-					transaction.saveEx();
-				}
-			}
-		}
+		AtomicReference<BigDecimal> capitalAmount = new AtomicReference<BigDecimal>(Env.ZERO);
+		AtomicReference<BigDecimal> interestAmount = new AtomicReference<BigDecimal>(Env.ZERO);
+		AtomicReference<BigDecimal> interestTaxAmount = new AtomicReference<BigDecimal>(Env.ZERO);
+		amortizationList.forEach(amortization -> {
+			capitalAmount.updateAndGet(amount -> amount.add(amortization.getCapitalAmtFee()));
+			interestAmount.updateAndGet(amount -> amount.add(amortization.getInterestAmtFee()));
+			interestTaxAmount.updateAndGet(amount -> amount.add(amortization.getTaxAmtFee()));
+		});
 		List<MFMAccount> accounts = MFMAccount.getAccountFromAgreement(agreement);
 		MFMAccount account = null;
 		if (accounts.isEmpty()){
@@ -108,8 +96,32 @@ public class LoanInterestProcess extends AbstractFunctionalSetting {
 		} else {
 			account = accounts.get(0);
 		}
-		//	Set Interest
-		MFMAmortizationSummary.setCurrentInterest(getCtx(), account.getFM_Account_ID(), batch.getDateDoc(), capitalAmount, interestAmount, interestTaxAmount, trxName);
+		//	Iterate
+		for (AmortizationValue amortizationReference : amortizationList) {
+			//	
+			MFMTransaction transaction = batch.addTransaction(interestType.getFM_TransactionType_ID(), amortizationReference.getInterestAmtFee());
+			if(transaction != null) {
+				transaction.set_ValueOfColumn("FM_Amortization_ID", amortizationReference.getAmortizationId());
+				transaction.saveEx();
+			}
+			if(interestTaxType != null
+					&& amortizationReference.getTaxAmtFee() != null) {
+				transaction = batch.addTransaction(interestTaxType.getFM_TransactionType_ID(), amortizationReference.getTaxAmtFee());
+				if(transaction != null) {
+					transaction.set_ValueOfColumn("FM_Amortization_ID", amortizationReference.getAmortizationId());
+					transaction.saveEx();
+				}
+			}
+			//	Summary for Amortization
+			MFMAmortization amortization = new MFMAmortization(getCtx(), amortizationReference.getAmortizationId(), trxName);
+			amortization.setCurrentCapitalAmt(capitalAmount.get());
+			amortization.setCurrentInterestAmt(interestAmount.get());
+			amortization.setCurrentTaxAmt(interestTaxAmount.get());
+			amortization.saveEx();
+			//	Set Interest
+			MFMAmortizationSummary.setCurrentInterest(getCtx(), account.getFM_Account_ID(), amortizationReference.getAmortizationId(), batch.getDateDoc(), capitalAmount.get(), interestAmount.get(), interestTaxAmount.get(), trxName);
+		}
+
 		return null;
 	}
 }

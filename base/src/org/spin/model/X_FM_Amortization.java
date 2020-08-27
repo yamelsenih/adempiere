@@ -27,14 +27,14 @@ import org.compiere.util.KeyNamePair;
 
 /** Generated Model for FM_Amortization
  *  @author Adempiere (generated) 
- *  @version Release 3.9.2 - $Id$ */
+ *  @version Release 3.9.3 - $Id$ */
 public class X_FM_Amortization extends PO implements I_FM_Amortization, I_Persistent 
 {
 
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20191120L;
+	private static final long serialVersionUID = 20200826L;
 
     /** Standard Constructor */
     public X_FM_Amortization (Properties ctx, int FM_Amortization_ID, String trxName)
@@ -91,6 +91,125 @@ public class X_FM_Amortization extends PO implements I_FM_Amortization, I_Persis
 	public BigDecimal getCapitalAmt () 
 	{
 		BigDecimal bd = (BigDecimal)get_Value(COLUMNNAME_CapitalAmt);
+		if (bd == null)
+			 return Env.ZERO;
+		return bd;
+	}
+
+	/** Set Current Capital Amount.
+		@param CurrentCapitalAmt Current Capital Amount	  */
+	public void setCurrentCapitalAmt (BigDecimal CurrentCapitalAmt)
+	{
+		set_Value (COLUMNNAME_CurrentCapitalAmt, CurrentCapitalAmt);
+	}
+
+	/** Get Current Capital Amount.
+		@return Current Capital Amount	  */
+	public BigDecimal getCurrentCapitalAmt () 
+	{
+		BigDecimal bd = (BigDecimal)get_Value(COLUMNNAME_CurrentCapitalAmt);
+		if (bd == null)
+			 return Env.ZERO;
+		return bd;
+	}
+
+	/** Set Current Due Date.
+		@param CurrentDueDate 
+		Date when the payment is due
+	  */
+	public void setCurrentDueDate (Timestamp CurrentDueDate)
+	{
+		set_Value (COLUMNNAME_CurrentDueDate, CurrentDueDate);
+	}
+
+	/** Get Current Due Date.
+		@return Date when the payment is due
+	  */
+	public Timestamp getCurrentDueDate () 
+	{
+		return (Timestamp)get_Value(COLUMNNAME_CurrentDueDate);
+	}
+
+	/** Set Current Dunning Amount.
+		@param CurrentDunningAmt Current Dunning Amount	  */
+	public void setCurrentDunningAmt (BigDecimal CurrentDunningAmt)
+	{
+		set_Value (COLUMNNAME_CurrentDunningAmt, CurrentDunningAmt);
+	}
+
+	/** Get Current Dunning Amount.
+		@return Current Dunning Amount	  */
+	public BigDecimal getCurrentDunningAmt () 
+	{
+		BigDecimal bd = (BigDecimal)get_Value(COLUMNNAME_CurrentDunningAmt);
+		if (bd == null)
+			 return Env.ZERO;
+		return bd;
+	}
+
+	/** Set Current Dunning Tax Amount.
+		@param CurrentDunningTaxAmt Current Dunning Tax Amount	  */
+	public void setCurrentDunningTaxAmt (BigDecimal CurrentDunningTaxAmt)
+	{
+		set_Value (COLUMNNAME_CurrentDunningTaxAmt, CurrentDunningTaxAmt);
+	}
+
+	/** Get Current Dunning Tax Amount.
+		@return Current Dunning Tax Amount	  */
+	public BigDecimal getCurrentDunningTaxAmt () 
+	{
+		BigDecimal bd = (BigDecimal)get_Value(COLUMNNAME_CurrentDunningTaxAmt);
+		if (bd == null)
+			 return Env.ZERO;
+		return bd;
+	}
+
+	/** Set Current Fee Amount.
+		@param CurrentFeeAmt Current Fee Amount	  */
+	public void setCurrentFeeAmt (BigDecimal CurrentFeeAmt)
+	{
+		set_Value (COLUMNNAME_CurrentFeeAmt, CurrentFeeAmt);
+	}
+
+	/** Get Current Fee Amount.
+		@return Current Fee Amount	  */
+	public BigDecimal getCurrentFeeAmt () 
+	{
+		BigDecimal bd = (BigDecimal)get_Value(COLUMNNAME_CurrentFeeAmt);
+		if (bd == null)
+			 return Env.ZERO;
+		return bd;
+	}
+
+	/** Set Current Interest Amount.
+		@param CurrentInterestAmt Current Interest Amount	  */
+	public void setCurrentInterestAmt (BigDecimal CurrentInterestAmt)
+	{
+		set_Value (COLUMNNAME_CurrentInterestAmt, CurrentInterestAmt);
+	}
+
+	/** Get Current Interest Amount.
+		@return Current Interest Amount	  */
+	public BigDecimal getCurrentInterestAmt () 
+	{
+		BigDecimal bd = (BigDecimal)get_Value(COLUMNNAME_CurrentInterestAmt);
+		if (bd == null)
+			 return Env.ZERO;
+		return bd;
+	}
+
+	/** Set Current Tax Amount.
+		@param CurrentTaxAmt Current Tax Amount	  */
+	public void setCurrentTaxAmt (BigDecimal CurrentTaxAmt)
+	{
+		set_Value (COLUMNNAME_CurrentTaxAmt, CurrentTaxAmt);
+	}
+
+	/** Get Current Tax Amount.
+		@return Current Tax Amount	  */
+	public BigDecimal getCurrentTaxAmt () 
+	{
+		BigDecimal bd = (BigDecimal)get_Value(COLUMNNAME_CurrentTaxAmt);
 		if (bd == null)
 			 return Env.ZERO;
 		return bd;

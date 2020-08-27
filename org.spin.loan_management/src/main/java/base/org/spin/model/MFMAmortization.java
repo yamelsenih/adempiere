@@ -20,8 +20,10 @@ import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.Timestamp;
 import java.util.List;
+import java.util.Optional;
 import java.util.Properties;
 
+import org.compiere.model.MCurrency;
 import org.compiere.model.Query;
 import org.compiere.util.DB;
 import org.compiere.util.Env;
@@ -224,6 +226,26 @@ public class MFMAmortization extends X_FM_Amortization {
 	 */
 	public static List<MFMAmortization> getToPayList(int financialAccountId, String trxName) {
 		return getAmortizationList(financialAccountId, "IsPaid = 'N'", trxName);
+	}
+	
+	@Override
+	protected boolean beforeSave(boolean newRecord) {
+		if(newRecord
+				|| is_ValueChanged(COLUMNNAME_CurrentCapitalAmt)
+				|| is_ValueChanged(COLUMNNAME_CurrentInterestAmt)
+				|| is_ValueChanged(COLUMNNAME_CurrentTaxAmt)
+				|| is_ValueChanged(COLUMNNAME_CurrentDunningAmt)
+				|| is_ValueChanged(COLUMNNAME_CurrentDunningTaxAmt)) {
+			MFMAccount account = MFMAccount.getById(getCtx(), getFM_Account_ID());
+			int currencyPrecision = MCurrency.getStdPrecision(getCtx(), account.getC_Currency_ID());
+			//	Set Rounded Values
+			Optional.ofNullable(getCurrentCapitalAmt()).ifPresent(amount -> setCurrentCapitalAmt(amount.setScale(currencyPrecision, BigDecimal.ROUND_HALF_UP)));
+			Optional.ofNullable(getCurrentInterestAmt()).ifPresent(amount -> setCurrentInterestAmt(amount.setScale(currencyPrecision, BigDecimal.ROUND_HALF_UP)));
+			Optional.ofNullable(getCurrentTaxAmt()).ifPresent(amount -> setCurrentTaxAmt(amount.setScale(currencyPrecision, BigDecimal.ROUND_HALF_UP)));
+			Optional.ofNullable(getCurrentDunningAmt()).ifPresent(amount -> setCurrentDunningAmt(amount.setScale(currencyPrecision, BigDecimal.ROUND_HALF_UP)));
+			Optional.ofNullable(getCurrentDunningTaxAmt()).ifPresent(amount -> setCurrentDunningTaxAmt(amount.setScale(currencyPrecision, BigDecimal.ROUND_HALF_UP)));
+		}
+		return super.beforeSave(newRecord);
 	}
 
 	@Override

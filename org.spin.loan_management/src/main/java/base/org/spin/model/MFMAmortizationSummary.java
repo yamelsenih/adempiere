@@ -49,6 +49,7 @@ public class MFMAmortizationSummary extends X_FM_AmortizationSummary {
 	 * Set current interest from account and date
 	 * @param ctx
 	 * @param financialAccountId
+	 * @param amortizationId
 	 * @param dateDoc
 	 * @param capitalAmount
 	 * @param currentInsterestAmount
@@ -56,8 +57,8 @@ public class MFMAmortizationSummary extends X_FM_AmortizationSummary {
 	 * @param trxName
 	 * @return
 	 */
-	public static MFMAmortizationSummary setCurrentInterest(Properties ctx, int financialAccountId, Timestamp dateDoc, BigDecimal capitalAmount, BigDecimal currentInsterestAmount, BigDecimal currentInsterestTaxAmount, String trxName) {
-		MFMAmortizationSummary summary = getAmortizationSummaryFromAccountAndDate(ctx, financialAccountId, dateDoc, trxName);
+	public static MFMAmortizationSummary setCurrentInterest(Properties ctx, int financialAccountId, int amortizationId, Timestamp dateDoc, BigDecimal capitalAmount, BigDecimal currentInsterestAmount, BigDecimal currentInsterestTaxAmount, String trxName) {
+		MFMAmortizationSummary summary = getAmortizationSummaryFromAccountAndDate(ctx, financialAccountId, amortizationId, dateDoc, trxName);
 		MFMAccount account = MFMAccount.getById(ctx, financialAccountId);
 		int currencyPrecision = MCurrency.getStdPrecision(ctx, account.getC_Currency_ID());
 		summary.setCurrentCapitalAmt(capitalAmount.setScale(currencyPrecision, BigDecimal.ROUND_HALF_UP));
@@ -71,6 +72,7 @@ public class MFMAmortizationSummary extends X_FM_AmortizationSummary {
 	 * Set current dunning from account and date
 	 * @param ctx
 	 * @param financialAccountId
+	 * @param amortizationId
 	 * @param dateDoc
 	 * @param capitalAmount
 	 * @param currentDunningAmount
@@ -78,8 +80,8 @@ public class MFMAmortizationSummary extends X_FM_AmortizationSummary {
 	 * @param trxName
 	 * @return
 	 */
-	public static MFMAmortizationSummary setCurrentDunning(Properties ctx, int financialAccountId, Timestamp dateDoc, BigDecimal capitalAmount, BigDecimal currentDunningAmount, BigDecimal currentDunningTaxAmount, String trxName) {
-		MFMAmortizationSummary summary = getAmortizationSummaryFromAccountAndDate(ctx, financialAccountId, dateDoc, trxName);
+	public static MFMAmortizationSummary setCurrentDunning(Properties ctx, int financialAccountId, int amortizationId, Timestamp dateDoc, BigDecimal capitalAmount, BigDecimal currentDunningAmount, BigDecimal currentDunningTaxAmount, String trxName) {
+		MFMAmortizationSummary summary = getAmortizationSummaryFromAccountAndDate(ctx, financialAccountId, amortizationId, dateDoc, trxName);
 		MFMAccount account = MFMAccount.getById(ctx, financialAccountId);
 		int currencyPrecision = MCurrency.getStdPrecision(ctx, account.getC_Currency_ID());
 		summary.setCurrentCapitalAmt(capitalAmount.setScale(currencyPrecision, BigDecimal.ROUND_HALF_UP));
@@ -93,14 +95,15 @@ public class MFMAmortizationSummary extends X_FM_AmortizationSummary {
 	 * Get Amortization summary from account and date
 	 * @param ctx
 	 * @param financialAccountId
+	 * @param amortizationId
 	 * @param dateDoc
 	 * @param trxName
 	 * @return
 	 */
-	private static MFMAmortizationSummary getAmortizationSummaryFromAccountAndDate(Properties ctx, int financialAccountId, Timestamp dateDoc, String trxName) {
+	private static MFMAmortizationSummary getAmortizationSummaryFromAccountAndDate(Properties ctx, int financialAccountId, int amortizationId, Timestamp dateDoc, String trxName) {
 		dateDoc = TimeUtil.getDay(dateDoc);
-		MFMAmortizationSummary summary = new Query(ctx, Table_Name, COLUMNNAME_FM_Account_ID + " = ? AND " + COLUMNNAME_DateDoc + " = ?", trxName)
-				.setParameters(financialAccountId, dateDoc)
+		MFMAmortizationSummary summary = new Query(ctx, Table_Name, COLUMNNAME_FM_Account_ID + " = ? AND " + COLUMNNAME_FM_Amortization_ID + " = ? AND " + COLUMNNAME_DateDoc + " = ?", trxName)
+				.setParameters(financialAccountId, amortizationId, dateDoc)
 				.setOnlyActiveRecords(true).setClient_ID()
 				.first();
 		if(summary == null
@@ -108,6 +111,7 @@ public class MFMAmortizationSummary extends X_FM_AmortizationSummary {
 			summary = new MFMAmortizationSummary(ctx, 0, trxName);
 			summary.setDateDoc(dateDoc);
 			summary.setFM_Account_ID(financialAccountId);
+			summary.setFM_Amortization_ID(amortizationId);
 		}
 		//	
 		return summary;

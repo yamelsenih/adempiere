@@ -157,6 +157,17 @@ public interface I_FM_AmortizationSummary
 
 	public org.spin.model.I_FM_Account getFM_Account() throws RuntimeException;
 
+    /** Column name FM_Amortization_ID */
+    public static final String COLUMNNAME_FM_Amortization_ID = "FM_Amortization_ID";
+
+	/** Set Loan Amortization	  */
+	public void setFM_Amortization_ID (int FM_Amortization_ID);
+
+	/** Get Loan Amortization	  */
+	public int getFM_Amortization_ID();
+
+	public org.spin.model.I_FM_Amortization getFM_Amortization() throws RuntimeException;
+
     /** Column name FM_AmortizationSummary_ID */
     public static final String COLUMNNAME_FM_AmortizationSummary_ID = "FM_AmortizationSummary_ID";
 
@@ -165,6 +176,17 @@ public interface I_FM_AmortizationSummary
 
 	/** Get Loan Amortization Summary	  */
 	public int getFM_AmortizationSummary_ID();
+
+    /** Column name FM_Batch_ID */
+    public static final String COLUMNNAME_FM_Batch_ID = "FM_Batch_ID";
+
+	/** Set Financial Transaction Batch	  */
+	public void setFM_Batch_ID (int FM_Batch_ID);
+
+	/** Get Financial Transaction Batch	  */
+	public int getFM_Batch_ID();
+
+	public org.spin.model.I_FM_Batch getFM_Batch() throws RuntimeException;
 
     /** Column name IsActive */
     public static final String COLUMNNAME_IsActive = "IsActive";

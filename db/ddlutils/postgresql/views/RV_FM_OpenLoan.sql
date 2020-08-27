@@ -45,18 +45,9 @@ SUM(CASE WHEN am.IsPaid = 'Y' THEN 1 ELSE 0 END) PaidFeesQty,
 SUM(CASE WHEN (am.IsInvoiced = 'N' OR am.IsPaid = 'N') AND am.IsDue = 'Y' THEN COALESCE(am.CurrentFeeAmt, 0) ELSE 0 END) AS CurrentDueFeeAmt,
 SUM(CASE WHEN (am.IsInvoiced = 'N' OR am.IsPaid = 'N') AND am.IsDue = 'Y' THEN 1 ELSE 0 END) AS DueFeesQty,
 SUM(CASE WHEN am.IsInvoiced = 'Y' AND am.IsPaid = 'Y' THEN COALESCE(am.CurrentFeeAmt, 0) ELSE 0 END) AS PayAmt, 
-lp.DueDate
+MAX(am.CurrentDueDate) AS CurrentDueDate
 FROM RV_FM_LoanAmortization am
 INNER JOIN FM_Account ac ON(ac.FM_Account_ID = am.FM_Account_ID)
-LEFT JOIN (SELECT lp.FM_Account_ID, lp.DueDate
-		FROM RV_FM_LoanAmortization lp
-		WHERE lp.FM_Amortization_ID = (SELECT lpp.FM_Amortization_ID 
-						FROM RV_FM_LoanAmortization lpp
-						WHERE lpp.FM_Account_ID = lp.FM_Account_ID
-						AND (lpp.IsInvoiced = 'N' OR lpp.IsPaid = 'N') 
-						AND lpp.IsDue = 'Y'
-						ORDER BY lpp.PeriodNo
-						LIMIT 1)) lp ON(lp.FM_Account_ID = am.FM_Account_ID)
 WHERE am.DocStatus = 'CO'
 AND EXISTS(SELECT 1 FROM FM_Amortization la 
 	WHERE la.FM_Account_ID = am.FM_Account_ID 
@@ -65,4 +56,5 @@ GROUP BY am.AD_Client_ID, am.AD_Org_ID, am.IsActive, am.Created, am.CreatedBy, a
 am.FM_Agreement_ID, am.FM_AgreementType_ID, am.C_DocType_ID, am.DocumentNo, am.DateDoc, 
 am.DocStatus, am.FM_Product_ID, am.C_BPartner_ID, am.IsSOTrx, am.Status, 
 am.FM_Account_ID, am.C_Currency_ID, am.AccountNo, 
-ac.FeesQty, ac.PaymentFrequency, ac.PayDate, ac.CapitalAmt, ac.InterestAmt, ac.TaxAmt, lp.DueDate
+ac.FeesQty, ac.PaymentFrequency, ac.PayDate, ac.CapitalAmt, ac.InterestAmt, ac.TaxAmt
+

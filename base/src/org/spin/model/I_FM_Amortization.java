@@ -23,7 +23,7 @@ import org.compiere.util.KeyNamePair;
 
 /** Generated Interface for FM_Amortization
  *  @author Adempiere (generated) 
- *  @version Release 3.9.2
+ *  @version Release 3.9.3
  */
 public interface I_FM_Amortization 
 {
@@ -87,6 +87,73 @@ public interface I_FM_Amortization
 	  * User who created this records
 	  */
 	public int getCreatedBy();
+
+    /** Column name CurrentCapitalAmt */
+    public static final String COLUMNNAME_CurrentCapitalAmt = "CurrentCapitalAmt";
+
+	/** Set Current Capital Amount	  */
+	public void setCurrentCapitalAmt (BigDecimal CurrentCapitalAmt);
+
+	/** Get Current Capital Amount	  */
+	public BigDecimal getCurrentCapitalAmt();
+
+    /** Column name CurrentDueDate */
+    public static final String COLUMNNAME_CurrentDueDate = "CurrentDueDate";
+
+	/** Set Current Due Date.
+	  * Date when the payment is due
+	  */
+	public void setCurrentDueDate (Timestamp CurrentDueDate);
+
+	/** Get Current Due Date.
+	  * Date when the payment is due
+	  */
+	public Timestamp getCurrentDueDate();
+
+    /** Column name CurrentDunningAmt */
+    public static final String COLUMNNAME_CurrentDunningAmt = "CurrentDunningAmt";
+
+	/** Set Current Dunning Amount	  */
+	public void setCurrentDunningAmt (BigDecimal CurrentDunningAmt);
+
+	/** Get Current Dunning Amount	  */
+	public BigDecimal getCurrentDunningAmt();
+
+    /** Column name CurrentDunningTaxAmt */
+    public static final String COLUMNNAME_CurrentDunningTaxAmt = "CurrentDunningTaxAmt";
+
+	/** Set Current Dunning Tax Amount	  */
+	public void setCurrentDunningTaxAmt (BigDecimal CurrentDunningTaxAmt);
+
+	/** Get Current Dunning Tax Amount	  */
+	public BigDecimal getCurrentDunningTaxAmt();
+
+    /** Column name CurrentFeeAmt */
+    public static final String COLUMNNAME_CurrentFeeAmt = "CurrentFeeAmt";
+
+	/** Set Current Fee Amount	  */
+	public void setCurrentFeeAmt (BigDecimal CurrentFeeAmt);
+
+	/** Get Current Fee Amount	  */
+	public BigDecimal getCurrentFeeAmt();
+
+    /** Column name CurrentInterestAmt */
+    public static final String COLUMNNAME_CurrentInterestAmt = "CurrentInterestAmt";
+
+	/** Set Current Interest Amount	  */
+	public void setCurrentInterestAmt (BigDecimal CurrentInterestAmt);
+
+	/** Get Current Interest Amount	  */
+	public BigDecimal getCurrentInterestAmt();
+
+    /** Column name CurrentTaxAmt */
+    public static final String COLUMNNAME_CurrentTaxAmt = "CurrentTaxAmt";
+
+	/** Set Current Tax Amount	  */
+	public void setCurrentTaxAmt (BigDecimal CurrentTaxAmt);
+
+	/** Get Current Tax Amount	  */
+	public BigDecimal getCurrentTaxAmt();
 
     /** Column name Description */
     public static final String COLUMNNAME_Description = "Description";
@@ -238,19 +305,6 @@ public interface I_FM_Amortization
 	  */
 	public BigDecimal getTaxAmt();
 
-    /** Column name UUID */
-    public static final String COLUMNNAME_UUID = "UUID";
-
-	/** Set Immutable Universally Unique Identifier.
-	  * Immutable Universally Unique Identifier
-	  */
-	public void setUUID (String UUID);
-
-	/** Get Immutable Universally Unique Identifier.
-	  * Immutable Universally Unique Identifier
-	  */
-	public String getUUID();
-
     /** Column name Updated */
     public static final String COLUMNNAME_Updated = "Updated";
 
@@ -266,4 +320,17 @@ public interface I_FM_Amortization
 	  * User who updated this records
 	  */
 	public int getUpdatedBy();
+
+    /** Column name UUID */
+    public static final String COLUMNNAME_UUID = "UUID";
+
+	/** Set Immutable Universally Unique Identifier.
+	  * Immutable Universally Unique Identifier
+	  */
+	public void setUUID (String UUID);
+
+	/** Get Immutable Universally Unique Identifier.
+	  * Immutable Universally Unique Identifier
+	  */
+	public String getUUID();
 }

@@ -34,7 +34,7 @@ public class X_FM_AmortizationSummary extends PO implements I_FM_AmortizationSum
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20200811L;
+	private static final long serialVersionUID = 20200826L;
 
     /** Standard Constructor */
     public X_FM_AmortizationSummary (Properties ctx, int FM_AmortizationSummary_ID, String trxName)
@@ -43,7 +43,9 @@ public class X_FM_AmortizationSummary extends PO implements I_FM_AmortizationSum
       /** if (FM_AmortizationSummary_ID == 0)
         {
 			setFM_Account_ID (0);
+			setFM_Amortization_ID (0);
 			setFM_AmortizationSummary_ID (0);
+			setFM_Batch_ID (0);
         } */
     }
 
@@ -227,6 +229,31 @@ public class X_FM_AmortizationSummary extends PO implements I_FM_AmortizationSum
         return new KeyNamePair(get_ID(), String.valueOf(getFM_Account_ID()));
     }
 
+	public org.spin.model.I_FM_Amortization getFM_Amortization() throws RuntimeException
+    {
+		return (org.spin.model.I_FM_Amortization)MTable.get(getCtx(), org.spin.model.I_FM_Amortization.Table_Name)
+			.getPO(getFM_Amortization_ID(), get_TrxName());	}
+
+	/** Set Loan Amortization.
+		@param FM_Amortization_ID Loan Amortization	  */
+	public void setFM_Amortization_ID (int FM_Amortization_ID)
+	{
+		if (FM_Amortization_ID < 1) 
+			set_Value (COLUMNNAME_FM_Amortization_ID, null);
+		else 
+			set_Value (COLUMNNAME_FM_Amortization_ID, Integer.valueOf(FM_Amortization_ID));
+	}
+
+	/** Get Loan Amortization.
+		@return Loan Amortization	  */
+	public int getFM_Amortization_ID () 
+	{
+		Integer ii = (Integer)get_Value(COLUMNNAME_FM_Amortization_ID);
+		if (ii == null)
+			 return 0;
+		return ii.intValue();
+	}
+
 	/** Set Loan Amortization Summary.
 		@param FM_AmortizationSummary_ID Loan Amortization Summary	  */
 	public void setFM_AmortizationSummary_ID (int FM_AmortizationSummary_ID)
@@ -242,6 +269,31 @@ public class X_FM_AmortizationSummary extends PO implements I_FM_AmortizationSum
 	public int getFM_AmortizationSummary_ID () 
 	{
 		Integer ii = (Integer)get_Value(COLUMNNAME_FM_AmortizationSummary_ID);
+		if (ii == null)
+			 return 0;
+		return ii.intValue();
+	}
+
+	public org.spin.model.I_FM_Batch getFM_Batch() throws RuntimeException
+    {
+		return (org.spin.model.I_FM_Batch)MTable.get(getCtx(), org.spin.model.I_FM_Batch.Table_Name)
+			.getPO(getFM_Batch_ID(), get_TrxName());	}
+
+	/** Set Financial Transaction Batch.
+		@param FM_Batch_ID Financial Transaction Batch	  */
+	public void setFM_Batch_ID (int FM_Batch_ID)
+	{
+		if (FM_Batch_ID < 1) 
+			set_Value (COLUMNNAME_FM_Batch_ID, null);
+		else 
+			set_Value (COLUMNNAME_FM_Batch_ID, Integer.valueOf(FM_Batch_ID));
+	}
+
+	/** Get Financial Transaction Batch.
+		@return Financial Transaction Batch	  */
+	public int getFM_Batch_ID () 
+	{
+		Integer ii = (Integer)get_Value(COLUMNNAME_FM_Batch_ID);
 		if (ii == null)
 			 return 0;
 		return ii.intValue();
