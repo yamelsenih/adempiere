@@ -18,7 +18,7 @@ CREATE OR REPLACE VIEW RV_BPARTNER
  BIRTHDAY, AD_ORGTRX_ID, EMAILVERIFY, LDAPUSER, EMAILVERIFYDATE, 
  NOTIFICATIONTYPE, C_BPARTNER_LOCATION_ID, POSTAL, CITY, ADDRESS1, 
  ADDRESS2, ADDRESS3, C_REGION_ID, REGIONNAME, C_COUNTRY_ID, 
- COUNTRYNAME)
+ COUNTRYNAME, C_BP_AccountType_ID, C_BP_SalesGroup_ID, C_BP_Segment_ID, C_BP_IndustryType_ID, C_SalesRegion_ID, Latitude, Longitude)
 AS 
 SELECT bp.AD_Client_ID, bp.AD_Org_ID, 
 	bp.IsActive, bp.Created, bp.CreatedBy, bp.Updated, bp.UpdatedBy,
@@ -47,13 +47,12 @@ SELECT bp.AD_Client_ID, bp.AD_Org_ID,
     -- Location
 	l.C_BPartner_Location_ID, a.Postal, a.City, a.Address1, a.Address2, a.Address3, 
     a.C_Region_ID, COALESCE(r.Name,a.RegionName) AS RegionName,
-    a.C_Country_ID, cc.Name AS CountryName
+    a.C_Country_ID, cc.Name AS CountryName, 
+    bp.C_BP_AccountType_ID, bp.C_BP_SalesGroup_ID, bp.C_BP_Segment_ID, bp.C_BP_IndustryType_ID, l.C_SalesRegion_ID,
+    a.Latitude, a.Longitude
 FROM C_BPartner bp
  LEFT OUTER JOIN C_BPartner_Location l ON (bp.C_BPartner_ID=l.C_BPartner_ID AND l.IsActive='Y')
  LEFT OUTER JOIN AD_User c ON (bp.C_BPartner_ID=c.C_BPartner_ID AND (c.C_BPartner_Location_ID IS NULL OR c.C_BPartner_Location_ID=l.C_BPartner_Location_ID) AND c.IsActive='Y')
  LEFT OUTER JOIN C_Location a ON (l.C_Location_ID=a.C_Location_ID)
  LEFT OUTER JOIN C_Region r ON (a.C_Region_ID=r.C_Region_ID)
  INNER JOIN C_Country cc ON (a.C_Country_ID=cc.C_Country_ID);
-
-
-
