@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<Migrations>
+  <Migration EntityType="D" Name="Fixed Bank Statement Where Clause" ReleaseNo="3.9.4" SeqNo="6520">
+    <Step SeqNo="10" StepType="AD">
+      <PO AD_Table_ID="53224" Action="U" Record_ID="50060" Table="AD_Browse">
+        <Data AD_Column_ID="58000" Column="WhereClause" oldValue="p.Processed = 'Y' AND p.IsReconciled = 'N' AND p.DocStatus IN('CO','CL','RE','VO') AND p.PayAmt &lt;&gt; 0 &#10;AND NOT EXISTS(SELECT 1 FROM C_BankStatementLine l WHERE p.C_Payment_ID = l.C_Payment_ID AND l.StmtAmt &lt;&gt; 0)">p.Processed = 'Y' AND p.IsReconciled = 'N' AND p.DocStatus IN('CO','CL','RE','VO') AND p.PayAmt &lt;&gt; 0 
+AND NOT EXISTS(SELECT 1 FROM C_BankStatement bs 
+	INNER JOIN C_BankStatementLine l ON(l.C_BankStatement_ID = bs.C_BankStatement_ID) 
+	WHERE p.C_Payment_ID = l.C_Payment_ID 
+	AND l.StmtAmt &lt;&gt; 0 
+	AND (bs.DocStatus IN('CO', 'CL') OR bs.Processed = 'N'))</Data>
+      </PO>
+    </Step>
+  </Migration>
+</Migrations>
