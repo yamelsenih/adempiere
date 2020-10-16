@@ -114,9 +114,11 @@ public class LoanDunningProcess extends AbstractFunctionalSetting {
 			}
 			//	Summary for Amortization
 			MFMAmortization amortization = new MFMAmortization(getCtx(), amortizationReferencia.getAmortizationId(), trxName);
-			amortization.setCurrentCapitalAmt(capitalAmount.get());
-			amortization.setCurrentDunningAmt(dunningAmount.get());
-			amortization.setCurrentDunningTaxAmt(dunningTaxAmount.get());
+			amortization.setCurrentCapitalAmt(amortizationReferencia.getCapitalAmtFee());
+			amortization.setCurrentDunningAmt(amortizationReferencia.getDunningInterestAmount());
+			amortization.setCurrentDunningTaxAmt(amortizationReferencia.getDunningTaxAmt());
+			amortization.setCurrentInterestAmt(amortizationReferencia.getInterestAmtFee());
+			amortization.setCurrentTaxAmt(amortizationReferencia.getTaxAmtFee());
 			amortization.saveEx();
 			//	Set Interest
 			MFMAmortizationSummary.setCurrentDunning(getCtx(), account.getFM_Account_ID(), amortizationReferencia.getAmortizationId(), batch.getDateDoc(), capitalAmount.get(), dunningAmount.get(), dunningTaxAmount.get(), trxName);
