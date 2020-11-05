@@ -524,12 +524,6 @@ public class Collect {
 		if(invoiceId == 0)
 			return false;
 		MPayment payment = createPayment(MPayment.TENDERTYPE_CreditMemo);
-		if(payment.getC_Invoice_ID() > 0) {
-			payment.setC_Invoice_ID(0);
-		}
-		if(payment.getC_Charge_ID() > 0) {
-			payment.setC_Charge_ID(0);
-		}
 		payment.setAmount(creditMemo.getC_Currency_ID(), amount);
 		payment.setC_BankAccount_ID(entityPOS.getC_BankAccount_ID());
 		payment.setDateTrx(getDateTrx());
@@ -546,24 +540,18 @@ public class Collect {
 			if(creditMemo.getC_Order_ID() != 0) {
 				List<MPayment> paymentsList = MPayment.getOfOrder(Env.getCtx(), creditMemo.getC_Order_ID(), trxName);
 				if(paymentsList.size() > 0) {
+					//	
 					MAllocationHdr allocation = new MAllocationHdr(Env.getCtx(), true, getDateTrx(), creditMemo.getC_Currency_ID(), creditMemo.getDescription(),trxName);
-					
 					allocation.setDocStatus(MAllocationHdr.STATUS_Drafted);
 					allocation.setDocAction(MAllocationHdr.ACTION_Complete);
 					allocation.saveEx();
-					paymentsList.forEach(returnCollect -> {
+					paymentsList.stream().findFirst().ifPresent(returnCollect -> {
 						MAllocationLine allocationLine = new MAllocationLine(allocation);
 						allocationLine.setPaymentInfo(returnCollect.getC_Payment_ID(), 0);
-						allocationLine.setDocInfo(creditMemo.getC_BPartner_ID(), creditMemo.getC_Order_ID(), 0);
+						allocationLine.setDocInfo(creditMemo.getC_BPartner_ID(), creditMemo.getC_Order_ID(), creditMemo.getC_Invoice_ID());
 						allocationLine.setAmount(returnCollect.getPayAmt().negate());
 						allocationLine.saveEx();
 					});
-					//	Add line for payment
-					MAllocationLine allocationLine = new MAllocationLine(allocation);
-					allocationLine.setPaymentInfo(payment.getC_Payment_ID(), 0);
-					allocationLine.setDocInfo(payment.getC_BPartner_ID(), payment.getC_Order_ID(), 0);
-					allocationLine.setAmount(payment.getPayAmt());
-					allocationLine.saveEx();
 					//	Validate and complete allocation
 					allocation.processIt(MAllocationHdr.ACTION_Complete);
 					allocation.saveEx();
@@ -576,6 +564,8 @@ public class Collect {
 					});
 				}
 			}
+			creditMemo.testAllocation();
+			creditMemo.saveEx();
 			MBankStatement.addPayment(payment);
 			return true;
 		} else {
@@ -821,7 +811,7 @@ public class Collect {
 					addErrorMsg("@POS.PrePayment.NoCreditMemoAllowed@");
 					return;
 				}
-				result= payCreditMemo(collectDetail.getM_InvCreditMemo(), collectDetail.getPayAmt());
+				result = payCreditMemo(collectDetail.getM_InvCreditMemo(), collectDetail.getPayAmt());
 				if (!result) {					
 					addErrorMsg("@POS.ErrorPaymentCreditMemo@");
 					return;
