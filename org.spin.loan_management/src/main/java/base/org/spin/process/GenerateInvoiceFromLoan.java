@@ -238,7 +238,7 @@ public class GenerateInvoiceFromLoan extends GenerateInvoiceFromLoanAbstract {
 	private void createLine(BigDecimal amount, MProduct product, int chargeId, MFMAgreement loan, MFMAmortization amortization) {
 		//	Validate Amount
 		if(amount == null
-				|| amount.equals(Env.ZERO)) {
+				|| amount.compareTo(Env.ZERO) == 0) {
 			return;
 		}
 		//	Set values for line
