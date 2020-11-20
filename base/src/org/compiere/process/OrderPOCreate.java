@@ -22,12 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 
-import org.compiere.model.I_C_Order;
-import org.compiere.model.MBPartner;
-import org.compiere.model.MOrder;
-import org.compiere.model.MOrderLine;
-import org.compiere.model.MOrgInfo;
-import org.compiere.model.Query;
+import org.compiere.model.*;
 import org.compiere.util.AdempiereUserError;
 import org.compiere.util.DB;
 import org.compiere.util.Util;
@@ -272,7 +267,12 @@ public class OrderPOCreate extends OrderPOCreateAbstract {
 		purchaseOrder.setUser3_ID(salesOrder.getUser3_ID());
 		purchaseOrder.setUser4_ID(salesOrder.getUser4_ID());
 		purchaseOrder.setDocAction(MOrder.DOCACTION_Complete);
-		//
+
+		MPriceList poList = MPriceList.getDefault(getCtx(), false, salesOrder.getCurrencyISO());
+
+		if(poList != null && poList.get_ID() > 0)
+			purchaseOrder.setM_PriceList_ID(poList.get_ID());
+
 		purchaseOrder.saveEx();
 		return purchaseOrder;
 	}	//	createPOForVendor
