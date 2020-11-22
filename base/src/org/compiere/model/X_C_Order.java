@@ -33,7 +33,7 @@ public class X_C_Order extends PO implements I_C_Order, I_Persistent
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20200804L;
+	private static final long serialVersionUID = 20200221L;
 
     /** Standard Constructor */
     public X_C_Order (Properties ctx, int C_Order_ID, String trxName)
@@ -822,6 +822,7 @@ public class X_C_Order extends PO implements I_C_Order, I_Persistent
 		return ii.intValue();
 	}
 
+
 	public org.compiere.model.I_C_SalesRegion getC_SalesRegion() throws RuntimeException
     {
 		return (org.compiere.model.I_C_SalesRegion)MTable.get(getCtx(), org.compiere.model.I_C_SalesRegion.Table_Name)
@@ -1242,26 +1243,6 @@ public class X_C_Order extends PO implements I_C_Order, I_Persistent
 		return (String)get_Value(COLUMNNAME_FreightCostRule);
 	}
 
-	/** Set Freight Rate.
-		@param FreightRate 
-		Freight Rate of Shipper 
-	  */
-	public void setFreightRate (BigDecimal FreightRate)
-	{
-		set_Value (COLUMNNAME_FreightRate, FreightRate);
-	}
-
-	/** Get Freight Rate.
-		@return Freight Rate of Shipper 
-	  */
-	public BigDecimal getFreightRate () 
-	{
-		BigDecimal bd = (BigDecimal)get_Value(COLUMNNAME_FreightRate);
-		if (bd == null)
-			 return Env.ZERO;
-		return bd;
-	}
-
 	/** Set Grand Total.
 		@param GrandTotal 
 		Total amount of document
@@ -1643,34 +1624,6 @@ public class X_C_Order extends PO implements I_C_Order, I_Persistent
 	public int getM_FreightCategory_ID () 
 	{
 		Integer ii = (Integer)get_Value(COLUMNNAME_M_FreightCategory_ID);
-		if (ii == null)
-			 return 0;
-		return ii.intValue();
-	}
-
-	public org.compiere.model.I_M_Freight getM_Freight() throws RuntimeException
-    {
-		return (org.compiere.model.I_M_Freight)MTable.get(getCtx(), org.compiere.model.I_M_Freight.Table_Name)
-			.getPO(getM_Freight_ID(), get_TrxName());	}
-
-	/** Set Freight.
-		@param M_Freight_ID 
-		Freight Rate
-	  */
-	public void setM_Freight_ID (int M_Freight_ID)
-	{
-		if (M_Freight_ID < 1) 
-			set_Value (COLUMNNAME_M_Freight_ID, null);
-		else 
-			set_Value (COLUMNNAME_M_Freight_ID, Integer.valueOf(M_Freight_ID));
-	}
-
-	/** Get Freight.
-		@return Freight Rate
-	  */
-	public int getM_Freight_ID () 
-	{
-		Integer ii = (Integer)get_Value(COLUMNNAME_M_Freight_ID);
 		if (ii == null)
 			 return 0;
 		return ii.intValue();

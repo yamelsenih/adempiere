@@ -800,6 +800,61 @@ public class MOrderLine extends X_C_OrderLine implements IDocumentLine
         }
 	}
 	
+	/**
+	 * Set reference for RMA
+	 * @param invoiceLineReference
+	 */
+	public void setRef_InvoiceLine(MInvoiceLine invoiceLineReference) {
+		//	Charge
+		if(invoiceLineReference.getC_Charge_ID() != 0) {
+			setC_Charge_ID(invoiceLineReference.getC_Charge_ID());
+		}
+		//	Product
+		if(invoiceLineReference.getM_Product_ID() != 0) {
+			setM_Product_ID(invoiceLineReference.getM_Product_ID());
+		}
+		if(invoiceLineReference.getC_UOM_ID() != 0) {
+			setC_UOM_ID(invoiceLineReference.getC_UOM_ID());
+		}
+		if(invoiceLineReference.getAD_OrgTrx_ID() != 0) {
+			setAD_OrgTrx_ID(invoiceLineReference.getAD_OrgTrx_ID());
+		}
+		if(invoiceLineReference.getC_Project_ID() != 0) {
+			setC_Project_ID(invoiceLineReference.getC_Project_ID());
+		}
+		if(invoiceLineReference.getC_Campaign_ID() != 0) {
+			setC_Campaign_ID(invoiceLineReference.getC_Campaign_ID());
+		}
+		if(invoiceLineReference.getC_Activity_ID() != 0) {
+			setC_Activity_ID(invoiceLineReference.getC_Activity_ID());
+		}
+		if(invoiceLineReference.getUser1_ID() != 0) {
+			setUser1_ID(invoiceLineReference.getUser1_ID());
+		}
+		if(invoiceLineReference.getUser2_ID() != 0) {
+			setUser2_ID(invoiceLineReference.getUser2_ID());
+		}
+		if(invoiceLineReference.getUser3_ID() != 0) {
+			setUser3_ID(invoiceLineReference.getUser3_ID());
+		}
+		if(invoiceLineReference.getUser4_ID() != 0) {
+			setUser4_ID(invoiceLineReference.getUser4_ID());
+		}
+		setRef_InvoiceLine_ID(invoiceLineReference.getC_InvoiceLine_ID());
+		//	Set Price from Invoice / Order
+		setPriceEntered(invoiceLineReference.getPriceEntered());
+        setPriceActual(invoiceLineReference.getPriceActual());
+        setC_Tax_ID(invoiceLineReference.getC_Tax_ID());
+        int inOutLineReferenceId = invoiceLineReference.getM_InOutLine_ID();
+        if(inOutLineReferenceId == 0) {
+        	inOutLineReferenceId = invoiceLineReference.getInOutLineId();
+        }
+		//	Set Price from Invoice / Order
+		if (inOutLineReferenceId != 0) {
+            setRef_InOutLine_ID(inOutLineReferenceId);
+        }
+	}
+	
 	/**************************************************************************
 	 * 	Before Save
 	 *	@param newRecord
@@ -974,14 +1029,14 @@ public class MOrderLine extends X_C_OrderLine implements IDocumentLine
 	{
 		if (!success)
 			return success;
-		if (newRecord
-				|| (!newRecord && is_ValueChanged(MOrderLine.COLUMNNAME_C_Tax_ID) && !getParent().isProcessed())
-				|| (!newRecord && is_ValueChanged(MOrderLine.COLUMNNAME_QtyEntered) && !getParent().isProcessed())
-				|| (!newRecord && is_ValueChanged(MOrderLine.COLUMNNAME_PriceActual) && !getParent().isProcessed())
-		)
-			return updateHeaderTax();
-
-		return true;
+		if (!newRecord && is_ValueChanged("C_Tax_ID"))
+		{
+			//	Recalculate Tax for old Tax
+			if (!getParent().isProcessed())
+				if (!updateOrderTax(true))
+					return false;
+		}
+		return updateHeaderTax();
 	}	//	afterSave
 
 	/**
@@ -1003,6 +1058,30 @@ public class MOrderLine extends X_C_OrderLine implements IDocumentLine
 	}	//	afterDelete
 	
 	/**
+	 * Recalculate order tax
+	 * @param oldTax true if the old C_Tax_ID should be used
+	 * @return true if success, false otherwise
+	 * 
+	 * @author teo_sarca [ 1583825 ]
+	 */
+	private boolean updateOrderTax(boolean oldTax) {
+		MOrderTax tax = MOrderTax.get (this, getPrecision(), oldTax, get_TrxName());
+		if (tax != null) {
+			if (!tax.calculateTaxFromLines())
+				return false;
+			if (tax.getTaxAmt().signum() != 0) {
+				if (!tax.save(get_TrxName()))
+					return false;
+			}
+			else {
+				if (!tax.is_new() && !tax.delete(false, get_TrxName()))
+					return false;
+			}
+		}
+		return true;
+	}
+	
+	/**
 	 *	Update Tax & Header
 	 *	@return true if header updated
 	 */
@@ -1010,7 +1089,8 @@ public class MOrderLine extends X_C_OrderLine implements IDocumentLine
 	{
 		//	Recalculate Tax for this Tax
 		if (!getParent().isProcessed())
-				getParent().calculateTaxTotal();
+			if (!updateOrderTax(false))
+				return false;
 		
 		//	Update Order Header
 		String sql = "UPDATE C_Order i"

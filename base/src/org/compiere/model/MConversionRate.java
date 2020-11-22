@@ -17,6 +17,7 @@
 package org.compiere.model;
 
 import java.math.BigDecimal;
+import java.math.MathContext;
 import java.sql.ResultSet;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
@@ -399,8 +400,7 @@ public class MConversionRate extends X_C_Conversion_Rate
 		else
 		{
 			super.setMultiplyRate(MultiplyRate);
-			double dd = 1 / MultiplyRate.doubleValue();
-			super.setDivideRate(new BigDecimal(dd));
+			super.setDivideRate(Env.ONE.divide(MultiplyRate, MathContext.DECIMAL128));
 		}
 	}	//	setMultiplyRate
 
@@ -421,8 +421,7 @@ public class MConversionRate extends X_C_Conversion_Rate
 		else
 		{
 			super.setDivideRate(DivideRate);
-			double dd = 1 / DivideRate.doubleValue();
-			super.setMultiplyRate(new BigDecimal(dd));
+			super.setMultiplyRate(Env.ONE.divide(DivideRate, MathContext.DECIMAL128));
 		}
 	}	//	setDivideRate
 

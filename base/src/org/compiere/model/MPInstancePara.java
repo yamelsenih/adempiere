@@ -296,4 +296,18 @@ public class MPInstancePara extends X_AD_PInstance_Para
 		}
 		return -1;
 	}
+	
+	protected boolean beforeSave (boolean newRecord)
+	{
+		/**
+		if(this.getInfo().indexOf('@') != -1) {
+			if(this.getP_Date() != null)
+				this.setInfo(this.getP_Date().toString());
+			else if (this.getP_Number() != null)
+				this.setInfo(this.getP_Number().toString());
+			else if (this.getP_String() != null)
+				this.setInfo(this.getP_String());
+		}*/
+		return true;
+	}
 }	//	MPInstance_Para

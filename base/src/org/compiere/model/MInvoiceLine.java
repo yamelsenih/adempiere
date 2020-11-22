@@ -871,6 +871,32 @@ public class MInvoiceLine extends X_C_InvoiceLine implements DocumentReversalLin
 	}	//	beforeSave
 
 	/**
+	 * Recalculate invoice tax
+	 * @param oldTax true if the old C_Tax_ID should be used
+	 * @return true if success, false otherwise
+	 *
+	 * @author teo_sarca [ 1583825 ]
+	 */
+	private boolean updateInvoiceTax(boolean oldTax) {
+		MInvoiceTax tax = MInvoiceTax.get (this, getPrecision(), oldTax, get_TrxName());
+		if (tax != null) {
+			if (!tax.calculateTaxFromLines())
+				return false;
+		
+			// red1 - solving BUGS #[ 1701331 ] , #[ 1786103 ]
+			if (tax.getTaxAmt().signum() != 0) {
+				if (!tax.save(get_TrxName()))
+					return false;
+			}
+			else {
+				if (!tax.is_new() && !tax.delete(false, get_TrxName()))
+					return false;
+			}
+		}
+		return true;
+	}
+
+	/**
 	 * 	After Save
 	 *	@param newRecord new
 	 *	@param success success
@@ -880,14 +906,13 @@ public class MInvoiceLine extends X_C_InvoiceLine implements DocumentReversalLin
 	{
 		if (!success)
 			return success;
-		if (newRecord
-				|| (!newRecord && is_ValueChanged(MInvoiceLine.COLUMNNAME_C_Tax_ID) && !getParent().isProcessed())
-				|| (!newRecord && is_ValueChanged(MInvoiceLine.COLUMNNAME_QtyEntered) && !getParent().isProcessed())
-				|| (!newRecord && is_ValueChanged(MInvoiceLine.COLUMNNAME_PriceActual) && !getParent().isProcessed())
-				|| (!newRecord && is_ValueChanged(MInvoiceLine.COLUMNNAME_TaxAmt) && !getParent().isProcessed())
-		)
-			return updateHeaderTax();
-		return true;
+		if (!newRecord && is_ValueChanged("C_Tax_ID"))
+		{
+			//	Recalculate Tax for old Tax
+			if (!updateInvoiceTax(true))
+				return false;
+		}
+		return updateHeaderTax();
 	}	//	afterSave
 
 	/**
@@ -918,8 +943,12 @@ public class MInvoiceLine extends X_C_InvoiceLine implements DocumentReversalLin
 	private boolean updateHeaderTax()
 	{
 		// Update header only if the document is not processed - teo_sarca BF [ 2317305 ]
-		if (!getParent().isProcessed())
-			getParent().calculateTaxTotal();
+		if (isProcessed() && !is_ValueChanged(COLUMNNAME_Processed))
+			return true;
+
+		//	Recalculate Tax for this Tax
+		if (!updateInvoiceTax(false))
+			return false;
 
 		//	Update Invoice Header
 		String sql = "UPDATE C_Invoice i"
@@ -947,6 +976,32 @@ public class MInvoiceLine extends X_C_InvoiceLine implements DocumentReversalLin
 		return no == 1;
 	}	//	updateHeaderTax
 
+	
+	 /**
+     * Retrieves the inOutLine Id associated with the Invoice Line
+     * @return InOut Line ID
+     */
+    public int getInOutLineId() {
+    	int inOutLineId = getM_InOutLine_ID();
+    	//	Validate
+    	if(inOutLineId <= 0) {
+    		if(getParent().isSOTrx()) {
+    			inOutLineId = DB.getSQLValue(get_TrxName(), 
+    					"SELECT il.M_InOutLine_ID "
+    					+ "FROM M_InOutLine il "
+    					+ "WHERE il.C_OrderLine_ID = ? "
+    					+ "AND EXISTS(SELECT 1 FROM "
+    					+ "						M_InOut i "
+    					+ "						WHERE i.M_InOut_ID = il.M_InOut_ID "
+    					+ "						AND i.DocStatus IN('CO', 'CL'))", getC_OrderLine_ID());
+    		}
+        	//	
+        	if(inOutLineId == -1) {
+        		inOutLineId = 0;
+        	}
+    	}
+    	return inOutLineId;
+    }
 
 	/**************************************************************************
 	 * 	Allocate Landed Costs
@@ -954,17 +1009,8 @@ public class MInvoiceLine extends X_C_InvoiceLine implements DocumentReversalLin
 	 */
 	public String allocateLandedCosts()
 	{
-		//if (isProcessed())
-		//	return "Processed";
-		if (getParent().isProcessed())
-			MPeriod.testPeriodOpen(getCtx(), getParent().getDateAcct(), getParent().getC_DocTypeTarget_ID(), getAD_Org_ID());
-		if (getParent().isProcessed()) {
-			MFactAcct.deleteEx(MInvoice.Table_ID, getParent().get_ID(), get_TrxName());
-			//
-			// Update Invoice
-			getParent().setPosted(false);
-			getParent().saveEx();
-		}
+		if (isProcessed())
+			return "Processed";
 		MLandedCost[] lcs = MLandedCost.getLandedCosts(this);
 		if (lcs.length == 0)
 			return "";
