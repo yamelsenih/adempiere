@@ -23,6 +23,7 @@ import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 import java.util.Vector;
@@ -378,7 +379,7 @@ public class POSActionPanel extends POSSubPanel
 				posPanel.updateProductPlaceholder(value);
 				try {
 					posPanel.setAddQty(true);
-					findProduct(true, productId);
+					findProduct(true, productId, Env.ONE);
 				} catch (Exception exception) {
 					ADialog.error(0, null, exception.getLocalizedMessage());
 				}
@@ -402,7 +403,7 @@ public class POSActionPanel extends POSSubPanel
 	 * 	Find/Set Product & Price
 	 * optional product id direct query
 	 */
-	public void findProduct(boolean editQty, int productId) throws Exception {
+	public void findProduct(boolean editQty, int productId, BigDecimal qty) throws Exception {
 		if (getProductTimer() != null)
 			getProductTimer().stop();
 		String query = fieldProductName.getPlaceholder();

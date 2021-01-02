@@ -168,7 +168,7 @@ public class POSLookupProduct implements ActionListener, KeyListener {
     			fieldProductName.setPlaceholder(fieldProductName.getText());
                 try {
 
-                    lookupProductInterface.findProduct(KeyEvent.VK_TAB == keyEvent.getKeyCode(), 0);
+                    lookupProductInterface.findProduct(KeyEvent.VK_TAB == keyEvent.getKeyCode(), 0, Env.ONE);
                 } catch (Exception exception) {
                     ADialog.error(0 , null , exception.getLocalizedMessage());
                 }
@@ -202,7 +202,7 @@ public class POSLookupProduct implements ActionListener, KeyListener {
         	String productValue = MProduct.get(Env.getCtx(), item.getKey()).getValue();
             fieldProductName.setPlaceholder(productValue);
             try {
-                lookupProductInterface.findProduct(true, item.getKey());
+                lookupProductInterface.findProduct(true, item.getKey(), Env.ONE);
             } catch (Exception exception) {
                 ADialog.error(0 , null , exception.getLocalizedMessage());
             }

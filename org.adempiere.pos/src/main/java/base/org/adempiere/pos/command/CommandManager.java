@@ -39,14 +39,16 @@ public class CommandManager {
     public static String GENERATE_RETURN = CreateOrderBasedOnAnother.getProcessValue();
     public static String COMPLETE_DOCUMENT = "Complete Document";
     public static String GENERATE_WITHDRAWAL = GenerateWithdrawal.getProcessValue();
+    public static String GENERATE_WITHDRAWAL_BREAKDOWN = "POS Withdrawal Breakdown";
     public static String CLOSE_STATEMENT = CloseStatementPOS.getProcessValue();
     public static String PRINT_DOCUMENT = "Print Document";
+    public static String COPY_ORDER = "CopyFromOrder";
 
     private HashMap<String , Command> commands = new HashMap<String , Command>();
 
     private HashMap<String , CommandReceiver> receivers = new HashMap<String , CommandReceiver>(){
         {	
-            CommandReceiver commandReceiver = new CommandReceiver(null, GENERATE_IMMEDIATE_INVOICE, GenerateImmediateInvoice.getProcessName());
+            CommandReceiver commandReceiver = new CommandReceiver(null, GENERATE_IMMEDIATE_INVOICE, "@"+GenerateImmediateInvoice.getProcessName()+"@");
             commands.put(GENERATE_IMMEDIATE_INVOICE, new CommandImmediateInvoice(GENERATE_IMMEDIATE_INVOICE ,commandReceiver.getEvent()));
             put(GENERATE_IMMEDIATE_INVOICE, commandReceiver);
             
@@ -66,6 +68,10 @@ public class CommandManager {
             commands.put(GENERATE_WITHDRAWAL, new CommandWithdrawal(GENERATE_WITHDRAWAL,commandReceiver.getEvent()));
             put(GENERATE_WITHDRAWAL, commandReceiver);
             
+            commandReceiver = new CommandReceiver(null, GENERATE_WITHDRAWAL_BREAKDOWN, "@pos.new.withdrawal.breakdown@");
+            commands.put(GENERATE_WITHDRAWAL_BREAKDOWN, new CommandWithdrawal(GENERATE_WITHDRAWAL_BREAKDOWN,commandReceiver.getEvent()));
+            put(GENERATE_WITHDRAWAL_BREAKDOWN, commandReceiver);
+            
             commandReceiver = new CommandReceiver(null, CLOSE_STATEMENT, "@pos.close.cash@");
             commands.put(CLOSE_STATEMENT, new CommandWithdrawal(CLOSE_STATEMENT,commandReceiver.getEvent()));
             put(CLOSE_STATEMENT, commandReceiver);
@@ -73,6 +79,10 @@ public class CommandManager {
             commandReceiver = new CommandReceiver(null, PRINT_DOCUMENT, "@Print@");
             commands.put(PRINT_DOCUMENT, new CommandPrintDocument(PRINT_DOCUMENT ,commandReceiver.getEvent()));
             put(PRINT_DOCUMENT, commandReceiver);
+            
+            commandReceiver = new CommandReceiver(null, COPY_ORDER, "@Copy@ @From@ @Order@");
+            commands.put(COPY_ORDER, new CommandCopyFromOrder(COPY_ORDER ,commandReceiver.getEvent()));
+            put(COPY_ORDER, commandReceiver);
         }
     };
 

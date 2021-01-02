@@ -16,6 +16,10 @@
 
 package org.adempiere.pos.command;
 
+import org.adempiere.pos.service.CPOS;
+import org.adempiere.pos.util.POSTicketHandler;
+import org.compiere.model.MPOS;
+
 /**
  * @contributor Yamel Senih, ysenih@erpya.com, ERPCyA http://www.erpya.com
  */
@@ -27,6 +31,13 @@ public class CommandPrintDocument extends CommandAbstract implements Command {
 
     @Override
     public void execute(CommandReceiver commandReceiver) {
-        
+    	CPOS pos = new CPOS();
+    	pos.setM_POS(MPOS.get(commandReceiver.getCtx(), commandReceiver.getPOSId()));
+    	pos.setOrder(commandReceiver.getOrderId());
+    	POSTicketHandler ticketHandler = POSTicketHandler.getTicketHandler(pos);
+		if(ticketHandler == null)
+			return;
+		//	
+		ticketHandler.printTicket();
     }
 }

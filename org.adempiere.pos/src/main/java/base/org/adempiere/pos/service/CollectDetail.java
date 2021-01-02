@@ -774,12 +774,16 @@ public class CollectDetail {
 		}
 		//	Set Payment Amount
 		BigDecimal payAmt = getInitPayAmt();
-		int precision = 2;
-		if(currencyRate.compareTo(Env.ONE) > 0) {
+		// int precision = 2;
+
+		payAmt = payAmt.multiply(currencyRate, MathContext.DECIMAL128);
+		
+		/*if(currencyRate.compareTo(Env.ONE) > 0) {
 			payAmt = payAmt.multiply(currencyRate, MathContext.DECIMAL128);
 		} else {
 			payAmt = payAmt.multiply(currencyRate, MathContext.DECIMAL128).setScale(precision, BigDecimal.ROUND_UP);
-		}
+		}*/
+		
 		setPayAmt(payAmt);
 	}
 	
@@ -788,13 +792,12 @@ public class CollectDetail {
 	 * @param currencyDocumentId
 	 * @return
 	 */
-	public BigDecimal getConversionRateFromCurrency(int currencyDocumentId) {
+	public BigDecimal getConversionRateFromCurrency(int currencyDocumentId, int organizationId) {
 		BigDecimal currencyRate = Env.ONE;
-		int clientId = Env.getContextAsInt (Env.getCtx(), 0, "AD_Client_ID");
-		int organizationId = Env.getContextAsInt (Env.getCtx(), 0, "AD_Org_ID");
+		int clientId = Env.getAD_Client_ID(Env.getCtx());
 		if (getCurrencyId() != currencyDocumentId) {
 			currencyRate = MConversionRate.getRate(currencyDocumentId, getCurrencyId(), getDateTrx(), getConversionTypeId(), clientId, organizationId);
-			if (currencyRate == null || currencyRate.compareTo(Env.ZERO) == 0) {
+			if (currencyRate == null) {
 				currencyRate = Env.ONE;
 			}
 		}

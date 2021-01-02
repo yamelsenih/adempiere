@@ -17,6 +17,7 @@
 
 package org.adempiere.pos;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -34,6 +35,9 @@ import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.event.EventListener;
 import org.zkoss.zk.ui.event.Events;
 import org.zkoss.zk.ui.event.InputEvent;
+import org.zkoss.zul.ListModel;
+import org.zkoss.zul.ListModelMap;
+import org.zkoss.zul.Timer;
 import org.zkoss.zul.event.TreeDataEvent;
 import org.zkoss.zul.event.TreeDataListener;
 
@@ -53,23 +57,29 @@ public class WPOSLookupProduct extends AutoComplete implements EventListener {
     private Integer partnerId = 0;
     static private Integer PRODUCT_VALUE_LENGTH = 14;
     static private Integer PRODUCT_NAME_LENGTH = 50;
-    static private Integer PRODUCT_UPC_LENGTH = 14;
-    static private Integer QUANTITY_LENGTH = 16;
+    static private Integer PRODUCT_UPC_LENGTH = 50;
+    // static private Integer QUANTITY_LENGTH = 16;
 
     private String separator = "|";
     private String productValueTitle   = String.format("%1$-" + PRODUCT_VALUE_LENGTH + "s", Msg.parseTranslation(Env.getCtx() , "@ProductValue@"));
     private String productTitle        = String.format("%1$-" + PRODUCT_NAME_LENGTH + "s", Msg.parseTranslation(Env.getCtx() , "@M_Product_ID@"));
     private String productUPCTitle        = String.format("%1$-" + PRODUCT_UPC_LENGTH + "s", Msg.parseTranslation(Env.getCtx() , "@UPC@"));
-    private String availableTitle      = String.format("%1$" + QUANTITY_LENGTH + "s", Msg.parseTranslation(Env.getCtx() , "@QtyAvailable@"));
-    private String priceStdTitle       = String.format("%1$" + QUANTITY_LENGTH + "s", Msg.parseTranslation(Env.getCtx() , "@PriceStd@"));
-    private String priceListTile       = String.format("%1$" + QUANTITY_LENGTH + "s", Msg.parseTranslation(Env.getCtx() , "@PriceList@"));
+    //  private String availableTitle      = String.format("%1$" + QUANTITY_LENGTH + "s", Msg.parseTranslation(Env.getCtx() , "@QtyAvailable@"));
+    //  private String priceStdTitle       = String.format("%1$" + QUANTITY_LENGTH + "s", Msg.parseTranslation(Env.getCtx() , "@PriceStd@"));
+    //  private String priceListTile       = String.format("%1$" + QUANTITY_LENGTH + "s", Msg.parseTranslation(Env.getCtx() , "@PriceList@"));
     private String title = "";
 
     private ArrayList<Integer> recordId = new ArrayList<Integer>();
     private int productId = -1;
-    
 
-    public WPOSLookupProduct (POSLookupProductInterface lookupProductInterface, WPOSTextField fieldProductName, long lastKeyboardEvent)
+	private static final int PopupDelayMillis = 900;
+
+	private final Timer timer = new Timer(PopupDelayMillis);
+	ListModel model = new ListModelMap();
+	private String ignoreChar = "";
+	private BigDecimal weight = Env.ONE;
+    
+	public WPOSLookupProduct (POSLookupProductInterface lookupProductInterface, WPOSTextField fieldProductName, long lastKeyboardEvent, String ignoreChar)
     {
         super();
         this.lookupProductInterface = lookupProductInterface;
@@ -78,7 +88,11 @@ public class WPOSLookupProduct extends AutoComplete implements EventListener {
         this.setButtonVisible(false);
         this.addEventListener(Events.ON_FOCUS, this);
         this.addEventListener(Events.ON_SELECT, this);
-        this.addEventListener(Events.ON_OK, this);
+       // this.addEventListener(Events.ON_OK, this);
+        this.addEventListener(Events.ON_CHANGING, this);
+        this.addEventListener(Events.ON_CHANGE, this);
+        this.ignoreChar = ignoreChar;
+        this.setModel(model);
         setFillingComponent(productLookupComboBox);
         productLookupComboBox.setStyle("Font-size:medium; font-weight:bold");
     }
@@ -93,10 +107,10 @@ public class WPOSLookupProduct extends AutoComplete implements EventListener {
         this.title = new StringBuffer()
                 .append(productValueTitle).append(separator)
                 .append(productTitle).append(separator)
-                .append(productUPCTitle).append(separator)
-                .append(availableTitle).append(separator)
-                .append(priceStdTitle).append(separator)
-                .append(priceListTile).toString();
+                .append(productUPCTitle).append(separator).toString();
+               //  .append(availableTitle).append(separator)
+               // .append(priceStdTitle).append(separator)
+               // .append(priceListTile)
         this.setText(this.title);
     }
 
@@ -127,11 +141,28 @@ public class WPOSLookupProduct extends AutoComplete implements EventListener {
 
 	@Override
 	public void onEvent(Event e) throws Exception {
-    	
-		if(e.getName().equals(Events.ON_FOCUS))
+		  if(e.getName().equals(Events.ON_CHANGE)){
+
+          	if(this.getItemCount() == 1) {
+          		this.setSelectedProductId(0);
+          	}
+	            if(this.getSelectedProductId() >= 0) {
+	            	this.setSelectLock(false);
+	            	this.captureProduct();
+	            }
+	          /*  else {
+	            	//findProduct(true, lookupProduct.getValue());
+	            }*/
+          }
+
+		if(e.getName().equals(Events.ON_FOCUS)) {
 			setSelectionRange(0, getText().length());
-		else if(e.getName().equals(Events.ON_SELECT)
-				|| e.getName().equals(Events.ON_OK)) {
+		}
+		else if(e.getName().equals(Events.ON_OK)) {
+			//executeQuery(this.getValue());
+			captureProduct();
+		}
+		else if(e.getName().equals(Events.ON_SELECT)){
 			int index = this.getSelectedIndex();
 			if(recordId.size() > index
 					&& index >= 0) {
@@ -164,19 +195,66 @@ public class WPOSLookupProduct extends AutoComplete implements EventListener {
 	 * @see TreeDataListener#onChange(TreeDataEvent)
 	 */
 	public void onChanging(InputEvent event) {
+		showPopupDelayed();
+		String value = event.getValue();
+		StringBuffer weightBuffer;
+		weight = Env.ONE;
+		Event on_Ok = null;
+		setSelectLock(true);
+		
+		if(event.getValue().startsWith(ignoreChar) && event.getValue().length() > 12) {
+			value = event.getValue().substring(0, 7);
+			weightBuffer = new StringBuffer(event.getValue().substring(7, 13)).insert(2, ".");
+			weight = new BigDecimal(weightBuffer.toString());
+			on_Ok = new Event(Events.ON_OK, this); 
+		}
+		if(event.getValue().length() > 12) {
+		  setSelectLock(false);
+		  if(on_Ok == null) {
+			  on_Ok = new Event(Events.ON_OK, this);
+		  }
+		}
+		
 		if(!event.isChangingBySelectBack()){
-        	executeQuery(event.getValue());
+        	executeQuery(value);
+        	if(on_Ok != null) {
+        		try {
+    				onEvent(on_Ok);
+    			} catch (Exception e) {
+    				// TODO Auto-generated catch block
+    				e.printStackTrace();
+    			}
+        	}
         }
         super.onChanging(event);
 	}
 
 
+	private void showPopupDelayed()
+	{
+		timer.setRepeats(false);
+		timer.start();
+	}
+
+	/**
+	 * Select Text
+	 */
+	public void selectText() {
+		this.setSelectionRange(0, getText().length());
+	}
+	
     public void captureProduct() {
     	if(productId > 0 && !selectLock) {
-            String productValue = MProduct.get(Env.getCtx(), productId).getValue();
-            this.setText(productValue);
+    		this.setSelectLock(true);
+            String productValue = MProduct.get(Env.getCtx(), productId).getName();
+            this.setText(productValue + ".");
+    		selectText();
+    		this.setFocus(true);
+
             try {
-                lookupProductInterface.findProduct(false, productId);
+                lookupProductInterface.findProduct(false, productId,weight);
+                recordId.clear();
+                productId = -1;
             } catch (Exception exception) {
                 FDialog.error(0 ,exception.getLocalizedMessage());
             }
@@ -189,8 +267,8 @@ public class WPOSLookupProduct extends AutoComplete implements EventListener {
      * @param value
      */
     private void executeQuery(String value) {
-
         this.setOpen(false);
+        
         if(value.trim().length() < 3) {
             return;
         }
@@ -212,17 +290,18 @@ public class WPOSLookupProduct extends AutoComplete implements EventListener {
             String productValue = (String)columns.elementAt(1);
             String productName = (String)columns.elementAt(2);
             String productUPC = (String)columns.elementAt(3);
-            String qtyAvailable = (String)columns.elementAt(4);
+            /**  String qtyAvailable = (String)columns.elementAt(4);
             String priceStd =  (String)columns.elementAt(5);
-            String priceList = (String)columns.elementAt(6);
+            String priceList = (String)columns.elementAt(6); 
+            **/
             StringBuilder lineString = new StringBuilder();
             lineString.append(String.format("%1$-" + PRODUCT_VALUE_LENGTH + "s", productValue)).append(separator)
               .append(String.format("%1$-" + PRODUCT_NAME_LENGTH + "s", productName)).append(separator)
-              .append(String.format("%1$-" + PRODUCT_UPC_LENGTH + "s", productUPC)).append(separator)
-              .append(String.format("%1$" + QUANTITY_LENGTH + "s", qtyAvailable)).append(separator)
+              .append(String.format("%1$-" + PRODUCT_UPC_LENGTH + "s", productUPC)).append(separator);
+           /** .append(String.format("%1$" + QUANTITY_LENGTH + "s", qtyAvailable)).append(separator)
               .append(String.format("%1$" + QUANTITY_LENGTH + "s", priceStd)).append(separator)
               .append(String.format("%1$" + QUANTITY_LENGTH + "s", priceList));
-
+            **/
             line.put(lineString.toString(), (Integer)columns.elementAt(0));
         }
 
@@ -240,8 +319,27 @@ public class WPOSLookupProduct extends AutoComplete implements EventListener {
         }
         
         this.removeAllItems();
+        model = new ListModelMap(line);
+       
         this.setDict(searchValues);
         this.setDescription(searchDescription);
-        this.setOpen(true);
+        this.setModel(model);
+        this.open();
+        
+        if(line.size() > 1) {
+        	setSelectLock(true);
+        }
+        if(line.size() == 1) {
+        	setSelectedProductId(0);
+        	//captureProduct();
+        	//setSelectLock(false);
+        	recordId.clear();
+        }
     }
+    
+    public void setSelectLock(boolean selectLock) {
+    	this.selectLock = selectLock;
+    }
+
+
 }

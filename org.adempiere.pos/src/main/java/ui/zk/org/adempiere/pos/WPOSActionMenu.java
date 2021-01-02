@@ -31,6 +31,7 @@ import org.adempiere.webui.panel.CustomForm;
 import org.adempiere.webui.session.SessionManager;
 import org.adempiere.webui.window.FDialog;
 import org.compiere.model.MBPartner;
+import org.compiere.model.MOrder;
 import org.compiere.process.ProcessInfo;
 import org.compiere.util.Env;
 import org.compiere.util.Msg;
@@ -82,7 +83,9 @@ public class WPOSActionMenu implements  POSQueryListener, EventListener{
     public void onEvent(Event actionEvent) throws Exception {
         try {
         //popupMenu.setVisible(false);
-        currentCommand = commandManager.getCommand((String)actionEvent.getTarget().getAttribute(EVENT_ATTRIBUTE));
+        if(pos.isUserPinValid()) {
+        	currentCommand = commandManager.getCommand((String)actionEvent.getTarget().getAttribute(EVENT_ATTRIBUTE));
+        }
         beforeExecutionCommand(currentCommand);
         } catch (AdempiereException exception) {
             FDialog.error(pos.getWindowNo(), pos.getForm() , exception.getLocalizedMessage());
@@ -105,9 +108,13 @@ public class WPOSActionMenu implements  POSQueryListener, EventListener{
             }
         } else if (command.getCommand() == CommandManager.GENERATE_WITHDRAWAL) {
             executeCommand(command);
+        }  else if (command.getCommand() == CommandManager.GENERATE_WITHDRAWAL_BREAKDOWN) {
+            executeCommand(command);
         } else if (command.getCommand() == CommandManager.CLOSE_STATEMENT) {
             executeCommand(command);
         } else if (command.getCommand() == CommandManager.PRINT_DOCUMENT) {
+            executeCommand(command);
+        } else if (command.getCommand() == CommandManager.COPY_ORDER) {
             executeCommand(command);
         } else {
         	FDialog.info(pos.getWindowNo(), popupMenu, "DocProcessed", pos.getDocumentNo());
@@ -133,7 +140,7 @@ public class WPOSActionMenu implements  POSQueryListener, EventListener{
                 receiver.setBankAccountId(pos.getC_BankAccount_ID());
                 MBPartner partner = MBPartner.get(pos.getCtx(), receiver.getPartnerId());
                 Optional<String> taxId = Optional.ofNullable(partner.getTaxID());
-                String processMessage = receiver.getName()
+                String processMessage = "@" + receiver.getName() + "@"
                         + " @DisplayDocumentInfo@ : " + pos.getDocumentNo()
                         + " @To@ @C_BPartner_ID@ : " + partner.getName()
                         + " @TaxID@ : " + taxId.orElseGet(() -> "");
@@ -238,6 +245,15 @@ public class WPOSActionMenu implements  POSQueryListener, EventListener{
                 ff.setAttribute(org.adempiere.webui.component.Window.INSERT_POSITION_KEY, org.adempiere.webui.component.Window.INSERT_NEXT);
                 ff.setTitle(browse.getTitle());
                 SessionManager.getAppDesktop().showWindow(ff);
+            } else if (command.getCommand() == CommandManager.GENERATE_WITHDRAWAL_BREAKDOWN) {
+                Env.setContext(pos.getCtx(), pos.getWindowNo(), "C_POS_ID", pos.getC_POS_ID());
+                MBrowse browse = new MBrowse(Env.getCtx(), 50238, null);
+                WBrowser browser = new WBrowser(true, pos.getWindowNo(), "", browse, "", true, "", true);
+                CustomForm ff = browser.getForm();
+                ff.setAttribute(org.adempiere.webui.component.Window.MODE_KEY, org.adempiere.webui.component.Window.MODE_EMBEDDED);
+                ff.setAttribute(org.adempiere.webui.component.Window.INSERT_POSITION_KEY, org.adempiere.webui.component.Window.INSERT_NEXT);
+                ff.setTitle(browse.getTitle());
+                SessionManager.getAppDesktop().showWindow(ff);
             } else if (command.getCommand() == CommandManager.CLOSE_STATEMENT) {
                 Env.setContext(pos.getCtx(), pos.getWindowNo(), "C_POS_ID", pos.getC_POS_ID());
                 MBrowse browse = new MBrowse(Env.getCtx(), 50057, null);
@@ -277,6 +293,19 @@ public class WPOSActionMenu implements  POSQueryListener, EventListener{
                     && pos.isInvoiced()) {
             	//	Print Ticket
                 pos.printTicket();
+            } else if(command.getCommand() == CommandManager.COPY_ORDER
+                    && pos.getC_Order_ID() > 0
+                    && pos.isCompleted()
+                    && pos.isInvoiced()) {
+            	//	Print Ticket
+            	MOrder from = new MOrder (pos.getCtx(), pos.getC_Order_ID(), null);
+        		MOrder newOrder = MOrder.copyFrom (from, from.getDateAcct(), 
+        				from.getC_DocTypeTarget_ID(), from.isSOTrx(), false, true, null);
+        		 pos.setOrder(newOrder.getC_Order_ID());
+                 pos.refreshHeader();
+        		boolean OK = newOrder.save();
+        		if (!OK)
+        			throw new IllegalStateException("Could not create new Order");
             }
         }
         catch (Exception exception)

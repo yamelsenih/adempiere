@@ -17,6 +17,7 @@
 
 package org.adempiere.pos;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 import java.util.Vector;
@@ -215,7 +216,7 @@ public class WPOSActionPanel extends WPOSSubPanel
 		row = rows.newRow();
 		row.setSpans("12");
 		if (posPanel.isEnableProductLookup() && !posPanel.isVirtualKeyboard()) {
-			lookupProduct = new WPOSLookupProduct(this, fieldProductName, new Long("1"));
+			lookupProduct = new WPOSLookupProduct(this, fieldProductName, new Long("1"), "27");
 			lookupProduct.setPriceListId(posPanel.getM_PriceList_ID());
 			lookupProduct.setPartnerId(posPanel.getC_BPartner_ID());
 			lookupProduct.setWarehouseId(posPanel.getM_Warehouse_ID());
@@ -226,7 +227,9 @@ public class WPOSActionPanel extends WPOSSubPanel
 			fieldProductName.setVisible(false);
 			fieldProductName.setWidth("0%");
 			findProductTimer.start();
-			lookupProduct.addEventListener(Events.ON_CHANGE, this);
+			//lookupProduct.addEventListener(Events.ON_OK, this);
+			//lookupProduct.addEventListener(Events.ON_SELECT, this);
+			//lookupProduct.addEventListener(Events.ON_CHANGE, this);
 	        row.appendChild(lookupProduct);
 			row.appendChild(fieldProductName);
 		} else {
@@ -282,12 +285,16 @@ public class WPOSActionPanel extends WPOSSubPanel
 				fieldProductName.selectText();
 			}
             if(e.getName().equals(Events.ON_CHANGE)){
-                if(lookupProduct.getItemCount() == 1) {
+             /*   if(lookupProduct.getItemCount() == 1) {
             		lookupProduct.setSelectedProductId(0);
-            	}
-                if(lookupProduct.getSelectedProductId() >= 0) {
-                	lookupProduct.captureProduct();
-                }
+            	}*/
+	            /*if(lookupProduct.getSelectedProductId() >= 0) {
+	            	lookupProduct.setSelectLock(false);
+	            	lookupProduct.captureProduct();
+	            }*/
+	          /*  else {
+	            	//findProduct(true, lookupProduct.getValue());
+	            }*/
             }
 
             if (Events.ON_CTRL_KEY.equals(e.getName())) {
@@ -346,7 +353,7 @@ public class WPOSActionPanel extends WPOSSubPanel
                     if(posPanel.isDrafted() || posPanel.isInProgress())  {
                         isKeyboard = true;
                         if(!fieldProductName.showKeyboard()){
-                            findProduct(false, 0);
+                            findProduct(false, 0, Env.ONE);
                         }
                         fieldProductName.setFocus(true);
                     }
@@ -381,10 +388,8 @@ public class WPOSActionPanel extends WPOSSubPanel
                 return;
             }
             else if(e.getTarget().equals(buttonProcess)){
-                if(posPanel.isUserPinValid()) {
                     actionProcessMenu.getPopUp().setPage(this.getPage());
                     actionProcessMenu.getPopUp().open(buttonProcess);
-                }
                 return;
             }
             else if (e.getTarget().equals(buttonBack)){
@@ -468,14 +473,28 @@ public class WPOSActionPanel extends WPOSSubPanel
 			fieldProductName.focus();
 	}
 
+
+	public void addProduct(boolean editQty, int productId, BigDecimal qty){
+		posPanel.setAddQty(true);
+		posPanel.setQty(qty);
+		posPanel.addOrUpdateLine(productId, editQty? Env.ZERO: qty);
+		//	Change focus
+		posPanel.refreshPanel();
+		posPanel.changeViewPanel();
+		//	
+		if(editQty)
+			quantityRequestFocus();
+	}
+	
 	/**************************************************************************
 	 * 	Find/Set Product & Price
 	 */
-	public void findProduct(boolean editQty, int productId) throws Exception {
+	public void findProduct(boolean editQty, int productId, BigDecimal qty) throws Exception {
 		if (getProductTimer() != null)
 			getProductTimer().stop();
 		String query;
-		if(posPanel.isEnableProductLookup() && !posPanel.isVirtualKeyboard())
+		
+		if(productId != 0 && posPanel.isEnableProductLookup() && !posPanel.isVirtualKeyboard())
 		  query = String.valueOf(lookupProduct.getText());
 		else
 		  query = fieldProductName.getText();
@@ -496,8 +515,13 @@ public class WPOSActionPanel extends WPOSSubPanel
 			if (columns.isPresent()) {
 				String productName = (String) columns.get().elementAt(2);
 				productId = (Integer) columns.get().elementAt(0);
-				posPanel.setAddQty(true);
-				posPanel.addOrUpdateLine(productId, editQty? Env.ZERO: Env.ONE);
+				if(posPanel.isReturnMaterial()) {
+					posPanel.setAddQty(true);
+					posPanel.setQty(posPanel.getQty().subtract(Env.ONE));
+					posPanel.updateLineTable();
+				} else {
+					addProduct(editQty, productId,qty);
+				}
 				fieldProductName.setText(productName);
 			}
 		} else {	//	more than one
@@ -729,9 +753,9 @@ public class WPOSActionPanel extends WPOSSubPanel
 	
 	public void updateProductPlaceholder(String name)
 	{
-		if (posPanel.isEnableProductLookup() && !posPanel.isVirtualKeyboard()) 
+	/*	if (posPanel.isEnableProductLookup() && !posPanel.isVirtualKeyboard()) 
 			lookupProduct.setText(name);
 		else
-			fieldProductName.setText(name);
+			fieldProductName.setText(name);*/
 	}
 }//	WPOSActionPanel

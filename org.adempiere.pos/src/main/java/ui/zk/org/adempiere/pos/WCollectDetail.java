@@ -80,6 +80,7 @@ public class WCollectDetail extends CollectDetail implements EventListener, POSP
 		//	Instance POS
 		v_Parent = p_WCollect;
 		keyboard = v_Parent.getKeyboard();
+		setDateTrx(p_WCollect.getDateTrx());
 		init();
 	}
 	
@@ -230,7 +231,7 @@ public class WCollectDetail extends CollectDetail implements EventListener, POSP
 				+ "OR c.C_Currency_ID = ?", false, fromCurrencyId, conversionTypeId, v_Parent.getOrder().getC_Currency_ID()))
 		.forEach(bankValue -> {
 			//	Add Conversion at date
-			BigDecimal conversionRate = getConversionRateFromCurrency(bankValue.getKey());
+			BigDecimal conversionRate = getConversionRateFromCurrency(bankValue.getKey(),v_Parent.getOrder().getAD_Org_ID());
 			currency.appendItem(bankValue.getName() + " " + DisplayType.getNumberFormat(DisplayType.CostPrice).format(conversionRate), bankValue.getKey());
 			if(bankValue.getKey() == fromCurrencyId) {
 				currentIndex.set(index.get());

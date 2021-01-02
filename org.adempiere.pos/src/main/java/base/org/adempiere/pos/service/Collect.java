@@ -822,14 +822,14 @@ public class Collect {
 			if(collectDetail.getTenderType().equals(X_C_Payment.TENDERTYPE_Cash)
 					|| collectDetail.getTenderType().equals(X_C_Payment.TENDERTYPE_Account)) {	//	For Cash
 				BigDecimal payAmt = collectDetail.getConvertedPayAmt();
-				BigDecimal amountRefundedConverted =amountRefunded.multiply(collectDetail.getConversionRateFromCurrency(order.getC_Currency_ID())).negate();
+				BigDecimal amountRefundedConverted = amountRefunded.multiply(collectDetail.getConversionRateFromCurrency(order.getC_Currency_ID(), order.getAD_Org_ID())).negate();
 				
 				amountConverted = amountConverted.subtract(payAmt);
 				if(amountConverted.signum() == -1)
 					payAmt = payAmt.add(amountConverted);
 				
 				if(!isCompleteCollect())
-					payAmt = payAmt.multiply(collectDetail.getConversionRateFromCurrency(order.getC_Currency_ID()));
+					payAmt = payAmt.multiply(collectDetail.getConversionRateFromCurrency(order.getC_Currency_ID(), order.getAD_Org_ID()));
 				else
 					payAmt = collectDetail.getPayAmt();
 				

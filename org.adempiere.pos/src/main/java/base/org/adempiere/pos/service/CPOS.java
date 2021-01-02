@@ -758,6 +758,7 @@ public class CPOS {
 			currentOrder.setDateOrdered(getToday());
 			currentOrder.setDateAcct(getToday());
 			currentOrder.setDatePromised(getToday());
+			currentOrder.saveEx();
 		} else {
 			currentOrder = new MOrder(Env.getCtx(), 0, null);
 		}
@@ -1745,6 +1746,11 @@ public class CPOS {
 			//	
 			return;
 		}
+		if(this.isDrafted() && currentOrder.getDateOrdered().before((getToday()))) {
+			currentOrder.setDateOrdered(getToday());
+			currentOrder.saveEx();
+		}
+			
 		currentOrder.load(currentOrder.get_TrxName());
 		currentOrder.getLines(true, "Line");
 		partner = MBPartner.get(getCtx(), currentOrder.getC_BPartner_ID());
@@ -2289,31 +2295,42 @@ public class CPOS {
 	 * @param userPin
      */
 	public boolean isValidUserPin(char[] userPin) {
-		if(userPin==null || userPin.length==0)
+		if(userPin == null || userPin.length == 0)
 			return false;
-		MUser user = MUser.get(getCtx() ,getAD_User_ID());
-		Optional<I_AD_User> optionalSuperVisor = Optional.of(user.getSupervisor());
-		I_AD_User superVisor = optionalSuperVisor.orElseThrow(() -> new AdempierePOSException("@Supervisor@ @NotFound@"));
-		Optional<String> superVisorName = Optional.ofNullable(superVisor.getName());
-		if (superVisor.getUserPIN() == null || superVisor.getUserPIN().isEmpty())
-			throw new AdempierePOSException("@Supervisor@ \"" + superVisorName.orElseGet(() -> "") + "\": @UserPIN@ @NotFound@");
+		int supervisorId = entityPOS.getSupervisor_ID();
+		MUser user = MUser.get(getCtx(), (supervisorId > 0? supervisorId: getSalesRep_ID()));
+		boolean isCorrect = false;
+		if(supervisorId <= 0) {
+			supervisorId = user.getSupervisor_ID();
+		}
+		if(supervisorId > 0) {
+			MUser supervisor = MUser.get(getCtx(), supervisorId);
+			Optional<String> superVisorName = Optional.ofNullable(supervisor.getName());
+			if (supervisor.getUserPIN() == null || supervisor.getUserPIN().isEmpty())
+				throw new AdempierePOSException("@Supervisor@ \"" + superVisorName.orElseGet(() -> "") + "\": @UserPIN@ @NotFound@");
 
-		char[] correctPassword = superVisor.getUserPIN().toCharArray();
-		boolean isCorrect = true;
-		if (userPin.length != correctPassword.length) {
-			isCorrect = false;
-		} else {
-			for (int i = 0; i < userPin.length; i++) {
-				if (userPin[i] != correctPassword[i]) {
-					isCorrect = false;
+			char[] correctPassword = supervisor.getUserPIN().toCharArray();
+			isCorrect = true;
+			if (userPin.length != correctPassword.length) {
+				isCorrect = false;
+			} else {
+				for (int i = 0; i < userPin.length; i++) {
+					if (userPin[i] != correctPassword[i]) {
+						isCorrect = false;
+					}
 				}
 			}
+			//Zero out the password.
+			for (int i = 0; i < correctPassword.length; i++) {
+				correctPassword[i] = 0;
+			}
+		} else {	//	Find a supervisor for POS
+			isCorrect = new Query(getCtx(), I_AD_User.Table_Name, "IsProjectManager = 'Y' AND UserPIN = ?", null)
+					.setParameters(String.valueOf(userPin))
+					.setClient_ID()
+					.setOnlyActiveRecords(true)
+					.match();
 		}
-		//Zero out the password.
-		for (int i = 0; i < correctPassword.length; i++) {
-			correctPassword[i] = 0;
-		}
-
 		return isCorrect;
 	}
 
@@ -2350,38 +2367,19 @@ public class CPOS {
 	public static List<Vector<Object>> getQueryProduct(int referenceProductId, String productCode, int warehouseId , int priceListId , int partnerId) {
 		ArrayList<Vector<Object>> rows = new ArrayList<>();
 		StringBuilder sql = new StringBuilder();
-		sql.append("SELECT DISTINCT ON ( ProductPricing.M_Product_ID , p.Value, p.Name, p.UPC) ProductPricing.M_Product_ID , p.Value, p.Name, coalesce(p.UPC, '') AS UPC, ")
-				.append("   BomQtyAvailable(ProductPricing.M_Product_ID, ? , 0 ) AS QtyAvailable , PriceStd , PriceList")
-					.append(" FROM M_Product p INNER JOIN (")
-					.append("	SELECT pl.M_PriceList_ID , plv.ValidFrom , 0 AS BreakValue , null AS C_BPartner_ID,")
-					.append("   p.M_Product_ID,")
-					.append("	bomPriceStd(p.M_Product_ID,plv.M_PriceList_Version_ID) AS PriceStd,")
-					.append("	bomPriceList(p.M_Product_ID,plv.M_PriceList_Version_ID) AS PriceList,")
-					.append("	bomPriceLimit(p.M_Product_ID,plv.M_PriceList_Version_ID) AS PriceLimit")
-					.append("	FROM M_Product p")
-					.append("	INNER JOIN M_ProductPrice pp ON (p.M_Product_ID=pp.M_Product_ID)")
-					.append("	INNER JOIN M_PriceList_Version plv ON (pp.M_PriceList_Version_ID=plv.M_PriceList_Version_ID)")
-					.append("	INNER JOIN M_PriceList pl ON (plv.M_PriceList_ID=pl.M_PriceList_ID)")
-					.append("	WHERE pl.M_PriceList_ID=? AND plv.IsActive='Y' AND pp.IsActive='Y' ")
-				.append("	UNION	")
-					.append("	SELECT pl.M_PriceList_ID , plv.ValidFrom , pp.BreakValue , pp.C_BPartner_ID,")
-					.append("   p.M_Product_ID,")
-					.append("   pp.PriceStd, pp.PriceList, pp.PriceLimit")
-					.append("	FROM M_Product p")
-					.append("	INNER JOIN M_ProductPriceVendorBreak pp ON (p.M_Product_ID=pp.M_Product_ID)")
-					.append("	INNER JOIN M_PriceList_Version plv ON (pp.M_PriceList_Version_ID=plv.M_PriceList_Version_ID)")
-					.append("	INNER JOIN M_PriceList pl ON (plv.M_PriceList_ID=pl.M_PriceList_ID)")
-					.append("	WHERE pl.M_PriceList_ID=? AND plv.IsActive='Y' AND pp.IsActive='Y'AND pp.BreakValue IN (0,1)")
-					.append("  ORDER BY ValidFrom DESC, BreakValue DESC , C_BPartner_ID ASC")
-					.append(") ProductPricing  ON (p.M_Product_ID=ProductPricing.M_Product_ID)")
-				.append(" WHERE ProductPricing.M_PriceList_ID=? AND ProductPricing.ValidFrom <= getDate() ");
-				if (partnerId > 0 )
-					sql.append("AND (ProductPricing.C_BPartner_ID IS NULL OR ProductPricing.C_BPartner_ID =?) ");
-				else
-					sql.append( "AND ProductPricing.C_BPartner_ID IS NULL ");
-
-				sql.append("AND p.AD_Client_ID=? AND p.IsSold=? AND p.Discontinued=? ")
-				.append("AND ");
+		sql.append("SELECT p.M_Product_ID , p.Value, p.Name, coalesce(p.UPC, '') AS UPC ")
+					.append(" FROM M_Product p "
+							+"WHERE EXISTS(SELECT 1 FROM M_PriceList_Version plv "
+							+ "INNER JOIN M_ProductPrice pp ON(pp.M_PriceList_Version_ID = plv.M_PriceList_Version_ID) "
+							+ "WHERE plv.M_PriceList_ID = ? "
+							+ "AND plv.ValidFrom <= ? "
+							+ "AND plv.IsActive = 'Y' "
+							+ "AND pp.PriceList IS NOT NULL AND pp.PriceList > 0 "
+							+ "AND pp.PriceStd IS NOT NULL AND pp.PriceStd > 0 "
+							+ "AND pp.PriceLimit IS NOT NULL AND pp.PriceLimit > 0 "
+							+ "AND pp.M_Product_ID = p.M_Product_ID)"
+							+ "AND p.AD_Client_ID=? AND p.IsActive='Y' AND p.IsSold=? AND p.Discontinued=? "
+				            + "AND ");
 				//	Validate only specific product
 				if(referenceProductId > 0) {
 					sql.append("p.M_Product_ID = ").append(referenceProductId);
@@ -2396,18 +2394,12 @@ public class CPOS {
 		try{
 			statement = DB.prepareStatement(sql.toString(), null);
 			int count = 1;
-			statement.setInt(count, warehouseId);
-			count ++;
+			//statement.setInt(count, warehouseId);
+			//count ++;
 			statement.setInt(count, priceListId);
 			count ++;
-			statement.setInt(count, priceListId);
+			statement.setTimestamp(count, Env.getContextAsDate(Env.getCtx(), "#Date"));
 			count ++;
-			statement.setInt(count, priceListId);
-			count ++;
-			if (partnerId > 0) {
-				statement.setInt(count, partnerId);
-				count++;
-			}
 			statement.setInt(count, Env.getAD_Client_ID(Env.getCtx()));
 			count++;
 			statement.setString(count, "Y");
@@ -2422,16 +2414,16 @@ public class CPOS {
 				String  productValue = resultSet.getString("Value").trim();
 				String  productName = resultSet.getString("Name").trim();
 				String upc = resultSet.getString("UPC").trim();
-				BigDecimal  qtyAvailable = resultSet.getBigDecimal("QtyAvailable") != null ? resultSet.getBigDecimal("QtyAvailable") : Env.ZERO;
-				BigDecimal  priceStd = resultSet.getBigDecimal("PriceStd") != null ? resultSet.getBigDecimal("PriceStd") :  Env.ZERO;
-				BigDecimal  priceList = resultSet.getBigDecimal("PriceList") != null ? resultSet.getBigDecimal("PriceList") : Env.ZERO;
+				//  BigDecimal  qtyAvailable = resultSet.getBigDecimal("QtyAvailable") != null ? resultSet.getBigDecimal("QtyAvailable") : Env.ZERO;
+				//  BigDecimal  priceStd = resultSet.getBigDecimal("PriceStd") != null ? resultSet.getBigDecimal("PriceStd") :  Env.ZERO;
+				//  BigDecimal  priceList = resultSet.getBigDecimal("PriceList") != null ? resultSet.getBigDecimal("PriceList") : Env.ZERO;
 				columns.add(productId);
 				columns.add(productValue);
 				columns.add(productName);
 				columns.add(upc);
-				columns.add(format.format(qtyAvailable));
-				columns.add(format.format(priceStd));
-				columns.add(format.format(priceList));
+				//  columns.add(format.format(qtyAvailable));
+				//  columns.add(format.format(priceStd));
+				//  columns.add(format.format(priceList));
 				rows.add(columns);
 			}
 

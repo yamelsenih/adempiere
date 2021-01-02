@@ -365,6 +365,7 @@ public class WCollect extends Collect implements WPOSKeyListener, EventListener,
 		
 		else if ( action.equals(ConfirmPanel.A_OK)) {
 			//	Validate before process
+			confirm.getOKButton().setEnabled(false);
 			String validResult = validatePayment();
 			if(validResult == null) {
 				validResult = executePayment();
@@ -374,12 +375,12 @@ public class WCollect extends Collect implements WPOSKeyListener, EventListener,
 				FDialog.warn(0, Msg.parseTranslation(p_ctx, validResult));
 				return;
 			}
-			
 			// Process printing
 			isProcessed = true;
 			if(!posPanel.isStandardOrder() && !posPanel.isWarehouseOrder() && posPanel.isToPrint())
 				printTicketWeb();
 			hidePanel();
+			completeCollect.setSelected(false);
 			posPanel.showKeyboard();
 			posPanel.setOrder(0);
 			posPanel.refreshPanel();
@@ -390,6 +391,7 @@ public class WCollect extends Collect implements WPOSKeyListener, EventListener,
 
 		else if ( action.equals(ConfirmPanel.A_CANCEL)) {
 			hidePanel();
+			completeCollect.setSelected(false);
 			posPanel.showKeyboard();
 			posPanel.refreshPanel();
             posPanel.restoreTable();
@@ -651,6 +653,7 @@ public class WCollect extends Collect implements WPOSKeyListener, EventListener,
 	}
 	public void showPanel()
 	{
+		confirm.getOKButton().setEnabled(true);
 		mainPanel.setVisible(true);
 	}
 
