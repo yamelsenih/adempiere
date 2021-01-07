@@ -1,0 +1,378 @@
+apply plugin: 'java-library'
+apply plugin: 'maven-publish'
+
+
+version = System.properties['project.version']
+description = 'This buildfile is used to build the base subproject within the Adempiere project.'
+repositories {
+    jcenter()
+    flatDir {
+       dirs 'dependences', 'lib'
+	}
+	mavenLocal()
+}
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+def libraryVersion = '1.0.0'
+def entityType = 'D'
+dependencies {
+	implementation fileTree(
+		dir: 'tools/lib', 
+		include: [
+			'Verisign.jar', 
+			'jnlp.jar',
+			'payflow.jar',
+			'itextpdf-5.5.2.jar',
+			'io-7.1.1.jar',
+			'icepdf-viewer-6.2.2.jar',
+			'kernel-7.1.1.jar',
+			'harness-1.0.0.jar',
+			'appserv-rt.jar',
+			'junit.jar'
+		]
+	)
+	implementation fileTree(
+		dir: 'tools/lib/testing/', 
+		include: [
+			'SuperCSV-with_src-1.52.jar'
+		]
+	)
+	implementation fileTree(
+		dir: 'glassfishfacet/lib/', 
+		include: [
+			'appserv-rt.jar'
+		]
+	)
+	implementation fileTree(
+		dir: 'jboss/client/', 
+		include: [
+			'jnp-client.jar'
+		]
+	)
+	implementation fileTree(
+		dir: 'zkwebui/WEB-INF/lib/', 
+		include: [
+			'keylistener.jar',
+			'timeplotz.jar',
+			'timelinez.jar',
+			'generated_xmlbeans.jar'
+		]
+	)
+	implementation fileTree(
+		dir: 'org.adempiere.webservice/WEB-INF/lib/', 
+		include: [
+			'generated_xmlbeans.jar'
+		]
+	)
+	//api '<library-group>:<library-name>:<library-version>'
+	// https://mvnrepository.com/artifact/com.sun.mail/javax.mail
+	compile group: 'com.sun.mail', name: 'javax.mail', version: '1.4.7'
+	// https://mvnrepository.com/artifact/commons-validator/commons-validator
+	compile group: 'commons-validator', name: 'commons-validator', version: '1.6'
+	// https://mvnrepository.com/artifact/org.jfree/jcommon
+	compile group: 'org.jfree', name: 'jcommon', version: '1.0.21'
+	// https://mvnrepository.com/artifact/c3p0/c3p0
+	compile group: 'c3p0', name: 'c3p0', version: '0.9.1.2'
+	// https://mvnrepository.com/artifact/com.oracle.database.jdbc/ojdbc6
+	compile group: 'com.oracle.database.jdbc', name: 'ojdbc6', version: '11.2.0.4'
+	// https://mvnrepository.com/artifact/oracle.jdbc.oracledriver/ojdbc6
+	//compile group: 'oracle.jdbc.oracledriver', name: 'ojdbc6', version: '6.0.0.0'
+	// https://mvnrepository.com/artifact/com.oracle.database.jdbc/ojdbc10
+	//compile group: 'com.oracle.database.jdbc', name: 'ojdbc10', version: '19.9.0.0'
+	// https://mvnrepository.com/artifact/org.mariadb.jdbc/mariadb-java-client
+	compile group: 'org.mariadb.jdbc', name: 'mariadb-java-client', version: '1.7.5'
+	// https://mvnrepository.com/artifact/org.postgresql/postgresql
+	compile group: 'org.postgresql', name: 'postgresql', version: '42.2.18'
+	// https://mvnrepository.com/artifact/org.apache.poi/poi
+	compile group: 'org.apache.poi', name: 'poi', version: '3.17'
+	// https://mvnrepository.com/artifact/org.jfree/jfreechart
+	compile group: 'org.jfree', name: 'jfreechart', version: '1.0.14'
+	// https://mvnrepository.com/artifact/mysql/mysql-connector-java
+	compile group: 'mysql', name: 'mysql-connector-java', version: '5.1.3'
+	// https://mvnrepository.com/artifact/commons-beanutils/commons-beanutils
+	compile group: 'commons-beanutils', name: 'commons-beanutils', version: '1.9.3'
+	// https://mvnrepository.com/artifact/commons-digester/commons-digester
+	compile group: 'commons-digester', name: 'commons-digester', version: '2.1'
+	// https://mvnrepository.com/artifact/com.lowagie/itext-rtf
+	compile group: 'com.lowagie', name: 'itext-rtf', version: '2.1.7'
+	// https://mvnrepository.com/artifact/com.lowagie/itext
+	compile group: 'com.lowagie', name: 'itext', version: '2.1.7'	
+	// https://mvnrepository.com/artifact/net.sf.jasperreports/jasperreports
+	compile group: 'net.sf.jasperreports', name: 'jasperreports', version: '6.6.0'
+	// https://mvnrepository.com/artifact/net.sf.jasperreports/jasperreports-fonts
+	compile group: 'net.sf.jasperreports', name: 'jasperreports-fonts', version: '6.0.0'
+	// https://mvnrepository.com/artifact/commons-net/commons-net
+	compile group: 'commons-net', name: 'commons-net', version: '1.4.0'
+	// https://mvnrepository.com/artifact/org.apache.poi/poi-ooxml
+	compile group: 'org.apache.poi', name: 'poi-ooxml', version: '3.17'
+	// https://mvnrepository.com/artifact/javax.servlet/javax.servlet-api
+	compile group: 'javax.servlet', name: 'javax.servlet-api', version: '4.0.1'
+	// https://mvnrepository.com/artifact/com.amazonaws/aws-java-sdk-s3
+	compile group: 'com.amazonaws', name: 'aws-java-sdk-s3', version: '1.11.827'
+	// https://mvnrepository.com/artifact/com.github.lookfirst/sardine
+	compile group: 'com.github.lookfirst', name: 'sardine', version: '5.9'
+	// https://mvnrepository.com/artifact/javax.jnlp/jnlp
+	//compile group: 'javax.jnlp', name: 'jnlp', version: '1.2'
+	// https://mvnrepository.com/artifact/javax.jnlp/jnlp-api
+	//compile group: 'javax.jnlp', name: 'jnlp-api', version: '1.2.2'
+	// https://mvnrepository.com/artifact/javax/jnlp
+	//compile group: 'javax', name: 'jnlp', version: '0.1'
+	// https://mvnrepository.com/artifact/javax.samples.jnlp/jnlp-servlet
+	//compile group: 'javax.samples.jnlp', name: 'jnlp-servlet', version: '1.6.0'
+	// https://mvnrepository.com/artifact/com.sun.jnlp/jnlp-servlet
+	//compile group: 'com.sun.jnlp', name: 'jnlp-servlet', version: '1.1'
+	// https://mvnrepository.com/artifact/javax.jnlp/jnlp
+	//compile group: 'javax.jnlp', name: 'jnlp', version: '7.0'
+	// https://mvnrepository.com/artifact/log4j/log4j
+	compile group: 'log4j', name: 'log4j', version: '1.2.17'
+	// https://mvnrepository.com/artifact/org.swinglabs/swingx
+	compile group: 'org.swinglabs', name: 'swingx', version: '1.6'
+	// https://mvnrepository.com/artifact/it.sauronsoftware.cron4j/cron4j
+	compile group: 'it.sauronsoftware.cron4j', name: 'cron4j', version: '2.2.5'
+	// https://mvnrepository.com/artifact/junit/junit
+	compile group: 'junit', name: 'junit', version: '4.12'
+	// https://mvnrepository.com/artifact/javax.media/jai_core
+	//compile group: 'javax.media', name: 'jai_core', version: '1.1.2_01'
+	// https://mvnrepository.com/artifact/javax.media/jai_core
+	//compile group: 'javax.media', name: 'jai_core', version: '1.1.3'
+	// https://mvnrepository.com/artifact/org.beanshell/bsh
+	compile group: 'org.beanshell', name: 'bsh', version: '2.0b5'
+	// https://mvnrepository.com/artifact/net.sourceforge.barbecue/barbecue
+	compile group: 'net.sourceforge.barbecue', name: 'barbecue', version: '1.5-beta1'
+	// https://mvnrepository.com/artifact/com.google.zxing/core
+	compile group: 'com.google.zxing', name: 'core', version: '2.3.0'
+	// https://mvnrepository.com/artifact/com.itextpdf/io
+	//compile group: 'com.itextpdf', name: 'io', version: '7.1.1'
+	// https://mvnrepository.com/artifact/javaee/javaee-api
+	compile group: 'javaee', name: 'javaee-api', version: '5'
+	// https://mvnrepository.com/artifact/com.itextpdf/itextpdf
+	//compile group: 'com.itextpdf', name: 'itextpdf', version: '5.5.2'
+	// https://mvnrepository.com/artifact/org.icepdf.os/icepdf-viewer
+	//compile group: 'org.icepdf.os', name: 'icepdf-viewer', version: '6.2.2'
+	// https://mvnrepository.com/artifact/org.apache.activemq/activemq-core
+	compile group: 'org.apache.activemq', name: 'activemq-core', version: '5.7.0'
+	// https://mvnrepository.com/artifact/commons-io/commons-io
+	compile group: 'commons-io', name: 'commons-io', version: '2.8.0'
+	// https://mvnrepository.com/artifact/org.glassfish.main.extras/appserv-rt
+	compile group: 'org.glassfish.main.extras', name: 'appserv-rt', version: '6.0.0'
+	// https://mvnrepository.com/artifact/org.apache.ant/ant
+	compile group: 'org.apache.ant', name: 'ant', version: '1.10.5'
+	// https://mvnrepository.com/artifact/com.jgoodies/looks
+	compile group: 'com.jgoodies', name: 'looks', version: '2.0.4'
+	// https://mvnrepository.com/artifact/com.itextpdf/pdfa
+	compile group: 'com.itextpdf', name: 'pdfa', version: '7.1.13'
+	// https://mvnrepository.com/artifact/io.konik/itext-carriage
+	compile group: 'io.konik', name: 'itext-carriage', version: '0.8.0'
+	// https://mvnrepository.com/artifact/org.jboss.security/jbosssx-client
+	compile group: 'org.jboss.security', name: 'jbosssx-client', version: '2.1.0.20091223'
+	// https://mvnrepository.com/artifact/com.miglayout/miglayout
+	compile group: 'com.miglayout', name: 'miglayout', version: '3.7.1'
+	// https://mvnrepository.com/artifact/com.github.lbordowitz.openforecast/openforecast
+	compile group: 'com.github.lbordowitz.openforecast', name: 'openforecast', version: '0.5.0'
+	// https://mvnrepository.com/artifact/org.codehaus.groovy/groovy-all
+	compile group: 'org.codehaus.groovy', name: 'groovy-all', version: '2.4.15'
+	// https://mvnrepository.com/artifact/org.elasticsearch.client/elasticsearch-rest-high-level-client
+	compile group: 'org.elasticsearch.client', name: 'elasticsearch-rest-high-level-client', version: '7.9.1'
+	// https://mvnrepository.com/artifact/taglibs/standard
+	compile group: 'taglibs', name: 'standard', version: '1.1.2'
+	// https://mvnrepository.com/artifact/junit/junit
+	compile group: 'junit', name: 'junit', version: '4.12'
+	// https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-api
+	compile group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.7.0'
+	// ZK
+	// https://mvnrepository.com/artifact/org.zkoss.zk/zul
+	compile group: 'org.zkoss.zk', name: 'zul', version: '3.6.3'
+	// https://mvnrepository.com/artifact/org.zkoss.zk/zkex
+	compile group: 'org.zkoss.zk', name: 'zkex', version: '3.6.3'
+	// https://mvnrepository.com/artifact/org.zkoss.zk/zk
+	compile group: 'org.zkoss.zk', name: 'zk', version: '3.6.3'
+	// https://mvnrepository.com/artifact/org.zkoss.zk/zhtml
+	compile group: 'org.zkoss.zk', name: 'zhtml', version: '3.6.3'
+	// https://mvnrepository.com/artifact/org.zkoss.zk/zkplus
+	compile group: 'org.zkoss.zk', name: 'zkplus', version: '3.6.3'
+	// https://mvnrepository.com/artifact/org.zkoss.zk/zkmax
+	compile group: 'org.zkoss.zk', name: 'zkmax', version: '3.6.3'
+	// https://mvnrepository.com/artifact/org.zkoss.zkforge/timelinez
+	//compile group: 'org.zkoss.zkforge', name: 'timelinez', version: '1.1_3'
+	// https://mvnrepository.com/artifact/org.zkoss.zkforge/timeplotz
+	//compile group: 'org.zkoss.zkforge', name: 'timeplotz', version: '1.0_2'
+	// https://mvnrepository.com/artifact/org.codehaus.xfire/xfire-all
+	compile group: 'org.codehaus.xfire', name: 'xfire-all', version: '1.2.6'
+	// https://mvnrepository.com/artifact/org.zkoss.zkforge/fckez
+	compile group: 'org.zkoss.zkforge', name: 'fckez', version: '2.6.1_1'
+	// https://mvnrepository.com/artifact/cglib/cglib
+	compile group: 'cglib', name: 'cglib', version: '2.2.2'
+}
+
+sourceSets {
+    main {
+         java {
+            srcDirs = [
+            'base/src',
+            'tools/src',
+            'org.adempiere.project/src/main/java',
+            'org.adempiere.request/src/main/java',
+            'glassfishfacet/src',
+            'jbossfacet/src',
+            'client/src',
+            'sqlj/src',
+            'install/src',
+            'extend/src',
+            'org.eevolution.manufacturing/src/main/java/base',
+            'org.eevolution.cashflow/src/main/java',
+            'org.eevolution.hr_and_payroll/src/main/java/base',
+            'org.eevolution.hr_and_payroll/src/main/java/ui/swing',
+            'org.spin.hr_time_and_attendance/src/main/java/base',
+            'org.eevolution.manufacturing/src/main/java/ui/swing',
+            'org.eevolution.warehouse/src/main/java/base',
+            'org.adempiere.pos/src/main/java/base',
+            'org.adempiere.pos/src/main/java/swing',
+            'org.eevolution.freight/src/main/java/base',
+            'org.eevolution.fleet/src/main/java/base',
+            'org.adempiere.production/src/main/java/base',
+            'migration/src',
+            'org.spin.loan_management/src/main/java/base',
+            'org.spin.loan_management/src/main/java/ui/swing',
+            'org.spin.finance_management/src/main/java/base',
+            'org.adempiere.crm/src/main/java',
+            'org.adempiere.asset/src/main/java/base',
+            'com.kkalice.adempiere.migrate/src',
+            'webCM/src/main/servlet',
+            'JasperReports/src',
+            'JasperReportsWebApp/src',
+            'org.spin.store/src/main/java'
+            ]
+         }
+    }
+    
+    server {
+         java {
+         	compileClasspath += sourceSets.main.runtimeClasspath
+        	runtimeClasspath += sourceSets.main.output
+            srcDirs = [
+            'serverApps/src/main/servlet',
+            'serverRoot/src/main/server',
+            'serverRoot/src/main/servlet',
+            'serverRoot/src/main/ejb'
+            ]
+         }
+    }
+    
+    zk {
+         java {
+         	compileClasspath += sourceSets.main.runtimeClasspath
+         	compileClasspath += sourceSets.main.output
+        	runtimeClasspath += sourceSets.main.output
+            srcDirs = [
+            'zkwebui/WEB-INF/src',
+            'org.eevolution.hr_and_payroll/src/main/java/ui/zk',
+            'org.eevolution.manufacturing/src/main/java/ui/zk',
+            'org.adempiere.webservice/WEB-INF/src',
+            'org.adempiere.pos/src/main/java/zk',
+            'org.eevolution.warehouse/src/main/java/ui/zk',
+            'org.spin.loan_management/src/main/java/ui/zk'
+            ]
+         }
+    }
+    
+    test {
+         java {
+            srcDirs = [
+            //'org.eevolution.manufacturing/src/main/java/test',
+            'org.adempiere.test/src/test/scala',
+            'org.adempiere.test/src/main/scala',
+            'org.adempiere.test/src/test/sahi'
+            ]
+         }
+    }
+}
+
+jar {
+    from sourceSets.main.output
+    from sourceSets.server.output
+    from sourceSets.zk.output
+}
+
+sourceSets.all { set ->
+    def jarTask = task("${set.name}Jar", type: Jar) {
+        baseName = baseName + "-$set.name"
+        from set.output
+    }
+ 
+    artifacts {
+        archives jarTask
+    }
+}
+
+//	Create release for project
+//task createRelease(type: Copy) {
+//   dependsOn build
+//   from file("$buildDir/distributions/")
+//   into file("$buildDir/release/")
+//   //destinationDir(file('build/release/'))
+//   doLast {
+//        file('build/release/')
+//        	.listFiles({file -> file.isFile()} as FileFilter).sort()
+//        	.each { File file ->
+//            ant.checksum file: file
+//        }
+//   	}
+//}
+
+//	Create release for project
+task createRelease(type: Zip) {
+   dependsOn build
+   from 'build/libs/'
+   from 'xml/'
+   include '*'
+   include '*/*'
+   archiveName project.name + '.zip'
+   destinationDir(file('build/release/'))
+   doLast {
+        file('build/release/')
+        	.listFiles({file -> file.isFile()} as FileFilter).sort()
+        	.each { File file ->
+            ant.checksum file: file
+        }
+   	}
+}
+
+publishing {
+    repositories {
+        maven {
+            url = "https://maven.pkg.github.com/erpcya/Repository"
+            credentials {
+                username = System.properties['deploy.user'] ?: System.getenv("GITHUB_DEPLOY_USER")
+                password = System.properties['deploy.token'] ?: System.getenv("GITHUB_DEPLOY_TOKEN")
+            }
+        }
+    }
+    publications {
+		mavenJava(MavenPublication) {
+        	groupId 'org.erpya.<group>.<sub-group>'
+            artifactId '<artifact-name>'
+            version libraryVersion
+           	from components.java
+           	pom {
+                name = 'Library Name'
+                description = 'Library Description'
+                url = 'https://www.erpya.com/'
+                licenses {
+                    license {
+                        name = 'GNU General Public License v3.0'
+                        url = 'https://www.gnu.org/licenses/gpl-3.0.txt'
+                    }
+                }
+                developers {
+                    developer {
+                        id = '<author-id>'
+                        name = '<Author Name>'
+                        email = '<mail>@erpya.com'
+                    }
+                }
+            }
+		}
+	}
+}
