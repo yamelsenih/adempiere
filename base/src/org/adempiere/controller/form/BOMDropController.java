@@ -29,6 +29,7 @@ import java.util.logging.Level;
 import org.adempiere.exceptions.AdempiereException;
 import org.adempiere.exceptions.ValueChangeEvent;
 import org.adempiere.exceptions.ValueChangeListener;
+import org.compiere.model.I_C_Project;
 import org.compiere.model.MColumn;
 import org.compiere.model.MInvoice;
 import org.compiere.model.MInvoiceLine;
@@ -37,13 +38,13 @@ import org.compiere.model.MLookupFactory;
 import org.compiere.model.MOrder;
 import org.compiere.model.MOrderLine;
 import org.compiere.model.MProduct;
-import org.compiere.model.MProject;
-import org.compiere.model.MProjectLine;
 import org.compiere.model.MTable;
 import org.compiere.model.MUOM;
 import org.compiere.model.MUOMConversion;
 import org.compiere.model.MValRule;
 import org.compiere.model.PO;
+import org.compiere.model.X_C_Project;
+import org.compiere.model.X_C_ProjectLine;
 import org.compiere.process.DocAction;
 import org.compiere.process.ProcessInfo;
 import org.compiere.swing.CEditor;
@@ -51,6 +52,7 @@ import org.compiere.util.CLogger;
 import org.compiere.util.DisplayType;
 import org.compiere.util.Env;
 import org.compiere.util.Msg;
+import org.compiere.util.ProjectWrapper;
 import org.compiere.util.Trx;
 import org.compiere.util.Util;
 import org.eevolution.model.MPPProductBOM;
@@ -275,15 +277,15 @@ public class BOMDropController implements ValueChangeListener, VetoableChangeLis
 			try {
 
 				lookup = MLookupFactory.get(ctx, windowNo, 
-						MColumn.getColumn_ID(MProject.Table_Name, MProject.COLUMNNAME_C_Project_ID),
-						DisplayType.TableDir, Env.getLanguage(ctx), MProject.COLUMNNAME_C_Project_ID, 0,
+						MColumn.getColumn_ID(I_C_Project.Table_Name, I_C_Project.COLUMNNAME_C_Project_ID),
+						DisplayType.TableDir, Env.getLanguage(ctx), I_C_Project.COLUMNNAME_C_Project_ID, 0,
 						false, validationCode);
 				
 			} catch (Exception e) {
 				log.severe("Unable to load project lookup: " + e.getLocalizedMessage());
 				return false;
 			}
-			name = Msg.translate(ctx, MProject.COLUMNNAME_C_Project_ID);
+			name = Msg.translate(ctx, I_C_Project.COLUMNNAME_C_Project_ID);
 			projectEditor = form.createSelectionEditor(DisplayType.TableDir, lookup, "", name, "", row++, 0);
 			projectEditor.setMandatory(true);
 			projectEditor.setBackground(true);
@@ -563,7 +565,7 @@ public class BOMDropController implements ValueChangeListener, VetoableChangeLis
 				int c_project_id = ((Integer) newValue).intValue();
 				if (c_project_id > 0)
 				{
-					po = new MProject(ctx, c_project_id, trxName);
+					po = new X_C_Project(ctx, c_project_id, trxName);
 					projectEditor.setMandatory(true);
 					orderEditor.setMandatory(false);
 					orderEditor.setValue(null);
@@ -792,7 +794,7 @@ public class BOMDropController implements ValueChangeListener, VetoableChangeLis
 				saveOrder();
 			else if (po instanceof MInvoice)
 				saveInvoice();
-			else if (po instanceof MProject)
+			else if (po.get_TableName().equals(I_C_Project.Table_Name))
 				saveProject();
 			else
 				throw new AdempiereException("Unknown PO: " + po.toString());
@@ -1083,7 +1085,7 @@ public class BOMDropController implements ValueChangeListener, VetoableChangeLis
 	private boolean saveProject ()
 	{
 		log.config("C_Project_ID=" + po.get_ID());
-		MProject project = (MProject) po;
+		X_C_Project project = (X_C_Project) po;
 		
 		int lineCount = 0;
 		
@@ -1095,7 +1097,7 @@ public class BOMDropController implements ValueChangeListener, VetoableChangeLis
 				BigDecimal qty = selectionList.get(i).qty;
 				int M_Product_ID = selectionList.get(i).m_product_id;
 				//	Create Line
-				MProjectLine pl = new MProjectLine (project);
+				X_C_ProjectLine pl = ProjectWrapper.newInstance(project).createLineFromProject();
 				pl.setM_Product_ID(M_Product_ID);
 				pl.setPlannedQty(qty);
 			//	pl.setPlannedPrice();

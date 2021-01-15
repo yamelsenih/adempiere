@@ -35,7 +35,6 @@ import org.compiere.model.MAchievement;
 import org.compiere.model.MDashboardContent;
 import org.compiere.model.MGoal;
 import org.compiere.model.MMeasureCalc;
-import org.compiere.model.MProjectType;
 import org.compiere.model.MQuery;
 import org.compiere.model.MRequestType;
 import org.compiere.model.MRole;
@@ -44,6 +43,7 @@ import org.compiere.util.CLogger;
 import org.compiere.util.Env;
 import org.compiere.util.Ini;
 import org.compiere.util.Msg;
+import org.compiere.util.ProjectTypeWrapper;
 import org.compiere.util.Util;
 
 /**
@@ -223,8 +223,7 @@ public class HtmlDashboard extends JPanel implements MouseListener,
 				}
 				else if (bgc.getProjectType() != null)	//	Document
 				{
-					MProjectType pt = bgc.getProjectType();
-					query = pt.getQuery(m_goals[i].getRestrictions(false), 
+					query = ProjectTypeWrapper.newInstance(bgc.getProjectType()).getQuery(m_goals[i].getRestrictions(false), 
 						bgc.getMeasureDisplay(), bgc.getDate(), bgc.getID(), 
 						MRole.getDefault());	//	logged in role
 				}

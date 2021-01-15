@@ -28,7 +28,6 @@ import org.compiere.model.I_C_Payment;
 import org.compiere.model.MBPBankAccount;
 import org.compiere.model.MBPartner;
 import org.compiere.model.MClient;
-import org.compiere.model.MMailText;
 import org.compiere.model.MPayment;
 import org.compiere.model.MQuery;
 import org.compiere.model.MUser;
@@ -36,10 +35,12 @@ import org.compiere.model.MUserMail;
 import org.compiere.model.PrintInfo;
 import org.compiere.model.Query;
 import org.compiere.model.X_AD_PrintForm;
+import org.compiere.model.X_R_MailText;
 import org.compiere.print.MPrintFormat;
 import org.compiere.print.ReportEngine;
 import org.compiere.util.EMail;
 import org.compiere.util.Env;
+import org.compiere.util.MailTextWrapper;
 import org.compiere.util.Util;
 
 /** 
@@ -49,7 +50,7 @@ import org.compiere.util.Util;
 public class PaySelectionSendRemittance extends PaySelectionSendRemittanceAbstract {
 	
 	/**Mail Template for Project Processor */
-	private MMailText mailText = null;
+	private MailTextWrapper mailText = null;
 	private X_AD_PrintForm printForm = null;
 	
 	@Override
@@ -76,7 +77,7 @@ public class PaySelectionSendRemittance extends PaySelectionSendRemittanceAbstra
 			setMailTextId(printForm.getRemittance_MailText_ID());
 		}
 		//	Get Mail template
-		mailText = new MMailText (Env.getCtx(), getMailTextId(), get_TrxName());
+		mailText = MailTextWrapper.newInstance(new X_R_MailText(Env.getCtx(), getMailTextId(), get_TrxName()));
 		//	query
 		String bpWhereClause = "";
 		if(getBPartnerId() != 0) {
@@ -182,7 +183,7 @@ public class PaySelectionSendRemittance extends PaySelectionSendRemittanceAbstra
 		//
 		String msg = email.send();
 		if(businessPartnerBankAccountContact != null) {
-			MUserMail userMail = new MUserMail(mailText, businessPartnerBankAccountContact.getAD_User_ID(), email);
+			MUserMail userMail = new MUserMail(mailText.getMailTextObject(), businessPartnerBankAccountContact.getAD_User_ID(), email);
 			userMail.saveEx();
 		}
 		//	

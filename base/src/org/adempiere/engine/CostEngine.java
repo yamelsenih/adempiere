@@ -59,10 +59,10 @@ import org.compiere.model.MProductCategoryAcct;
 import org.compiere.model.MProductPO;
 import org.compiere.model.MProduction;
 import org.compiere.model.MProductionLine;
-import org.compiere.model.MProjectIssue;
 import org.compiere.model.MTransaction;
 import org.compiere.model.PO;
 import org.compiere.model.Query;
+import org.compiere.model.X_C_ProjectIssue;
 import org.compiere.model.X_M_Product;
 import org.compiere.util.CLogger;
 import org.compiere.util.DB;
@@ -729,7 +729,7 @@ public class CostEngine {
 
 			}
 			else if (transaction.getC_ProjectIssue_ID() > 0) {
-				MProjectIssue line = (MProjectIssue) transaction.getC_ProjectIssue();
+				X_C_ProjectIssue line = (X_C_ProjectIssue) transaction.getC_ProjectIssue();
 				if (!clearAccounting(accountSchema, accountSchema.getM_CostType() , line,  transaction.getM_Product_ID() , line.getMovementDate()))
 					return;
 			}

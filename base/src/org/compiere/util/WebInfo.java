@@ -24,6 +24,8 @@ import java.util.logging.Level;
 
 import org.compiere.model.MAdvertisement;
 import org.compiere.model.X_A_Asset;
+import org.compiere.model.X_R_Request;
+import org.compiere.model.X_R_RequestType;
 import org.compiere.model.MBPartner;
 import org.compiere.model.MCommissionRun;
 import org.compiere.model.MDocType;
@@ -34,8 +36,6 @@ import org.compiere.model.MNote;
 import org.compiere.model.MOrder;
 import org.compiere.model.MPayment;
 import org.compiere.model.MRegistration;
-import org.compiere.model.MRequest;
-import org.compiere.model.MRequestType;
 import org.compiere.model.MRfQ;
 import org.compiere.model.MRfQResponse;
 import org.compiere.model.MTimeExpense;
@@ -350,7 +350,7 @@ public class WebInfo
 	 * 	Get Own Requests
 	 *	@return Array of Own Requests
 	 */
-	public ArrayList<MRequest> getRequestsOwn ()
+	public ArrayList<X_R_Request> getRequestsOwn ()
 	{
 		return getRequests(true);
 	}	//	getRequestsOwn
@@ -359,7 +359,7 @@ public class WebInfo
 	 * 	Get Own Requests
 	 *	@return Array of Assigned Requests
 	 */
-	public ArrayList<MRequest> getRequestsAssigned ()
+	public ArrayList<X_R_Request> getRequestsAssigned ()
 	{
 		return getRequests(false);
 	}	//	getRequestsAssigned
@@ -369,10 +369,10 @@ public class WebInfo
 	 * 	@param own if true its own requests otherwise or
 	 *	@return Array of Requests
 	 */
-	public ArrayList<MRequest> getRequests (boolean own)
+	public ArrayList<X_R_Request> getRequests (boolean own)
 	{
 		m_infoMessage = null;
-		ArrayList<MRequest> list = new ArrayList<MRequest>();
+		ArrayList<X_R_Request> list = new ArrayList<X_R_Request>();
 		String sql = null;
 		if (own)	//	All Requests
 			sql = "SELECT * FROM R_Request r "
@@ -403,7 +403,7 @@ public class WebInfo
 			}
 			rs = pstmt.executeQuery();
 			while (rs.next())
-				list.add (new MRequest (m_ctx, rs, null));
+				list.add (new X_R_Request (m_ctx, rs, null));
 		}
 		catch (Exception e)
 		{
@@ -423,10 +423,10 @@ public class WebInfo
 	 * 	Needs to have ID set first; Check that it is owned / created by requestor
 	 *	@return invoice of BP with ID
 	 */
-	public MRequest getRequest()
+	public X_R_Request getRequest()
 	{
 		m_infoMessage = null;
-		MRequest retValue = null;
+		X_R_Request retValue = null;
 		String sql = "SELECT * FROM R_Request "
 			+ "WHERE R_Request_ID=?"
 			+ " AND (C_BPartner_ID=?"
@@ -441,7 +441,7 @@ public class WebInfo
 			pstmt.setInt(3, getC_BPartner_ID());
 			rs = pstmt.executeQuery();
 			if (rs.next())
-				retValue = new MRequest (m_ctx, rs, null);
+				retValue = new X_R_Request (m_ctx, rs, null);
  		}
 		catch (Exception e)
 		{
@@ -461,10 +461,10 @@ public class WebInfo
 	 * 	Get Request Types
 	 *	@return Array of Request Types
 	 */
-	public ArrayList<MRequestType> getRequestTypes ()
+	public ArrayList<X_R_RequestType> getRequestTypes ()
 	{
 		m_infoMessage = null;
-		ArrayList<MRequestType> list = new ArrayList<MRequestType>();
+		ArrayList<X_R_RequestType> list = new ArrayList<X_R_RequestType>();
 		String sql = "SELECT * FROM R_RequestType "
 			+ "WHERE IsSelfService='Y' AND AD_Client_ID=? ORDER BY Name";
 		PreparedStatement pstmt = null;
@@ -475,7 +475,7 @@ public class WebInfo
 			pstmt.setInt(1, getAD_Client_ID());
 			rs = pstmt.executeQuery();
 			while (rs.next())
-				list.add (new MRequestType (m_ctx, rs, null));
+				list.add (new X_R_RequestType (m_ctx, rs, null));
 			rs.close();
 			pstmt.close();
 			pstmt = null;
@@ -497,10 +497,10 @@ public class WebInfo
 	 * 	Get Request Type
 	 *	@return Request Type
 	 */
-	public MRequestType getRequestType ()
+	public X_R_RequestType getRequestType ()
 	{
 		m_infoMessage = null;
-		MRequestType retValue = null;
+		X_R_RequestType retValue = null;
 		String sql = "SELECT * FROM R_RequestType WHERE IsSelfService='Y' AND R_RequestType_ID=?";
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
@@ -510,7 +510,7 @@ public class WebInfo
 			pstmt.setInt(1, m_id);
 			rs = pstmt.executeQuery();
 			if (rs.next())
-				retValue = new MRequestType (m_ctx, rs, null);
+				retValue = new X_R_RequestType (m_ctx, rs, null);
 		}
 		catch (Exception e)
 		{

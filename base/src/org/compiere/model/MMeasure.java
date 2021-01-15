@@ -33,6 +33,7 @@ import org.compiere.util.CCache;
 import org.compiere.util.DB;
 import org.compiere.util.Env;
 import org.compiere.util.Msg;
+import org.compiere.util.ProjectTypeWrapper;
 import org.compiere.util.TimeUtil;
 import org.compiere.util.Util;
 
@@ -243,8 +244,9 @@ public class MMeasure extends X_PA_Measure
 		//	Project
 		else if (MMeasure.MEASURETYPE_Project.equals(getMeasureType()))
 		{
-			MProjectType pt = MProjectType.get(Env.getCtx(), getC_ProjectType_ID());
-			String sql = pt.getSqlBarChart(goal.getRestrictions(false),
+			ProjectTypeWrapper wrapper = ProjectTypeWrapper.newInstance(ProjectTypeWrapper.getFromId(getCtx(), getC_ProjectType_ID(), null));
+			String sql = 
+					wrapper.getSqlBarChart(goal.getRestrictions(false),
 					goal.getMeasureDisplay(), getMeasureDataType(),
 					goal.getDateFrom(), MRole.getDefault());	//	logged in role
 			PreparedStatement pstmt = null;
@@ -258,7 +260,7 @@ public class MMeasure extends X_PA_Measure
 					BigDecimal data = rs.getBigDecimal(1);
 					Timestamp date = rs.getTimestamp(2);
 					int id = rs.getInt(3);
-					GraphColumn bgc = new GraphColumn(pt, data, id);
+					GraphColumn bgc = new GraphColumn(wrapper.getProjectType(), data, id);
 					bgc.setLabel(date, goal.getMeasureDisplay());
 					list.add(bgc);
 				}
@@ -564,9 +566,8 @@ public class MMeasure extends X_PA_Measure
 			if (role == null)
 				role = MRole.getDefault(getCtx(), false);	//	could result in wrong data
 			//
-			MProjectType pt = MProjectType.get(getCtx(), getC_ProjectType_ID());
-			String sql = pt.getSqlPI(goal.getRestrictions(false), 
-				goal.getMeasureScope(), getMeasureDataType(), null, role);		
+			String sql = ProjectTypeWrapper.newInstance(ProjectTypeWrapper.getFromId(getCtx(), getC_ProjectType_ID(), null)).getSqlPI(goal.getRestrictions(false), 
+					goal.getMeasureScope(), getMeasureDataType(), null, role);
 			BigDecimal ManualActual = DB.getSQLValueBD(null, sql, new Object[]{});
 			//	SQL may return no rows or null
 			if (ManualActual == null)

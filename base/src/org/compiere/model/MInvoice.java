@@ -1848,7 +1848,7 @@ public class MInvoice extends X_C_Invoice implements DocAction , DocumentReversa
 		//	Update Project
 		if (isSOTrx() && getC_Project_ID() != 0)
 		{
-			MProject project = new MProject (getCtx(), getC_Project_ID(), get_TrxName());
+			X_C_Project project = new X_C_Project (getCtx(), getC_Project_ID(), get_TrxName());
 			BigDecimal amt = getGrandTotal(true);
 			int C_CurrencyTo_ID = project.getC_Currency_ID();
 			if (C_CurrencyTo_ID != getC_Currency_ID())

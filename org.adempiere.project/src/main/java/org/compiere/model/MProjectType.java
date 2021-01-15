@@ -16,17 +16,13 @@
  *****************************************************************************/
 package org.compiere.model;
 
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
-import java.util.logging.Level;
 
 import org.compiere.util.CCache;
-import org.compiere.util.DB;
+import org.compiere.util.ProjectTypeWrapper;
 
 /**
  * 	Project Type Model
@@ -61,8 +57,7 @@ public class MProjectType extends X_C_ProjectType
 	} //	get
 
 	/**	Cache						*/
-	private static CCache<Integer, MProjectType> s_cache 
-		= new CCache<Integer, MProjectType> ("C_ProjectType", 20);
+	private static CCache<Integer, MProjectType> s_cache = new CCache<Integer, MProjectType> ("C_ProjectType", 20);
 	
 	
 	/**************************************************************************
@@ -130,45 +125,8 @@ public class MProjectType extends X_C_ProjectType
 	 *	@return sql for performance indicator
 	 */
 	public String getSqlPI (MGoalRestriction[] restrictions, 
-		String MeasureScope, String MeasureDataType, Timestamp reportDate, MRole role)
-	{
-		String dateColumn = "Created";
-		String orgColumn = "AD_Org_ID";
-		String bpColumn = "C_BPartner_ID";
-		String pColumn = null;
-		//	PlannedAmt -> PlannedQty -> Count
-		StringBuffer sb = new StringBuffer("SELECT COALESCE(SUM(PlannedAmt),COALESCE(SUM(PlannedQty),COUNT(*))) "
-			+ "FROM C_Project WHERE C_ProjectType_ID=" + getC_ProjectType_ID()
-			+ " AND Processed<>'Y')");
-		//	Date Restriction
-		
-		if (MMeasure.MEASUREDATATYPE_QtyAmountInTime.equals(MeasureDataType)
-			&& !MGoal.MEASUREDISPLAY_Total.equals(MeasureScope))
-		{
-			if (reportDate == null)
-				reportDate = new Timestamp(System.currentTimeMillis());
-			String dateString = DB.TO_DATE(reportDate);
-			String trunc = "D";
-			if (MGoal.MEASUREDISPLAY_Year.equals(MeasureScope))
-				trunc = "Y";
-			else if (MGoal.MEASUREDISPLAY_Quarter.equals(MeasureScope))
-				trunc = "Q";
-			else if (MGoal.MEASUREDISPLAY_Month.equals(MeasureScope))
-				trunc = "MM";
-			else if (MGoal.MEASUREDISPLAY_Week.equals(MeasureScope))
-				trunc = "W";
-		//	else if (MGoal.MEASUREDISPLAY_Day.equals(MeasureDisplay))
-		//		;
-			sb.append(" AND TRUNC(")
-				.append(dateColumn).append(",'").append(trunc).append("')=TRUNC(")
-				.append(DB.TO_DATE(reportDate)).append(",'").append(trunc).append("')");
-		}	//	date
-		//
-		String sql = MMeasureCalc.addRestrictions(sb.toString(), false, restrictions, role, 
-			"C_Project", orgColumn, bpColumn, pColumn);
-		
-		log.fine(sql);
-		return sql;
+		String MeasureScope, String MeasureDataType, Timestamp reportDate, MRole role) {
+		return ProjectTypeWrapper.newInstance(this).getSqlPI(restrictions, MeasureScope, MeasureDataType, reportDate, role);
 	}	//	getSql
 	
 	/**
@@ -182,62 +140,8 @@ public class MProjectType extends X_C_ProjectType
 	 */
 	public String getSqlBarChart (MGoalRestriction[] restrictions, 
 		String MeasureDisplay, String MeasureDataType, 
-		Timestamp startDate, MRole role)
-	{
-		String dateColumn = "Created";
-		String orgColumn = "AD_Org_ID";
-		String bpColumn = "C_BPartner_ID";
-		String pColumn = null;
-		//
-		StringBuffer sb = new StringBuffer("SELECT COALESCE(SUM(PlannedAmt),COALESCE(SUM(PlannedQty),COUNT(*))), ");
-		String orderBy = null;
-		String groupBy = null;
-		//
-		if (MMeasure.MEASUREDATATYPE_QtyAmountInTime.equals(MeasureDataType)
-			&& !MGoal.MEASUREDISPLAY_Total.equals(MeasureDisplay))
-		{
-			String trunc = "D";
-			if (MGoal.MEASUREDISPLAY_Year.equals(MeasureDisplay))
-				trunc = "Y";
-			else if (MGoal.MEASUREDISPLAY_Quarter.equals(MeasureDisplay))
-				trunc = "Q";
-			else if (MGoal.MEASUREDISPLAY_Month.equals(MeasureDisplay))
-				trunc = "MM";
-			else if (MGoal.MEASUREDISPLAY_Week.equals(MeasureDisplay))
-				trunc = "W";
-		//	else if (MGoal.MEASUREDISPLAY_Day.equals(MeasureDisplay))
-		//		;
-			orderBy = "TRUNC(" + dateColumn + ",'" + trunc + "')";
-			groupBy = orderBy + ", 0 ";
-			sb.append(groupBy)
-				.append("FROM C_Project ");
-		}
-		else
-		{
-			orderBy = "p.SeqNo"; 
-			groupBy = "COALESCE(p.Name,TO_NCHAR('-')), p.C_Phase_ID, p.SeqNo ";
-			sb.append(groupBy)
-				.append("FROM C_Project LEFT OUTER JOIN C_Phase p ON (C_Project.C_Phase_ID=p.C_Phase_ID) ");
-		}
-		//	Where
-		sb.append("WHERE C_Project.C_ProjectType_ID=").append(getC_ProjectType_ID())
-			.append(" AND C_Project.Processed<>'Y'");
-		//	Date Restriction
-		if (startDate != null
-			&& !MGoal.MEASUREDISPLAY_Total.equals(MeasureDisplay))
-		{
-			String dateString = DB.TO_DATE(startDate);
-			sb.append(" AND ").append(dateColumn)
-				.append(">=").append(dateString);
-		}	//	date
-		//
-		String sql = MMeasureCalc.addRestrictions(sb.toString(), false, restrictions, role, 
-			"C_Project", orgColumn, bpColumn, pColumn);
-		if (groupBy != null)
-			sql += " GROUP BY " + groupBy + " ORDER BY " + orderBy;
-		//
-		log.fine(sql);
-		return sql;
+		Timestamp startDate, MRole role) {
+		return ProjectTypeWrapper.newInstance(this).getSqlBarChart(restrictions, MeasureDisplay, MeasureDataType, startDate, role);
 	}	//	getSqlBarChart
 	
 	/**
@@ -250,41 +154,8 @@ public class MProjectType extends X_C_ProjectType
 	 *	@return query
 	 */
 	public MQuery getQuery(MGoalRestriction[] restrictions, 
-		String MeasureDisplay, Timestamp date, int C_Phase_ID, MRole role)
-	{
-		String dateColumn = "Created";
-		String orgColumn = "AD_Org_ID";
-		String bpColumn = "C_BPartner_ID";
-		String pColumn = null;
-		//
-		MQuery query = new MQuery("C_Project");
-		query.addRangeRestriction("C_ProjectType_ID", "=", getC_ProjectType_ID());
-		//
-		String where = null;
-		if (C_Phase_ID != 0)
-			where = "C_Phase_ID=" + C_Phase_ID;
-		else
-		{
-			String trunc = "D";
-			if (MGoal.MEASUREDISPLAY_Year.equals(MeasureDisplay))
-				trunc = "Y";
-			else if (MGoal.MEASUREDISPLAY_Quarter.equals(MeasureDisplay))
-				trunc = "Q";
-			else if (MGoal.MEASUREDISPLAY_Month.equals(MeasureDisplay))
-				trunc = "MM";
-			else if (MGoal.MEASUREDISPLAY_Week.equals(MeasureDisplay))
-				trunc = "W";
-		//	else if (MGoal.MEASUREDISPLAY_Day.equals(MeasureDisplay))
-		//		trunc = "D";
-			where = "TRUNC(" + dateColumn + ",'" + trunc
-				+ "')=TRUNC(" + DB.TO_DATE(date) + ",'" + trunc + "')";
-		}
-		String sql = MMeasureCalc.addRestrictions(where + " AND Processed<>'Y' ",
-			true, restrictions, role, 
-			"C_Project", orgColumn, bpColumn, pColumn);
-		query.addRestriction(sql);
-		query.setRecordCount(1);
-		return query;
+		String MeasureDisplay, Timestamp date, int C_Phase_ID, MRole role) {
+		return ProjectTypeWrapper.newInstance(this).getQuery(restrictions, MeasureDisplay, date, C_Phase_ID, role);
 	}	//	getQuery
 
 }	//	MProjectType

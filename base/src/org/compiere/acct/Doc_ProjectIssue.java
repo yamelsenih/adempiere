@@ -21,14 +21,16 @@ import java.math.BigDecimal;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
 
 import org.compiere.model.MAcctSchema;
 import org.compiere.model.MCostDetail;
 import org.compiere.model.MProduct;
-import org.compiere.model.MProject;
-import org.compiere.model.MProjectIssue;
 import org.compiere.model.ProductCost;
+import org.compiere.model.X_C_Project;
+import org.compiere.model.X_C_ProjectIssue;
 import org.compiere.util.DB;
 import org.compiere.util.Env;
 
@@ -40,6 +42,8 @@ import org.compiere.util.Env;
  *	
  *  @author Jorg Janke
  *  @version $Id: Doc_ProjectIssue.java,v 1.2 2006/07/30 00:53:33 jjanke Exp $
+ *  @author Yamel Senih, ysenih@erpya.com, ERPCyA http://www.erpya.com
+ *  Change wrong link from base source folder to project
  */
 public class Doc_ProjectIssue extends Doc
 {
@@ -51,13 +55,13 @@ public class Doc_ProjectIssue extends Doc
 	 */
 	public Doc_ProjectIssue (MAcctSchema[] ass, ResultSet rs, String trxName)
 	{
-		super (ass, MProjectIssue.class, rs, DOCTYPE_ProjectIssue, trxName);
+		super (ass, X_C_ProjectIssue.class, rs, DOCTYPE_ProjectIssue, trxName);
 	}   //  Doc_ProjectIssue
 
 	/**	Pseudo Line								*/
 	private DocLine				m_line = null;
 	/** Issue									*/
-	private MProjectIssue		m_issue = null;
+	private X_C_ProjectIssue		m_issue = null;
 
 	/**
 	 *  Load Document Details
@@ -66,7 +70,7 @@ public class Doc_ProjectIssue extends Doc
 	protected String loadDocumentDetails()
 	{
 		setC_Currency_ID(NO_CURRENCY);
-		m_issue = (MProjectIssue)getPO();
+		m_issue = (X_C_ProjectIssue)getPO();
 		setDateDoc (m_issue.getMovementDate());
 		setDateAcct(m_issue.getMovementDate());
 			
@@ -87,10 +91,9 @@ public class Doc_ProjectIssue extends Doc
 	 */
 	public String getDocumentNo ()
 	{
-		MProject p = m_issue.getParent();
-		if (p != null)
-			return p.getValue() + " #" + m_issue.getLine();
-		return "(" + m_issue.get_ID() + ")";
+		AtomicReference<String> documentNo = new AtomicReference<>("(" + m_issue.get_ID() + ")");
+		Optional.ofNullable(m_issue.getC_Project()).ifPresent(project -> documentNo.set(project.getValue() + " #" + m_issue.getLine()));
+		return documentNo.get();
 	}	//	getDocumentNo
 
 	/**
@@ -121,7 +124,7 @@ public class Doc_ProjectIssue extends Doc
 		Fact fact = new Fact(this, as, Fact.POST_Actual);
 		setC_Currency_ID (as.getC_Currency_ID());
 
-		MProject project = new MProject (getCtx(), m_issue.getC_Project_ID(), getTrxName());
+		X_C_Project project = new X_C_Project (getCtx(), m_issue.getC_Project_ID(), getTrxName());
 		String ProjectCategory = project.getProjectCategory();
 		MProduct product = MProduct.get(getCtx(), m_issue.getM_Product_ID());
 			
@@ -157,7 +160,7 @@ public class Doc_ProjectIssue extends Doc
 		
 		//  Project         DR
 		int acctType = ACCTTYPE_ProjectWIP;
-		if (MProject.PROJECTCATEGORY_AssetProject.equals(ProjectCategory))
+		if (X_C_Project.PROJECTCATEGORY_AssetProject.equals(ProjectCategory))
 			acctType = ACCTTYPE_ProjectAsset;
 		dr = fact.createLine(m_line,
 			getAccount(acctType, as), as.getC_Currency_ID(), costs, null);

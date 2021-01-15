@@ -41,7 +41,6 @@ import org.compiere.model.MBPartner;
 import org.compiere.model.MClient;
 import org.compiere.model.MColumn;
 import org.compiere.model.MConversionRate;
-import org.compiere.model.MMailText;
 import org.compiere.model.MNote;
 import org.compiere.model.MOrg;
 import org.compiere.model.MOrgInfo;
@@ -56,12 +55,14 @@ import org.compiere.model.MUserRoles;
 import org.compiere.model.PO;
 import org.compiere.model.Query;
 import org.compiere.model.X_AD_WF_Activity;
+import org.compiere.model.X_R_MailText;
 import org.compiere.print.ReportEngine;
 import org.compiere.process.DocAction;
 import org.compiere.process.ProcessInfo;
 import org.compiere.process.StateEngine;
 import org.compiere.util.DisplayType;
 import org.compiere.util.Env;
+import org.compiere.util.MailTextWrapper;
 import org.compiere.util.Msg;
 import org.compiere.util.Trace;
 import org.compiere.util.Trx;
@@ -1454,7 +1455,7 @@ public class MWFActivity extends X_AD_WF_Activity implements Runnable
 		if(Util.isEmpty(documentSummary)) {
 			documentSummary = "";
 		}
-		MMailText text = new MMailText (getCtx(), m_node.getR_MailText_ID(), null);
+		MailTextWrapper text = MailTextWrapper.newInstance(new X_R_MailText(getCtx(), m_node.getR_MailText_ID(), null));
 		text.setPO(m_po, true);
 		//
 		String subject = documentInfo  

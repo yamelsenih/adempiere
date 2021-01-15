@@ -40,6 +40,7 @@ import org.compiere.process.DocumentEngine;
 import org.compiere.util.DB;
 import org.compiere.util.Env;
 import org.compiere.util.Msg;
+import org.compiere.util.ProjectWrapper;
 import org.compiere.util.Util;
 import org.eevolution.model.MPPProductBOM;
 import org.eevolution.model.MPPProductBOMLine;
@@ -207,7 +208,7 @@ public class MOrder extends X_C_Order implements DocAction
 	 *  @param IsSOTrx sales order
 	 * 	@param	DocSubTypeSO if SO DocType Target (default DocSubTypeSO_OnCredit)
 	 */
-	public MOrder (MProject project, boolean IsSOTrx, String DocSubTypeSO)
+	public MOrder (X_C_Project project, boolean IsSOTrx, String DocSubTypeSO)
 	{
 		this (project.getCtx(), 0, project.get_TrxName());
 		setAD_Client_ID(project.getAD_Client_ID());
@@ -236,7 +237,7 @@ public class MOrder extends X_C_Order implements DocAction
 		setAD_User_ID(project.getAD_User_ID());
 		//
 		setM_Warehouse_ID(project.getM_Warehouse_ID());
-		setM_PriceList_ID(project.getM_PriceList_ID());
+		setM_PriceList_ID(ProjectWrapper.newInstance(project).getPriceListId());
 		setC_PaymentTerm_ID(project.getC_PaymentTerm_ID());
 		//
 		setIsSOTrx(IsSOTrx);

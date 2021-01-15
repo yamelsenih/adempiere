@@ -34,9 +34,9 @@ import org.compiere.model.MBPartner;
 import org.compiere.model.MBPartnerLocation;
 import org.compiere.model.MContactInterest;
 import org.compiere.model.MLocation;
-import org.compiere.model.MProject;
 import org.compiere.model.MUser;
 import org.compiere.model.ModelValidationEngine;
+import org.compiere.model.X_C_Project;
 import org.compiere.model.X_I_BPartner;
 import org.compiere.util.DB;
 import org.compiere.util.Msg;
@@ -816,7 +816,7 @@ implements ImportProcess
 		// Contact Project Data Imformation
 		if (impportPartner.isProjectManager()) {
 			user.setIsProjectManager(true);
-			Optional<MProject> projectOptional = Optional.ofNullable((MProject) impportPartner.getC_Project());
+			Optional<X_C_Project> projectOptional = Optional.ofNullable((X_C_Project) impportPartner.getC_Project());
 			projectOptional.ifPresent( project -> {
 				if (project.getProjectManager_ID() <= 0)
 				{
@@ -829,7 +829,7 @@ implements ImportProcess
 		}
 		if (impportPartner.isProjectMember()) {
 			user.setIsProjectMember(true);
-			Optional<MProject> projectOptional = Optional.ofNullable((MProject) impportPartner.getC_Project());
+			Optional<X_C_Project> projectOptional = Optional.ofNullable((X_C_Project) impportPartner.getC_Project());
 			projectOptional.ifPresent( project -> {
 				Optional<X_C_ProjectMemberType> projectMemberTyoeOptinal = Optional.ofNullable((X_C_ProjectMemberType)impportPartner.getC_ProjectMemberType());
 				X_C_ProjectMember projectMember =  new X_C_ProjectMember(getCtx() , 0 , get_TrxName());

@@ -25,8 +25,8 @@ import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 import org.compiere.util.CCache;
-import org.compiere.util.DB;
 import org.compiere.util.Env;
+import org.compiere.util.ProjectWrapper;
 import org.eevolution.model.MProjectMember;
 import org.eevolution.model.X_I_Project;
 
@@ -338,8 +338,7 @@ public class MProject extends X_C_Project
 		if (m_M_PriceList_ID > 0)
 			return m_M_PriceList_ID;
 		//
-		String sql = "SELECT M_PriceList_ID FROM M_PriceList_Version WHERE M_PriceList_Version_ID=?";
-		m_M_PriceList_ID = DB.getSQLValue(null, sql, getM_PriceList_Version_ID());
+		m_M_PriceList_ID = ProjectWrapper.newInstance(this).getPriceListId();
 		return m_M_PriceList_ID;
 	}	//	getM_PriceList_ID
 

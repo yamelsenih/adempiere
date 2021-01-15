@@ -26,11 +26,12 @@ import org.compiere.model.MBPartner;
 import org.compiere.model.MConversionRate;
 import org.compiere.model.MOrder;
 import org.compiere.model.MOrderLine;
-import org.compiere.model.MProject;
 import org.compiere.model.MTimeExpense;
 import org.compiere.model.MTimeExpenseLine;
+import org.compiere.model.X_C_Project;
 import org.compiere.util.DB;
 import org.compiere.util.Env;
+import org.compiere.util.ProjectWrapper;
 
 /**
  *	Create Sales Orders from Expense Reports
@@ -195,16 +196,15 @@ public class ExpenseSOrder extends SvrProcess
 			{
 				m_order.setC_Project_ID(tel.getC_Project_ID());
 				//	Optionally Overwrite BP Price list from Project
-				MProject project = new MProject (getCtx(), tel.getC_Project_ID(), get_TrxName());
-				if (project.getM_PriceList_ID() != 0)
-					m_order.setM_PriceList_ID(project.getM_PriceList_ID());
+				X_C_Project project = new X_C_Project(getCtx(), tel.getC_Project_ID(), get_TrxName());
+				int priceListId = ProjectWrapper.newInstance(project).getPriceListId();
+				if (priceListId != 0) {
+					m_order.setM_PriceList_ID(priceListId);
+				}
 			}
 			m_order.setSalesRep_ID(te.getDoc_User_ID());
 			//
-			if (!m_order.save())
-			{
-				throw new IllegalStateException("Cannot save Order");
-			}
+			m_order.saveEx();
 		}
 		else
 		{

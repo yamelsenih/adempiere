@@ -18,6 +18,7 @@
 package org.eevolution.process;
 
 
+import org.compiere.model.I_C_Project;
 import org.compiere.model.I_M_Movement;
 import org.compiere.model.I_M_MovementLine;
 import org.compiere.model.MBPartner;
@@ -29,7 +30,6 @@ import org.compiere.model.MMovement;
 import org.compiere.model.MMovementLine;
 import org.compiere.model.MOrg;
 import org.compiere.model.MProduct;
-import org.compiere.model.MProject;
 import org.compiere.model.MShipper;
 import org.compiere.model.MTable;
 import org.compiere.model.Query;
@@ -321,7 +321,7 @@ public class ImportInventoryMove extends SvrProcess
 			if(movementImport.getM_Shipper_ID()==0)
 				movementImport.setM_Shipper_ID(getID(MShipper.Table_Name, "Name = ?", new Object[]{movementImport.getShipperName()}));
 			if(movementImport.getC_Project_ID()==0)
-				movementImport.setC_Project_ID(getID(MProject.Table_Name, "Value = ?", new Object[]{movementImport.getProjectValue()}));
+				movementImport.setC_Project_ID(getID(I_C_Project.Table_Name, "Value = ?", new Object[]{movementImport.getProjectValue()}));
 			if(movementImport.getC_Campaign_ID()==0)
 				movementImport.setC_Campaign_ID(getID(MCampaign.Table_Name, "Value = ?", new Object[]{movementImport.getCampaignValue()}));
 			if(movementImport.getAD_OrgTrx_ID()==0)

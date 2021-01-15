@@ -25,9 +25,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
 
-import org.apache.commons.net.ntp.TimeStamp;
 import org.compiere.util.DB;
 import org.compiere.util.Env;
+import org.compiere.util.ProjectWrapper;
 
 /**
  * 	Project Line Model
@@ -86,9 +86,7 @@ public class MProjectLine extends X_C_ProjectLine
 	public MProjectLine (MProject project)
 	{
 		this (project.getCtx(), 0, project.get_TrxName());
-		setClientOrg(project);
-		setC_Project_ID (project.getC_Project_ID());	// Parent
-		setLine();
+		ProjectWrapper.newInstance(project).setLineFromProject(this);
 	}	//	MProjectLine
 
 	/** Parent				*/

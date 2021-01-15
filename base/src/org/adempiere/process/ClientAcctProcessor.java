@@ -359,7 +359,7 @@ public class ClientAcctProcessor extends SvrProcess
 	{
 		if (AD_Table_ID == MBankStatement.Table_ID)
 			return MBankStatement.COLUMNNAME_StatementDate;
-		if (AD_Table_ID == MProjectIssue.Table_ID)
+		if (AD_Table_ID == I_C_ProjectIssue.Table_ID)
 			return MProjectIssue.COLUMNNAME_MovementDate;
 		if (AD_Table_ID == MInventory.Table_ID)
 			return MInventory.COLUMNNAME_MovementDate;

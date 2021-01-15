@@ -24,15 +24,16 @@ import org.compiere.model.MClient;
 import org.compiere.model.MDunningLevel;
 import org.compiere.model.MDunningRun;
 import org.compiere.model.MDunningRunEntry;
-import org.compiere.model.MMailText;
 import org.compiere.model.MQuery;
 import org.compiere.model.MUser;
 import org.compiere.model.MUserMail;
 import org.compiere.model.PrintInfo;
+import org.compiere.model.X_R_MailText;
 import org.compiere.print.MPrintFormat;
 import org.compiere.print.ReportEngine;
 import org.compiere.util.AdempiereUserError;
 import org.compiere.util.EMail;
+import org.compiere.util.MailTextWrapper;
 
 /**
  *	Dunning Letter Print
@@ -66,10 +67,10 @@ public class DunningPrint extends DunningPrintAbstract {
 		if (isEMailPDF() && getMailTextId() == 0) {
 			throw new AdempiereUserError ("@NotFound@: @R_MailText_ID@");
 		}
-		MMailText text = null;
+		MailTextWrapper text = null;
 		if (isEMailPDF()) {
-			text = new MMailText (getCtx(), getMailTextId(), get_TrxName());
-			if (isEMailPDF() && text.get_ID() == 0)
+			text = MailTextWrapper.newInstance(new X_R_MailText(getCtx(), getMailTextId(), get_TrxName()));
+			if (isEMailPDF() && text.getId() == 0)
 				throw new AdempiereUserError ("@NotFound@: @R_MailText_ID@ - " + getMailTextId());
 		}
 		//	get Dunning
@@ -100,7 +101,7 @@ public class DunningPrint extends DunningPrintAbstract {
 	 * @param dunningRun
 	 * @param text
 	 */
-	private void processDunning(MDunningRun dunningRun, MMailText text) {
+	private void processDunning(MDunningRun dunningRun, MailTextWrapper text) {
 		int internalError = 0;
 		MClient client = MClient.get(getCtx());
 		for(MDunningRunEntry entry : dunningRun.getEntries(false)) {
@@ -183,7 +184,7 @@ public class DunningPrint extends DunningPrintAbstract {
 				}
 				//
 				String msg = email.send();
-				MUserMail um = new MUserMail(text, entry.getAD_User_ID(), email);
+				MUserMail um = new MUserMail(text.getMailTextObject(), entry.getAD_User_ID(), email);
 				um.saveEx();
 				if (msg.equals(EMail.SENT_OK)) {
 					addLog (entry.get_ID(), null, null,

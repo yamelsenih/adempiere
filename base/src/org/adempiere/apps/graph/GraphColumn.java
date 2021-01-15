@@ -21,12 +21,13 @@ import java.text.SimpleDateFormat;
 import org.compiere.model.MAchievement;
 import org.compiere.model.MGoal;
 import org.compiere.model.MMeasureCalc;
-import org.compiere.model.MProjectType;
 import org.compiere.model.MQuery;
-import org.compiere.model.MRequestType;
 import org.compiere.model.MRole;
+import org.compiere.model.X_C_ProjectType;
+import org.compiere.model.X_R_RequestType;
 import org.compiere.util.CLogger;
 import org.compiere.util.DisplayType;
+import org.compiere.util.ProjectTypeWrapper;
 
 /**
  *
@@ -82,7 +83,7 @@ public class GraphColumn
 	 * 	Request Type Constructor
 	 *	@param rt Request Type
 	 */
-	public GraphColumn (MRequestType rt, BigDecimal data, int id)
+	public GraphColumn (X_R_RequestType rt, BigDecimal data, int id)
 	{
 		this ("", data == null ? 0 : data.doubleValue());
 		m_rt = rt;
@@ -93,7 +94,7 @@ public class GraphColumn
 	 * 	Project Type Constructor
 	 *	@param pt Project Type
 	 */
-	public GraphColumn (MProjectType pt, BigDecimal data, int id)
+	public GraphColumn (X_C_ProjectType pt, BigDecimal data, int id)
 	{
 		this ("", data == null ? 0 : data.doubleValue());
 		m_pt = pt;
@@ -107,8 +108,8 @@ public class GraphColumn
 	/** Goal				*/
 	private MGoal			m_goal = null;
 
-	private MRequestType	m_rt = null;
-	private MProjectType	m_pt = null;
+	private X_R_RequestType	m_rt = null;
+	private X_C_ProjectType	m_pt = null;
 	private int				m_id = 0;
 
 	/** Display						*/
@@ -161,12 +162,12 @@ public class GraphColumn
 		return m_mc;
 	}	//	getMeasureCalc
 
-	public MRequestType getRequestType()
+	public X_R_RequestType getRequestType()
 	{
 		return m_rt;
 	}
 
-	public MProjectType getProjectType()
+	public X_C_ProjectType getProjectType()
 	{
 		return m_pt;
 	}
@@ -330,8 +331,7 @@ public class GraphColumn
 		}
 		else if (getProjectType() != null)	//	Document
 		{
-			MProjectType pt = getProjectType();
-			query = pt.getQuery(mGoal.getRestrictions(false),
+			query = ProjectTypeWrapper.newInstance(getProjectType()).getQuery(mGoal.getRestrictions(false),
 					getMeasureDisplay(), getDate(), getID(),
 					MRole.getDefault());	//	logged in role
 		}

@@ -27,6 +27,7 @@ import java.util.logging.Level;
 
 import org.compiere.model.I_AD_Column;
 import org.compiere.model.I_AD_Table;
+import org.compiere.model.I_C_ProjectIssue;
 import org.compiere.model.MAcctSchema;
 import org.compiere.model.MAllocationHdr;
 import org.compiere.model.MBankStatement;
@@ -42,7 +43,6 @@ import org.compiere.model.MMovement;
 import org.compiere.model.MOrder;
 import org.compiere.model.MPayment;
 import org.compiere.model.MPeriodControl;
-import org.compiere.model.MProjectIssue;
 import org.compiere.model.MRequisition;
 import org.compiere.model.MTable;
 import org.compiere.model.Query;
@@ -289,8 +289,8 @@ public class FactAcctReset extends FactAcctResetAbstract {
 
     public String getDateAcct(int tableId) {
         String docDateField = "DateAcct";
-        if (tableId == MProjectIssue.Table_ID)
-            docDateField = MProjectIssue.COLUMNNAME_MovementDate;
+        if (tableId == I_C_ProjectIssue.Table_ID)
+            docDateField = I_C_ProjectIssue.COLUMNNAME_MovementDate;
         else if (tableId == MBankStatement.Table_ID)
             docDateField = MBankStatement.COLUMNNAME_EftStatementDate;
         else if (tableId == MMovement.Table_ID)
@@ -330,7 +330,7 @@ public class FactAcctReset extends FactAcctResetAbstract {
         else if (tableId == MOrder.Table_ID)
             docBaseType = "IN ('" + MPeriodControl.DOCBASETYPE_SalesOrder
                     + "','" + MPeriodControl.DOCBASETYPE_PurchaseOrder + "')";
-        else if (tableId == MProjectIssue.Table_ID)
+        else if (tableId == I_C_ProjectIssue.Table_ID)
             docBaseType = "= '" + MPeriodControl.DOCBASETYPE_ProjectIssue + "'";
         else if (tableId == MBankStatement.Table_ID)
             docBaseType = "= '" + MPeriodControl.DOCBASETYPE_BankStatement + "'";

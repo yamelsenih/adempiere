@@ -40,13 +40,13 @@ import org.compiere.model.MDocType;
 import org.compiere.model.MLocator;
 import org.compiere.model.MMovement;
 import org.compiere.model.MPeriod;
-import org.compiere.model.MProject;
 import org.compiere.model.MRefList;
 import org.compiere.model.MStorage;
 import org.compiere.model.ModelValidationEngine;
 import org.compiere.model.ModelValidator;
 import org.compiere.model.PO;
 import org.compiere.model.Query;
+import org.compiere.model.X_C_Project;
 import org.compiere.print.ReportEngine;
 import org.compiere.process.DocAction;
 import org.compiere.process.DocumentEngine;
@@ -180,7 +180,7 @@ public class MDDOrder extends X_DD_Order implements DocAction
 	 *  @param IsSOTrx sales order
 	 * 	@param	DocSubTypeSO if SO DocType Target (default DocSubTypeSO_OnCredit)
 	 */
-	public MDDOrder (MProject project, boolean IsSOTrx, String DocSubTypeSO)
+	public MDDOrder (X_C_Project project, boolean IsSOTrx, String DocSubTypeSO)
 	{
 		this (project.getCtx(), 0, project.get_TrxName());
 		setAD_Client_ID(project.getAD_Client_ID());

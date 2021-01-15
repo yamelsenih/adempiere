@@ -22,6 +22,7 @@ package org.compiere.process;
 
 import org.adempiere.exceptions.AdempiereException;
 import org.compiere.model.I_AD_Column;
+import org.compiere.model.I_C_Project;
 import org.compiere.model.I_I_Budget;
 import org.compiere.model.MAccount;
 import org.compiere.model.MAcctSchema;
@@ -37,7 +38,6 @@ import org.compiere.model.MJournalLine;
 import org.compiere.model.MOrg;
 import org.compiere.model.MPeriod;
 import org.compiere.model.MProduct;
-import org.compiere.model.MProject;
 import org.compiere.model.MSalesRegion;
 import org.compiere.model.MTable;
 import org.compiere.model.Query;
@@ -254,7 +254,7 @@ public class ImportBudget extends ImportBudgetAbstract {
         if (importBudget.getC_Project_ID() > 0)
             projectId = importBudget.getC_Project_ID();
         if (projectId <= 0 && importBudget.getProjectValue() != null)
-            projectId = getId(MProject.Table_Name, MProject.COLUMNNAME_Value + "=?", trxName, importBudget.getProjectValue());
+            projectId = getId(I_C_Project.Table_Name, I_C_Project.COLUMNNAME_Value + "=?", trxName, importBudget.getProjectValue());
         if (projectId > 0 && importBudget.getC_Project_ID() <= 0)
             importBudget.setC_Project_ID(projectId);
         if (importBudget.getC_Project_ID() <= 0 && importBudget.getProjectValue() != null)

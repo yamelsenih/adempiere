@@ -61,7 +61,7 @@ public class MUserMail extends X_AD_UserMail
 	 *	@param AD_User_ID recipient user
 	 *	@param mail email
 	 */
-	public MUserMail (MMailText parent, int AD_User_ID, EMail mail)
+	public MUserMail (X_R_MailText parent, int AD_User_ID, EMail mail)
 	{
 		this (parent.getCtx(), 0, parent.get_TrxName());
 		setClientOrg(parent);

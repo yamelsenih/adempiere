@@ -23,6 +23,7 @@ import java.util.Properties;
 
 import org.compiere.util.DB;
 import org.compiere.util.Msg;
+import org.compiere.util.ProjectWrapper;
 
 /**
  * 	Recurring Model
@@ -114,7 +115,7 @@ public class MRecurring extends X_C_Recurring
 		}
 		else if (getRecurringType().equals(MRecurring.RECURRINGTYPE_Project))
 		{
-			MProject project = MProject.copyFrom (getCtx(), getC_Project_ID(), dateDoc, get_TrxName());
+			X_C_Project project = ProjectWrapper.copyFrom (getCtx(), getC_Project_ID(), dateDoc, get_TrxName());
 			run.setC_Project_ID(project.getC_Project_ID());
 			msg += project.getValue();
 		}

@@ -20,12 +20,13 @@ import java.util.List;
 
 import org.compiere.model.MClient;
 import org.compiere.model.MClientInfo;
-import org.compiere.model.MMailText;
 import org.compiere.model.MUser;
 import org.compiere.model.MUserMail;
+import org.compiere.model.X_R_MailText;
 import org.compiere.util.AdempiereUserError;
 import org.compiere.util.EMail;
 import org.compiere.util.Env;
+import org.compiere.util.MailTextWrapper;
 import org.compiere.util.Util;
 import org.spin.model.MADTokenDefinition;
 
@@ -81,7 +82,7 @@ public class GeneratePassword  {
 			throw new AdempiereUserError ("@RestorePassword_MailText_ID@ @NotFound@");
 		}
 		//	Set from mail template
-		MMailText text = new MMailText (Env.getCtx(), mailTextId, null);
+		MailTextWrapper text = MailTextWrapper.newInstance(new X_R_MailText(Env.getCtx(), mailTextId, null));
 		text.setPO(TokenGeneratorHandler.getInstance().getToken(MADTokenDefinition.TOKENTYPE_URLTokenUsedAsURL));
 		text.setUser(user);
 		//	
@@ -98,7 +99,7 @@ public class GeneratePassword  {
 		email.setMessageHTML(text.getMailHeader(), message);
 		//
 		msg = email.send();
-		MUserMail um = new MUserMail(text, user.getAD_User_ID(), email);
+		MUserMail um = new MUserMail(text.getMailTextObject(), user.getAD_User_ID(), email);
 		um.saveEx();
 		if (!msg.equals(EMail.SENT_OK)) {
 			throw new AdempiereUserError (

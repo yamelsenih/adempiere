@@ -39,6 +39,7 @@ import javax.print.event.PrintServiceAttributeEvent;
 import javax.print.event.PrintServiceAttributeListener;
 
 import org.adempiere.pdf.ITextDocument;
+import org.compiere.model.I_C_Project;
 import org.compiere.model.MClient;
 import org.compiere.model.MDunningRunEntry;
 import org.compiere.model.MInOut;
@@ -46,7 +47,6 @@ import org.compiere.model.MInvoice;
 import org.compiere.model.MMovement;
 import org.compiere.model.MOrder;
 import org.compiere.model.MPaySelectionCheck;
-import org.compiere.model.MProject;
 import org.compiere.model.MQuery;
 import org.compiere.model.MRfQResponse;
 import org.compiere.model.MTable;
@@ -947,7 +947,7 @@ queued-job-count = 0  (class javax.print.attribute.standard.QueuedJobCount)
 		"C_PaySelectionCheck_ID", "C_PaySelectionCheck_ID", 
 		"C_DunningRunEntry_ID" , "PP_Order_ID" , "DD_Order_ID" , "HR_PaySelectionCheck_ID", "HR_PaySelectionCheck_ID" , "M_Movement_ID"};
 	private static final int[]	DOC_TABLE_ID = new int[] {
-		MOrder.Table_ID, MInOut.Table_ID, MInvoice.Table_ID, MProject.Table_ID,
+		MOrder.Table_ID, MInOut.Table_ID, MInvoice.Table_ID, I_C_Project.Table_ID,
 		MRfQResponse.Table_ID,
 		MPaySelectionCheck.Table_ID, MPaySelectionCheck.Table_ID, 
 		MDunningRunEntry.Table_ID, X_PP_Order.Table_ID, MDDOrder.Table_ID , X_HR_PaySelectionCheck.Table_ID ,  X_HR_PaySelectionCheck.Table_ID , MMovement.Table_ID};

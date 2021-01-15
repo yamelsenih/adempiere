@@ -24,12 +24,12 @@ import java.util.logging.Level;
 
 import org.compiere.model.MClient;
 import org.compiere.model.MInvoice;
-import org.compiere.model.MMailText;
 import org.compiere.model.MQuery;
 import org.compiere.model.MUser;
 import org.compiere.model.MUserMail;
 import org.compiere.model.PrintInfo;
 import org.compiere.model.X_C_Invoice;
+import org.compiere.model.X_R_MailText;
 import org.compiere.print.MPrintFormat;
 import org.compiere.print.ReportEngine;
 import org.compiere.print.ServerReportCtl;
@@ -39,6 +39,7 @@ import org.compiere.util.EMail;
 import org.compiere.util.Env;
 import org.compiere.util.Ini;
 import org.compiere.util.Language;
+import org.compiere.util.MailTextWrapper;
 
 /**
  *	Print Invoices on Paper or send PDFs
@@ -114,11 +115,11 @@ public class InvoicePrint extends SvrProcess
 			+ ", DateInvoiced=" + m_dateInvoiced_From + "-" + m_dateInvoiced_To
 			+ ", DocumentNo=" + m_DocumentNo_From + "-" + m_DocumentNo_To);
 		
-		MMailText mText = null;
+		MailTextWrapper mText = null;
 		if (p_R_MailText_ID != 0)
 		{
-			mText = new MMailText(getCtx(), p_R_MailText_ID, get_TrxName());
-			if (mText.get_ID() != p_R_MailText_ID)
+			mText = MailTextWrapper.newInstance(new X_R_MailText(getCtx(), p_R_MailText_ID, get_TrxName()));
+			if (mText.getId() != p_R_MailText_ID)
 				throw new AdempiereUserError ("@NotFound@: @R_MailText_ID@ - " + p_R_MailText_ID);
 		}
 
@@ -318,7 +319,7 @@ public class InvoicePrint extends SvrProcess
 					email.addAttachment(attachment);
 					//
 					String msg = email.send();
-					MUserMail um = new MUserMail(mText, getAD_User_ID(), email);
+					MUserMail um = new MUserMail(mText.getMailTextObject(), getAD_User_ID(), email);
 					um.saveEx();
 					if (msg.equals(EMail.SENT_OK))
 					{
@@ -352,7 +353,7 @@ public class InvoicePrint extends SvrProcess
 					StringBuffer sb = new StringBuffer ("UPDATE C_Invoice "
 						+ "SET DatePrinted=SysDate, IsPrinted='Y' WHERE C_Invoice_ID=")
 						.append (C_Invoice_ID);
-					int no = DB.executeUpdate(sb.toString(), get_TrxName());
+					DB.executeUpdate(sb.toString(), get_TrxName());
 				}
 			}	//	for all entries						
 		}

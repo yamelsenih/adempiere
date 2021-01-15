@@ -38,10 +38,8 @@ import org.compiere.model.MLocator;
 import org.compiere.model.MOrder;
 import org.compiere.model.MOrderLine;
 import org.compiere.model.MProduct;
-import org.compiere.model.MProject;
 import org.compiere.model.MResource;
 import org.compiere.model.MStorage;
-import org.compiere.model.MTable;
 import org.compiere.model.MUOM;
 import org.compiere.model.MWarehouse;
 import org.compiere.model.ModelValidationEngine;
@@ -49,6 +47,7 @@ import org.compiere.model.ModelValidator;
 import org.compiere.model.PO;
 import org.compiere.model.POResultSet;
 import org.compiere.model.Query;
+import org.compiere.model.X_C_Project;
 import org.compiere.print.ReportEngine;
 import org.compiere.process.DocAction;
 import org.compiere.process.DocumentEngine;
@@ -282,7 +281,7 @@ public class MPPOrder extends X_PP_Order implements DocAction
 	 * @param productBOMId
 	 * @param workflowId
 	 */
-	public MPPOrder(MProject project, Integer productBOMId, Integer workflowId)
+	public MPPOrder(X_C_Project project, Integer productBOMId, Integer workflowId)
 	{
 		this(project.getCtx(), 0, project.get_TrxName());
 		setAD_Client_ID(project.getAD_Client_ID());

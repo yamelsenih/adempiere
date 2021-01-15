@@ -24,12 +24,13 @@ import java.util.logging.Level;
 
 import org.compiere.model.MClient;
 import org.compiere.model.MInterestArea;
-import org.compiere.model.MMailText;
 import org.compiere.model.MStore;
 import org.compiere.model.MUser;
 import org.compiere.model.MUserMail;
+import org.compiere.model.X_R_MailText;
 import org.compiere.util.DB;
 import org.compiere.util.EMail;
+import org.compiere.util.MailTextWrapper;
 import org.compiere.util.Msg;
 
 /**
@@ -43,7 +44,7 @@ public class SendMailText extends SvrProcess
 	/** What to send			*/
 	private int				m_R_MailText_ID = -1;
 	/**	Mail Text				*/
-	private MMailText		m_MailText = null;
+	private MailTextWrapper m_MailText = null;
 
 	/**	From (sender)			*/
 	private int				m_AD_User_ID = -1;
@@ -100,9 +101,7 @@ public class SendMailText extends SvrProcess
 	{
 		log.info("R_MailText_ID=" + m_R_MailText_ID);
 		//	Mail Test
-		m_MailText = new MMailText (getCtx(), m_R_MailText_ID, get_TrxName());
-		if (m_MailText.getR_MailText_ID() == 0)
-			throw new Exception ("Not found @R_MailText_ID@=" + m_R_MailText_ID);
+		m_MailText = MailTextWrapper.newInstance(new X_R_MailText(getCtx(), m_R_MailText_ID, get_TrxName()));
 		//	Client Info
 		m_client = MClient.get (getCtx());
 		if (m_client.getAD_Client_ID() == 0)
@@ -301,7 +300,7 @@ public class SendMailText extends SvrProcess
 			return Boolean.FALSE;
 		}
 		boolean OK = EMail.SENT_OK.equals(email.send());
-		new MUserMail(m_MailText, AD_User_ID, email).saveEx();
+		new MUserMail(m_MailText.getMailTextObject(), AD_User_ID, email).saveEx();
 		//
 		if (OK)
 			log.fine(to.getEMail());

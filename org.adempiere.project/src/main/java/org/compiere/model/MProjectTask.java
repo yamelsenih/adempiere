@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Properties;
 
 import org.compiere.util.Env;
+import org.compiere.util.ProjectTaskWrapper;
 import org.compiere.util.TimeUtil;
 
 /**
@@ -90,45 +91,7 @@ public class MProjectTask extends X_C_ProjectTask
 	{
 		this (phase);
 		//
-		setC_Task_ID (task.getC_Task_ID());			//	FK
-		setSeqNo (task.getSeqNo());
-		setName (task.getName());
-		setDescription(task.getDescription());
-		setHelp(task.getHelp());
-		if (task.getM_Product_ID() > 0)
-			setM_Product_ID(task.getM_Product_ID());
-		if (task.getPP_Product_BOM_ID() > 0 )
-			setPP_Product_BOM_ID(task.getPP_Product_BOM_ID());
-		if (task.getAD_Workflow_ID() > 0)
-			setAD_Workflow_ID(task.getAD_Workflow_ID());
-		if (phase.getC_Campaign_ID() > 0)
-			setC_Campaign_ID(phase.getC_Campaign_ID());
-		if (phase.getC_Activity_ID() > 0)
-			setC_Activity_ID(phase.getC_Activity_ID());
-		if (phase.getC_SalesRegion_ID() > 0)
-			setC_SalesRegion_ID(phase.getC_SalesRegion_ID());
-		if (phase.getAD_OrgTrx_ID() > 0)
-			setAD_OrgTrx_ID(phase.getAD_OrgTrx_ID());
-		if (phase.getUser1_ID() > 0)
-			setUser1_ID(phase.getUser1_ID());
-		if (phase.getUser2_ID() > 0)
-			setUser2_ID(phase.getUser2_ID());
-		if (phase.getUser3_ID() > 0)
-			setUser3_ID(phase.getUser3_ID());
-		if (phase.getUser4_ID() > 0)
-			setUser4_ID(phase.getUser4_ID());
-
-
-		setPriorityRule(task.getPriorityRule());
-		setIsMilestone(task.isMilestone());
-		setIsIndefinite(task.isIndefinite());
-		setIsRecurrent(task.isRecurrent());
-		setFrequencyType(task.getFrequencyType());
-		setFrequency(task.getFrequency());
-		setRunsMax(task.getRunsMax());
-		setDurationUnit(task.getDurationUnit());
-		setDurationEstimated(task.getDurationEstimated());
-		setQty(task.getStandardQty());
+		ProjectTaskWrapper.newInstance(this).setTaskFromPhase(phase, task);
 	}	//	MProjectTask
 
 	/**
