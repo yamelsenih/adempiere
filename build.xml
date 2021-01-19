@@ -12,4 +12,8 @@
     <echo message="Building ADempiere"/>
 	<ant antfile="${adempiere_build}" target="complete"/>
   </target>
+  <target name="cleanAnt">
+    <echo message="Building ADempiere"/>
+	<ant antfile="${adempiere_build}" target="clean"/>
+  </target>
 </project>

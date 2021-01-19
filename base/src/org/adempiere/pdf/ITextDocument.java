@@ -170,7 +170,7 @@ public class ITextDocument implements FileExtractor, FileAppender  {
 	}
 
 //	@Override
-//	public int getPriority() {
-//		return invoiceAppender.getPriority();
-//	}
+	public int getPriority() {
+		return 0;//invoiceAppender.getPriority();
+	}
 }

@@ -52,7 +52,8 @@ dependencies {
 			'itext-2.1.7.jar',
 			'jasperreports-6.6.0.jar',
 			'jasperreports-fonts-6.6.0.jar',
-			'jfreechart-1.0.13.jar'
+			'jfreechart-1.0.13.jar',
+			'javax.inject-1.jar'
 		]
 	)
 	//api '<library-group>:<library-name>:<library-version>'
@@ -315,11 +316,18 @@ task moveLibs(type: Copy) {
    into file("libs/")
 }
 
-//	Clean All with Ant
+//	Build All with Ant
 task buildWithAnt(dependsOn: buildAnt) {
    dependsOn moveLibs
    doLast {	
-        println 'Run finished, from Gradle'
+        println 'Build finished, from Gradle'
+   }
+}
+
+//	Clean All with Ant
+task cleanWithAnt(dependsOn: cleanAnt) {
+   doLast {	
+        println 'Clean finished, from Gradle'
    }
 }
 

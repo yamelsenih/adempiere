@@ -217,8 +217,8 @@ public class IText7Document implements FileAppender  {
 	}
 
 //	@Override
-//	public int getPriority() {
-//		return 0;
-//	}
+	public int getPriority() {
+		return 0;
+	}
 
 }
