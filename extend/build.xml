@@ -15,20 +15,24 @@
   <property name="build.dir" value="build"/>
   <property name="dist.dir" value="."/>
   <property name="jar.path" value="../lib"/>
+  <property name="jar.path.libs" value="../libs"/>
   <property name="jar.name" value="Extend"/>
 
   <!-- set path to include the necessary jar files for javac -->
   <path id="project.class.path">
     <pathelement path="${classpath}"/>
     <pathelement path="${jar.path}/CCTools.jar"/>
-	<pathelement path="${jar.path}/jboss.jar"/>
+	<!--  --><pathelement path="${jar.path}/jboss.jar"/>
     <pathelement path="../base/build"/>
     <pathelement path="../org.adempiere.asset/build"/>
     <pathelement path="../tools/lib/junit.jar"/>
     <pathelement path="../adempiere/Adempiere/lib/Adempiere.jar" />
-	<fileset dir="../tools/lib/testing/">
+	<!-- <fileset dir="../tools/lib/testing/">
 		<include name="*.jar"/>
-	</fileset> 
+	</fileset>  -->
+	<fileset dir="${jar.path.libs}">
+      	<include name="*.jar"/>
+    </fileset>
   </path>
 
   <target name="init" description="initialization target">

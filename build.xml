@@ -1,4 +1,4 @@
-<project name="Adempiere Build Travis" default="build" basedir=".">
+<project name="Adempiere Build Travis" default="buildAnt" basedir=".">
     <description>
         Building ADempiere
         by
@@ -8,7 +8,7 @@
   <!-- set global properties for this build -->
   <property name="adempiere_build" location="utils_dev/build.xml"/>
   
-  <target name="build">
+  <target name="buildAnt">
     <echo message="Building ADempiere"/>
 	<ant antfile="${adempiere_build}" target="complete"/>
   </target>

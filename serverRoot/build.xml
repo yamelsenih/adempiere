@@ -23,6 +23,7 @@
   <property name="build.deploy.dir" value="${build.dir}/deploy"/>
   <property name="build.classes.dir" value="${build.dir}/classes"/>
   <property name="build.war.dir" value="${build.dir}/war"/>
+  <property name="jar.path.libs" value="../libs"/>
 
   <target name="adempiereRootInit">
     <echo message="=========== Build Server Root"/>
@@ -32,7 +33,10 @@
   <path id="base.path">
     <pathelement location="../lib/Adempiere.jar" />
     <pathelement location="../lib/CSTools.jar" />
-    <pathelement location="../tools/lib/j2ee.jar" />
+    <fileset dir="${jar.path.libs}">
+      	<include name="*.jar"/>
+    </fileset>
+    <!-- <pathelement location="../tools/lib/j2ee.jar" />
 	<pathelement location="../tools/lib/jnlp.jar" />
 	<pathelement location="../tools/lib/servlet-api.jar" />
 	<pathelement location="../tools/lib/mail.jar" />
@@ -42,7 +46,7 @@
 	<pathelement location="../lib/oracle.jar" />
 	<pathelement location="../lib/jboss.jar" />
 	<pathelement location="../lib/postgresql.jar" />
-	<pathelement location="../tools/lib/mysql-connector-java-5.1.13-bin.jar" />
+	<pathelement location="../tools/lib/mysql-connector-java-5.1.13-bin.jar" /> -->
     <pathelement location="${build.classes.dir}" />
   </path>
 

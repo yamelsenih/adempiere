@@ -20,7 +20,9 @@
 	<property name="deploy.dir" value="${basedir}/deploy"/>
 	<property name="deploy.name" value="WebService"/>
 	<property name="WEBINF.dir" value="${basedir}/WEB-INF"/>
-    <property name="Adempiere.dir" value="${basedir}/../lib"></property>  <!-- To enable when integrated in trunk -->
+    <property name="Adempiere.dir" value="${basedir}/../lib"/>
+  	<property name="jar.path.libs" value="../libs"/>
+   	<!-- To enable when integrated in trunk -->
     <!-- Point to the directory where you have adempiere built -->
 	<!-- <property name="Adempiere.dir" value="${adempiere.trunk}/adempiere/Adempiere/lib"></property> -->  <!-- To delete when integrated in trunk -->
 
@@ -33,12 +35,15 @@
 		<pathelement location="${basedir}"/>
 	  	<pathelement location="${basedir}/WEB-INF/src"/>
 
-	    <fileset dir="${basedir}/WEB-INF/lib">
+	    <!-- <fileset dir="${basedir}/WEB-INF/lib">
 	    	<include name="*.jar"/>
-	    </fileset>
-                <pathelement location="${Adempiere.dir}/../base"/>
-                <pathelement location="${Adempiere.dir}/../client"/>
-                <pathelement location="${Adempiere.dir}/../JasperReports"/>
+	    </fileset> -->
+	    <fileset dir="${jar.path.libs}">
+      		<include name="*.jar"/>
+    	</fileset>
+        <pathelement location="${Adempiere.dir}/../base"/>
+        <pathelement location="${Adempiere.dir}/../client"/>
+        <pathelement location="${Adempiere.dir}/../JasperReports"/>
 	    <fileset dir="${Adempiere.dir}">
 	    	<include name="*.jar"/>
 	    </fileset>

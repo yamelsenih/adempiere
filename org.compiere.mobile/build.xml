@@ -14,8 +14,8 @@
 	<property name="classes.dir" value="${basedir}/WEB-INF/classes"/>
 	<property name="dist.dir" value="${basedir}/dist"/>
 	<property name="WEBINF.dir" value="${basedir}/WEB-INF"/>
-	<property name="Adempiere.dir" value="${basedir}/../lib"></property>
-
+	<property name="Adempiere.dir" value="${basedir}/../lib"/>
+  	<property name="jar.path.libs" value="../libs"/>
 	<property name="war.name"	value="mobile"/>
 	<property name="compile.debug"       value="true"/>
 	<property name="compile.deprecation" value="false"/>
@@ -32,11 +32,13 @@
 	    <fileset dir="${Adempiere.dir}">
 	    	<include name="*.jar"/>
 	    </fileset>
-
-	    <pathelement location="${Adempiere.dir}/../tools/lib/servlet-api.jar"/>
+		<fileset dir="${jar.path.libs}">
+      		<include name="*.jar"/>
+    	</fileset>
+	    <!-- <pathelement location="${Adempiere.dir}/../tools/lib/servlet-api.jar"/>
 	    <fileset dir="${basedir}/WEB-INF/lib">
 	    	<include name="*.jar"/>
-	    </fileset>
+	    </fileset> -->
 	</path>
 
 	<target name="clean" description="delete class directory">

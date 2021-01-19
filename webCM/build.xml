@@ -14,6 +14,7 @@
   <property name="src.servlet.dir" value="${src.main.dir}/servlet"/>
   <property name="src.web.dir" value="${src.dir}/web"/>
   <property name="src.etc.dir" value="${src.dir}/etc"/>
+  <property name="jar.path.libs" value="../libs"/>
 
   <property name="build.dir" value="${basedir}/build"/>
   <property name="build.war.dir" value="${build.dir}/war"/>
@@ -28,8 +29,10 @@
   <path id="base.path">
     <pathelement location="../lib/Adempiere.jar" />
     <pathelement location="../lib/CSTools.jar" />
-    <pathelement location="../tools/lib/javaee.jar" />
-
+    <!-- <pathelement location="../tools/lib/javaee.jar" /> -->
+	<fileset dir="${jar.path.libs}">
+      	<include name="*.jar"/>
+    </fileset>
     <pathelement location="${build.classes.dir}" />
   </path>
 

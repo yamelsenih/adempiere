@@ -12,13 +12,17 @@
   <property name="dist"  location="dist"/>
   <property name="zksrc" value="${basedir}/src/main/java/ui/zk"/>
   <property name="zkclasses" value="${basedir}/build/zkwebui/WEB-INF/classes"/>
+  <property name="jar.path.libs" value="../libs"/>
 
   <path id="lib.class.path">
-     <fileset dir="../lib">
+     <!-- <fileset dir="../lib">
         <include name="*.jar"/>
-     </fileset>
+     </fileset> -->
     <fileset dir="../packages">
        <include name="*.jar"/>
+    </fileset>
+    <fileset dir="${jar.path.libs}">
+      	<include name="*.jar"/>
     </fileset>
   </path>
   <path id="compile.classpath">
@@ -27,8 +31,11 @@
     <fileset dir="../lib">
         <include name="*.jar"/>
     </fileset>
-    <fileset dir="../zkwebui/WEB-INF/lib">
+    <!-- <fileset dir="../zkwebui/WEB-INF/lib">
         <include name="*.jar"/>
+    </fileset> -->
+    <fileset dir="${jar.path.libs}">
+      	<include name="*.jar"/>
     </fileset>
   </path>
 

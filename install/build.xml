@@ -24,6 +24,7 @@
 
   <property name="src" value="src"/>
   <property name="compile.dir" value="lib"/>
+  <property name="jar.path.libs" value="../libs"/>
 
   <property name="src.dir" value="${basedir}/Adempiere"/>
   <property name="build.dir" value="${basedir}/build"/>
@@ -32,11 +33,14 @@
 	<pathelement path="${classpath}"/>
 	<pathelement path="${lib.dir}/CCTools.jar"/>
 	<pathelement path="${lib.dir}/Adempiere.jar"/>
-	<pathelement path="${lib.dir}/oracle.jar"/>
+	<fileset dir="${jar.path.libs}">
+      <include name="*.jar"/>
+    </fileset>
+	<!-- <pathelement path="${lib.dir}/oracle.jar"/>
 	<pathelement path="${lib.dir}/postgresql.jar"/>
 	<pathelement path="../tools/lib/mysql-connector-java-5.1.13-bin.jar"/>
 	<pathelement path="../tools/lib/ant.jar"/>
-	<pathelement path="../tools/lib/ant-launcher.jar"/>
+	<pathelement path="../tools/lib/ant-launcher.jar"/> -->
   </path>
 
   <patternset id="manifest.exclude">
@@ -86,7 +90,7 @@
 	  duplicate="preserve">
 	  <fileset dir="${compile.dir}"/>
 	  <!-- Ant (with ftp) files -->
-	  <zipfileset src="../tools/lib/ant.jar" >
+	  <!-- <zipfileset src="../tools/lib/ant.jar" >
 		<patternset refid="manifest.exclude"/>
 	  </zipfileset>
 	  <zipfileset src="../tools/lib/ant-launcher.jar" >
@@ -97,7 +101,7 @@
 	  </zipfileset>
 	  <zipfileset src="../tools/lib/commons-net-1.4.0.jar" >
 		<patternset refid="manifest.exclude"/>
-	  </zipfileset>
+	  </zipfileset> -->
 			
 	  <manifest>
 		<attribute name="Specification-Title" value="CInstall"/>
@@ -278,7 +282,7 @@
 	<copy file="${launch.dir}/Release/Adempiere.exe" todir="${build.dir}/Adempiere/lib"/>
 	<copy file="CInstall.jar" todir="${build.dir}/Adempiere/lib"/>
 	<copy file="../sqlj/sqlj.jar" todir="${build.dir}/Adempiere/lib"/>
-	<copy file="../JasperReports/CompiereJasperReqs.jar" todir="${build.dir}/Adempiere/lib"/>
+	<!-- <copy file="../JasperReports/CompiereJasperReqs.jar" todir="${build.dir}/Adempiere/lib"/> -->
 	<concat destfile="${build.dir}/Adempiere/lib/index.html">AdempiereHome</concat>
 
 
@@ -334,9 +338,9 @@
 	  <fileset dir="${jboss.dir}/bin" excludes="**/CVS/**"/>
 	</copy>
 	<mkdir dir="${build.dir}/Adempiere/jboss/lib"/>
-	<copy todir="${build.dir}/Adempiere/jboss/lib">
+	<!-- <copy todir="${build.dir}/Adempiere/jboss/lib">
 	  <fileset dir="${jboss.dir}/lib" excludes="**/CVS/**"/>
-	</copy>
+	</copy> -->
 	<mkdir dir="${build.dir}/Adempiere/jboss/server"/>
 	<copy todir="${build.dir}/Adempiere/jboss/server">
 	  <fileset dir="${jboss.dir}/server"

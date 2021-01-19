@@ -11,15 +11,19 @@
   <property name="build" location="build"/>
   <property name="dist"  location="dist"/>
   <property name="base" location="../base/src"/>
+  <property name="jar.path.libs" value="../libs"/>
   <property name="FinanceManagement" location="../org.spin.Finance_management/src"/>
    <property name="controller" location="${basedir}/src/main/java/ui/swing"/>
   <property name="zksrc" value="${basedir}/src/main/java/ui/zk"/>
   <property name="zkclasses" value="${basedir}/build/zkwebui/WEB-INF/classes"/>
 
   <path id="lib.class.path">
-     <fileset dir="../lib">
+    <fileset dir="${jar.path.libs}">
+      	<include name="*.jar"/>
+    </fileset>
+     <!-- <fileset dir="../lib">
         <include name="*.jar"/>
-     </fileset>
+     </fileset> -->
     <fileset dir="../packages">
        <include name="*.jar"/>
     </fileset>
@@ -27,15 +31,18 @@
   <path id="compile.classpath">
     <pathelement location="${basedir}/build"/>
     <pathelement location="../zkwebui/WEB-INF/classes"/>
-    <fileset dir="../lib">
+    <!-- <fileset dir="../lib">
         <include name="*.jar"/>
+    </fileset> -->
+    <fileset dir="${jar.path.libs}">
+      	<include name="*.jar"/>
     </fileset>
     <fileset dir="../packages">
         <include name="*.jar"/>
     </fileset>
-    <fileset dir="../zkwebui/WEB-INF/lib">
+    <!-- <fileset dir="../zkwebui/WEB-INF/lib">
         <include name="*.jar"/>
-    </fileset>
+    </fileset> -->
   </path>
 
   <target name="init" depends="clean">

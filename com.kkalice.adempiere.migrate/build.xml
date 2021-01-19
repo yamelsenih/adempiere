@@ -31,6 +31,7 @@
 	<property name="build.dir" value="build" />
 	<property name="jar.dir" value="lib" />
 	<property name="jar.name" value="migrate" />
+  	<property name="jar.path.libs" value="../libs"/>
 	<path id="project.class.path">
 		<pathelement path="${classpath}" />
 	</path>

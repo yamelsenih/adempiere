@@ -15,6 +15,7 @@
 
   <property name="build.dir" value="${basedir}/build"/>
   <property name="build.deploy.dir" value="${build.dir}/deploy"/>
+  <property name="jar.path.libs" value="../libs"/>
 
   <target name="init">
     <echo message="=========== Build Web Store"/>

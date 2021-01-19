@@ -169,8 +169,8 @@ public class ITextDocument implements FileExtractor, FileAppender  {
 		invoiceAppender.append(param);
 	}
 
-	@Override
-	public int getPriority() {
-		return invoiceAppender.getPriority();
-	}
+//	@Override
+//	public int getPriority() {
+//		return invoiceAppender.getPriority();
+//	}
 }

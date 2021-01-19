@@ -19,6 +19,7 @@
   <property name="swing_view" value="${basedir}/src/main/java/ui/swing"/>
   <property name="zk_view" value="${basedir}/src/main/java/ui/zk"/>
   <property name="patches" value="${basedir}/patches"/>
+  <property name="jar.path.libs" value="../libs"/>
 
   <path id="compile.classpath">
       
@@ -28,16 +29,19 @@
     
     <pathelement location="../zkwebui/WEB-INF/classes"/>
    
-    <fileset dir="../lib">
+    <!-- <fileset dir="../lib">
       <include name="*.jar"/>
     </fileset>
     
     <fileset dir="../zkwebui/WEB-INF/lib">
       <include name="*.jar"/>
-    </fileset>
+    </fileset> -->
     
     <fileset dir="../zkwebui/dist">
       <include name="*.war"/>
+    </fileset>
+    <fileset dir="${jar.path.libs}">
+      	<include name="*.jar"/>
     </fileset>
   </path>
 
@@ -55,16 +59,19 @@
       <include name="*.jar"/>
     </fileset>
     
-    <fileset dir="../lib">
+    <!-- <fileset dir="../lib">
       <include name="*.jar"/>
     </fileset>
     
     <fileset dir="../zkwebui/WEB-INF/lib">
       <include name="*.jar"/>
-    </fileset>
+    </fileset> -->
 
     <fileset dir="../zkwebui/dist">
       <include name="*.war"/>
+    </fileset>
+    <fileset dir="${jar.path.libs}">
+      	<include name="*.jar"/>
     </fileset>
   </path>
   <!-- Compile ZK Directory --> 

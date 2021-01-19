@@ -12,6 +12,7 @@
   <property name="dist"  location="dist"/>
   <property name="zksrc" value="${basedir}/src/main/java/ui/zk"/>
   <property name="zkclasses" value="${build}/WEB-INF/classes"/>
+  <property name="jar.path.libs" value="../libs"/>
 
   <path id="lib.class.path">
      <fileset dir="${adempiere.trunk}/lib">
@@ -20,6 +21,9 @@
   	 <fileset dir="${adempiere.trunk}/packages">
   	           <include name="*.jar"/>
   	 </fileset>
+  	<fileset dir="${jar.path.libs}">
+      	<include name="*.jar"/>
+    </fileset>
   </path>
 	
  <path id="compile.classpath">

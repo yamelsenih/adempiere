@@ -14,6 +14,7 @@
   <property name="dist"  location="${basedir}/dist"/>
   <property name="zksrc" value="${basedir}/src/main/java/ui/zk"/>
   <property name="zkclasses" value="${basedir}/build/zkwebui/WEB-INF/classes"/>
+  <property name="jar.path.libs" value="../libs"/>
 
   <path id="compile.classpath">
     <pathelement location="${basedir}/build"/>
@@ -21,9 +22,12 @@
     <fileset dir="${adempiere.trunk}/lib">
       <include name="*.jar"/>
     </fileset>
-  	 <fileset dir="${adempiere.trunk}/tools/lib">
+    <fileset dir="${jar.path.libs}">
+      	<include name="*.jar"/>
+    </fileset>
+  	<!--  <fileset dir="${adempiere.trunk}/tools/lib">
   	      <include name="OpenForecast-0.5.0.jar"/>
-  	 </fileset>
+  	 </fileset> -->
     <fileset dir="${adempiere.trunk}/zkwebui/WEB-INF/lib">
       <include name="*.jar"/>
     </fileset>

@@ -11,10 +11,14 @@
   <property name="src" location="src/main/java/base"/>
   <property name="build" location="build"/>
   <property name="dist"  location="dist"/>
+  <property name="jar.path.libs" value="../libs"/>
 
   <path id="lib.class.path">
      <fileset dir="${adempiere.source}/lib">
         <include name="*.jar"/>
+     </fileset>
+     <fileset dir="${jar.path.libs}">
+      	<include name="*.jar"/>
      </fileset>
       <pathelement path="${adempiere.source}/base/Base.jar"/>
       <fileset dir="${adempiere.source}/packages">
