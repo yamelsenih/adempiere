@@ -6,9 +6,9 @@ name: CI
 on:
   # Triggers the workflow on push or pull request events but only for the develop branch
   push:
-    branches: [ feature/#GH-Add-Actions ]
+    branches: [ "feature/#GH-Add-Actions" ]
   pull_request:
-    branches: [ feature/#GH-Add-Actions ]
+    branches: [ "feature/#GH-Add-Actions" ]
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -24,13 +24,23 @@ jobs:
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
-
-      # Runs a single command using the runners shell
-      - name: Run a one-line script
-        run: echo Hello, world!
-
-      # Runs a set of commands using the runners shell
-      - name: Run a multi-line script
+      # Build ADempiere with ant
+      - name: Build Adempiere ...
         run: |
-          echo Add other actions to build,
-          echo test, and deploy your project.
+           echo $GITHUB_REF
+           echo $GITHUB_HEAD_REF
+           echo $GITHUB_BASE_REF
+           echo ${{ github.ref }}
+           cd utils_dev
+           ant complete
+
+      # Create Artifact for Download
+      - name: create-artifact
+        uses: actions/upload-artifact@v2
+        with:
+          path: |
+            install/build/*.zip
+            install/build/*.zip.MD5
+            !install/build/Adempiere
+            install/build/*.tar.gz
+            install/build/*.tar.gz.MD5
