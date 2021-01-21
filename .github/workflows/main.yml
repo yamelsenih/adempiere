@@ -1,6 +1,6 @@
 # This is a basic workflow to help you get started with Actions
 
-name: ADempiere-CI
+name: ADempiere Build
 
 # Controls when the action will run. 
 on:
@@ -33,19 +33,3 @@ jobs:
            echo ${{ github.ref }}
            cd utils_dev
            ant complete
-      # Create ZIP Artifact for Download
-      - name: adempiere-zip-artifact
-        uses: actions/upload-artifact@v2
-        with:
-          name: Adempiere.zip
-          path: |
-            install/build/*.zip
-            install/build/*.zip.MD5
-      # Create TAR Artifact for Download
-      - name: adempiere-tar-artifact
-        uses: actions/upload-artifact@v2
-        with:
-          name: Adempiere.tar
-          path: |
-            install/build/*.tar.gz
-            install/build/*.tar.gz.MD5
