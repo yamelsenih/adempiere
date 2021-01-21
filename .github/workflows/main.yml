@@ -34,26 +34,12 @@ jobs:
            cd utils_dev
            ant complete
       # Create ZIP Artifact for Download
-      - name: adempiere-zip
+      - name: adempiere-artifact
         uses: actions/upload-artifact@v2
         with:
-          name: Adempiere_393LTS.zip
-          path: install/build/Adempiere_393LTS.zip
-      # Create ZIP MD5 Artifact for Download
-      - name: adempiere-zip-md5
-        uses: actions/upload-artifact@v2
-        with:
-          name: Adempiere_393LTS.zip.MD5
-          path: install/build/Adempiere_393LTS.zip.MD5
-      # Create TAR Artifact for Download
-      - name: adempiere-tar-gz
-        uses: actions/upload-artifact@v2
-        with:
-          name: Adempiere_393LTS.tar.gz
-          path: install/build/Adempiere_393LTS.tar.gz
-      # Create TAR MD5 Artifact for Download
-      - name: adempiere-tar-gz-md5
-        uses: actions/upload-artifact@v2
-        with:
-          name: Adempiere_393LTS.tar.gz.MD5
-          path: install/build/Adempiere_393LTS.tar.gz.MD5
+          name: Adempiere.zip
+          path: |
+            install/build/*.tar.gz
+            install/build/*.tar.gz.MD5
+            install/build/*.zip
+            install/build/*.zip.MD5
