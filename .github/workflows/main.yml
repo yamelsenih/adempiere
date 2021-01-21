@@ -6,11 +6,9 @@ name: ADempiere Build
 on:
   # Triggers the workflow on push or pull request events but only for the develop branch
   push:
-    branches:
-    - '!feature/#GH-Add-Actions'
+   branches: [ "master", "develop", "bugfix/*", "feature/*" ]
   pull_request:
-    branches:
-    - '!feature/#GH-Add-Actions'
+    branches: [ "master", "develop", "bugfix/*", "feature/*" ]
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
