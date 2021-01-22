@@ -32,6 +32,6 @@ jobs:
       - name: Upload the artifacts
         uses: skx/github-action-publish-binaries@master
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.TOKEN_ACCESS }}
         with:
           args: 'install/build/*.zip'
