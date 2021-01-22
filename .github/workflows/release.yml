@@ -29,17 +29,9 @@ jobs:
            cd utils_dev
            ant complete
          # Create Artifact for Download
-      - name: create-zip-artifact
-        uses: actions/upload-artifact@v2
+      - name: Upload the artifacts
+        uses: skx/github-action-publish-binaries@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          name: ADempiere_Zip
-          path: |
-            install/build/*.zip
-            install/build/*.zip.MD5
-      - name: create-tar-artifact
-        uses: actions/upload-artifact@v2
-        with:
-          name: ADempiere_Tar
-          path: |
-            install/build/*.tar.gz
-            install/build/*.tar.gz.MD5
+          args: 'install/build/*'
